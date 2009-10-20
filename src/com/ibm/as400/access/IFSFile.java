@@ -60,7 +60,7 @@ import java.util.StringTokenizer;            //@D4A
   * following {@link FileListener FileListener} methods: {@link FileListener#fileDeleted fileDeleted()} and {@link FileListener#fileModified fileModified()}.
   * <p>
   * The following example demonstrates the use of IFSFile:
-  * <UL>
+  *
   * <pre>
   * // Work with /Dir/File.txt on the system myAS400.
   * AS400 as400 = new AS400("myAS400");
@@ -85,7 +85,6 @@ import java.util.StringTokenizer;            //@D4A
   *   System.out.println("Unable to delete file.");
   * }
   * </pre>
-  * </UL>
   *
   * <P>Note: Because of a host server restriction, you cannot use this class to
   * access files in <tt>QTEMP.LIB</tt>.
@@ -408,7 +407,7 @@ public class IFSFile
  * The <tt>directory</tt> argument cannot be null.  The constructed
  * IFSFile instance uses the following settings taken from
  * <tt>directory</tt>:
- * <ul compact>
+ * <ul>
  * <li>system
  * <li>path
  * </ul>
@@ -2928,7 +2927,7 @@ public class IFSFile
                      fixed attributes of the file.  The attributes are a bit map as
                      follows
                      <UL>
-                     <LI>0x0001: on = file is a readonly file
+                     <li>0x0001: on = file is a readonly file
                      <li>0x0002: on = file is a hidden file
                      <li>0x0004: on = file is a system file
                      <li>0x0010: on = file is a directory

@@ -66,7 +66,6 @@ import java.net.UnknownHostException;
   affect other categories.  Once appropriate category traces
   are enabled, trace must be turned on to get trace data.  For example,
 
-  <UL>
   <pre>
       // By default, trace is disabled for all categories and
       // tracing is off.
@@ -92,7 +91,6 @@ import java.net.UnknownHostException;
                                             // trace is still on, the other
                                             // categories will still be logged
   </pre>
-  </UL>
 
   The traces are logged to standard out by default.  A file name can
   be provided to log to a file.  File logging is only possible in an
@@ -113,7 +111,7 @@ import java.net.UnknownHostException;
   data for only Function456, and standard output which records all trace
   data.  In the example a Java String object is used to indicate the
   component, but any object can be used.
-  <UL>
+
   <PRE>
       // tracing is off by default
       ..
@@ -136,7 +134,6 @@ import java.net.UnknownHostException;
       ..
       Trace.setTraceOn(false);               // Turn tracing off.
   </PRE>
-  </UL>
 
   <P>
   Component tracing provides an easy way to write application specific
@@ -144,7 +141,6 @@ import java.net.UnknownHostException;
   Toolbox classes can use trace to log messages.  With component tracing,
   application data can be easily separated from other data.  For example,
 
-  <UL>
   <pre>
       String myComponent = "com.myCompany";      // More efficient to create an object
                                                  // than many String literals.
@@ -163,13 +159,11 @@ import java.net.UnknownHostException;
       Trace.log(myComponent, Trace.INFORMATION, "my trace data");
 
   </pre>
-  </UL>
 
 
   <P>
   Two techniques can be used to log information:
 
-  <UL>
   <pre>
       ..
       // Let the Trace method determine if logging should occur
@@ -182,7 +176,6 @@ import java.net.UnknownHostException;
             Trace.log(Trace.INFORMATION, "I got here...");
       }
   </pre>
-  </UL>
 
   <P>
   It is suggested that programs provide some mechanism to enable tracing at run-time, so

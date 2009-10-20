@@ -303,7 +303,7 @@ public class PTFGroup
      * <LI>{@link #PTF_GROUP_STATUS_APPLY_AT_NEXT_IPL PTF_GROUP_STATUS_APPLY_AT_NEXT_IPL}
      * <LI>{@link #PTF_GROUP_STATUS_RELATED_GROUP PTF_GROUP_STATUS_RELATED_GROUP}
      * <LI>{@link #PTF_GROUP_STATUS_ON_ORDER PTF_GROUP_STATUS_ON_ORDER}
-     * <UL>
+     * </UL>
     **/
     public int getPTFGroupStatus()
     throws AS400Exception,

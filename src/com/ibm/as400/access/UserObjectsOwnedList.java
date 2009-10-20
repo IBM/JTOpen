@@ -29,7 +29,6 @@ The list does not include objects the user is solely authorized to because:
  <li>The user can access the object using adopted authority
 </ul>
 <p>Example code:
-<ul> 
 <pre>
       AS400 system = new AS400("sysname", "userid", "password");
       
@@ -48,7 +47,6 @@ The list does not include objects the user is solely authorized to because:
         System.out.println("Entry["+i+"/"+entries1.length+"]= "+entries1[i]);
       }      
 </pre>
-</ul> 
 
  @see  com.ibm.as400.access.User#getObjectsOwned
 **/

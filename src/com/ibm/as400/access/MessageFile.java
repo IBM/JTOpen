@@ -28,9 +28,9 @@ import java.io.Serializable;
  <li>No formatting - the help text is returned as a string of characters.  This is the default.
  <li>Include formatting characters - the help text contains formatting characters.  The formatting characters are:
  <ul>
- <br>&N -- Force a new line.
- <br>&P -- Force a new line and indent the new line six characters.
- <br>&B -- Force a new line and indent the new line four characters.
+ <li>&N -- Force a new line.
+ <li>&P -- Force a new line and indent the new line six characters.
+ <li>&B -- Force a new line and indent the new line four characters.
  </ul>
  <li>Substitute formatting characters - the MessageFile class replaces system formatting characters with newline and space characters.
  </ol>
@@ -236,9 +236,9 @@ public class MessageFile implements Serializable
     /**
      Substitutes formatting characters with appropriate new line and indent characters.  The formatting characters are:
      <ul>
-     <br>&N -- Force a new line.
-     <br>&P -- Force a new line and indent the new line six characters.
-     <br>&B -- Force a new line and indent the new line four characters.
+     <li>&N -- Force a new line.
+     <li>&P -- Force a new line and indent the new line six characters.
+     <li>&B -- Force a new line and indent the new line four characters.
      </ul>
      @param  sourceText  The source text.
      @return  The formatted text.
@@ -271,9 +271,9 @@ public class MessageFile implements Serializable
      <li>NO_FORMATTING - The help text is returned as a string of characters.  This is the default.
      <li>RETURN_FORMATTING_CHARACTERS - The help text contains formatting characters.  The formatting characters are:
      <ul>
-     <br>&N -- Force a new line.
-     <br>&P -- Force a new line and indent the new line six characters.
-     <br>&B -- Force a new line and indent the new line four characters.
+     <li>&N -- Force a new line.
+     <li>&P -- Force a new line and indent the new line six characters.
+     <li>&B -- Force a new line and indent the new line four characters.
      </ul>
      <li>SUBSTITUTE_FORMATTING_CHARACTERS - The MessageFile class replaces formatting characters with newline and space characters.
      </ul>
@@ -680,9 +680,9 @@ public class MessageFile implements Serializable
      <li>NO_FORMATTING - the help text is returned as a string of characters.  This is the default.
      <li>RETURN_FORMATTING_CHARACTERS - the help text contains formatting characters.  The formatting characters are:
      <ul>
-     <br>&N -- Force a new line.
-     <br>&P -- Force a new line and indent the new line six characters.
-     <br>&B -- Force a new line and indent the new line four characters.
+     <li>&N -- Force a new line.
+     <li>&P -- Force a new line and indent the new line six characters.
+     <li>&B -- Force a new line and indent the new line four characters.
      </ul>
      <li>SUBSTITUTE_FORMATTING_CHARACTERS - the MessageFile class replaces formatting characters with new line and space characters.
      </ul>

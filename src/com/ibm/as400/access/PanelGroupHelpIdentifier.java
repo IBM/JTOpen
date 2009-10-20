@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The PanelGroupHelpIdentifier class represents information about
+ * Represents information about
  * a specific help identifier for an OS/400 panel group (*PNLGRP) object.
  * Use {@link com.ibm.as400.access.PanelGroup#getHelpIdentifiers PanelGroup.getHelpIdentifiers()}
  * to create an instance of this class.
@@ -24,8 +24,6 @@ package com.ibm.as400.access;
 **/
 public class PanelGroupHelpIdentifier
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-  
   /**
    * Constant indicating that the keyword specified for this help identifier and
    * panel group was not correct.
@@ -99,17 +97,17 @@ public class PanelGroupHelpIdentifier
   /**
    * Returns the state of the information for this help identifier.
    * Possible values are:
-   * <LI>
-   * <UL>{@link #STATUS_NAME_NOT_CORRECT STATUS_NAME_NOT_CORRECT} - The system
+   * <UL>
+   * <LI>{@link #STATUS_NAME_NOT_CORRECT STATUS_NAME_NOT_CORRECT} - The system
    * could not find the help identifier.
-   * <UL>{@link #STATUS_FOUND STATUS_FOUND} - The system found the help identifier
+   * <LI>{@link #STATUS_FOUND STATUS_FOUND} - The system found the help identifier
    * and retrieved its information.
-   * <UL>{@link #STATUS_OBJECT_ACCESS_FAILURE} - The system could not retrieve
+   * <LI>{@link #STATUS_OBJECT_ACCESS_FAILURE} - The system could not retrieve
    * the help identifier information for some reason. See the remote command host
    * server job log for details.
-   * <UL>{@link #STATUS_UNKNOWN STATUS_UNKNOWN} - The system returned a help
+   * <LI>{@link #STATUS_UNKNOWN STATUS_UNKNOWN} - The system returned a help
    * identifier status that is not known.
-   * </LI>
+   * </UL>
    * @return The status.
   **/
   public int getStatus()

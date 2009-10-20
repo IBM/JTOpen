@@ -397,9 +397,9 @@ public class MessageQueue implements Serializable
      <li>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - The help text is returned as a string of characters.  This is the default.
      <li>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - The help text contains formatting characters.  The formatting characters are:
      <ul>
-     <br>&N -- Force a new line.
-     <br>&P -- Force a new line and indent the new line six characters.
-     <br>&B -- Force a new line and indent the new line four characters.
+     <li>&N -- Force a new line.
+     <li>&P -- Force a new line and indent the new line six characters.
+     <li>&B -- Force a new line and indent the new line four characters.
      </ul>
      <li>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - The MessageFile class replaces formatting characters with newline and space characters.
      </ul>
@@ -1666,9 +1666,9 @@ public class MessageQueue implements Serializable
      <li>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - The help text is returned as a string of characters.  This is the default.
      <li>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - The help text contains formatting characters.  The formatting characters are:
      <ul>
-     <br>&N -- Force a new line.
-     <br>&P -- Force a new line and indent the new line six characters.
-     <br>&B -- Force a new line and indent the new line four characters.
+     <li>&N -- Force a new line.
+     <li>&P -- Force a new line and indent the new line six characters.
+     <li>&B -- Force a new line and indent the new line four characters.
      </ul>
      <li>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - The MessageFile class replaces formatting characters with new line and space characters.
      </ul>

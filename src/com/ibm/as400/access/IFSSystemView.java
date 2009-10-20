@@ -22,13 +22,13 @@ import javax.swing.Icon;
 
 
 /**
-  * IFSSystemView provides a gateway to the IBM i integrated file system,
+  * Provides a gateway to the IBM i integrated file system,
   * for use when constructing javax.swing.JFileChooser objects.
   * <p>JFileChooser is a standard Java way to build dialogs for navigating
   * and choosing files.
   * <p>
   * The following example demonstrates the use of IFSSystemView.
-  * <UL>
+  *
   * <pre>
   * 
   * import com.ibm.as400.access.AS400;
@@ -49,7 +49,6 @@ import javax.swing.Icon;
   *                        chosenFile.getName());
   * }
   * </pre>
-  * </UL>
   *
   * @see com.ibm.as400.access.IFSJavaFile
  **/

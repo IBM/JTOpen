@@ -20,8 +20,8 @@ import java.beans.*;
 
 
 /**
- * The FTP class represents a generic ftp client.  Methods
- * on the FTP class allow you to connect to an ftp server,
+ * Represents a generic FTP client.  Methods
+ * on this class allow you to connect to an FTP server,
  * send commands to the system, list files on the system,
  * get files from the system, and put files to the system.
  * <P>
@@ -30,7 +30,7 @@ import java.beans.*;
  * from the system is also available.  getLastMessage() is used
  * to retrieve the message from the previous request.
  * <P>
- * By default, FTP command are sent via port 21.  The initial
+ * By default, FTP commands are sent via port 21.  The initial
  * data transfer type is ASCII.  Passive mode is used.
  * <P>
  * No encryption is provided by this class.  The user and password
@@ -46,7 +46,6 @@ import java.beans.*;
  * The following example copies a set of files from a directory
  * on the system.
  * <a name="example"></a>
- * <ul>
  * <pre>
  * FTP client = new FTP("mysystem", "myUID", "myPWD");
  * client.cd("/myDir");
@@ -69,7 +68,7 @@ import java.beans.*;
  * client.disconnect();
  *
  * </pre>
- * </ul>
+ *
 **/
 
 public class FTP implements java.io.Serializable
@@ -892,7 +891,7 @@ public class FTP implements java.io.Serializable
             int highOrderPort = Integer.parseInt(tokens.nextToken());
             String lowOrder = tokens.nextToken();
 
-            //the reply for ftp server other than Mainframe server
+            //the reply for FTP server other than Mainframe server
             //ends with ")". But for mainfrmae server there is no
             //trailing ")". hence check for that
             int lowOrderPort;

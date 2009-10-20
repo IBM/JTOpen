@@ -21,7 +21,7 @@ import java.beans.*;
 
 
 /**
- * The AS400FTP class represents a client for the IBM i FTP server.
+ * Represents a client for the IBM i FTP server.
  * It is written to take advantage of IBM i features.
  * Use the parent class, FTP, if you need a generic
  * client.
@@ -73,13 +73,13 @@ import java.beans.*;
  * Since the extension is .savf,
  * AS400FTP class detects the file to put is a save file
  * so it does these step automatically.
- * <ul>
+ *
  * <pre>
  * AS400 system = new AS400();
  * AS400FTP   ftp    = new AS400FTP(system);
  * ftp.put("myData.savf", "/QSYS.LIB/MYLIB.LIB/MYDATA.SAVF");
  * </pre>
- * </ul>
+ *
 **/
 
 public class AS400FTP

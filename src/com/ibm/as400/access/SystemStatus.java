@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
- The SystemStatus class provides access to a group of statistics that represent the current status of the system.
+ Provides access to a group of statistics that represent the current status of the system.
  **/
 public class SystemStatus implements Serializable
 {
@@ -704,7 +704,7 @@ public class SystemStatus implements Serializable
      <li>0: Partition does not share processors.
      <li>1: Partition shares processors (capped).  The partition is limited to using its configured capacity.
      <li>2: Partition shares processors (uncapped).  The partition can use more than its configured capacity.
-     <ul>
+     </ul>
      @return  The processor sharing attribute.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
