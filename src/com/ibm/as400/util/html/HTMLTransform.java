@@ -60,7 +60,8 @@ import com.ibm.as400.access.Trace;
 *
 *  <P>Here is what the browser will show:
 *  <form>
-*  <input type="text" name="myText" value="&lt;a href=&quot;http://www.myLink.com/&quot;&gt;Link&lt;/a&gt;" size="45" />
+*  <label for="myTextID"></label>
+*  <input type="text" name="myText" value="&lt;a href=&quot;http://www.myLink.com/&quot;&gt;Link&lt;/a&gt;" size="45" id="myTextID" />
 *  </form>
 *  
 *  <P>The tags that are encoded include:
@@ -73,9 +74,6 @@ import com.ibm.as400.access.Trace;
 **/
 public class HTMLTransform
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     /**
     *  Encodes the HTML string, which can contain HTML tags such as &lt; , &gt;, &quot;, or &amp;.
     *  @param source The HTML string containing HTML tags to be encoded.
