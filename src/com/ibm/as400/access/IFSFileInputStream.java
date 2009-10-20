@@ -26,8 +26,7 @@ import java.util.Vector;
 
 
 /**
- The IFSFileInputStream class represents an integrated file system
-input stream.
+ Represents an integrated file system input stream.
  An integrated file system file input stream is an input stream for reading
  data from integrated file system objects.<br>IFSFileInputStream objects are
  capable of generating file events that call the following FileListener
@@ -56,10 +55,6 @@ input stream.
 public class IFSFileInputStream extends InputStream
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -520,6 +515,28 @@ public class IFSFileInputStream extends InputStream
   /**
    Places a lock on the file at the current position for the specified
    number of bytes.
+   Note: This method is not supported for files under QSYS.
+   @param length The number of bytes to lock.
+   @return The key for undoing this lock.
+ 
+   @exception ExtendedIOException If the specified bytes are already locked by another process.
+   @exception IOException If an error occurs while communicating with the system.
+
+   @see IFSKey
+   @see #unlock
+   @deprecated Replaced by {@link #lock(long) lock(long)}
+   **/
+  public IFSKey lock(int length)
+    throws IOException
+  {
+    return lock((long)length);
+  }
+
+
+  /**
+   Places a lock on the file at the current position for the specified
+   number of bytes.
+   Note: This method is not supported for files under QSYS.
    @param length The number of bytes to lock.
    @return The key for undoing this lock.
  
@@ -528,14 +545,14 @@ public class IFSFileInputStream extends InputStream
    @see IFSKey
    @see #unlock
    **/
-  public IFSKey lock(int length)
+  public IFSKey lock(long length)
     throws IOException
   {
     // Validate the argument.
-    if (length <= 0)
+    if (length <= 0L)
     {
       throw new ExtendedIllegalArgumentException("length (" +
-                                                 Integer.toString(length) +
+                                                 Long.toString(length) +
                                                  ")",
                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -937,12 +954,13 @@ public class IFSFileInputStream extends InputStream
 
   /**
    Undoes a lock on this file.
+   Note: This method is not supported for files under QSYS.
    @param key The key for the lock.
 
    @exception IOException If an error occurs while communicating with the system.
  
    @see IFSKey
-   @see #lock
+   @see #lock(long)
    **/
   public void unlock(IFSKey key)
     throws IOException

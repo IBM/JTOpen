@@ -15,12 +15,10 @@ package com.ibm.as400.access;
 
 
 /**
-Lock bytes request.
+"Lock bytes" request.
 **/
 class IFSLockBytesReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
   private static final int HEADER_LENGTH = 20;
   private static final int TEMPLATE_LENGTH = 8;
 
@@ -66,6 +64,16 @@ Construct a lock bytes request.
 
     if (datastreamLevel < 16)
     { // 4-byte lengths and offsets
+      if (offset > (long)Integer.MAX_VALUE)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Specified offset value ("+offset+") exceeds maximum file length supported by system.");
+        offset = (long)Integer.MAX_VALUE; // set to maximum possible 'int' value
+      }
+      if (length > (long)Integer.MAX_VALUE)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Specified length value ("+length+") exceeds maximum file length supported by system.");
+        length = (long)Integer.MAX_VALUE; // set to maximum possible 'int' value
+      }
       set32bit(20, LOCK_LIST_LL_OFFSET);
       set32bit(0, LOCK_BASE_OFFSET_OFFSET);
       set32bit((int)offset, RELATIVE_OFFSET_OFFSET);

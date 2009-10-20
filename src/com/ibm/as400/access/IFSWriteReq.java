@@ -15,12 +15,10 @@ package com.ibm.as400.access;
 
 
 /**
-Write data request.
+"Write data" request.
 **/
 class IFSWriteReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
   private static final int HEADER_LENGTH = 20;
 
   private static final int FILE_HANDLE_OFFSET = 22;
@@ -111,6 +109,11 @@ Construct a write request.
   {
     if (datastreamLevel < 16)
     { // Just set the old fields.
+      if (fileOffset > (long)Integer.MAX_VALUE)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Specified fileOffset value ("+fileOffset+") exceeds maximum file length supported by system.");
+        fileOffset = (long)Integer.MAX_VALUE; // set to maximum possible 'int' value
+      }
       set32bit(0, BASE_OFFSET_OFFSET);
       set32bit((int)fileOffset, RELATIVE_OFFSET_OFFSET);
     }

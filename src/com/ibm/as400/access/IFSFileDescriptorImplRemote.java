@@ -167,7 +167,7 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSCloseRep) ds).getReturnCode();
       if (rc != 0)
       {
-        Trace.log(Trace.ERROR, "IFSCloseRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSCloseRep return code", rc);
         throw new ExtendedIOException(path_, rc);
       }
     }
@@ -176,13 +176,13 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(path_, rc);
       }
     }
     else
     {
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -269,7 +269,7 @@ implements IFSFileDescriptorImpl
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
         throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         String path = (rc == IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME ? destinationPath : path_);
         throw new ExtendedIOException(path, rc);
       }
@@ -277,7 +277,7 @@ implements IFSFileDescriptorImpl
     }
     else
     {
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -306,6 +306,7 @@ implements IFSFileDescriptorImpl
     try
     {
       // Process an open file request.
+      // For 3rd parm (file data CCSID), specify 0 since we don't care about CCSID.
       IFSOpenReq req = new IFSOpenReq(getPathnameAsBytes(), preferredServerCCSID_,
                                       0, access, IFSOpenReq.DENY_NONE,
                                       IFSOpenReq.NO_CONVERSION,
@@ -321,16 +322,11 @@ implements IFSFileDescriptorImpl
       {
         returnCode = ((IFSReturnCodeRep) ds).getReturnCode();
         throwSecurityExceptionIfAccessDenied(returnCode); // check for "access denied"
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-        {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
-                    returnCode);
-        }
       }
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -349,8 +345,11 @@ implements IFSFileDescriptorImpl
 
     if (returnCode != IFSReturnCodeRep.SUCCESS)
     {
-      Trace.log(Trace.ERROR, "Failed to open file: " +
-                "IFSReturnCodeRep return code = ", returnCode);
+      if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+      {
+        Trace.log(Trace.DIAGNOSTIC, "Unable to open file " + path_ + ": " +
+                  "IFSReturnCodeRep return code", returnCode);
+      }
       errorRC_ = returnCode;
       return UNINITIALIZED;
     }
@@ -376,7 +375,7 @@ implements IFSFileDescriptorImpl
             {
               int rc = ((IFSReturnCodeRep) ds).getReturnCode();
               throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-              Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
+              Trace.log(Trace.ERROR, "IFSReturnCodeRep return code",
                         rc);
               throw new ExtendedIOException(path_, rc);
             }
@@ -457,7 +456,7 @@ implements IFSFileDescriptorImpl
                 {
                   int rc = ((IFSReturnCodeRep) ds).getReturnCode();
                   throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
+                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code",
                             rc);
                   throw new ExtendedIOException(path_, rc);
                 }
@@ -492,7 +491,7 @@ implements IFSFileDescriptorImpl
               system_.disconnectServer(server_);
               server_ = null;
               if (rep != null) {
-                Trace.log(Trace.ERROR, "Unknown reply data stream ", rep.data_);
+                Trace.log(Trace.ERROR, "Unknown reply data stream", rep.data_);
                 throw new
                   InternalErrorException(Integer.toHexString(rep.getReqRepID()),
                                          InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -576,14 +575,14 @@ implements IFSFileDescriptorImpl
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
         throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(path_, rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -764,7 +763,7 @@ implements IFSFileDescriptorImpl
         {
           throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
           Trace.log(Trace.ERROR, "Error getting file attributes for file " + path_ + ": " +
-                    "IFSReturnCodeRep return code = ", rc);  // @A9C
+                    "IFSReturnCodeRep return code", rc);  // @A9C
           throw new ExtendedIOException(path_, rc);
         }
 
@@ -772,7 +771,7 @@ implements IFSFileDescriptorImpl
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream: ", ds.data_);  // @A9C
+        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);  // @A9C
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -851,39 +850,45 @@ implements IFSFileDescriptorImpl
       // Open the file, and obtain a file handle.
       if (fileHandle_ != UNINITIALIZED)     //@KKBA
       {                                     //@KKBA
-          fileHandle = fileHandle_;         //@KKBA
-          usedGlobalHandle = true;          //@KKBA
+        fileHandle = fileHandle_;           //@KKBA
+        usedGlobalHandle = true;            //@KKBA
       }                                     //@KKBA
-      else fileHandle = createFileHandle(); //@KKBC
-      if (fileHandle != UNINITIALIZED)
+      else
       {
-        // Send a 'list attributes' request, specifying the file handle we just created,
-        // and indicating that we want an OA2 structure in the reply.
+        fileHandle = createFileHandle(); //@KKBC
+        if (fileHandle == UNINITIALIZED)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to create handle to file " + path_ + ". IFSReturnCodeRep return code", errorRC_);
+          return null;
+        }
+      }
 
-        IFSListAttrsReq req1 = new IFSListAttrsReq(fileHandle, attrsType, flags1, flags2);
-        req1.setPatternMatching(patternMatching_);
+      // Send a 'list attributes' request, specifying the file handle we just created,
+      // and indicating that we want an OA2 structure in the reply.
 
-        Vector replys = listAttributes(req1);
+      IFSListAttrsReq req1 = new IFSListAttrsReq(fileHandle, attrsType, flags1, flags2);
+      req1.setPatternMatching(patternMatching_);
 
-        // Verify that we got exactly one reply.
-        if (replys == null) {
-          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received null from listAttributes(fileHandle).");
-        }
-        else if (replys.size() == 0) {
-          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received no replies from listAttributes(fileHandle).");
-        }
-        else if (replys.size() > 1) {
-          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(fileHandle) (" +
-                                        replys.size() + ")");
-        }
-        else {
-          reply = (IFSListAttrsRep) replys.elementAt(0);
-        }
+      Vector replys = listAttributes(req1);
+
+      // Verify that we got exactly one reply.
+      if (replys == null) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received null from listAttributes(fileHandle).");
+      }
+      else if (replys.size() == 0) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received no replies from listAttributes(fileHandle).");
+      }
+      else if (replys.size() > 1) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(fileHandle) (" +
+                                      replys.size() + ")");
+      }
+      else {
+        reply = (IFSListAttrsRep) replys.elementAt(0);
       }
     }
     finally {
-        if(!usedGlobalHandle)   //@KKBA
-            close(fileHandle);
+      if(!usedGlobalHandle && fileHandle != UNINITIALIZED)   //@KKBA
+        close(fileHandle);
     }
 
     return reply;
@@ -910,6 +915,7 @@ implements IFSFileDescriptorImpl
   {
     return lock(fileOffset_, length);
   }
+
   IFSKey lock(long offset,   // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
               long length)
     throws IOException, AS400SecurityException
@@ -947,7 +953,7 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSLockBytesRep) ds).getReturnCode();
       if (rc != 0)
       {
-        Trace.log(Trace.ERROR, "IFSLockBytesRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSLockBytesRep return code", rc);
         throw new ExtendedIOException(path_, rc);
       }
     }
@@ -964,7 +970,7 @@ implements IFSFileDescriptorImpl
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -1070,14 +1076,14 @@ implements IFSFileDescriptorImpl
           else  // none of the above
           {
             throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-            Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+            Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
             throw new ExtendedIOException(path_, rc);
           }
         }
         else  // neither IFSReadRep nor IFSReturnCodeRep
         {
           // Unknown data stream.
-          Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+          Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
           throw new
             InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                    InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -1159,6 +1165,11 @@ implements IFSFileDescriptorImpl
     {
       // Open the file for read/write, get a file handle, and call 'change attributes'.
       fileHandle = createFileHandle(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN);
+      if (fileHandle == UNINITIALIZED)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to create handle to file " + path_ + ". IFSReturnCodeRep return code", errorRC_);
+        return false;
+      }
       IFSChangeAttrsReq req = new IFSChangeAttrsReq(fileHandle, length, serverDatastreamLevel_);
       ds = (ClientAccessDataStream) server_.sendAndReceive(req);
     }
@@ -1186,13 +1197,13 @@ implements IFSFileDescriptorImpl
       else
       {
         throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -1274,7 +1285,7 @@ implements IFSFileDescriptorImpl
         returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
     {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Access denied to file " + path_ + ". " +
-                "IFSReturnCodeRep return code ", returnCode);
+                "IFSReturnCodeRep return code", returnCode);
       throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
     }
   }
@@ -1330,14 +1341,14 @@ implements IFSFileDescriptorImpl
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
         throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(path_, rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -1418,7 +1429,7 @@ implements IFSFileDescriptorImpl
         int rc = rep.getReturnCode();
         if (rc != 0)
         {
-          Trace.log(Trace.ERROR, "IFSWriteRep return code ", rc);
+          Trace.log(Trace.ERROR, "IFSWriteRep return code", rc);
           throw new ExtendedIOException(path_, rc);
         }
 
@@ -1444,14 +1455,14 @@ implements IFSFileDescriptorImpl
         if (rc != IFSReturnCodeRep.SUCCESS)
         {
           throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
           throw new ExtendedIOException(path_, rc);
         }
       }
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);

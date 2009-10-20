@@ -128,7 +128,7 @@ implements IFSFileOutputStreamImpl
    @see IFSKey
    @see #unlock
    **/
-  public IFSKey lock(int length)
+  public IFSKey lock(long length)
     throws IOException
   {
     // Assume the argument has been validated by the public class.
@@ -239,19 +239,19 @@ implements IFSFileOutputStreamImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc == IFSReturnCodeRep.FILE_IN_USE)
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(ExtendedIOException.SHARING_VIOLATION);
       }
       else
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -391,14 +391,14 @@ implements IFSFileOutputStreamImpl
         int rc = ((IFSReturnCodeRep) ds).getReturnCode();
         if (rc != IFSReturnCodeRep.SUCCESS)
         {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
           throw new ExtendedIOException(rc);
         }
       }
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -480,7 +480,7 @@ implements IFSFileOutputStreamImpl
               if (rc != IFSReturnCodeRep.NO_MORE_FILES &&
                   rc != IFSReturnCodeRep.SUCCESS)
               {
-                Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+                Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
                 throw new ExtendedIOException(rc);
               }
 
@@ -488,7 +488,7 @@ implements IFSFileOutputStreamImpl
             else
             {
               // Unknown data stream.
-              Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+              Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
               throw new
                 InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                        InternalErrorException.DATA_STREAM_UNKNOWN);

@@ -40,8 +40,6 @@ writer.close();
  **/
 public class IFSFileWriter extends Writer
 {
-  private static final String copyright = "Copyright (C) 2004-2004 International Business Machines Corporation and others.";
-
   static final long serialVersionUID = 4L;
 
 
@@ -244,13 +242,32 @@ public class IFSFileWriter extends Writer
   /**
    Places a lock on the file at the current position for the specified
    number of bytes.
+   Note: This method is not supported for files under QSYS.
+   @param length The number of bytes to lock.
+   @return The key for undoing this lock.
+ 
+   @exception IOException If an error occurs while communicating with the system.
+   @see #unlockBytes
+   @deprecated Replaced by {@link #lockBytes(long) lock(long)}
+   **/
+  public IFSKey lockBytes(int length)
+    throws IOException
+  {
+    return lockBytes((long)length);
+  }
+
+
+  /**
+   Places a lock on the file at the current position for the specified
+   number of bytes.
+   Note: This method is not supported for files under QSYS.
    @param length The number of bytes to lock.
    @return The key for undoing this lock.
  
    @exception IOException If an error occurs while communicating with the system.
    @see #unlockBytes
    **/
-  public IFSKey lockBytes(int length)
+  public IFSKey lockBytes(long length)
     throws IOException
   {
     return outputStream_.lock(length);
@@ -258,11 +275,12 @@ public class IFSFileWriter extends Writer
 
   /**
    Undoes a lock on the file.
+   Note: This method is not supported for files under QSYS.
    @param key The key for the lock.
 
    @exception IOException If an error occurs while communicating with the system.
  
-   @see #lockBytes
+   @see #lockBytes(long)
    **/
   public void unlockBytes(IFSKey key)
     throws IOException

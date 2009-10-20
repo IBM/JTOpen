@@ -15,12 +15,10 @@ package com.ibm.as400.access;
 
 
 /**
-Change attributes request.
+"Change attributes" request.
 **/
 class IFSChangeAttrsReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
   private static final int HEADER_LENGTH = 20;
 
   private static final int FILE_HANDLE_OFFSET = 22;
@@ -286,6 +284,11 @@ Construct a change attributes request.  Use this form to change the file data CC
   {
     if (datastreamLevel < 16)
     { // Just set the old field.
+      if (fileSize > (long)Integer.MAX_VALUE)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Specified fileSize value ("+fileSize+") exceeds maximum file length supported by system.");
+        fileSize = (long)Integer.MAX_VALUE; // set to maximum possible 'int' value
+      }
       set32bit((int)fileSize, FILE_SIZE_OFFSET);
     }
     else

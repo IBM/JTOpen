@@ -25,11 +25,11 @@ interface IFSRandomAccessFileImpl
   void connectAndOpen()  throws AS400SecurityException, IOException;
   void flush()  throws IOException;
   long length()  throws IOException;
-  IFSKey lock(int offset,
-              int length)  throws IOException;
+  IFSKey lock(long offset,
+              long length)  throws IOException;
   void open()  throws IOException;
   int read(byte[] data,
-           int    dataOffset,
+           int   dataOffset,
            int    length,
            boolean readFully)  throws IOException;
   String readLine()  throws IOException;
@@ -40,7 +40,7 @@ interface IFSRandomAccessFileImpl
   void setFD(IFSFileDescriptorImpl fd);
 
   void setForceToStorage(boolean forceToStorage);
-  void setLength(int length)  throws IOException;
+  void setLength(long length)  throws IOException;
   void setMode(String mode);
   void unlock(IFSKey key)  throws IOException;
   void writeBytes(byte[]  data,

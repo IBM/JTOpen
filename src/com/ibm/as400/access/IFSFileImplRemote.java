@@ -540,13 +540,13 @@ implements IFSFileImpl
       rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        if (Trace.traceOn_) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
                                Integer.toHexString(ds.getReqRepID()));
@@ -821,14 +821,14 @@ implements IFSFileImpl
         rc = ((IFSReturnCodeRep) ds).getReturnCode();
         if (rc != IFSReturnCodeRep.SUCCESS)
         {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         }
         throw new ExtendedIOException(fd_.path_, rc);
       }
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ",
+        Trace.log(Trace.ERROR, "Unknown reply data stream",
                   ds.getReqRepID());
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
@@ -871,14 +871,14 @@ implements IFSFileImpl
       rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
       }
       throw new ExtendedIOException(fd_.path_, rc);
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ",
+      Trace.log(Trace.ERROR, "Unknown reply data stream",
                 ds.getReqRepID());
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
@@ -908,7 +908,8 @@ implements IFSFileImpl
         ownerName = reply.getOwnerName(fd_.system_.getCcsid());
       }
       else {
-        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Return code from getOwnerName: " + fd_.errorRC_);
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "getOwnerName: " +
+                    "IFSReturnCodeRep return code", fd_.errorRC_);
         if (fd_.errorRC_ == IFSReturnCodeRep.FILE_NOT_FOUND ||
             fd_.errorRC_ == IFSReturnCodeRep.PATH_NOT_FOUND)
         {
@@ -2044,7 +2045,7 @@ implements IFSFileImpl
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -2117,7 +2118,7 @@ implements IFSFileImpl
       returnCode = mkdir(directory);
       if (returnCode != IFSReturnCodeRep.SUCCESS)
       {
-        // Failed to create a directory.
+        // Unable to create a directory.
         break;
       }
     }
@@ -2174,12 +2175,12 @@ implements IFSFileImpl
         success = true;
       else
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error renaming file: " +
-                    "IFSReturnCodeRep return code = ", returnCode);
+                    "IFSReturnCodeRep return code", returnCode);
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
                                Integer.toHexString(ds.getReqRepID()));
@@ -2256,13 +2257,13 @@ implements IFSFileImpl
       }
       else {
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting file data CCSID: " +
-                                      "IFSReturnCodeRep return code = ", rc);
+                                      "IFSReturnCodeRep return code", rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
                                Integer.toHexString(ds.getReqRepID()));
@@ -2327,12 +2328,12 @@ implements IFSFileImpl
         success = true;
       else
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting file attributes: " +
-                  "IFSReturnCodeRep return code = ", rc);
+                  "IFSReturnCodeRep return code", rc);
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
                                Integer.toHexString(ds.getReqRepID()));
@@ -2425,12 +2426,12 @@ implements IFSFileImpl
                success = true;
              else
                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting hidden attribute: " +
-                         "IFSReturnCodeRep return code = ", rc);
+                         "IFSReturnCodeRep return code", rc);
           }
           else
           {
              // Unknown data stream.
-             Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+             Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
              throw new
                  InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                   InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -2505,7 +2506,7 @@ implements IFSFileImpl
           }
           else
           {
-            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read first byte of file.");
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to read first byte of file.");
             success = false;
           }
         }
@@ -2544,12 +2545,12 @@ implements IFSFileImpl
             success = true;
           else
             if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting last-modified date: " +
-                                          "IFSReturnCodeRep return code = ", rc);
+                                          "IFSReturnCodeRep return code", rc);
         }
         else
         {
           // Unknown data stream.
-          Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+          Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
           throw new
             InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                    InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -2712,12 +2713,12 @@ implements IFSFileImpl
                success = true;
              else
                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting read-only attribute: " +
-                         "IFSReturnCodeRep return code = ", rc);
+                         "IFSReturnCodeRep return code", rc);
           }
           else
           {
              // Unknown data stream.
-             Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+             Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
              throw new
                  InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                   InternalErrorException.DATA_STREAM_UNKNOWN);

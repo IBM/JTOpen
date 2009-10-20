@@ -24,7 +24,7 @@ import java.util.Vector;
 
 
 /**
-The IFSFileDescriptor class represents an integrated file system file descriptor.
+Represents an integrated file system file descriptor.
 Instances of the file descriptor class serve as an opaque handle to the underlying structure representing an open file or an open socket.   Applications should not create their own file descriptors.<br>
 Here is an example of two input streams sharing a file descriptor:
 <pre>
@@ -40,9 +40,6 @@ Reading in one object advances the current file position of all objects that sha
 public final class IFSFileDescriptor
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -245,7 +242,7 @@ Constructs an IFSFileDescriptor object.
     return system_;  // this field is never reset by the ImplRemote
   }
 
-  void incrementFileOffset(int fileOffsetIncrement)
+  void incrementFileOffset(long fileOffsetIncrement)
   {
     if (impl_ == null)
     {

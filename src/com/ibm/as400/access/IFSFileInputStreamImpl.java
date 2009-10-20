@@ -24,7 +24,7 @@ interface IFSFileInputStreamImpl
   int available()  throws IOException;
   void close()  throws IOException;
   void connectAndOpen()  throws AS400SecurityException, IOException;
-  IFSKey lock(int length)  throws IOException;
+  IFSKey lock(long length)  throws IOException;
   void open()  throws IOException;
   int read(byte[] data,
                   int    dataOffset,

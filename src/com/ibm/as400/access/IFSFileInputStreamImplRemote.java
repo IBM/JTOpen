@@ -166,14 +166,14 @@ implements IFSFileInputStreamImpl
         int rc = ((IFSReturnCodeRep) ds).getReturnCode();
         if (rc != IFSReturnCodeRep.NO_MORE_FILES)
         {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
           throw new ExtendedIOException(rc);
         }
       }
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -229,7 +229,7 @@ implements IFSFileInputStreamImpl
    @see IFSKey
    @see #unlock
    **/
-  public IFSKey lock(int length)
+  public IFSKey lock(long length)
     throws IOException
   {
     // Assume the argument has been validated by the public class.
@@ -336,19 +336,19 @@ implements IFSFileInputStreamImpl
       }
       else if (rc == IFSReturnCodeRep.FILE_IN_USE)
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(ExtendedIOException.SHARING_VIOLATION);
       }
       else
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);

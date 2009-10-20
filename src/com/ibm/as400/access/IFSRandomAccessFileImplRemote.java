@@ -197,7 +197,7 @@ implements IFSRandomAccessFileImpl
       else
       {
         // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
         throw new
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -251,8 +251,8 @@ implements IFSRandomAccessFileImpl
    @see IFSKey
    @see #unlock
    **/
-  public IFSKey lock(int offset,
-                     int length)
+  public IFSKey lock(long offset,
+                     long length)
     throws IOException
   {
     // Assume the arguments have been validated by the public class.
@@ -379,19 +379,19 @@ implements IFSRandomAccessFileImpl
       }
       else if (rc == IFSReturnCodeRep.FILE_IN_USE)
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(ExtendedIOException.SHARING_VIOLATION);
       }
       else
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(rc);
       }
     }
     else
     {
       // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                InternalErrorException.DATA_STREAM_UNKNOWN);
@@ -772,7 +772,7 @@ implements IFSRandomAccessFileImpl
 
    @exception IOException If an error occurs while communicating with the server.
    **/
-  public void setLength(int length)
+  public void setLength(long length)
     throws IOException
   {
     // Assume the argument has been validated by the public class.

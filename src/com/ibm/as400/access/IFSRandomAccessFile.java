@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- The IFSRandomAccessFile class supports read and write access to integrated file system objects.  The position at which the next access occurs can be modified.  This class offers methods that allow specified mode access of read-only, write-only, or read-write.<br>IFSRandomAccessFile objects are capable of generating file events that call the following FileListener methods: fileClosed, fileModified, and fileOpened.<br>
+ Supports read and write access to integrated file system objects.  The position at which the next access occurs can be modified.  This class offers methods that allow specified mode access of read-only, write-only, or read-write.<br>IFSRandomAccessFile objects are capable of generating file events that call the following FileListener methods: fileClosed, fileModified, and fileOpened.<br>
  The following example illustrates the use of IFSRandomAccessFile:
  <pre>
  // Work with /Dir/File on the system eniac.
@@ -51,9 +51,6 @@ import java.util.Vector;
 public class IFSRandomAccessFile
 implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
   /**
@@ -565,6 +562,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
   /**
    Places a lock on the file at the specified bytes.
+   Note: This method is not supported for files under QSYS.
    @param offset The first byte of the file to lock (zero is the first byte).
    @param length The number of bytes to lock.
    @return A key for undoing this lock.
@@ -573,6 +571,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @see IFSKey
    @see #unlock
+   @deprecated Replaced by {@link #lock(long,long) lock(long,long)}
    **/
   public IFSKey lock(int offset,
                      int length)
@@ -590,6 +589,45 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
     {
       throw new ExtendedIllegalArgumentException("length (" +
                                                  Integer.toString(length) +
+                                                 ")",
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+
+    // Ensure that the file is open.
+    open();
+
+    return impl_.lock(offset, length);
+  }
+
+
+  /**
+   Places a lock on the file at the specified bytes.
+   Note: This method is not supported for files under QSYS.
+   @param offset The first byte of the file to lock (zero is the first byte).
+   @param length The number of bytes to lock.
+   @return A key for undoing this lock.
+
+   @exception IOException If an error occurs while communicating with the system.
+
+   @see IFSKey
+   @see #unlock
+   **/
+  public IFSKey lock(long offset,
+                     long length)
+    throws IOException
+  {
+    // Validate the arguments.
+    if (offset < 0L)
+    {
+      throw new ExtendedIllegalArgumentException("offset (" +
+                                                 Long.toString(offset) +
+                                                 ")",
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (length <= 0L)
+    {
+      throw new ExtendedIllegalArgumentException("length (" +
+                                                 Long.toString(length) +
                                                  ")",
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -1145,15 +1183,29 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param length The new length, in bytes.
 
    @exception IOException If an error occurs while communicating with the system.
+   @deprecated Replaced by {@link #setLength(long) setLength(long)}
    **/
   public void setLength(int length)
     throws IOException
   {
+    setLength((long)length);
+  }
+
+
+  /**
+   Sets the length of the file represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
+   @param length The new length, in bytes.
+
+   @exception IOException If an error occurs while communicating with the system.
+   **/
+  public void setLength(long length)
+    throws IOException
+  {
     // Validate arguments.
-    if (length < 0)
+    if (length < 0L)
     {
       throw new ExtendedIllegalArgumentException("length + (" +
-                                                 Integer.toString(length) + ")",
+                                                 Long.toString(length) + ")",
                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
@@ -1320,15 +1372,37 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @return The number of bytes skipped.
 
    @exception IOException If an error occurs while communicating with the system.
+   @deprecated Replaced by {@link #skipBytes(long) skipBytes(long)}
    **/
   public int skipBytes(int bytesToSkip)
     throws IOException
   {
+    long bytesSkipped = skipBytes((long)bytesToSkip);
+
+    if (bytesSkipped > bytesToSkip) { // will never happen
+      Trace.log(Trace.ERROR, "Returned bytesSkipped value ("+bytesSkipped+") exceeds requested number of bytes to skip ("+bytesToSkip+").");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
+    
+    return (int)bytesSkipped;
+  }
+
+
+  /**
+   Skips over the next <i>bytesToSkip</i> bytes in the stream.
+   @param bytesToSkip The number of bytes to skip.
+   @return The number of bytes skipped.
+
+   @exception IOException If an error occurs while communicating with the system.
+   **/
+  public long skipBytes(long bytesToSkip)
+    throws IOException
+  {
     // Validate the agument.
-    if (bytesToSkip < 0)
+    if (bytesToSkip < 0L)
     {
       throw new ExtendedIllegalArgumentException("bytesToSkip (" +
-                                                 Integer.toString(bytesToSkip) +
+                                                 Long.toString(bytesToSkip) +
                                                  ")",
                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -1344,6 +1418,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
   /**
    Undoes a lock on this file.
+   Note: This method is not supported for files under QSYS.
    @param key The key for the lock.
 
    @exception IOException If an error occurs while communicating with the system.

@@ -25,7 +25,7 @@ interface IFSFileOutputStreamImpl
   void connectAndOpen(int ccsid)
     throws AS400SecurityException, IOException;
   void flush()  throws IOException;
-  IFSKey lock(int length)  throws IOException;
+  IFSKey lock(long length)  throws IOException;
   void open(int fileDataCCSID)  throws IOException;
   void setAppend(boolean append);
 
