@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<HTML>
+<HTML lang="en">
 <HEAD>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
 <TITLE>IBM Toolbox for Java: System properties</TITLE>
@@ -99,23 +99,23 @@ decreasing precedence):</P>
 <TABLE BORDER="1">
 <TR VALIGN="bottom" CLASS="hilightbar">
   <TH ID="cat1">Proxy server property</TH>
-  <TH ID="t2">Description</TH>
+  <TH ID="cat1t2">Description</TH>
 <TR VALIGN="top">
   <TD HEADERS="cat1">com.ibm.as400.access.AS400.proxyServer</TD>
-  <TD HEADERS="t2">Specifies the proxy server host name and port number, using the format:
+  <TD HEADERS="cat1t2">Specifies the proxy server host name and port number, using the format:
       <PRE>   hostName:portNumber</PRE>
       The port number is optional.</TD>
 </TR>
 <TR VALIGN="top">
     <TD HEADERS="cat1"> com.ibm.as400.access.SecureAS400.proxyEncryptionMode 
     </TD>
-    <TD HEADERS="t2"> 
+    <TD HEADERS="cat1t2"> 
       <P>Specifies which portion of the proxy data flow is encrypted by using 
         SSL. Valid values are:</P>
       <UL>
         <LI> 1 = Proxy client to proxy server</LI>
-        <LI> 2 = Proxy server to i5/OS</LI>
-        <LI> 3 = Proxy client to proxy server and proxy server to i5/OS 
+        <LI> 2 = Proxy server to IBM i system</LI>
+        <LI> 3 = Proxy client to proxy server and proxy server to IBM i system 
         </LI>
       </UL>
     </TD>
@@ -123,7 +123,7 @@ decreasing precedence):</P>
 <TR VALIGN="top">
     <TD HEADERS="cat1"> <A NAME="clientCleanupInterval">com.ibm.as400.access.TunnelProxyServer.clientCleanupInterval</A> 
     </TD>
-    <TD HEADERS="t2">Specifies how often, in seconds, the proxy server looks for idle connections. 
+    <TD HEADERS="cat1t2">Specifies how often, in seconds, the proxy server looks for idle connections. 
       The proxy server starts a thread to look for clients that are no longer 
       communicating. Use this property to set how often the thread looks for idle 
       connections.</TD>
@@ -131,7 +131,7 @@ decreasing precedence):</P>
 <TR VALIGN="top">
     <TD HEADERS="cat1"> <A NAME="clientLifetime">com.ibm.as400.access.TunnelProxyServer.clientLifetime</A> 
     </TD>
-    <TD HEADERS="t2"> Specifies how long, in seconds, a client can be idle before the proxy 
+    <TD HEADERS="cat1t2"> Specifies how long, in seconds, a client can be idle before the proxy 
       server removes references to the objects so the JVM can garbage collect 
       them. The proxy server starts a thread to look for clients that are no longer 
       communicating. Use this property to set how long a client can be idle before 
@@ -150,23 +150,23 @@ decreasing precedence):</P>
 <TABLE BORDER="1">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat2">Trace property</TH>
-    <TH ID="t2">Description</TH>
+    <TH ID="cat2t2">Description</TH>
   </TR>
   <TR VALIGN="top"> 
     <TD HEADERS="cat2">com.ibm.as400.access.Trace.category</TD>
-    <TD HEADERS="t2">Specifies which trace categories to enable. This is a comma-delimited 
+    <TD HEADERS="cat2t2">Specifies which trace categories to enable. This is a comma-delimited 
       list containing any combination of trace categories. The complete list of 
       trace categories is defined in the <A HREF="com/ibm/as400/access/Trace.html#navbar_top"> 
       Trace</A> class.</TD>
   </TR>
   <TR VALIGN="top"> 
     <TD HEADERS="cat2">com.ibm.as400.access.Trace.file</TD>
-    <TD HEADERS="t2">Specifies the file to which trace output is written. The 
+    <TD HEADERS="cat2t2">Specifies the file to which trace output is written. The 
       default is to write trace output to System.out.</TD>
   </TR>
   <TR VALIGN="top">
     <TD HEADERS="cat2">com.ibm.as400.access.ServerTrace.JDBC</TD>
-    <TD HEADERS="t2">Specifies which trace categories to start on the JDBC server 
+    <TD HEADERS="cat2t2">Specifies which trace categories to start on the JDBC server 
       job. For information about supported values, see the <a href="JDBCProperties.html#servertrace">JDBC 
       server trace property</a>.</TD>
   </TR>
@@ -176,10 +176,10 @@ decreasing precedence):</P>
 <TABLE BORDER="1">
 <TR VALIGN="bottom" CLASS="hilightbar">
   <TH ID="cat3">CommandCall/ProgramCall property</TH>
-  <TH ID="t2">Description</TH>
+  <TH ID="cat3t2">Description</TH>
 <TR VALIGN="top">
     <TD HEADERS="cat3">com.ibm.as400.access.CommandCall.threadSafe</TD>
-    <TD HEADERS="t2">Specifies whether CommandCalls should be assumed to be thread-safe. If <CODE>true</CODE>,
+    <TD HEADERS="cat3t2">Specifies whether CommandCalls should be assumed to be thread-safe. If <CODE>true</CODE>,
       all CommandCalls are assumed to be thread-safe. If <CODE>false</CODE>, all
       CommandCalls are assumed to be non-thread-safe. This property is ignored
       for a given CommandCall object if either <CODE>CommandCall.setThreadSafe(true/false)</CODE>
@@ -188,7 +188,7 @@ decreasing precedence):</P>
   </TR>
 <TR VALIGN="top">
     <TD HEADERS="cat3">com.ibm.as400.access.ProgramCall.threadSafe</TD>
-    <TD HEADERS="t2">Specifies whether ProgramCalls should be assumed to be thread-safe. If <CODE>true</CODE>,
+    <TD HEADERS="cat3t2">Specifies whether ProgramCalls should be assumed to be thread-safe. If <CODE>true</CODE>,
       all ProgramCalls are assumed to be thread-safe. If <CODE>false</CODE>, all
       ProgramCalls are assumed to be non-thread-safe. This property is ignored
       for a given ProgramCall object if either <CODE>ProgramCall.setThreadSafe(true/false)</CODE>
