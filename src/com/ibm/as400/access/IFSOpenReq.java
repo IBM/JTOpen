@@ -15,21 +15,22 @@ package com.ibm.as400.access;
 
 
 /**
-Open file request.
+"Open file" request.
 **/
 class IFSOpenReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-  static final int PROGRAM_LOAD_ACCESS = 4; // access intent
-  static final int READ_ACCESS = 1;         // access intent
-  static final int WRITE_ACCESS = 2;        // access intent
-  static final int DENY_NONE = 0;           // share option
-  static final int DENY_READERS = 1;        // share option
-  static final int DENY_WRITERS = 2;        // share option
-  static final int NO_CONVERSION = 0;           // file data conv. opt.
-  static final int CONVERT_TO_CLIENT_CCSID = 1; // file data conv. opt.
-  static final int CONVERT_TO_SERVER_CCSID = 2; // file data conv. opt.
+  // "access intent" values:
+  static final int PROGRAM_LOAD_ACCESS = 4; // "program load" access
+  static final int READ_ACCESS = 1;         // "read" access
+  static final int WRITE_ACCESS = 2;        // "write" access
+  // "share option" values:
+  static final int DENY_NONE = 0;            // deny neither readers nor writers
+  static final int DENY_READERS = 1;         // deny readers
+  static final int DENY_WRITERS = 2;         // deny writers
+  // "data conversion" values:
+  static final int NO_CONVERSION = 0;           // no conversion (binary forced)
+  static final int CONVERT_TO_CLIENT_CCSID = 1; // text forced, client CCSID
+  static final int CONVERT_TO_SERVER_CCSID = 2; // text forced, server CCSID
 
                                                     // @D1a: add the following open options.
                                                     //     IF FILE DOES NOT EXIST    |   IF FILE DOES EXIST
