@@ -25,10 +25,6 @@ class IFSFileInputStreamImplProxy
 extends AbstractProxyImpl
 implements IFSFileInputStreamImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-  
-
   IFSFileInputStreamImplProxy ()
   {
     super ("IFSFileInputStream");
@@ -72,13 +68,13 @@ implements IFSFileInputStreamImpl
   }
 
 
-  public IFSKey lock(int length)
+  public IFSKey lock(long length)
     throws IOException
   {
     try {
       return (IFSKey) connection_.callMethod (pxId_, "lock",
-                              new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(length) })
+                              new Class[] { Long.TYPE },
+                              new Object[] { new Long(length) })
                         .getReturnValue();
     }
     catch (InvocationTargetException e) {

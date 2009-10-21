@@ -23,11 +23,6 @@ class IFSRandomAccessFileImplProxy
 extends AbstractProxyImpl
 implements IFSRandomAccessFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-  
-
   IFSRandomAccessFileImplProxy ()
   {
     super ("IFSRandomAccessFile");
@@ -81,14 +76,14 @@ implements IFSRandomAccessFileImpl
     }
   }
 
-  public IFSKey lock(int offset,
-                     int length)
+  public IFSKey lock(long offset,
+                     long length)
     throws IOException
   {
     try {
       return (IFSKey) connection_.callMethod (pxId_, "lock",
-                              new Class[] { Integer.TYPE, Integer.TYPE },
-                              new Object[] { new Integer(offset), new Integer(length) })
+                              new Class[] { Long.TYPE, Long.TYPE },
+                              new Object[] { new Long(offset), new Long(length) })
                         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -205,13 +200,13 @@ implements IFSRandomAccessFileImpl
   }
 
 
-  public void setLength(int length)
+  public void setLength(long length)
     throws IOException
   {
     try {
       connection_.callMethod (pxId_, "setLength",
-                              new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(length) });
+                              new Class[] { Long.TYPE },
+                              new Object[] { new Long(length) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
