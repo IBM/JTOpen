@@ -768,7 +768,7 @@ Reads an input stream and returns its data as a String.
     static final String stripXMLDeclaration(String xml) throws SQLException
     {
         //declaration starts with "<?xml " and ends with "?>"
-        if(xml.length() < 6) //@BE1
+        if(xml.length() <= 6) //@BE1 //check for <?xml> len=6
             return xml;      //@BE1
         if(xml.substring(0, 7).indexOf("<?xml") != -1) //avoid having to search whole 2 gig //@BE1 (utf-16be has byteordermark in first char)
         {
