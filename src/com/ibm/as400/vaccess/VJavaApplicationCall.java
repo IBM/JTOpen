@@ -43,8 +43,8 @@ import javax.swing.JScrollPane;
 /**
  *
  *<P>
- *The VJavaApplicationCall class provides a visual interface to
- *com.ibm.as400.access.JavaApplicationCall.  The visual interface
+ *Provides a visual interface to
+ *{@link com.ibm.as400.access.JavaApplicationCall JavaApplicationCall}.  The visual interface
  *consists of two components: an input field where the program
  *to run is specified and input is sent to the program, and
  *an output text area where the output from the program is displayed.
@@ -87,32 +87,31 @@ import javax.swing.JScrollPane;
  *<li>GarbageCollectionPriority - the priority of the tasks running garbage collection.
  *</UL>
  *For example, to send the optimization level to 30, enter <BR>
- *<UL>
+ *<PRE>
  *set optimize=30
- *</UL>
+ *</PRE>
  *</OL>
  *
  *<P>
  *You start the Java application using the <B>java</B> command.  The
  *syntax for this command is much like the syntax when running the command
  *on the client.  It is
- *<UL>
+ *<PRE>
  *java [-classpath=value] [-verbose] [-Dproperty=value -Dproperty=value [...]] class [parm1 parm2 [...]]]
- *</UL>
+ *</PRE>
  *Note, this class correctly sets the standard in, standard out and standard
  *error properties so os400.stdin, os400.stdout
  *or os400.stderr properties are ignored.
  *For example, to run Java application
- *<UL>
+ *<PRE>
  *java -classpath=/myClasses:/myClasses/lib/package.jar myProgram parm1 parm2
- *</UL>
+ *</PRE>
  *
  *To use this class you simply create a frame to contain the class
  *then call the load() method to run the start the application.  For example,
  *
  *<a name="ex"> </a>
  *<PRE>
- *
  *AS400 system = new AS400("myAS400");
  *
  * JavaApplicationCall javaCall  = new  JavaApplicationCall(system);
@@ -123,14 +122,13 @@ import javax.swing.JScrollPane;
  *f.getContentPane().add("Center", vJavaCall);
  *f.pack();
  *f.show();
+ *</PRE>
 
 @deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class  VJavaApplicationCall extends JComponent
                                    implements KeyListener
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // These variables represent event support.
     private transient ErrorEventSupport     errorEventSupport_;
     private transient PropertyChangeSupport propertyChangeSupport_;
