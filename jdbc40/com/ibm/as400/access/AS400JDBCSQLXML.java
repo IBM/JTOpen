@@ -733,7 +733,7 @@ public class AS400JDBCSQLXML implements SQLXML
                     {
                         // Check for an internal encoding in the string. If there is
                         // one, we must use it
-                        String clobString = clobLocatorValue_.getSubString((long)0, (int)clobLocatorValue_.length());
+                        String clobString = clobLocatorValue_.getSubString((long)1, (int)clobLocatorValue_.length());
                         String internalEncoding = getInternalEncoding(clobString);
                         if (internalEncoding != null)
                         {
