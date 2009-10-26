@@ -18,7 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
  
 //@array new class
-/** ArrayResultSet is a ResultSet that contains Array data.  This is a client-side only object.  This is used to navigating through
+/** AS400JDBCArrayResultSet is a JDBC ResultSet that contains Array data.  This is a client-side only object.  This is used to navigating through
  * returned data from IBM i DB2 using Toolbox JDBC.  No updates will be functional not will they be sent back to the hostserver.
  * Note that this ResultSet is limited in its functionality since it is not tied back to a cursor in the database.
  * Its primary purpose is for retrieving data back from the database.

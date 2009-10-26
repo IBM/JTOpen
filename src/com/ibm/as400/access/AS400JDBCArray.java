@@ -18,6 +18,11 @@ import java.sql.SQLException;
 
 
 // @array new class
+/** AS400JDBCArray is an implementation of java.sql.Array and contains an array of JDBC data.  
+ *  It provides mapping in the Java programming language for the SQL type <code>ARRAY</code>.
+ *  Currently AS400JDBCArray is only supported by using stored procedure input/output parameters.
+ */
+
 public class AS400JDBCArray implements Array
 {
 
