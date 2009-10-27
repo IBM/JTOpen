@@ -12,6 +12,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.vaccess;
+/**
+Locale-specific objects for the IBM Toolbox for Java.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
+**/
 public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
    // NLS_MESSAGEFORMAT_NONE
    // Each string is assumed NOT to be processed by the MessageFormat class.
