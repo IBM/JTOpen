@@ -22,7 +22,7 @@ import java.io.IOException;
 
 
 /**
-<p>This class represents a parsed SQL statement.
+ Represents a parsed SQL statement.
 **/
 //
 // Implementation note:
@@ -37,11 +37,6 @@ import java.io.IOException;
 //
 class JDSQLStatement
 {
-    private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
-
-
     // Native statement types.
     //
     static final int    TYPE_UNDETERMINED  = 0;
@@ -574,37 +569,37 @@ class JDSQLStatement
             //@H2A Look for VALUES clause to determine whether this statement can be block inserted.
             //@H2A The database will throw out block insert statements that have values other than
             //@H2A parameter markers, like "INSERT INTO TABLE VALUES (NULL, ?)".
-            int l = upperCaseSql.indexOf(VALUES_);                                        //@H2A
-            if(l != -1)                                                                 //@H2A
+            int m = upperCaseSql.indexOf(VALUES_);                                        //@H2A
+            if(m != -1)                                                                 //@H2A
             {
                 //@H2A
-                l += 6;                                                                   //@H2A
-                while(l < len && Character.isWhitespace(upperCaseSql.charAt(l)))         //@H2A
+                m += 6;                                                                   //@H2A
+                while(m < len && Character.isWhitespace(upperCaseSql.charAt(m)))         //@H2A
                 {
                     //@H2A
-                    ++l;                                                                  //@H2A
+                    ++m;                                                                  //@H2A
                 }                                                                         //@H2A
                 //@H2A
                 int lastParen = upperCaseSql.lastIndexOf(")");                            //@H2A
                 //@J1 - According to the DB2 SQL Reference, paranthesis are optional around a single value
-                //@J1D if(lastParen < l)
+                //@J1D if(lastParen < m)
                 //@J1D {
                 //@J1D      JDError.throwSQLException(this, JDError.EXC_SYNTAX_ERROR);
                 //@J1D }
 
-                if(lastParen >= 1 && lastParen > l)             //@J1A make sure last parenthesis is after the VALUES keyword
+                if(lastParen >= 1 && lastParen > m)             //@J1A make sure last parenthesis is after the VALUES keyword
                 {                                               //@J1A
-                    String valuesString = upperCaseSql.substring(l+1, lastParen);             //@H2A
-                    StringTokenizer tokenizer = new StringTokenizer (valuesString, ", ?");    //@H2A
+                    String valuesString = upperCaseSql.substring(m+1, lastParen);             //@H2A
+                    StringTokenizer tokenizer = new StringTokenizer (valuesString, ", ?\n\r\t");    //@H2A
                     if(!tokenizer.hasMoreTokens())                                           //@H2A
                     {
                         //@H2A
                         canBeBatched_ = true;                                                 //@H2A
                     }                                                                         //@H2A
                 }                                               //@J1A
-                else                                            //@J1A  Check to see if only one value or one parameter marker exists, if more than one value, than it is a syntax error
+                else                                            //@J1A  Check to see if only one value or one parameter marker exists, if more than one value, then it is a syntax error
                 {                                               //@J1A
-                    String valuesString = upperCaseSql.substring(l);        //@J1A - get everything after the VALUES clause
+                    String valuesString = upperCaseSql.substring(m);        //@J1A - get everything after the VALUES clause
                     if(valuesString.trim().equals("?"))                     //@J1A - there is only one parameter marker, therefore, we can batch
                         canBeBatched_ = true;                               //@J1A
                     else                                                    //@J1A - make sure there is only one literal, otherwise a syntax error occured.
