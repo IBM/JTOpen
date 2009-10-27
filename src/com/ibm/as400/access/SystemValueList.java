@@ -25,6 +25,10 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+/**
+ Provided methods for retrieving information about lists of System Values.
+ @see SystemValue
+**/
 public class SystemValueList implements Serializable
 {
     static final long serialVersionUID = 4L;
@@ -484,7 +488,7 @@ public class SystemValueList implements Serializable
     /**
      Returns a set of SystemValue objects.  Returns the system values that belong to the system value group specified by <i>group</i> and sorted by name.
      @param  group  The system value group.
-     @return  A Vector of SystemValue objects.
+     @return  A Vector of {@link SystemValue SystemValue} objects.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
