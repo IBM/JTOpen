@@ -1,10 +1,7 @@
 package com.ibm.as400.access;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
- * The ValidationListTranslatedData class represents language-specific information
+ * Represents language-specific information
  * that is assigned in a standardized format to a validation list entry.
  * This could be information in the non-encrypted data, encrypted data, or
  * identifier portion of a validation list entry. Maximum lengths for each
@@ -23,7 +20,7 @@ public ValidationListTranslatedData() {
 	super();
 }
 /**
- * Constructs a ValidationListTranslatedData from a structure stored as i5/OS bytes.
+ * Constructs a ValidationListTranslatedData from a structure stored as IBM i bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure in the
  * given <i>buffer</i>.
@@ -41,7 +38,7 @@ public ValidationListTranslatedData(byte[] buffer, int offset) {
 			buffer, offset + getReadOffsetTBytes())));
 }
 /**
- * Constructs a ValidationListTranslatedData from the specified i5/OS <i>bytes</i>
+ * Constructs a ValidationListTranslatedData from the specified IBM i <i>bytes</i>
  * which are encoded in the given <i>ccsid</i>.
  *
  * @param ccsid int
@@ -55,7 +52,7 @@ public ValidationListTranslatedData(int ccsid, byte[] bytes) {
 /**
  * Constructs a ValidationListTranslatedData from the given string.
  * <p>
- * The translated bytes are derived by converting the string to i5/OS bytes
+ * The translated bytes are derived by converting the string to IBM i bytes
  * using the given <i>ccsid</i>. The <i>as400</i> is required to perform the
  * conversion from text to bytes. A ccsid of 0 indicates to use the ccsid
  * of the current user.
@@ -70,7 +67,7 @@ public ValidationListTranslatedData(String s, int ccsid, AS400 as400) {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to i5/OS bytes for use by the validation list APIs.
+ * written to IBM i bytes for use by the validation list APIs.
  * <p>
  * This is the length of the entire structure, not just the translated bytes.
  *
@@ -84,7 +81,7 @@ public int getByteLength() {
 	return total;
 }
 /**
- * Returns the i5/OS bytes comprising the translated data.
+ * Returns the IBM i bytes comprising the translated data.
  * <p>
  * For text conversion, the bytes will be interpreted using the assigned ccsid.
  *
@@ -110,7 +107,7 @@ public int getCcsid() {
 }
 /**
  * Returns the offset of CCSID information in the structure when the receiver is
- * read from i5/OS bytes.
+ * read from IBM i bytes.
  * @return int
  */
 protected int getReadOffsetCcsid() {
@@ -118,7 +115,7 @@ protected int getReadOffsetCcsid() {
 }
 /**
  * Returns the offset of the length of the translated bytes when the receiver
- * is read from a i5/OS byte structure.
+ * is read from a IBM i byte structure.
  * @return int
  */
 protected int getReadOffsetTByteLength() {
@@ -126,14 +123,14 @@ protected int getReadOffsetTByteLength() {
 }
 /**
  * Returns the offset of the translated bytes when the receiver is read from an
- * i5/OS byte structure.
+ * IBM i byte structure.
  * @return int
  */
 protected int getReadOffsetTBytes() {
 	return 8;
 }
 /**
- * Returns the result of converting the assigned i5/OS bytes to a Java String
+ * Returns the result of converting the assigned IBM i bytes to a Java String
  * using the assigned CCSID. Returns null if the assigned ccsid is -1, since
  * the bytes do not represent text.
  * <p>
@@ -159,7 +156,7 @@ public String getString(AS400 as400) {
 		(String)new AS400Text(bytes_.length, ccsid, as400).toObject(bytes_);
 }
 /**
- * Returns the length to be specified in the written i5/OS byte structure
+ * Returns the length to be specified in the written IBM i byte structure
  * if the assigned data is null.
  * <p>
  * Typically this value is set to 0. However, there are some cases where
@@ -179,7 +176,7 @@ protected int getWriteNullDataLength() {
 }
 /**
  * Returns the offset of CCSID information in the structure when the receiver
- * is written to i5/OS bytes.
+ * is written to IBM i bytes.
  * @return int
  */
 protected int getWriteOffsetCcsid() {
@@ -187,7 +184,7 @@ protected int getWriteOffsetCcsid() {
 }
 /**
  * Returns the offset of the length of the translated bytes when the receiver
- * is written to an i5/OS byte structure.
+ * is written to an IBM i byte structure.
  * @return int
  */
 protected int getWriteOffsetTByteLength() {
@@ -195,14 +192,14 @@ protected int getWriteOffsetTByteLength() {
 }
 /**
  * Returns the offset of the translated bytes when the receiver is written to an
- * i5/OS byte structure.
+ * IBM i byte structure.
  * @return int
  */
 protected int getWriteOffsetTBytes() {
 	return getReadOffsetTBytes();
 }
 /**
- * Indicates whether the given CCSID is valid for tagging i5/OS data.
+ * Indicates whether the given CCSID is valid for tagging IBM i data.
  * @return true if valid; false if not.
  */
 protected boolean isValidCcsid(int ccsid) {
@@ -294,7 +291,7 @@ protected boolean isValidCcsid(int ccsid) {
 	return isValid;
 }
 /**
- * Sets the i5/OS bytes comprising the translated data.
+ * Sets the IBM i bytes comprising the translated data.
  * <p>
  * For text conversion, the bytes will be interpreted using the assigned ccsid.
  *
@@ -306,7 +303,7 @@ public void setBytes(byte[] bytes) {
 /**
  * Sets the bytes comprising the translated data from the given string.
  * <p>
- * The translated bytes are derived by converting the string to i5/OS bytes
+ * The translated bytes are derived by converting the string to IBM i bytes
  * using the given <i>ccsid</i>. The <i>as400</i> is required to perform the
  * conversion from text to bytes. A ccsid of 0 indicates to use the ccsid
  * of the current user.
@@ -375,7 +372,7 @@ public byte[] toBytes() {
 /**
  * Converts this object to a byte structure usable by the system APIs.
  * <p>
- * The i5/OS bytes are inserted into the <i>buffer</i> starting at the given
+ * The IBM i bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  *
  * @param buffer byte[]

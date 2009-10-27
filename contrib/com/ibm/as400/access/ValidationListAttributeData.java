@@ -1,10 +1,7 @@
 package com.ibm.as400.access;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
- * The ValidationListAttributeData class represents the value of a validation
+ * Represents the value of a validation
  * list attribute. Each validation list entry may contain one or more attributes.
  * For each attribute, there is an associated value. This class models
  * the value. The same information is present as in the superclass
@@ -22,7 +19,7 @@ public ValidationListAttributeData() {
 	super();
 }
 /**
- * Constructs a ValidationListTranslatedData from a structure stored as i5/OS bytes.
+ * Constructs a ValidationListTranslatedData from a structure stored as IBM i bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure in the
  * given <i>buffer</i>.
@@ -35,7 +32,7 @@ public ValidationListAttributeData(byte[] buffer, int offset) {
 }
 /**
  * Returns the offset of CCSID information in the structure when the receiver
- * is written to i5/OS bytes.
+ * is written to IBM i bytes.
  * @return int
  */
 protected int getWriteOffsetCcsid() {
@@ -43,7 +40,7 @@ protected int getWriteOffsetCcsid() {
 }
 /**
  * Returns the offset of the length of the translated bytes when the receiver
- * is written to an i5/OS byte structure.
+ * is written to an IBM i byte structure.
  * @return int
  */
 protected int getWriteOffsetTByteLength() {
@@ -51,7 +48,7 @@ protected int getWriteOffsetTByteLength() {
 }
 /**
  * Returns the offset of the translated bytes when the receiver is written to an
- * i5/OS byte structure.
+ * IBM i byte structure.
  * @return int
  */
 protected int getWriteOffsetTBytes() {

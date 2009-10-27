@@ -1,10 +1,7 @@
 package com.ibm.as400.access;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
- * The ValidationListAttribute class represents an attribute assigned to an
+ * Represents an attribute assigned to an
  * entry in a validation list. Each validation list entry may contain one or more
  * attributes. For each attribute, there is an associated value.
  *
@@ -29,7 +26,7 @@ public ValidationListAttribute() {
  * Constructs a validation list attribute.
  * <p>
  * The <i>as400</i> is used to translate the assigned identifier when converted
- * to i5/OS bytes.
+ * to IBM i bytes.
  *
  * @param as400
  *		com.ibm.as400.access.AS400
@@ -41,7 +38,7 @@ public ValidationListAttribute(AS400 as400) {
 /**
  * Returns the system assigned to the attribute.
  * <p>
- * Used to translate the assigned identifier when converted to i5/OS bytes.
+ * Used to translate the assigned identifier when converted to IBM i bytes.
  *
  * @return com.ibm.as400.access.AS400
  */
@@ -49,7 +46,7 @@ public AS400 getAS400() {
 	return as400_;
 }
 /**
- * Returns the attribute's parameter structure when written to i5/OS bytes.
+ * Returns the attribute's parameter structure when written to IBM i bytes.
  * <p>
  * This structure includes only the fixed fields for the parameter.
  *
@@ -69,7 +66,7 @@ private AS400Structure getAttribEntryStruct() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to i5/OS bytes for use by the validation list APIs.
+ * written to IBM i bytes for use by the validation list APIs.
  * <p>
  * The size varies based on usage of the receiver. If there is no associated data,
  * it is assumed that the structure being written is to identify an attribute
@@ -173,7 +170,7 @@ public int getType() {
 /**
  * Sets the system assigned to the attribute.
  * <p>
- * Used to translate the assigned identifier when converted to i5/OS bytes.
+ * Used to translate the assigned identifier when converted to IBM i bytes.
  *
  * @param as400 com.ibm.as400.access.AS400
  */
@@ -266,7 +263,7 @@ public byte[] toBytes() {
 /**
  * Converts this object to a structure usable by the system APIs.
  * <p>
- * The i5/OS bytes are inserted into the <i>buffer</i> starting at the given
+ * The IBM i bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  *
  * @param buffer byte[]
@@ -317,7 +314,7 @@ public int toBytes(byte[] buffer, int offset) {
  * Converts the attribute and any associated data to a structure usable by the
  * system APIs.
  * <p>
- * The i5/OS bytes are inserted into the <i>buffer</i> starting at the given
+ * The IBM i bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  * <p>
  * This method writes the bytes in a format expected when the attribute data is

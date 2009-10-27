@@ -1,9 +1,6 @@
 package com.ibm.as400.access;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
  * Thrown when an error occurs accessing resources on the system.
  *
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation

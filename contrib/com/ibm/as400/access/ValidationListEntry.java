@@ -1,10 +1,7 @@
 package com.ibm.as400.access;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
- * The ValidationListEntry class represents an entry in a system validation list.
+ * Represents an entry in a system validation list.
  *
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
  */
@@ -22,7 +19,7 @@ public ValidationListEntry() {
 	super();
 }
 /**
- * Constructs a ValidationListEntry from a structure stored as i5/OS bytes.
+ * Constructs a ValidationListEntry from a structure stored as IBM i bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure
  * in the given <i>buffer</i>.
@@ -51,7 +48,7 @@ public ValidationListAttributeInfo getAttributeInfo() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to i5/OS bytes for use by the validation list APIs.
+ * written to IBM i bytes for use by the validation list APIs.
  * <p>
  * Note: The length 1724 is dictated by the API definition (i.e. QSYFDVLE).
  *
@@ -120,7 +117,7 @@ public ValidationListTranslatedData getUnencryptedData() {
 	return unencryptedData_;
 }
 /**
- * Initialize a ValidationListEntry from a structure stored as i5/OS bytes.
+ * Initialize a ValidationListEntry from a structure stored as IBM i bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure
  * in the given <i>buffer</i>.

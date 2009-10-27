@@ -3,10 +3,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
- * The ValidationList class represents a system validation list object.
+ * Represents a system validation list object.
  * <p>
  * Note: The ability to find and modify the list is dependent on
  * the access rights of the signed-on user profile to the

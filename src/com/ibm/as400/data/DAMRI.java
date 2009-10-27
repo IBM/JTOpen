@@ -15,6 +15,9 @@ package com.ibm.as400.data;
 
 import java.util.ListResourceBundle;
 
+/**
+ Locale-specific objects for IBM Toolbox for Java.
+ **/
 public class DAMRI extends ListResourceBundle
 {
     // NLS_MESSAGEFORMAT_ALL

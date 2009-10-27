@@ -1,10 +1,7 @@
 package com.ibm.as400.access;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
- * The ValidationListDataToEncrypt class is used to specify the data to
+ * Used to specify the data to
  * encrypt when adding or changing a validation list entry.
  *
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
@@ -12,13 +9,13 @@ package com.ibm.as400.access;
 public class ValidationListDataToEncrypt extends ValidationListTranslatedData {
 
 /**
- * Constructs a ValidationListTranslatedData.
+ * Constructs a ValidationListDataToEncrypt.
  */
 public ValidationListDataToEncrypt() {
 	super();
 }
 /**
- * Constructs a ValidationListTranslatedData from a structure stored as i5/OS bytes.
+ * Constructs a ValidationListDataToEncrypt from a structure stored as IBM i bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure in the
  * given <i>buffer</i>.
@@ -30,7 +27,7 @@ public ValidationListDataToEncrypt(byte[] buffer, int offset) {
 	super(buffer, offset);
 }
 /**
- * Constructs a ValidationListTranslatedData from the specified i5/OS <i>bytes</i>
+ * Constructs a ValidationListDataToEncrypt from the specified IBM i <i>bytes</i>
  * which are encoded in the given <i>ccsid</i>.
  *
  * @param ccsid int
@@ -40,9 +37,9 @@ public ValidationListDataToEncrypt(int ccsid, byte[] bytes) {
 	super(ccsid, bytes);
 }
 /**
- * Constructs a ValidationListTranslatedData from the given string.
+ * Constructs a ValidationListDataToEncrypt from the given string.
  * <p>
- * The translated bytes are derived by converting the string to i5/OS bytes
+ * The translated bytes are derived by converting the string to IBM i bytes
  * using the given <i>ccsid</i>. The <i>as400</i> is required to perform the
  * conversion from text to bytes. A ccsid of 0 indicates to use the ccsid
  * of the current user.
@@ -55,7 +52,7 @@ public ValidationListDataToEncrypt(String s, int ccsid, AS400 as400) {
 	super(s, ccsid, as400);
 }
 /**
- * Returns the length to be specified in the written i5/OS byte structure
+ * Returns the length to be specified in the written IBM i byte structure
  * if the assigned data is null.
  * <p>
  * Typically this value is 0. However, there are some cases where

@@ -1,10 +1,7 @@
 package com.ibm.as400.access;
 
 /**
- * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
- **
- * <p>
- * The ValidationListAttributeInfo class encapsulates all attribute information
+ * Encapsulates all attribute information
  * assigned to an entry in a validation list. Each validation list entry may contain
  * one or more attributes.
  *
@@ -41,7 +38,7 @@ public ValidationListAttribute[] getAttributes() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to i5/OS bytes for use by the validation list APIs.
+ * written to IBM i bytes for use by the validation list APIs.
  *
  * @return int
  */
@@ -53,7 +50,7 @@ public int getByteLength() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to i5/OS bytes for use by the validation list APIs.
+ * written to IBM i bytes for use by the validation list APIs.
  *
  * @return int
  */
@@ -74,7 +71,7 @@ public void setAttributes(ValidationListAttribute[] attributes) {
 	attributes_ = attributes;
 }
 /**
- * Sets the data for assigned attributes from the i5/OS bytes in the specified <i>buffer</i>.
+ * Sets the data for assigned attributes from the IBM i bytes in the specified <i>buffer</i>.
  * <p>
  * This method is called when finding an entry with specific attributes. The attribute identifiers
  * are provided as input to the API, and a buffer is returned with the corresponding
@@ -115,7 +112,7 @@ public byte[] toBytes() {
 /**
  * Converts this object to a structure usable by the system APIs.
  * <p>
- * The i5/OS bytes are inserted into the <i>buffer</i> starting at the given
+ * The IBM i bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  *
  * @param buffer byte[]
