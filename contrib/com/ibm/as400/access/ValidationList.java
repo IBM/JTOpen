@@ -80,7 +80,7 @@ public ValidationList(AS400 as400, String obj, String lib) {
  * @param entry
  *		ValidationListEntry
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 public void addEntry(ValidationListEntry entry) throws PersistenceException {
 	ProgramCall pgm = new ProgramCall(getAS400());
@@ -105,7 +105,7 @@ public void addEntry(ValidationListEntry entry) throws PersistenceException {
  * @param entry
  *		ValidationListEntry
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 public void changeEntry(ValidationListEntry entry) throws PersistenceException {
 	ProgramCall pgm = new ProgramCall(getAS400());
@@ -129,14 +129,14 @@ public void changeEntry(ValidationListEntry entry) throws PersistenceException {
  * <p>
  * The list is opened by the initial call to the list API. In doing so, the entire
  * contents of the list is retrieved as a snapshot and stored in a buffer on the
- * AS/400 system. The list contents can then be retrieved from the pre-filled
+ * IBM i system. The list contents can then be retrieved from the pre-filled
  * buffer, in whole or in part, at the convenience of the application by using a
  * system-provided handle. The handle is used to close the list when the
  * application has completed processing of all entries.
  *
  * @param handle byte[]
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 private void closeList(byte[] handle) throws PersistenceException {
 	ProgramCall pgm = new ProgramCall(getAS400());
@@ -152,10 +152,10 @@ private void closeList(byte[] handle) throws PersistenceException {
 	runProgram(pgm);
 }
 /**
- * Creates the validation list on the AS/400 system.
+ * Creates the validation list on the IBM i system.
  *
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 command.
+ *		If an error occurs while calling the IBM i command.
  */
 public void create() throws PersistenceException {
 	String obj = getPath().getObjectName();
@@ -166,10 +166,10 @@ public void create() throws PersistenceException {
 	runCommand(cmd);
 }
 /**
- * Deletes the validation list from the AS/400 system.
+ * Deletes the validation list from the IBM i system.
  *
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 command.
+ *		If an error occurs while calling the IBM i command.
  */
 public void delete() throws PersistenceException {
 	String obj = getPath().getObjectName();
@@ -197,7 +197,7 @@ private void fillStringBuffer(StringBuffer buffer, int offset, String s) {
  * Returns an entry from the validation list with the given identifier.
  * <p>
  * The <i>ccsid</i> parameter indicates the ccsid used to store the identifier in the
- * entry on the AS/400 system. This apparently needs to be an exact match in order to
+ * entry on the IBM i system. This apparently needs to be an exact match in order to
  * find the entry as it was originally inserted.
  * <p>
  * No attribute values are retrieved for the entry.
@@ -209,7 +209,7 @@ private void fillStringBuffer(StringBuffer buffer, int offset, String s) {
  * @return
  *		ValidationListEntry
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 public ValidationListEntry findEntry(String identifier, int ccsid) throws PersistenceException {
 	return findEntry(identifier, ccsid, new ValidationListAttribute[0]);
@@ -218,7 +218,7 @@ public ValidationListEntry findEntry(String identifier, int ccsid) throws Persis
  * Returns an entry from the validation list with the given identifier and attributes.
  * <p>
  * The <i>ccsid</i> parameter indicates the ccsid used to store the identifier in the
- * entry on the AS/400 system. This apparently needs to be an exact match in order to
+ * entry on the IBM i system. This apparently needs to be an exact match in order to
  * find the entry as it was originally inserted.
  * <p>
  * The <i>attributes</i> parameter indicates the list of attributes to retrieve for
@@ -233,7 +233,7 @@ public ValidationListEntry findEntry(String identifier, int ccsid) throws Persis
  * @return
  *		ValidationListEntry
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 public ValidationListEntry findEntry(String identifier, int ccsid, ValidationListAttribute[] attributes) throws PersistenceException {
 	ValidationListEntry entry = new ValidationListEntry();
@@ -266,7 +266,7 @@ public ValidationListEntry findEntry(String identifier, int ccsid, ValidationLis
 	return entry;
 }
 /**
- * Returns the AS/400 system containing the validation list.
+ * Returns the IBM i system containing the validation list.
  *
  * @return com.ibm.as400.access.AS400
  */
@@ -290,7 +290,7 @@ public String getDescription() {
  * <p>
  * Note: The list is opened by the initial call to the list API. In doing so, the entire
  * contents of the list is retrieved as a snapshot and stored in a buffer on the
- * AS/400 system. The list contents can then be retrieved from the pre-filled
+ * IBM i system. The list contents can then be retrieved from the pre-filled
  * buffer, in whole or in part, at the convenience of the application by using a
  * system-provided handle. The handle is used to close the list when the
  * application has completed processing of all entries.
@@ -301,7 +301,7 @@ public String getDescription() {
  * entries, etc. For now we just keep it simple.
  *
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 public ValidationListEntry[] getEntries() throws PersistenceException {
 	ValidationListEntry[] list = new ValidationListEntry[0];
@@ -373,7 +373,7 @@ private AS400Structure getListInfoStruct() {
  * <p>
  * The list is opened by the initial call to the list API. In doing so, the entire
  * contents of the list is retrieved as a snapshot and stored in a buffer on the
- * AS/400 system. The list contents can then be retrieved from the pre-filled
+ * IBM i system. The list contents can then be retrieved from the pre-filled
  * buffer, in whole or in part, at the convenience of the application by using a
  * system-provided handle. The handle is used to close the list when the
  * application has completed processing of all entries.
@@ -395,7 +395,7 @@ private AS400Structure getListInfoStruct() {
  * @return
  *		The number of entries retrieved.
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 private int getNextEntries(byte[] listHandle, int listPosition, ValidationListEntry[] list) throws PersistenceException {
 	int recordsToReturn = list.length - listPosition;
@@ -432,7 +432,7 @@ private int getNextEntries(byte[] listHandle, int listPosition, ValidationListEn
  * Returns the number of entries in the validation list.
  *
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 public int getNumberOfEntries() throws PersistenceException {
 	ProgramCall pgm = new ProgramCall(getAS400());
@@ -472,7 +472,7 @@ public QSYSObjectPathName getPath() {
 	return path_;
 }
 /**
- * Returns a program parameter to be used for AS/400 Toolbox program calls that
+ * Returns a program parameter to be used for IBM i Toolbox program calls that
  * require the qualifed name of the validation list.
  * <p>
  * The object name is set into the first 10 bytes of the parameter value.
@@ -516,7 +516,7 @@ private AS400Structure getVlde0100Struct() {
 	return vlde0100_;
 }
 /**
- * Handles an unexpected exception that was caught as the result of invoking an AS/400
+ * Handles an unexpected exception that was caught as the result of invoking an IBM i
  * API or command. The exception is wrapped and surfaced as a PersistenceException.
  *
  * @exception PersistenceException
@@ -525,7 +525,7 @@ private void handleUnexpectedAS400Exception(Throwable e) throws PersistenceExcep
 	throw new PersistenceException(e);
 }
 /**
- * Handles unexpected messages that was received as the result of invoking an AS/400
+ * Handles unexpected messages that was received as the result of invoking an IBM i
  * API or command. The messages are wrapped and surfaced as a PersistenceException.
  *
  * @exception PersistenceException
@@ -534,7 +534,7 @@ private void handleUnexpectedAS400Messages(AS400Message[] messages) throws Persi
 	throw new PersistenceException(messages);
 }
 /**
- * Parse the validation list entries from the raw (AS/400) bytes of a specified buffer.
+ * Parse the validation list entries from the raw (IBM i) bytes of a specified buffer.
  * <p>
  * Beginning with the specified <i>start</i> position, the parsed bytes are inserted
  * as ValidationListEntry objects into the <i>list</i>. The list is assumed to be
@@ -585,7 +585,7 @@ private void parseEntries(
 	}
 }
 /**
- * Parse the translated data from the raw (AS/400) bytes of a specified buffer.
+ * Parse the translated data from the raw (IBM i) bytes of a specified buffer.
  * <p>
  * Beginning with the specified <i>start</i> position, bytes are returned
  * from the buffer up to the given <i>length</i>.
@@ -609,7 +609,7 @@ private byte[] parseEntryData(byte[] buffer, int start, int length) {
  * @param entry
  *		ValidationListEntry
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 validation list APIs.
+ *		If an error occurs while calling the IBM i validation list APIs.
  */
 public void removeEntry(ValidationListEntry entry) throws PersistenceException {
 	ProgramCall pgm = new ProgramCall(getAS400());
@@ -627,7 +627,7 @@ public void removeEntry(ValidationListEntry entry) throws PersistenceException {
 	runProgram(pgm);
 }
 /**
- * Run the given AS/400 command.
+ * Run the given IBM i command.
  *
  * @param c
  *		com.ibm.as400.access.CommandCall
@@ -642,7 +642,7 @@ private void runCommand(CommandCall c) throws PersistenceException {
 		handleUnexpectedAS400Messages(c.getMessageList());
 }
 /**
- * Run the given AS/400 program call.
+ * Run the given IBM i program call.
  *
  * @param p
  *		com.ibm.as400.access.ProgramCall
@@ -691,7 +691,7 @@ private void runProgram(ProgramCall p) throws PersistenceException {
 		 		 throw err;
 }
 /**
- * Run the given AS/400 service program call.
+ * Run the given IBM i service program call.
  *
  * @param p
  *		com.ibm.as400.access.ServiceProgramCall
@@ -727,7 +727,7 @@ private void runServiceProgram(ServiceProgramCall spc) throws PersistenceExcepti
 		 throw pe;
 }
 /**
- * Sets the AS/400 system containing the validation list.
+ * Sets the IBM i system containing the validation list.
  *
  * @param as400 com.ibm.as400.access.AS400
  */
@@ -757,13 +757,13 @@ public void setPath(QSYSObjectPathName path) {
  * <p>
  * The <i>EntryID</i> and <i>DataToEncrypt</i> must be specified for the entry prior
  * to verification. Returns true if the data to encrypt matches the data already
- * encrypted for the entry at that ID on the AS/400; otherwise returns false.
+ * encrypted for the entry at that ID on the IBM i; otherwise returns false.
  *
  * @param entry
  *		ValidationListEntry
  * @return boolean
  * @exception PersistenceException
- *		If an error occurs while calling the AS/400 APIs.
+ *		If an error occurs while calling the IBM i APIs.
  */
 public boolean verifyEntry(ValidationListEntry entry) throws PersistenceException {
 	// Note: length of ID & data to encrypt must be in range accepted by API
