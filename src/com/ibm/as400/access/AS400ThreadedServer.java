@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketException;
 import java.util.Hashtable;
 
 final class AS400ThreadedServer extends AS400Server implements Runnable
@@ -25,6 +26,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     private AS400ImplRemote system_;
     private int service_;
     private String jobString_;
+    private boolean disconnecting_ = false;
 
     private SocketContainer socket_;
     private InputStream inStream_;
@@ -222,6 +224,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
     final void forceDisconnect()
     {
+        disconnecting_ = true;
         if (readDaemonException_ == null)
         {
             readDaemonException_ = new ConnectionDroppedException(ConnectionDroppedException.DISCONNECT_RECEIVED);
@@ -358,8 +361,19 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
             }
             catch (IOException e)
             {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "run(): Caught IOException:", e);
-                // At this point all waiting threads must be notified that the connection has failed...
+                if (Trace.traceOn_)
+                {
+                  if (disconnecting_ &&
+                      e instanceof SocketException &&
+                      e.getMessage().equals("Socket closed"))
+                  {
+                    // It's an expected consequence of a client-initiated disconnect.
+                    Trace.log(Trace.DIAGNOSTIC, "run(): Caught SocketException during disconnect:", e);
+                  }
+                  else Trace.log(Trace.ERROR, "run(): Caught IOException:", e);
+                }
+
+                // At this point, all waiting threads must be notified that the connection has ended...
                 if (readDaemonException_ == null)
                 {
                     readDaemonException_ = e;
