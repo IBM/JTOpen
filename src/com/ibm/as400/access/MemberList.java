@@ -30,12 +30,12 @@ public class MemberList
   private static final String QUSLMBR_FORMAT_100 = "MBRL0100";
   private static final String QUSLMBR_FORMAT_200 = "MBRL0200";
 
-  private static final QSYSObjectPathName USERSPACE_PATH = new QSYSObjectPathName("QTEMP", "JT4QUSLMBR", "USRSPC"); // QTEMP/JT4QUSLMBR
+  private static final QSYSObjectPathName USERSPACE_PATH = new QSYSObjectPathName("QTEMP", "JT4QUSLMBR", "USRSPC"); // user space QTEMP/JT4QUSLMBR
 
 
   private AS400 system_;
   private QSYSObjectPathName path_;
-  private String memberSelection_ = "*ALL";  // all members
+  private String memberSelection_ = "*ALL";  // default: all members
   private final Map memberDescriptions_ = new HashMap();
   private final List attributes_ = new ArrayList();
 
@@ -62,17 +62,21 @@ public class MemberList
     path_ = new QSYSObjectPathName(file.getLibraryName(), file.getFileName(), "FILE");
 
     String memberName = file.getMemberName();
-    if (
-        memberName == null ||
-        memberName.length() == 0 ||
-        memberName.startsWith("*"))  // *FIRST, *LAST, etc.
+    if (memberName == null || memberName.length() == 0)
+    {
+      // default to *ALL
+    }
+    else if (memberName.startsWith("*"))  // *FIRST, *LAST, etc.
     {
       // The "member name" parameter of the QUSLMBR API must be either:
       // - a specific member name;
       // - a generic member name (a wildcarded name pattern); or
       // - special value *ALL, indicating "all members".
-      memberSelection_ = "*ALL";
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting member selection to *ALL.  Member name from AS400File object is: " + memberName);
+      memberSelection_ = "*ALL";  // force it to *ALL
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.DIAGNOSTIC, "Setting member selection to *ALL.  Member name from AS400File object:", memberName);
+      }
     }
     else
     {
@@ -125,14 +129,14 @@ public class MemberList
   /**
    * Determine the format to use on the API call, depending on the attribute.
    *
-   * @param attributeKey Attribute to be retrieved
+   * @param attribute Attribute to be retrieved
    * @return format string
    */
-  private String lookupFormat(int attributeKey)
+  private String lookupFormat(int attribute)
   {
     String format;
 
-    switch (attributeKey)
+    switch (attribute)
     {
       case MemberDescription.MEMBER_NAME:
         format = QUSLMBR_FORMAT_100;
@@ -147,7 +151,7 @@ public class MemberList
         break;
 
       default:
-        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized attribute key:", attributeKey);
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized attribute key:", attribute);
         format = QUSLMBR_FORMAT_200;
     }
 
@@ -174,11 +178,11 @@ public class MemberList
    * Adds an attribute to the attribute list which specifies which attributes of the member
    * are to be retrieved.  Constants that specify attributes are available in class {@link MemberDescription MemberDescription}.
    *
-   * @param attributeKey The attribute to be added.
+   * @param attribute The attribute to be added.
    */
-  public void addAttribute(int attributeKey)
+  public void addAttribute(int attribute)
   {
-    attributes_.add(new Integer(attributeKey));
+    attributes_.add(new Integer(attribute));
   }
 
   /**
