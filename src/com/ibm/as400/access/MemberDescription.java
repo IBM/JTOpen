@@ -26,6 +26,7 @@ import java.util.Map;
  *
  * @see MemberList
  * @see AS400File
+ * @see ObjectDescription
 **/
 public class MemberDescription
 {
@@ -279,6 +280,20 @@ public class MemberDescription
 
   private final AS400Bin4 intConverter_ = new AS400Bin4();
 
+
+  /**
+   * Constructs an MemberDescription.
+   * @param system The system.
+   * @param path The fully-qualified integrated file system path to the database file member.
+   * Consider using {@link QSYSObjectPathName QSYSObjectPathName} to compose
+   * the fully-qualified path string,
+   * or using {@link #MemberDescription(AS400,QSYSObjectPathName) MemberDescription(AS400,QSYSObjectPathName)} instead.
+  **/
+  public MemberDescription(AS400 system, String path)
+  {
+    this(system, new QSYSObjectPathName(path));
+  }
+
   /**
    * Constructs a MemberDescription object.
    * @param system The system.
@@ -327,14 +342,14 @@ public class MemberDescription
   /**
    * Determine the format to use on the API call depending on the attribute.
    *
-   * @param attributeKey Attribute key
+   * @param attribute Attribute key
    * @return Format name to be used for the API call.
    */
-  private String lookupFormat(int attributeKey)
+  private String lookupFormat(int attribute)
   {
     String format;
 
-    switch (attributeKey)
+    switch (attribute)
     {
       case FILE_NAME:
       case LIBRARY_NAME:
@@ -390,7 +405,7 @@ public class MemberDescription
         break;
 
       default:
-        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized attribute key:", attributeKey);
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized attribute key:", attribute);
         format = QUSRMBRD_FORMAT_100;
     }
 
@@ -401,7 +416,7 @@ public class MemberDescription
    * Returns the requested member attribute information object. If the value is not in the cache
    * it will be retrieved from the system.
    *
-   * @param attributeKey Attribute to be retrieved (either from cache or from system)
+   * @param attribute Attribute to be retrieved (either from cache or from system)
    *
    * @return Requested member attribute
    *
@@ -412,11 +427,11 @@ public class MemberDescription
    * @throws AS400SecurityException If a security or authority error occurs.
    * @throws AS400Exception If the program on the server sends an escape message.
    */
-  public Object getValue(int attributeKey)
+  public Object getValue(int attribute)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException,
   IOException, InterruptedException, ObjectDoesNotExistException
   {
-    final Integer key = new Integer(attributeKey);
+    final Integer key = new Integer(attribute);
     Object value = null;
 
     value = attributes_.get(key);
@@ -425,7 +440,7 @@ public class MemberDescription
     // Retrieve it from the server and set the value object at last.
     if (value == null)
     {
-      value = retrieve(attributeKey);
+      value = retrieve(attribute);
       // add value to the cache
       attributes_.put(key, value);
     }
@@ -437,19 +452,19 @@ public class MemberDescription
    * Sets the attribute of the member. Any previous information of the same attribute will be
    * replaced.
    *
-   * @param attributeKey Attribute key (Integer)
+   * @param attribute Attribute key (Integer)
    * @param value member information object to be set
    */
-  void setAttribute(int attributeKey, Object value)
+  void setAttribute(int attribute, Object value)
   {
-    attributes_.put(new Integer(attributeKey), value);
+    attributes_.put(new Integer(attribute), value);
   }
 
   /**
    * This method makes the actual call to the server and gets the information about the member.
    * All other member information which belong to the same format are also retrieved.
    *
-   * @param attributeKey Attribute to be retrieved and returned
+   * @param attribute Attribute to be retrieved and returned
    *
    * @return The value of the attribute
    *
@@ -460,11 +475,11 @@ public class MemberDescription
    * @throws AS400SecurityException If a security or authority error occurs.
    * @throws AS400Exception If the program on the server sends an escape message.
    */
-  private Object retrieve(int attributeKey)
+  private Object retrieve(int attribute)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException,
   IOException, InterruptedException, ObjectDoesNotExistException
   {
-      final String format = lookupFormat(attributeKey);
+      final String format = lookupFormat(attribute);
 
       ProgramParameter[] parameters = buildProgramParameters(format);
       ProgramCall program = new ProgramCall(system_, "/QSYS.LIB/QUSRMBRD.PGM", parameters);  // this API is not threadsafe
@@ -472,7 +487,7 @@ public class MemberDescription
       if (program.run())
       {
         readMemberInfo(parameters[0].getOutputData(), format);
-        return attributes_.get(new Integer(attributeKey));
+        return attributes_.get(new Integer(attribute));
       }
       else
       {
@@ -512,9 +527,9 @@ public class MemberDescription
 
 
   // Returns the offset of the specified field, in the MBRD* structures.
-  private static final int offsetOf(int attributeKey)
+  private static final int offsetOf(int attribute)
   {
-    switch (attributeKey)
+    switch (attribute)
     {
         // Fields in format MBRD0100:
       case FILE_NAME:                               return   8;
@@ -571,8 +586,8 @@ public class MemberDescription
       case RECORD_FORMAT_SELECTOR_LIBRARY_NAME:     return 322;
 
       default:
-        Trace.log(Trace.ERROR, "Unrecognized attribute key:", attributeKey);
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, attributeKey);
+        Trace.log(Trace.ERROR, "Unrecognized attribute key:", attribute);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, attribute);
     }
   }
 
