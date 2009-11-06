@@ -19,49 +19,42 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.Vector;
-import java.beans.PropertyChangeSupport;
-import java.beans.PropertyChangeListener;
-import java.beans.VetoableChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
 
 /**
- *The AS400FileRecordDescription class represents the record descriptions of a physical
- *or logical file on the server.  This class is used to retrieve the file field description
- *of a physical or logical file, and to create Java source code
- *for a class extending from
- *<a href = "RecordFormat.html">RecordFormat</a> that
- *can then be compiled and used as input to the
- *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a>
- *method.
- *This allows the record format to be created statically during
- *development time and then reused when needed.
- *The class also provides a method for returning RecordFormat objects
- *that can be used as input to the AS400File.setRecordFormat() method.
- *This method can be used to create the record format dynamically.
- *<p>The output from the <a href="#createRecordFormatSource">createRecordFormatSource()</a>
- *and
- *<a href="#retrieveRecordFormat">retrieveRecordFormat()</a> methods
- *contains enough information to use to describe the record format of the
- *existing file from which it was generated.  The record formats
- *generated are not meant for creating files with the same format as the
- *file from which they are retrieved.  Use the IBM i "Copy File" (CPYF) command to create
- *a file with the same format as an existing file.
- *<br>
- *AS400FileRecordDescription objects generate the following events:
- *<ul>
- *<li><a href="AS400FileRecordDescriptionEvent.html">AS400FileRecordDescriptionEvent</a>
- *<br>The events fired are:
- *<ul>
- *<li>recordFormatRetrieved
- *<li>recordFormatSourceCreated
- *</ul>
- *<li>PropertyChangeEvent
- *<li>VetoableChangeEvent
- *</ul>
+ * Represents the record descriptions of a physical
+ * or logical file on the server.  This class is used to retrieve the file field description
+ * of a physical or logical file, and to create Java source code
+ * for a class extending from
+ * <a href = "RecordFormat.html">RecordFormat</a> that
+ * can then be compiled and used as input to the
+ * <a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a>
+ * method.
+ * This allows the record format to be created statically during
+ * development time and then reused when needed.
+ * The class also provides a method for returning RecordFormat objects
+ * that can be used as input to the AS400File.setRecordFormat() method.
+ * This method can be used to create the record format dynamically.
+ * <p>The output from the <a href="#createRecordFormatSource">createRecordFormatSource()</a>
+ * and
+ * <a href="#retrieveRecordFormat">retrieveRecordFormat()</a> methods
+ * contains enough information to use to describe the record format of the
+ * existing file from which it was generated.  The record formats
+ * generated are not meant for creating files with the same format as the
+ * file from which they are retrieved.  Use the IBM i "Copy File" (CPYF) command to create
+ * a file with the same format as an existing file.
+ * <br>
+ * AS400FileRecordDescription objects generate the following events:
+ * <ul>
+ * <li><a href="AS400FileRecordDescriptionEvent.html">AS400FileRecordDescriptionEvent</a>
+ * <br>The events fired are:
+ * <ul>
+ * <li>recordFormatRetrieved
+ * <li>recordFormatSourceCreated
+ * </ul>
+ * <li>PropertyChangeEvent
+ * <li>VetoableChangeEvent
+ * </ul>
 **/
 class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescriptionImpl
 {
@@ -810,7 +803,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        Trace.log(Trace.ERROR, "DSPFFD failed to return success message");
+        Trace.log(Trace.ERROR, "DSPFFD failed to return success message", cmd);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
@@ -849,7 +842,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        Trace.log(Trace.ERROR, "DSPFD failed to return success message");
+        Trace.log(Trace.ERROR, "DSPFD failed to return success message", cmd);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
@@ -1046,7 +1039,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        Trace.log(Trace.ERROR, "DSPFFD failed to return success message.");
+        Trace.log(Trace.ERROR, "DSPFFD failed to return success message", cmd);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
@@ -1127,46 +1120,74 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     // Retrieve the field information for the file
     // ------------------------------------------------------------ 
     // Generate file on the server containing the file field description
-    // ------------------------------------------------------------ 
+    // ------------------------------------------------------------
     String cmd = "DSPFFD FILE(" + library_ + "/" + file_ + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FFD)";
     //@B5D theFile_.chooseImpl();
     Record[] records = null;  //@E0A
+    boolean neededToResetCcsid = false;
+
     synchronized(lockJT4FFD_) //@E0A
     {                         //@E0A
-      AS400Message[] msgs = theFile_.execute(cmd); //@B5C
+      AS400FileImplBase tempFile = null;
+      boolean done = false;
 
-      if(msgs.length > 0)
+      for (int i=0; !done && i<2; i++)  // no more than two tries
       {
-        if(!(msgs[0].getID().equals("CPF9861") || msgs[0].getID().equals("CPF3030")))
+        AS400Message[] msgs = theFile_.execute(cmd); //@B5C
+
+        if(msgs.length > 0)
         {
-          throw new AS400Exception(msgs);
+          if(!(msgs[0].getID().equals("CPF9861") ||   // "Output file ... created in library ..."
+               msgs[0].getID().equals("CPF3030")))    // "... records added to member ... in file ..."
+          {
+            throw new AS400Exception(msgs);
+          }
         }
-      }
-      else
-      { // Unexpected reply
-        Trace.log(Trace.ERROR, "DSPFFD failed to return success message");
-        throw new InternalErrorException(InternalErrorException.UNKNOWN);
-      }
+        else
+        { // Unexpected reply
+          Trace.log(Trace.ERROR, "DSPFFD failed to return success message", cmd);
+          throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        }
 
-      // Read all the records from the file so we can extract the field information locally
-      //@B5D SequentialFile dspffd = new SequentialFile(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE");
-      AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A
-                                                                     "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
-      dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE",             //@B5A
-                    new QWHDRFFDFormat(system_.getCcsid()), false, false, false);  //@B5A
+        // Read all the records from the file so we can extract the field information locally
+        //@B5D SequentialFile dspffd = new SequentialFile(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE");
 
-      //@B5D try
-      //@B5D {
-      //@B5D   dspffd.setRecordFormat(new QWHDRFFDFormat(system_.getCcsid()));
-      //@B5D }
-      //@B5D catch(PropertyVetoException e)
-      //@B5D { // Quiet the compiler
-      //@B5D }
-      records = dspffd.readAll("seq", 100); //@B5C @D1C @E0C
-      dspffd.delete(); //@E0A
-    }                  //@E0A
+        if (tempFile == null)
+        {
+          tempFile = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A
+                                                                         "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
+          tempFile.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE",             //@B5A
+                        new QWHDRFFDFormat(system_.getCcsid()), false, false, false);  //@B5A
+        }
 
-    if (records.length == 0) {
+        //@B5D try
+        //@B5D {
+        //@B5D   dspffd.setRecordFormat(new QWHDRFFDFormat(system_.getCcsid()));
+        //@B5D }
+        //@B5D catch(PropertyVetoException e)
+        //@B5D { // Quiet the compiler
+        //@B5D }
+        records = tempFile.readAll("seq", 100); //@B5C @D1C @E0C
+
+        if (records.length == 0)
+        {
+          // We got no records back. Assume that it's because the default CCSID for the outfile was incompatible with the CCSID for the file's format.
+          // Reset the outfile's CCSID and try again.
+          done = false;
+          neededToResetCcsid = true;
+          int ccsid = system_.getCcsid();
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No records were returned from command " + cmd + "; system CCSID is: " + ccsid + ". Resetting CCSID of DSPFFD OUTFILE to " + ccsid);
+          resetOutfileCCSID("QTEMP", "JT4FFD", ccsid);
+        }
+        else done = true;
+
+      } // 'for' loop
+
+      tempFile.delete(); //@E0A
+    } // 'synchronized' block
+
+    if (records.length == 0)
+    {
       Trace.log(Trace.ERROR, "No records were returned from command " + cmd);
       throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
@@ -1177,38 +1198,61 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     // Generate file on the server containing the key field description
     cmd = "DSPFD FILE(" + library_ + "/" + file_ + ") TYPE(*ACCPTH) OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FD)";
     Record[] keyRecords = null; //@E0A
+
     synchronized(lockJT4FD_)    //@E0A
     {                           //@E0A
-      AS400Message[] msgs = theFile_.execute(cmd); //@B5C @E0C
+      AS400FileImplBase tempFile = null;
+      boolean done = false;
 
-      if(msgs.length > 0)
+      for (int i=0; !done && i<2; i++)  // no more than two tries
       {
-        if(!(msgs[0].getID().equals("CPF9861") || msgs[0].getID().equals("CPF3030")))
-        {
-          throw new AS400Exception(msgs);
-        }
-      }
-      else
-      { // Unexpected reply
-        Trace.log(Trace.ERROR, "DSPFFD failed to return success message");
-        throw new InternalErrorException(InternalErrorException.UNKNOWN);
-      }
+        AS400Message[] msgs = theFile_.execute(cmd); //@B5C @E0C
 
-      // Read all the records from the file so we can extract the key field information locally
-      //@B5D dspffd = new SequentialFile(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE");
-      AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A @E0C
-                                                                     "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
-      dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",              //@B5A
-                    new QWHFDACPFormat(system_.getCcsid()), false, false, false);  //@B5A
-      //@B5D try
-      //@B5D {
-      //@B5D   dspffd.setRecordFormat(new QWHFDACPFormat(system_.getCcsid()));
-      //@B5D }
-      //@B5D catch(PropertyVetoException e)
-      //@B5D { // Quiet the compiler
-      //@B5D }
-      keyRecords = dspffd.readAll("key", 100); //@B5C @D1C @E0C
-      dspffd.delete(); //@E0A
+        if(msgs.length > 0)
+        {
+          if(!(msgs[0].getID().equals("CPF9861") || msgs[0].getID().equals("CPF3030")))
+          {
+            throw new AS400Exception(msgs);
+          }
+        }
+        else
+        { // Unexpected reply
+          Trace.log(Trace.ERROR, "DSPFFD failed to return success message", cmd);
+          throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        }
+
+        // Read all the records from the file so we can extract the key field information locally
+        //@B5D dspffd = new SequentialFile(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE");
+        if (tempFile == null)
+        {
+          tempFile = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A @E0C
+                                                         "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
+          tempFile.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",              //@B5A
+                          new QWHFDACPFormat(system_.getCcsid()), false, false, false);  //@B5A
+        }
+        //@B5D try
+        //@B5D {
+        //@B5D   dspffd.setRecordFormat(new QWHFDACPFormat(system_.getCcsid()));
+        //@B5D }
+        //@B5D catch(PropertyVetoException e)
+        //@B5D { // Quiet the compiler
+        //@B5D }
+        keyRecords = tempFile.readAll("key", 100); //@B5C @D1C @E0C
+
+        // If we needed to reset the CCSID of the DSPFFD temp file, we probably also need to reset the CCSID of the DSPFD temp file.
+        if (keyRecords.length == 0 && neededToResetCcsid)
+        {
+          // We got no records back. Assume that it's because the default CCSID for the outfile was incompatible with the CCSID for the file's format.
+          // Reset the outfile's CCSID and try again.
+          done = false;
+          int ccsid = system_.getCcsid();
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No key records were returned from command " + cmd + "; system CCSID is: " + ccsid + ". Resetting CCSID of DSPFD OUTFILE to " + ccsid);
+          resetOutfileCCSID("QTEMP", "JT4FD", ccsid);
+        }
+        else done = true;
+      }  // 'for' loop
+
+      tempFile.delete(); //@E0A
     }                  //@E0A
 
     // Determine the number of record formats contained in the file
@@ -1249,6 +1293,29 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     return rfs;
   }
 
+  private final void resetOutfileCCSID(String library, String file, int ccsid)
+  throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+  {
+    String cmd = "CHGPF FILE(" + library + "/" + file + ") SRCFILE(*NONE) CCSID("+ccsid+")";
+    AS400Message[] msgs = theFile_.execute(cmd);
+
+    if(msgs.length > 0)
+    {
+      if(!(msgs[0].getID().equals("CPD3238") || // "A new format was created for file ..."
+           msgs[0].getID().equals("CPC7303")))  // "File JT4FFD in library QTEMP changed"
+      {
+        throw new AS400Exception(msgs);
+      }
+    }
+    else
+    { // Unexpected reply
+      Trace.log(Trace.ERROR, "CHGPF failed to return success message", cmd);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
+  }
 
   /**
    *Sets the <a href="ipnpgmgd.html">integrated file system path name</a> for
