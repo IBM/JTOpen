@@ -1,3 +1,17 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  MemberDescription.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 2009-2009 International Business Machines Corporation and
+// others.  All rights reserved.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
 package com.ibm.as400.access;
 
 import java.io.IOException;
@@ -16,6 +30,11 @@ import java.util.Map;
  * and passing one of the attribute identifier constants defined in this class.
  * <p>
  * Note: String data is always stored and returned without trailing blanks.
+ * <P>
+ * Performance hint:
+ * If you anticipate retrieving multiple attributes for a given member,
+ * first call {@link #refresh refresh()}, which will make a single API call
+ * to retrieve (and cache) all of the member's attribute values.
  * <p>
  * Implementation note:
  * This class internally calls the "Retrieve Member Description" (QUSRMBRD) API.
@@ -268,11 +287,6 @@ public class MemberDescription
    */
   public static final int RECORD_FORMAT_SELECTOR_LIBRARY_NAME = 43;
 
-  /**
-   * Specifies that all member information (all fields) should be retrieved.
-   */
-  public static final int ALL_MEMBER_INFORMATION = Integer.MAX_VALUE;
-
 
   private AS400 system_;
   private QSYSObjectPathName pathName_;
@@ -400,7 +414,6 @@ public class MemberDescription
       case RECORD_CAPACITY:
       case RECORD_FORMAT_SELECTOR_PROGRAM_NAME:
       case RECORD_FORMAT_SELECTOR_LIBRARY_NAME:
-      case ALL_MEMBER_INFORMATION:
         format = QUSRMBRD_FORMAT_300;
         break;
 
@@ -446,6 +459,22 @@ public class MemberDescription
     }
 
     return value;
+  }
+
+
+  /**
+   * Retrieves (and caches) all attributes of this member from the system.
+   *
+   * @throws ObjectDoesNotExistException If a system object necessary for the call does not exist on the system.
+   * @throws InterruptedException If this thread is interrupted.
+   * @throws IOException If an error occurs while communicating with the system.
+   * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+   * @throws AS400SecurityException If a security or authority error occurs.
+   * @throws AS400Exception If the program on the server sends an escape message.
+  **/
+  public void refresh() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  {
+    retrieve(RECORD_FORMAT_SELECTOR_LIBRARY_NAME);
   }
 
   /**
@@ -516,7 +545,13 @@ public class MemberDescription
     // Qualified database file name:
     parameterList[3] = new ProgramParameter(charConverter.stringToByteArray(system_, pathName_.toQualifiedObjectName()));
     // Database member name:
-    parameterList[4] = new ProgramParameter(new AS400Text(10).toBytes(pathName_.getMemberName()));
+    String memberName = pathName_.getMemberName();
+    if (memberName.length() == 0)
+    {
+      memberName = "*FIRST";
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Defaulting to member *FIRST", pathName_.getPath());
+    }
+    parameterList[4] = new ProgramParameter(new AS400Text(10).toBytes(memberName));
     // Override processing:  (1 == "overrides are processed")
     parameterList[5] = new ProgramParameter(charConverter.stringToByteArray(system_, "1"));
     // Error code:
