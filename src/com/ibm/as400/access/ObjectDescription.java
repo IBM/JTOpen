@@ -29,6 +29,9 @@ import java.util.*;
  * attributes can be retrieved by calling {@link #getValue getValue()} and
  * passing one of the integer attribute constants defined in this class.
  * <P>
+ * Note: This class is not intended for use with database file members (type *MBR).
+ * To retrieve attributes of file members, use {@link MemberDescription MemberDescription}.
+ * <P>
  * Performance hint:
  * If you anticipate retrieving multiple attributes for a given QSYS object,
  * first call {@link #refresh refresh()}, which will make a single API call
@@ -39,6 +42,7 @@ import java.util.*;
  * List Object Locks (QWCLOBJL) APIs.
  *
  * @see ObjectList
+ * @see MemberDescription
 **/
 public class ObjectDescription
 {  
@@ -934,10 +938,7 @@ public class ObjectDescription
   }
 
   private AS400 system_;
-  private String library_;
-  private String name_;
-  private String type_;
-  private String aspDeviceName_;	// @550A
+  private QSYSObjectPathName path_;
   private String aspSearchType_ = ASP_SEARCH_TYPE_ASP;	// @550A
   private byte status_;
 
@@ -950,30 +951,27 @@ public class ObjectDescription
    * @param path The fully-qualified integrated file system path to the object.
    * Special values for the library portion of the path include %CURLIB% and
    * %LIBL%. Only external object types are allowed for the object type.
-   * Consider using {@link QSYSObjectPathName QSYSObjectPathName} to compose the fully-qualified path string.
+   * Consider using {@link QSYSObjectPathName QSYSObjectPathName} to compose
+   * the fully-qualified path string,
+   * or using {@link #ObjectDescription(AS400,QSYSObjectPathName) ObjectDescription(AS400,QSYSObjectPathName)} instead.
   **/
   public ObjectDescription(AS400 system, String path)
+  {
+    this(system, new QSYSObjectPathName(path));
+  }
+
+
+  /**
+   * Constructs an ObjectDescription given the specified path to the object.
+   * @param system The system.
+   * @param path The fully-qualified integrated file system path to the object.
+  **/
+  public ObjectDescription(AS400 system, QSYSObjectPathName path)
   {
     if (system == null) throw new NullPointerException("system");
     if (path == null) throw new NullPointerException("path");
     system_ = system;
-    String objectPath = path.toUpperCase();	// @550A
-    String aspName = null;					// @550A
-    int locationOfQSYS = objectPath.indexOf("/QSYS.LIB");	// @550A
-    if(locationOfQSYS > 0)	// @550A If name starts with an ASP
-    {						// @550A
-    	aspName = objectPath.substring(0, locationOfQSYS);	// @550A
-    	path = path.substring(locationOfQSYS);				// @550A
-    	// remove starting / from the aspName if it exists
-    	int location = aspName.indexOf("/");				// @550A
-    	if(location == 0)									// @550A
-    		aspName = aspName.substring(1);					// @550A
-    	aspDeviceName_ = aspName;							// @550A
-    }														// @550A
-    QSYSObjectPathName parse = new QSYSObjectPathName(path);
-    library_ = parse.getLibraryName();
-    name_ = parse.getObjectName();
-    type_ = parse.getObjectType();
+    path_ = path;
   }
 
   /**
@@ -994,10 +992,7 @@ public class ObjectDescription
     if (objectName == null) throw new NullPointerException("name");
     if (objectType == null) throw new NullPointerException("type");
     system_ = system;
-    QSYSObjectPathName pn = new QSYSObjectPathName(objectLibrary, objectName, objectType); // Verify valid values.
-    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
-    name_ = pn.getObjectName();
-    type_ = pn.getObjectType();
+    path_ = new QSYSObjectPathName(objectLibrary, objectName, objectType); // Verify valid values.
   }
   
   // @550A
@@ -1027,11 +1022,10 @@ public class ObjectDescription
     if (objectName == null) throw new NullPointerException("name");
     if (objectType == null) throw new NullPointerException("type");
     system_ = system;
-    QSYSObjectPathName pn = new QSYSObjectPathName(objectLibrary, objectName, objectType); // Verify valid values.
-    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
-    name_ = pn.getObjectName();
-    type_ = pn.getObjectType();
-    aspDeviceName_ = aspDeviceName;
+    path_ = new QSYSObjectPathName(objectLibrary, objectName, objectType); // Verify valid values.
+    if (aspDeviceName != null && aspDeviceName.length() != 0) {
+      try { path_.setAspName(aspDeviceName); } catch (PropertyVetoException e) {} // can't happen
+    }
   }
 
   /**
@@ -1040,10 +1034,7 @@ public class ObjectDescription
   ObjectDescription(AS400 sys, String lib, String name, String type, byte status)
   {
     system_ = sys;
-    QSYSObjectPathName pn = new QSYSObjectPathName(lib, name, type); // Verify valid values.
-    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
-    name_ = pn.getObjectName();
-    type_ = pn.getObjectType();
+    path_ = new QSYSObjectPathName(lib, name, type); // Verify valid values.
     status_ = status;
   }
   
@@ -1054,12 +1045,11 @@ public class ObjectDescription
   ObjectDescription(AS400 sys, String lib, String name, String type, byte status, String aspDeviceName, String aspSearchType)
   {
     system_ = sys;
-    QSYSObjectPathName pn = new QSYSObjectPathName(lib, name, type); // Verify valid values.
-    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
-    name_ = pn.getObjectName();
-    type_ = pn.getObjectType();
+    path_ = new QSYSObjectPathName(lib, name, type); // Verify valid values.
     status_ = status;
-    aspDeviceName_ = aspDeviceName;
+    if (aspDeviceName != null && aspDeviceName.length() != 0) {
+      try { path_.setAspName(aspDeviceName); } catch (PropertyVetoException e) {} // can't happen
+    }
     aspSearchType_ = aspSearchType;
   }
 
@@ -1074,9 +1064,9 @@ public class ObjectDescription
     {
       ObjectDescription otherObj = (ObjectDescription)obj;
       if (!otherObj.getSystem().getSystemName().equals(system_.getSystemName())) return false;
-      if (!otherObj.getLibrary().equals(library_)) return false;
-      if (!otherObj.getName().equals(name_)) return false;
-      if (!otherObj.getType().equals(type_)) return false;
+      if (!otherObj.getLibrary().equals(getLibrary())) return false;
+      if (!otherObj.getName().equals(getName())) return false;
+      if (!otherObj.getType().equals(getType())) return false;
       return true;
     }
     catch (Exception e) {
@@ -1175,7 +1165,7 @@ public class ObjectDescription
   **/
   public String getLibrary()
   {
-    return library_;
+    return path_.getLibraryName();
   }
 
 
@@ -1185,7 +1175,7 @@ public class ObjectDescription
   **/
   public String getName()
   {
-    return name_;
+    return path_.getObjectName();
   }
   
   //@550A
@@ -1196,7 +1186,7 @@ public class ObjectDescription
    */
   public String getAspDeviceName()
   {
-	  return aspDeviceName_;
+	  return path_.getAspName();
   }
 
   //@550A
@@ -1215,15 +1205,7 @@ public class ObjectDescription
   **/
   public String getPath()
   {
-	if(aspDeviceName_ != null)
-	{
-		StringBuffer path = new StringBuffer("/");
-		path.append(aspDeviceName_);
-		path.append(QSYSObjectPathName.toPath(library_, name_, type_));
-		return path.toString();
-	}
-	else
-		return QSYSObjectPathName.toPath(library_, name_, type_);
+    return path_.getPath();
   }
 
 
@@ -1279,7 +1261,7 @@ public class ObjectDescription
   **/
   public String getType()
   {
-    return type_;
+    return path_.getObjectType();
   }
 
 
@@ -1471,18 +1453,17 @@ public class ObjectDescription
  {
    final int systemCCSID = system_.getCcsid();
    CharConverter conv = new CharConverter(systemCCSID);
+   String aspDeviceName = getAspDeviceName();
 
-   ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 6 : 9];  // Allow optional parameters if ASP device name is set
+   ProgramParameter[] parms = new ProgramParameter[(aspDeviceName.length() == 0) ? 6 : 9];  // Allow optional parameters if ASP device name is set
 
    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));       //Qualified user space name
    parms[1] = new ProgramParameter(conv.stringToByteArray(FORMAT_NAME)); // Format Name
-   StringBuffer objectNameBuff = new StringBuffer("                    ");        // initialize to 20 blanks
-   objectNameBuff.replace(0,  name_.length(),    name_);                          
-   objectNameBuff.replace(10, 10+library_.length(), library_);                    
-   parms[2] = new ProgramParameter(conv.stringToByteArray(objectNameBuff.toString()));   // Qualified Object Name (10-ObjectName 10- Library)
+   String objectNameBuff = path_.toQualifiedObjectName();  // [10-char objectName] + [10-char libraryName]
+   parms[2] = new ProgramParameter(conv.stringToByteArray(objectNameBuff));   // Qualified Object Name (10-ObjectName 10- Library)
 
    StringBuffer objTypeBuff = new StringBuffer("*         ");  // initialize to 10 blanks (with preceding asterisk)
-   objTypeBuff.replace(1,  type_.length(), type_);
+   objTypeBuff.replace(1,  getType().length(), getType());
    parms[3] = new ProgramParameter(conv.stringToByteArray(objTypeBuff.toString()));   // Object type
  
    parms[4] = new ProgramParameter(conv.stringToByteArray("*NONE     "));   //  Member Name
@@ -1493,7 +1474,7 @@ public class ObjectDescription
      parms[6] = new ProgramParameter(conv.stringToByteArray(""));        // Optional parm - pathName  (Leave blank, so ignored)
      parms[7] = new ProgramParameter(BinaryConverter.intToByteArray(0)); // Optional parm - pathNameLength
      StringBuffer aspDeviceNameBuff = new StringBuffer("          ");    // ASP name - initialize to 10 blanks
-     aspDeviceNameBuff.replace(0,  type_.length(), aspDeviceName_);
+     aspDeviceNameBuff.replace(0,  aspDeviceName.length(), aspDeviceName);
      parms[8] = new ProgramParameter(conv.stringToByteArray(aspDeviceNameBuff.toString()));    // Optional parm - Qualified ASP Name
    }
    
@@ -1770,19 +1751,18 @@ public class ObjectDescription
 
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
+    String aspDeviceName = getAspDeviceName();
 
     int format = lookupFormat(attribute);
     int size = lookupSize(format);
-    ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 5 : 7];	// @550C changed to allow seven parameters if asp device name is specified
+    AS400Text text10 = new AS400Text(10, ccsid, system_);
+    ProgramParameter[] parms = new ProgramParameter[(aspDeviceName.length() == 0) ? 5 : 7];	// @550C changed to allow seven parameters if asp device name is specified
     parms[0] = new ProgramParameter(size); // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(size)); // length of receiver variable
     parms[2] = new ProgramParameter(conv.stringToByteArray("OBJD0"+format));
-    byte[] objectNameAndLibrary = new byte[20];
-    AS400Text text10 = new AS400Text(10, ccsid, system_);
-    text10.toBytes(name_, objectNameAndLibrary, 0);
-    text10.toBytes(library_, objectNameAndLibrary, 10);
-    parms[3] = new ProgramParameter(objectNameAndLibrary); // object and library name
-    parms[4] = new ProgramParameter(text10.toBytes("*"+type_)); // object type
+    String objectNameAndLibrary = path_.toQualifiedObjectName();  // [10-char objectName] + [10-char libraryName]
+    parms[3] = new ProgramParameter(conv.stringToByteArray(objectNameAndLibrary)); // object and library name
+    parms[4] = new ProgramParameter(text10.toBytes("*"+getType())); // object type
     if(parms.length == 7)	// @550A  add error code and asp control parameters
     {													// @550A
     	parms[5] = new ProgramParameter(new byte[8]);	// @550A Error Code
@@ -1790,11 +1770,11 @@ public class ObjectDescription
     	byte[] controlFormat = new byte[24];			// @550A
     	System.arraycopy(BinaryConverter.intToByteArray(24), 0, controlFormat, 0, 4);	// @550A
     	for(int i=4; i<controlFormat.length; i++) controlFormat[i] = 0x40;	// @550A blank pad characters
-    	conv.stringToByteArray(aspDeviceName_, controlFormat, 4);			// @550A
-    	if(!aspDeviceName_.equals(ASP_NAME_ALL) &&
-    	   !aspDeviceName_.equals(ASP_NAME_SYSBAS) &&
-    	   !aspDeviceName_.equals(ASP_NAME_CURASPGRP) &&
-    	   !aspDeviceName_.equals(ASP_NAME_ALLAVL))	// @550A  if the device name is one of the special values, then blanks should be used for the search type
+    	conv.stringToByteArray(aspDeviceName, controlFormat, 4);			// @550A
+    	if(!aspDeviceName.equals(ASP_NAME_ALL) &&
+    	   !aspDeviceName.equals(ASP_NAME_SYSBAS) &&
+    	   !aspDeviceName.equals(ASP_NAME_CURASPGRP) &&
+    	   !aspDeviceName.equals(ASP_NAME_ALLAVL))	// @550A  if the device name is one of the special values, then blanks should be used for the search type
     	{
     		conv.stringToByteArray(aspSearchType_, controlFormat, 14);	// @550A specify the search type if device name is not a special value
     	}
@@ -1805,6 +1785,10 @@ public class ObjectDescription
     pc.suggestThreadsafe();  // the called API is thread-safe
     if (!pc.run())
     {
+
+      if (getType().equals("MBR")) {
+        Trace.log(Trace.ERROR, "For objects of type *MBR, use MemberDescription instead of ObjectDescription", path_.getPath());
+      }
       throw new AS400Exception(pc.getMessageList());
     }
     byte[] data = parms[0].getOutputData();
@@ -1826,9 +1810,23 @@ public class ObjectDescription
       }
       data = parms[0].getOutputData();
     }
-    name_ = conv.byteArrayToString(data, 8, 10).trim();
-    type_ = conv.byteArrayToString(data, 28, 10).trim().substring(1); // Strip off leading *
-    library_ = conv.byteArrayToString(data, 38, 10).trim();
+    String name = conv.byteArrayToString(data, 8, 10).trim();
+    String type = conv.byteArrayToString(data, 28, 10).trim().substring(1); // Strip off leading *
+    String library = conv.byteArrayToString(data, 38, 10).trim();
+    if (!name.equals(getName()) ||
+        !type.equals(getType()) ||
+        !library.equals(getLibrary()))
+    {
+      try {
+        path_.setObjectName(name);
+        path_.setObjectType(type);
+        path_.setLibraryName(library);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Updated path from returned attributes", path_.getPath());
+      }
+      catch (PropertyVetoException pve) { // will never happen
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve.getMessage());
+      }
+    }
     set(OBJECT_ASP_NUMBER, BinaryConverter.byteArrayToInt(data, 48));
     set(OWNER, conv.byteArrayToString(data, 52, 10).trim());
     set(DOMAIN, conv.byteArrayToString(data, 62, 2));
