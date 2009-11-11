@@ -1722,7 +1722,12 @@ public class User implements Serializable
             cal.set(Calendar.SECOND, Integer.parseInt(previousSignon.substring(11, 13)));
             // Set the correct time zone (in case client is in a different zone than server).
             if (systemTimeZone_ == null) {
-              systemTimeZone_ = getDateTimeConverter().getSystemTimeZone();
+              try {
+                systemTimeZone_ = getDateTimeConverter().getSystemTimeZone();
+              }
+              catch (Throwable t) {
+                if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unable to determine time zone of system. Assuming server is in the same time zone as client application.", t);
+              }
             }
             if (systemTimeZone_ != null) cal.setTimeZone(systemTimeZone_);
             previousSignedOnDate_ = cal.getTime();

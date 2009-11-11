@@ -210,7 +210,7 @@ public class DateTimeConverter
     byte[] converted = convert(data, inFormat, "*YYMD");
     Record rec = format17_.getNewRecord(converted);
 
-    if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+    if (Trace.traceOn_)
     {
       Trace.log(Trace.DIAGNOSTIC, "DateTimeConverter record parsed from bytes: "+rec.toString());
     }
@@ -293,7 +293,7 @@ public class DateTimeConverter
     String msStr = (ms < 100 ? "0" : "") + (ms < 10 ? "0" : "") + ms;
     rec.setField("millisecond", msStr);
 
-    if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+    if (Trace.traceOn_)
     {
       Trace.log(Trace.DIAGNOSTIC, "DateTimeConverter record parsed from Date: "+rec.toString());
     }
@@ -371,16 +371,36 @@ public class DateTimeConverter
              ObjectDoesNotExistException
   {
     // To obtain a standard ID for the time zone, simply concatenate "GMT" and the QUTCOFFSET value.
+    String utcOffset = null;
     try
     {
       SystemValue sv = new SystemValue(system, "QUTCOFFSET");
-      String utcOffset = (String)sv.getValue();  // returns a value such as "-0500"
-      return TimeZone.getTimeZone("GMT" + utcOffset);
+      utcOffset = (String)sv.getValue();  // returns a value such as "-0500"
+      if (utcOffset == null || utcOffset.length() == 0)
+      {
+        if (Trace.traceOn_) {
+          Trace.log(Trace.DIAGNOSTIC, "QUTCOFFSET is not set. Assuming server is in the same time zone as client application.");
+        }
+        return TimeZone.getDefault();
+      }
+      else return TimeZone.getTimeZone("GMT" + utcOffset);
     }
     catch (RequestNotSupportedException e)  // this won't happen
     {  // ... but if it does happen, trace it and rethrow as a runtime exception
       Trace.log(Trace.ERROR, e);
       throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+    }
+    catch (RuntimeException e)
+    {
+      // Note: We've observed the following error during testing:
+      // java.lang.NullPointerException at java.util.TimeZone.parseCustomTimeZone()
+      if (Trace.traceOn_) {
+        Trace.log(Trace.WARNING, "Unable to determine time zone of system. " +
+                  "QUTCOFFSET value is " + utcOffset + ". " +
+                  "Assuming server is in the same time zone as client application.",
+                  e);
+      }
+      return TimeZone.getDefault();
     }
   }
 
