@@ -929,6 +929,7 @@ class JDSQLStatement
 
         // Trim once and for all.                                                          @E1A
         value_ = value_.trim();                                                         // @E1A
+        tokenizer_ = null; //@mem make avail for GC now
     }
 
 
