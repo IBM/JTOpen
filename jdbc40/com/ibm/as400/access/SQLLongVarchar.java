@@ -121,7 +121,7 @@ implements SQLData
             // actual length is less that field length.  Note the 0s are written only if 
             // the field length is pretty big.  The data stream code (DBBaseRequestDS)
             // does not compress anything smaller than 1K.
-            if((maxLength_ > 256) && (maxLength_ - temp.length > 16))
+            if(  (maxLength_ - temp.length > 16)) //@rle
             {
                 int stopHere = offset + 2 + maxLength_;
                 for(int i=offset + 2 + temp.length; i<stopHere; i++)
