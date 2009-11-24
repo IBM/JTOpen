@@ -982,7 +982,7 @@ implements Statement
                                                              sqlStatement, rowCache, connection_.getCatalog(),
                                                              cursor_.getName(), maxRows_, resultSetType_,
                                                              actualConcurrency, fetchDirection_, fetchSize_);    // @E1C
-                            if(resultSet_.getConcurrency () != resultSetConcurrency_)
+                            if(resultSet_.getConcurrency () != resultSetConcurrency_ && resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE) //@nowarn only warn if concurrency level is lessened 
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                         }                                                                                                   //@GKA
                     }
