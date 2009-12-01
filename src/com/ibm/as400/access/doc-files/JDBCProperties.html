@@ -140,28 +140,28 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2"><a name="databasename">&quot;database 
       name&quot;</a></TD>
     <TD HEADERS="cat2t2"> 
-      <p>Specifies the database to use for the connection, including one stored 
-        in an independent auxiliary storage pool. 
+      <p>Specifies the database to use for a connection to an independent auxiliary storage pool (ASP). 
         When you specify a database name, the name must exist in the relational 
-        database directory on the system. The following criteria determine which 
+        database directory on the system and correspond to either an independent ASP or the system
+        default database. The following criteria determine which 
         database is accessed:</p>
       <ul>
-        <li>When this property is used to specify a database, the specified database 
-          is used. When the specified database does not exist, the connection 
-          fails.</li>
+        <li>When this property is used to specify a database which corresponds to an independent ASP,
+          the connection is made to the independent ASP.
+          </li>
         <li>When this property is used to specify *SYSBAS as the database name, 
           the system default database is used.</li>
-        <li>When this property is omitted, the database name specified in the 
-          job description for the user profile is used. When the job description 
-          does not specify a database name, the system default database is used. 
+        <li>When this property is omitted, the initial ASP group specified in the job description
+          for the user profile is used.  When the job description 
+          does not specify an initial ASP group, the system default database is used. 
         </li>
       </ul>
     </TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat2t4">Database name &quot;*SYSBAS&quot;</TD>
-    <TD HEADERS="cat2t5">The database name specified in the job description for the 
-      user profile is used. When the job description does not specify a database 
-      name, the system default database is used.</TD>
+    <TD HEADERS="cat2t5">The initial ASP group specified in the job description
+          for the user profile. When the job description does not specify 
+          an initial ASP group, the system default database is used.</TD>
   </TR>
   <TR VALIGN="TOP">
     <TD HEADERS="cat2">&quot;decfloat rounding mode&quot;</TD>
