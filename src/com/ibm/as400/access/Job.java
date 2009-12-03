@@ -4970,6 +4970,33 @@ public class Job implements Serializable
     }
 
     /**
+     Returns the value for the specified job attribute, as a String.  This is a generic way of retrieving string-valued job attributes, rather than using the specific getter methods.  This method will either go to the system to retrieve the job attribute, or it will return a cached value if the attribute was previously retrieved or previously set by setValue() or one of the other setter methods.  Use {@link #loadInformation loadInformation()} to refresh the attributes from the system.
+     @param  attribute  The job attribute.
+     @return  The current value of the attribute, as a blank-trimmed String.  This method may return null in the rare case that the specified attribute could not be retrieved using the QUSRJOBI system API.  If the attribute value is not of type String, then the result of <code>toString()</code> on the value object is returned.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @see  #loadInformation
+     @see  #getValue
+     @see  #setValue
+     **/
+    public String getStringValue(int attribute) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        Object obj = getValue(attribute);
+
+        if (obj == null) return (String)obj;
+        else if (obj instanceof String) {
+          return ((String)obj).trim();
+        }
+        else {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Returning a string representation of the value of a non-String attribute:", attribute);
+          return obj.toString();
+        }
+    }
+
+    /**
      Returns the fully qualified integrated file system path name of the subsystem description for the subsystem in which the job is running.
      @return  The fully qualified integrated file system path name of the subsystem description for the subsystem in which the job is running.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -5149,7 +5176,10 @@ public class Job implements Serializable
 
     /**
      Returns the user name.
+     This method will either return a cached value if the {@link #USER_NAME USER_NAME} attribute was previously retrieved; or if attributes values have not yet been retrieved, the value previously by either a constructor, {@link #setUser setUser()}, or one of the other setter methods.
+     <p>Note: To get the actual current user name for this job (for example, after calling {@link com.ibm.as400.security.auth.Swapper#swap(AS400,ProfileTokenCredential) Swapper.swap()}), call {@link #getStringValue getStringValue(CURRENT_USER)}
      @return  The user name.
+     @see  #setUser
      **/
     public String getUser()
     {
@@ -5182,13 +5212,14 @@ public class Job implements Serializable
     /**
      Returns the value for the specified job attribute.  This is a generic way of retrieving job attributes, rather than using the specific getter methods.  This method will either go to the system to retrieve the job attribute, or it will return a cached value if the attribute was previously retrieved or previously set by setValue() or one of the other setter methods.  Use {@link #loadInformation loadInformation()} to refresh the attributes from the system.
      @param  attribute  The job attribute.
-     @return  The current value of the attribute.  This method may return null in the rare case that the specified attribute could not be retrieved using the QUSRJOBI system API.
+     @return  The current value of the attribute.  This method may return null in the rare case that the specified attribute could not be retrieved using the QUSRJOBI system API.  String values are not trimmed.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #loadInformation
+     @see  #getStringValue
      @see  #setValue
      **/
     public Object getValue(int attribute) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -7283,6 +7314,7 @@ public class Job implements Serializable
      Sets the user name.  This does not change the name of the actual server job.  Instead, it changes the job this Job object references.  This cannot be changed if the object has already established a connection to the system.
      @param  user  The user name.  This must be USER_NAME_BLANK if the job name is JOB_NAME_CURRENT.
      @exception  PropertyVetoException  If the property change is vetoed.
+     @see  #getUser
      **/
     public void setUser(String user) throws PropertyVetoException
     {
