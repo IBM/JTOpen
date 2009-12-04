@@ -29,9 +29,9 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
- The Job class represents a server job.  In order to access a job, the system and either the job name, user name, and job number or internal job identifier need to be set.  A valid combination of these must be set before getting or setting any of the job's attributes.
- <p>Some of the attributes have associated get and set methods defined in this class.  These are provided for backwards compatibility with previous versions of the IBM Toolbox for Java.  The complete set of attribute values can be accessed using the public constants.
- <p>Note:  Most of the "getter" methods will either go to the system to retrieve the job attribute, or will return a cached value if the attribute was previously retrieved or previously set by {@link #setValue setValue()} or one of the other setter methods.  Use {@link #loadInformation loadInformation()} to refresh the attributes from the system.
+ Represents a job on the IBM i server.  In order to access a job, the system and either the job name, user name, and job number or internal job identifier need to be set.  A valid and sufficient combination of these must be set before getting or setting any of the job's attributes.
+ <p>Some of the attributes have associated 'get' and 'set' methods defined in this class.  These are provided for backwards compatibility with previous versions of the IBM Toolbox for Java.  The complete set of attribute values can be accessed using the public constants.
+ <p>Note:  Most of the 'get' methods will either go to the system to retrieve the job attribute value, or will return a cached value if the attribute was previously retrieved or previously set by {@link #setValue setValue()} or one of the other 'set' methods.  Use {@link #loadInformation loadInformation()} to refresh the attribute values from the system.
  <br>For example:
  <pre>
  *  Job job = new Job(system, jobName, userName, jobNumber);
@@ -48,9 +48,10 @@ import java.util.Vector;
  <pre>
  *  AS400 system = new AS400();
  *  ProgramCall pgm = new ProgramCall(system);
- *  pgm.setThreadSafe(true);  // Indicates the program is to be run on-thread.
+ *  pgm.setThreadSafe(true);  // Indicates that the program is to be run on-thread.
  *  String jobNumber = pgm.getServerJob().getNumber();
  </pre>
+ (If the program or command is <i>not</i> to be run on-thread, omit the <code>setThreadSafe()</code> call.)
  @see  com.ibm.as400.access.JobList
  @see  com.ibm.as400.access.CommandCall#getServerJob
  @see  com.ibm.as400.access.ProgramCall#getServerJob
@@ -5177,7 +5178,7 @@ public class Job implements Serializable
     /**
      Returns the user name.
      This method will either return a cached value if the {@link #USER_NAME USER_NAME} attribute was previously retrieved; or if attributes values have not yet been retrieved, the value previously by either a constructor, {@link #setUser setUser()}, or one of the other setter methods.
-     <p>Note: To get the actual current user name for this job (for example, after calling {@link com.ibm.as400.security.auth.Swapper#swap(AS400,ProfileTokenCredential) Swapper.swap()}), call {@link #getStringValue getStringValue(CURRENT_USER)}
+     <p>Note: To get the actual current user name for this job (for example, after swapping profiles), call {@link #getStringValue getStringValue(CURRENT_USER)}
      @return  The user name.
      @see  #setUser
      **/
