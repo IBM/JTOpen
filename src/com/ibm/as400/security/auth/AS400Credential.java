@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Vector;
+
 /**
  * Provides an abstract superclass for
  * representations of IBM i system security-related attributes.
@@ -36,7 +37,7 @@ import java.util.Vector;
  * services, or may simply enable certain actions to
  * be performed.
  *
- * <p> Typical IBM i system credentials include, but are not necessarily
+ * <p> Typical IBM i system credentials include, but are not
  * limited to, profile tokens.
  *
  * <p> This abstract class must be subclassed to provide
@@ -1119,39 +1120,40 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
                                    ).append(toString()).toString());
    }
    /**
-    * Attempts to swap the thread identity based on the
-    * credential.
+    * Attempts to swap the current thread identity based on this credential.
     *
     * <p> No return credential is generated.
     *
     * <p> <b>Note:</b> This method affects the running user
     * profile for subsequent native code invocations and any
     * further requests against the assigned IBM i system.
-    * Other AS400 instances, even if defined for the local host
+    * Any currently existing AS400 instances, even if defined for the local host
     * and current user, are not affected if connections
     * have been established under the old identity.
     *
-    * Note: swap() is an unsupported remote operation.
+    * <p> <b>Note:</b> swap() is supported only when running natively on IBM i.
+    * It is unsupported as a remote operation.
     *
     * @exception Exception
     *		If an exception occurs.
     *
+    * @see Swapper
     */
    public void swap() throws Exception {
       swap(false);
    }
    /**
-    * Attempts to swap the thread identity based on this
-    * credential.
+    * Attempts to swap the current thread identity based on this credential.
     *
     * <p> <b>Note:</b> This method affects the running user
     * profile for subsequent native code invocations and any
     * further requests against the assigned IBM i system.
-    * Other AS400 instances, even if defined for the local host
+    * Any currently existing AS400 instances, even if defined for the local host
     * and current user, are not affected if connections
     * have been established under the old identity.
     *
-    * Note: swap() is an unsupported remote operation.
+    * <p> <b>Note:</b> swap() is supported only when running natively on IBM i.
+    * It is unsupported as a remote operation.
     *
     * @param returnCredential
     *		Indicates whether a credential should be returned
@@ -1172,6 +1174,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     * @exception AS400SecurityException
     *		If an IBM i system security or authentication error occurs.
     *
+    * @see Swapper
     */
    public AS400Credential swap(boolean returnCredential) throws AS400SecurityException {
       // Check for the associated permission

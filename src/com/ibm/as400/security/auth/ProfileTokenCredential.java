@@ -82,11 +82,11 @@ import java.util.Random;
  *   pt.setTokenExtended("USERID", "PASSWORD");
  *
  *  // Swap the thread identity, retrieving a credential to
- *  // swap back to the original identity later.
+ *  // later swap back to the original identity.
  *   AS400Credential cr = pt.swap(true);
  *
  *  // Perform work under the swapped identity at this point.
- *  // Newly-connected AS400 objects will run under the swapped identity.
+ *  // Newly-connected AS400 objects will run under the new (swapped-to) identity.
  *   AS400 swapped = new AS400("localhost", "*CURRENT", "*CURRENT");
  *
  *  // Swap back to the original thread identity.
