@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
@@ -29,10 +30,13 @@ interface AS400Impl
     SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
     // Connect to service.
     void connect(int service) throws AS400SecurityException, IOException;
+    // Establish a DHCP connection to the specified port.
+    Socket connectToPort(int port) throws AS400SecurityException, IOException;
     // Disconnect from service.
     void disconnect(int service);
     // Exchange seeds with remote implementation.
     byte[] exchangeSeed(byte[] proxySeed);
+
     // Get the jobs with which we are connected.
     String[] getJobs(int service);
     // Sets the raw bytes for the provided profile token.

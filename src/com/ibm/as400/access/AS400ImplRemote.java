@@ -403,6 +403,11 @@ class AS400ImplRemote implements AS400Impl
         }
     }
 
+    public Socket connectToPort(int port) throws AS400SecurityException, IOException
+    {
+      return getConnection(0, port);
+    }
+
     // Implementation for disconnect.
     public void disconnect(int service)
     {
@@ -795,6 +800,7 @@ class AS400ImplRemote implements AS400Impl
         return fullMessage.toString();
     }
 
+    // Note: The 'dhcp' argument is a dummy argument, whose sole purpose is to differentiate this method from getConnection(int port).  The value of 'dhcp' is ignored.
     synchronized Socket getConnection(int dhcp, int port) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:", port);

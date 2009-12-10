@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.net.Socket;
 import java.net.URL;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
@@ -1107,6 +1108,24 @@ public class AS400 implements Serializable
         signon(service == AS400.SIGNON);
         impl_.connect(service);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
+    }
+
+    /**
+     Connects to a port on the server, via DHCP.  Security is validated and a connection is established.
+     @param  port  The port number to connect to.
+     @return  A Socket object representing the connection.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public Socket connectToPort(int port) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting port:", port);
+
+        chooseImpl();
+        signon(false);
+        Socket s = impl_.connectToPort(port);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Port connected:", s.getPort());
+        return s;
     }
 
     // Common code for all the constuctors and readObject.

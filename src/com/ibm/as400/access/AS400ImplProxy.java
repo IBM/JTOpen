@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
-
+import java.net.Socket;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 // AS400ImplProxy forwards implementation methods from proxy client to proxy server.
@@ -72,6 +72,19 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         try
         {
             connection_.callMethod(pxId_, "connect", new Class[] { Integer.TYPE }, new Object[] { new Integer(service) });
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow2(e);
+        }
+    }
+
+    // Connect to port.
+    public Socket connectToPort(int port) throws AS400SecurityException, IOException
+    {
+        try
+        {
+            return (Socket)connection_.callMethod(pxId_, "connectToPort", new Class[] { Integer.TYPE }, new Object[] { new Integer(port) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
