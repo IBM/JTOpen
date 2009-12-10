@@ -36,8 +36,8 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
 
 /**
  Represents the authentication information and a set of connections to the IBM i host servers.
- <p>If running on IBM i or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
- <p>If running on another operating system, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running on another operating system.
+ <p>If running on IBM i or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword <code>localhost</code> can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
+ <p>If running on another operating system, the system name, user ID, and password need to be supplied.  If not supplied, the first 'open' request associated with this object will trigger a prompt to the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords <code>localhost</code> and *CURRENT will not work when running on another operating system.
  <p>For example:
  <pre>
  *    AS400 system = new AS400();
@@ -394,7 +394,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.
-     <p>If running on IBM i, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
+     <p>If running on IBM i, the target is the local system.  This has the same effect as using <code>localhost</code> for the system name, *CURRENT for the user ID, and *CURRENT for the password.
      <p>If running on another operating system, a sign-on prompt may be displayed.  The user is then able to specify the system name, user ID, and password.
      **/
     public AS400()
@@ -413,7 +413,7 @@ public class AS400 implements Serializable
      Constructs an AS400 object.  It uses the specified system name.
      <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
      <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
-     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
      **/
     public AS400(String systemName)
     {
@@ -434,7 +434,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
-     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
@@ -465,7 +465,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name and profile token.
-     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
      @param  profileToken  The profile token to use to authenticate to the system.
      **/
     public AS400(String systemName, ProfileTokenCredential profileToken)
@@ -547,7 +547,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      **/
@@ -624,7 +624,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
@@ -1920,6 +1920,37 @@ public class AS400 implements Serializable
     }
 
     /**
+     Returns the user ID.  The user ID returned may be set as a result of the constructor, or it may be what the user typed in at the sign-on prompt.
+     @param forceRefresh If true, force the current userID information to be reloaded. When running natively with system name specified as <code>localhost</code>, this will obtain the user profile under which the thread is currently running. This may have changed since object construction, if a profile swap has been performed on the thread. If false, or if running remotely, then this method behaves identically to {@link #getUserId getUserId()}.
+     @return  The user ID, or an empty string ("") if not set.
+     **/
+    public String getUserId(boolean forceRefresh)
+    {
+      if (!forceRefresh) return getUserId();
+      else
+      {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting current user ID:", userId_);
+        String currentUserID = userId_;
+        if (systemNameLocal_ && AS400.onAS400)
+        {
+          try
+          {
+            currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
+            if (currentUserID == null || currentUserID.length() == 0) {
+              currentUserID = userId_;
+            }
+          }
+          catch (Throwable t) {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, t);
+            currentUserID = userId_;
+          }
+        }
+
+        return currentUserID;
+      }
+    }
+
+    /**
      Returns the version of the system.
      <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
      @return  The version of the system.  For example, version 5, release 1, modification level 0, returns 5.
@@ -2143,7 +2174,7 @@ public class AS400 implements Serializable
     {
         if (systemName.equalsIgnoreCase("localhost"))
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is localhost.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is 'localhost'.");
             return true;
         }
         else
@@ -3425,7 +3456,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the system name for this object.  The system name cannot be changed once a connection to the system has been established.
-     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystemName(String systemName) throws PropertyVetoException
@@ -3701,19 +3732,40 @@ public class AS400 implements Serializable
     // Determine if user ID matches current user ID.
     private static boolean userIdMatchesLocal(String userId, boolean mustUseSuppliedProfile)
     {
-        // First, see if we are running on IBM i.
-        if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
-        {
-            String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
-            if (currentUserID == null)
-            {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID information not available.");
-                return false;
-            }
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Determining if specified userID ("+userId+") matches current userID.");
 
-            return userId.equals(currentUserID);
+      boolean result;
+
+      // First, see if we are running on IBM i.
+      if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
+      {
+        String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
+        if (currentUserID == null) {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current userID information not available.");
+          result = false;
         }
-        return false;
+
+        else {
+          result = userId.equals(currentUserID);
+          if (Trace.traceOn_ && !result) {
+            Trace.log(Trace.DIAGNOSTIC, "Specified userID ("+userId+") does not match current userID ("+currentUserID+").");
+          }
+        }
+      }
+      else
+      {
+        result = false;
+        if (Trace.traceOn_)
+        {
+          if (!AS400.onAS400) Trace.log(Trace.DIAGNOSTIC, "Not running on IBM i.");
+          if (mustUseSuppliedProfile) Trace.log(Trace.DIAGNOSTIC, "Caller specified must use supplied profile.");
+          if (!currentUserAvailable()) Trace.log(Trace.DIAGNOSTIC, "Class CurrentUser is not available.");
+        }
+      }
+
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Determined that specified userID ("+userId+") " + (result ? "matches" : "does not match") + " current userID.");
+
+      return result;
     }
 
     /**
