@@ -173,7 +173,7 @@ class PermissionAccessQSYS extends PermissionAccess
           }
         }
         
-        if (objectType.toUpperCase().equals("MBR"))
+        if (objectType.equalsIgnoreCase("MBR"))
             objectType = "FILE";
 
         String command;
@@ -239,7 +239,7 @@ class PermissionAccessQSYS extends PermissionAccess
           if (!isAuthList) // Do NOT prepend LIB name for AUTL objects //@A1A
             object = objectPathName.getLibraryName()+"/"+object;
 
-        if (objectType.toUpperCase().equals("MBR"))
+        if (objectType.equalsIgnoreCase("MBR"))
             objectType = "FILE";
         
         String command;
@@ -290,10 +290,10 @@ class PermissionAccessQSYS extends PermissionAccess
     **/
     private static CommandCall getRmvCommand(AS400 sys, String objName,String userName, boolean followSymbolicLinks)
     {
-        String name = objName.toUpperCase();                              // @B6a
+        String name = toUpperCasePath(objName);                           // @B6a
         String asp  = null;                                               // @B6a
                                                                           // @B6a
-        int locationOfQSYS = name.indexOf("/QSYS.LIB");                   // @B6a
+        int locationOfQSYS = name.toUpperCase().indexOf("/QSYS.LIB");                   // @B6a
                                                                           // @B6a
         if (locationOfQSYS > 0)  // if the name starts with an ASP        // @B6a
         {                                                                 // @B6a
@@ -303,7 +303,6 @@ class PermissionAccessQSYS extends PermissionAccess
 
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String objectType = objectPathName.getObjectType();
-//        boolean threadSafe;      //@A2A
         String command,object;
         if (objectType.equals("AUTL"))
         {
@@ -433,7 +432,7 @@ class PermissionAccessQSYS extends PermissionAccess
         permission.setUpdate(getBooleanValue(dataUpdate));
         permission.setDelete(getBooleanValue(dataDelete));
         permission.setExecute(getBooleanValue(dataExecute));
-        if (dataAuthority.toUpperCase().equals("*AUTL"))
+        if (dataAuthority.equalsIgnoreCase("*AUTL"))
         {
             permission.setFromAuthorizationList(true);
         }
@@ -553,7 +552,7 @@ class PermissionAccessQSYS extends PermissionAccess
           object = objectPathName.getLibraryName()+"/"+object;  //@A5A
         
         String objectType = objectPathName.getObjectType();
-        if (objectType.toUpperCase().trim().equals("MBR"))
+        if (objectType.trim().equalsIgnoreCase("MBR"))
             objectType = "FILE";
 
         CommandCall setAUTL=new CommandCall(as400_);
@@ -573,8 +572,8 @@ class PermissionAccessQSYS extends PermissionAccess
         String aspName = objectPathName.getAspName();             //@A1A
         if (!aspName.equals(""))                                  //@A1A
           aspParm = " ASPDEV("+aspName+")";                       //@A1A
-        if (!oldValue.toUpperCase().equals("*NONE")&&
-            autList.toUpperCase().equals("*NONE"))
+        if (!oldValue.equalsIgnoreCase("*NONE")&&
+            autList.equalsIgnoreCase("*NONE"))
         {
             cmd = "RVKOBJAUT"
                   +" OBJ("+object+")"
@@ -636,7 +635,7 @@ class PermissionAccessQSYS extends PermissionAccess
           object = objectPathName.getLibraryName()+"/"+object;  //@A5A
 
         String objectType = objectPathName.getObjectType();
-        if (objectType.toUpperCase().equals("MBR"))
+        if (objectType.equalsIgnoreCase("MBR"))
             objectType = "FILE";
 
         CommandCall fromAUTL=new CommandCall(as400_);

@@ -373,14 +373,9 @@ public class Permission
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
     {   
-        if (as400 == null)
-        {
-            throw new NullPointerException("system");
-        }
-        if (fileName == null)
-        {
-            throw new NullPointerException("fileName");
-        }
+        if (as400 == null) throw new NullPointerException("system");
+        if (fileName == null) throw new NullPointerException("fileName");
+
         as400_ = as400;
         int separator;
         path_ = fileName;
@@ -464,8 +459,7 @@ public class Permission
     **/
     public void addAuthorizedUser(String userProfileName)
     {
-        if (userProfileName == null) 
-            throw new NullPointerException("userProfileName");
+        if (userProfileName == null) throw new NullPointerException("userProfileName");
         int index;
         String userName = userProfileName.trim().toUpperCase();
 
@@ -534,8 +528,7 @@ public class Permission
     **/
     public void addUserPermission(UserPermission userPermission)
     {
-        if (userPermission == null)
-            throw new NullPointerException("userPermission");
+        if (userPermission == null) throw new NullPointerException("userPermission");
 
         switch (type_)
         {
@@ -854,6 +847,8 @@ public class Permission
     **/
     public UserPermission getUserPermission(String userProfileName)
     {
+      if (userProfileName == null) throw new NullPointerException("userProfileName");
+
         String userName = userProfileName.toUpperCase();
         synchronized (userPermissionsLock_)
         {
@@ -1060,10 +1055,8 @@ public class Permission
     **/
     public void removeAuthorizedUser(String userProfileName)
     {
-        if (userProfileName == null)
-        {
-            throw new NullPointerException("userProfileName");
-        }
+        if (userProfileName == null) throw new NullPointerException("userProfileName");
+
         String userName = userProfileName.trim().toUpperCase();
         UserPermission userPermission = getUserPermission(userName);
         if (userPermission != null)
@@ -1101,8 +1094,8 @@ public class Permission
     **/
     public void removeUserPermission(UserPermission permission)
     {   
-        if (permission == null)
-            throw new NullPointerException("permission");
+        if (permission == null) throw new NullPointerException("permission");
+
         synchronized (userPermissionsLock_)
         {
           if (userPermissions_.indexOf(permission) == -1)
@@ -1146,11 +1139,8 @@ public class Permission
     **/
     public synchronized void setAuthorizationList(String autList)
     {
-        if (autList == null)
-        {
-            throw new NullPointerException("autList");
-        }
-        if (autList.trim().toUpperCase().equals(authorizationList_))
+        if (autList == null) throw new NullPointerException("autList");
+        if (autList.trim().equalsIgnoreCase(authorizationList_))
             return;
         if (autListChanged_== false)
             autListBackup_ = authorizationList_;
@@ -1169,10 +1159,8 @@ public class Permission
     **/
     public synchronized void setOwner(String owner, boolean revokeOldAuthority)
     {
-        if (owner == null)
-        {
-            throw new NullPointerException("owner");
-        }
+        if (owner == null) throw new NullPointerException("owner");
+
         owner_ = owner;
         revokeOldAuthority_ = revokeOldAuthority;
         ownerChanged_ = true;
@@ -1233,8 +1221,7 @@ public class Permission
     **/
     public synchronized void setSystem(AS400 system)
     {   
-        if (system == null)
-           throw new NullPointerException("system");
+        if (system == null) throw new NullPointerException("system");
         
         if (as400_ == null)                        //$B1C
            as400_ = system;                        //$B1C

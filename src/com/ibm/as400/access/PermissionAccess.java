@@ -41,12 +41,8 @@ abstract class PermissionAccess
     **/
     public PermissionAccess(AS400 system)
     {
-        if (system==null)
-        {
-            throw new NullPointerException("system");
-        }
+        if (system==null) throw new NullPointerException("system");
         as400_=system;
-
     }
 
     /**
@@ -126,6 +122,8 @@ abstract class PermissionAccess
         //     is "/QSYS.LIB/...".  If the object is on an ASP, the asp name
         //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
         //     caller must correctly build the name.
+
+        if (objName == null) throw new NullPointerException("objName");
 
         // The vector store the information retrieved from system.
         Vector vector=new Vector();
@@ -338,7 +336,7 @@ abstract class PermissionAccess
           // the server uppercases any QDLS names for us automatically.
           if (objName.toUpperCase().startsWith("/QDLS/"))      //@A3A
           {
-            objName = objName.toUpperCase();                   //@A3A
+            objName = toUpperCasePath(objName);                   //@A3A
             try
             {
               objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
@@ -364,10 +362,9 @@ abstract class PermissionAccess
           // This allows us to pass a Unicode path so we can access permissions
           // for objects that have characters that aren't in our job CCSID. Hurray!
           // We use CCSID 1200 for UTF-16.
-          String upperName = objName.toUpperCase();
-          if (upperName.startsWith("/QDLS/"))
+          if (objName.toUpperCase().startsWith("/QDLS/"))
           {
-            objName = upperName;
+            objName = toUpperCasePath(objName);
             try
             {
               objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
@@ -630,7 +627,10 @@ abstract class PermissionAccess
       //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
       //     caller must correctly build the name.
 
-      objName = objName.toUpperCase();
+      if (objName == null) throw new NullPointerException("objName");
+      if (owner == null) throw new NullPointerException("owner");
+
+      objName = toUpperCasePath(objName);
       CommandCall cmd = new CommandCall(as400_);
       String revokeOldAut;
       if (revokeOldAuthority) revokeOldAut = "*YES";
@@ -687,7 +687,10 @@ abstract class PermissionAccess
       //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
       //     caller must correctly build the name.
 
-      objName = objName.toUpperCase();
+      if (objName == null) throw new NullPointerException("objName");
+      if (primaryGroup == null) throw new NullPointerException("primaryGroup");
+
+      objName = toUpperCasePath(objName);
       CommandCall cmd = new CommandCall(as400_);
       String revokeOldAut;
       if (revokeOldAuthority) revokeOldAut = "*YES";
@@ -761,11 +764,15 @@ abstract class PermissionAccess
     **/
     public void setSystem(AS400 system)
     {
-        if (system == null)
-        {
-            throw new NullPointerException("system");
-        }
+        if (system == null) throw new NullPointerException("system");
         as400_ = system;
+    }
+
+    // Uppercases the specified path string. Any characters enclosed in quotes are not changed.
+    static final String toUpperCasePath(String path)
+    {
+      if (path == null || path.length() == 0) return (String)path;
+      else return QSYSObjectPathName.toQSYSName(path);
     }
 
 }

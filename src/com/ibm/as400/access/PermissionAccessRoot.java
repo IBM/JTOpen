@@ -214,7 +214,7 @@ class PermissionAccessRoot extends PermissionAccess
         permission.setExistence(getBooleanValue(objExistence));
         permission.setAlter(getBooleanValue(objAlter));
         permission.setReference(getBooleanValue(objRef));
-        if (dataAuthority.toUpperCase().equals("*AUTL"))
+        if (dataAuthority.equalsIgnoreCase("*AUTL"))
         {
             permission.setDataAuthority("*EXCLUDE");
             permission.setFromAuthorizationList(true);

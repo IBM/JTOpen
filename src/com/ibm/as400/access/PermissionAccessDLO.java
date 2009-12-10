@@ -60,7 +60,8 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall addUser= getAddCommand(as400_, objName.toUpperCase(),permission); //@A2C: toUpperCase()
+        objName = toUpperCasePath(objName); //@A2C: toUpperCase()
+        CommandCall addUser= getAddCommand(as400_,objName,permission);
 
         if (addUser.run()!=true)
         {
@@ -258,7 +259,7 @@ class PermissionAccessDLO extends PermissionAccess
         permission.setUpdate(getBooleanValue(dataUpdate));
         permission.setDelete(getBooleanValue(dataDelete));
         permission.setExecute(getBooleanValue(dataExecute));
-        if (dataAuthority.toUpperCase().equals("*AUTL"))
+        if (dataAuthority.equalsIgnoreCase("*AUTL"))
         {
             permission.setFromAuthorizationList(true);
         }
@@ -291,7 +292,8 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall rmvUser = getRmvCommand(as400_,objName.toUpperCase(),userName); //@A2C: toUpperCase()
+        objName = toUpperCasePath(objName); //@A2C: toUpperCase()
+        CommandCall rmvUser = getRmvCommand(as400_,objName,userName);
 
         if (rmvUser.run()!=true)
         {
@@ -326,7 +328,8 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall setAuthority = getChgCommand(as400_,objName.toUpperCase(),permission); //@A2C: toUpperCase()
+        objName = toUpperCasePath(objName); //@A2C: toUpperCase()
+        CommandCall setAuthority = getChgCommand(as400_,objName,permission);
 
         if (setAuthority.run()!=true)
         {
@@ -364,7 +367,7 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        objName = objName.toUpperCase(); //@A2A
+        objName = toUpperCasePath(objName); //@A2A
         try
         {
           objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
@@ -383,7 +386,7 @@ class PermissionAccessDLO extends PermissionAccess
             folder = "*NONE";
         CommandCall setAUTL=new CommandCall(as400_);
         String cmd;
-        if (autList.toUpperCase().equals("*NONE"))
+        if (autList.equalsIgnoreCase("*NONE"))
         {
             cmd = "RMVDLOAUT"
                   +" DLO("+expandQuotes0(name)+")"                   // @B3c @B4c
@@ -433,7 +436,7 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        objName = objName.toUpperCase(); //@A2A
+        objName = toUpperCasePath(objName); //@A2A
         try
         {
           objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
@@ -547,7 +550,7 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        objName = objName.toUpperCase(); //@A2A
+        objName = toUpperCasePath(objName); //@A2A
         try
         {
           objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
