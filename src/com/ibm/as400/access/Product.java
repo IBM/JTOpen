@@ -1315,7 +1315,24 @@ public class Product
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh(100);
+    return getSymbolicLoadState(true);  // normal error processing
+  }
+
+
+  /**
+   Utility method to enable retrieval of product load state without cluttering the job log with "Product information not found" messages.
+   @param logErrorsInJobLog Whether errors are to be logged and reported normally.
+   If false, errors are to be returned in the 'error code' parameter (and not logged in the job log).
+   **/
+  private String getSymbolicLoadState(boolean logErrorsInJobLog)
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded_) refresh(100, logErrorsInJobLog);
     return symbolicLoadState_;
   }
 
@@ -1345,7 +1362,8 @@ public class Product
     if (partiallyLoaded_) return installed_;
     try
     {
-      return getSymbolicLoadState().equals(SYMBOLIC_LOAD_STATE_INSTALLED);
+      // First arg says: Don't clutter the job log with CPF0C1F "Product information not found" message (if the product isn't installed).
+      return getSymbolicLoadState(false).equals(SYMBOLIC_LOAD_STATE_INSTALLED);
     }
     catch(AS400Exception e)
     {
@@ -1450,6 +1468,25 @@ public class Product
               IOException,
               ObjectDoesNotExistException
   {
+    refresh(whichFormat, true);
+  }
+
+
+  /**
+   * Does the real work based on the format requested.
+   * Formats currently supported are 100, 500, and 800. Note that
+   * all formats are supersets of the 100 format.
+   * @param logErrorsInJobLog Whether errors are to be logged and reported normally.
+   * If false, errors are to be returned in the 'error code' parameter (and not logged in the job log).
+  **/
+  private void refresh(int whichFormat, boolean logErrorsInJobLog)
+       throws AS400Exception,
+              AS400SecurityException,
+              ErrorCompletingRequestException,
+              InterruptedException,
+              IOException,
+              ObjectDoesNotExistException
+  {
     if (releaseLevel_.equals(PRODUCT_RELEASE_ANY))
     {
       // First try ONLY, then PREVIOUS, then CURRENT, since there will
@@ -1531,14 +1568,53 @@ public class Product
     BinaryConverter.intToByteArray(36, productInfo, 28);
     BinaryConverter.intToByteArray(ccsid, productInfo, 32);
     parms[3] = new ProgramParameter(productInfo); // product information
-    parms[4] = new ProgramParameter(new byte[4]); // error code
+    // 'error code' parameter
+    if (logErrorsInJobLog) {
+      parms[4] = new ErrorCodeParameter(); // normal error processing
+    }
+    else {
+      parms[4] = new ErrorCodeParameter(true,false); // return any errors via the 'error code' parameter; don't clutter the job log
+    }
     parms[5] = new ProgramParameter(conv.stringToByteArray("PRDI0200")); // product information format name
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSZRTVPR.PGM", parms);
     // Note: The called API is not thread-safe.
-    if (!pc.run())
+
+    boolean pcSucceeded = pc.run();
+    AS400Message[] messages = null;
+
+    if (logErrorsInJobLog)  // normal error processing
     {
-      AS400Message[] messages = pc.getMessageList();
+      if (!pcSucceeded) {
+        messages = pc.getMessageList(); // get errors from message list
+      }
+    }
+    else
+    {
+      // If any errors occurred, they were returned in the 'error code' parm, rather than in the message list.
+      ErrorCodeParameter errParm = (ErrorCodeParameter)parms[4];
+      String msgID = errParm.getMessageID();
+      if (msgID != null)
+      {
+        pcSucceeded = false;
+
+        // Compose a message list, as if we had called the program with a normal 'error code' parm.
+        try
+        {
+          String substData = errParm.getSubstitutionData();
+          MessageFile mf = new MessageFile(system_, "/QSYS.LIB/QCPFMSG.MSGF");
+          AS400Message msg = mf.getMessage(msgID, substData);
+          messages = new AS400Message[1];
+          messages[0] = msg;
+        }
+        catch (Throwable t) {
+          Trace.log(Trace.ERROR, "Error when retrieving error messages.", t);
+        }
+      }
+    }
+
+    if (!pcSucceeded)
+    {
       if (messages.length == 1 && messages[0].getID().equalsIgnoreCase("CPF0C1F"))
       {
         // It's OK, there just wasn't a product definition.
