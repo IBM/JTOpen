@@ -2271,6 +2271,7 @@ class AS400ImplRemote implements AS400Impl
     {
         if (signonServer_ == null)
         {
+            boolean connectedSuccessfully = false;
             SocketContainer signonConnection = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, AS400.SIGNON, useSSLConnection_, socketProperties_, mustUseNetSockets_);
             signonServer_ = new AS400NoThreadServer(this, AS400.SIGNON, signonConnection, "");
             int connectionID = signonConnection.hashCode();
@@ -2304,6 +2305,7 @@ class AS400ImplRemote implements AS400Impl
                 isPasswordTypeSet_ = true;
                 serverSeed_ = attrRep.getServerSeed();
                 signonJobBytes_ = attrRep.getJobNameBytes();
+                connectedSuccessfully = true;
 
                 if (Trace.traceOn_)
                 {
@@ -2324,9 +2326,21 @@ class AS400ImplRemote implements AS400Impl
             catch (IOException e)
             {
                 Trace.log(Trace.ERROR, "Signon server exchange client/server attributes failed:", e);
+                throw e;
+            }
+            catch (AS400SecurityException e)
+            {
+                Trace.log(Trace.ERROR, "Signon server exchange client/server attributes failed:", e);
+                throw e;
+            }
+            finally
+            {
+              if (!connectedSuccessfully)
+              {
+                // Ensure that the connection is not left in an inconsistent state, even if an Error or RuntimeException was thrown.
                 signonServer_.forceDisconnect();
                 signonServer_ = null;
-                throw e;
+              }
             }
         }
     }
