@@ -765,26 +765,26 @@ Reads an input stream and returns its data as a String.
     //@xml3
     //removes declaration (header)
     //returns input string if there is no xml declaration
-    static final String stripXMLDeclaration(String xml) throws SQLException
+    //@xmlNat changed to be same as native driver
+    static final String stripXMLDeclaration(String s) throws SQLException
     {
-        //declaration starts with "<?xml " and ends with "?>"
-        if(xml.length() <= 6) //@BE1 //check for <?xml> len=6
-            return xml;      //@BE1
-        if(xml.substring(0, 7).indexOf("<?xml") != -1) //avoid having to search whole 2 gig //@BE1 (utf-16be has byteordermark in first char)
-        {
-            int end = xml.indexOf("?>") + 2; //if start is xml, then it will have a valid ending since hostserver created it!
-            if(end == 1)
-                JDError.throwSQLException(JDError.EXC_XML_PARSING_ERROR); //signal that decl starts, but does not end
-           
-            //next skip to start of xml (ie skip newline)
-            int nextStart = xml.indexOf("<", end);
-            if(nextStart == -1)
-                nextStart = end;
-            
-            return xml.substring(nextStart);
+        int i = 0;
+        int len = s.length();
+        while (i < len && ( s.charAt(i) == '\ufeff' || Character.isWhitespace(s.charAt(i)))) {
+           i++;
         }
-        else
-            return xml;
+        if ((i+1)<len && s.charAt(i) == '<' && s.charAt(i + 1) == '?') {
+           i += 2;
+           while ((i+1) < len && (s.charAt(i) != '?' || s.charAt(i + 1) != '>')) {
+               i++;
+           }
+           if ((i+1) < len && s.charAt(i) == '?' && s.charAt(i + 1) == '>') {
+               return s.substring(i + 2);
+           }
+
+        }
+        return s;
+
     }
     
     //@xmlutf8
