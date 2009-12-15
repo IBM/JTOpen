@@ -17,18 +17,16 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- *The CharacterFieldDescription class represents the description of the data in a character field.
+ *Represents the description of the data in a character field.
  *It allows:
  *<ul>
  *<li>The user to describe a character field to the RecordFormat object.
  *<li>The RecordFormat object to describe a character field to the user.
  *</ul>
- *Click <a href="doc-files/recordxmp.html">here</a>to see an example.
+ *Click <a href="doc-files/recordxmp.html">here</a> to see an example.
  **/
 public class CharacterFieldDescription extends FieldDescription implements VariableLengthFieldDescription, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
 
