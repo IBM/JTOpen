@@ -487,7 +487,7 @@ class SQLDataFactory
                            int columnIndex,     //@F2A
                            int dateFormat,		// @550A
                            int timeFormat, 		// @550A
-                           int compositeContentType,    //@array this corresponds to the nativeType numbering system
+                           int compositeContentType,    //@array this corresponds to the nativeType numbering system //@datarray 0 = array element, -1 = nonarray, other = that type of an array.
                            int xmlCharType) //@xml3 SB or DB XML
     throws SQLException
     {
@@ -495,8 +495,11 @@ class SQLDataFactory
         {
             
             case 384:                           // Date.
+            { //@datarray
+                if(compositeContentType == 0) //@datarray
+                    dateFormat = 5;  //@datarray always iso for input and output for arrays of dates due to zda constraint
                 return new SQLDate(settings, dateFormat);	// @550
-
+            } //@datarray
             case 388:                           // Time.
                 return new SQLTime(settings, timeFormat);
 
