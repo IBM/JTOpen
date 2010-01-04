@@ -413,6 +413,8 @@ public class AS400Text implements AS400DataType
                 toConvert = new String(paddedBuf);
                 if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Pre-padded Bidi String with " + numPadBytes + " spaces from '" + javaValue + "' to '" + toConvert + "'");
             }
+            //Bidi-HCG: Bidi transformation is excluded from stringToByteArray() now, so do it here       
+        	toConvert = AS400BidiTransform.bidiTransform(toConvert,properties.getBidiStringType(), AS400BidiTransform.getStringType(ccsid_));                        
         }
         byte[] eValue = tableImpl_.stringToByteArray(toConvert, properties);
 

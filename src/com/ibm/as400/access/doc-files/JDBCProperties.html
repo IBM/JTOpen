@@ -269,8 +269,9 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2">&quot;package ccsid&quot;</TD>
     <TD HEADERS="cat2t2">Specifies the character encoding to use for the SQL package and any statements sent to the system.</TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat2t4"> &quot;1200&quot; (UCS-2)<BR>
-      &quot;13488&quot; (UTF-16)<BR>
+    <TD HEADERS="cat2t4"> &quot;1200&quot; (UTF-16)<BR>
+      &quot;13488&quot; (UCS-2)<BR>
+      &quot;system&quot; (host CCSID)<BR>
     <TD HEADERS="cat2t5">&quot;13488&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
@@ -734,9 +735,7 @@ attributes. The tables organize the properties into the following categories:</P
       for more information.</TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat6t4"> 
-      <P>"" (use the CCSID to determine bidirectional string type)<BR>
-        "0" (the default string type for nonbidirectional data (LTR))<BR>
-        "4"<BR>
+      <P>"4"<BR>
         "5"<BR>
         "6"<BR>
         "7"<BR>
@@ -745,7 +744,7 @@ attributes. The tables organize the properties into the following categories:</P
         "10"<BR>
         "11"</P>
     </TD>
-    <TD HEADERS="cat6t5">&quot;&quot;</TD>
+    <TD HEADERS="cat6t5">&quot;5&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;bidi implicit reordering&quot;</TD>

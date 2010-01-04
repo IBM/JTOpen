@@ -1245,7 +1245,8 @@ implements Statement
 
                     boolean extended = false;                                                         //@540
                     if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
-                    request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
+                    //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
+                    request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     if(packageManager_.isEnabled())
@@ -1353,8 +1354,9 @@ implements Statement
                     request = DBDSPool.getDBSQLRequestDS (DBSQLRequestDS.FUNCTIONID_EXECUTE_IMMEDIATE, id_, requestedORS, 0);    //@P0C @F5C
 
                     boolean extended = false;                                                         //@540
-                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
-                    request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
+                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540                  
+                    //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
+                    request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     int openAttributes = cursor_.getOpenAttributes (sqlStatement, blockCriteria_);
@@ -1537,8 +1539,9 @@ implements Statement
                     request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_PREPARE_DESCRIBE, id_, requestedORS, 0);    //@P0C @F5C
 
                     boolean extended = false;                                                         //@540
-                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
-                    request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
+                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540                  
+                    //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
+                    request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     if(packageManager_.isEnabled())

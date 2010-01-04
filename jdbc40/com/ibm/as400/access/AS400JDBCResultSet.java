@@ -5531,7 +5531,10 @@ implements ResultSet
     {
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-
+    	
+        if(columnIndex <= columnCount_ && columnIndex > 0) //@pdc
+            columnValue = AS400BidiTransform.convertDataToHostCCSID(columnValue, (AS400JDBCConnection) connection_,	((JDServerRow) row_).getCCSID(columnIndex));	//Bidi-HCG
+    	
         updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
 

@@ -445,6 +445,8 @@ class JDSQLStatement
         {
             value_ = sql;
         }
+        
+        value_ = AS400BidiTransform.convertSQLToHostCCSID(value_, (AS400JDBCConnection)connection);	//Bidi-HCG end
 
         tokenizer_ = new JDSQLTokenizer(value_, JDSQLTokenizer.DEFAULT_DELIMITERS, false, false); // @C3A moved this line up from below
         numberOfParameters_ = tokenizer_.getNumberOfParameters(); // @C3A the tokenizer counts the number of parameter markers now

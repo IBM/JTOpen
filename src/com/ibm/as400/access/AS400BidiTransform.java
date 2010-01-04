@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.sql.SQLException;
+
 /**
  The AS400BidiTransform class provides layout transformations that allow the conversion of Bidi text in IBM i format (after its conversion to Unicode) to Bidi text in Java format, or vice-versa.
  <p>Bidi text is a combination of a sequence of characters and a set of Bidi flags.  That text (Arabic or Hebrew) has characters which are read from right to left.  That text might also be mixed with numbers which are read from left to right, and possibly also mixed with Latin characters.  Conversion support is needed to display text properly with the correct order and shape.
@@ -46,6 +48,11 @@ package com.ibm.as400.access;
  * // How to transform IBM i data to Java layout:
  * abt.setJavaStringType(BidiStringType.ST6);   // Imp RTL //
  * String dst = abt.toJavaLayout("some bidi string");
+ </pre></blockquote>
+ A more simplified method is to use String bidiTransform(String str, int inFormat, int outFormat); the following example illustrates how to use it:
+ <blockquote><pre>
+ String src = "some bidi string";
+ String result =  AS400BidiTransform(src,  BidiStringType.ST4,  BidiStringType.ST6);//from visual LTR to Implicit RTL
  </pre></blockquote>
  **/
 public class AS400BidiTransform
@@ -154,13 +161,14 @@ public class AS400BidiTransform
     {
         bdxA2J_.flags = new BidiFlagSet(NORMAL_FLAG_SET);
         setAS400Ccsid(as400Ccsid);
+        setJavaStringType(BidiStringType.DEFAULT);//Bidi-HCG
     }
 
     /**
      Indicates if a given CCSID may apply to Bidi data.  This is the case for Arabic and Hebrew CCSIDs, and for Unicode (which can encode anything).
      <p>If a CCSID is not Bidi, there is no need to perform layout transformations when converting IBM i data to Java data and vice-versa.
      @param  ccsid  The CCSID to check.
-     @return  true if the given CCSID may apply to Bidi data, false otherwse.
+     @return  true if the given CCSID may apply to Bidi data, false otherwise.
      **/
     public static boolean isBidiCcsid(int ccsid)
     {
@@ -269,22 +277,24 @@ public class AS400BidiTransform
 
     /**
      Set the explicit string type for the IBM i data.  Each CCSID has a default CDRA string type, which defines a set of Bidi flags.  This method may be used to specify Bidi flags different from those implied by the CCSID.
-     <p>The orientation implied by the new given string type is applied to both the IBM i data layout and the Java data layout.  The new string type is applied to the Java data layout by calling setJavaStringType(as400Type).
      @param  as400Type  The string type to apply to the IBM i data.  The parameter string type should always be one of the constants defined in BidiStringType.
      @see  com.ibm.as400.access.BidiStringType
      **/
     public void setAS400StringType(int as400Type)
     {
-        if (as400Type != BidiStringType.DEFAULT && (as400Type < BidiStringType.ST4 || as400Type > BidiStringType.ST11))
-        {
-            Trace.log(Trace.ERROR, "Attempting to set the as400 string type to an invalid Bidi sting type.");
-            throw new ExtendedIllegalArgumentException("as400Type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
+    	//Bidi-HCG - delete this section
+        //if (as400Type != BidiStringType.DEFAULT && (as400Type < BidiStringType.ST4 || as400Type > BidiStringType.ST11))
+        //{
+        //    Trace.log(Trace.ERROR, "Attempting to set the as400 string type to an invalid Bidi sting type.");
+        //    throw new ExtendedIllegalArgumentException("as400Type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        //}
 
-        as400Type_ = as400Type;
-        if (FLAG_SET[as400Type] == null) FLAG_SET[as400Type] = initFlagSet(as400Type);
-        bdxJ2A_.flags = FLAG_SET[as400Type];
-        setJavaStringType(as400Type);
+        as400Type_ = as400Type;                
+        if (FLAG_SET[as400Type] == null) 
+        	FLAG_SET[as400Type] = initFlagSet(as400Type);
+        bdxJ2A_.flags = FLAG_SET[as400Type];        
+        	
+        //Bidi-HCG setJavaStringType(as400Type);        
     }
 
     /**
@@ -297,26 +307,30 @@ public class AS400BidiTransform
     }
 
     /**
-     Set the explicit string type for Java data.  The parameter string type should always be one of the following defined in BidiStringType:   ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR), or ST11 (Contextual RTL).  In fact, only the orientation of the given string type is used to modify the Bidi flags to apply to the Java data.  The other Bidi flags of the Java data always conform to the Unicode standard.
+     Set the explicit string type for Java data.         
      @see  com.ibm.as400.access.BidiStringType
      @param  javaType  The string type to apply to Java data.
      **/
     public void setJavaStringType(int javaType)
     {
-        if (javaType != BidiStringType.DEFAULT && (javaType < BidiStringType.ST4 || javaType > BidiStringType.ST11))
-        {
-           Trace.log(Trace.ERROR, "Attempting to set the java string type to an invalid Bidi sting type.");
-           throw new ExtendedIllegalArgumentException("javaType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        if (FLAG_SET[javaType] == null) FLAG_SET[javaType] = initFlagSet(javaType);
-        BidiFlag orient = FLAG_SET[javaType].getOrientation();
+        
+        //if (javaType != BidiStringType.DEFAULT && (javaType < BidiStringType.ST4 || javaType > BidiStringType.ST11))
+        //{
+        //   Trace.log(Trace.ERROR, "Attempting to set the java string type to an invalid Bidi sting type.");
+        //   throw new ExtendedIllegalArgumentException("javaType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        //}
+        //if (FLAG_SET[javaType] == null) FLAG_SET[javaType] = initFlagSet(javaType);
+        //BidiFlag orient = FLAG_SET[javaType].getOrientation();
         // Copy orientation from javaType to bdxA2J_.flags.
-        bdxA2J_.flags.setOneFlag(orient);
-        if (orient == BidiFlag.ORIENTATION_LTR) javaType_ = 5;
-        else if (orient == BidiFlag.ORIENTATION_RTL) javaType_ = 6;
-        else if (orient == BidiFlag.ORIENTATION_CONTEXT_LTR) javaType_ = 10;
-        else if (orient == BidiFlag.ORIENTATION_CONTEXT_RTL) javaType_ = 11;
-        else javaType_ = 5;  // Must never happen.
+        //bdxA2J_.flags.setOneFlag(orient);
+        //if (orient == BidiFlag.ORIENTATION_LTR) javaType_ = 5;
+        //else if (orient == BidiFlag.ORIENTATION_RTL) javaType_ = 6;
+        //else if (orient == BidiFlag.ORIENTATION_CONTEXT_LTR) javaType_ = 10;
+        //else if (orient == BidiFlag.ORIENTATION_CONTEXT_RTL) javaType_ = 11;
+        //else javaType_ = 5;  // Must never happen.
+                    
+    	javaType_ = javaType;//Bidi-HCG     	 
+        bdxA2J_.flags = initFlagSet(javaType);//Bidi-HCG 
     }
 
     /**
@@ -329,11 +343,13 @@ public class AS400BidiTransform
     }
 
     /**
-     Sets the bidi converion properties.
+     Sets the bidi conversion properties.
      @param  properties  The bidi conversion properties.
      **/
     public void setBidiConversionProperties(BidiConversionProperties properties)
     {
+    	setJavaStringType(properties.getBidiStringType());//Bidi-HCG
+    	
         properties.copyOptionsTo(bdxJ2A_);
         properties.copyOptionsTo(bdxA2J_);
         if (properties.isBidiRemoveMarksOnImplicitToVisual())
@@ -341,12 +357,12 @@ public class AS400BidiTransform
             bdxJ2A_.removeMarkers=true;
             bdxA2J_.removeMarkers=false;
         }
-        setJavaStringType(properties.getBidiStringType());
+        //Bidi-HCG setJavaStringType(properties.getBidiStringType());
     }
 
     /**
-     Returns the bidi converion properties.
-     @return  The bidi converion properties.
+     Returns the bidi conversion properties.
+     @return  The bidi conversion properties.
      **/
     public BidiConversionProperties getBidiConversionProperties()
     {
@@ -360,8 +376,9 @@ public class AS400BidiTransform
      @return  The same text in standard Java Bidi layout.
      **/
     public String toJavaLayout(String as400Text)
-    {
-        lastTransform_ = bdxA2J_;
+    {   lastTransform_ = bdxA2J_;
+    	if(javaType_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG
+    		return as400Text;											//Bidi-HCG        
         BidiText src = new BidiText(bdxJ2A_.flags, as400Text);
         return src.transform(bdxA2J_).toString();
     }
@@ -371,9 +388,10 @@ public class AS400BidiTransform
      @param  javaText  The Java string to convert.
      @return  The same text in IBM i Bidi layout.
      **/
-    public String toAS400Layout(String javaText)
-    {
-        lastTransform_ = bdxJ2A_;
+    public String toAS400Layout(String javaText)    
+    {  	lastTransform_ = bdxJ2A_;
+    	if(as400Type_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG
+    		return javaText;												//Bidi-HCG
         BidiText src = new BidiText(bdxA2J_.flags, javaText);
         return src.transform(bdxJ2A_).toString();
     }
@@ -455,5 +473,195 @@ public class AS400BidiTransform
                                         BidiFlag.TEXT_NOMINAL,
                                         BidiFlag.SWAP_YES);
         }
+    }    
+    
+    //Bidi-HCG start
+    /**
+    <b>Bidi-HCG</b>
+    Perform Bidi layout transformation by given Bidi string types.
+    @param  str  The Java string to convert.
+    @param  inFormat  Input format.
+    @param  outFormat  Output format.
+    @return  The same text after Bidi layout transformation.
+    **/
+    public static String bidiTransform(String str, int inFormat, int outFormat){    
+    	if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Bidi layout transformation from " + inFormat + " to " + outFormat + ", string: " + str);
+    			
+    	if(inFormat == outFormat)
+    		return str;
+    	if(inFormat == BidiStringType.NONE || outFormat == BidiStringType.NONE)
+    		return str;
+    	    	    	
+    	BidiTransform bdx = new BidiTransform();
+    	BidiFlagSet flagsIn = initFlagSet(inFormat);
+    	BidiFlagSet flagsOut = initFlagSet(outFormat);
+    	
+    	bdx.flags = flagsOut;
+    	BidiText textIn = new BidiText(flagsIn,str);
+        BidiText textOut = textIn.transform(bdx);
+        String strOut = textOut.toString();
+    	
+        return strOut;    	
     }
+    
+    /**
+     * <b>Bidi-HCG</b>
+     * Perform Bidi layout transformation of a data into SQL statement. Meta-data (names of columns etc.) is kept untouched. 
+     * @param value_ Given SQL statement.
+     * @param  inFormat  Input format.
+     * @param  outFormat  Output format.
+     * @return The SQL statement after the Bidi layout transformation.
+     */
+    public static String SQL_statement_reordering(String value_, int inFormat, int outFormat){
+    	if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Bidi layout transformation from " + inFormat + " to " + outFormat + " of SQL statement: " + value_);
+    	
+    	if(inFormat == outFormat)
+    		return value_;
+    	if(inFormat == BidiStringType.NONE || outFormat == BidiStringType.NONE)
+    		return value_;
+
+    	boolean into = false;
+    	int i = 0, start = 0, end = 0;
+    	String str;
+
+    	while(i< value_.length()){
+    		
+    		if(into && (value_.charAt(i) == '\n' || value_.charAt(i) == '\r')){
+				end = i;    				
+				
+				str = value_.substring(start, end);
+				str = bidiTransform(str, inFormat, outFormat);
+				value_ = value_.substring(0, start) + str + value_.substring(end);
+    			start = i + 1;
+    		}
+    			
+    		if(value_.charAt(i) == '\''){
+    			
+    			if(into) {
+    				if(i + 1 < value_.length())
+    					if(value_.charAt(i+1) == '\''){
+    						i = i + 2;
+    						continue;
+    					}	
+    				end = i;    				
+    				
+    				str = value_.substring(start, end);
+    				str = bidiTransform(str, inFormat, outFormat);
+    				value_ = value_.substring(0, start) + str + value_.substring(end);
+    				
+    				start = end = 0;
+    				into = false;
+    			} else {
+    				into = true;
+    				start = i+1;
+    			}    			
+    		}
+    		    		 
+    		i++;
+    		
+    	}
+    	return value_;
+    }    
+
+	public static String meta_data_reordering(String value_, int inFormat, int outFormat) {
+		if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Bidi layout transformation of SQL meta-data: " + value_);
+		
+    	if(inFormat == outFormat)
+    		return value_;
+    	if(inFormat == BidiStringType.NONE || outFormat == BidiStringType.NONE)
+    		return value_;
+
+    	boolean into = false;
+    	int i = 0, start = 0, end = 0;
+    	String str;
+    	
+    	while(i< value_.length()){
+    		if(value_.charAt(i) == '"'){
+    			if(into){
+    				end = i;    				    				
+    				str = value_.substring(start, end);
+    				str = bidiTransform(str, inFormat, outFormat);
+    				value_ = value_.substring(0, start) + str + value_.substring(end);
+    				
+    				start = end = 0;
+    				into = false;
+    			} else {
+    				into = true;
+    				start = i+1;
+    			}    			
+    		}
+    		    		 
+    		i++;
+    		}    			
+		return value_;
+	}
+	
+	static String convertSQLToHostCCSID(String value_, AS400JDBCConnection connection) throws SQLException{
+	    if(connection == null || value_ == null) //@pdc
+            return value_;
+    	JDProperties prop = connection.getProperties();        	       	        		
+    	int host_bidi_format, host_ccsid, package_bidi_format, package_ccsid;
+    	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);
+		
+    //	host_ccsid = connection.getSystem().getCcsid();
+    	   if(connection.getSystem() != null) //@pdc
+               host_ccsid = connection.getSystem().getCcsid();
+       else
+              host_ccsid = 37; //@pdc
+    	   
+		host_bidi_format = getStringType(host_ccsid);				
+
+		package_ccsid = connection.getProperties().getInt(JDProperties.PACKAGE_CCSID);
+		package_bidi_format = getStringType(package_ccsid);
+    	
+    	if(bidi_format != 0 && host_bidi_format != 0){
+    		if(prop.getString(JDProperties.BIDI_IMPLICIT_REORDERING).equalsIgnoreCase("true")){				       			
+    			value_ = meta_data_reordering(value_, bidi_format, host_bidi_format);
+    		}
+    		
+    		value_ = SQL_statement_reordering(value_, bidi_format, host_bidi_format);
+    		value_ = SQL_statement_reordering(value_, host_bidi_format, package_bidi_format);
+    	}	
+    	return value_;
+	}
+
+	static String convertDataToHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
+	    if(connection == null || value_ == null) //@pdc
+            return value_;
+    	JDProperties prop = connection.getProperties();        	       	        		
+    	int host_bidi_format, package_bidi_format, package_ccsid;
+    	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);
+		    	
+		host_bidi_format = getStringType(host_ccsid);				
+
+		package_ccsid = connection.getProperties().getInt(JDProperties.PACKAGE_CCSID);
+		package_bidi_format = getStringType(package_ccsid);
+    	
+    	if(bidi_format != 0 && host_bidi_format != 0){    		    		
+    		value_ = bidiTransform(value_, bidi_format, host_bidi_format);
+    	}	
+    	return value_;
+	}
+
+	static String convertDataFromHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
+	    if(connection == null || value_ == null) //@pdc
+            return value_;
+    	JDProperties prop = connection.getProperties();        	       	        		
+    	int host_bidi_format;
+    	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);
+		    	
+		host_bidi_format = getStringType(host_ccsid);
+		if(host_bidi_format == 0){
+			host_ccsid = connection.getSystem().getCcsid();
+			host_bidi_format = getStringType(host_ccsid);
+		}
+		    	
+    	if(bidi_format != 0 && host_bidi_format != 0){    		    		
+    		value_ = bidiTransform(value_, host_bidi_format, bidi_format);
+    		
+    	}	
+    	return value_;
+	}
+	
+	//Bidi-HCG end	
 }

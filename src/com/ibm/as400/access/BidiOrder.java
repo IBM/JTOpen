@@ -779,8 +779,11 @@ class BidiOrder
         case 7:                         /* R followed by EN/AN followed by L */
             /* include possible adjacent number on the left */
             i = beforeENAN(ucb_ix - 1);
+            if (i < 0)	//Bidi-HCG
+                break;	//Bidi-HCG
             /* compute symmetric position in string due to RTL orientation */
-            addPoint(ics_size - i - 1, BEFORE, RLM);       /* add RLM before */
+//            addPoint(ics_size - i - 1, BEFORE, RLM);       /* add RLM before */
+            addPoint(i, BEFORE, RLM);       /* add RLM before */	//Bidi-HCG
             insertCnt = myBdx.insertPoints.size();
             break;
 
@@ -1028,7 +1031,10 @@ class BidiOrder
     for (int i = src.offset; i < lim; i++)
     {
         type = getChType(src.data[i]);
-        if (type == UBAT_L || type == UBAT_R)  return type;
+//Bidi-HCG        if (type == UBAT_L || type == UBAT_R)  return type;
+        if (type == UBAT_L)  return UBAT_L;			//Bidi-HCG
+        if (type == UBAT_R || type == UBAT_AL)  return UBAT_R;	//Bidi-HCG
+
     }
     return UBAT_N;
   }
@@ -1043,7 +1049,10 @@ class BidiOrder
     for (int i = lim - 1; i >= src.offset; i--)
     {
         type = getChType(src.data[i]);
-        if (type == UBAT_L || type == UBAT_R)  return type;
+//Bidi-HCG        if (type == UBAT_L || type == UBAT_R)  return type;
+        if (type == UBAT_L)  return UBAT_L;			//Bidi-HCG
+        if (type == UBAT_R || type == UBAT_AL)  return UBAT_R;	//Bidi-HCG
+
     }
     return UBAT_N;
   }
@@ -1297,6 +1306,7 @@ class BidiOrder
     }
     else
     {
+    	impToImpPhase = 0;	//Bidi-HCG
         impToImpOrient = 0;
     }
 
@@ -1511,9 +1521,10 @@ class BidiOrder
             ipos = (int)(iPoint>>17);
             after = (int)(iPoint & 0x0000000000010000);
             insert = (char)iPoint;
-            if ( ((ucb_basLev == 1) && (insert == LRM))
-                 ||
-                 ((ucb_basLev != 1) && (insert == RLM)) )
+            if (ucb_basLev == 1)		//Bidi-HCG
+//Bidi-HCG            if ( ((ucb_basLev == 1) && (insert == LRM))
+//Bidi-HCG                 ||
+//Bidi-HCG                 ((ucb_basLev != 1) && (insert == RLM)) )
             {
                 /* look for dst position corresponding to ipos in src */
                 for (pos = 0; pos < src.count; pos++)

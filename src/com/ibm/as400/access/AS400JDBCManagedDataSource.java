@@ -583,8 +583,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the output string type of bidi data, as defined by the CDRA
-   (Character Data Representation Architecture). See <a href="BidiStringType.html">
+   Returns the output string type of bidi data. See <a href="BidiStringType.html">
    BidiStringType</a> for more information and valid values.  -1 will be returned
    if the value has not been set.
    **/
@@ -2302,8 +2301,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the output string type of bidi data, as defined by the CDRA (Character Data
-   Representation Architecture). See <a href="BidiStringType.html">
+   Sets the output string type of bidi data. See <a href="BidiStringType.html">
    BidiStringType</a> for more information and valid values.
    **/
   public void setBidiStringType(int bidiStringType)
@@ -2317,6 +2315,8 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets whether bidi implicit reordering is used.
+   In this version, the parameter is used to determine whether Bidi layout 
+   transformation should be applied to meta-data such as columns names.
    @param value true if implicit reordering should be used; false otherwise.
    The default value is true.
    **/
@@ -4134,7 +4134,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    Gets the package CCSID property, which indicates the
    CCSID in which statements are sent to the IBM i system and
    also the CCSID of the package they are stored in.
-   Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
+   Default value: 13488
    @return The value of the package CCSID property.
    **/
   public int getPackageCCSID()
@@ -4147,8 +4147,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    * Gets the package CCSID property, which indicates the
    * CCSID in which statements are sent to the IBM i system and
-   * also the CCSID of the package they are stored in.
-   * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+   * also the CCSID of the package they are stored in.  
    * Default value: 13488
    * @return The value of the package CCSID property.
    * Note:  this method is the same as getPackageCCSID() so that it corresponds to the connection property name
@@ -4163,7 +4162,9 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    Sets the package CCSID property, which indicates the
    CCSID in which statements are sent to the IBM i system and
    also the CCSID of the package they are stored in.
-   Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
+   Recommended values:  1200(UTF-16)  and 13488 (UCS-2).  
+   See <a href="BidiStringType.html">BidiStringType</a> for Bidi considerations.
+   Default value: 13488
    @param ccsid The package CCSID.
    **/
   public void setPackageCCSID(int ccsid)
@@ -4180,7 +4181,8 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    * Sets the package CCSID property, which indicates the
    * CCSID in which statements are sent to the IBM i system and
    * also the CCSID of the package they are stored in.
-   * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+   * Recommended values:  1200(UTF-16)  and 13488 (UCS-2).  
+   * See <a href="BidiStringType.html">BidiStringType</a> for Bidi considerations.
    * Default value: 13488
    * @param ccsid The package CCSID.
    * Note:  this method is the same as setPackageCCSID() so that it corresponds to the connection property name
@@ -4454,6 +4456,20 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
       DriverPropertyInfo[] info = properties_.getInfo();
       String[] choices = info[index].choices;
 
+      //Bidi-HCG start
+      //exception for "package ccsid" - it can accept any integer
+      if(index == properties_.PACKAGE_CCSID){            	            	            	
+      	try{            	
+      		int ccsid = Integer.valueOf(value).intValue();
+      		if(ccsid < 1)
+      			throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); 
+      		return;
+      	}catch(NumberFormatException e){
+      		throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);            		
+      	}
+      }                 
+      //Bidi-HCG end
+      
       boolean notValid = true;
       int current = 0;
       while (notValid && current < choices.length)

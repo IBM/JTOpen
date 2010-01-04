@@ -182,6 +182,7 @@ implements Connection
     private Vector                      statements_;                    // @DAC
     JDTransactionManager        transactionManager_;            //      @E10c
     static final ConvTable      unicodeConverter_ = new ConvTable13488();              // @E3A @P0C
+    ConvTable      packageCCSID_Converter = null; //Bidi-HCG
     int                         vrm_;                           // @D0A @E10c
 
     // declare the user-supplied value for server trace.  The constants for
@@ -3625,21 +3626,39 @@ implements Connection
                 
                 // @M0C - As of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which   
                 // will cause our statement to flow in 1200 and our package to be 1200
-                if(vrm_ >= JDUtilities.vrm530 && properties_.getInt(JDProperties.PACKAGE_CCSID) == 1200)
-                {
-                    request.setClientCCSID(1200);
 
-                    if(JDTrace.isTraceOn())
-                        JDTrace.logInformation(this, "Client CCSID = 1200");
-                }
+                //Bidi-HCG allow any ccsid or "system" to use ccsid of AS400 object
+                //Bidi-HCG start
+                String sendCCSID = properties_.getString(JDProperties.PACKAGE_CCSID);  
+
+                int sendCCSIDInt; 
+                int hostCCSID;
+                if(this.getSystem() == null)  //@pdcbidi 
+                    hostCCSID = 37;
                 else
-                {
-                    request.setClientCCSID(13488);
-
-                    if(JDTrace.isTraceOn())
-                        JDTrace.logInformation(this, "Client CCSID = 13488");
+                    hostCCSID = this.getSystem().getCcsid();
+                int default_ccsid = Integer.parseInt(JDProperties.PACKAGE_CCSID_UCS2);  
+                
+                if( sendCCSID.equalsIgnoreCase("system"))
+                	sendCCSIDInt = hostCCSID;                	                 
+                else {
+                	try{
+                		if((sendCCSIDInt = Integer.valueOf(sendCCSID).intValue()) <= 0) 
+                			sendCCSIDInt = default_ccsid;
+                		if(vrm_ < JDUtilities.vrm530 && sendCCSIDInt == 1200)
+                			sendCCSIDInt = default_ccsid;
+                	} catch(Exception e) {
+                		sendCCSIDInt = default_ccsid;
+                	}
                 }
-
+                
+                packageCCSID_Converter = ConvTable.getTable(sendCCSIDInt, null);
+                properties_.setString(JDProperties.PACKAGE_CCSID, (new Integer(sendCCSIDInt)).toString());
+                request.setClientCCSID(sendCCSIDInt);
+                if(JDTrace.isTraceOn())
+        			JDTrace.logInformation(this, "Client CCSID = " + sendCCSIDInt);                
+                //Bidi-HCG end
+                
                 // This language feature code is used to tell the
                 // system what language to send error messages in.
                 // If that language is not installed on the system,

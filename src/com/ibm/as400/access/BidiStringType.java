@@ -14,14 +14,69 @@
 package com.ibm.as400.access;
 
 /**
- The BidiStringType class is a collection of constants generally used for describing the output string type of bidi (bi-directional text) data as defined by the CDRA (Character Data Representation Architecture).
- <p>Each CCSID has a default CDRA string type, which defines a set of Bidi flags.  When using these constants while performing conversions on bidi strings, the parameter string type should always be either ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR), or ST11 (Contextual RTL).  Note that "LTR" means left-to-right, and "RTL" means right-to-left.
- <p>In fact, only the orientation of the given string type is used to modify the Bidi flags to apply to the Java data.  The other Bidi flags of the Java data always conform to the Unicode standard.
+ * The BidiStringType class is a collection of constants
+ * generally used for describing the string type of bidi (bi-directional text).
+ * <p>
+ * The client Bidi format is usually different from the host Bidi format. For
+ * example, Bidi format of MS-Windows applications is typically Logical LTR, and
+ * Bidi format of System i screen applications is typically Visual LTR.
+ * Therefore the data exchange between the host and the client may need Bidi
+ * layout transformation. The client Bidi format for this transformation is
+ * defined by "bidi string type" property, while the host Bidi format is taken
+ * according to the user profile CCSID (aka host CCSID). Each CCSID has a 
+ * default string type, as defined by the CDRA (Character Data Representation 
+ * Architecture), which  * defines a set of Bidi flags. This string type 
+ * is used as the host Bidi format.
+ * <p>
+ * By default, the value of the "bidi string type" property is 5 (Logical LTR).
+ * <p>
+ * The value of the the host CCSID is received from the host, and it can be
+ * different for data sent from the host to the client (such as results of
+ * SELECT queries), and for data sent from the client to the host (such as field
+ * content of data manipulation statements, such as INSERT or UPDATE). For the
+ * former, the host CCSID is used. For the latter, it is defined using
+ * property "package ccsid".
+ * <p>
+ * Note that the default value for the property is 13488 (UCS-2), and Bidi
+ * format associated with the CCSID is 10 (Logical Contextual). Therefore, by
+ * default, the data sent from a client to a host is converted into Logical
+ * Contextual first, and then converted into Bidi format of the host database
+ * (typically Visual LTR) by a process running on the host side (receiving job).
+ * As result, Arabic/Hebrew text mixed with numerals might be reordered
+ * incorrectly (round-trip problem). To prevent this problem, it is recommended
+ * to set "package ccsid" to the value matching the host CCSID.
+ * <p>
+ * The special value "system" for the "package ccsid" property forces the JDBC
+ * driver to use value matching the host CCSID. This CCSID may be different for
+ * different accounts, but, by default, it matches the host database CCSID;
+ * therefore, in most of cases, it is recommended for usage with Bidi systems.
+ * However, it is mandatory to use a Unicode CCSID, for example 1200 (UTF-16) or
+ * 13488 (UCS-2), for data manipulation statements with multilingual field
+ * content.
+ * <p>
+ * For meta-data (names of tables, columns etc.) and method setString()
+ * of classes CallableStatement and PreparedStatement, "package ccsid" is not used
+ * as a mediator, and sending data is converted directory to host database CCSID,
+ * or CCSID specified for the column.   
+ * <p>
+ * Bidi layout transformation of data manipulation statements such as INSERT 
+ * or UPDATE is not supported when either "package ccsid" and host CCSID are Logical, 
+ * or when host CCSID is Logical RTL (62224 for Arabic and 62235 for Hebrew). 
+ * For these cases, consider usage of method setString() of classes CallableStatement 
+ * and PreparedStatement, or method updateString() of class ResultSet.
+ * <p>
+ * Bidi layout transformation of meta-data depends from property "bidi implicit reordering". 
+ * If it is set to true, it is reordered according to current setting of "bidi string type". 
+ * Otherwise no reordering is occurred. In current release, this feature is supported for 
+ * Visual LTR CCSIDs (420 for Arabic and 424 for Hebrew) only.  
+ * <p>
+ * Note that "LTR" means left-to-right, "RTL" means right-to-left, and
+ * "Implicit" is alias for "Logical".
  **/
 public interface BidiStringType
 {
     /**
-     The default string type for non bidi data (LTR).
+     The default string type for Bidi data, according to Unicode standard (Implicit Contextual LTR).
      **/
     final static int DEFAULT = 0;
 
@@ -35,7 +90,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Visual
      <li>Orientation:  LTR
-     <li>Symetric swapping:  No
+     <li>Symmetric swapping:  No
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Shaped
      </ul>
@@ -47,7 +102,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Implicit
      <li>Orientation:  LTR
-     <li>Symetric swapping:  Yes
+     <li>Symmetric swapping:  Yes
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Nominal
      </ul>
@@ -59,7 +114,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Implicit
      <li>Orientation:  RTL
-     <li>Symetric swapping:  Yes
+     <li>Symmetric swapping:  Yes
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Nominal
      </ul>
@@ -71,7 +126,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Visual
      <li>Orientation:  Contextual LTR
-     <li>Symetric swapping:  No
+     <li>Symmetric swapping:  No
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Nominal
      </ul>
@@ -83,7 +138,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Visual
      <li>Orientation:  RTL
-     <li>Symetric swapping:  No
+     <li>Symmetric swapping:  No
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Shaped
      </ul>
@@ -95,7 +150,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Visual
      <li>Orientation:  RTL
-     <li>Symetric swapping:  Yes
+     <li>Symmetric swapping:  Yes
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Shaped
      </ul>
@@ -107,7 +162,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Implicit
      <li>Orientation:  Contextual LTR
-     <li>Symetric swapping:  Yes
+     <li>Symmetric swapping:  Yes
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Nominal
      </ul>
@@ -119,7 +174,7 @@ public interface BidiStringType
      <ul>
      <li>Type of text:  Implicit
      <li>Orientation:  Contextual RTL
-     <li>Symetric swapping:  Yes
+     <li>Symmetric swapping:  Yes
      <li>Numeral shape:  Nominal
      <li>Text shapes:  Nominal
      </ul>

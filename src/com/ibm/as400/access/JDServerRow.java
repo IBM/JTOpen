@@ -477,6 +477,16 @@ implements JDRow
             if(fieldNames_[index0] == null)
                 fieldNames_[index0] = serverFormat_.getFieldName (index0,
                                                                   connection_.getConverter (serverFormat_.getFieldNameCCSID (index0))).trim();
+            
+            //Bidi-HCG - add converion from serverFormat_.getFieldNameCCSID (index0) to "bidi string type" here
+            //Bidi-HCG start
+            boolean reorder = connection_.getProperties().getBoolean(JDProperties.BIDI_IMPLICIT_REORDERING);
+            if(reorder){
+            	String value_ = fieldNames_[index0];
+            	value_ = AS400BidiTransform.convertDataFromHostCCSID(value_, connection_, serverFormat_.getFieldNameCCSID (index0));
+            	return value_;
+            }
+            //Bidi-HCG end
             return fieldNames_[index0];
         }
         catch(DBDataStreamException e)

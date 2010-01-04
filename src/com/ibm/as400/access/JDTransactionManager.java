@@ -590,8 +590,9 @@ Set the commit mode on the system.
                                                  + DBBaseRequestDS.ORS_BITMAP_SQLCA, 0);
 
           boolean extended = false;         //@540
-          if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;   //@540
-          request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_, extended); // @C3C @P0C @540C 
+          if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;   //@540        
+          //Bidi-HCG request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_, extended); // @C3C @P0C @540C
+          request.setStatementText (sqlStatement.toString (), connection_.packageCCSID_Converter, extended); //Bidi-HCG
           request.setStatementType (sqlStatement.getNativeType ());
 
           // This statement certainly does not need a cursor, but some

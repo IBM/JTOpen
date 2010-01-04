@@ -381,8 +381,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     static final String              BIDI_STRING_TYPE_NOTSET     = EMPTY_;      // @E9A
     static final String              BIDI_STRING_TYPE_DEFAULT    = "0";              // @E9A
-    static final String              BIDI_STRING_TYPE_ST4    = "4";             // @E9A
-    static final     String             BIDI_STRING_TYPE_ST5        = "5";              // @E9A
+    static final String              BIDI_STRING_TYPE_ST4    	 = "4";             // @E9A
+    static final String              BIDI_STRING_TYPE_ST5        = "5";              // @E9A
     static final String              BIDI_STRING_TYPE_ST6        = "6";              // @E9A
     static final String              BIDI_STRING_TYPE_ST7        = "7";              // @E9A
     static final String              BIDI_STRING_TYPE_ST8        = "8";              // @E9A
@@ -521,7 +521,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[7]  = BIDI_STRING_TYPE_ST9;
         dpi_[i].choices[8]  = BIDI_STRING_TYPE_ST10;
         dpi_[i].choices[9]  = BIDI_STRING_TYPE_ST11;
-        defaults_[i]        = BIDI_STRING_TYPE_NOTSET;
+        defaults_[i]        = BIDI_STRING_TYPE_ST5; //Bidi-HCG 
+        	//BIDI_STRING_TYPE_NOTSET;
 
         // Big decimal.  @E0A
         i = BIG_DECIMAL;
@@ -1073,11 +1074,12 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i] = new DriverPropertyInfo(PACKAGE_CCSID_, "");
         dpi_[i].description = "PACKAGE_CCSID_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[2];
+        dpi_[i].choices     = new String[3];//Bidi-HCG 
         dpi_[i].choices[0]  = PACKAGE_CCSID_UCS2;
         dpi_[i].choices[1]  = PACKAGE_CCSID_UTF16;
+        dpi_[i].choices[2]  = "system"; //Bidi-HCG        
         defaults_[i]        = PACKAGE_CCSID_UCS2;
-
+        
         // @M0A - 63 digit decimal precision
         i = MINIMUM_DIVIDE_SCALE;
         dpi_[i] = new DriverPropertyInfo(MINIMUM_DIVIDE_SCALE_, "");
@@ -1831,6 +1833,22 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
             values_[index] = defaults_[index];
         else
             values_[index] = value;
+        
+        //Bidi-HCG start
+        //exception for "package ccsid" - it can accept any integer
+        if(index == PACKAGE_CCSID){
+        	try{
+        	int sendCCSIDInt = Integer.valueOf(value).intValue();
+        	if(sendCCSIDInt > 0)
+        		values_[index] = value;
+        	if(JDTrace.isTraceOn())
+                JDTrace.logProperty (this, dpi_[index].name, value);
+        	return;
+        	}catch(NumberFormatException e){
+        		//do nothing, will be handled by  code below
+        	}
+        }                 
+        //Bidi-HCG end
 
         // If choices are provided, for a specified index,
         // then validate the current choice.
