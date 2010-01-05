@@ -56,7 +56,7 @@ package com.ibm.as400.access;
  * <p>
  * For meta-data (names of tables, columns etc.) and method setString()
  * of classes CallableStatement and PreparedStatement, "package ccsid" is not used
- * as a mediator, and sending data is converted directory to host database CCSID,
+ * as a mediator, and sending data is converted directly to host database CCSID,
  * or CCSID specified for the column.   
  * <p>
  * Bidi layout transformation of data manipulation statements such as INSERT 
@@ -65,7 +65,8 @@ package com.ibm.as400.access;
  * For these cases, consider usage of method setString() of classes CallableStatement 
  * and PreparedStatement, or method updateString() of class ResultSet.
  * <p>
- * Bidi layout transformation of meta-data depends from property "bidi implicit reordering". 
+ * Bidi layout transformation of meta-data (such as tables, columns and stored procedures names) 
+ * depends on property "bidi implicit reordering". 
  * If it is set to true, it is reordered according to current setting of "bidi string type". 
  * Otherwise no reordering is occurred. In current release, this feature is supported for 
  * Visual LTR CCSIDs (420 for Arabic and 424 for Hebrew) only.  
