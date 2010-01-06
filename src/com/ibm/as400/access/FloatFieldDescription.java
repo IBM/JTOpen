@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FloatFieldDescription.java
 //                                                                             
@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- *The FloatFieldDescription class represents the description of the data in a float field.
+ *Represents the description of the data in a float field.
  *It allows:
  *<ul>
  *<li>The user to describe a float field to the RecordFormat object.
@@ -27,8 +27,6 @@ import java.util.Vector;
 **/
 public class FloatFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
   // Number of decimal positions for this field
   private int decimalPositions_;
@@ -228,7 +226,7 @@ public class FloatFieldDescription extends FieldDescription implements Serializa
     int numSpaces = 5-len.length();
     for (int i=0; i<numSpaces; ++i) desc.append(' ');
     // Length columns (5)
-    desc.append(len.toString());
+    desc.append(len);
     // Type column (1)
     desc.append("F");
     // Decimal positions columns (2)
