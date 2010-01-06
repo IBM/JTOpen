@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemProperties.java
 //                                                                             
@@ -18,8 +18,11 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Vector;
 
-// Contains constants representing names of all system properties recognized by the IBM Toolbox for Java.
-class SystemProperties
+/**
+ Contains constants representing names of all Java system properties recognized by the IBM Toolbox for Java.
+ <p>Note: This class is reserved for internal use within the Toolbox, and is subject to change without notice.
+ **/
+public class SystemProperties
 {
     // System property constants.
     private static final String ACCESS_PREFIX = "com.ibm.as400.access.";
@@ -27,32 +30,203 @@ class SystemProperties
     private static final String PROPERTIES_FILE_NAME = ACCESS_PREFIX + "jt400.properties";
     private static final String PROPERTIES_FILE_NAME_WITH_SLASHES = "com/ibm/as400/access/jt400.properties";
 
+
     // System property names.
+
+    /**
+     Specifies whether GUI support is available in the current execution environment.
+     If set to <tt>true</tt>, then the {@link AS400 AS400} class may prompt during sign-on to display error conditions, to obtain additional signon information, or to change the password.
+     If set to <tt>false</tt>, then connection error conditions or missing information will result in exceptions.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>true</tt>
+     <li>Overridden by: {@link AS400#setGuiAvailable() AS400.setGuiAvailable()}
+     </ul>
+     **/
     public static final String AS400_GUI_AVAILABLE = ACCESS_PREFIX + "AS400.guiAvailable";
+
+    /**
+     Specifies the proxy server host name and port number.
+     The port number is optional.
+     <ul>
+     <li>Values/syntax: <i>hostName:portNumber</i>
+     <li>Default: (no default)
+     <li>Overridden by: {@link AS400#setProxyServer() AS400.setProxyServer()}
+     </ul>
+     **/
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
+
+    /**
+     Specifies the name of the default signon handler class used by the {@link AS400 AS400} class.
+     <ul>
+     <li>Values/syntax: <i>packageName.classname</i>
+     <li>Default: An internal Toolbox class is used.
+     <li>Overridden by: {@link AS400#setSignonHandler() AS400.setSignonHandler()} and {@link AS400#setDefaultSignonHandler() AS400.setDefaultSignonHandler()}
+     </ul>
+     **/
     public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
+
+    /**
+     Specifies whether the {@link AS400 AS400} class should attempt to add the appropriate secondary language library to the library list.
+     This property is ignored if not running on the IBM i system.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: {@link AS400#setMustAddLanguageLibrary() AS400.setMustAddLanguageLibrary()}
+     </ul>
+     **/
     public static final String AS400_MUST_ADD_LANGUAGE_LIBRARY = ACCESS_PREFIX + "AS400.mustAddLanguageLibrary";
+
+    /**
+     Specifies whether sockets must be used when communicating with the system.  Setting this property to <tt>true</tt> directs the Toolbox to refrain from exploiting native optimizations, when running directly on the system.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: {@link AS400#setMustUseSockets() AS400.setMustUseSockets()}
+     </ul>
+     **/
     public static final String AS400_MUST_USE_SOCKETS = ACCESS_PREFIX + "AS400.mustUseSockets";
+
+    /**
+     Specifies whether only Internet domain sockets must be used when communicating with the system.  Setting this property to <tt>true</tt> directs the Toolbox to refrain from exploiting Unix sockets, when running directly on the system.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: {@link AS400#setMustUseSockets() AS400.setMustUseSockets()}
+     </ul>
+     **/
     public static final String AS400_MUST_USE_NET_SOCKETS = ACCESS_PREFIX + "AS400.mustUseNetSockets";
+
+    /**
+     Specifies whether the explicitly supplied profile must be used when communicating with the system.  Setting this property to <tt>true</tt> directs the Toolbox to refrain from exploiting the currently signed-on profile by default, when running directly on the system.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: {@link AS400#setMustUseSuppliedProfile() AS400.setMustUseSuppliedProfile()}
+     </ul>
+     **/
     public static final String AS400_MUST_USE_SUPPLIED_PROFILE = ACCESS_PREFIX + "AS400.mustUseSuppliedProfile";
+
+    /**
+     Specifies whether threads are used when communicating with the host servers.
+     By default, the AS400 object creates separate threads to listen on communication sockets to the host servers.  Setting this property to <tt>false</tt> directs the Toolbox to refrain from creating separate threads for host server communications.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>true</tt>
+     <li>Overridden by: {@link AS400#setThreadUsed() AS400.setThreadUsed()}
+     </ul>
+     **/
     public static final String AS400_THREAD_USED = ACCESS_PREFIX + "AS400.threadUsed";
-    public static final String SECUREAS400_PROXY_ENCRYPTION_MODE = ACCESS_PREFIX + "SecureAS400.proxyEncryptionMode";
-    public static final String SECUREAS400_USE_SSLIGHT = ACCESS_PREFIX + "SecureAS400.useSslight";
+
+    /*public*/ static final String SECUREAS400_PROXY_ENCRYPTION_MODE = ACCESS_PREFIX + "SecureAS400.proxyEncryptionMode";
+    /*public*/ static final String SECUREAS400_USE_SSLIGHT = ACCESS_PREFIX + "SecureAS400.useSslight";
+
+    /**
+     Specifies which trace categories to enable. This is a comma-delimited
+     list containing any combination of trace categories.
+     <ul>
+     <li>Values/syntax: <tt>datastream</tt>, <tt>diagnostic</tt>, <tt>error</tt>, <tt>information</tt>, ...
+     <br>(Refer to the {@link Trace Trace} class for complete list.)
+     <li>Default: (no default)
+     <li>Overridden by: Various <tt>setTrace...</tt> methods in the {@link Trace Trace} class.
+     </ul>
+     **/
     public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";
+
+    /**
+     Specifies the file to which the {@link Trace Trace} class writes output.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: {@link System#out System.out}.
+     <li>Overridden by: Any of the <tt>Trace.setFileName()</tt> or <tt>Trace.setPrintWriter()</tt> methods.
+     </ul>
+     **/
     public static final String TRACE_FILE = ACCESS_PREFIX + "Trace.file";
+
+    /**
+     Specifies which trace categories to start on the JDBC server job.
+     <ul>
+     <li>Values/syntax: Refer to the javadoc for class {@link AS400JDBCDriver AS400JDBCDriver}. Follow the link labeled "JDBC properties", and search for the "server trace" property.
+     <li>Default: (no default)
+     <li>Overridden by: Specifying property values in either the connection URL or via one of the <tt>connect()</tt> methods of class {@link AS400JDBCDriver AS400JDBCDriver}
+     </ul>
+     **/
     public static final String TRACE_JDBC_SERVER = ACCESS_PREFIX + "ServerTrace.JDBC";     // @j1a
-    public static final String TRACE_ENABLED = ACCESS_PREFIX + "Trace.enabled";
+
+    /*public*/ static final String TRACE_ENABLED = ACCESS_PREFIX + "Trace.enabled";
+
+    /**
+     Specifies whether the {@link CommandCall CommandCall} class should assume that called commands are threadsafe.
+     If <tt>true</tt>, all called commands are assumed to be threadsafe.
+     If <tt>false</tt>, all called commands are assumed to be non-threadsafe.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: {@link CommandCall#setThreadSafe(Boolean) CommandCall.setThreadSafe()}
+     </ul>
+     **/
     public static final String COMMANDCALL_THREADSAFE = ACCESS_PREFIX + "CommandCall.threadSafe";
+
+    /**
+     Specifies whether the {@link ProgramCall ProgramCall} class should assume that called programs are threadsafe.
+     If <tt>true</tt>, all called programs are assumed to be thread-safe.
+     If <tt>false</tt>, all called programs are assumed to be non-thread-safe.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: {@link ProgramCall#setThreadSafe() ProgramCall.setThreadSafe()}
+     </ul>
+     **/
     public static final String PROGRAMCALL_THREADSAFE = ACCESS_PREFIX + "ProgramCall.threadSafe";
+
+    /**
+     Specifies how often, in seconds, the proxy server looks for idle connections.
+     The proxy server starts a thread to look for clients that are no longer 
+     communicating. Use this property to set how often the thread looks for idle
+     connections.
+     <ul>
+     <li>Values/syntax: <i>numberOfSeconds</i>
+     <li>Default: 2 hours
+     <li>Overridden by: (none)
+     </ul>
+     **/
     public static final String TUNNELPROXYSERVER_CLIENTCLEANUPINTERVAL = ACCESS_PREFIX + "TunnelProxyServer.clientCleanupInterval"; //@A2A
+
+    /**
+     Specifies how long, in seconds, a client can be idle before the proxy
+     server removes references to the objects.
+     Removing the references allows the JVM to garbage collect the objects. 
+     The proxy server starts a thread to look for clients that are no longer
+     communicating. Use this property to set how long a client can be idle before
+     performing garbage collection on it.
+     <ul>
+     <li>Values/syntax: <i>numberOfSeconds</i>
+     <li>Default: 30 minutes
+     <li>Overridden by: (none)
+     </ul>
+     **/
     public static final String TUNNELPROXYSERVER_CLIENTLIFETIME	= ACCESS_PREFIX + "TunnelProxyServer.clientLifetime"; //@A2A
+
+    /**
+     Specifies whether the socket is reused for multiple file transfers when in "active" mode. This property is referenced by classes {@link FTP FTP} and {@link AS400FTP AS400FTP}.
+     If <tt>true</tt>, the socket is reused.
+     If <tt>false</tt>, a new socket is created for each file transfer.
+     This property is ignored for a given FTP object if <tt>FTP.setReuseSocket(true/false)</tt> has
+     been performed on the object.
+     <ul>
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>true</tt>
+     <li>Overridden by: {@link FTP#setReuseSocket() FTP.setReuseSocket()}
+     </ul>
+     **/
     public static final String FTP_REUSE_SOCKET = ACCESS_PREFIX + "FTP.reuseSocket";
-    public static final String JDBC_STATEMENT_LISTENERS = ACCESS_PREFIX + "JDBC.statementListeners";
-    public static final String JDBC_SECURE_CURRENT_USER = ACCESS_PREFIX + "JDBC.secureCurrentUser"; //@pw3 not documented in html
-    public static final String JDBC_JVM16_SYNCHRONIZE = ACCESS_PREFIX + "JDBC.jvm16Synchronize"; //@dmy temp fix for jvm 1.6 memory stomping
-    public static final String TRACE_MONITOR = ACCESS_PREFIX + "Trace.monitor";
-    public static final String TRACE_MONITOR_PORT = ACCESS_PREFIX + "Trace.monitorPort";
-    
+
+    /*public*/ static final String JDBC_STATEMENT_LISTENERS = ACCESS_PREFIX + "JDBC.statementListeners";
+    /*public*/ static final String JDBC_SECURE_CURRENT_USER = ACCESS_PREFIX + "JDBC.secureCurrentUser"; //@pw3 not documented in html
+    /*public*/ static final String JDBC_JVM16_SYNCHRONIZE = ACCESS_PREFIX + "JDBC.jvm16Synchronize"; //@dmy temp fix for jvm 1.6 memory stomping
+    /*public*/ static final String TRACE_MONITOR = ACCESS_PREFIX + "Trace.monitor";
+    /*public*/ static final String TRACE_MONITOR_PORT = ACCESS_PREFIX + "Trace.monitorPort";
+
     //  *** Note: ***
     //
     // If you add a new system property, remember to also add it to the
@@ -60,7 +234,6 @@ class SystemProperties
     //     - SystemProperties.htm
     //     - SystemPropertiesSample1.htm
     //     - SystemPropertiesSample2.htm
-    //     - the "near mirror-image" SystemProperties.java in pkg 'test'
     // The *.htm files are owned/maintained by the InfoCenter support people.
 
     // Private data.
@@ -78,10 +251,10 @@ class SystemProperties
     }
 
     // Returns the value of a system property.
+    // This method is reserved for internal use within the Toolbox.
     // @param  propertyName  The system property name.
     // @return  The system property value, or null if the system property is not specified.
-    // Implementation note:  There is currently no reason to make this method public.
-    static String getProperty(String propertyName)
+    public static String getProperty(String propertyName)
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting system property: '" + propertyName + "'");
 
