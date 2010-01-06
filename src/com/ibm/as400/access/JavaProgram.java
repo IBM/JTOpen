@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
-The JavaProgram class represents an IBM i Java program.   This is supported
+Represents an IBM i Java program.   This is supported
 only when connecting to systems running OS/400 V5R1 or later, or systems running IBM i.
 
 In the context of this discussion, a "Java program" is the IBM i executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
@@ -202,7 +202,7 @@ public class JavaProgram implements Serializable
          ObjectDoesNotExistException
     {
         if(!loaded_) refresh();
-        return fileChangeDate_;
+        return (Date)fileChangeDate_.clone();
     }
 
     /**
@@ -237,7 +237,7 @@ public class JavaProgram implements Serializable
          ObjectDoesNotExistException
     {
         if(!loaded_) refresh();
-        return javaProgramCreationDate_;
+        return (Date)javaProgramCreationDate_.clone();
     }
 
     /**
@@ -531,7 +531,7 @@ public class JavaProgram implements Serializable
         }
 
         byte[] output = parms[0].getOutputData();
-        int bytesReturned = BinaryConverter.byteArrayToInt(output, 0);
+        //int bytesReturned = BinaryConverter.byteArrayToInt(output, 0);
         int bytesAvailable = BinaryConverter.byteArrayToInt(output, 4);
         fileOwner_ = conv.byteArrayToString(output, 8, 10);
         String d = conv.byteArrayToString(output, 18, 13);
