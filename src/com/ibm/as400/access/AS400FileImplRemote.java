@@ -2084,32 +2084,29 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   InterruptedException,
   IOException
   {
-    try {  
+    if (replyParm instanceof DDMReplyDataStream)
+    {
       DDMReplyDataStream reply = (DDMReplyDataStream) replyParm;
 
-    DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_);
-    AS400Message[] msgs = msgReply.getAS400MessageList();
-    for (int i = 0; i < msgs.length; ++i)
-    {
-      if (msgId != null)
-      { // Verify based on msgid only
-        if (msgs[i].getID().equalsIgnoreCase(msgId))
-        {
-          return true;
+      DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_);
+      AS400Message[] msgs = msgReply.getAS400MessageList();
+      for (int i = 0; i < msgs.length; ++i)
+      {
+        if (msgId != null)
+        { // Verify based on msgid only
+          if (msgs[i].getID().equalsIgnoreCase(msgId))
+          {
+            return true;
+          }
+        }
+        else
+        { // Verify based on severity code only
+          if (msgs[i].getSeverity() == svrCode)
+          {
+            return true;
+          }
         }
       }
-      else
-      { // Verify based on severity code only
-        if (msgs[i].getSeverity() == svrCode)
-        {
-          return true;
-        }
-      }
-    }
-    }
-    catch (ClassCastException e)
-    {
-      Trace.log(Trace.ERROR, e);
     }
     return false;
   }
