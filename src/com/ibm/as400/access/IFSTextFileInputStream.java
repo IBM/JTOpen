@@ -18,8 +18,7 @@ import java.io.InputStreamReader;
 
 
 /**
- The IFSTextFileInputStream class represents an integrated file system
-input stream for character data.
+Represents an integrated file system input stream for character data.
 <br>
 IFSTextFileInputStream objects are capable of generating file events 
 which call the following FileListener methods: fileClosed and fileOpened.
@@ -44,10 +43,6 @@ file.close();
 public class IFSTextFileInputStream extends IFSFileInputStream
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-   
     static final long serialVersionUID = 4L;
 
   /**
@@ -212,7 +207,7 @@ public class IFSTextFileInputStream extends IFSFileInputStream
     }
     else if (length == 0)
     {
-      return new String("");
+      return "";
     }
     else
     {
