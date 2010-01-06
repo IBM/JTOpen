@@ -37,7 +37,10 @@ class HexReaderInputStream extends InputStream
 
   public int available() throws IOException
   {
-    if (cached_ && reader_.ready()) return 1;
+    synchronized(this)
+    {
+      if (cached_ && reader_.ready()) return 1;
+    }
     return 0;
   }
 
@@ -110,7 +113,7 @@ class HexReaderInputStream extends InputStream
       char[] buf = new char[len*2];
       int numRead = reader_.read(buf);
       if (numRead == -1) return -1;
-      if (numRead % 2 == 1)
+      if (numRead % 2 != 0)  // did we read an odd number of bytes
       {
         cached_ = true;
         cachedChar_ = buf[numRead-1];
