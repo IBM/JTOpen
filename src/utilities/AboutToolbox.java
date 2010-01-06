@@ -28,6 +28,8 @@ package utilities;
 
 import java.lang.reflect.*;
 
+import com.ibm.as400.access.AS400JDBCDriver;
+
 /**
  * Prints the current version of the Toolbox or JTOpen that is found in 
  * the user's CLASSPATH.
@@ -63,6 +65,19 @@ public class AboutToolbox
          {  
            // We're running JTOpen 6.1 or earlier, so JDBC 4.0 not supported yet.
          }
+         
+         try{
+             //driver level
+             AS400JDBCDriver d = new AS400JDBCDriver();
+             int driverMajor = d.getMajorVersion();
+             int driverMinor = d.getMinorVersion();
+
+             System.out.println("Toolbox driver version " + driverMajor  + "." + driverMinor );
+         }catch(Throwable t)
+         {  
+                 // Skip if get any error
+         }
+         
       }
       catch(NoSuchFieldException e)
       {  
