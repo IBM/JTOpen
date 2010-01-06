@@ -563,9 +563,9 @@ public class AS400BidiTransform
     	return value_;
     }    
 
-	public static String meta_data_reordering(String value_, int inFormat, int outFormat) {
-		if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Bidi layout transformation of SQL meta-data: " + value_);
-		
+    public static String meta_data_reordering(String value_, int inFormat, int outFormat) {
+    	if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Bidi layout transformation of SQL meta-data: " + value_);
+
     	if(inFormat == outFormat)
     		return value_;
     	if(inFormat == BidiStringType.NONE || outFormat == BidiStringType.NONE)
@@ -574,7 +574,7 @@ public class AS400BidiTransform
     	boolean into = false;
     	int i = 0, start = 0, end = 0;
     	String str;
-    	
+
     	while(i< value_.length()){
     		if(value_.charAt(i) == '"'){
     			if(into){
@@ -582,7 +582,7 @@ public class AS400BidiTransform
     				str = value_.substring(start, end);
     				str = bidiTransform(str, inFormat, outFormat);
     				value_ = value_.substring(0, start) + str + value_.substring(end);
-    				
+
     				start = end = 0;
     				into = false;
     			} else {
@@ -590,11 +590,11 @@ public class AS400BidiTransform
     				start = i+1;
     			}    			
     		}
-    		    		 
+
     		i++;
-    		}    			
-		return value_;
-	}
+    	}    			
+    	return value_;
+    }
 	
 	static String convertSQLToHostCCSID(String value_, AS400JDBCConnection connection) throws SQLException{
 	    if(connection == null || value_ == null) //@pdc
@@ -602,11 +602,10 @@ public class AS400BidiTransform
     	JDProperties prop = connection.getProperties();        	       	        		
     	int host_bidi_format, host_ccsid, package_bidi_format, package_ccsid;
     	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);
-		
-    //	host_ccsid = connection.getSystem().getCcsid();
-    	   if(connection.getSystem() != null) //@pdc
-               host_ccsid = connection.getSystem().getCcsid();
-       else
+		    	
+    	if(connection.getSystem() != null) //@pdc
+               host_ccsid = connection.getSystem().getCcsid();       
+    	else
               host_ccsid = 37; //@pdc
     	   
 		host_bidi_format = getStringType(host_ccsid);				
@@ -615,12 +614,10 @@ public class AS400BidiTransform
 		package_bidi_format = getStringType(package_ccsid);
     	
     	if(bidi_format != 0 && host_bidi_format != 0){
-    		if(prop.getString(JDProperties.BIDI_IMPLICIT_REORDERING).equalsIgnoreCase("true")){				       			
+    		if(prop.getString(JDProperties.BIDI_IMPLICIT_REORDERING).equalsIgnoreCase("true"))				       			
     			value_ = meta_data_reordering(value_, bidi_format, host_bidi_format);
-    		}
     		
-    		value_ = SQL_statement_reordering(value_, bidi_format, host_bidi_format);
-    		value_ = SQL_statement_reordering(value_, host_bidi_format, package_bidi_format);
+    		value_ = SQL_statement_reordering(value_, bidi_format, package_bidi_format);
     	}	
     	return value_;
 	}
@@ -629,14 +626,8 @@ public class AS400BidiTransform
 	    if(connection == null || value_ == null) //@pdc
             return value_;
     	JDProperties prop = connection.getProperties();        	       	        		
-    	int host_bidi_format, package_bidi_format, package_ccsid;
-    	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);
-		    	
-		host_bidi_format = getStringType(host_ccsid);				
-
-		package_ccsid = connection.getProperties().getInt(JDProperties.PACKAGE_CCSID);
-		package_bidi_format = getStringType(package_ccsid);
-    	
+    	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);		    	
+		int host_bidi_format = getStringType(host_ccsid);				
     	if(bidi_format != 0 && host_bidi_format != 0){    		    		
     		value_ = bidiTransform(value_, bidi_format, host_bidi_format);
     	}	
