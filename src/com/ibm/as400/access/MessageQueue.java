@@ -695,7 +695,14 @@ public class MessageQueue implements Serializable
     public byte[] getUserStartingMessageKey()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user starting message key:", userStartingMessageKey_);
-        return userStartingMessageKey_;
+
+        byte[] msgKey = null;
+        if (userStartingMessageKey_ != null) // return a copy
+        {
+          msgKey = new byte[userStartingMessageKey_.length];
+          System.arraycopy(userStartingMessageKey_, 0, msgKey, 0, msgKey.length);
+        }
+        return msgKey;
     }
 
     /**
@@ -706,7 +713,14 @@ public class MessageQueue implements Serializable
     public byte[] getWorkstationStartingMessageKey()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting workstation starting message key:", workstationStartingMessageKey_);
-        return workstationStartingMessageKey_;
+
+        byte[] msgKey = null;
+        if (workstationStartingMessageKey_ != null) // return a copy
+        {
+          msgKey = new byte[workstationStartingMessageKey_.length];
+          System.arraycopy(workstationStartingMessageKey_, 0, msgKey, 0, msgKey.length);
+        }
+        return msgKey;
     }
 
     /**
@@ -1063,10 +1077,13 @@ public class MessageQueue implements Serializable
             throw new ExtendedIllegalArgumentException("messageType (" + messageType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        if (messageKey == null && (messageType.equals(COPY) || messageType.equals(NEXT) || messageType.equals(PREVIOUS)))
+        if (messageKey == null &&
+            (messageType.equals(COPY) ||
+             messageType.equals(NEXT) ||
+             messageType.equals(PREVIOUS)))
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'messageKey' is not valid: " + messageKey);
-            throw new ExtendedIllegalArgumentException("messageKey (" + messageKey + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            Trace.log(Trace.ERROR, "Value of parameter 'messageType' is not valid when messageKey is not specified: " + messageType);
+            throw new ExtendedIllegalArgumentException("messageType (" + messageType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         if (system_ == null)
