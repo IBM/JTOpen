@@ -28,7 +28,7 @@ Represents an integrated file system file descriptor.
 Instances of the file descriptor class serve as an opaque handle to the underlying structure representing an open file or an open socket.   Applications should not create their own file descriptors.<br>
 Here is an example of two input streams sharing a file descriptor:
 <pre>
-    AS400 as400 = new AS400("as400");
+    AS400 as400 = new AS400("mySystem");
     IFSFileInputStream is1 = new IFSFileInputStream(as400, "/Dir/File");
     IFSFileInputStream is2 = new IFSFileInputStream(is1.getFD());
 </pre>
@@ -42,8 +42,6 @@ public final class IFSFileDescriptor
 {
     static final long serialVersionUID = 4L;
 
-
-
   private transient long        fileOffset_;
   private transient Object      parent_;  // The object that instantiated
                                           // this IFSDescriptor.
@@ -52,7 +50,7 @@ public final class IFSFileDescriptor
   private AS400                 system_;
   private boolean               closed_ = false;
 
-  private transient Boolean     fileOffsetLock_ = new Boolean("true");
+  private transient Object      fileOffsetLock_ = new Object();
                          // Semaphore for synchronizing access to fileOffset_.
 
   private transient IFSFileDescriptorImpl impl_;
@@ -283,7 +281,7 @@ Constructs an IFSFileDescriptor object.
     // Initialize the transient fields.
     fileOffset_ = 0;
     parent_ = null;
-    fileOffsetLock_ = new Boolean("true");
+    fileOffsetLock_ = new Object();
     impl_ = null;
   }
 

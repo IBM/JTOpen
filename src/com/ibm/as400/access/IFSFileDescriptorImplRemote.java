@@ -58,7 +58,7 @@ implements IFSFileDescriptorImpl
   private int         shareOption_;
           AS400ImplRemote system_;
 
-  private Boolean     fileOffsetLock_ = new Boolean("true");
+  private Object      fileOffsetLock_ = new Object();
                          // Semaphore for synchronizing access to fileOffset_.
 
   private int         maxDataBlockSize_ = 1024; // @B2A
@@ -469,7 +469,7 @@ implements IFSFileDescriptorImpl
           }
 
           // Process the exchange attributes reply.
-          if (rep instanceof IFSExchangeAttrRep)
+          if (rep != null)
           {
               maxDataBlockSize_ = ((IFSExchangeAttrRep) rep).getMaxDataBlockSize();
               preferredServerCCSID_ = rep.getPreferredCCSID();
