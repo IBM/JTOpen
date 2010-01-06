@@ -196,7 +196,7 @@ public class FTP implements java.io.Serializable
           setServer(server);
           checkSocketProperty();  // see if "reuseSocket" property is set
        }
-       catch (PropertyVetoException e) {}
+       catch (PropertyVetoException e) { Trace.log(Trace.ERROR, e); }
     }
 
 
@@ -218,7 +218,7 @@ public class FTP implements java.io.Serializable
           setPassword(password);
           checkSocketProperty();  // see if "reuseSocket" property is set
        }
-       catch (PropertyVetoException e) {}
+       catch (PropertyVetoException e) { Trace.log(Trace.ERROR, e); }
     }
 
 
@@ -1150,17 +1150,24 @@ public class FTP implements java.io.Serializable
 
          if (in != null)
          {
-            FileOutputStream f = new FileOutputStream(targetFile);
+           FileOutputStream f = null;
+           try
+           {
+             f = new FileOutputStream(targetFile);
 
-            int length = in.read(buffer);
-            while (length > 0)
-            {
-                f.write(buffer,0,length);
-                length = in.read(buffer);
-            }
-            in.close();
-            f.close();
-            // readReply();
+             int length = in.read(buffer);
+             while (length > 0)
+             {
+               f.write(buffer,0,length);
+               length = in.read(buffer);
+             }
+           }
+           finally
+           {
+             try { in.close(); } catch (Throwable t) { Trace.log(Trace.ERROR, t); }
+             if (f != null) f.close();
+           }
+           // readReply();
          }
          else
             result = false;
