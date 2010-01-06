@@ -56,14 +56,16 @@ import com.ibm.as400.vaccess.FileFilter;
 import com.ibm.as400.vaccess.IFSFileDialog;
 
 /**
- * CommTrace is used to provide a front end for the Format class to display and transfer the trace.<br>
- * The traces must originate from a system(running OS/400 V5R2 or greater) and reside in the IFS directory structure.<br>
- * They should be created with the following sequence of commands: <br>
- * STRCMNTRC<br>
- * ENDCMNTRC<br>
- * DMPCMNTRC<br>
+ * Provides a front end for the {@link Format Format} class, to display and transfer a communications trace file.<br>
+ * The trace must originate from a system (running OS/400 V5R2 or greater) and reside in the IFS directory structure.<br>
+ * The trace should be created with the following sequence of commands:
+ * <pre>
+ * STRCMNTRC
+ * ENDCMNTRC
+ * DMPCMNTRC
+ * </pre>
  *
- * The next step is to either format the file or transfer it to the local PC.
+ * The next step is to either format the trace file, or transfer it to the local PC.
  * The format can be done in two different ways.<br>
  * <ul><li>Using the "Format" button on the main window.</li>
  * <li>Using the Commtrace-&gt;Format menu option</li>
@@ -815,7 +817,7 @@ public class CommTrace extends WindowAdapter {
 	 * @param args The arguments from the command line.
 	 */
     public static void main(String[] args) {
-		CommTrace c = new CommTrace(args);
+		new CommTrace(args);
     }
 }
 
