@@ -26,16 +26,9 @@ import java.util.NoSuchElementException;
 class IFSFileEnumeration
 implements Enumeration
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
-
-
     // The block size is hardcoded based on the value chosen by OpNav.  
     // For now, it is not configurable.
     private static final int MAXIMUM_GET_COUNT_ = 128;
-
-
 
     private IFSFile[]       contents_;
     private IFSFile[]       contentsPending_;  // Staging area for contents_   @A1a
@@ -43,8 +36,8 @@ implements Enumeration
     private IFSFileFilter   filter_;
     private int             index_;
     private String          pattern_;
-    private String          restartName_;
-    private byte[]          restartID_;  // @C3a
+    //private String          restartName_;
+    //private byte[]          restartID_;  // @C3a
     private boolean         isRestartByNameSupported_;  // @A1a
 
 
@@ -99,7 +92,7 @@ implements Enumeration
     private IFSFile[] loadPendingBlock(String restartName)
     throws AS400SecurityException, IOException
     {
-      IFSFile[] block =  new IFSFile[0];
+      IFSFile[] block = null;
       // Design note: Using contents_ and contentsPending_ allows us to "look ahead" and detect end-of-list in all situations, including when the number of matching files in the directory is an exact multiple of MAXIMUM_GET_COUNT.
       // Continue reading/loading until we have something to return (that         @D5A
       // didn't all get filtered out)                                             @D5A
@@ -119,7 +112,7 @@ implements Enumeration
     private IFSFile[] loadPendingBlock(byte[] restartID)
     throws AS400SecurityException, IOException
     {
-      IFSFile[] block =  new IFSFile[0];
+      IFSFile[] block = null;
       // Design note: Using contents_ and contentsPending_ allows us to "look ahead" and detect end-of-list in all situations, including when the number of matching files in the directory is an exact multiple of MAXIMUM_GET_COUNT.
       // Continue reading/loading until we have something to return (that         @D5A
       // didn't all get filtered out)                                             @D5A
