@@ -449,8 +449,6 @@ implements IFSFileOutputStreamImpl
           ClientAccessDataStream ds = null;
 
           // Issue the "list attributes" request.
-          byte[] pathname = fd_.getConverter().stringToByteArray(fd_.getPath());
-
           IFSListAttrsReq req =
             new IFSListAttrsReq(fd_.getFileHandle(), IFSListAttrsReq.OA2, 0, 0);
           // We need to get an OA2 structure in the reply, since it contains the CCSID field.
