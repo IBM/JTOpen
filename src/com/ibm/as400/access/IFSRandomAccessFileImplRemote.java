@@ -32,11 +32,7 @@ implements IFSRandomAccessFileImpl
   transient private byte[] readCache_ = new byte[4096];
   transient private int readCacheIndex_;
   transient private int readCacheLength_;
-  private static int[] twoToThe = { 1, 2, 4, 8, 16 }; // powers of 2
-  transient private byte[] bytes1 = new byte[1];
-  transient private byte[] bytes2 = new byte[2];
-  transient private byte[] bytes4 = new byte[4];
-  transient private byte[] bytes8 = new byte[8];
+  private static final int[] twoToThe = { 1, 2, 4, 8, 16 }; // powers of 2
 
   // Static initialization code.
   static
@@ -620,6 +616,7 @@ implements IFSRandomAccessFileImpl
     try
     {
       // Determine the length.
+      byte[] bytes2 = new byte[2];
       int bytesRead = read(bytes2, 0, 2);
       if (bytesRead != 2)
       {
@@ -653,14 +650,14 @@ implements IFSRandomAccessFileImpl
       // _____________________________________________________________________
       // | 1 | 1 | 1 | 0 | bits 12-15 | 1 | 0 | bits 6-11 | 1 | 0 | bits 0-5 |
       //
-      String s = "";
+      StringBuffer sb = new StringBuffer();
       for (int i = 0; i < length;)
       {
         // Determine if the next character is in 1, 2, or 3 byte format.
         if ((data[i] & 0x80) == 0)
         {
           // One byte format.
-          s += (char) data[i];
+          sb.append((char) data[i]);
           i++;
         }
         else if ((data[i] & 0xe0) == 0xc0)
@@ -669,7 +666,7 @@ implements IFSRandomAccessFileImpl
           if (i + 1 < length)
           {
             char c = (char) (((data[i] & 0x1f) << 6) | (data[i + 1] & 0x3f));
-            s += c;
+            sb.append(c);
             i += 2;
           }
           else
@@ -684,7 +681,7 @@ implements IFSRandomAccessFileImpl
           {
             char c = (char) (((data[i] & 0xf) << 12) |
                              ((data[i + 1] & 0x3f) << 6) | (data[i + 2] & 0x3f));
-            s += c;
+            sb.append(c);
             i += 3;
           }
           else
@@ -698,7 +695,7 @@ implements IFSRandomAccessFileImpl
         }
       }
 
-      return s;
+      return sb.toString();
     }
     catch (AS400SecurityException e) {
       throw new IOException(e.getMessage());
@@ -922,6 +919,7 @@ implements IFSRandomAccessFileImpl
     }
 
     // Write the length.
+    byte[] bytes2 = new byte[2];
     bytes2[1] = (byte) j;
     bytes2[0] = (byte) (j >>> 8);
     writeBytes(bytes2, 0, 2);
