@@ -87,8 +87,8 @@ abstract class CredentialVault implements Cloneable
         vaultClone.encodedCredential_ = credentialCopy;
       }
       vaultClone.externalSeedsWereUsed_ = externalSeedsWereUsed_;
-      return vaultClone;
     }
+    return vaultClone;
   }
 
   /**
@@ -382,8 +382,7 @@ abstract class CredentialVault implements Cloneable
     sb.append("type=");
     sb.append(getType());
     sb.append(" : bytes=");
-    sb.append(encodedCredential_);
-    Trace.printByteArray(sb, encodedCredential_);
+    Trace.printByteArray(sb, encodedCredential_);  // accepts null arg
 
     return sb.toString();
   }
