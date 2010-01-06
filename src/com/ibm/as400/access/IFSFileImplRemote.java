@@ -570,7 +570,8 @@ implements IFSFileImpl
     // Don't need to check if attributeList == null because it has already been
     // checked by the two methods that call it.  Also don't check converter
     // because it is set by a connect() method before calling this.
-    String name = fd_.converter_.byteArrayToString(attributeList.getName(/*fd_.serverDatastreamLevel_*/));
+
+//    String name = fd_.converter_.byteArrayToString(attributeList.getName(/*fd_.serverDatastreamLevel_*/));
     switch (attributeList.getObjectType())
     {
       case IFSListAttrsRep.DIRECTORY:
@@ -609,7 +610,8 @@ implements IFSFileImpl
     // Don't need to check if attributeList == null because it has already been
     // checked by the two methods that call it.   Also don't check converter
     // because it is set by a connect() method before calling this.
-    String name = fd_.converter_.byteArrayToString(attributeList.getName(/*fd_.serverDatastreamLevel_*/));
+
+//    String name = fd_.converter_.byteArrayToString(attributeList.getName(/*fd_.serverDatastreamLevel_*/));
     switch(attributeList.getObjectType())
     {
       case IFSListAttrsRep.DIRECTORY:
@@ -1699,7 +1701,7 @@ implements IFSFileImpl
         }
         else
         {
-          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received zero matches from listDirectoryDetails() against parent of " + wildCardPattern.toString());
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received zero matches from listDirectoryDetails() against parent of " + wildCardPattern);
           isSymbolicLink_ = false;
           determinedIsSymbolicLink_ = true;
         }
@@ -2625,7 +2627,7 @@ implements IFSFileImpl
   private static final void setPassByReference(ProgramParameter parm)
   {
     try { parm.setParameterType(ProgramParameter.PASS_BY_REFERENCE); }
-    catch (PropertyVetoException pve) {}  // should never happen
+    catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }  // should never happen
   }
 
 
