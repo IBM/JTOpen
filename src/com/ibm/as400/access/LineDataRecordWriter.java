@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: LineDataRecordWriter.java
 //                                                                             
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
-  * The LineDataRecordWriter class writes a record in line data format (with
+  * Writes a record in line data format (with
   * the name of the record format inserted into positions 1-10 of the line data),
   * translating characters into bytes of the specified CCSID.
   * The line data is written to an OutputStream.
@@ -32,13 +32,9 @@ import java.io.UnsupportedEncodingException;
  
 public class LineDataRecordWriter extends Object
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     private OutputStream outPut;
     private Converter    cvt;
     private ByteArrayOutputStream buffer ;
-    private int dataLength = 0;
 
      /**
      * Constructs a LineDataRecordWriter. The target CCSID defaults to the CCSID  
