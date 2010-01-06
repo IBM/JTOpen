@@ -21,14 +21,12 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 
 /**
- A ConvTableReader represents a Toolbox converter that uses stateful character conversion.  That is, it wraps an underlying InputStream and reads/caches the appropriate number of bytes to return the requested number of Unicode characters.  This is especially useful for mixed byte tables where the number of converted Unicode characters is almost never the same as the number of underlying EBCDIC bytes.  This class exists primarily for use with the IFSText classes, but other components are free to use it as well.
+ Represents a Toolbox converter that uses stateful character conversion.  That is, it wraps an underlying InputStream and reads/caches the appropriate number of bytes to return the requested number of Unicode characters.  This is especially useful for mixed-byte tables where the number of converted Unicode characters is almost never the same as the number of underlying EBCDIC bytes.  This class exists primarily for use with the IFSTextFile... classes, but other components are free to use it as well.
  @see  com.ibm.as400.access.ConvTableWriter
  @see  com.ibm.as400.access.ReaderInputStream
  **/
 public class ConvTableReader extends InputStreamReader
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     private BufferedInputStream is_ = null;
 
     private int ccsid_ = -1;
@@ -234,7 +232,7 @@ public class ConvTableReader extends InputStreamReader
                             return false;
                         }
                         b_cache_[0] = cachedByte_;
-                        if (numRead % 2 == 0)  // Read an even number, need to proliferate the last byte.
+                        if (numRead % 2 == 0)  // if we've read an even number of chars, need to proliferate the last byte.
                         {
                             cachedByte_ = b_cache_[numRead];
                             isCachedByte_ = true;
@@ -247,7 +245,7 @@ public class ConvTableReader extends InputStreamReader
                     else
                     {
                         numRead = is_.read(b_cache_, 0, cache_.length);
-                        if (numRead % 2 == 1)  // Read an odd number of characters.
+                        if (numRead % 2 != 0)  // did we read an odd number of chars
                         {
                             cachedByte_ = b_cache_[numRead-1];
                             isCachedByte_ = true;
