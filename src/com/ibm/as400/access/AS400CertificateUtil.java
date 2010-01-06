@@ -27,7 +27,7 @@ import java.beans.VetoableChangeListener;
 
 
 /**
-   <p>The AS400CertificateUtil class provides the methods common to AS400CertificateVldlUtil and AS400CertificateUserProfileUtil.
+  * Provides the methods common to AS400CertificateVldlUtil and AS400CertificateUserProfileUtil.
   * The following example demonstrates the use of AS400CertificateUtil, AS400CertificateVldlUtil, and AS400CertificateUserProfileUtil. It copies an arbitrary number of X.509 certificates from an IBM i user profile to an IBM i validation list (vldl) object. The user profile certificates are first placed into a user space and then added to the validation list:<br>
   * <PRE>
       // Get certificates from the local system
@@ -884,8 +884,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
 
      //msg format -
      //"CPF227D:/MYLIB.LIB/MYVLDL.VLDL:Certificate was not found."
-     if (null == cpfError ||
-         (null != cpfError && 0 == cpfError.length()))
+     if ((null == cpfError) || (0 == cpfError.length()))
      {
          cpfError = objectName;
      }
