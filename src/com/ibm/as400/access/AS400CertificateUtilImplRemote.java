@@ -80,7 +80,6 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
       parmlist[4] = new ProgramParameter(nextCertificateOffsetInB);
 
       // 6 parameter: output, is the next cert offset to return
-      byte[] nextCertificateOffsetOutB = new byte[4];
       parmlist[5] = new ProgramParameter(4);
 
 
@@ -111,7 +110,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
 	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}
+      catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
       pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
@@ -142,7 +141,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
 	  }
 
 	  //return output parms, 1st get next certificate's offset
-	  nextCertificateOffsetOutB = parmlist[5].getOutputData();
+	  byte[] nextCertificateOffsetOutB = parmlist[5].getOutputData();
 	  nextCertificateOffsetOut_ =
 	    BinaryConverter.byteArrayToInt(nextCertificateOffsetOutB, 0);
 
@@ -226,7 +225,6 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
       parmlist[3] = new ProgramParameter(HANDLE_LEN);
 
          // 5 parameter: output, is the cpf error id array
-      byte[] errorInfoB = new byte[ 7 ];
       parmlist[4] = new ProgramParameter( 7 );
 
       	 // 6 parameter: input/output, is the return code
@@ -241,7 +239,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
 	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}
+      catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
       pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
@@ -263,7 +261,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
 	      //unexpected error
 	      if (-1 == rc) return rc;
 	      //get cpf error id
-	      errorInfoB = parmlist[4].getOutputData();
+	      byte[] errorInfoB = parmlist[4].getOutputData();
 	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }

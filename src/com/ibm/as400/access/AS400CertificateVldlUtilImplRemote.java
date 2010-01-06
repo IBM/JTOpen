@@ -82,7 +82,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}
+      catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
       pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
@@ -173,7 +173,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}
+      catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
       pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
@@ -335,7 +335,6 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 
 
  	 // 9 parameter: output, is the cpf error id array
-      byte[] errorInfoB = new byte[ERR_STRING_LEN];
       parmlist[8] = new ProgramParameter( ERR_STRING_LEN );
 
       	 // 10 parameter: input/output, is the return code
@@ -348,7 +347,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}
+      catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
       pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
@@ -375,7 +374,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      //unexpected error
 	      if (-1 == rc) return rc;
 	      //get cpf error id
-	      errorInfoB = parmlist[8].getOutputData();
+	      byte[] errorInfoB = parmlist[8].getOutputData();
 	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
@@ -440,7 +439,6 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       parmlist[6] = new ProgramParameter( 4 );
 
 	 // 8 parameter: output, is the cpf error id array
-      byte[] errorInfoB = new byte[ 7 ];
       parmlist[7] = new ProgramParameter( 7 );
 
       	 // 9 parameter: input/output, is the return code
@@ -453,7 +451,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}
+      catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
       pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
@@ -475,7 +473,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      //unexpected error
 	      if (-1 == rc) return rc;
 	      //get cpf error id
-	      errorInfoB = parmlist[7].getOutputData();
+	      byte[] errorInfoB = parmlist[7].getOutputData();
 	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
