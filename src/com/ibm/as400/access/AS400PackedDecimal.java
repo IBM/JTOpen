@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- *  The AS400PackedDecimal class provides a converter between a BigDecimal object and a packed decimal format floating point number.
+ * Provides a converter between a BigDecimal object and a packed decimal format floating point number.
  **/
 public class AS400PackedDecimal implements AS400DataType
 {
@@ -205,17 +205,25 @@ public class AS400PackedDecimal implements AS400DataType
      int inPosition = 0; // position in char[]
 
      // calculate number of leading zero's
-     int leadingZero = (outDigits % 2 == 0) ? (outDigits - inLength + 1) : (outDigits - inLength);
+     int leadingZeros = (outDigits % 2 == 0) ? (outDigits - inLength + 1) : (outDigits - inLength);
 
      // write correct number of leading zero's, allow ArrayIndexException to be thrown below
-     for (int i=0; i<leadingZero-1; i+=2)
+     for (int i=0; i<leadingZeros-1; i+=2)
      {
          as400Value[offset++] = 0;
      }
+
      // if odd number of leading zero's, write leading zero and first digit
-     if (leadingZero % 2 == 1)
+     if (leadingZeros > 0)
      {
+       if (leadingZeros % 2 != 0)
+       {
          as400Value[offset++] = (byte)(inChars[inPosition++] & 0x000F);
+       }
+     }
+     else if (Trace.traceOn_)
+     {
+       Trace.log(Trace.DIAGNOSTIC, "The calculated number of leading zeros is negative.", leadingZeros);
      }
 
      int firstNibble;
