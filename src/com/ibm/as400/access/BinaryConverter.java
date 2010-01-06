@@ -32,6 +32,8 @@ public class BinaryConverter
    **/
   public static void shortToByteArray(short shortValue, byte[] serverValue, int offset)
   {
+    if (serverValue == null) throw new NullPointerException("serverValue");
+
     serverValue[offset]   = (byte)(shortValue >>> 8);
     serverValue[offset+1] = (byte) shortValue;
   }
@@ -56,8 +58,10 @@ public class BinaryConverter
    **/
   public static short byteArrayToShort(byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     return(short)(((serverValue[offset]   & 0xFF) << 8) +
-                  (serverValue[offset+1] & 0xFF));
+                   (serverValue[offset+1] & 0xFF));
   }
 
   /**
@@ -69,6 +73,8 @@ public class BinaryConverter
    **/
   public static void intToByteArray(int intValue, byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     serverValue[offset]   = (byte)(intValue >>> 24);
     serverValue[offset+1] = (byte)(intValue >>> 16);
     serverValue[offset+2] = (byte)(intValue >>>  8);
@@ -95,10 +101,12 @@ public class BinaryConverter
    **/
   public static int byteArrayToInt(byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     return((serverValue[offset]   & 0xFF) << 24) +
-    ((serverValue[offset+1] & 0xFF) << 16) +
-    ((serverValue[offset+2] & 0xFF) <<  8) +
-    (serverValue[offset+3] & 0xFF);
+          ((serverValue[offset+1] & 0xFF) << 16) +
+          ((serverValue[offset+2] & 0xFF) <<  8) +
+           (serverValue[offset+3] & 0xFF);
   }
 
   /**
@@ -110,6 +118,8 @@ public class BinaryConverter
    **/
   public static void floatToByteArray(float floatValue, byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     int bits = Float.floatToIntBits(floatValue);
     serverValue[offset]   = (byte)(bits >>> 24);
     serverValue[offset+1] = (byte)(bits >>> 16);
@@ -150,6 +160,8 @@ public class BinaryConverter
    **/
   public static float byteArrayToFloat(byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     int bits = ((serverValue[offset]   & 0xFF) << 24) +
                ((serverValue[offset+1] & 0xFF) << 16) +
                ((serverValue[offset+2] & 0xFF) <<  8) +
@@ -166,6 +178,8 @@ public class BinaryConverter
    **/
   public static void doubleToByteArray(double doubleValue, byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     long bits = Double.doubleToLongBits(doubleValue);
     // Do in two parts to avoid long temps.
     int high = (int)(bits >>> 32);
@@ -202,6 +216,8 @@ public class BinaryConverter
    **/
   public static double byteArrayToDouble(byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     // Do in two parts to avoid long temps.
     int firstPart =  ((serverValue[offset]   & 0xFF) << 24) +
                      ((serverValue[offset+1] & 0xFF) << 16) +
@@ -224,6 +240,8 @@ public class BinaryConverter
    **/
   public static void unsignedShortToByteArray(int intValue, byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     serverValue[offset]   = (byte)(intValue >>> 8);
     serverValue[offset+1] = (byte) intValue;
   }
@@ -248,8 +266,10 @@ public class BinaryConverter
    **/
   public static int byteArrayToUnsignedShort(byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     return((serverValue[offset]   & 0xFF) <<  8) +
-    (serverValue[offset+1] & 0xFF);
+           (serverValue[offset+1] & 0xFF);
   }
 
   /**
@@ -261,6 +281,8 @@ public class BinaryConverter
    **/
   public static void unsignedIntToByteArray(long longValue, byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     // Grab bits into int to avoid long temps.
     int bits = (int)longValue;
     serverValue[offset]   = (byte)(bits >>> 24);
@@ -289,10 +311,12 @@ public class BinaryConverter
    **/
   public static long byteArrayToUnsignedInt(byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     return(((serverValue[offset]   & 0xFF) << 24) +
            ((serverValue[offset+1] & 0xFF) << 16) +
            ((serverValue[offset+2] & 0xFF) <<  8) +
-           (serverValue[offset+3] & 0xFF))         & 0xFFFFFFFFL;
+            (serverValue[offset+3] & 0xFF))         & 0xFFFFFFFFL;
   }
 
   /**
@@ -304,6 +328,8 @@ public class BinaryConverter
    **/
   public static void longToByteArray(long longValue, byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     // Do in two parts to avoid long temps.
     int high = (int)(longValue >>> 32);
     int low = (int)longValue;
@@ -339,15 +365,17 @@ public class BinaryConverter
    **/
   public static long byteArrayToLong(byte[] serverValue, int offset)
   {
+    checkArgs(serverValue, offset);
+
     // Do in two parts to avoid long temps.
     int firstPart =  ((serverValue[offset]   & 0xFF) << 24) +
                      ((serverValue[offset+1] & 0xFF) << 16) +
                      ((serverValue[offset+2] & 0xFF) <<  8) +
-                     (serverValue[offset+3] & 0xFF);
+                      (serverValue[offset+3] & 0xFF);
     int secondPart = ((serverValue[offset+4] & 0xFF) << 24) +
                      ((serverValue[offset+5] & 0xFF) << 16) +
                      ((serverValue[offset+6] & 0xFF) <<  8) +
-                     (serverValue[offset+7] & 0xFF);
+                      (serverValue[offset+7] & 0xFF);
     return((long)firstPart << 32) + (secondPart & 0xFFFFFFFFL);
   }
 
@@ -399,6 +427,7 @@ public class BinaryConverter
    **/
   public static final String bytesToString(final byte[] b)
   {
+    if (b == null) throw new NullPointerException("b");
     return bytesToString(b, 0, b.length);
   }
 
@@ -412,6 +441,8 @@ public class BinaryConverter
    **/
   public static final String bytesToString(final byte[] b, int offset, int length)
   {
+    checkArgs(b, offset);
+
     char[] c = new char[length*2];
     int num = bytesToString(b, offset, length, c, 0);
     return new String(c, 0, num);
@@ -466,6 +497,16 @@ public class BinaryConverter
     return(byte)(((byte)(b1 << 4)) + b2);
   }
 
+  static final void checkArgs(byte[] serverValue, int offset)
+    throws NullPointerException, ExtendedIllegalArgumentException
+  {
+    if (serverValue == null) throw new NullPointerException("serverValue");
+
+    if (offset < 0 || (offset > serverValue.length-1)) {
+      throw new ExtendedIllegalArgumentException("offset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    }
+  }
+
   /**
     Convert the specified hexadecimal String into a byte array containing the byte values for the 
     hexadecimal characters in the String. If the String contains characters other than those allowed
@@ -475,6 +516,8 @@ public class BinaryConverter
   **/
   public static final byte[] stringToBytes(String s)
   {
+      if (s == null) throw new NullPointerException("s");
+
       int stringLength = s.length();                                                        //@KBA  check for empty string
       if(stringLength > 2)                                                                  //@KBA //@pdc allow for input single digit input like "X" so NumberFormatException is thrown instead of array bounds error
       {                                                                                     //@KBA
@@ -490,7 +533,7 @@ public class BinaryConverter
       }                                                                                     //@KBA
 
     //check if an odd number of characters                                                  //@KBA
-    if(s.length()%2 == 1)                                                                   //@KBA
+    if(s.length()%2 != 0)                                                                   //@KBA
         s = "0" + s;                                                                        //@KBA
 
     char[] c = s.toCharArray();
