@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400SignonTextField.java
 //                                                                             
@@ -18,18 +18,18 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-// Implements a text field that only accepts valid characters for an AS/400 userid or password, with a maximum of 10 characters total.
-// This text field will auto-uppercase any lowercase letters that are typed.
-// It also rejects any characters that are not allowable in an AS/400 userid or password.  The allowed characters are A-Z, a-z, 0-9, and the @, #, $, and _ characters.
-// Up to 10 characters may be typed into this text field.
-// Beeps are issued if the character limit is reached or invalid characters are entered.
-// Note:  This class becomes obsolete when the new password support becomes integrated into the AS/400.
+/**
+ Implements a text field that only accepts valid characters for an IBM i userid or password, with a maximum of 10 characters total.
+ This text field will auto-uppercase any lowercase letters that are typed.
+ It also rejects any characters that are not allowable in an IBM i userid or password.  The allowed characters are A-Z, a-z, 0-9, and the @, #, $, and _ characters.
+ Up to 10 characters may be typed into this text field.
+ Beeps are issued if the character limit is reached or invalid characters are entered.
+ Note: This class becomes obsolete when the new password support becomes integrated into the IBM i.
+ **/
 class AS400SignonTextField extends TextField implements KeyListener
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
-    private final String allowableChars_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$#_@";
+    private static final String allowableChars_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$#_@";
 
     public AS400SignonTextField()
     {
