@@ -257,7 +257,9 @@ implements CallableStatement
                       }
                     }
                   }
-                  rs.close(); //@SS
+                  try{
+                      rs.close(); //@SS
+                  }catch(Exception e){} //allow next close to execute
                   s1.close(); //@SS
                   if(!found)	// none of the libraries in our library list contain a stored procedure that we are looking for
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);
@@ -294,8 +296,10 @@ implements CallableStatement
             }
             }finally //@scan1
             {
-                if(rs != null) //@scan1
-                    rs.close(); //@SS
+                try{
+                    if(rs != null) //@scan1
+                        rs.close(); //@SS
+                }catch(Exception e){} //allow next close to execute
                 if(s != null)  //@scan1
                     s.close();  //@SS
             }

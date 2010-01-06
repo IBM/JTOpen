@@ -3679,7 +3679,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         String property = "remarks";
         if (remarks == null)
-            throw new NullPointerException(remarks);
+            throw new NullPointerException("remarks");
         validateProperty(property, remarks, JDProperties.REMARKS);
 
         String old = getRemarks();

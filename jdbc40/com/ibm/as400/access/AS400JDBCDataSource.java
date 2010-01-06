@@ -3680,7 +3680,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "remarks";
         if (remarks == null)
-            throw new NullPointerException(remarks);
+            throw new NullPointerException("remarks");
         validateProperty(property, remarks, JDProperties.REMARKS);
 
         String old = getRemarks();

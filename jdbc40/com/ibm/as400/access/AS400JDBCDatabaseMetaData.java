@@ -629,8 +629,10 @@ implements DatabaseMetaData
                     }           
                 }finally   //@scan1
                 {
+                    try{
                     if(rs != null)
                         rs.close();     
+                    }catch(Exception e){} //allow next close to execute
                     if(statement != null)
                         statement.close();         
                 }
@@ -3538,8 +3540,10 @@ implements DatabaseMetaData
 
                 }finally  //@scan1
                 {
+                    try{
                     if(serverResultSet != null)
                         serverResultSet.close();
+                    }catch(Exception e){} //allow next close to execute
                     if(statement_ != null)
                         statement_.close ();
                 }

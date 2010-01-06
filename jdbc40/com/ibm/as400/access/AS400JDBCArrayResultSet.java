@@ -26,7 +26,6 @@ import java.sql.SQLException;
 public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSet
 {
 
-    private int holdability_;
     private int concurrency_;
     private int fetchDirection_;
     private int fetchSize_;
@@ -39,14 +38,14 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     private int numberOfColumns_;
     private int numberOfRows_;
     private java.util.HashMap columnNameToIndexCache_;
-    private java.util.Properties properties_; //future use
+ 
 
     //////Info from AS400JDBCArray
-    private String typeName_;  //typename is supplied by user at creation or from hostserver prepare/describe //future use
+  
     private SQLData contentTemplate_;
     private boolean isSQLData_;
-    private int dataType_;  //future use
-    private int vrm_;   //future use
+ 
+    private int vrm_;    
     private AS400JDBCConnection con_; //future use
     ///////////////////
 
@@ -106,7 +105,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         data[1] = contents;
         contentTemplate_ = contentTemplate;
         isSQLData_ = isSQLData;
-        dataType_ = dataType;
+       
         vrm_ = vrm;
         con_ = con;
 
@@ -128,7 +127,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     void init (  int concurrency, int type, int fetchDirection, int fetchSize,
             Object[][] data, String[] columnNames)
     {
-        holdability_ = java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT;
+       
         concurrency_ = concurrency;
         fetchDirection_ = fetchDirection;
         fetchSize_ = fetchSize;
@@ -142,7 +141,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         columnNameToIndexCache_ = new java.util.HashMap ();
         for (int i = 0; i < columnNames.length; i++)
             columnNameToIndexCache_.put (columnNames[i], new Integer (i + 1));
-        properties_ = new java.util.Properties ();
+         
 
         openOnClient_ = true;
         currentRowInRowset_ = -1;

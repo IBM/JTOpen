@@ -385,8 +385,10 @@ implements ResultSetMetaData
         }
         finally
         {
+            try{
             if(rs != null)
                 rs.close();   
+            }catch(Exception e){} //allow next close to execute
             if(ps != null)
                 ps.close();   
         }

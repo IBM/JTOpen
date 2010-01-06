@@ -45,7 +45,7 @@ public class AS400JDBCArray implements Array
     
     //if data_[0] contains an SQLData, then contentTemplate_ will point to it!
     private boolean isSQLData_ = false; //true if data[0]_ == SQLData 
-    private boolean isNull_ = false;
+
 
     private AS400JDBCArray(){} //restrict
     
@@ -74,7 +74,7 @@ public class AS400JDBCArray implements Array
         if(data == null)
         {
             data_ = new Object[0];
-            isNull_ = true;
+       
         }
         else
             data_ = data; //Note that data_ is array of Objects.  When array is output then data_ will actually be an array of SQLData[] (needed for conversion)
