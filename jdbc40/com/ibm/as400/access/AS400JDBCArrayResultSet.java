@@ -26,6 +26,7 @@ import java.sql.SQLException;
 public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSet
 {
 
+    private int holdability_;
     private int concurrency_;
     private int fetchDirection_;
     private int fetchSize_;
@@ -127,7 +128,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     void init (  int concurrency, int type, int fetchDirection, int fetchSize,
             Object[][] data, String[] columnNames)
     {
-       
+        holdability_ = java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT;
         concurrency_ = concurrency;
         fetchDirection_ = fetchDirection;
         fetchSize_ = fetchSize;
