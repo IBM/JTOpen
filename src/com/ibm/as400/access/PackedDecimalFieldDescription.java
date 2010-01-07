@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PackedDecimalFieldDescription.java
 //                                                                             
@@ -18,8 +18,8 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- *The PackedDecimalFieldDescription class represents the description of the data in a packed decimal field.
- *It allows:
+ *Represents the description of the data in a packed decimal field.
+ *This class allows:
  *<ul>
  *<li>The user to describe a packed decimal field to the RecordFormat object.
  *<li>The RecordFormat object to describe a packed decimal field to the user.
@@ -28,8 +28,6 @@ import java.util.Vector;
 **/
 public class PackedDecimalFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
 
@@ -122,7 +120,7 @@ public class PackedDecimalFieldDescription extends FieldDescription implements S
     int numSpaces = 5-len.length();
     for (int i=0; i<numSpaces; ++i) desc.append(' ');
     // Length columns (5)
-    desc.append(len.toString());
+    desc.append(len);
     // Type column (1)
     desc.append("P");
     // Decimal positions columns (2)
