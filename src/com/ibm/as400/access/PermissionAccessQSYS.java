@@ -23,8 +23,7 @@ import java.net.UnknownHostException;
 import java.beans.PropertyVetoException;
 
 /**
- * The PermissionAccessQSYS class is provided to retrieve the user's
- * permission information.
+ * Retrieves the user's permission information.
  *
 **/
 class PermissionAccessQSYS extends PermissionAccess
@@ -409,7 +408,7 @@ class PermissionAccessQSYS extends PermissionAccess
         String objExistence=((String)userRecord.getField("objExistence")).trim();
         String objAlter=((String)userRecord.getField("objAlter")).trim();
         String objRef=((String)userRecord.getField("objRef")).trim();
-        String reserved1=((String)userRecord.getField("reserved1")).trim();
+        //String reserved1=((String)userRecord.getField("reserved1")).trim();
         String objOperational=((String)userRecord.getField("objOperational")).trim();
         String dataRead=((String)userRecord.getField("dataRead")).trim();
         String dataAdd=((String)userRecord.getField("dataAdd")).trim();
