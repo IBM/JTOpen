@@ -55,7 +55,7 @@ public class PTF
   private String supersedingPTF_;
   private String targetRelease_;
   //private String supersededByPTFID_;      // V5R2
-  private String currentServerIPLSource_; // V5R3
+  //private String currentServerIPLSource_; // V5R3
   private int serverIPLRequired_ = -1;    // V5R3
   private String creationDateAndTime_;    // V5R3
 
@@ -1555,7 +1555,7 @@ public class PTF
       if (output.length >= 130)
       {
         // V5R3 and higher
-        currentServerIPLSource_ = conv.byteArrayToString(output, 115, 1).trim();
+        //currentServerIPLSource_ = conv.byteArrayToString(output, 115, 1).trim();
         serverIPLRequired_ = (int)(output[116] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.
         creationDateAndTime_ = conv.byteArrayToString(output, 117, 13).trim();
       }
