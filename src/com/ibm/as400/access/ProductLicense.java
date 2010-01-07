@@ -17,13 +17,14 @@ package com.ibm.as400.access;
 import java.beans.PropertyChangeSupport;                        // @A2A
 import java.beans.PropertyChangeListener;                       // @A2A
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Vector;                                        // @A2A
 
 
 
 /**
 * <p>
-*   A ProductLicense object represents a license for a product. To request
+*   Represents a license for a product. To request
 *   a license, construct a ProductLicense object then invoke the request() method.
 *   The caller must keep a reference to the ProductLicense object until the
 *   license is no longer needed since the ProductLicense object will release
@@ -951,6 +952,14 @@ public class ProductLicense implements java.io.Serializable
         // indicate that the path, parent, etc. have changed.
         changes_.firePropertyChange("path", oldSystem, sys_);
 
+    }
+
+
+    // Called when this object is de-serialized
+    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
+    {
+      in.defaultReadObject();
+      initializeTransient();
     }
 
 } // public class ProductLicense
