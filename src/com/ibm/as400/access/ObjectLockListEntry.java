@@ -126,7 +126,7 @@ public class ObjectLockListEntry
   private String  lockState_;
   private int     lockStatus_;
   private int     lockType_;
-  private String  memberName_;
+  //private String  memberName_;
   private String  share_;
   private String  lockScope_;
   private long    threadID_;
@@ -143,7 +143,7 @@ public class ObjectLockListEntry
     lockState_    = lockState;
     lockStatus_   = lockStatus;
     lockType_     = lockType;
-    memberName_   = memberName;
+    //memberName_   = memberName;
     share_        = share;
     lockScope_    = lockScope;
     threadID_     = threadID;
