@@ -43,8 +43,7 @@ import java.util.Enumeration;
 
 
 /**
- * The Permission class is provided to retrieve user's authority to 
- * an object.<br>
+ * Retrieves a user's authority to an object.<br>
  * To improve performance, the Permission object caches authority changes 
  * until the <i>commit()</i> method is called. When <i>commit()</i>is called, 
  * all changes up to that point are sent to the system.<br>
@@ -75,8 +74,7 @@ import java.util.Enumeration;
  * @see RootPermission
 **/
 public class Permission
-       implements Cloneable ,
-                  Serializable
+       implements Serializable
 {
     static final long serialVersionUID = 4L;
 
@@ -409,7 +407,7 @@ public class Permission
 
         Vector perms = null; 
         try 
-        {  
+        {
           // @B6 If the QSYS object is on an ASP, prepend the ASP name
           //     to correctly fully qualify the path.
           // @A3 The ASP is already part of the path. (e.g. /iasp123/QSYS.LIB/xyz.lib)
@@ -417,36 +415,34 @@ public class Permission
           // if (asp_ != null)                             // @B6a //@A3D
           //    path = asp_ + path;                        // @B6a //@A3D
           perms = access_.getAuthority(path_);             // @B6c
-        }
-        catch (PropertyVetoException e)
-        {
-          Trace.log(Trace.ERROR, e); // should never happen
-        }
+          changes_ = new PropertyChangeSupport(this);
 
-        changes_ = new PropertyChangeSupport(this);
-
-        synchronized (userPermissionsLock_)
-        {
-          owner_ = (String)perms.elementAt(0);
-          primaryGroup_ = (String)perms.elementAt(1);
-          authorizationList_ = (String)perms.elementAt(2);
-          //autListChanged_ = false;                       // @B2d
-          sensitivityLevel_ = ((Integer)perms.elementAt(3)).intValue();
-          //sensitivityChanged_ = false;                   // @B2d
-
-          userPermissionsBuffer_ = new Vector ();
-          userPermissions_ = new Vector();
-          int count = perms.size();
-          for (int i=4;i<count;i++)
+          synchronized (userPermissionsLock_)
           {
-            UserPermission userPermission = (UserPermission)perms.elementAt(i);
-            if (userPermission != null)
+            owner_ = (String)perms.elementAt(0);
+            primaryGroup_ = (String)perms.elementAt(1);
+            authorizationList_ = (String)perms.elementAt(2);
+            //autListChanged_ = false;                       // @B2d
+            sensitivityLevel_ = ((Integer)perms.elementAt(3)).intValue();
+            //sensitivityChanged_ = false;                   // @B2d
+
+            userPermissionsBuffer_ = new Vector ();
+            userPermissions_ = new Vector();
+            int count = perms.size();
+            for (int i=4;i<count;i++)
             {
-              userPermission.setCommitted(UserPermission.COMMIT_NONE);
-              userPermissionsBuffer_.addElement(userPermission);
-              userPermissions_.addElement(userPermission);
+              UserPermission userPermission = (UserPermission)perms.elementAt(i);
+              if (userPermission != null)
+              {
+                userPermission.setCommitted(UserPermission.COMMIT_NONE);
+                userPermissionsBuffer_.addElement(userPermission);
+                userPermissions_.addElement(userPermission);
+              }
             }
           }
+        }
+        catch (PropertyVetoException e) { // should never happen
+          Trace.log(Trace.ERROR, e);
         }
     }
 
@@ -561,8 +557,7 @@ public class Permission
             int index=getUserIndex(user,userPermissionsBuffer_);
             if (index != -1)
             {
-              UserPermission usrAut = (UserPermission)
-                userPermissionsBuffer_.elementAt(index);
+              //UserPermission usrAut = (UserPermission)userPermissionsBuffer_.elementAt(index);
               userPermission.setCommitted(UserPermission.COMMIT_CHANGE);
               userPermissionsBuffer_.setElementAt(userPermission,index);
               userPermissions_.addElement(userPermission);
@@ -682,8 +677,7 @@ public class Permission
             }
           }
         }
-        catch (PropertyVetoException e)
-        {
+        catch (PropertyVetoException e) { // should never happen
           Trace.log(Trace.ERROR, e);
         }
       }                                 //end numberOfCommitAttempts loop @A1A
