@@ -329,7 +329,16 @@ Returns a list of the supported object types.
 **/
     public static String[] getSupportedObjectTypes()
     {
-        return types_;
+      String[] types = null;
+      if (types_ != null)
+      {
+        // Create a copy, so as not to expose internal representation.
+        types = new String[types_.length];
+        for (int i=0; i<types_.length; i++) {
+          types[i] = types_[i];
+        }
+      }
+      return types;
     }
 
 
