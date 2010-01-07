@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSConfig.java
 //                                                                             
@@ -29,15 +29,10 @@ import java.util.Vector;
 
 
 /**
-The PSConfig class represents the configuration
-of a proxy server.
+Represents the configuration of a proxy server.
 **/
 class PSConfig
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     // Private data.
     private static final String                 OPTION_BALANCE_THRESHOLD    = "balanceThreshold";
     private static final String                 OPTION_CONFIGURATION        = "configuration";
@@ -286,9 +281,15 @@ Loads the configuration from a file.
         throws IOException
     {
         Properties configurationProperties = new Properties ();
-        InputStream input = new BufferedInputStream (new FileInputStream (name_));
-        configurationProperties.load (input);
-        apply (configurationProperties);
+        InputStream input = null;
+        try {
+          input = new BufferedInputStream (new FileInputStream (name_));
+          configurationProperties.load (input);
+          apply (configurationProperties);
+        }
+        finally {
+          if (input != null) { input.close(); }
+        }
     }
 
 
@@ -309,7 +310,7 @@ Registers the specified JDBC drivers.
                 // (when the class is loaded).  We register it also to make
                 // sure, since the driver could have been deregistered.
                 Class driverClass = Class.forName (token);
-                Driver driver = (Driver) driverClass.newInstance ();
+                //Driver driver = (Driver) driverClass.newInstance ();
                 boolean found = false;
                 Enumeration list = DriverManager.getDrivers ();
                 while ((list.hasMoreElements ()) && (found == false)) {
