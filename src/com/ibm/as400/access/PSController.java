@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSController.java
 //                                                                             
@@ -22,17 +22,15 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Vector;
 
-// The PSController class represents a connection to a client of the proxy server.
+// Represents a connection to a client of the proxy server.
 class PSController extends StoppableThread
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // Private data.
     private static long nextConnectionId_ = 1000;
     private static Object nextConnectionIdLock_ = new Object();
 
     private boolean closed_ = false;
-    private PSConfig config_;
+    //private PSConfig config_;
     private Socket connectedSocket_;
     private long connectionId_ = -1;
     private PxDSFactory factory_;
@@ -41,7 +39,7 @@ class PSController extends StoppableThread
     private OutputStream output_;
     private boolean running_ = false;
     private PSServerSocketContainerAdapter serverSocket_;
-    private Vector threadGroup_;
+    //private Vector threadGroup_;
 
     // Constructs a PSController object.
     // @param  threadGroup  The thread group.                               
@@ -54,8 +52,8 @@ class PSController extends StoppableThread
     {
         super("PSController-" + serverSocket);
 
-        threadGroup_ = threadGroup;
-        config_ = config;
+        //threadGroup_ = threadGroup;
+        //config_ = config;
         serverSocket_ = serverSocket;
 
         factory_ = new PxDSFactory();
