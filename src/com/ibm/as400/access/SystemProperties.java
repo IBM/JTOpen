@@ -35,12 +35,12 @@ public class SystemProperties
 
     /**
      Specifies whether GUI support is available in the current execution environment.
-     If set to <tt>true</tt>, then the {@link AS400 AS400} class may prompt during sign-on to display error conditions, to obtain additional signon information, or to change the password.
+     If set to <tt>true</tt>, then the {@link com.ibm.as400.access.AS400 AS400} class may prompt during sign-on to display error conditions, to obtain additional signon information, or to change the password.
      If set to <tt>false</tt>, then connection error conditions or missing information will result in exceptions.
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>true</tt>
-     <li>Overridden by: {@link AS400#setGuiAvailable() AS400.setGuiAvailable()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setGuiAvailable AS400.setGuiAvailable()}
      </ul>
      **/
     public static final String AS400_GUI_AVAILABLE = ACCESS_PREFIX + "AS400.guiAvailable";
@@ -51,28 +51,28 @@ public class SystemProperties
      <ul>
      <li>Values/syntax: <i>hostName:portNumber</i>
      <li>Default: (no default)
-     <li>Overridden by: {@link AS400#setProxyServer() AS400.setProxyServer()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setProxyServer AS400.setProxyServer()}
      </ul>
      **/
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
 
     /**
-     Specifies the name of the default signon handler class used by the {@link AS400 AS400} class.
+     Specifies the name of the default signon handler class used by the {@link com.ibm.as400.access.AS400 AS400} class.
      <ul>
      <li>Values/syntax: <i>packageName.classname</i>
      <li>Default: An internal Toolbox class is used.
-     <li>Overridden by: {@link AS400#setSignonHandler() AS400.setSignonHandler()} and {@link AS400#setDefaultSignonHandler() AS400.setDefaultSignonHandler()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setSignonHandler AS400.setSignonHandler()} and {@link com.ibm.as400.access.AS400#setDefaultSignonHandler AS400.setDefaultSignonHandler()}
      </ul>
      **/
     public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
 
     /**
-     Specifies whether the {@link AS400 AS400} class should attempt to add the appropriate secondary language library to the library list.
+     Specifies whether the {@link com.ibm.as400.access.AS400 AS400} class should attempt to add the appropriate secondary language library to the library list.
      This property is ignored if not running on the IBM i system.
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
-     <li>Overridden by: {@link AS400#setMustAddLanguageLibrary() AS400.setMustAddLanguageLibrary()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setMustAddLanguageLibrary AS400.setMustAddLanguageLibrary()}
      </ul>
      **/
     public static final String AS400_MUST_ADD_LANGUAGE_LIBRARY = ACCESS_PREFIX + "AS400.mustAddLanguageLibrary";
@@ -82,7 +82,7 @@ public class SystemProperties
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
-     <li>Overridden by: {@link AS400#setMustUseSockets() AS400.setMustUseSockets()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setMustUseSockets AS400.setMustUseSockets()}
      </ul>
      **/
     public static final String AS400_MUST_USE_SOCKETS = ACCESS_PREFIX + "AS400.mustUseSockets";
@@ -92,7 +92,7 @@ public class SystemProperties
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
-     <li>Overridden by: {@link AS400#setMustUseSockets() AS400.setMustUseSockets()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setMustUseNetSockets AS400.setMustUseNetSockets()}
      </ul>
      **/
     public static final String AS400_MUST_USE_NET_SOCKETS = ACCESS_PREFIX + "AS400.mustUseNetSockets";
@@ -102,7 +102,7 @@ public class SystemProperties
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
-     <li>Overridden by: {@link AS400#setMustUseSuppliedProfile() AS400.setMustUseSuppliedProfile()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setMustUseSuppliedProfile AS400.setMustUseSuppliedProfile()}
      </ul>
      **/
     public static final String AS400_MUST_USE_SUPPLIED_PROFILE = ACCESS_PREFIX + "AS400.mustUseSuppliedProfile";
@@ -113,7 +113,7 @@ public class SystemProperties
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>true</tt>
-     <li>Overridden by: {@link AS400#setThreadUsed() AS400.setThreadUsed()}
+     <li>Overridden by: {@link com.ibm.as400.access.AS400#setThreadUsed AS400.setThreadUsed()}
      </ul>
      **/
     public static final String AS400_THREAD_USED = ACCESS_PREFIX + "AS400.threadUsed";
@@ -126,15 +126,15 @@ public class SystemProperties
      list containing any combination of trace categories.
      <ul>
      <li>Values/syntax: <tt>datastream</tt>, <tt>diagnostic</tt>, <tt>error</tt>, <tt>information</tt>, ...
-     <br>(Refer to the {@link Trace Trace} class for complete list.)
+     <br>(Refer to the {@link com.ibm.as400.access.Trace Trace} class for complete list.)
      <li>Default: (no default)
-     <li>Overridden by: Various <tt>setTrace...</tt> methods in the {@link Trace Trace} class.
+     <li>Overridden by: Various <tt>setTrace...</tt> methods in the <code>Trace</code> class.
      </ul>
      **/
     public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";
 
     /**
-     Specifies the file to which the {@link Trace Trace} class writes output.
+     Specifies the file to which the {@link com.ibm.as400.access.Trace Trace} class writes output.
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: {@link System#out System.out}.
@@ -146,9 +146,9 @@ public class SystemProperties
     /**
      Specifies which trace categories to start on the JDBC server job.
      <ul>
-     <li>Values/syntax: Refer to the javadoc for class {@link AS400JDBCDriver AS400JDBCDriver}. Follow the link labeled "JDBC properties", and search for the "server trace" property.
+     <li>Values/syntax: Refer to the javadoc for class {@link com.ibm.as400.access.AS400JDBCDriver AS400JDBCDriver}. Follow the link labeled "JDBC properties", and search for the "server trace" property.
      <li>Default: (no default)
-     <li>Overridden by: Specifying property values in either the connection URL or via one of the <tt>connect()</tt> methods of class {@link AS400JDBCDriver AS400JDBCDriver}
+     <li>Overridden by: Specifying property values in either the connection URL or via one of the <tt>connect()</tt> methods of class {@link com.ibm.as400.access.AS400JDBCDriver AS400JDBCDriver}
      </ul>
      **/
     public static final String TRACE_JDBC_SERVER = ACCESS_PREFIX + "ServerTrace.JDBC";     // @j1a
@@ -156,25 +156,25 @@ public class SystemProperties
     /*public*/ static final String TRACE_ENABLED = ACCESS_PREFIX + "Trace.enabled";
 
     /**
-     Specifies whether the {@link CommandCall CommandCall} class should assume that called commands are threadsafe.
+     Specifies whether the {@link com.ibm.as400.access.CommandCall CommandCall} class should assume that called commands are threadsafe.
      If <tt>true</tt>, all called commands are assumed to be threadsafe.
      If <tt>false</tt>, all called commands are assumed to be non-threadsafe.
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
-     <li>Overridden by: {@link CommandCall#setThreadSafe(Boolean) CommandCall.setThreadSafe()}
+     <li>Overridden by: {@link com.ibm.as400.access.CommandCall#setThreadSafe(Boolean) CommandCall.setThreadSafe()}
      </ul>
      **/
     public static final String COMMANDCALL_THREADSAFE = ACCESS_PREFIX + "CommandCall.threadSafe";
 
     /**
-     Specifies whether the {@link ProgramCall ProgramCall} class should assume that called programs are threadsafe.
+     Specifies whether the {@link com.ibm.as400.access.ProgramCall ProgramCall} class should assume that called programs are threadsafe.
      If <tt>true</tt>, all called programs are assumed to be thread-safe.
      If <tt>false</tt>, all called programs are assumed to be non-thread-safe.
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
-     <li>Overridden by: {@link ProgramCall#setThreadSafe() ProgramCall.setThreadSafe()}
+     <li>Overridden by: {@link com.ibm.as400.access.ProgramCall#setThreadSafe ProgramCall.setThreadSafe()}
      </ul>
      **/
     public static final String PROGRAMCALL_THREADSAFE = ACCESS_PREFIX + "ProgramCall.threadSafe";
@@ -208,7 +208,7 @@ public class SystemProperties
     public static final String TUNNELPROXYSERVER_CLIENTLIFETIME	= ACCESS_PREFIX + "TunnelProxyServer.clientLifetime"; //@A2A
 
     /**
-     Specifies whether the socket is reused for multiple file transfers when in "active" mode. This property is referenced by classes {@link FTP FTP} and {@link AS400FTP AS400FTP}.
+     Specifies whether the socket is reused for multiple file transfers when in "active" mode. This property is referenced by classes {@link com.ibm.as400.access.FTP FTP} and {@link com.ibm.as400.access.AS400FTP AS400FTP}.
      If <tt>true</tt>, the socket is reused.
      If <tt>false</tt>, a new socket is created for each file transfer.
      This property is ignored for a given FTP object if <tt>FTP.setReuseSocket(true/false)</tt> has
@@ -216,7 +216,7 @@ public class SystemProperties
      <ul>
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>true</tt>
-     <li>Overridden by: {@link FTP#setReuseSocket() FTP.setReuseSocket()}
+     <li>Overridden by: {@link com.ibm.as400.access.FTP#setReuseSocket FTP.setReuseSocket()}
      </ul>
      **/
     public static final String FTP_REUSE_SOCKET = ACCESS_PREFIX + "FTP.reuseSocket";
