@@ -17,8 +17,7 @@ import java.io.InputStream;
 import java.io.IOException;
 
 /**
-The PrintObjectInputStream class is used to read data out of a
-system spooled file or AFP resource such as an overlay or page
+Reads data out of a system spooled file or AFP resource such as an overlay or page
 segment.
 <p>
 An instance of this class can be created either by using
@@ -30,14 +29,12 @@ from the <a href="SpooledFile.html"> SpooledFile</a> class.
 
 public class PrintObjectInputStream extends InputStream
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     transient private AS400                        system_;
     transient private PrintObjectInputStreamImpl     impl_;
 
 
     /**
-     * Constructs a  PrintObjectInputStream object. It uses the
+     * Constructs a PrintObjectInputStream object. It uses the
      * specified SpooledFile object from which to read and the PrintParameterList.
      * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
@@ -57,8 +54,7 @@ public class PrintObjectInputStream extends InputStream
                RequestNotSupportedException
     {
         system_ = sf.getSystem();
-        if (impl_ == null)
-            chooseImpl();
+        chooseImpl();
         // Do connect here because it could throw Exceptions
         system_.connectService(AS400.PRINT);    
         if (sf.getImpl() == null) {             
@@ -69,7 +65,7 @@ public class PrintObjectInputStream extends InputStream
 
 
     /**
-     * Constructs a  PrintObjectInputStream object. It uses the
+     * Constructs a PrintObjectInputStream object. It uses the
      * specified SpooledFile object from which to read, the PrintParameterList.
      * and the int value of PrintObject.ATTR_ACIF which indicates of the ACIF
      * merged data is to be used.
@@ -91,8 +87,7 @@ public class PrintObjectInputStream extends InputStream
                RequestNotSupportedException
     {
         system_ = sf.getSystem();
-        if (impl_ == null)
-            chooseImpl();
+        chooseImpl();
         // Do connect here because it could throw Exceptions
         system_.connectService(AS400.PRINT);    
         if (sf.getImpl() == null) {             
@@ -124,8 +119,7 @@ public class PrintObjectInputStream extends InputStream
                RequestNotSupportedException
     {
         system_ = resource.getSystem();
-        if (impl_ == null)
-            chooseImpl();
+        chooseImpl();
         // Do connect here because it could throw Exceptions
         system_.connectService(AS400.PRINT);
         if (resource.getImpl() == null) {

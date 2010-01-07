@@ -21,9 +21,8 @@ import java.io.IOException;
 
 
 /**
-The PrintObjectPageInputStream class is used to read data out of a
-system spooled file one page at a time.  The page of data may be
-transformed, depending on the
+Reads data out of a system spooled file one page at a time.
+The page of data may be transformed, depending on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
 <p>
@@ -41,8 +40,6 @@ Not all spooled file formats are supported for transform.
 
 public class PrintObjectPageInputStream extends InputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // Private data
 
     transient private AS400                             system_;
@@ -72,8 +69,7 @@ Constructs a PrintObjectPageInputStream object.
                RequestNotSupportedException
     {
         system_ = spooledFile.getSystem();
-        if (impl_ == null)
-            chooseImpl();
+        chooseImpl();
         // do connect here because it could throw Exceptions
         system_.connectService(AS400.PRINT);
         if (spooledFile.getImpl() == null) {

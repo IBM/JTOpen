@@ -20,9 +20,8 @@ import java.io.IOException;
 // NOTE: This class is derived directly from PrintObjectPageInputStream.
 
 /**
-The PrintObjectTransformedInputStream class is used to read transformed data
-from a system spooled file.  The type of transform to be performed on the data
-is dependent on the
+Reads transformed data from a system spooled file.
+The type of transform to be performed on the data is dependent on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
 <p>
@@ -36,8 +35,6 @@ Not all spooled file formats are supported for transform.
 
 public class PrintObjectTransformedInputStream extends InputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // Private data
 
     transient private AS400 system_;
@@ -68,8 +65,7 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
                RequestNotSupportedException
     {
         system_ = spooledFile.getSystem();
-        if (impl_ == null)
-            chooseImpl();
+        chooseImpl();
         // do connect here because it could throw Exceptions  
         system_.connectService(AS400.PRINT);
         if (spooledFile.getImpl() == null) {
