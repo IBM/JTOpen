@@ -1046,7 +1046,7 @@ public class ObjectList implements Serializable
 
     byte[] listInfo = parms2[3].getOutputData();
     if (listInfo.length == 0) return new ObjectDescription[0]; // Shouldn't have to do this, but this API doesn't like certain empty libraries for some reason.
-    int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
+    //int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
     int recordLength = BinaryConverter.byteArrayToInt(listInfo, 12);
     
@@ -1190,7 +1190,7 @@ public class ObjectList implements Serializable
           else
           {
             Trace.log(Trace.ERROR, "Unknown key type for key "+key+": "+type);
-            throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, new String(key+": "+type));
+            throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, key+": "+type);
           }
           fieldOffset += infoLength;
         }
