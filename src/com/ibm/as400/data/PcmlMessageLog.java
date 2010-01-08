@@ -113,9 +113,12 @@ public class PcmlMessageLog
 
         System.out.println("Test complete!");
       }
-      catch (Exception e) { e.printStackTrace(); }
+      catch (Throwable e) { e.printStackTrace(); }
       finally {
-        if (logStream != null) try { logStream.close(); } catch (Exception e) {}
+        if (logStream != null) {
+          try { logStream.close(); }
+          catch (Exception e) { e.printStackTrace(); }
+        }
       }
     }
 
@@ -190,7 +193,7 @@ public class PcmlMessageLog
             Trace.setPrintWriter(logTarget);                        // @A2A
         }
         catch (IOException e)                                       // @A2A
-        {}
+        { Trace.log(Trace.ERROR, e); }
     }
 
     /**
