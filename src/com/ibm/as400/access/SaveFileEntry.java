@@ -30,6 +30,7 @@ implements Serializable, Comparable
 
   SaveFileEntry(String objName, String libSaved, String objType, String extObjAttr, Date saveDateTime, int objSize, int objSizeMult, int asp, String dataSaved, String objOwner, String dloName, String folder, String desc, String aspDevName)
   {
+    // Note: Since SaveFileEntry objects are created exclusively by other Toolbox classes (SaveFile in particular), we can guarantee that none of the arguments will be null-valued.
     objName_ = objName;
     libSaved_ = libSaved;
     objType_ = objType;
@@ -48,11 +49,38 @@ implements Serializable, Comparable
 
   /**
    Compares this object with the specified object for order.  Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.
-   @exception ClassCastException if otherObj is not an instance of SaveFileEntry.
+   @exception ClassCastException if obj is not an instance of SaveFileEntry.
    **/
-  public int compareTo(Object otherObj)
+  public int compareTo(Object obj)
   {
-    return objName_.compareTo(((SaveFileEntry)otherObj).getName());
+    return objName_.compareTo(((SaveFileEntry)obj).getName());
+  }
+
+
+  /**
+   Determines whether this object is equal to another object.
+   @return <tt>true</tt> if the two instances are equal
+   **/
+  public boolean equals(Object obj)
+  {
+    try
+    {
+      SaveFileEntry other = (SaveFileEntry)obj;
+
+      // Note: Since SaveFileEntry objects can only be created internally by the Toolbox, we can guarantee that all instance variables are non-null.
+      if      (!objName_.equals(other.getName())) return false;
+      else if (!libSaved_.equals(other.getLibrary())) return false;
+      else if (!objType_.equals(other.getType())) return false;
+      else if (!dloName_.equals(other.getDLOName())) return false;
+      else if (!folder_.equals(other.getFolder())) return false;
+      else if (!aspDevName_.equals(other.getASPDevice())) return false;
+      else if (asp_ != other.getASP()) return false;
+      else return true;
+    }
+    catch (Throwable e) {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, e);
+      return false;
+    }
   }
 
 
@@ -99,7 +127,7 @@ implements Serializable, Comparable
    **/
   public Date getSaveDate()
   {
-    return saveDateTime_;
+    return (Date)saveDateTime_.clone();  // return a copy
   }
 
   /**
@@ -177,6 +205,16 @@ implements Serializable, Comparable
   public String getASPDevice()
   {
     return aspDevName_;
+  }
+
+
+  /**
+   Returns the String representation of this object.
+   @return  The String representation of this object.
+   **/
+  public String toString()
+  {
+    return "SaveFileEntry (name: " + objName_ + "; library: "+ libSaved_+ "; type: "+ objType_ + "): " + super.toString();
   }
 
 }
