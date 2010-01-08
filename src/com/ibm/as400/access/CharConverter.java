@@ -187,7 +187,8 @@ public class CharConverter implements Serializable
      </pre>
      That is not how the user profile name is stored in QSYS.  The 0x4A codepoint should really be a 0x5B codepoint.  So in this case, the command server will return an error message indicating the user profile was not found.
      <p>The solution is to use this method to replace the variant codepoints with codepoints that will correctly convert given the host server job CCSID.  When given the string "CASH$FLOW" and the CCSID 285, this method will return the string "CASH\u00A3FLOW".  If the CommandCall is issued with the string "DLTUSRPRF CASH\u00A3FLOW" and the job CCSID of the remote command host server is 285, it will correctly convert the pound sterling '\u00A3' into codepoint 0x5B, which is how the user profile name "CASH$FLOW" is actually stored in QSYS.
-     <p>For more information, please see <A HREF="http://publib.boulder.ibm.com/pubs/html/as400/v4r5/ic2924/info/RBAM6NAMEINCOM.HTM">IBM i Information Center: CL and APIs: Control Language (CL): Naming within commands</A>.
+     <p>Note: This method is intended for use <em>only with QSYS object pathnames</em>; that is, pathnames containing "/QSYS.LIB/".
+     <p>For more information, please see <A HREF="http://publib.boulder.ibm.com/infocenter/iseries/v6r1m0/topic/rbam6/rbam6nameincom.htm">IBM i Information Center: CL and APIs: Control Language (CL): Naming within commands</A>.
      @see #convertJobPathnameToIFSQSYSPathname
      @param  qsysData  The String in which to substitute variant QSYS characters.
      @param  jobCCSID  The CCSID of the job in which to convert the variant characters.
@@ -202,6 +203,7 @@ public class CharConverter implements Serializable
     /**
      Converts a pathname String obtained from a Toolbox host server (such as CommandCall or DataQueue) to a QSYS pathname suitable for use with the IFS classes.
      <p>See the javadoc for {@link #convertIFSQSYSPathnameToJobPathname convertIFSQSYSPathnameToJobPathname} for more information.  This method essentially does the opposite of what convertIFSQSYSPathnameToJobPathname does.  The specified <I>jobData</I> string has its variant characters substituted so that it can be used with the IFS classes.  If given the String returned by this method, the file server will correctly convert the codepoints into the real QSYS object pathname using CCSID 37.
+     <p>Note: This method is intended for use <em>only with QSYS object pathnames</em>; that is, pathnames containing "/QSYS.LIB/".
      @see  #convertIFSQSYSPathnameToJobPathname
      @param  jobData  The String in which to substitute variant QSYS characters.
      @param  jobCCSID  The CCSID of the job in which to convert the variant characters.
