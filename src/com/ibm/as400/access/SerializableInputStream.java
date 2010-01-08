@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SerializableInputStream.java
 //                                                                             
@@ -25,20 +25,11 @@ class SerializableInputStream
 extends java.io.InputStream
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
-
     static final long serialVersionUID = 4L;
-
-
 
   // Private data.
   private byte[] byteArray_;
   private transient ByteArrayInputStream iStream_;
-
-
 
 
   public SerializableInputStream (java.io.InputStream iStream)
@@ -47,6 +38,9 @@ implements java.io.Serializable
     // Assume that the arguments have been validated.
     byteArray_ = new byte[iStream.available()];
     int bytesRead = iStream.read (byteArray_);
+    if (bytesRead < 1) {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Initial read() of 'iStream' into internal buffer returned " + bytesRead);
+    }
     iStream_ = new ByteArrayInputStream (byteArray_);
   }
 
