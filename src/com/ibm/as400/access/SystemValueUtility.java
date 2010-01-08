@@ -285,7 +285,9 @@ class SystemValueUtility
         boolean isNetA = info.group_ == SystemValueList.GROUP_NET;
 
         // String containing command.
-        String command = (isNetA) ? "QSYS/CHGNETA " + info.name_ + "(" : "QSYS/CHGSYSVAL SYSVAL(" + info.name_ + ") VALUE(";
+        StringBuffer command = new StringBuffer(
+             (isNetA) ? "QSYS/CHGNETA " + info.name_ + "(" :
+                        "QSYS/CHGSYSVAL SYSVAL(" + info.name_ + ") VALUE(");
 
         // String containing value for command.
         String valueString = value.toString();
@@ -295,7 +297,7 @@ class SystemValueUtility
         {
             // It is a starcmd.
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "System value's value is special star value: '" + (String)value + "'");
-            command += valueString.trim();
+            command.append(valueString.trim());
         }
         else
         {
@@ -306,29 +308,32 @@ class SystemValueUtility
                 {
                     case SystemValueList.TYPE_STRING:
                         // Add string to command.
-                        command += (isNetA) ? valueString : "'" + valueString + "'";
+                        command.append(
+                           (isNetA) ? valueString : "'" + valueString + "'");
                         break;
 
                     case SystemValueList.TYPE_DECIMAL:
                         // Convert BigDecimal value to String value, add to command.
-                        command += ((BigDecimal)value).setScale(info.decimalPositions_, BigDecimal.ROUND_HALF_UP).toString();
+                        command.append(
+                           ((BigDecimal)value).setScale(info.decimalPositions_, BigDecimal.ROUND_HALF_UP).toString());
                         break;
 
                     case SystemValueList.TYPE_INTEGER:
                         // Convert Integer value to String value.
-                        command += ((Integer)value).toString();
+                        command.append(((Integer)value).toString());
                         break;
 
                     case SystemValueList.TYPE_ARRAY:
                         // Convert an array of strings to a single line String, add to command.
                         Object[] objarr = (Object[])value;
                         int length = objarr.length;
-                        if (!isNetA) command += "'";
+                        if (!isNetA) command.append("'");
                         for (int j = 0; j < length; ++j)
                         {
-                            command += (String)objarr[j] + " ";
+                            command.append((String)objarr[j]);
+                            command.append(" ");
                         }
-                        if (!isNetA) command += "'";
+                        if (!isNetA) command.append("'");
                         break;
 
                     case SystemValueList.TYPE_DATE:
@@ -376,22 +381,22 @@ class SystemValueUtility
 
                             return;
                         }
-                        command += "'";
+                        command.append("'");
 
                         // It is either QTIME or QIPLDATTIM.
                         int hour = dateTime.get(Calendar.HOUR_OF_DAY);
-                        if (hour < 10) command += "0";
-                        command += Integer.toString(hour);
+                        if (hour < 10) command.append("0");
+                        command.append(Integer.toString(hour));
 
                         int minute = dateTime.get(Calendar.MINUTE);
-                        if (minute < 10) command += "0";
-                        command += Integer.toString(minute);
+                        if (minute < 10) command.append("0");
+                        command.append(Integer.toString(minute));
 
                         int second = dateTime.get(Calendar.SECOND);
-                        if (second < 10) command += "0";
-                        command += Integer.toString(second);
+                        if (second < 10) command.append("0");
+                        command.append(Integer.toString(second));
 
-                        command +="'";
+                        command.append("'");
                         break;
 
                     default:
@@ -406,13 +411,13 @@ class SystemValueUtility
             }
         }
 
-        command += ")";
+        command.append(")");
 
-        CommandCall cmd = new CommandCall(system, command);
+        CommandCall cmd = new CommandCall(system, command.toString());
         // Neither CHGSYSVAL nor CHGNETA is threadsafe.
         cmd.suggestThreadsafe(false);
 
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Running system value command: " + command);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Running system value command: " + command.toString());
 
         if (!cmd.run())
         {
