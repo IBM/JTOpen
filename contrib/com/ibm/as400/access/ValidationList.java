@@ -37,7 +37,7 @@ public ValidationList() {
  * the object.
  *
  * @param as400
- *		com.ibm.as400.access.AS400
+ *		the system
  *
  */
 public ValidationList(AS400 as400) {
@@ -87,7 +87,7 @@ public void addEntry(ValidationListEntry entry) throws PersistenceException {
 	ProgramParameter[] parmList = new ProgramParameter[6];
 	try {
 		pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYADVLE", "PGM"), parmList);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 	// Refer to documentation for the QSYADVLE Security API for a complete description of parameters
 	parmList[0] = getQualifiedNameParm();
@@ -112,7 +112,7 @@ public void changeEntry(ValidationListEntry entry) throws PersistenceException {
 	ProgramParameter[] parmList = new ProgramParameter[6];
 	try {
 		pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYCHVLE", "PGM"), parmList);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 		
 	// Refer to documentation for the QSYCHVLE Security API for a complete description of parameters
 	parmList[0] = getQualifiedNameParm();
@@ -143,7 +143,7 @@ private void closeList(byte[] handle) throws PersistenceException {
 	ProgramParameter[] parmList = new ProgramParameter[2];
 	try {
 		pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QGYCLST", "PGM"), parmList);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 	// Refer to documentation for the QGYCLST generic list API for a complete description of parameters
 	parmList[0] = new ProgramParameter(new AS400ByteArray(handle.length).toBytes(handle));
@@ -242,7 +242,7 @@ public ValidationListEntry findEntry(String identifier, int ccsid, ValidationLis
 	ProgramParameter[] parmList = new ProgramParameter[6];
 	try {
 		pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYFDVLE", "PGM"), parmList);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 	ValidationListTranslatedData entryID =
 		new ValidationListTranslatedData(identifier, ccsid, getAS400());
@@ -304,14 +304,13 @@ public String getDescription() {
  *		If an error occurs while calling the IBM i APIs.
  */
 public ValidationListEntry[] getEntries() throws PersistenceException {
-	ValidationListEntry[] list = new ValidationListEntry[0];
 
 	ProgramCall pgm = new ProgramCall(getAS400());
 	ProgramParameter[] parmList = new ProgramParameter[7];
 	int bufferLength = LISTBUFFER_LENGTH_INITIAL;
 	try {
 		pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QSYOLVLE", "PGM"), parmList);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 	
 	// Refer to documentation for the QSYOLVLE Security API for a complete description of parameters
 	parmList[0] = new ProgramParameter(bufferLength);
@@ -326,7 +325,7 @@ public ValidationListEntry[] getEntries() throws PersistenceException {
 	runProgram(pgm);
 
 	Object[] listInfo = (Object[])getListInfoStruct().toObject(parmList[2].getOutputData());
-	list = new ValidationListEntry[((Integer)listInfo[0]).intValue()];
+	ValidationListEntry[] list = new ValidationListEntry[((Integer)listInfo[0]).intValue()];
 
 	byte[] listHandle = (byte[])listInfo[2];
 	int listPosition = ((Integer)listInfo[1]).intValue();
@@ -409,7 +408,7 @@ private int getNextEntries(byte[] listHandle, int listPosition, ValidationListEn
 		int bufferLength = LISTBUFFER_LENGTH_NEXT;
 		try {
 			pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QGYGTLE", "PGM"), parmList);
-		} catch (PropertyVetoException pve) { };
+		} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 		// Refer to documentation for the QGYGTLE generic list API for a complete description of parameters
 		parmList[0] = new ProgramParameter(bufferLength);
@@ -440,7 +439,7 @@ public int getNumberOfEntries() throws PersistenceException {
 	int bufferLength = 512;
 	try {
 		pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QSYOLVLE", "PGM"), parmList);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 	
 	// Refer to documentation for the QSYOLVLE Security API for a complete description of parameters
 	parmList[0] = new ProgramParameter(bufferLength);
@@ -618,7 +617,7 @@ public void removeEntry(ValidationListEntry entry) throws PersistenceException {
 	// Refer to documentation for the QSYRMVLE Security API for a complete description of parameters
 	try {
 		pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYRMVLE", "PGM"), parmList);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 	parmList[0] = getQualifiedNameParm();
 	parmList[1] = new ProgramParameter(entry.getEntryID().toBytes());
@@ -788,7 +787,7 @@ public boolean verifyEntry(ValidationListEntry entry) throws PersistenceExceptio
 		sPGMCall.setProgram("/QSYS.LIB/QSYVLDL.SRVPGM", parmList);
 		sPGMCall.setProcedureName("QsyVerifyValidationLstEntry");
 		sPGMCall.setReturnValueFormat(ServiceProgramCall.RETURN_INTEGER);
-	} catch (PropertyVetoException pve) { };
+	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 	runServiceProgram(sPGMCall);
 	return sPGMCall.getIntegerReturnValue() == 0;
