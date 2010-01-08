@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ZonedDecimalFieldDescription.java
 //                                                                             
@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- *The ZonedDecimalFieldDescription class represents the description of the data in a zoned decimal field.
+ *Represents the description of the data in a zoned decimal field.
  *The ZonedDecimalFieldDescription class allows:
  *<ul>
  *<li>The user to describe a zoned decimal field to the RecordFormat object.
@@ -28,10 +28,6 @@ import java.util.Vector;
 **/
 public class ZonedDecimalFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -124,7 +120,7 @@ public class ZonedDecimalFieldDescription extends FieldDescription implements Se
     int numSpaces = 5-len.length();
     for (int i=0; i<numSpaces; ++i) desc.append(' ');
     // Length columns (5)
-    desc.append(len.toString());
+    desc.append(len);
     // Type column (1)
     desc.append("S");
     // Decimal positions columns (2)
