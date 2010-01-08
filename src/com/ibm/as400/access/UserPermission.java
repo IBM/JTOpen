@@ -169,6 +169,25 @@ public class UserPermission
         return;
     }
 
+    /**
+     * Returns a copy of this object.
+     *
+     * @return A newly created UserPermission that is a copy of this one
+     */
+    public synchronized Object clone() throws CloneNotSupportedException
+    {
+      UserPermission cloneObj = (UserPermission)super.clone();
+
+      // Avoid sharing the same authorities array.
+      boolean[] cloneAuths = new boolean[authorities_.length];
+      for (int i=0; i<authorities_.length; i++) {
+        cloneAuths[i] = authorities_[i];
+      }
+      cloneObj.authorities_ = cloneAuths;
+
+      return cloneObj;
+    }
+
    
     /**
      * Returns if the content is already committed in the server.
