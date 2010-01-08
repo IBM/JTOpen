@@ -30,9 +30,9 @@ import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 
 /**
-  Logs trace points and diagnostic messages.  Each trace
-  point and diagnostic message is logged by category.  The valid categories are:
-  <br>
+  Logs trace points and diagnostic messages.
+  Each trace point and diagnostic message is logged by category.
+  The valid categories are:
   <ul>
   <li>DATASTREAM<br>
   This category is used by Toolbox classes to log data flow between the
@@ -219,8 +219,8 @@ public class Trace implements Runnable
   private static PrintWriter destination_ = new PrintWriter(System.out, true);  // never null
   private static boolean userSpecifiedDestination_ = false;  // true if setFileName() or setPrintWriter() was called with a non-null argument
 
-  private static Hashtable printWriterHash = new Hashtable();      // @W1A
-  private static Hashtable fileNameHash    = new Hashtable();      // @W1A
+  private static Hashtable printWriterHash_ = new Hashtable();      // @W1A
+  private static Hashtable fileNameHash_    = new Hashtable();      // @W1A
   private static SimpleDateFormat timeStampFormatter_ = new SimpleDateFormat( "EEE MMM d HH:mm:ss:SSS z yyyy" );
 
 
@@ -356,7 +356,7 @@ public class Trace implements Runnable
     if (component == null)
       throw new NullPointerException("component");
 
-    return(String) fileNameHash.get(component);
+    return(String) fileNameHash_.get(component);
   }
 
 
@@ -383,7 +383,7 @@ public class Trace implements Runnable
     if (component == null)
       throw new NullPointerException("component");
 
-    return(PrintWriter) printWriterHash.get(component);
+    return(PrintWriter) printWriterHash_.get(component);
   }
 
 
@@ -706,11 +706,11 @@ public class Trace implements Runnable
 
         if (component != null)
         {
-          PrintWriter pw = (PrintWriter) printWriterHash.get(component);
+          PrintWriter pw = (PrintWriter) printWriterHash_.get(component);
           if (pw == null)
           {
             pw = new PrintWriter(System.out, true);
-            printWriterHash.put(component, pw);
+            printWriterHash_.put(component, pw);
           }
           synchronized(pw)
           {
@@ -1061,11 +1061,11 @@ public class Trace implements Runnable
     {
       if (logger_ == null || userSpecifiedDestination_)  // traditional trace
       {  // log to component-specific trace file
-        PrintWriter pw = (PrintWriter) printWriterHash.get(component);
+        PrintWriter pw = (PrintWriter) printWriterHash_.get(component);
         if (pw == null)
         {
           pw = new PrintWriter(System.out, true);
-          printWriterHash.put(component, pw);
+          printWriterHash_.put(component, pw);
         }
 
         synchronized(pw)
@@ -1288,10 +1288,11 @@ public class Trace implements Runnable
 
     if (fileName != null)
     {
-      // Create a FileOutputStream and PrintWriter to handle the trace data.  If the file exists we want to append to it.
+      // Create a FileOutputStream and PrintWriter to handle the trace data.
+      // If the file exists, we will append to it (rather than replace it).
       File file = new File(fileName);
       FileOutputStream os = new FileOutputStream(fileName, file.exists());
-      destination_ = new PrintWriter(os, true);
+      destination_ = new PrintWriter(os, true); // note: leave the stream open
       userSpecifiedDestination_ = true;
 
       // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
@@ -1325,30 +1326,30 @@ public class Trace implements Runnable
     if (component == null)
       throw new NullPointerException("component");
 
-    PrintWriter pw = (PrintWriter) printWriterHash.remove(component);
-    if (pw != null)
-      pw.flush();
+    PrintWriter pw = (PrintWriter) printWriterHash_.remove(component);
+    if (pw != null) pw.flush();
 
-    String oldName = (String) fileNameHash.remove(component);
+    String oldName = (String) fileNameHash_.remove(component);
     if (oldName != null)
     {
       // This writer was pointing to a file (rather than to System.out).
-      pw.close();
+      if (pw != null) pw.close();
     }
 
     if (fileName != null)
     {
-      // Create a FileOutputStream and PrintWriter to handle the trace data.  If the file exists we want to append to it.
+      // Create a FileOutputStream and PrintWriter to handle the trace data.
+      // If the file exists, we will append to it (rather than replace it).
       File file = new File(fileName);
       FileOutputStream os = new FileOutputStream(fileName, file.exists());
-      fileNameHash.put(component, fileName);
-      pw = new PrintWriter(os, true);
-      printWriterHash.put(component, pw); 
+      fileNameHash_.put(component, fileName);
+      pw = new PrintWriter(os, true); // note: leave the stream open
+      printWriterHash_.put(component, pw);
     }
     else
     {
       pw = new PrintWriter(System.out, true);
-      printWriterHash.put(component, pw);
+      printWriterHash_.put(component, pw);
     }
   }
 
@@ -1395,11 +1396,11 @@ public class Trace implements Runnable
     if (component == null)
       throw new NullPointerException("component");
 
-    PrintWriter pw = (PrintWriter) printWriterHash.remove(component);
+    PrintWriter pw = (PrintWriter) printWriterHash_.remove(component);
     if (pw != null)
       pw.flush();
 
-    String fileName = (String) fileNameHash.remove(component);
+    String fileName = (String) fileNameHash_.remove(component);
     if (fileName != null)
     {
       // This writer was pointing to a file (rather than to System.out).
@@ -1411,7 +1412,7 @@ public class Trace implements Runnable
     else
       pw = new PrintWriter(System.out, true);
 
-    printWriterHash.put(component, pw);
+    printWriterHash_.put(component, pw);
   }
 
 
@@ -1643,7 +1644,7 @@ public class Trace implements Runnable
   {
     String shouldMonitor = SystemProperties.getProperty(SystemProperties.TRACE_MONITOR);
     if (shouldMonitor==null) return; //Not set, return
-    if (Boolean.valueOf(shouldMonitor)==Boolean.TRUE) {
+    if (Boolean.valueOf(shouldMonitor).equals(Boolean.TRUE)) {
       try {
         Thread monitor = new Thread(new Trace(), "Toolbox Trace Monitor");
         monitor.setDaemon(true); //So this thread ends with the JVM
@@ -1837,4 +1838,6 @@ public class Trace implements Runnable
       }	  
     } else setTraceOn(false); //Categories null, so turn off tracing
   }
+
+  // Note: We don't need a finalize() method, since this class can never be instantiated.
 }
