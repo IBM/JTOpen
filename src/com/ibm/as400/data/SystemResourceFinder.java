@@ -163,21 +163,36 @@ class SystemResourceFinder
 
     if (m_headerLineCount <= 0)
     {
-      // Cache the line count of the header
-      LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
-
+      LineNumberReader lnr = null;
       try
       {
-        String line = lnr.readLine();
-        while (line != null)
+        // Cache the line count of the header
+        lnr = new LineNumberReader(new InputStreamReader(stream));
+
+        try
         {
-          m_headerLineCount++;
-          line = lnr.readLine();
+          String line = lnr.readLine();
+          while (line != null)
+          {
+            m_headerLineCount++;
+            line = lnr.readLine();
+          }
+        }
+        catch (IOException e)
+        {
+          Trace.log(Trace.PCML, "Error when reading input stream in getPCMLHeader", e);
         }
       }
-      catch (IOException e)
+      finally
       {
-        Trace.log(Trace.PCML, "Error when reading input stream in getPCMLHeader", e);
+        if (lnr != null) {
+          try { lnr.close(); stream = null;  }
+          catch (Exception e) { Trace.log(Trace.ERROR, e); }
+        }
+        if (stream != null) {
+          try { stream.close();  }
+          catch (Exception e) { Trace.log(Trace.ERROR, e); }
+        }
       }
 
       // Get the stream again
