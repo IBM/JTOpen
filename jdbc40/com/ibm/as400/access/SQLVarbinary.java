@@ -43,7 +43,6 @@ implements SQLData
 
     private SQLConversionSettings   settings_;
     private int                     length_;
-    private boolean                 longValue_;
     private int                     maxLength_;
     private int                     truncated_;
     private byte[]                  value_;
