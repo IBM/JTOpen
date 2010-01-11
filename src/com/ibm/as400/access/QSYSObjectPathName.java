@@ -48,7 +48,7 @@ import java.io.Serializable;
 import java.util.EventListener;
 
 /**
- The QSYSObjectPathName class provides an integrated file system path name that represents an object in the QSYS library file system.
+ Provides an integrated file system path name that represents an object in the QSYS library file system.
  <p>QSYSObjectPathName objects generate the following events:
  <ul>
  <li>PropertyChangeEvent
@@ -592,7 +592,7 @@ public class QSYSObjectPathName implements Serializable
         // Required prefix.
         if (indexOfQsysLib == -1)                                //@A1C
         {
-            Trace.log(Trace.ERROR, "Object not in QSYS file system, path: '" + path + "'");
+            Trace.log(Trace.ERROR, "Specified path does not include '/QSYS.LIB':", path);
             throw new IllegalPathNameException(path, IllegalPathNameException.QSYS_PREFIX_MISSING);
         }
 
