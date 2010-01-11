@@ -486,9 +486,6 @@ public class ToolboxJarMaker extends JarMaker
   /** Specifies the <b>Visual User</b> component. **/
   public static final Integer USER_VISUAL = new Integer(38);
 
-  private static final Integer NO_SUCH_COMPONENT = new Integer(-1);
-
-
 
   private static final String CIAA  = "com/ibm/as400/access/";  // for convenience
   private static final String CIAD  = "com/ibm/as400/data/";
@@ -848,6 +845,17 @@ public class ToolboxJarMaker extends JarMaker
         }
       }
 
+      if (excludeJDBC_)
+      {
+        // referenced by AS400BidiTransform:
+        addElement(dependenciesToExclude_, "com/ibm/as400/access/AS400JDBCConnection.class");
+        addElement(dependenciesToExclude_, "com/ibm/as400/access/JDProperties.class");
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding dependencies: " + "com/ibm/as400/access/AS400JDBCConnection.class, " +
+              "com/ibm/as400/access/JDProperties.class");
+        }
+      }
+
       if (excludeJDBC_ && excludeRLA_)
       {
         addElement(dependenciesToExclude_, "com/ibm/as400/access/ClassDecoupler.class");
@@ -1034,7 +1042,7 @@ public class ToolboxJarMaker extends JarMaker
 
     // See if ConvTable.class was referenced.  If so, make sure we end up with
     // exactly the ConvTableXXX entries that we need, no more and no less.
-    if (neededJarEntries.contains(new String(CIAA + "ConvTable" + CLASS_SUFFIX)))
+    if (neededJarEntries.contains(CIAA + "ConvTable" + CLASS_SUFFIX))
     {  // Some or all of the ConvTableXXX files are needed, so include the right ones.
 
       if (ccsids_.size() == 0)
@@ -1875,13 +1883,13 @@ public class ToolboxJarMaker extends JarMaker
    Returns the component ID for a component.
 
    @param componentName The component name.
-   @return The associated ID for the component, or <code>NO_SUCH_COMPONENT</code>
+   @return The associated ID for the component, or null
            if the component name is not recognized.
    **/
   private static Integer getComponentID(String componentName)
   {
     String comp = componentName.trim();
-    Integer id = NO_SUCH_COMPONENT;  // default
+    Integer id = null;  // default
 
     for (int i=0; i<VALID_COMPONENTS.length; ++i) {
       if (comp.equalsIgnoreCase(VALID_COMPONENTS[i]))
@@ -1890,7 +1898,7 @@ public class ToolboxJarMaker extends JarMaker
         break;
       }
     }
-    if (id == NO_SUCH_COMPONENT) { // check abbreviations
+    if (id == null) { // check abbreviations
       for (int i=0; i<VALID_COMPONENT_ABBREVS.length; ++i) {
         if (comp.equalsIgnoreCase(VALID_COMPONENT_ABBREVS[i]))
         {
@@ -2524,9 +2532,9 @@ public class ToolboxJarMaker extends JarMaker
               while (st.hasMoreTokens()) {
                 String token = st.nextToken();
                 Integer component = getComponentID(token);
-                if (component.equals(NO_SUCH_COMPONENT))
+                if (component == null)
                 {
-                  System.err.println("Error: Invalid component name: " + token);
+                  System.err.println("Error: Unrecognized component name: " + token);
                   badComponent = true;
                   succeeded = false;
                 }
