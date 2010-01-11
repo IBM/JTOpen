@@ -245,7 +245,7 @@ public class ConvTableReader extends InputStreamReader
                     else
                     {
                         numRead = is_.read(b_cache_, 0, cache_.length);
-                        if (numRead % 2 != 0)  // did we read an odd number of chars
+                        if (numRead > 0 && numRead % 2 != 0)  // did we read an odd number of chars
                         {
                             cachedByte_ = b_cache_[numRead-1];
                             isCachedByte_ = true;
