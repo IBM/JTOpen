@@ -14,7 +14,10 @@
 package com.ibm.as400.access;
 
 /**
-  A binary types converter between Java byte arrays and Java simple types.
+ A binary types converter between Java byte arrays and Java simple types.
+ <p>
+ Note: Some methods of this class accept an array-valued argument in addition to arguments that specify an array offset and possibly also a length.
+ All such methods will throw an {@link ArrayIndexOutOfBoundsException ArrayIndexOutOfBoundsException} if the offset and/or length are not valid for the array.
  **/
 public class BinaryConverter
 {
@@ -59,7 +62,6 @@ public class BinaryConverter
   public static short byteArrayToShort(byte[] serverValue, int offset)
   {
     checkArgs(serverValue, offset);
-
     return(short)(((serverValue[offset]   & 0xFF) << 8) +
                    (serverValue[offset+1] & 0xFF));
   }
@@ -74,7 +76,6 @@ public class BinaryConverter
   public static void intToByteArray(int intValue, byte[] serverValue, int offset)
   {
     checkArgs(serverValue, offset);
-
     serverValue[offset]   = (byte)(intValue >>> 24);
     serverValue[offset+1] = (byte)(intValue >>> 16);
     serverValue[offset+2] = (byte)(intValue >>>  8);
@@ -102,7 +103,6 @@ public class BinaryConverter
   public static int byteArrayToInt(byte[] serverValue, int offset)
   {
     checkArgs(serverValue, offset);
-
     return((serverValue[offset]   & 0xFF) << 24) +
           ((serverValue[offset+1] & 0xFF) << 16) +
           ((serverValue[offset+2] & 0xFF) <<  8) +
@@ -119,7 +119,6 @@ public class BinaryConverter
   public static void floatToByteArray(float floatValue, byte[] serverValue, int offset)
   {
     checkArgs(serverValue, offset);
-
     int bits = Float.floatToIntBits(floatValue);
     serverValue[offset]   = (byte)(bits >>> 24);
     serverValue[offset+1] = (byte)(bits >>> 16);
@@ -161,7 +160,6 @@ public class BinaryConverter
   public static float byteArrayToFloat(byte[] serverValue, int offset)
   {
     checkArgs(serverValue, offset);
-
     int bits = ((serverValue[offset]   & 0xFF) << 24) +
                ((serverValue[offset+1] & 0xFF) << 16) +
                ((serverValue[offset+2] & 0xFF) <<  8) +
@@ -179,8 +177,8 @@ public class BinaryConverter
   public static void doubleToByteArray(double doubleValue, byte[] serverValue, int offset)
   {
     checkArgs(serverValue, offset);
-
     long bits = Double.doubleToLongBits(doubleValue);
+
     // Do in two parts to avoid long temps.
     int high = (int)(bits >>> 32);
     int low = (int)bits;
@@ -406,7 +404,7 @@ public class BinaryConverter
     return charValue;
   }
 
-// Constant used in bytesToString()
+// Constant used in bytesToHexString()
   private static final char[] c_ = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
   static final char hiNibbleToChar(byte b)
@@ -424,11 +422,38 @@ public class BinaryConverter
     Example generated string: "010203047E7F".
     @param  b  The array containing the data.
     @return  A String containing the hex characters that represent the byte data.
+    @deprecated Replaced by bytesToHexString(). (Same implementation, better name.)
    **/
   public static final String bytesToString(final byte[] b)
   {
     if (b == null) throw new NullPointerException("b");
-    return bytesToString(b, 0, b.length);
+    return bytesToHexString(b, 0, b.length);
+  }
+
+  /**
+    Convert the specified byte array to its hexadecimal String representation.
+    Example generated string: "010203047E7F".
+    @param  b  The array containing the data.
+    @param offset The offset into the array at which to begin reading bytes.
+    @param length The number of bytes to read out of the array.
+    @return  A String containing the hex characters that represent the byte data.
+    @deprecated Replaced by bytesToHexString(). (Same implementation, better name.)
+   **/
+  public static final String bytesToString(final byte[] b, int offset, int length)
+  {
+    return bytesToHexString(b, offset, length);
+  }
+
+  /**
+    Convert the specified byte array to its hexadecimal String representation.
+    Example generated string: "010203047E7F".
+    @param  b  The array containing the data.
+    @return  A String containing the hex characters that represent the byte data.
+   **/
+  public static final String bytesToHexString(final byte[] b)
+  {
+    if (b == null) throw new NullPointerException("b");
+    return bytesToHexString(b, 0, b.length);
   }
 
   /**
@@ -439,18 +464,18 @@ public class BinaryConverter
     @param length The number of bytes to read out of the array.
     @return  A String containing the hex characters that represent the byte data.
    **/
-  public static final String bytesToString(final byte[] b, int offset, int length)
+  public static final String bytesToHexString(final byte[] b, int offset, int length)
   {
-    checkArgs(b, offset);
+    if (b == null) throw new NullPointerException("b");
 
     char[] c = new char[length*2];
-    int num = bytesToString(b, offset, length, c, 0);
+    int num = bytesToHexString(b, offset, length, c, 0);
     return new String(c, 0, num);
   }
 
   // Helper method to convert a byte array into its hex string representation.
   // This is faster than calling Integer.toHexString(...)
-  static final int bytesToString(final byte[] b, int offset, int length, final char[] c, int coffset)
+  static final int bytesToHexString(final byte[] b, int offset, int length, final char[] c, int coffset)
   {
     for (int i=0; i<length; ++i)
     {
@@ -498,12 +523,12 @@ public class BinaryConverter
   }
 
   static final void checkArgs(byte[] serverValue, int offset)
-    throws NullPointerException, ExtendedIllegalArgumentException
+    throws NullPointerException
   {
     if (serverValue == null) throw new NullPointerException("serverValue");
 
     if (offset < 0 || (offset > serverValue.length-1)) {
-      throw new ExtendedIllegalArgumentException("offset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
     }
   }
 
