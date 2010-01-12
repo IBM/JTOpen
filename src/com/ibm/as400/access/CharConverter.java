@@ -19,7 +19,9 @@ import java.io.UnsupportedEncodingException;
 
 /**
  A character set converter between Java String objects and IBM i native code pages.
- <P>Note that in the past few releases, several constructors were deprecated because they did not accept a system object as an argument.  Due to recent changes in the behavior of the character conversion routines, this system object is no longer necessary.
+ <p>
+ Note: Some methods of this class accept an array-valued argument in addition to arguments that specify an array offset and possibly also a length.
+ All such methods will throw an {@link ArrayIndexOutOfBoundsException ArrayIndexOutOfBoundsException} if the offset and/or length are not valid for the array.
  @see  com.ibm.as400.access.AS400Text
  **/
 public class CharConverter implements Serializable
@@ -45,6 +47,7 @@ public class CharConverter implements Serializable
      */
     public CharConverter(String encoding) throws UnsupportedEncodingException
     {
+        if (encoding == null) throw new NullPointerException("encoding");
         table_ = new Converter(encoding);
     }
 
@@ -66,6 +69,7 @@ public class CharConverter implements Serializable
      */
     public CharConverter(int ccsid, AS400 system) throws UnsupportedEncodingException
     {
+        if (system == null) throw new NullPointerException("system");
         table_ = new Converter(ccsid, system);
     }
 
@@ -76,6 +80,7 @@ public class CharConverter implements Serializable
      **/
     public String byteArrayToString(byte[] source)
     {
+        if (source == null) throw new NullPointerException("source");
         return table_.byteArrayToString(source);
     }
 
@@ -87,6 +92,7 @@ public class CharConverter implements Serializable
      **/
     public String byteArrayToString(byte[] source, int offset)
     {
+        if (source == null) throw new NullPointerException("source");
         return table_.byteArrayToString(source, offset);
     }
 
@@ -99,6 +105,7 @@ public class CharConverter implements Serializable
      **/
     public String byteArrayToString(byte[] source, int offset, int length)
     {
+        if (source == null) throw new NullPointerException("source");
         return table_.byteArrayToString(source, offset, length);
     }
 
@@ -113,6 +120,7 @@ public class CharConverter implements Serializable
      **/
     public String byteArrayToString(byte[] source, int offset, int length, int type)
     {
+        if (source == null) throw new NullPointerException("source");
         return byteArrayToString(source, offset, length, new BidiConversionProperties(type));
     }
 
@@ -126,6 +134,7 @@ public class CharConverter implements Serializable
      **/
     public String byteArrayToString(byte[] source, int offset, int length, BidiConversionProperties properties)
     {
+        if (source == null) throw new NullPointerException("source");
         return table_.byteArrayToString(source, offset, length, properties);
     }
 
@@ -137,6 +146,8 @@ public class CharConverter implements Serializable
      **/
     public static String byteArrayToString(AS400 system, byte[] source)
     {
+        if (system == null) throw new NullPointerException("system");
+        if (source == null) throw new NullPointerException("source");
         try
         {
             return new Converter(system.getCcsid(), system).byteArrayToString(source);
@@ -159,6 +170,8 @@ public class CharConverter implements Serializable
      **/
     public static String byteArrayToString(int ccsid, AS400 system, byte[] source) throws UnsupportedEncodingException
     {
+        if (system == null) throw new NullPointerException("system");
+        if (source == null) throw new NullPointerException("source");
         return new Converter(ccsid, system).byteArrayToString(source);
     }
 
@@ -171,6 +184,7 @@ public class CharConverter implements Serializable
      **/
     public static String byteArrayToString(int ccsid, byte[] source) throws UnsupportedEncodingException
     {
+        if (source == null) throw new NullPointerException("source");
         return new Converter(ccsid).byteArrayToString(source);
     }
 
@@ -197,6 +211,7 @@ public class CharConverter implements Serializable
      **/
     public static String convertIFSQSYSPathnameToJobPathname(String qsysData, int jobCCSID) throws UnsupportedEncodingException
     {
+        if (qsysData == null) throw new NullPointerException("qsysData");
         return new Converter(jobCCSID, null).byteArrayToString(new Converter(37, null).stringToByteArray(qsysData));
     }
 
@@ -212,6 +227,7 @@ public class CharConverter implements Serializable
      **/  
     public static String convertJobPathnameToIFSQSYSPathname(String jobData, int jobCCSID) throws UnsupportedEncodingException
     {
+        if (jobData == null) throw new NullPointerException("jobData");
         return new Converter(37, null).byteArrayToString(new Converter(jobCCSID, null).stringToByteArray(jobData));
     }
 
@@ -259,6 +275,7 @@ public class CharConverter implements Serializable
      **/
     public byte[] stringToByteArray(String source)
     {
+        if (source == null) throw new NullPointerException("source");
         return table_.stringToByteArray(source);
     }
 
@@ -271,6 +288,7 @@ public class CharConverter implements Serializable
      **/
     public byte[] stringToByteArray(String source, int type)
     {
+        if (source == null) throw new NullPointerException("source");
         return stringToByteArray(source, new BidiConversionProperties(type));
     }
 
@@ -282,6 +300,8 @@ public class CharConverter implements Serializable
      **/
     public byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
+        if (source == null) throw new NullPointerException("source");
+        // tolerate a null-valued 'properties' arg (for now)
         return table_.stringToByteArray(source, properties);
     }
 
@@ -293,6 +313,8 @@ public class CharConverter implements Serializable
      **/
     public void stringToByteArray(String source, byte[] destination) throws CharConversionException
     {
+        if (source == null) throw new NullPointerException("source");
+        if (destination == null) throw new NullPointerException("destination");
         table_.stringToByteArray(source, destination);
     }
 
@@ -305,6 +327,8 @@ public class CharConverter implements Serializable
      **/
     public void stringToByteArray(String source, byte[] destination, int offset) throws CharConversionException
     {
+        if (source == null) throw new NullPointerException("source");
+        if (destination == null) throw new NullPointerException("destination");
         table_.stringToByteArray(source, destination, offset);
     }
 
@@ -318,6 +342,8 @@ public class CharConverter implements Serializable
      **/
     public void stringToByteArray(String source, byte[] destination, int offset, int length) throws CharConversionException
     {
+        if (source == null) throw new NullPointerException("source");
+        if (destination == null) throw new NullPointerException("destination");
         table_.stringToByteArray(source, destination, offset, length);
     }
 
@@ -333,6 +359,8 @@ public class CharConverter implements Serializable
      **/
     public void stringToByteArray(String source, byte[] destination, int offset, int length, int type) throws CharConversionException
     {
+        if (source == null) throw new NullPointerException("source");
+        if (destination == null) throw new NullPointerException("destination");
         table_.stringToByteArray(source, destination, offset, length, new BidiConversionProperties(type));
     }
 
@@ -348,6 +376,8 @@ public class CharConverter implements Serializable
      **/
     public void stringToByteArray(String source, byte[] destination, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
+        if (source == null) throw new NullPointerException("source");
+        if (destination == null) throw new NullPointerException("destination");
         table_.stringToByteArray(source, destination, offset, length, properties);
     }
 
@@ -359,6 +389,8 @@ public class CharConverter implements Serializable
      **/
     public static byte[] stringToByteArray(AS400 system, String source)
     {
+        if (system == null) throw new NullPointerException("system");
+        if (source == null) throw new NullPointerException("source");
         try
         {
             return new Converter(system.getCcsid(), system).stringToByteArray(source);
@@ -381,6 +413,8 @@ public class CharConverter implements Serializable
      **/
     public static byte[] stringToByteArray(int ccsid, AS400 system, String source) throws UnsupportedEncodingException
     {
+        if (system == null) throw new NullPointerException("system");
+        if (source == null) throw new NullPointerException("source");
         return new Converter(ccsid, system).stringToByteArray(source);
     }
 
@@ -393,6 +427,7 @@ public class CharConverter implements Serializable
      **/
     public static byte[] stringToByteArray(int ccsid, String source) throws UnsupportedEncodingException
     {
+        if (source == null) throw new NullPointerException("source");
         return new Converter(ccsid).stringToByteArray(source);
     }
 }
