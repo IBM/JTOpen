@@ -569,6 +569,25 @@ implements Connection //@A5A
       validateConnection();
       return connection_.getServerJobIdentifier();
   }
+  
+  //@pda
+  /**
+  Returns the system object which is managing the connection to the system.
+  
+  <p>Note: Since this method is not defined in the JDBC Connection interface,
+  you typically need to cast a Connection object to AS400JDBCConnectionHandle in order
+  to call this method:
+  <blockquote><pre>
+  AS400 system = ((AS400JDBCConnectionHandle)connection).getSystem();
+  </pre></blockquote>
+  
+  @return The system.
+  **/
+  public AS400 getSystem()                                             
+  {                                                                    
+      return connection_.getSystem();                                    
+  }                                                                   
+
 
   /**
   *  Returns the transaction isolation level.
