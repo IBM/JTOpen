@@ -37,7 +37,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-The RecordListData class represents the records in a server file that are
+Represents the records in a server file that are
 accessed either sequentially or by key by using the record-level
 access classes in com.ibm.as400.access.
 This class handles caching and storing the data fields so they can be
@@ -76,9 +76,6 @@ in order to diagnose and recover from error conditions.
 class RecordListData
 implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
 
 // Constants for search types
 static final int KEY_EQ = KeyedFile.KEY_EQ;
@@ -446,8 +443,7 @@ synchronized public void load ()
     // cleanup old data
     if (resourceOpen_)
     {
-        resourceOpen_ = false;
-        close();
+        close();  // this sets resourceOpen_ to false
     }
 
     // Set back fields in case there is an error.
@@ -551,6 +547,7 @@ synchronized public void load ()
             // Open the file.
             keyedFile_.open(AS400File.READ_ONLY, ROW_INCREMENT_,
                                  AS400File.COMMIT_LOCK_LEVEL_NONE);
+            resourceOpen_ = true;
             if (key_ != null)
             {
                 // Move cursor to first record.
@@ -596,7 +593,6 @@ synchronized public void load ()
                 // everything and fail.
                 record_ = keyedFile_.readNext();
             }
-            resourceOpen_ = true;
         }
         catch (Exception e)
         {
