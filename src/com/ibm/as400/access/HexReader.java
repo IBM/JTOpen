@@ -16,18 +16,17 @@ package com.ibm.as400.access;
 import java.io.*;
 
 /**
- * Converts a stream of bytes to their character
- * hexadecimal representation.
- * For example, if the underlying InputStream contains the data:
- * 0xFF, 0xAB, 0x40, 0x20
- * this Reader will return the following characters when read() is called:
+ * Converts a stream of bytes to their character hexadecimal representation.
+ * For example, if the underlying InputStream contains the sequence of bytes:
+ * <pre>
+ * 0xFF 0xAB 0x40 0x20
+ * </pre>
+ * this Reader will return the following sequence of Unicode characters when read() is called:
  * "FFAB4020"
  * @see com.ibm.as400.access.HexReaderInputStream
 **/
 class HexReader extends InputStreamReader
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   private InputStream in_;
   private boolean cached_ = false;
   private byte cachedByte_;
@@ -72,7 +71,7 @@ class HexReader extends InputStreamReader
       {
         byte[] buf = new byte[length/2];
         int numRead = in_.read(buf);
-        int numConverted = BinaryConverter.bytesToString(buf, 0, numRead, cbuf, offset);
+        int numConverted = BinaryConverter.bytesToHexString(buf, 0, numRead, cbuf, offset);
         return numConverted;
       }
     }
