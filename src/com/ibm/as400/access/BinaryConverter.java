@@ -514,7 +514,6 @@ public class BinaryConverter
   {
     int c1 = 0x00FFFF & hi;
     int c2 = 0x00FFFF & lo;
-    //if(c1 > 255 || c2 > 255) return 0;
     if (c1 > 255 || c2 > 255) throw new NumberFormatException();
     byte b1 = b_[c1];
     byte b2 = b_[c2];
@@ -527,10 +526,13 @@ public class BinaryConverter
   {
     if (serverValue == null) throw new NullPointerException("serverValue");
 
-    if (offset < 0 || (offset > serverValue.length-1)) {
+    if (offset < 0 || (offset > serverValue.length-1))
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Offset " + offset + " was specified for array of length " + serverValue.length + ".");
       throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
     }
   }
+
 
   /**
     Convert the specified hexadecimal String into a byte array containing the byte values for the 
