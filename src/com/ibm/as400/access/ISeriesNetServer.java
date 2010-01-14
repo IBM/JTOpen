@@ -25,7 +25,7 @@ import java.io.ObjectInputStream;
 import java.beans.PropertyVetoException;
 
 /**
- The ISeriesNetServer class represents the NetServer service on a system.
+ Represents the NetServer service on a system.
  This class allows the user to query and modify the state and configuration
  of the NetServer.
  <p>
@@ -179,7 +179,6 @@ implements Serializable
   private final static int FILE = 0;
   private final static int PRINT = 1;
 
-  private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
   private AS400 system_;
   private int systemVRM_;
   private boolean gotSystemVRM_;
@@ -361,7 +360,7 @@ implements Serializable
     parms[4] = new ProgramParameter(text50.toBytes(desc));
     parms[5] = new ProgramParameter(BinaryConverter.intToByteArray(permission));
     parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(maxUsers));
-    parms[7] = errorCode_;
+    parms[7] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSADFS.PGM", parms);
 
@@ -520,7 +519,7 @@ implements Serializable
     parms[2] = new ProgramParameter(text50.toBytes(desc));
     parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(splfType));
     parms[4] = new ProgramParameter(text50.toBytes(prtDriver));
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
     parms[6] = new ProgramParameter(prtFileBytes);
     parms[7] = new ProgramParameter(pubBytes);
 
@@ -657,7 +656,7 @@ implements Serializable
     parms[2] = new ProgramParameter(64);                      // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0101"));
     parms[4] = new ProgramParameter(text15.toBytes(shareName.trim()));
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
 
@@ -776,7 +775,7 @@ implements Serializable
         parms[6] = new ProgramParameter(text10.toBytes("*ALL"));		// @IPv6
         parms[7] = new ProgramParameter(text50.toBytes(name));			// @IPv6
     }													// @IPv6
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
     int numRecords = callListProgram(pc, parms, len);
@@ -826,7 +825,7 @@ implements Serializable
     parms[2] = new ProgramParameter(64);                           // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0600"));
     parms[4] = new ProgramParameter(text15.toBytes("*SESSID"));  // information qualifier
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
     parms[6] = new ProgramParameter(text10.toBytes("*SESSID"));  // session user
     parms[7] = new ProgramParameter(BinaryConverter.longToByteArray(sessionID)); // session identifier
 
@@ -884,7 +883,7 @@ implements Serializable
     	parms[6] = new ProgramParameter(text10.toBytes("*ALL"));		// @IPv6
     	parms[7] = new ProgramParameter(text50.toBytes(workstationName));	// @IPv6
     }										// @IPv6
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
     int numRecords = callListProgram(pc, parms, len);
@@ -1154,7 +1153,7 @@ implements Serializable
     parms[2] = new ProgramParameter(64);                           // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0700"));
     parms[4] = new ProgramParameter(text15.toBytes(shareName));    // information qualifier
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
     int numRecords = callListProgram(pc, parms, len);
@@ -1194,7 +1193,7 @@ implements Serializable
     ProgramParameter[] parms = new ProgramParameter[2];
 
     parms[0] = new ProgramParameter(text12.toBytes(shareName.trim()));
-    parms[1] = errorCode_;
+    parms[1] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSRMS.PGM", parms);
 
@@ -2195,7 +2194,7 @@ implements Serializable
     parms[0] = new ProgramParameter(text4.toBytes("*CHG"));
     parms[1] = new ProgramParameter(text30.toBytes("*NETSVR"));
     parms[2] = new ProgramParameter(text4.toBytes(pendingValueStr_[AUTOSTART]));
-    parms[3] = errorCode_;
+    parms[3] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QTOCAUTO.PGM", parms);
 
@@ -2230,7 +2229,7 @@ implements Serializable
       parms[0] = new ProgramParameter(text4.toBytes("*RTV"));
       parms[1] = new ProgramParameter(text30.toBytes("*NETSVR"));
       parms[2] = new ProgramParameter(4);  // output parameter: *YES, *NO, or *ERR
-      parms[3] = errorCode_;
+      parms[3] = new ErrorCodeParameter();
 
       ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QTOCAUTO.PGM", parms);
 
@@ -2264,7 +2263,7 @@ implements Serializable
     ProgramParameter[] parms = new ProgramParameter[2];
 
     parms[0] = new ProgramParameter(text10.toBytes(pendingValueStr_[GUEST_USER_PROFILE]));
-    parms[1] = errorCode_;
+    parms[1] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSCHSG.PGM", parms);
 
@@ -2338,7 +2337,7 @@ implements Serializable
     parms[0] = new ProgramParameter(requestVariable);
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(requestVariable.length));
     parms[2] = new ProgramParameter(conv.stringToByteArray("ZLSS0100"));
-    parms[3] = errorCode_;
+    parms[3] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSCHSI.PGM", parms);
 
@@ -2363,7 +2362,7 @@ implements Serializable
     parms[0] = new ProgramParameter(text15.toBytes(pendingValueStr_[SERVER_NAME].trim()));
     parms[1] = new ProgramParameter(text15.toBytes(pendingValueStr_[DOMAIN_NAME].trim()));
     parms[2] = new ProgramParameter(text50.toBytes(pendingValueStr_[DESCRIPTION].trim()));
-    parms[3] = errorCode_;
+    parms[3] = new ErrorCodeParameter();
 
     byte[] allowSysName = new byte[1];
     if (pendingValueStr_[ALLOW_SYSTEM_NAME].equals("1")) {
@@ -2401,7 +2400,7 @@ implements Serializable
     parms[2] = new ProgramParameter(64);              // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0201"));
     parms[4] = new ProgramParameter(text15.toBytes("*ALL")); // ignored for format ZLSL0201
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
 
@@ -2553,7 +2552,7 @@ implements Serializable
 
     // Compose the arguments for the API.
     ProgramParameter[] parms = new ProgramParameter[1];
-    parms[0] = errorCode_;
+    parms[0] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSENDS.PGM", parms);
 
@@ -2636,7 +2635,7 @@ implements Serializable
     		parms[2] = new ProgramParameter(text50.toBytes(workstationName));	// @IPv6
     	}
     }
-    parms[1] = errorCode_;
+    parms[1] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSENSS.PGM", parms);
 
@@ -2778,7 +2777,7 @@ implements Serializable
     }
 
     parms[0] = new ProgramParameter(resetBytes);
-    parms[1] = errorCode_;
+    parms[1] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSSTRS.PGM", parms);
 
@@ -2838,7 +2837,7 @@ implements Serializable
     }													// @IPv6
     else												// @IPv6
     	parms[4] = new ProgramParameter(text15.toBytes(connection.getName()));      // information qualifier
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
     int numRecords = callListProgram(pc, parms, len);
@@ -2886,7 +2885,7 @@ implements Serializable
     parms[2] = new ProgramParameter(64);                      // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0300"));
     parms[4] = new ProgramParameter(text15.toBytes("*SESSID"));  // information qualifier
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
     parms[6] = new ProgramParameter(text10.toBytes("*SESSID"));  // session user
     parms[7] = new ProgramParameter(BinaryConverter.longToByteArray(session.getID())); // session identifier
 
@@ -2935,7 +2934,7 @@ implements Serializable
     parms[2] = new ProgramParameter(64);                      // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0101"));
     parms[4] = new ProgramParameter(text15.toBytes(share.getName().trim()));
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
     int numRecords = callListProgram(pc, parms, len);
@@ -3015,25 +3014,35 @@ implements Serializable
 
     // Required parameters:
 
+    // parameter 1 - share name:
     parms[0] = new ProgramParameter(text12.toBytes(share.name_));
-    parms[1] = new ProgramParameter(conv.stringToByteArray(share.path_));
-    // Note: 2 bytes per Unicode character:
-    parms[2] = new ProgramParameter(BinaryConverter.intToByteArray(2 * share.path_.length()));
-    parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(0));
+    // parameter 2 - path name:
+    byte[] pathAsBytes = conv.stringToByteArray(share.path_);
+    parms[1] = new ProgramParameter(pathAsBytes);
+    // parameter 3 - length of path name:
+    parms[2] = new ProgramParameter(BinaryConverter.intToByteArray(pathAsBytes.length));
+    // parameter 4 - CCSID encoding of path name
+    parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(ccsid));
+    // parameter 5 - text description
     parms[4] = new ProgramParameter(text50.toBytes(share.description_));
+    // parameter 6 - permissions
     parms[5] = new ProgramParameter(BinaryConverter.intToByteArray(share.permissions_));
+    // parameter 7 - maximum users
     parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(share.maxNumberOfUsers_));
-    parms[7] = errorCode_;
+    // parameter 8 - error code
+    parms[7] = new ErrorCodeParameter();
 
     // Optional parameters:
 
     if (numberOfOptionalParms >= 1)
     {
+      // parameter 9 - CCSID used for text conversion
       parms[8] = new ProgramParameter(BinaryConverter.intToByteArray(share.ccsidForTextConversion_));
     }
 
     if (numberOfOptionalParms >= 2)
     {
+      // parameter 10 - enable text conversion
       byte[] enableTxtConv = new byte[1];
       if (share.textConversionEnablement_.equals("0")) {
         enableTxtConv[0] = (byte)0xF0;
@@ -3049,8 +3058,7 @@ implements Serializable
 
     if (numberOfOptionalParms >= 4)
     {
-      // Compose the "file extension table" parameter.
-
+      // parameter 11 - file extension table
       int numFileExtensions = share.fileExtensions_.length;
       if (numFileExtensions == 0) {  // No file extensions.
         parms[10] = new ProgramParameter(conv.stringToByteArray(""));  // empty list
@@ -3075,6 +3083,7 @@ implements Serializable
         parms[10] = new ProgramParameter(fileExtensionTable);
       }
 
+      // parameter 12 - number of table entries
       parms[11] = new ProgramParameter(BinaryConverter.intToByteArray(numFileExtensions));
     }
 
@@ -3129,7 +3138,7 @@ implements Serializable
     parms[2] = new ProgramParameter(text50.toBytes(share.description_));
     parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(share.spooledFileType_));
     parms[4] = new ProgramParameter(text50.toBytes(share.printDriver_));
-    parms[5] = errorCode_;
+    parms[5] = new ErrorCodeParameter();
 
     // Optional parameters:
 
