@@ -585,7 +585,9 @@ implements Connection //@A5A
   @return The system.
   **/
   public AS400 getSystem()                                             
-  {                                                                    
+  {                               
+      if (JDTrace.isTraceOn())   
+          JDTrace.logInformation (this, "Warning: returning pooled connection's AS400 object directly to user."); 
       return connection_.getSystem();                                    
   }                                                                   
 
