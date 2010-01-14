@@ -563,7 +563,8 @@ implements Connection //@A5A
   //@pda
   /**
   Returns the system object which is managing the connection to the system.
-  
+  <p>Warning: This method should be used with extreme caution.  This bypasses
+  the normal connection pool's connection reclaiming mechanisms.  
   <p>Note: Since this method is not defined in the JDBC Connection interface,
   you typically need to cast a Connection object to AS400JDBCConnectionHandle in order
   to call this method:
