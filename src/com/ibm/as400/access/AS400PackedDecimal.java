@@ -184,7 +184,14 @@ public class AS400PackedDecimal implements AS400DataType
      int outLength = outDigits/2+1;
 
      // verify input
-     BigDecimal inValue = (BigDecimal)javaValue; // Let this line throw ClassCastException
+     BigDecimal inValue = null;
+     try {
+       inValue = (BigDecimal)javaValue; // Let this line throw ClassCastException
+     }
+     catch (ClassCastException e) {
+       Trace.log(Trace.ERROR, "ClassCastException when attempting to cast a " + javaValue.getClass().getName() + " to a BigDecimal", e);
+       throw e;
+     }
      if (inValue.scale() > outDecimalPlaces)  // Let this line throw NullPointerException
      {
          throw new ExtendedIllegalArgumentException("javaValue (" + javaValue.toString() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
