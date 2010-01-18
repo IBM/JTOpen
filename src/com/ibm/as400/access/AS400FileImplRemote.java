@@ -319,7 +319,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // The record format name cannot exceed 10 characters and must be in upper case
     if (recordFormat.getName().length() > 10)
     {
-      if (Trace.isTraceOn() && Trace.isTraceWarningOn())
+      if (Trace.traceOn_)
       {
         Trace.log(Trace.WARNING, "Record format name '"+recordFormat.getName()+"' too long. Using '"+recordFormat.getName().substring(0,10)+"' instead.");
       }
@@ -645,7 +645,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   InterruptedException,
   IOException
   {
-    if (Trace.isTraceOn() && Trace.isTraceWarningOn())
+    if (Trace.traceOn_)
     {
       DDMAS400MessageReply msg;
       for (int i = 0; i < index; ++i)
@@ -732,7 +732,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       reply = (DDMDataStream)replys.elementAt(index);
       openFeedback_ = new DDMS38OpenFeedback(system_, reply.data_); //@C0C
-      if (Trace.isTraceOn() && Trace.isTraceInformationOn())
+      if (Trace.traceOn_)
       {
         Trace.log(Trace.INFORMATION, "AS400FileImplRemote.openFile()\n" + openFeedback_.toString());
       }
@@ -880,7 +880,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     catch (ConnectionDroppedException e)
     {
       // UConnection dropped.  Disconnect server and rethrow
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+      if (Trace.traceOn_)
       {
         Trace.log(Trace.ERROR, "ConnectionDroppedException.");
       }
@@ -975,7 +975,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     catch (ConnectionDroppedException e)
     {
       // UConnection dropped.  Disconnect server and rethrow
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+      if (Trace.traceOn_)
       {
         Trace.log(Trace.ERROR, "ConnectionDroppedException.");
       }
@@ -1891,7 +1891,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     catch (ConnectionDroppedException e)
     {
       // UConnection dropped.  Disconnect server and rethrow
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+      if (Trace.traceOn_)
       {
         Trace.log(Trace.ERROR, "ConnectionDroppedException.");
       }
@@ -1917,7 +1917,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       catch (ConnectionDroppedException e)
       {
         // UConnection dropped.  Disconnect server and rethrow
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+        if (Trace.traceOn_)
         {
           Trace.log(Trace.ERROR, "ConnectionDroppedException.");
         }
@@ -1979,7 +1979,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   {
     if (record.getRecordLength() != openFeedback_.getRecordLength())
     {
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+      if (Trace.traceOn_)
       {
         Trace.log(Trace.ERROR, "Incorrect record length for file :");
         Trace.log(Trace.ERROR, "record.getRecordLength() :" + String.valueOf(record.getRecordLength()));
@@ -2135,10 +2135,12 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   {
     if (records[0].getRecordLength() != openFeedback_.getRecordLength())
     {
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+      // Note: The typical cause of this error is that the application neglected to call AS400File.setRecordFormat() prior to calling open() or readAll().
+      if (Trace.traceOn_)
       {
-        Trace.log(Trace.ERROR, "Incorrect record length for file :");
-        Trace.log(Trace.ERROR, "record.getRecordLength() :" + String.valueOf(records[0].getRecordLength()));
+        Trace.log(Trace.ERROR, "Incorrect record length for file: " +
+                  "Expected " + String.valueOf(openFeedback_.getRecordLength()) +
+                  ", got " + String.valueOf(records[0].getRecordLength())); ///
       }
       throw new ExtendedIllegalArgumentException("records", ExtendedIllegalArgumentException. PARAMETER_VALUE_NOT_VALID);
     }
