@@ -101,6 +101,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   private transient Log log_;
   private SocketProperties socketProperties_;
   private transient long lastRun_=0;     //@D1A Last time cleanupConnections() was called.  Added for fix to JTOpen Bug #3863
+  private transient boolean connectionHasBeenCreated_ = false;
   
   // Handles loading the appropriate resource bundle
 //@CRS  private static ResourceBundleLoader loader_;
@@ -251,6 +252,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       for (int i = 0; i < numberOfConnections; i++)
       {
         newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, locale, profileToken));
+        // Note: When filling an empty pool, getConnection() creates a new element and adds it to pool.
       }
       connections = (ConnectionList)as400ConnectionPool_.get(key);
       for (int j = 0; j < numberOfConnections; j++)
@@ -347,6 +349,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       for (int i = 0; i < numberOfConnections; i++)
       {
         newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, locale, password));  //@B4C
+        // Note: When filling an empty pool, getConnection() creates a new element and adds it to pool.
       }
       connections = (ConnectionList)as400ConnectionPool_.get(key);
       for (int j = 0; j < numberOfConnections; j++)
@@ -941,15 +944,17 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     // inside itself, anyway.
 
     //Get a connection from the list
+    AS400 connection = null;
     if (connect)
     {
-      return connections.getConnection(service, secure, poolListeners_, locale, poolAuth, socketProperties_, getCCSID()).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
+      connection = connections.getConnection(service, secure, poolListeners_, locale, poolAuth, socketProperties_, getCCSID()).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
     }
     else
     {
-      return connections.getConnection(secure, poolListeners_, locale, poolAuth, socketProperties_, getCCSID()).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
+      connection = connections.getConnection(secure, poolListeners_, locale, poolAuth, socketProperties_, getCCSID()).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
     }
-    
+    connectionHasBeenCreated_ = true;  // remember that we've created at least 1 connection
+    return connection;
   }
 
   /** 
@@ -1357,6 +1362,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     as400ConnectionPool_ = new Hashtable();
     removedAS400ConnectionPool_ = new Hashtable();   //@A5A
     lastRun_ = System.currentTimeMillis();
+    connectionHasBeenCreated_ = false;
   }
 
 
@@ -1662,6 +1668,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    **/
   public void setCCSID(int ccsid)
   {
+    if (connectionHasBeenCreated_ && Trace.traceOn_) {
+      Trace.log(Trace.WARNING, "setCCSID("+ccsid+") is being called after the pool already contains connections.");
+    }
     super.setCCSID(ccsid);
   }
 
