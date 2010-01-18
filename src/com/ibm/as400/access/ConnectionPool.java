@@ -43,6 +43,11 @@ public abstract class ConnectionPool implements Serializable
 {
   static final long serialVersionUID = 4L;
 
+  /**
+   Indicates that the CCSID used for new connections is the same as the system default CCSID.
+   **/
+  static final int CCSID_DEFAULT = ConnectionPoolProperties.CCSID_DEFAULT;
+
   ConnectionPoolProperties properties_ = new ConnectionPoolProperties();
   private boolean inUse_ = false;
   private boolean isRunMaintenance_ = true;
@@ -114,6 +119,16 @@ public abstract class ConnectionPool implements Serializable
       maintenance_.shutdown();
     }
     super.finalize();
+  }
+
+  /**
+   *  Returns the CCSID that is used when creating connections.
+   *  The default value is the system default CCSID as determined by the AS400 class.
+   *  @return The CCSID, or {@link #CCSID_DEFAULT CCSID_DEFAULT} if the system default CCSID is used.
+   **/
+  int getCCSID()
+  {
+    return properties_.getCCSID();
   }
 
   /**
@@ -302,6 +317,16 @@ public abstract class ConnectionPool implements Serializable
    *  @param reduced true if need to check current num connections; false otherwise.
    **/
   abstract void runMaintenance(boolean reduced);
+
+  /**
+  *  Sets the CCSID to use when creating connections.
+  *  The default value is the system default CCSID as determined by the AS400 class.
+  *  @param ccsid The CCSID to use for connections in the pool, or {@link #CCSID_DEFAULT CCSID_DEFAULT} to indicate that the system default CCSID should be used.
+  **/
+  void setCCSID(int ccsid)
+  {
+    properties_.setCCSID(ccsid);
+  }
 
   /**
   *  Sets the time interval for how often the maintenance daemon is run.

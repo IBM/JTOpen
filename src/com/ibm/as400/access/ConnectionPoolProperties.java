@@ -21,7 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
-*  The ConnectionPoolProperties class contains properties for maintaining a ConnectionPool.  
+*  Contains properties for maintaining a ConnectionPool.  
 *  It is used to control the behavior of the connection pool.
 *
 *  A maintenance daemon is used to validate the connection status and determine if the connection should
@@ -29,10 +29,12 @@ import java.io.Serializable;
 **/
 class ConnectionPoolProperties implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   static final long serialVersionUID = 4L;
 
+  /**
+   Indicates that the CCSID used for new connections is the same as the system default CCSID.
+   **/
+  static final int CCSID_DEFAULT = -1;
 
   private long cleanupInterval_ = 300000;           // 5 minutes maintenance intervals
   private int maxConnections_ = -1;                 // maximum number of active connections for the datasource.
@@ -40,7 +42,8 @@ class ConnectionPoolProperties implements Serializable
   private long maxLifetime_ = 86400000;                 // 24 hours
   private int maxUseCount_ = -1;                        // maximum number of times connection can be used.
   private long maxUseTime_ = -1;                  // maximum usage time, release after this period, -1 for never
-  private boolean useThreads_ = true;                 
+  private boolean useThreads_ = true;
+  private int ccsid_ = -1;                        // CCSID to use when creating connections
 
   transient private PropertyChangeSupport changes_;
 
@@ -78,6 +81,17 @@ class ConnectionPoolProperties implements Serializable
   {
    	return useThreads_;
   }
+
+
+	/**
+	*  Returns the CCSID used for connections in the pool.
+	*  Special value {@link #CCSID_DEFAULT CCSID_DEFAULT} is the default.
+	*  @return     The CCSID.
+	**/
+	public int getCCSID()
+	{
+		return ccsid_;
+	}
 
 
 	/**
@@ -173,6 +187,25 @@ class ConnectionPoolProperties implements Serializable
       throw new NullPointerException("listener");
 
     if (changes_ != null) changes_.removePropertyChangeListener(listener);
+  }
+
+  /**
+   *  Sets the CCSID used for connections in the pool.
+   *  The default value is the system default CCSID as determined by the AS400 class.
+   *  @param ccsid  The CCSID.
+   * Special value {@link #CCSID_DEFAULT CCSID_DEFAULT} is the default.
+   **/
+  public void setCCSID(int ccsid)
+  {
+    String property = "ccsid";
+
+    if (ccsid < CCSID_DEFAULT || ccsid > 65535)
+      throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+
+    int oldValue = ccsid_;
+
+    ccsid_ = ccsid;
+    if (changes_ != null) changes_.firePropertyChange(property, new Integer(oldValue), new Integer(ccsid));
   }
 
   /**

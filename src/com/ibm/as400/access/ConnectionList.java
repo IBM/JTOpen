@@ -147,7 +147,7 @@ final class ConnectionList
    *  @exception ConnectionPoolException If max connection limit is reached.
    **/
   private PoolItem createNewConnection(int service, boolean connect, boolean secure, 
-                                       ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties) //@B2C  //@B4C //@C1C
+                                       ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid) //@B2C  //@B4C //@C1C
   throws AS400SecurityException, IOException, ConnectionPoolException  //@A1C
   {     
     if (log_ != null)
@@ -175,7 +175,7 @@ final class ConnectionList
 
     boolean threadUse = properties_.isThreadUsed();
     // create a new connection
-    PoolItem sys = new PoolItem (systemName_, userID_, poolAuth, secure, locale, service, connect, threadUse, socketProperties);    //@B2C //@B4C //@C1C
+    PoolItem sys = new PoolItem (systemName_, userID_, poolAuth, secure, locale, service, connect, threadUse, socketProperties, ccsid);    //@B2C //@B4C //@C1C
     //@B4D if (connect)
     //@B4D {
     //@B4D 	sys.getAS400Object().connectService(service);
@@ -289,7 +289,7 @@ final class ConnectionList
    *  @exception ConnectionPoolException If a connection pool error occured.
    *  @return The pool item.
    **/
-  PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties)    //@B2C //@B4C //@C1C
+  PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid)    //@B2C //@B4C //@C1C
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
@@ -334,7 +334,7 @@ final class ConnectionList
     if (poolItem == null)
     {
       // didn't find a suitable connection, create a new one
-      poolItem = createNewConnection (0, false, secure, poolListeners, locale, poolAuth, socketProperties); //@B2C //@B4C //@C1C
+      poolItem = createNewConnection (0, false, secure, poolListeners, locale, poolAuth, socketProperties, ccsid); //@B2C //@B4C //@C1C
     }
 
     return poolItem;
@@ -354,7 +354,7 @@ final class ConnectionList
    *  @exception ConnectionPoolException If a connection pool error occured.
    *  @return The pool item.
    **/
-  PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties)  //@B2C //@B4C //@C1C 
+  PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid)  //@B2C //@B4C //@C1C 
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
@@ -426,7 +426,7 @@ final class ConnectionList
 
     if (poolItem == null)
     {
-      poolItem = createNewConnection(service, true, secure, poolListeners, locale, poolAuth, socketProperties);    //@B2C  //@B4C //@C1C
+      poolItem = createNewConnection(service, true, secure, poolListeners, locale, poolAuth, socketProperties, ccsid);    //@B2C  //@B4C //@C1C
     }
 
     return poolItem;

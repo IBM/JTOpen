@@ -18,7 +18,7 @@ package com.ibm.as400.access;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import java.util.Hashtable;
 import java.util.Locale;
-import java.util.Vector;     //Java 2
+import java.util.Vector;
 import java.util.Enumeration;
 import java.io.Serializable;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.beans.PropertyChangeEvent;
 
 
 /**
- *  The AS400ConnectionPool class manages a pool of AS400 objects.  A connection pool is used to 
+ *  Manages a pool of AS400 objects.  A connection pool is used to 
  *  share connections and manage the number of connections a user can have to the system.
  *  <p>
  *  A connection is defined by a systemName, userID, and an optional password and/or service.
@@ -88,6 +88,11 @@ import java.beans.PropertyChangeEvent;
 public class AS400ConnectionPool extends ConnectionPool implements Serializable
 {
   static final long serialVersionUID = 4L;
+
+  /**
+   Indicates that the CCSID used for new connections is the same as the system default CCSID.
+   **/
+  public static final int CCSID_DEFAULT = ConnectionPool.CCSID_DEFAULT;
 
   private transient Hashtable as400ConnectionPool_;
   // Hashtable of lists of connections that have been marked invalid by the user
@@ -496,6 +501,16 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       throw new ConnectionPoolException(ie);
     }
+  }
+
+  /**
+   * Returns the CCSID that is used when creating new connections.
+   * The default value is the system default CCSID as determined by the AS400 class.
+   * @return The CCSID, or {@link #CCSID_DEFAULT CCSID_DEFAULT} if the system default CCSID is used.
+   **/
+  public int getCCSID()
+  {
+    return super.getCCSID();
   }
 
 
@@ -928,11 +943,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     //Get a connection from the list
     if (connect)
     {
-      return connections.getConnection(service, secure, poolListeners_, locale, poolAuth, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
+      return connections.getConnection(service, secure, poolListeners_, locale, poolAuth, socketProperties_, getCCSID()).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
     }
     else
     {
-      return connections.getConnection(secure, poolListeners_, locale, poolAuth, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
+      return connections.getConnection(secure, poolListeners_, locale, poolAuth, socketProperties_, getCCSID()).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
     }
     
   }
@@ -1635,6 +1650,19 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         }
       }
     }
+  }
+
+
+  /**
+   * Sets the CCSID to use when creating new connections.
+   * The default value is the system default CCSID as determined by the AS400 class.
+   * Note: This method only affects the CCSID of newly-created connections.
+   * Existing connections are not affected.
+   * @param ccsid The CCSID to use for connections in the pool, or {@link #CCSID_DEFAULT CCSID_DEFAULT} to indicate that the system default CCSID should be used.
+   **/
+  public void setCCSID(int ccsid)
+  {
+    super.setCCSID(ccsid);
   }
 
 

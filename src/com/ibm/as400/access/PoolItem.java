@@ -49,10 +49,11 @@ class PoolItem
     *  @param threadUse Whether threads should be used to connect to the server.
     *  @param socketProperties The socket properties to assign to the new AS400 object.
     *  If null, this parameter is ignored.
+    *  @param ccsid The CCSID to use for the new connection.
    *
    **/
   PoolItem(String systemName, String userID, AS400ConnectionPoolAuthentication poolAuth, boolean secure, Locale locale, //@C1C
-           int service, boolean connect, boolean threadUse, SocketProperties socketProperties)  //@B4C
+           int service, boolean connect, boolean threadUse, SocketProperties socketProperties, int ccsid)  //@B4C
   throws AS400SecurityException, IOException  //@B4A
   {
     String password = null; //@C1A
@@ -106,46 +107,40 @@ class PoolItem
     }                                                       //@B2A
     else                                                    //@B2A
       locale_ = null;                                   //@B2A @C1C
+
     properties_ = new PoolItemProperties();
-    if ((poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD) && (password!=null))	//Stevers //@C1C 
+    try
     {
-      try
+      if ((poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD) && (password!=null))	//Stevers //@C1C 
       {
-        AS400object_.setGuiAvailable(false);
+          AS400object_.setGuiAvailable(false);
       }
-      catch (PropertyVetoException e)
+      if (!threadUse)                                     //@B4A
       {
+          AS400object_.setThreadUsed(false);          //@B4A
+      }                                                   //@B4A
+      if (socketProperties != null)
+      {
+        AS400object_.setSocketProperties(socketProperties);
       }
-    }
-    if (!threadUse)                                     //@B4A
-    {
-      //@B4A
-      try                                             //@B4A
+      if (ccsid != ConnectionPoolProperties.CCSID_DEFAULT)
       {
-        //@B4A                                                       
-        AS400object_.setThreadUsed(false);          //@B4A
-      }                                               //@B4A
-      catch (java.beans.PropertyVetoException e)      //@B4A
+        AS400object_.setCcsid(ccsid);
+      }
+      if (connect)                                        //@B4A
       {
-        //@B4A
-        //Ignore                                    //@B4A    
-      }                                               //@B4A
-    }                                                   //@B4A
-    if (socketProperties != null)
-    {
-      AS400object_.setSocketProperties(socketProperties);
+        AS400object_.connectService(service);           //@B4A
+      }                                                   //@B4A
+      else                                                //@B4A
+      { // validate the connection
+        AS400object_.connectService(AS400.SIGNON);      //@B4A
+        AS400object_.disconnectService(AS400.SIGNON);   //@B4A
+      }                                                   //@B4A
     }
-    if (connect)                                        //@B4A
+    catch (PropertyVetoException e)  // this should never happen
     {
-      //@B4A
-      AS400object_.connectService(service);           //@B4A
-    }                                                   //@B4A
-    else                                                //@B4A
-    {
-      //@B4A                                                                                                    //@B4A
-      AS400object_.connectService(AS400.SIGNON);      //@B4A
-      AS400object_.disconnectService(AS400.SIGNON);   //@B4A
-    }                                                   //@B4A
+      Trace.log(Trace.ERROR, e);  //Ignore    
+    }
   }
 
 
