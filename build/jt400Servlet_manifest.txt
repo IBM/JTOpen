@@ -2,26 +2,26 @@ Manifest-Version: 1.0
 
 Name: com/ibm/as400/access/
 Specification-Title: IBM Toolbox for Java
-Specification-Version: 6.1.0.10
+Specification-Version: 6.1.0.11
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.access
-Implementation-Version: JTOpen 6.6
+Implementation-Version: JTOpen 6.7
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/util/html/
 Specification-Title: IBM Toolbox for Java
-Specification-Version: 6.1.0.10
+Specification-Version: 6.1.0.11
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.util.html
-Implementation-Version: JTOpen 6.6
+Implementation-Version: JTOpen 6.7
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/util/servlet/
 Specification-Title: IBM Toolbox for Java
-Specification-Version: 6.1.0.10
+Specification-Version: 6.1.0.11
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.util.servlet
-Implementation-Version: JTOpen 6.6
+Implementation-Version: JTOpen 6.7
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/util/html/FileFormInput.class
