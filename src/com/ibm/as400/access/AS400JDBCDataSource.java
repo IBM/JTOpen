@@ -906,6 +906,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "toolbox".
+    *  Note:  Not supported in a connection pool.
     **/
     public String getDriver()
     {
@@ -3946,6 +3947,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "toolbox".
+    *  Note:  Not supported in a connection pool.
     **/
     public void setDriver(String driver)
     {

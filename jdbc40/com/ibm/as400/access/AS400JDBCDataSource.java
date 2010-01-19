@@ -907,6 +907,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "toolbox".
+    *  Note:  Not supported in a connection pool.
     **/
     public String getDriver()
     {
@@ -3947,6 +3948,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "toolbox".
+    *  Note:  Not supported in a connection pool.
     **/
     public void setDriver(String driver)
     {

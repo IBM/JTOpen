@@ -1022,6 +1022,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    <li>"native" (use the IBM Developer Kit for Java JDBC driver)
    </ul>
    The default value is "toolbox".
+   Note:  Not supported in a connection pool.
    **/
   public String getDriver()
   {
@@ -3698,6 +3699,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    <li>"native" (use the IBM Developer Kit for Java JDBC driver)
    </ul>
    The default value is "toolbox".
+   Note:  Not supported in a connection pool.
    **/
   public void setDriver(String driver)
   {
