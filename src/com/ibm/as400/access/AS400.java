@@ -922,26 +922,52 @@ public class AS400 implements Serializable
           {
             Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations. Reason follows:");
             if (!AS400.onAS400) {
-              Trace.log(Trace.DIAGNOSTIC, "onAS400:", AS400.onAS400);
+              Trace.log(Trace.DIAGNOSTIC, "  onAS400:", AS400.onAS400);
             }
             if (mustUseSockets_) {
-              Trace.log(Trace.DIAGNOSTIC, "mustUseSockets:", mustUseSockets_);
+              Trace.log(Trace.DIAGNOSTIC, "  mustUseSockets:", mustUseSockets_);
             }
             if (!systemNameLocal_) {
-              Trace.log(Trace.DIAGNOSTIC, "systemNameLocal:", systemNameLocal_);
+              Trace.log(Trace.DIAGNOSTIC, "  systemNameLocal:", systemNameLocal_);
             }
             if (proxyServer_.length() != 0) {
-              Trace.log(Trace.DIAGNOSTIC, "proxyServer:", proxyServer_);
+              Trace.log(Trace.DIAGNOSTIC, "  proxyServer:", proxyServer_);
             }
-            if (credVault_.getType() != AUTHENTICATION_SCHEME_PASSWORD) {
-              Trace.log(Trace.DIAGNOSTIC, "byteType:", credVault_.getType());
+            int credType = credVault_.getType();
+            if (credType != AUTHENTICATION_SCHEME_PASSWORD) {
+              // Design note: For various reasons (such as lack of requirement, and potential complications when swapping during a token-based session), the Toolbox has never supported staying on-thread when using profile tokens or other non-password based authentication schemes.
+              Trace.log(Trace.DIAGNOSTIC, "  authenticationScheme:", credType +
+                        " ("+credTypeToString(credType)+")");
             }
             if (getNativeVersion() != 2) {
-              Trace.log(Trace.DIAGNOSTIC, "nativeVersion:", getNativeVersion());
+              Trace.log(Trace.DIAGNOSTIC, "  nativeVersion:", getNativeVersion());
             }
           }
           return false;
         }
+    }
+
+    private static final String credTypeToString(int credType)
+    {
+      String result;
+      switch (credType)
+      {
+        case AUTHENTICATION_SCHEME_PASSWORD :
+          result = "password";
+          break;
+        case AUTHENTICATION_SCHEME_GSS_TOKEN :
+          result = "GSS token";
+          break;
+        case AUTHENTICATION_SCHEME_PROFILE_TOKEN :
+          result = "profile token";
+          break;
+        case AUTHENTICATION_SCHEME_IDENTITY_TOKEN :
+          result = "identity token";
+          break;
+        default :
+          result = "unrecognized";
+      }
+      return result;
     }
 
     /**
