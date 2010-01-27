@@ -197,6 +197,8 @@ class ConnectionPoolProperties implements Serializable
    **/
   public void setCCSID(int ccsid)
   {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setCCSID("+ccsid+")");
+
     String property = "ccsid";
 
     if (ccsid < CCSID_DEFAULT || ccsid > 65535)
@@ -213,8 +215,10 @@ class ConnectionPoolProperties implements Serializable
  *  The default value is 300000 milliseconds or 5 minutes.
  *  @param cleanupInterval The number of milliseconds.
  **/
-	public void setCleanupInterval(long cleanupInterval)
-	{
+  public void setCleanupInterval(long cleanupInterval)
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setCleanupInterval("+cleanupInterval+")");
+
     String property = "cleanupInterval";
 
     if (cleanupInterval < 0)
@@ -235,6 +239,8 @@ class ConnectionPoolProperties implements Serializable
  **/
 	public void setMaxConnections(int maxConnections)
 	{
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setMaxConnections("+maxConnections+")");
+
     String property = "maxConnections";
     if (maxConnections < -1)
       throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -255,6 +261,8 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxInactivity(long maxInactivity)
 	{
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setMaxInactivity("+maxInactivity+")");
+
     String property = "maxInactivity";
     if (maxInactivity < -1)
       throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -275,6 +283,8 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxLifetime(long maxLifetime)
 	{
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setMaxLifetime("+maxLifetime+")");
+
     String property = "maxLifetime";
     if (maxLifetime < -1)
       throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -296,6 +306,8 @@ class ConnectionPoolProperties implements Serializable
    **/
   public void setThreadUsed(boolean useThreads, boolean isInUse)
   {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setThreadUsed("+useThreads+","+isInUse+")");
+
     String property = "threadUsed";
     if (isInUse)
       throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
@@ -316,6 +328,8 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxUseCount(int maxUseCount)
 	{
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setMaxUseCount("+maxUseCount+")");
+
     String property = "maxUseCount";
     if (maxUseCount < -1)
       throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -335,6 +349,8 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxUseTime(long maxUseTime)
 	{
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setMaxUseTime("+maxUseTime+")");
+
     String property = "maxUseTime";
     if (maxUseTime < -1)
       throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);

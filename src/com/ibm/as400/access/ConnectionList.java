@@ -115,7 +115,7 @@ final class ConnectionList
    **/
   void close()
   {
-    if (log_ != null)
+    if (log_ != null || Trace.traceOn_)
       log(ResourceBundleLoader.getText("CL_CLEANUP", new String[] {systemName_, userID_} ));
     synchronized (connectionList_) 
     {
@@ -127,7 +127,8 @@ final class ConnectionList
       }
       connectionList_.removeAllElements();   
     }
-    log(ResourceBundleLoader.getText("CL_CLEANUPCOMP"));
+    if (log_ != null || Trace.traceOn_)
+      log(ResourceBundleLoader.getText("CL_CLEANUPCOMP"));
   }
 
 
@@ -150,20 +151,22 @@ final class ConnectionList
                                        ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid) //@B2C  //@B4C //@C1C
   throws AS400SecurityException, IOException, ConnectionPoolException  //@A1C
   {     
-    if (log_ != null)
+    if (log_ != null || Trace.traceOn_)
       log(ResourceBundleLoader.getText("CL_CREATING", new String[] {systemName_, userID_} ));
 
     if ((properties_.getMaxConnections() > 0) && 
         (getConnectionCount() >= properties_.getMaxConnections()))
     {
-      log(ResourceBundleLoader.getText("CL_CLEANUPEXP"));
+      if (log_ != null || Trace.traceOn_)
+        log(ResourceBundleLoader.getText("CL_CLEANUPEXP"));
       // see if anything frees up
       removeExpiredConnections(poolListeners);  
 
       // if that didn't do the trick, try shutting down unused connections
       if (getConnectionCount() >= properties_.getMaxConnections())
       {
-        log(ResourceBundleLoader.getText("CL_CLEANUPOLD"));
+        if (log_ != null || Trace.traceOn_)
+          log(ResourceBundleLoader.getText("CL_CLEANUPOLD"));
         shutDownOldest(); 
         // if not enough connections were freed, throw an exception!
         if (getConnectionCount() >= properties_.getMaxConnections())
@@ -202,7 +205,7 @@ final class ConnectionList
       ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys.getAS400Object(), ConnectionPoolEvent.CONNECTION_CREATED); //@A5C
       poolListeners.fireConnectionCreatedEvent(poolEvent);  
     }
-    if (log_ != null)
+    if (log_ != null || Trace.traceOn_)
     {
       log(ResourceBundleLoader.getText("CL_CREATED", new String[] {systemName_, userID_} ));
     }
@@ -372,7 +375,8 @@ final class ConnectionList
               && ((item.getLocale() == null && locale == null)         //@B2A //@C1C
                   || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale)))) //@B2A //@C1C
           {
-            Trace.log(Trace.INFORMATION, "Using already connected connection");
+            if (Trace.traceOn_)
+              log(Trace.INFORMATION, "Using already connected connection");
             poolItem = item;
             break;
           }
@@ -381,7 +385,8 @@ final class ConnectionList
                    && ((item.getLocale() == null && locale == null)     //@B2A //@C1C
                        || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))     //@B2A //@C1C
           {
-            Trace.log(Trace.INFORMATION, "Using already connected connection");
+            if (Trace.traceOn_)
+              log(Trace.INFORMATION, "Using already connected connection");
             poolItem = item;
             break;
           }
@@ -402,7 +407,8 @@ final class ConnectionList
                 && ((item.getLocale() == null && locale == null)  //@B2A //@C1C
                     || (locale != null && item.getLocale().equals(locale))))      //@B2A //@C1C
             {
-              Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
+              if (Trace.traceOn_)
+                log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
               poolItem = item;                  
               break;
             }
@@ -410,7 +416,8 @@ final class ConnectionList
                      && ((item.getLocale() == null && locale == null)     //@B2A //@C1C
                          || (locale != null && item.getLocale().equals(locale))))     //@B2A //@C1C
             {
-              Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
+              if (Trace.traceOn_)
+                log(Trace.INFORMATION, "Must not have found a suitable connection, using first available.");
               poolItem = item;                  
               break;
             }
@@ -472,12 +479,31 @@ final class ConnectionList
    *
    * @param   msg  The message to log.
    **/
-  private void log(String msg)
+  private final void log(String msg)
   {
-    if (Trace.isTraceOn())
+    if (Trace.traceOn_)
       Trace.log(Trace.INFORMATION, msg);
     if (log_ != null)
       log_.log(msg);
+  }
+
+
+  /**
+   * Log the message to the log.
+   *   
+   * @param   category  The trace category.
+   * @param   msg  The message to log.
+   **/ 
+  private final void log(int category, String msg)
+  {
+    if (Trace.traceOn_ && Trace.isTraceOn(category))
+    {
+      Trace.log(category, msg);
+      if (log_ != null)
+      {
+        log_.log(msg);
+      }
+    }
   }
 
   // Not used.
@@ -489,7 +515,7 @@ final class ConnectionList
   //   **/
   //  private void log(Exception exception, String msg)
   //  {
-  //    if (Trace.isTraceOn())
+  //    if (Trace.traceOn_)
   //      Trace.log(Trace.ERROR, msg, exception);
   //    if (log_ != null)
   //      log_.log(msg, exception);
@@ -515,44 +541,44 @@ final class ConnectionList
     AS400 newAS400Item = newItem.getAS400Object();
     if (oldAS400Item.isConnected(AS400.FILE))
     {
-      Trace.log(Trace.INFORMATION, "replacing connection to service FILE");
+      log(Trace.INFORMATION, "Replacing connection to service FILE.");
       newAS400Item.connectService(AS400.FILE);
     }
     if (oldAS400Item.isConnected(AS400.PRINT))
     {
-      Trace.log(Trace.INFORMATION, "replacing connection to service PRINT");         
+      log(Trace.INFORMATION, "Replacing connection to service PRINT.");         
       newAS400Item.connectService(AS400.PRINT);
     }
     if (oldAS400Item.isConnected(AS400.COMMAND))
     {
-      Trace.log(Trace.INFORMATION, "replacing connection to service COMMAND");
+      log(Trace.INFORMATION, "Replacing connection to service COMMAND.");
       newAS400Item.connectService(AS400.COMMAND);
     }
     if (oldAS400Item.isConnected(AS400.DATAQUEUE))
     {
-      Trace.log(Trace.INFORMATION, "replacing connection to service DATAQUEUE");
+      log(Trace.INFORMATION, "Replacing connection to service DATAQUEUE.");
       newAS400Item.connectService(AS400.DATAQUEUE);        
     }
     if (oldAS400Item.isConnected(AS400.DATABASE))
     {
-      Trace.log(Trace.INFORMATION, "replacing connection to service DATABASE");
+      log(Trace.INFORMATION, "Replacing connection to service DATABASE.");
       newAS400Item.connectService(AS400.DATABASE);        
     }
     if (oldAS400Item.isConnected(AS400.RECORDACCESS))
     {
-      Trace.log(Trace.INFORMATION, "replacing connection to service RECORDACCESS");
+      log(Trace.INFORMATION, "Replacing connection to service RECORDACCESS.");
       newAS400Item.connectService(AS400.RECORDACCESS); 
     }
     if (oldAS400Item.isConnected(AS400.CENTRAL))
     {
-      Trace.log(Trace.INFORMATION, "replacing connection to service CENTRAL");
+      log(Trace.INFORMATION, "Replacing connection to service CENTRAL.");
       newAS400Item.connectService(AS400.CENTRAL);
     }
   }
 
 
   /**
-   * Removes any connection that has exceeded its time limits or usage count limits.
+   * Removes any connection that has exceeded the time limits or usage count limits.
    *
    * @param poolListeners The pool listeners to which events will be fired.
    * @exception AS400SecurityException If a security error occured.
@@ -576,11 +602,11 @@ final class ConnectionList
                    (p.getInUseTime() >= properties_.getMaxUseTime()))
           {
             // Limit exceeded, so disconnect and remove the connection.
-            if (log_ != null) {
+            if (log_ != null || Trace.traceOn_) {
               log(ResourceBundleLoader.getText(EXPIRED_MAX_USE_TIME, new String[] {systemName_, userID_} ));
             }
             if (Trace.traceOn_) {
-              Trace.log(Trace.WARNING, "Disconnecting an in-use connection because it has exceeded its maximum use time limit.");
+              log(Trace.WARNING, "Disconnecting pooled connection (currently in use) because it has exceeded the maximum use time limit of " + properties_.getMaxUseTime() + " milliseconds.");
             }
             p.getAS400Object().disconnectAllServices();
             connectionList_.removeElementAt(i);
@@ -601,8 +627,11 @@ final class ConnectionList
                  (p.getInactivityTime() >= properties_.getMaxInactivity()))
         {
           // Limit exceeded, so disconnect and remove the connection.
-          if (log_ != null) {
+          if (log_ != null || Trace.traceOn_) {
             log(ResourceBundleLoader.getText(EXPIRED_INACTIVE, new String[] {systemName_, userID_} ));
+          }
+          if (Trace.traceOn_) {
+            log(Trace.DIAGNOSTIC, "Disconnecting pooled connection (not currently in use) because it has exceeded the maximum inactivity time limit of " + properties_.getMaxInactivity() + " milliseconds.");
           }
           p.getAS400Object().disconnectAllServices();
           connectionList_.removeElementAt(i);
@@ -618,8 +647,11 @@ final class ConnectionList
                  (p.getUseCount() >= properties_.getMaxUseCount()))
         {
           // Limit exceeded, so disconnect and remove the connection.
-          if (log_ != null) {
+          if (log_ != null || Trace.traceOn_) {
             log(ResourceBundleLoader.getText(EXPIRED_MAX_USE_COUNT, new String[] {systemName_, userID_} ));
+          }
+          if (Trace.traceOn_) {
+            log(Trace.DIAGNOSTIC, "Disconnecting pooled connection (not currently in use) because it has exceeded the maximum use count of " + properties_.getMaxUseCount());
           }
           p.getAS400Object().disconnectAllServices();
           connectionList_.removeElementAt(i);             
@@ -635,8 +667,11 @@ final class ConnectionList
                   (p.getLifeSpan() >= properties_.getMaxLifetime()))
         {
           // Limit exceeded, so disconnect and remove the connection.
-          if (log_ != null) {
+          if (log_ != null || Trace.traceOn_) {
             log(ResourceBundleLoader.getText(EXPIRED_MAX_LIFETIME, new String[] {systemName_, userID_} ));
+          }
+          if (Trace.traceOn_) {
+            log(Trace.DIAGNOSTIC, "Disconnecting pooled connection (not currently in use) because it has exceeded the maximum lifetime limit of " + properties_.getMaxLifetime() + " milliseconds.");
           }
           p.getAS400Object().disconnectAllServices();
           connectionList_.removeElementAt(i);           
@@ -675,10 +710,10 @@ final class ConnectionList
         connectionIsExpired = true;
       }
     }
-    // Now that we're out of the sync block, disconnect the connection.
+    // Now that we're out of the sync block (and the connection has been removed from connectionList_), disconnect the connection.
     if (connectionIsExpired)
     {
-      if (log_ != null && expirationStatus != null)
+      if ((log_ != null || Trace.traceOn_) && expirationStatus != null)
       {
         log(ResourceBundleLoader.getText(expirationStatus, new String[] {systemName_, userID_} ));
       }
@@ -686,6 +721,9 @@ final class ConnectionList
       {
         ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(poolItem.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED);
         poolListeners.fireConnectionExpiredEvent(poolEvent);  
+      }
+      if (Trace.traceOn_) {
+        log(Trace.DIAGNOSTIC, "Disconnecting pooled connection (not currently in use) because it has expired.");
       }
       poolItem.getAS400Object().disconnectAllServices();
     }
@@ -696,7 +734,7 @@ final class ConnectionList
 
   //@A4A
   /**
-  *  New method to work with remove() in AS400ConnectionPool.
+  *  New method to work with AS400ConnectionPool.removeFromPool().
   **/
   boolean removeUnusedElements()
   {
@@ -717,6 +755,9 @@ final class ConnectionList
           PoolItem item = (PoolItem)connectionList_.elementAt(numToCheck);
           if (!item.isInUse())
           {
+            if (Trace.traceOn_) {
+              log(Trace.DIAGNOSTIC, "Disconnecting pooled connection (not currently in use) because removeFromPool() was called.");
+            }
             item.getAS400Object().disconnectAllServices();
             connectionList_.removeElementAt(numToCheck);   
           }
@@ -765,7 +806,7 @@ final class ConnectionList
    **/
   void shutDownOldest()
   {
-    if (log_ != null)
+    if (log_ != null || Trace.traceOn_)
       log(ResourceBundleLoader.getText("CL_REMOLD", new String[] {systemName_, userID_} ));
     int oldest = 0;
     synchronized (connectionList_)
@@ -795,9 +836,12 @@ final class ConnectionList
           PoolItem item = (PoolItem)connectionList_.elementAt(oldest);      
           if (!item.isInUse())
           {
+            if (Trace.traceOn_) {
+              log(Trace.DIAGNOSTIC, "Disconnecting pooled connection (not currently in use) during removal of oldest unallocated connections.");
+            }
             item.getAS400Object().disconnectAllServices();
             connectionList_.removeElementAt(oldest);   
-            if (log_ != null)
+            if (log_ != null || Trace.traceOn_)
               log(ResourceBundleLoader.getText("CL_REMOLDCOMP", new String[] {systemName_, userID_} ));
           }
         }//end if (connectionList_.size() > 0)	
