@@ -5,11 +5,11 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2009 International Business Machines Corporation and
+Copyright (C) 1997-2010 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: September 8, 2009
+Last updated: January 29, 2010
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
@@ -23,6 +23,7 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 IBM Toolbox for Java web site:
 <A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
+<!-- On 2010-01-19: cvs log -rJTOpen_6_6:JTOpen_6_7 -N -d>2009-08-27 -->
 <!-- On 2009-08-25: cvs log -rJTOpen_6_5_1:JTOpen_6_6 -N -d>2009-05-05 -->
 <!-- On 2009-05-05: cvs log -rJTOpen_6_4:JTOpen_6_5 -N -d>2008-12-08 -->
 <!-- On 2008-12-08: cvs log -rJTOpen_6_3:JTOpen_6_4 -N -d>2008-08-13 -->
@@ -36,16 +37,17 @@ Calendar, or GregorianCalendar. Some of these methods assume that the client
 Java application is running in the same time zone as the IBM i server.
 This behavior is long-standing, and will be corrected in a future Toolbox release.
 
-The constructor for the main class for RFML (RecordFormatDocument)
-fails on Sun's 1.4.2 JVM, and when running on IBM i using the native 1.4.2 JVM,
+The constructor for the RFML component's primary class (RecordFormatDocument)
+fails on Sun's 1.4.2 JVM and on IBM's "Classic" i5/OS 1.4.2 JVM,
 with the following error:
-  "org.xml.sax.SAXNotRecognizedException:
-   Feature: http://apache.org/xml/features/continue-after-fatal-error"
+    org.xml.sax.SAXNotRecognizedException
+    Feature: http://apache.org/xml/features/continue-after-fatal-error
 </PRE>
 
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#67">Fixes and enhancements in JTOpen 6.7</A><BR>
 <A HREF="#66">Fixes and enhancements in JTOpen 6.6</A><BR>
 <A HREF="#65_1">Fixes and enhancements in JTOpen 6.5.1</A><BR>
 <A HREF="#65">Fixes and enhancements in JTOpen 6.5</A><BR>
@@ -73,6 +75,61 @@ with the following error:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="67">Fixes and enhancements in JTOpen 6.7</A> <i>(released 2010-02-05)</i></H3>
+<PRE>
+- <i>Various:</i> Added or improved error messages and trace messages.
+- <i>Various:</i> Corrected html tags.
+- <i>Various:</i> Fixes for potential bugs identified by static analysis.
+- <i>Various:</i> Javadoc enhancements.  Improved code comments.
+- Admin: Declared class SystemProperties as 'public', to allow access from test drivers and other Toolbox packages.
+- Connection pool: Added trace message to indicate maintenance daemon ending.
+- Connection pool: In ConnectionPool and AS400ConnectionPool, added new methods setCCSID() and getCCSID().
+- Connection pool: Improved tracing of pool management events.
+- Connection: Added method getUserId(forceRefresh) to AS400.
+- Connection: Added new method: AS400.connectToPort().
+- Connection: Ensure that failure during attempt to connect, doesn't leave connection in inconsistent state.
+- Connection: In AS400 class, improved tracing of authentication scheme.
+- Connection: In AS400 class, loosen definition of 'numeric profile name' when implicitly prepending 'Q' to profile name.
+- Connection: In AS400ThreadedServer, if SocketException during disconnect(), trace a 'diagnostic' instead of an 'error'.
+- Data conversion: In CharConverter, added checks for null-valued arguments.
+- Date conversion: If unable to determine server time zone, assume same as client.
+- IFS: Added new constructor IFSFile(IFSFile directory,String filename).
+- IFS: In IFSFileDescriptor, changed lock object from a Boolean to an Object.
+- JDBC: Change XML trim of declaration to match Native driver.
+- JDBC: Fix Array max size of element data.
+- JDBC: Fix SQL array and non-array types in same output parm procedure.
+- JDBC: Fix SQL array of decimals to handle null elements.
+- JDBC: Fix XML DOM source for non-locators.
+- JDBC: Fix XML declaration trim when using SQLXML interface.
+- JDBC: Fix XML offset of stream.
+- JDBC: Fix XML UTF-8 chars of more than 1 byte in length.
+- JDBC: Fix bugs in SQL arrays when elements are null or length of zero.
+- JDBC: Fix for array of dates.
+- JDBC: Fix setting the binary stream once and re-executing SQL statement.
+- JDBC: Fix update of XML in result set.
+- JDBC: In AS400JDBCArrayResultSet, fix for missing variable.
+- JDBC: In AS400JDBCResultSet, fix XML update after update to null value.
+- JDBC: Make JDSQLTokenizer eligible for garbage collection after use.
+- JDBC: Updated 'database name' property description.
+- JDBC: XML ascii stream fix.
+- JDBC: XML declaration fix.
+- JDBC: Zero out varchars of length less than 256 for RLE compression.
+- NetServer: Corrected commitChanges(fileShare) to not assume that the share pathname is specified in Unicode.
+- Object description: In ObjectDescription, added new constructor. Consolidated data members.
+- PCML: Eliminated StringIndexOutOfBoundsException in PcmlMessageLog.
+- Permission: Added a clone() method to UserPermission.
+- Permission: Correctly handle embedded quotes in paths.
+- Permission: Eliminated 'Cloneable' designation on Permission class.
+- Product license: Added a readObj() method to ProductLicense.
+- Product: Product.isInstalled(): If product isn't installed, avoid logging CPF0C1F.
+- QSYS object types: Protect internal representation by returning copy of array.
+- QSYSObjectPathName: Added new method: toQualifiedObjectName().
+- Save file: Added equals() and toString() methods to SaveFileEntry.
+- Trace: Added method toHexString(byte) to Trace.
+- Trace: Added support for dynamic tracing.
+</PRE>
 
 <HR>
 <H3><A NAME="66">Fixes and enhancements in JTOpen 6.6</A> <i>(released 2009-09-11)</i></H3>
@@ -105,7 +162,7 @@ with the following error:
 - JDBC: Fix AS400JDBCResultSet.updateSQLXML to handle null values.
 - JDBC: Fix JDBC 4.0 XML internal encoding check.
 - JDBC: Fix SQL Array output parm index.
-- JDBC: Fix for XML with no declaration to default to utf-8.
+- JDBC: Fix for XML with no declaration to default to UTF-8.
 - JDBC: Fix for setting an SQLXML object into a Blob/Clob column.
 - JDBC: Fix in CallableStatement.getArray method to support SQL Arrays.
 - JDBC: Fix metadata statement leak.
@@ -126,7 +183,7 @@ with the following error:
 - JDBC: Trim XML encoding when PS.setString() is used.
 - JDBC: XML binary stream fix to not trim off XML declaration.
 - JDBC: XML double-byte/single-byte when CCSID does not match conversion bug fix.
-- JDBC: XML fix to account for byte order mark in utf-15be string.
+- JDBC: XML fix to account for byte order mark in UTF-15be string.
 - JarMaker: Added component: PCML. Rearranged constants for better readability. Renamed some private constants.
 - Object description: Improved performance of refresh(). Exploit QUSROBJD format OBJD0100.
 - Permission: Added new Permission constructor with 'followLinks' parameter. Added isFollowSymbolicLinks().
