@@ -122,6 +122,7 @@ implements Enumeration
         restartID =  file_.getListFiles0LastRestartID();                        //@D5A
       }                                                                         //@D5A
       while ((block.length == 0) && (file_.getListFiles0LastNumObjsReturned() > 0)); //@D5A
+
       if (block.length == 0) block = null;  // Never return an empty list.
       return block;
     }
@@ -161,9 +162,40 @@ implements Enumeration
         else
         {
           // Load the next block from the system.
-          contentsPending_ = loadPendingBlock(file_.getListFiles0LastRestartID());// @C3c @D5C
+          byte[] restartID = file_.getListFiles0LastRestartID();
+
+          // See if a zero-valued restartID was returned.
+          if (isAllZeros(restartID))
+          {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC,
+                                          "IFSFileEnumeration::getNextBlock(): A zero-valued restartID was returned.");
+
+            // Try setting the last filename returned, as the "restart name" for the next request.
+            // Note that this is the only circumstance where the File Server supports "restart by name" for file systems other than QSYS and QDLS.
+            if (contents_ != null && contents_.length != 0) {
+              String restartName = contents_[contents_.length-1].getName();
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC,
+                                            "IFSFileEnumeration::getNextBlock(): Specifying restartName '"+restartName+"' for next request.");
+              contentsPending_ = loadPendingBlock(restartName);
+              return;
+            }
+            else {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC,
+                                            "IFSFileEnumeration::getNextBlock(): No restartName available from prior reply.");
+            }
+          }
+          contentsPending_ = loadPendingBlock(restartID);// @C3c @D5C
         }
       }
+    }
+
+    private static final boolean isAllZeros(byte[] arry)
+    {
+      if (arry == null || arry.length == 0) return false;
+      for (int i=0; i<arry.length; i++) {
+        if (arry[i] != (byte)0) return false;
+      }
+      return true;
     }
 
 
