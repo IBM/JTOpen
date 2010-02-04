@@ -119,6 +119,11 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
             sm.getClass().getMethod(
                                    permissionCheckMethodName_, new Class[] {Class.forName("java.security.Permission")});
          }
+         catch ( java.security.AccessControlException acf )
+         {
+            Trace.log(Trace.WARNING,
+                      "Access to permission class is denied by SecurityManager, JAAS permissions will not be checked.", acf);
+         }
          catch ( ClassNotFoundException cnf )
          {
             Trace.log(Trace.WARNING,
