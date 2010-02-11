@@ -95,8 +95,10 @@ with the following error:
 - Connection: In AS400ThreadedServer, if SocketException during disconnect(), trace a 'diagnostic' instead of an 'error'.
 - Data conversion: In CharConverter, added checks for null-valued arguments.
 - Date conversion: If unable to determine server time zone, assume same as client.
+- Date conversion: Added more complete bidi support.
 - IFS: Added new constructor IFSFile(IFSFile directory,String filename).
 - IFS: In IFSFileDescriptor, changed lock object from a Boolean to an Object.
+- JDBC: Added more complete bidi support.
 - JDBC: Change XML trim of declaration to match Native driver.
 - JDBC: Fix Array max size of element data.
 - JDBC: Fix SQL array and non-array types in same output parm procedure.
@@ -926,7 +928,7 @@ with the following error:
 - CommandHelpRetriever: Set charset to UTF-8 instead of ISO-8859-1.
 - CommandHelpRetriever: Javadoc for generateHTML() now indicates the charset is UTF-8.
 - Data conversion: Added constant BidiStringType.NONE.
-- Data conversion: Fixed possible thread-safety issue with Bidi conversion.
+- Data conversion: Fixed possible thread-safety issue with bidi conversion.
 - Data conversion: Various fixes and enhancements related to bidi conversion.
 - Data conversion: Added class BidiConversionProperties.
 - Documentation: Various javadoc fixes, additions, and enhancements.
