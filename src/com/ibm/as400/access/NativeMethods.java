@@ -16,12 +16,12 @@ package com.ibm.as400.access;
 // The NativeMethods class is used to call the native methods for the IBM Toolbox for Java Native Classes.
 public class NativeMethods
 {
-    static boolean paseLibLoaded = false; //@leak
+    static boolean paseLibLoaded = false;
     static
     {
         // Check to see which version of native code to use                 //@pase1
         String osVersion = System.getProperty("os.version");                //"V5" or lower we do not try to load pase
-        if ((System.getProperty("java.vm.name").indexOf("Classic VM") < 0)  
+        if ((System.getProperty("java.vm.name").indexOf("Classic VM") < 0)
                 && (osVersion.indexOf("V5") == -1) )                        //@pase1
         {                                                                   //@pase1
             try{                                                            //@pase1
@@ -31,14 +31,14 @@ public class NativeMethods
                     //load 64 bit version
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native PASE methods for 64bit libs if available");//@pase1
                     System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase64.so");  //@pase1
-                    paseLibLoaded = true; //@leak
+                    paseLibLoaded = true;
 
                 } else                                                          //@pase1
                 {                                                               //@pase1
                     //load 32 bit version
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native PASE methods for 32bit libs if available");//@pase1
-                    System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase32.so");   
-                    paseLibLoaded = true; //@leak
+                    System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase32.so");
+                    paseLibLoaded = true;
                 }                                                               //@pase1
             }catch(Throwable t)                                                 //@pase1
             {                                                                   //@pase1
@@ -46,11 +46,11 @@ public class NativeMethods
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, t);                  //@pase1
             }                                                                   //@pase1
 
-        }    
-        
+        }
+
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native non-PASE methods ");  //@pase1
         try{
-            System.load("/QSYS.LIB/QYJSPART.SRVPGM");  //if j9, then socket functions in this lib are overridden        
+            System.load("/QSYS.LIB/QYJSPART.SRVPGM");  //if j9, then socket functions in this lib are overridden
         } catch(Throwable e)
         {
                 Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
@@ -75,13 +75,22 @@ public class NativeMethods
         }
     }
 
+    // Note: The socketPaseXxx() methods deal with a 2-part descriptor.
     static native int socketAvailable(int sd) throws NativeException;
+    static native int socketPaseAvailable(int sd, int sd2) throws NativeException;
+
     static native int socketCreate(int serverNumber) throws NativeException;
-    static native int[] socketPaseCreate(int serverNumber) throws NativeException;  //@leak returns 2 descriptors
+    static native int[] socketPaseCreate(int serverNumber) throws NativeException;  // returns 2 descriptors
+
     static native void socketClose(int sd) throws NativeException;
-    static native void socketPaseClose(int sd, int sd2) throws NativeException; //@leak
+    static native void socketPaseClose(int sd, int sd2) throws NativeException;
+
     static native int socketRead(int sd, byte b[], int off, int len) throws NativeException;
+    static native int socketPaseRead(int sd, int sd2, byte b[], int off, int len) throws NativeException;
+
     static native void socketWrite(int sd, byte b[], int off, int len) throws NativeException;
+    static native void socketPaseWrite(int sd, int sd2, byte b[], int off, int len) throws NativeException;
+
     static native byte[] getUserId() throws NativeException;
     static native byte[] getUserInfo(byte[] cSeed, byte[] sSeed) throws NativeException;
     static native byte[] runCommand(byte[] command, int ccsid, int messageOption) throws NativeException;

@@ -21,7 +21,7 @@ import java.net.SocketException;
 
 class SocketContainerUnix2 extends SocketContainer
 {
-    private int[] sd_; //@leak [0] is normal descriptor, [1] is needed for close()
+    private int[] sd_; // [0] is normal descriptor, [1] is additionally needed for close()
     private boolean closed_ = false;
     private Object lock_ = new Object();
 
@@ -56,66 +56,79 @@ class SocketContainerUnix2 extends SocketContainer
         {
             serverNumber = 8;
         }
+        else
+        {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized serviceName: " + serviceName + ". Defaulting to as-central");
+        }
         try
         {
-            /*  A little background:  From jt400Native.jar (NativeMethod.java) 
-            we first load qyjspase32/64 followed load of QYJSPART.SRVPGM.
-            qyjspase contains functions with same signature as qyjspart.  
-            So these methods are used in a jni call since they were loaded first.
-            We had a leak since socketPair creates two descriptors, 
+            /*  A little background:  From jt400Native.jar (NativeMethod.java)
+            we first load qyjspase32/64 followed by load of QYJSPART.SRVPGM.
+            qyjspase contains functions with same signature as qyjspart.
+            So these methods are used in a JNI call since they were loaded first.
+            (However, load order can't be relied upon when predicting which of
+            same-named methods will be found and used at run-time.)
+            We had a leak since socketPair creates two descriptors,
             but we were only closing one of them.
-            Since we need to close both socketPair descriptors, we ended 
+            Since we need to close both socketPair descriptors, we ended
             up having to create a new method with new signature to return
-            both socket descriptors.  And a corresponding socketPaseClose 
+            both socket descriptors.  And a corresponding socketPaseClose
             method was added.  We cannot just change the existing function
-            signatures to handle two descriptors since if calling from old 
-            jt400Native.jar they will fail, but other methods will still 
-            be accessable, but will not work with ILE sockets.  So the 
-            solution is to use all or none of the pase socket related methods.
-            (create, close, read, write).  (ie.  We cannot allow just 
+            signatures to handle two descriptors, since if calling from old
+            jt400Native.jar they will fail, but other methods will still
+            be accessable, but will not work with ILE sockets.  So the
+            solution is to use all or none of the PASE socket related methods.
+            (create, close, read, write).  (ie.  We cannot allow just
             socketCreate() to fail and thus use old method (in qyjspntv.C), followed
-            by calls to pase socketRead/Write since they fail).
-            Also note that we want to be able to run with the old jt400Native 
-            jar with the new qyjspase lib.  To do this, we have to add a try/catch
+            by calls to PASE socketRead/Write since they fail.)
+            Also note that we want to be able to run with the old jt400Native
+            jar with the new qyjspaseXX lib.  To do this, we have to add a try/catch
             in java com.ibm.as400.access.SocketContainerUnix2 to first try
             the new socketPaseCreate() function and if it fails, then catch the exception
-            and try the old function signature (ie socketCreate()).  
+            and try the old function signature (ie socketCreate()).
             If socketPaseCreate() fails, we cannot just move on down to the socketCreate()
-            in qyjspart since then socketRead/Write would fail (no mixing of ile with pase).  
+            in qyjspart since then socketRead/Write would fail (no mixing of ILE with PASE).
             So this is why we have left the socketCreate/Close functions
             here in this file and just added socketPaseCreate/Close with the needed updates.
             */
-                        
-            if(NativeMethods.paseLibLoaded)                         //@leak
+
+            boolean paseCallSucceeded = false;
+            if(NativeMethods.paseLibLoaded)
             {
                 try{
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseCreate()");//@leak
-                    
-                    sd_ = NativeMethods.socketPaseCreate(serverNumber);      //@leak //socketPaseCreate in qyjspase
-                }catch(NativeException ne){                                  //@leak
-                    //got here because of actual exception creating socket on host.
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseCreate()");//@leak
-                    throw ne;                                                //@leak
-                }catch(Throwable e){                                         //@leak
-                    //Here we actually get java.lang.UnsatisfiedLinkError which is subclass of Throwable
-                    //got here is using new jt400Native.jar with old qyjspase32.so lib
-                    //so we just call the old method in qyjspase32.so
-                    if (Trace.traceOn_)
-                    {
-                        Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseCreate()");//@leak
-                        Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketCreate()");//@leak
-                    }
-                    sd_ = new int[1];                                    //@leak
-                    sd_[0] = NativeMethods.socketCreate(serverNumber);   //@leak //socketCreate in qyjspase
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseCreate()");
+
+                    sd_ = NativeMethods.socketPaseCreate(serverNumber); //socketPaseCreate in qyjspase
+                    paseCallSucceeded = true;
+
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Socket descriptor:", Integer.toString(sd_[0]));
+                }
+                catch(NativeException ne){
+                    // Got here because of actual exception creating socket on host.
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseCreate()");
+                    throw ne;
+                }
+                catch(UnsatisfiedLinkError e){
+                    // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                    // so we just call the generic-named method in qyjspaseXX.so
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "UnsatisfiedLinkError while calling NativeMethods.socketPaseCreate()");
+                }
+                catch(Throwable e){
+                    // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                    // so we just call the generic-named method in qyjspaseXX.so
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseCreate()", e);
                 }
             }
-            else
-            {                                                        //@leak
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling non-pase NativeMethods.socketPaseCreate()");//@leak
-              
-                sd_ = new int[1];                                    //@leak
-                sd_[0] = NativeMethods.socketCreate(serverNumber);   //@leak //socketCreate in qyjspart
-            }                                                        //@leak
+
+            if (!paseCallSucceeded)  // try calling the generic-named method
+            {
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketCreate()");
+
+                sd_ = new int[1];
+                sd_[0] = NativeMethods.socketCreate(serverNumber); //socketCreate in qyjspart
+
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Socket descriptor:", Integer.toString(sd_[0]));
+            }
         }
         catch (NativeException e)
         {
@@ -129,44 +142,49 @@ class SocketContainerUnix2 extends SocketContainer
         {
             try
             {
-                if(NativeMethods.paseLibLoaded)               //@leak
-                {                                             //@leak
-                    try{                                      //@leak
-                        if(sd_.length < 2)                    //@leak
-                            throw new Throwable();            //@leak
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseClose()");//@leak
-                        
-                        NativeMethods.socketPaseClose(sd_[0], sd_[1]); //@leak
-                    }catch(NativeException ne){                        //@leak
-                        //got here because of actual exception calling close on host.
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseClose()");//@leak
-                        throw ne;                                      //@leak
-                    }catch(Throwable e){                               //@leak
-                        //Here we actually get java.lang.UnsatisfiedLinkError which is subclass of Throwable
-                        //got here is using new jt400Native.jar with old qyjspase32.so lib
-                        //so we just call the old method in qyjspase32.s
-                        if (Trace.traceOn_)
-                        {
-                            Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseClose()");//@leak
-                            Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketClose()");//@leak
+                boolean paseCallSucceeded = false;
+                if(NativeMethods.paseLibLoaded)
+                {
+                    try{
+                        if (sd_.length < 2) {
+                          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Descriptor is not paired:", (sd_.length == 0 ? "null" : Integer.toString(sd_[0])));
+                          throw new Throwable();
                         }
-                        NativeMethods.socketClose(sd_[0]);    //@leak
-                    }                                         //@leak 
-                }                                             //@leak
-                else                                          //@leak
-                {                                             //@leak
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling non-pase NativeMethods.socketClose()");//@leak
-                    NativeMethods.socketClose(sd_[0]);        //@leak
-                }                                             //@leak
-              
-                closed_ = true;
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+")");
+
+                        NativeMethods.socketPaseClose(sd_[0], sd_[1]);
+                        paseCallSucceeded = true;
+                    }
+                    catch(NativeException ne){
+                        // Got here because of actual exception calling 'close' on host.
+                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                      throw ne;
+                    }
+                    catch(UnsatisfiedLinkError e){
+                        // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                        // so we just call the generic-named method in qyjspaseXX.so
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "UnsatisfiedLinkError while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                    }
+                    catch(Throwable e){
+                        // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                        // so we just call the generic-named method in qyjspaseXX.so
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")", e);
+                    }
+                }
+
+                if (!paseCallSucceeded)  // try calling the generic-named method
+                {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketClose("+Integer.toString(sd_[0])+")");
+
+                    NativeMethods.socketClose(sd_[0]);
+                }
             }
             catch (NativeException e)
             {
                 throw createSocketException(e);
             }
             finally //@socket2
-            { 
+            {
                 sd_ = null; //@socket2
                 closed_ = true; //@socket2 //add this so if close fails, we don't keep trying to close a broken socket
             }
@@ -198,10 +216,10 @@ class SocketContainerUnix2 extends SocketContainer
     {
         try
         {
-            Trace.log(Trace.ERROR, "Error with unix domain socket, errno: " + e.errno_, e);
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error with unix domain socket, errno: " + e.errno_, e);
             int jobCCSID; //@socket2
             if(NativeMethods.paseLibLoaded)
-                jobCCSID = 367; //pase is ascii
+                jobCCSID = 367; // PASE is ascii
             else
                 jobCCSID = JobCCSIDNative.retrieveCcsid();
 
@@ -232,13 +250,51 @@ class SocketContainerUnix2 extends SocketContainer
             }
             try
             {
-                int n = NativeMethods.socketRead(sd_[0], b, off, length);  //@leak
-                if (n <= 0)
+              int n = 0;
+              boolean paseCallSucceeded = false;
+              if(NativeMethods.paseLibLoaded)
+              {
+                try
                 {
-                    eof_ = true;
-                    return -1;
+                  if (sd_.length < 2) {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Descriptor is not paired:", (sd_.length == 0 ? "null" : Integer.toString(sd_[0])));
+                    throw new Throwable();
+                  }
+                  //if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseRead("+Integer.toString(sd_[0])+")");
+
+                  n = NativeMethods.socketPaseRead(sd_[0], sd_[1], b, off, length);
+                  paseCallSucceeded = true;
                 }
-                return n;
+                catch(NativeException ne) {
+                  // Got here because of actual exception calling 'read' on host.
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseRead("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                  throw ne;
+                }
+                catch(UnsatisfiedLinkError e) {
+                  // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                  // so we just call the generic-named method in qyjspaseXX.so
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "UnsatisfiedLinkError while calling NativeMethods.socketPaseRead("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                }
+                catch(Throwable e) {
+                  // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                  // so we just call the generic-named method in qyjspaseXX.so
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseRead("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")", e);
+                }
+              }
+
+              if (!paseCallSucceeded)  // try calling the generic-named method
+              {
+                if (Trace.traceOn_ && NativeMethods.paseLibLoaded) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketRead("+Integer.toString(sd_[0])+")");
+
+                n = NativeMethods.socketRead(sd_[0], b, off, length);
+              }
+
+              if (n <= 0)
+              {
+                eof_ = true;
+                return -1;
+              }
+              return n;
             }
             catch (NativeException e)
             {
@@ -288,7 +344,46 @@ class SocketContainerUnix2 extends SocketContainer
             {
                 try
                 {
-                    return NativeMethods.socketAvailable(sd_[0]); //@leak
+                  int result = 0;
+                  boolean paseCallSucceeded = false;
+                  if(NativeMethods.paseLibLoaded)
+                  {
+                    try
+                    {
+                      if (sd_.length < 2) {
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Descriptor is not paired:", (sd_.length == 0 ? "null" : Integer.toString(sd_[0])));
+                        throw new Throwable();
+                      }
+                      //if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseAvailable("+Integer.toString(sd_[0])+")");
+
+                      result = NativeMethods.socketPaseAvailable(sd_[0], sd_[1]);
+                      paseCallSucceeded = true;
+                    }
+                    catch(NativeException ne){
+                      // Got here because of actual exception calling 'available' on host.
+                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseAvailable("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                      throw ne;
+                    }
+                    catch(UnsatisfiedLinkError e){
+                      // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                      // so we just call the generic-named method in qyjspaseXX.so
+                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "UnsatisfiedLinkError while calling NativeMethods.socketPaseAvailable("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                    }
+                    catch(Throwable e){
+                      // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                      // so we just call the generic-named method in qyjspaseXX.so
+                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseAvailable("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")", e);
+                    }
+                  }
+
+                  if (!paseCallSucceeded)  // try calling the generic-named method
+                  {
+                    if (Trace.traceOn_ && NativeMethods.paseLibLoaded) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketAvailable("+Integer.toString(sd_[0])+")");
+
+                    result = NativeMethods.socketAvailable(sd_[0]);
+                  }
+
+                  return result;
                 }
                 catch (NativeException e)
                 {
@@ -318,11 +413,47 @@ class SocketContainerUnix2 extends SocketContainer
             write(b, 0, b.length);
         }
 
-        public void write(byte b[], int off, int len) throws IOException
+        public void write(byte b[], int off, int length) throws IOException
         {
             try
             {
-                NativeMethods.socketWrite(sd_[0], b, off, len); //@leak
+              boolean paseCallSucceeded = false;
+              if(NativeMethods.paseLibLoaded)
+              {
+                try
+                {
+                  if (sd_.length < 2) {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Descriptor is not paired:", (sd_.length == 0 ? "null" : Integer.toString(sd_[0])));
+                    throw new Throwable();
+                  }
+                  //if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseWrite("+Integer.toString(sd_[0])+")");
+
+                  NativeMethods.socketPaseWrite(sd_[0], sd_[1], b, off, length);
+                  paseCallSucceeded = true;
+                }
+                catch(NativeException ne){
+                  // Got here because of actual exception calling 'write' on host.
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseWrite("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                  throw ne;
+                }
+                catch(UnsatisfiedLinkError e){
+                  // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                  // so we just call the generic-named method in qyjspaseXX.so
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "UnsatisfiedLinkError while calling NativeMethods.socketPaseWrite("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                }
+                catch(Throwable e){
+                  // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                  // so we just call the generic-named method in qyjspaseXX.so
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseWrite("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")", e);
+                }
+              }
+
+              if (!paseCallSucceeded)  // try calling the generic-named method
+              {
+                if (Trace.traceOn_ && NativeMethods.paseLibLoaded) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketWrite("+Integer.toString(sd_[0])+")");
+
+                NativeMethods.socketWrite(sd_[0], b, off, length);
+              }
             }
             catch (NativeException e)
             {
