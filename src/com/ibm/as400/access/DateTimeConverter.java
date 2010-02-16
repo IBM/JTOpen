@@ -395,10 +395,9 @@ public class DateTimeConverter
       // Note: We've observed the following error during testing:
       // java.lang.NullPointerException at java.util.TimeZone.parseCustomTimeZone()
       if (Trace.traceOn_) {
-        Trace.log(Trace.WARNING, "Unable to determine time zone of system. " +
+        Trace.log(Trace.WARNING, "["+e.toString()+"] Unable to determine time zone of system. " +
                   "QUTCOFFSET value is " + utcOffset + ". " +
-                  "Assuming server is in the same time zone as client application.",
-                  e);
+                  "Assuming server is in the same time zone as client application.");
       }
       return TimeZone.getDefault();
     }
