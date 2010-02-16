@@ -65,12 +65,17 @@ public class CharConverter implements Serializable
      Constructs a CharConverter object using the specified CCSID and system.
      @param  ccsid  The CCSID of the IBM i text.
      @param  system  The system object representing the system with which to connect.
+     If null, then this constructor behaves identically to <tt>CharConverter(ccsid)</tt>.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
      */
     public CharConverter(int ccsid, AS400 system) throws UnsupportedEncodingException
     {
-        if (system == null) throw new NullPointerException("system");
-        table_ = new Converter(ccsid, system);
+      if (system == null)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Null-valued 'system' argument specified.");
+        table_ = new Converter(ccsid);
+      }
+      else table_ = new Converter(ccsid, system);
     }
 
     /**
