@@ -26,8 +26,9 @@ import java.util.TimeZone;
 
 /**
  Represents a user profile object on the system.
- <p>Note that calling any of the attribute getters for the first time will result in an implicit call to {@link #loadUserInformation loadUserInformation()}.  If any exceptions are thrown by loadUserInformation() during the implicit call, they will be logged to {@link Trace#ERROR Trace.ERROR} and ignored.  However, should an exception occur during an explicit call to loadUserInformation(), it will be thrown to the caller.
- <p>Implementation note:  This class internally calls the Retrieve User Information (QSYRUSRI) API for the methods that retrieve user profile information.  The caller must have *READ authority to the user profile object in order to retrieve the information.  The class internally calls the Change User Profile (CHGUSRPRF) command for the methods that change user profile information.  The caller must have security administrator (*SECADM) special authority, and object management (*OBJMGT) and use (*USE) authorities to the user profile being changed.
+ <p>Note: User attribute information is cached internally in the User object, after the first retrieval.  To force an update of the cached information, call {@link #refresh refresh()}.
+ <p>Note: Calling any of the attribute getters for the first time (for a given User instance) will result in an implicit call to {@link #refresh refresh()}.  If any exceptions are thrown by the implicit refresh(), they are logged under trace category {@link Trace#ERROR Trace.ERROR} and ignored.  However, if an exception occurs during an <i>explicit</i> call to refresh(), it will be thrown to the caller.
+ <p>Implementation note:  This class internally calls the Retrieve User Information (QSYRUSRI) API for the methods that retrieve user profile information.  In order to use those methods, the caller must have *READ authority to the user profile object.  This class internally calls the Change User Profile (CHGUSRPRF) command for the methods that change user profile information.  In order to use those methods, the caller must have security administrator (*SECADM) special authority, and object management (*OBJMGT) and use (*USE) authorities to the user profile being changed.
  @see  DirectoryEntry
  @see  UserList
  @see  UserGroup
@@ -425,7 +426,7 @@ public class User implements Serializable
      **/
     public String getAccountingCode()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return accountingCode_;
     }
 
@@ -441,7 +442,7 @@ public class User implements Serializable
      **/
     public String getAssistanceLevel()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return assistanceLevel_;
     }
 
@@ -457,7 +458,7 @@ public class User implements Serializable
      **/
     public String getAttentionKeyHandlingProgram()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return attentionKeyHandlingProgram_;
     }
 
@@ -471,7 +472,7 @@ public class User implements Serializable
      **/
     public int getCCSID()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return ccsid_;
     }
 
@@ -487,7 +488,7 @@ public class User implements Serializable
      **/
     public String getCHRIDControl()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return chridControl_;
     }
 
@@ -502,7 +503,7 @@ public class User implements Serializable
      **/
     public String getCountryID()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return countryID_;
     }
 
@@ -517,7 +518,7 @@ public class User implements Serializable
      **/
     public String getCurrentLibraryName()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return currentLibraryName_;
     }
 
@@ -532,23 +533,23 @@ public class User implements Serializable
      **/
     public int getDaysUntilPasswordExpire()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return daysUntilPasswordExpire_;
     }
 
     /**
-     Retrieves the descriptive text for the user profile.  This value is pre-loaded into any User objects generated from a UserList object so that a call to the system is not required to retrieve this value.  In the event that this User object was not constructed by a UserList, the description will need to be retrieved from the system via an implicit call to loadUserInformation().
+     Retrieves the descriptive text for the user profile.  This value is pre-loaded into any User objects generated from a UserList object so that a call to the system is not required to retrieve this value.  In the event that this User object was not constructed by a UserList, the description will need to be retrieved from the system via an implicit call to refresh().
      @return  The descriptive text for the user profile.
      @see #setDescription
      **/
     public String getDescription()
     {
-        if (!loaded_ && !partiallyLoaded_) refresh();
+        if (!loaded_ && !partiallyLoaded_) loadUserInformation_SwallowExceptions();
         return description_;
     }
 
     /**
-     Retrieves the system distribution directory entry for the user profile, if one exists.  The directory entry is retrieved from the system every time this method is called, so its value is unaffected by any call to loadUserInformation().
+     Retrieves the system distribution directory entry for the user profile, if one exists.  The directory entry is retrieved from the system every time this method is called, so its value is unaffected by any call to refresh().
      @return  The directory entry, or null if none exists.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -577,7 +578,7 @@ public class User implements Serializable
      **/
     public String getDisplaySignOnInformation()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return displaySignOnInformation_;
     }
 
@@ -595,7 +596,7 @@ public class User implements Serializable
      **/
     public String getGroupAuthority()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return groupAuthority_;
     }
 
@@ -610,7 +611,7 @@ public class User implements Serializable
      **/
     public String getGroupAuthorityType()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return groupAuthorityType_;
     }
 
@@ -626,7 +627,7 @@ public class User implements Serializable
      **/
     public long getGroupID()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return groupID_;
     }
 
@@ -656,7 +657,7 @@ public class User implements Serializable
      **/
     public String getGroupProfileName()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return groupProfileName_;
     }
 
@@ -667,7 +668,7 @@ public class User implements Serializable
      **/
     public int getHighestSchedulingPriority()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return highestSchedulingPriority_;
     }
 
@@ -678,7 +679,7 @@ public class User implements Serializable
      **/
     public String getHomeDirectory()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return homeDirectory_;
     }
 
@@ -692,7 +693,7 @@ public class User implements Serializable
      **/
     public String[] getIASPNames()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return iaspNames_;
     }
 
@@ -709,7 +710,7 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'iaspName' is null.");
             throw new NullPointerException("iaspName");
         }
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         if (iaspStorageAllowed_ == null) return -2;
         for (int i = 0; i < iaspNames_.length; ++i)
         {
@@ -734,7 +735,7 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'iaspName' is null.");
             throw new NullPointerException("iaspName");
         }
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         if (iaspStorageUsed_ == null) return -2;
         for (int i = 0; i < iaspNames_.length; ++i)
         {
@@ -758,7 +759,7 @@ public class User implements Serializable
      **/
     public String getInitialMenu()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return initialMenu_;
     }
 
@@ -774,7 +775,7 @@ public class User implements Serializable
      **/
     public String getInitialProgram()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return initialProgram_;
     }
 
@@ -786,7 +787,7 @@ public class User implements Serializable
      **/
     public String getJobDescription()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return jobDescription_;
     }
 
@@ -803,7 +804,7 @@ public class User implements Serializable
     **/
     public String getKeyboardBuffering()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return keyboardBuffering_;
     }
 
@@ -818,7 +819,7 @@ public class User implements Serializable
      **/
     public String getLanguageID()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return languageID_;
     }
 
@@ -834,7 +835,7 @@ public class User implements Serializable
      **/
     public String getLimitCapabilities()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return limitCapabilities_;
     }
 
@@ -854,7 +855,7 @@ public class User implements Serializable
      **/
     public String getLimitDeviceSessions()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return limitDeviceSessions_;
     }
 
@@ -875,7 +876,7 @@ public class User implements Serializable
      **/
     public String[] getLocaleJobAttributes()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return localeJobAttributes_;
     }
 
@@ -905,7 +906,7 @@ public class User implements Serializable
      **/
     public String getLocalePathName()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return localePathName_;
     }
 
@@ -921,7 +922,7 @@ public class User implements Serializable
      **/
     public int getMaximumStorageAllowed()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return maximumStorageAllowed_;
     }
 
@@ -933,7 +934,7 @@ public class User implements Serializable
      **/
     public String getMessageQueue()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return messageQueue_;
     }
 
@@ -950,7 +951,7 @@ public class User implements Serializable
      **/
     public String getMessageQueueDeliveryMethod()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return messageQueueDeliveryMethod_;
     }
 
@@ -961,7 +962,7 @@ public class User implements Serializable
      **/
     public int getMessageQueueSeverity()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return messageQueueSeverity_;
     }
 
@@ -988,7 +989,7 @@ public class User implements Serializable
      **/
     public String getObjectAuditingValue()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return objectAuditingValue_;
     }
 
@@ -1027,7 +1028,7 @@ public class User implements Serializable
      **/
     public String getOutputQueue()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return outputQueue_;
     }
 
@@ -1042,7 +1043,7 @@ public class User implements Serializable
      **/
     public String getOwner()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return owner_;
     }
 
@@ -1056,7 +1057,7 @@ public class User implements Serializable
      **/
     public Date getPasswordExpireDate()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         if (passwordExpireDate_ == null)
         {
             try
@@ -1091,7 +1092,7 @@ public class User implements Serializable
      */
     public String getPasswordChangeBlock()
     {
-    	if(!loaded_) refresh();
+    	if (!loaded_) loadUserInformation_SwallowExceptions();
     	return pwdChangeBlock_;
     }
     
@@ -1108,7 +1109,7 @@ public class User implements Serializable
      **/
     public int getPasswordExpirationInterval()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return passwordExpirationInterval_;
     }
 
@@ -1118,7 +1119,7 @@ public class User implements Serializable
      **/
     public Date getPasswordLastChangedDate()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         if (passwordLastChangedDate_ == null)
         {
             try
@@ -1144,7 +1145,7 @@ public class User implements Serializable
      **/
     public Date getPreviousSignedOnDate()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return previousSignedOnDate_;
     }
 
@@ -1160,7 +1161,7 @@ public class User implements Serializable
      **/
     public String getPrintDevice()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return printDevice_;
     }
 
@@ -1170,7 +1171,7 @@ public class User implements Serializable
      **/
     public int getSignedOnAttemptsNotValid()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return signedOnAttemptsNotValid_;
     }
 
@@ -1189,7 +1190,7 @@ public class User implements Serializable
      **/
     public String getSortSequenceTable()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return sortSequenceTable_;
     }
 
@@ -1211,7 +1212,7 @@ public class User implements Serializable
      **/
     public String[] getSpecialAuthority()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return specialAuthority_;
     }
 
@@ -1227,7 +1228,7 @@ public class User implements Serializable
      **/
     public String getSpecialEnvironment()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return specialEnvironment_;
     }
 
@@ -1242,7 +1243,7 @@ public class User implements Serializable
      **/
     public String getStatus()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return status_;
     }
 
@@ -1252,7 +1253,7 @@ public class User implements Serializable
      **/
     public int getStorageUsed()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return storageUsed_;
     }
 
@@ -1263,7 +1264,7 @@ public class User implements Serializable
      **/
     public String[] getSupplementalGroups()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return supplementalGroups_;
     }
 
@@ -1275,7 +1276,7 @@ public class User implements Serializable
      **/
     public int getSupplementalGroupsNumber()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return supplementalGroups_ == null ? 0 : supplementalGroups_.length;
     }
 
@@ -1312,7 +1313,7 @@ public class User implements Serializable
      **/
     public String[] getUserActionAuditLevel()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userActionAuditLevel_;
     }
 
@@ -1347,7 +1348,7 @@ public class User implements Serializable
      **/
     public String getUserClassName()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userClassName_;
     }
 
@@ -1365,7 +1366,7 @@ public class User implements Serializable
      **/
     public String getUserExpirationAction()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userExpirationAction_;
     }
 
@@ -1379,7 +1380,7 @@ public class User implements Serializable
      **/
     public Date getUserExpirationDate()
     {
-      if (!loaded_) refresh();
+      if (!loaded_) loadUserInformation_SwallowExceptions();
       if (userExpirationDate_ == null)
       {
         try
@@ -1418,7 +1419,7 @@ public class User implements Serializable
      **/
     public int getUserExpirationInterval()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userExpirationInterval_;
     }
 
@@ -1429,7 +1430,7 @@ public class User implements Serializable
      **/
     public long getUserID()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userID_;
     }
 
@@ -1459,7 +1460,7 @@ public class User implements Serializable
      **/
     public String[] getUserOptions()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userOptions_;
     }
 
@@ -1480,7 +1481,7 @@ public class User implements Serializable
      **/
     public String getUserProfileName()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userProfileName_;
     }
 
@@ -1573,7 +1574,7 @@ public class User implements Serializable
      **/
     public boolean isGroupHasMember()
     {
-        if (!loaded_ && !partiallyLoaded_) refresh();
+        if (!loaded_ && !partiallyLoaded_) loadUserInformation_SwallowExceptions();
         return groupHasMember_;
     }
 
@@ -1584,7 +1585,7 @@ public class User implements Serializable
      **/
     public boolean isLocalPasswordManagement()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return localPasswordManagement_;
     }
 
@@ -1594,7 +1595,7 @@ public class User implements Serializable
      **/
     public boolean isNoPassword()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return noPassword_;
     }
 
@@ -1605,7 +1606,7 @@ public class User implements Serializable
      **/
     public boolean isPasswordSetExpire()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return passwordSetExpire_;
     }
 
@@ -1617,7 +1618,7 @@ public class User implements Serializable
      **/
     public boolean isUserEntitlementRequired()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return userEntitlementRequired_;
     }
 
@@ -1627,12 +1628,26 @@ public class User implements Serializable
      **/
     public boolean isWithDigitalCertificates()
     {
-        if (!loaded_) refresh();
+        if (!loaded_) loadUserInformation_SwallowExceptions();
         return withDigitalCertificates_;
+    }
+
+    // Helper method... calls loadUserInformation and swallows all exceptions so that all of the getters can call it.
+    private void loadUserInformation_SwallowExceptions()
+    {
+        try
+        {
+            loadUserInformation();
+        }
+        catch (Exception e)
+        {
+            Trace.log(Trace.ERROR, "Exception swallowed during retrieval of user information:", e);
+        }
     }
 
     /**
      Refreshes the values for all attributes.
+     <br>Same as {@link #refresh refresh()}.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
@@ -1964,17 +1979,24 @@ public class User implements Serializable
         connected_ = true;
     }
 
-    // Helper method... calls loadUserInformation and swallows all exceptions so that all of the getters can call it.
-    private void refresh()
+
+    /**
+     Refreshes all the attribute values for this User object by retrieving them from the system.
+     <br>Same as {@link #loadUserInformation loadUserInformation()}.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     **/
+    public void refresh()
+      throws AS400SecurityException,
+             ErrorCompletingRequestException,
+             InterruptedException,
+             IOException,
+             ObjectDoesNotExistException
     {
-        try
-        {
-            loadUserInformation();
-        }
-        catch (Exception e)
-        {
-            Trace.log(Trace.ERROR, "Exception swallowed by refresh():", e);
-        }
+      loadUserInformation();
     }
 
     /**
@@ -3232,7 +3254,7 @@ public class User implements Serializable
      <li>Program start request (PSR) is attached to a prestart job.
      </ul>
      <li>"*OBJMGT" - Object management changes made by this user, such as move or rename, are audited.
-     <li>"*OFCSRV" -  Office services changes made by this user, such as changes to the system directory and use of OfficeVision for AS/400 mail, are audited.
+     <li>"*OFCSRV" -  Office services changes made by this user, such as changes to the system directory and use of OfficeVision, are audited.
      <li>"*OPTICAL" - The following optical functions are audited:
      <ul>
      <li>Add or remove optical cartridge.
