@@ -437,7 +437,7 @@ public class MessageFile implements Serializable
      Returns an AS400Message object containing the message.  The system and message file name must be set before calling this method.  Up to 1024 bytes of substitution text can be supplied to this method.  <b>The byte array is not changed or converted before being sent to the system</b>.
      @param  ID  The message identifier, {@link #FIRST FIRST}, or {@link #NEXT NEXT}.
      @param  substitutionText  The substitution text.
-     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  The default value is {@link BidiStringType#DEFAULT BidiStringType.DEFAULT}. See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @param  ccsidOfSubstitutionText  The CCSID of the substitution text.  The default value is {@link #CCSID_OF_JOB CCSID_OF_JOB}.
      @param  ccsidToConvertTo  The CCSID in which the system should return the message text. The Toolbox then converts from that CCSID to Unicode when constructing the AS400Message.  The default value is {@link #CCSID_OF_JOB CCSID_OF_JOB}.
      @return  An AS400Message object containing the message.
