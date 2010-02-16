@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The BidiStringType class is a collection of constants
+ * A collection of constants
  * generally used for describing the string type of bidi (bi-directional text).
  * <p>
  * The client Bidi format is usually different from the host Bidi format. For
@@ -25,7 +25,7 @@ package com.ibm.as400.access;
  * defined by "bidi string type" property, while the host Bidi format is taken
  * according to the user profile CCSID (aka host CCSID). Each CCSID has a 
  * default string type, as defined by the CDRA (Character Data Representation 
- * Architecture), which  * defines a set of Bidi flags. This string type 
+ * Architecture), which defines a set of Bidi flags. This string type 
  * is used as the host Bidi format.
  * <p>
  * By default, the value of the "bidi string type" property is 5 (Logical LTR).
@@ -77,9 +77,9 @@ package com.ibm.as400.access;
 public interface BidiStringType
 {
     /**
-     The default string type for Bidi data, according to Unicode standard (Implicit Contextual LTR).
+     The default string type for Bidi data, according to Unicode standard, is Implicit Contextual LTR.  Note that the Toolbox has historically defaulted to Implicit LTR.
      **/
-    final static int DEFAULT = 0;
+    final static int DEFAULT = 5;
 
     /**
      String type used when an EBCDIC/Unicode conversion is desired, but without swapping, shaping, or transformation.
