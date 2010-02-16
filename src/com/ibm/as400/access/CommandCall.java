@@ -24,6 +24,8 @@ import java.io.Serializable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import com.ibm.as400.resource.RJob;  // Remove when getJob() is removed.
+
 /**
  Represents an IBM i command object.  This class allows the user to call any non-interactive CL command.  Results of the command are returned in a message list.
  <P>Note: CommandCall is not designed to return interactive (screen-oriented) results, such as from "WRK..." and "DSP..." commands.  The recommended approach in such cases is to identify an equivalent IBM i API or program, and use {@link ProgramCall ProgramCall} instead.
@@ -319,6 +321,13 @@ public class CommandCall implements Serializable
         return command_;
     }
 
+
+    // 2010-02-16: Temporarily reinstated the getJob() method, since it is used by V5R4 IPP Server, which is still in service.
+    // The getJob() method will be deleted, either:
+    //  (1) when IBM i V5R4 goes out-of-service, or
+    //  (2) when V5R4 IPP Server is PTF'd to not call this method,
+    // whichever comes first.
+
     // Removed this obsolete method.  Deprecated on 2003-01-22.
 //    /**
 //     Returns an RJob object which represents the system job in which the command will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
@@ -333,15 +342,19 @@ public class CommandCall implements Serializable
 //     @exception  InterruptedException  If this thread is interrupted.
 //     @deprecated  Use getServerJob() instead.
 //     **/
-//    public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
-//    {
-//        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
-//        chooseImpl();
-//        String jobInfo = impl_.getJobInfo(threadSafety_);
-//        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing RJob for job: " + jobInfo);
-//        // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
-//        return new RJob(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
-//    }
+    /**
+     Do not use this method. <b>It is obsolete and will be removed in a future release.</b>
+     @deprecated  Use getServerJob() instead.
+     **/
+    public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
+        chooseImpl();
+        String jobInfo = impl_.getJobInfo(threadSafetyValue_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing RJob for job: " + jobInfo);
+        // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
+        return new RJob(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
+    }
 
     /**
      Returns the option for how many messages will be retrieved.
