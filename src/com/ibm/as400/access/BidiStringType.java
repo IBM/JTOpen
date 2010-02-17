@@ -77,7 +77,7 @@ package com.ibm.as400.access;
 public interface BidiStringType
 {
     /**
-     The default string type for Bidi data, according to Unicode standard, is Implicit Contextual LTR.  Note that the Toolbox has historically defaulted to Implicit LTR.
+     The default Bidi string type for client data (Logical LTR).
      **/
     final static int DEFAULT = 5;
 
