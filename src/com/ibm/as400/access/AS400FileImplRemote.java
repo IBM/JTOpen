@@ -34,9 +34,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   static final long serialVersionUID = 4L;
 
 
-  //////////////////////////////////////////////////////////////////////////
+  //-------------------------------------------------------
   // VARIABLES
-  //////////////////////////////////////////////////////////////////////////
+  //-------------------------------------------------------
   // Flag indicating to ignore replys (used by close and execute).
   //@D1D (moved to AS400FileImplBase) private boolean discardReplys_ = false;
   // The declared file name. This is an alias for the file which allows
@@ -273,10 +273,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////
+    //-------------------------------------------------------
     // Create the records to be written to the file.  These records will contain the
     // DDS based on the supplied RecordFormat object.
-    /////////////////////////////////////////////////////////////////////////////////
+    //-------------------------------------------------------
     // Create a RecordFormat object which describes the record format of a source
     // physical file.
     RecordFormat srcRF = new RecordFormat("JT400DSSRC");
@@ -768,7 +768,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Positions the cursor for the file.  Which record to position the cursor to is
    *determined by the <i>type</i>
    *argument.
-   *@param type The type of get to execute.  Valid values are:
+   *@param searchType The type of get to execute.  Valid values are:
    *<ul>
    *<li>TYPE_GET_FIRST
    *<li>TYPE_GET_NEXT
@@ -781,7 +781,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public Record[] positionCursorAt(int type)
+  public Record[] positionCursorAt(int searchType)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
@@ -804,7 +804,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // DATA_NODTA_DTARCD because it is one of the most inefficient
     // paths per the DDM server guys.  More efficient to get the data and ignore
     // it they say.
-    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, type, shr, DATA_DTA_DTARCD), newCorrelationId()); //@B6C
+    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, searchType, shr, DATA_DTA_DTARCD), newCorrelationId()); //@B6C
     int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
     if (codePoint == DDMTerm.S38IOFB && replys.size() > 1)
     {
@@ -1071,14 +1071,14 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Positions the cursor to the first record with the specified key based on the specified
    *type of read.
    *@param key The values that make up the key with which to find the record.
-   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public Record positionCursorToKey(Object[] key, int type)
+  public Record positionCursorToKey(Object[] key, int searchType)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
@@ -1107,7 +1107,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // is to be returned on the GETK request as opposed to specifying DATA_NODTA_DTARCD.  This
     // is necessary for the caching support.
 //    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_), server_.newCorrelationId());   // @A1D
-    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, recordFormatCTLLName_, type, shr, DATA_DTA_DTARCD, key, system_), newCorrelationId());   // @A1A @B6C
+    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_), newCorrelationId());   // @A1A @B6C
 
     int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
     if (codePoint == DDMTerm.S38IOFB && replys.size() > 1)
@@ -1130,7 +1130,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Positions the cursor to the first record with the specified key based on the specified
    *type of read.
    *@param key The byte array that contains the byte values that make up the key with which to find the record.
-   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -1138,7 +1138,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public Record positionCursorToKey(byte[] key, int type, int numberOfKeyFields)
+  public Record positionCursorToKey(byte[] key, int searchType, int numberOfKeyFields)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
@@ -1166,7 +1166,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // is to be returned on the GETK request as opposed to specifying DATA_NODTA_DTARCD.  This
     // is necessary for the caching support.
 //    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), server_.newCorrelationId());  // @A1D
-    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormatCTLLName_, type, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), newCorrelationId());  // @A1A @B6C
+    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), newCorrelationId());  // @A1A @B6C
     int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
     if (codePoint == DDMTerm.S38IOFB && replys.size() > 1)
     {
@@ -1660,7 +1660,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   /**
    *Reads the first record with the specified key based on the specified type of read.
    *@param key The values that make up the key with which to find the record.
-   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@return The record read.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -1668,7 +1668,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public Record read(Object[] key, int type)
+  public Record read(Object[] key, int searchType)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
@@ -1687,7 +1687,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
 
 //    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_), server_.newCorrelationId());  // @A1D
-    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, recordFormatCTLLName_, type, shr, DATA_DTA_DTARCD, key, system_), newCorrelationId());  // @A1A @B6C
+    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_), newCorrelationId());  // @A1A @B6C
     // Call processReadReply to extract the records read (or throw an
     // exception if appropriate)
     Record[] returned = processReadReply(replys, false);    // @A1C
@@ -1707,7 +1707,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   /**
    *Reads the first record with the specified key based on the specified type of read.
    *@param key The byte array that contains the byte values that make up the key with which to find the record.
-   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.
    *@exception AS400Exception If the server returns an error message.
@@ -1716,7 +1716,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public Record read(byte[] key, int type, int numberOfKeyFields)
+  public Record read(byte[] key, int searchType, int numberOfKeyFields)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
@@ -1735,7 +1735,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
 
 //    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), server_.newCorrelationId());  // @A1D
-    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormatCTLLName_, type, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), newCorrelationId());  // @A1A @B6C
+    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), newCorrelationId());  // @A1A @B6C
     // Call processReadReply to extract the records read (or throw an
     // exception if appropriate)
     Record[] returned = processReadReply(replys, false);    // @A1C
@@ -1752,7 +1752,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   /**
    *Reads a record from the file.  Which record to read is determined by the <i>type</i>
    *argument.
-   *@param type The type of get to execute.  Valid values are:
+   *@param searchType The type of get to execute.  Valid values are:
    *<ul>
    *<li>TYPE_GET_FIRST
    *<li>TYPE_GET_NEXT
@@ -1765,7 +1765,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public Record readRecord(int type)
+  public Record readRecord(int searchType)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
@@ -1786,7 +1786,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
 
     // Send the get S38GET request
-    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, type, shr, DATA_DTA_DTARCD), newCorrelationId()); //@B6C
+    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, searchType, shr, DATA_DTA_DTARCD), newCorrelationId()); //@B6C
     // Call processReadReply to extract the records read (or throw an
     // exception if appropriate)
     Record[] returned = processReadReply(replys, false);    // @A1C
@@ -1810,11 +1810,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   InterruptedException,
   IOException
   {
-    int type = (direction == DDMRecordCache.FORWARD ? TYPE_GET_NEXT :
+    int searchType = (direction == DDMRecordCache.FORWARD ? TYPE_GET_NEXT :
                 TYPE_GET_PREV);
 
     // Send the S38GETM request
-    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETM(dclName_, blockingFactor_, type, SHR_READ_NORM, DATA_DTA_DTARCD, 0x01), newCorrelationId()); //@B6C
+    Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETM(dclName_, blockingFactor_, searchType, SHR_READ_NORM, DATA_DTA_DTARCD, 0x01), newCorrelationId()); //@B6C
 
     // Call processReadReply to extract the records read (or throw an
     // exception if appropriate)
@@ -2140,7 +2140,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       {
         Trace.log(Trace.ERROR, "Incorrect record length for file: " +
                   "Expected " + String.valueOf(openFeedback_.getRecordLength()) +
-                  ", got " + String.valueOf(records[0].getRecordLength())); ///
+                  ", got " + String.valueOf(records[0].getRecordLength()));
       }
       throw new ExtendedIllegalArgumentException("records", ExtendedIllegalArgumentException. PARAMETER_VALUE_NOT_VALID);
     }
