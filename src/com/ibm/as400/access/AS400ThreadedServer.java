@@ -21,7 +21,7 @@ import java.util.Hashtable;
 
 final class AS400ThreadedServer extends AS400Server implements Runnable
 {
-    private static int threadCount = 0;
+    private static int threadCount_ = 0;
 
     private AS400ImplRemote system_;
     private int service_;
@@ -205,7 +205,11 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         discardList_.setReplyList(replyList_);
         replyList_.setDiscardList(discardList_);
 
-        readDaemon_ = new Thread(this, "AS400 Read Daemon-" + (++threadCount));
+        String jobID;
+        if (jobString != null && jobString.length() != 0) jobID = jobString;
+        else jobID = AS400.getServerName(service) + "/" + (++threadCount_);
+
+        readDaemon_ = new Thread(this, "AS400 Read Daemon [system:"+system.getSystemName() + ";job:" + jobID + "]");
         readDaemon_.setDaemon(true);
         readDaemon_.start();
     }

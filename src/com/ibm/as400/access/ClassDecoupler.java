@@ -23,8 +23,6 @@ import java.util.*;
 **/
 class ClassDecoupler
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
 // For future use.
 //    static
 //    {
@@ -59,6 +57,7 @@ class ClassDecoupler
     {
         throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
     }
+    byte[] jobString = EXCSATReply.getEXTNAM();
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM EXCSAT successful.");
 
     DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, byteType_, null); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
@@ -83,7 +82,7 @@ class ClassDecoupler
         clientSeed = ACCSECReq.getClientSeed();
         serverSeed = ACCSECRep.getServerSeed();
     }
-    return new Object[] { clientSeed, serverSeed };
+    return new Object[] { clientSeed, serverSeed, jobString };
   }
 
   static void connectDDMPhase2(OutputStream outStream, InputStream inStream, byte[] userIDbytes, byte[] ddmSubstitutePassword, byte[] iaspBytes, int byteType_, String ddmRDB_, String systemName_, int connectionID) throws ServerStartupException, IOException

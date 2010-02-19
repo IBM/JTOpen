@@ -19,8 +19,6 @@ package com.ibm.as400.access;
 **/
 class DDMTerm
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
 //@B1D  static final int ACCORD     = 0x1162; // Access order for ULDRECF
   static final int ACCSEC     = 0x106D; // Access method for exchange attributes - added by DDM server
   static final int ACCSECRD   = 0x14AC; // Access method reply from ACCSEC
@@ -55,6 +53,7 @@ class DDMTerm
   static final int FILNAM     = 0x110E; // File name
   static final int EXCSAT     = 0x1041; // Exchange server attributes
   static final int EXCSATRD   = 0x1443; // Exchange server attributes reply
+  static final int EXTNAM     = 0x115E; // External name
   static final int KEYFIL     = 0x141E; // Keyed file
   static final int KEYORD     = 0x145D; // Key order
   static final int LCKMGR     = 0x1422; // Lock manager

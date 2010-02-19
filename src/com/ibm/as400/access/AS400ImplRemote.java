@@ -952,12 +952,14 @@ class AS400ImplRemote implements AS400Impl
         {
             InputStream inStream = sc.getInputStream();
             OutputStream outStream = sc.getOutputStream();
+            byte[] jobBytes = null;
 
             if (service == AS400.RECORDACCESS)
             {
-                Object[] seeds = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, credVault_.getType(), connectionID);
-                byte[] clientSeed = (byte[])seeds[0];
-                byte[] serverSeed = (byte[])seeds[1];
+                Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, credVault_.getType(), connectionID);
+                byte[] clientSeed = (byte[])returnVals[0];
+                byte[] serverSeed = (byte[])returnVals[1];
+                jobBytes          = (byte[])returnVals[2];
 
                 byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
 
@@ -1025,11 +1027,6 @@ class AS400ImplRemote implements AS400Impl
                 if (Trace.traceOn_) reply.setConnectionID(connectionID);
                 reply.read(inStream);
 
-                byte[] jobBytes = reply.getJobNameBytes();
-                ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
-                jobString = converter.byteArrayToString(jobBytes);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
-
                 if (reply.getRC() != 0)
                 {
                     byte[] rcBytes = new byte[4];
@@ -1037,7 +1034,14 @@ class AS400ImplRemote implements AS400Impl
                     Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
                     throw AS400ImplRemote.returnSecurityException(reply.getRC());
                 }
+
+                jobBytes = reply.getJobNameBytes();
             }
+
+            // Obtain the job identifier for the connection.
+            ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
+            jobString = converter.byteArrayToString(jobBytes);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
         }
         catch (IOException e)
         {
