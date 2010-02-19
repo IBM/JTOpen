@@ -20,7 +20,6 @@ import java.beans.PropertyVetoException;
 import java.math.BigDecimal;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method; //@F0A
-import java.text.Collator;
 
 abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 {
@@ -170,8 +169,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   private static final int GREATER_THAN = 3; // search key > current key
   private static final int UNKNOWN = 4; // Not equal, but keep searching.
 
-  //@B4A - Use a Collator for comparing String keys
-  private Collator collator_ = Collator.getInstance();
+  private static final boolean CHECK_LENGTHS = true;  // mnemonic for flag-setting
 
   public void doIt(String methodName, Class[] classes, Object[] objects)
   throws AS400Exception, AS400SecurityException, InterruptedException, IOException
@@ -451,6 +449,24 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
+  // Compare 2 arrays, returning the relationship of first array to second array.
+  private final static int compareArrays(byte[] array1, byte[] array2, boolean checkLengths)
+  {
+    if (checkLengths)
+    {
+      if (array1.length < array2.length) return LESS_THAN;
+      if (array1.length > array2.length) return GREATER_THAN;
+    }
+
+    // Compare the arrays, byte by byte.
+    for (int k = 0; k < array1.length; ++k)
+    {
+      if (array1[k] < array2[k]) return LESS_THAN;
+      if (array1[k] > array2[k]) return GREATER_THAN;
+    }
+    return EQUAL;
+  }
+
 
   //@B4C
   /**
@@ -458,6 +474,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param key key to compare
    *@param recKey key of record being compared to
    *@return The result of the key comparison (EQUAL, GREATER_THAN, LESS_THAN, or UNKNOWN).
+   * For example, GREATER_THAN indicates that 'key' is greater than 'recKey'.
   **/
   private int compareKeys(Object[] key, Object[] recKey)
   {
@@ -479,20 +496,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         byte[] searchKey = (byte[])key[j];
         byte[] recordKey = (byte[])recKey[j];
 
-        if (searchKey.length < recordKey.length)
-          match = LESS_THAN;
-        else if (searchKey.length > recordKey.length)
-          match = GREATER_THAN;
-        else // Check field byte by byte
-        {
-          for (int k = 0; k < searchKey.length && match == EQUAL; ++k)
-          {
-            if (searchKey[k] < recordKey[k]) match = LESS_THAN;
-            else if (searchKey[k] > recordKey[k]) match = GREATER_THAN;
-          }
-        }
+        match = compareArrays(searchKey, recordKey, CHECK_LENGTHS);
       }
-      else if (recordFormat_.getKeyFieldDescription(j) instanceof VariableLengthFieldDescription)
+      else if (recordFormat_.getKeyFieldDescription(j) instanceof VariableLengthFieldDescription) // superclass of all textual field types
       {
         //@B4C -- begin
         // Note: A String in a DDM field is always padded with blanks
@@ -519,9 +525,16 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
           searchKey = searchKey.substring(0, recordKeyLength);
         }
 
-        int res = collator_.compare(searchKey, recordKey);
-        if (res > 0) match = GREATER_THAN;
-        else if (res < 0) match = LESS_THAN;
+
+        // Note: We must account for the system CCSID when comparing text fields, since the records on the system will be sorted according to the system CCSID, which may result in a different collation than in Unicode.  For example, in some CCSIDs, '1' precedes 'A', whereas in other CCSIDs, 'A' precedes '1'.
+
+        // To honor the CCSID-specific collation, first convert the keys to system bytes before comparing them.
+        FieldDescription fd = recordFormat_.getKeyFieldDescription(j);
+        byte[] searchKeyAsBytes = fd.getDataType().toBytes(searchKey);
+        byte[] recordKeyAsBytes = fd.getDataType().toBytes(recordKey);
+
+        match = compareArrays(searchKeyAsBytes, recordKeyAsBytes, CHECK_LENGTHS);
+
         //@B4C -- end
       }
       else if (key[j] instanceof BigDecimal && recKey[j] instanceof BigDecimal)
@@ -553,6 +566,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *being compared to <i>recKey</i>. The number of key fields must be greater than 0 and less
    *than the total number of key fields in the record format for this file.
    *@return The result of the key comparison (EQUAL, GREATER_THAN, LESS_THAN, or UNKNOWN).
+   * For example, GREATER_THAN indicates that 'key' is greater than 'recKey'.
   **/
   private int compareKeys(byte[] key, byte[] recKey, int numberOfKeyFields)
   {
@@ -588,15 +602,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       return UNKNOWN;
     }
 
-    // Now do the byte by byte compare.
-    for (int i = 0; i < key.length; ++i)
-    {
-      if (key[i] < recKey[i])
-        return LESS_THAN;
-      else if (key[i] > recKey[i])
-        return GREATER_THAN;
-    }
-    return EQUAL;
+    // Now do the byte by byte compare.  We've already checked the array lengths.
+    return compareArrays(key, recKey, !CHECK_LENGTHS);
   }
 
 
@@ -950,9 +957,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       }                                                                                   // #SSPDDM1
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // The following section sets the fixed portion of the UFCB
-    ////////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
 
     // Set the file portion of the UFCB (padded with EBCDIC blanks).
     converter_.stringToByteArray(file_, ufcb, 0);
@@ -1001,15 +1008,15 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       ufcb[60] = 0x02;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // The following sections set the variable portion of the UFCB
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     int offset = 80;  // Keep track off the offset we are writing at
                       // This is necessary because in certain cases a parameter may not be
                       // specified, therefore the offset for the next parameter is not constant
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // LVLCHK parameter
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // Specify LVLCHK(NO);
     // Parameter id for LVLCHK is 6
     BinaryConverter.unsignedShortToByteArray(6, ufcb, offset);
@@ -1017,9 +1024,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     ufcb[offset + 2] = 0x00;
     offset += 3;
 
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // ARRSEQ parameter
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // Do not specify ARRSEQ parameter if access is SEQ and openType is WRITE_ONLY
     // Specify ARRSEQ(YES) if access is SEQ and openType is not WRITE_ONLY
     // Specify ARRSEQ(YES) if access is KEY and openType is WRITE_ONLY
@@ -1044,9 +1051,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       offset += 3;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // COMMIT parameter
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     if (isCommitmentControlStarted)
     {
       // Parameter id for COMMIT is 59
@@ -1077,9 +1084,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       offset += 3;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // SEQONLY parameter
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // Parameter id for SEQONLY is 58
     BinaryConverter.unsignedShortToByteArray(58, ufcb, offset);
     if ((access.equalsIgnoreCase("SEQ") || access.equalsIgnoreCase("KEY")) &&
@@ -1098,9 +1105,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     offset += 5;
 
     //@A1C: Added RECORD FORMAT GROUP section
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     // RECORD FORMAT GROUP parameter
-    //////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------
     if (!isSSPviaDDM)                                                                       // #SSPDDM
     {
       // #SSPDDM
