@@ -16,12 +16,13 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.OutputStream;
 
-// Constructs the exchange attributes data stream request.
+// Constructs the DDM "exchange server attributes" data stream request.
 //
 // Exchange attributes request:
 // Term = EXCSAT.
 // Parms = SRVCLSNM -> CHRSTRDR => Character string containing server class name in EBCDIC.
-//                     EXTNAM   => Character string containing external name in EBCDIC.
+//         EXTNAM   => Character string containing external name in EBCDIC.
+//
 // Size = 6 --> Header (0 - 5).
 //        2 --> LL Length of EXCSAT term and parms (6, 7).
 //        2 --> CP EXCSAT code point (8, 9).
@@ -57,156 +58,129 @@ class DDMEXCSATRequestDataStream extends DDMDataStream
         int offset = HEADER_LENGTH;  // start just after the 6-byte header
 
         set16bit(TOTAL_LENGTH - HEADER_LENGTH, offset);  // Set length of EXCSAT term and parms.
-        offset += 2;
-        set16bit(DDMTerm.EXCSAT, offset);  // Set code point for EXCSAT term.
-        offset += 2;
+        set16bit(DDMTerm.EXCSAT, offset+2);  // Set code point for EXCSAT term.
+        offset += 4;
 
-        set16bit(9, offset);  // Set length of EXTNAM parm.
-        offset += 2;
-        set16bit(DDMTerm.EXTNAM, offset);  // Set code point for EXTNAM parm.
-        offset += 2;
+        set16bit(9, offset);  // Set length of EXTNAM parm.  (LL + CP + parm)
+        set16bit(DDMTerm.EXTNAM, offset+2);  // Set code point for EXTNAM parm.
+        offset += 4;
         // Set the external name (EXTNAM parm).
         data_[offset++] = (byte)0xD1; data_[offset++] = (byte)0xE3; data_[offset++] = (byte)0xF4; data_[offset++] = (byte)0xF0; data_[offset++] = (byte)0xF0; // EBCDIC "JT400"
+        // Note: We send EXTNAM in order to get the DDM Server's job info returned in the reply.
 
-        set16bit(11, offset);  // Set length of SRVCLSNM parm.
-        offset += 2;
-        set16bit(DDMTerm.SRVCLSNM, offset);  // Set code point for SRVCLSNM parm.
-        offset += 2;
+        set16bit(11, offset);  // Set length of SRVCLSNM parm. (Includes CHRSTRDR)
+        set16bit(DDMTerm.SRVCLSNM, offset+2);  // Set code point for SRVCLSNM parm.
+        offset += 4;
 
         // Note to maintenance programmer:
         // CHRSTRDR is ignored by the DDM Server, and is probably not needed.
         // We're not sure why it was added in the first place.
         set16bit(7, offset);  // Set length of CHRSTRDR parm.
-        offset += 2;
-        set16bit(DDMTerm.CHRSTRDR, offset);  // Set code point for CHRSTRDR parm.
-        offset += 2;
+        set16bit(DDMTerm.CHRSTRDR, offset+2);  // Set code point for CHRSTRDR parm.
+        offset += 4;
 
         // Set the server class name (SRVCLSNM parm).
         data_[offset++] = (byte)0xD8; data_[offset++] = (byte)0xC1; data_[offset++] = (byte)0xE2; // EBCDIC "QAS".
 
 
-        // Set the MGRLVLLS values.  Each parameter for the MGRLVLLS term is appended to the array as code point/value pairs.  No length bytes precede the parameters.
+        // Set the MGRLVLLS values.  Each parameter for the MGRLVLLS term is appended to the array as code point/value pairs.  No 'length' bytes precede the parameters.
 
 
         set16bit(96, offset); // Set length of MGRLVLLS term and parms (4-byte LL/CP, plus 23 4-byte parms)
-        offset += 2;
-        set16bit(DDMTerm.MGRLVLLS, offset); // Set code point for MGRLVLLS.
-        offset += 2;
+        set16bit(DDMTerm.MGRLVLLS, offset+2); // Set code point for MGRLVLLS.
+        offset += 4;
 
         set16bit(DDMTerm.AGENT, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.ALTINDF, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.CMBACCAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.CMBKEYAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.CMBRNBAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         // V4R2 system or later.
         set16bit(DDMTerm.CMNTCPIP, offset);  // Set CMNTCPIP code point. (V4R2 system or later)
-        offset += 2;
-        set16bit(5, offset);  // Set value for CMNTCPIP.  Must be 5.
-        offset += 2;
+        set16bit(5, offset+2);  // Set value for CMNTCPIP.  Must be 5.
+        offset += 4;
 
         set16bit(DDMTerm.DICTIONARY, offset);
-        offset += 2;
-        set16bit(1, offset);
-        offset += 2;
+        set16bit(1, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.DIRECTORY, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.DIRFIL, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.DRCAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.KEYFIL, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.LCKMGR, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.RDB, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.RELKEYAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.RELRNBAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.SECMGR, offset);
-        offset += 2;
-        set16bit(1, offset);
-        offset += 2;
+        set16bit(1, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.SEQFIL, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.SQLAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.STRAM, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.STRFIL, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.SUPERVISOR, offset);
-        offset += 2;
-        set16bit(3, offset);
-        offset += 2;
+        set16bit(3, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.SYSCMDMGR, offset);
-        offset += 2;
-        set16bit(4, offset);
-        offset += 2;
+        set16bit(4, offset+2);
+        offset += 4;
 
         set16bit(DDMTerm.RSCRCVM, offset);
-        offset += 2;
-        set16bit(4, offset);
+        set16bit(4, offset+2);
     }
 
     void write(OutputStream out) throws IOException
