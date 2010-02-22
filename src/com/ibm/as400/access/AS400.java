@@ -1490,7 +1490,6 @@ public class AS400 implements Serializable
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  The array of job objects.
-     <br>Note: Due to current design limitations, if {@link #RECORDACCESS RECORDACCESS} is specified, a zero-length list is returned.
      **/
     public Job[] getJobs(int service)
     {
