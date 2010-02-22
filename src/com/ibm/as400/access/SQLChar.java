@@ -73,7 +73,11 @@ implements SQLData
         bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());          //@KBA
         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());       //@KBA
 
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset, maxLength_, bidiConversionProperties);  //@KBC bidiStringType);
+        try{
+            value_ = ccsidConverter.byteArrayToString(rawBytes, offset, maxLength_, bidiConversionProperties);  //@KBC bidiStringType);
+        }catch(Exception e){
+            JDError.throwSQLException(JDError.EXC_CHAR_CONVERSION_INVALID, e);
+        }
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
