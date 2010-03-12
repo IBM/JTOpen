@@ -29,7 +29,7 @@ import java.util.Calendar;
 
 final class SQLBlobLocator implements SQLLocator
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private AS400JDBCConnection     connection_;
     private ConvTable               converter_;
@@ -616,7 +616,7 @@ final class SQLBlobLocator implements SQLLocator
         // fix this to use a Stream
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -699,14 +699,14 @@ final class SQLBlobLocator implements SQLLocator
         //return new InputStreamReader(new AS400JDBCInputStream(new JDLobLocator(locator_)));
         
         // fix this to use a Stream
-        return new StringReader(BinaryConverter.bytesToString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
     }
 
     public Clob getClob()
     throws SQLException
     {
         truncated_ = 0;
-        String string = BinaryConverter.bytesToString(getBytes());
+        String string = BinaryConverter.bytesToHexString(getBytes());
         return new AS400JDBCClob(string, string.length());
     }
 
@@ -773,7 +773,7 @@ final class SQLBlobLocator implements SQLLocator
     throws SQLException
     {
         truncated_ = 0;
-        return BinaryConverter.bytesToString(getBytes());
+        return BinaryConverter.bytesToHexString(getBytes());
     }
 
     public Time getTime(Calendar calendar)
@@ -799,7 +799,7 @@ final class SQLBlobLocator implements SQLLocator
         // fix this to use a Stream
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -812,14 +812,14 @@ final class SQLBlobLocator implements SQLLocator
     public Reader getNCharacterStream() throws SQLException
     {
         truncated_ = 0;                                                     //@PDC
-        return new StringReader(BinaryConverter.bytesToString(getBytes())); //@PDC
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes())); //@PDC
     }
 
     //@PDA jdbc40
     public NClob getNClob() throws SQLException
     {        
         truncated_ = 0;
-        String string = BinaryConverter.bytesToString(getBytes());//@pdc
+        String string = BinaryConverter.bytesToHexString(getBytes());//@pdc
         return new AS400JDBCNClob(string, string.length()); //@pdc
     }
 
@@ -827,7 +827,7 @@ final class SQLBlobLocator implements SQLLocator
     public String getNString() throws SQLException
     {
         truncated_ = 0;                                       //@pdc
-        return BinaryConverter.bytesToString(getBytes());     //@pdc
+        return BinaryConverter.bytesToHexString(getBytes());     //@pdc
     }
 
     //@PDA jdbc40
@@ -849,7 +849,7 @@ final class SQLBlobLocator implements SQLLocator
             return new AS400JDBCSQLXML(value_, value_.length);//@loch
         }                       //@loch
         
-        String string = BinaryConverter.bytesToString(getBytes());
+        String string = BinaryConverter.bytesToHexString(getBytes());
         //return new AS400JDBCSQLXML(string, string.length());
         return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), savedObject_, scale_); //@xml3
     }

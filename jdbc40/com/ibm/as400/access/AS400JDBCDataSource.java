@@ -709,7 +709,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         connection.setSystem(as400);
         connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
 
-        log(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
+        log(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
         return connection;
     }
     
@@ -3304,7 +3304,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         as400_.setPassword(password);
         serialPWBytes_ = xpwConfuse(password);                  //@J3a
-        log(loader_.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
+        log(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
     }
 
     /**
@@ -4966,7 +4966,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                         
             //Bidi-HCG start
             //exception for "package ccsid" - it can accept any integer
-            if(index == properties_.PACKAGE_CCSID){            	            	            	
+            if(index == JDProperties.PACKAGE_CCSID){            	            	            	
             	try{            	
             		int ccsid = Integer.valueOf(value).intValue();
             		if(ccsid < 1)

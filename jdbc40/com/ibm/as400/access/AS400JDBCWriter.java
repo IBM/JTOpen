@@ -173,7 +173,7 @@ class AS400JDBCWriter extends Writer
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogStream());
+      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
       closed_ = true;
       throw new IOException(e.getMessage());
     }

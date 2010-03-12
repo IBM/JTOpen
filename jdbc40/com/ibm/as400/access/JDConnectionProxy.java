@@ -639,7 +639,7 @@ implements Connection
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
           synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogStream ());
+            e.printStackTrace (DriverManager.getLogWriter ());
           }
         }
         throw new SQLException (
@@ -650,7 +650,7 @@ implements Connection
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
           synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogStream ());
+            e.printStackTrace (DriverManager.getLogWriter ());
           }
         }
         throw new SQLException (

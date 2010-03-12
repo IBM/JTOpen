@@ -35,7 +35,7 @@ import java.util.Calendar;
 
 final class SQLBlob implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
     private static final byte[] default_ = new byte[0];
 
@@ -451,7 +451,7 @@ final class SQLBlob implements SQLData
         truncated_ = 0;
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(value_)));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(value_)));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -510,7 +510,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-        return new StringReader(BinaryConverter.bytesToString(value_));
+        return new StringReader(BinaryConverter.bytesToHexString(value_));
     }
 
     public Clob getClob()
@@ -518,7 +518,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-        String string = BinaryConverter.bytesToString(value_);
+        String string = BinaryConverter.bytesToHexString(value_);
         return new AS400JDBCClob(string, string.length());
     }
 
@@ -577,7 +577,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-        return BinaryConverter.bytesToString(value_);
+        return BinaryConverter.bytesToHexString(value_);
     }
 
     public Time getTime(Calendar calendar) //@CRS - Could use toLong() to make this work.
@@ -602,7 +602,7 @@ final class SQLBlob implements SQLData
 
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(value_)));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(value_)));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -616,7 +616,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();  //@pdc
         truncated_ = 0;                           //@pdc
-        return new StringReader(BinaryConverter.bytesToString(value_));  //@pdc
+        return new StringReader(BinaryConverter.bytesToHexString(value_));  //@pdc
     }
 
     //@PDA jdbc40
@@ -624,7 +624,7 @@ final class SQLBlob implements SQLData
     {        
         if(savedObject_ != null) doConversion();  //@pdc
         truncated_ = 0;//@pdc
-        String string = BinaryConverter.bytesToString(value_); //@pdc
+        String string = BinaryConverter.bytesToHexString(value_); //@pdc
         return new AS400JDBCNClob(string, string.length());  //@pdc
     }
 
@@ -633,7 +633,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();      //@pdc
         truncated_ = 0;                               //@pdc
-        return BinaryConverter.bytesToString(value_); //@pdc
+        return BinaryConverter.bytesToHexString(value_); //@pdc
     }
 
     //@PDA jdbc40
@@ -648,7 +648,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-        //String string = BinaryConverter.bytesToString(value_); //@xml2
+        //String string = BinaryConverter.bytesToHexString(value_); //@xml2
         return new AS400JDBCSQLXML(value_, maxLength_); //@xml2
         //return new AS400JDBCSQLXML(string, string.length());  //@xml2
     }

@@ -36,7 +36,7 @@ import java.util.Calendar;
 final class SQLVarbinary
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[]     default_    = new byte[0];
@@ -412,7 +412,7 @@ implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -485,7 +485,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(BinaryConverter.bytesToString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
     }
 
     public Clob getClob()
@@ -494,7 +494,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        String string = BinaryConverter.bytesToString(getBytes());
+        String string = BinaryConverter.bytesToHexString(getBytes());
         return new AS400JDBCClob(string, string.length());
     }
 
@@ -555,7 +555,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return BinaryConverter.bytesToString(getBytes());
+        return BinaryConverter.bytesToHexString(getBytes());
     }
 
     public Time getTime(Calendar calendar)
@@ -580,7 +580,7 @@ implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -595,7 +595,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(BinaryConverter.bytesToString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
     }
 
     //@PDA jdbc40
@@ -604,7 +604,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        String string = BinaryConverter.bytesToString(getBytes());
+        String string = BinaryConverter.bytesToHexString(getBytes());
         return new AS400JDBCNClob(string, maxLength_);
     }
 
@@ -614,7 +614,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return BinaryConverter.bytesToString(getBytes());
+        return BinaryConverter.bytesToHexString(getBytes());
     }
 
     //@PDA jdbc40

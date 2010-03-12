@@ -16,7 +16,6 @@ package com.ibm.as400.access;
 import java.io.CharConversionException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -33,7 +32,7 @@ import java.util.Calendar;
 final class SQLTime
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -568,7 +567,7 @@ implements SQLData
         truncated_ = 0;
         Calendar calendar = Calendar.getInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
-        calendar.set(calendar.MILLISECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return new Time(calendar.getTime().getTime());
     }
 
@@ -585,7 +584,7 @@ implements SQLData
         truncated_ = 0;
         Calendar calendar = Calendar.getInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
-        calendar.set(calendar.MILLISECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         Time t = new Time(calendar.getTime().getTime());
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
@@ -605,7 +604,7 @@ implements SQLData
 
         // Make sure to set the millisecond value from the time too as
         // SQL Time objects do not track this field.
-        calendar.set(calendar.MILLISECOND, 0);  // @F2A
+        calendar.set(Calendar.MILLISECOND, 0);  // @F2A
 
         return new Time(calendar.getTime().getTime());
     }
@@ -628,7 +627,7 @@ implements SQLData
         truncated_  = 0;                                                                //@54A
         if(calendar == null) calendar = Calendar.getInstance();                         //@54A
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);               //@54A
-        calendar.set(calendar.MILLISECOND, 0);                                          //@54A
+        calendar.set(Calendar.MILLISECOND, 0);                                          //@54A
         Timestamp ts = new Timestamp(calendar.getTime().getTime());                     //@54A
         ts.setNanos(0);                                                                 //@54A
         return ts;                                                                      //@54A
@@ -663,7 +662,7 @@ implements SQLData
         truncated_ = 0;
         Calendar calendar = Calendar.getInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
-        calendar.set(calendar.MILLISECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         Time t = new Time(calendar.getTime().getTime());
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }

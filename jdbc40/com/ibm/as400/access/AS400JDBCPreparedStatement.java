@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.InputStream;
@@ -43,7 +42,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 
@@ -87,7 +85,7 @@ a target SQL type.
 //
 public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements PreparedStatement
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
     private boolean             dataTruncation_;        // @B5A
@@ -127,7 +125,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private boolean isjvm16Synchronizer;//@dmy
     //@dmy private dummy outputstream
     OutputStream dummyOutputStream = new OutputStream() {
-        private int b1 = 0;
+        int b1 = 0;
         public synchronized void write(int b) throws IOException {  b1 = b; }
     };
     private PrintWriter dummyPrint = new PrintWriter(dummyOutputStream, true); //@dmy
@@ -627,7 +625,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     {
                         SQLData sqlData = parameterRow_.getSQLData(i+1);    //@array
                         int arrayLen = 1;  //@array 1 by default so size can be multiplied for non arrays also
-                        boolean arrayIndicatorSet = false; //@array
+                        // boolean arrayIndicatorSet = false; //@array
                         if(sqlData.getType() == java.sql.Types.ARRAY)       //@array
                         {
                             arrayLen = ((SQLArray)sqlData).getArrayCount();    //@array
@@ -3303,7 +3301,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
   
     @exception  SQLException    If the SQL type is not compatible.
     **/
-    private void testSQLType(int sqlType, int parameterIndex)
+    void testSQLType(int sqlType, int parameterIndex)
     throws SQLException
     {
         int parameterType = parameterRow_.getSQLType(parameterIndex).getType(); //@P0C

@@ -59,7 +59,11 @@ import javax.naming.Context;
 public class AS400JDBCManagedDataSource extends ToolboxWrapper //@pdc jdbc40
 implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
-  private static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
+  /**
+	 * 
+	 */
+  private static final long serialVersionUID = -4801564675581024370L;
+  private static final String copyright = "Copyright (C) 2005-2010 International Business Machines Corporation and others.";
   private static final boolean DEBUG = false;
 
 
@@ -520,7 +524,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400);  // Note: This also does an AS400.connectService() to the database host server.
 
-    if (JDTrace.isTraceOn() || log_ != null) logInformation(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));
+    if (JDTrace.isTraceOn() || log_ != null) logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));
     return connection;
   }
 
@@ -3171,7 +3175,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
       connectionKeyNeedsUpdate_ = true;
       // Note: We deliberately do _not_ store the password into properties_.
     }
-    logInformation(loader_.getText("AS400_JDBC_DS_PASSWORD_SET"));
+    logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));
     logProperty(property, "***");
   }
 
@@ -4461,7 +4465,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
       //Bidi-HCG start
       //exception for "package ccsid" - it can accept any integer
-      if(index == properties_.PACKAGE_CCSID){            	            	            	
+      if(index == JDProperties.PACKAGE_CCSID){            	            	            	
       	try{            	
       		int ccsid = Integer.valueOf(value).intValue();
       		if(ccsid < 1)

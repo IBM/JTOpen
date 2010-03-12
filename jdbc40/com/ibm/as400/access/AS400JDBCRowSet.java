@@ -22,23 +22,19 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.beans.PropertyVetoException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;      //@G4A JDBC 3.0
 import java.net.URL;                        //@G4A JDBC 3.0
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.DataTruncation;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.NClob;
-import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -117,7 +113,7 @@ import java.util.Map;
 public class AS400JDBCRowSet extends ToolboxWrapper //@pdc jdbc40
 implements RowSet, Serializable             // @A3C
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
 
@@ -125,7 +121,7 @@ implements RowSet, Serializable             // @A3C
 
 
 
-    private static final String className_ = "AS400JDBCRowSet";
+    static final String className_ = "AS400JDBCRowSet";
     private String command_;                        // The command used to create the result set.
     private String dataSourceName_;                 // The name of the data source.
     private boolean useDataSource_ = true;          // Whether the dataSource specified is used.
@@ -389,7 +385,7 @@ implements RowSet, Serializable             // @A3C
                 if (JDTrace.isTraceOn ())
                 {
                     JDTrace.logInformation(this, "Cannot find JNDI data source.");
-                    ne.printStackTrace(DriverManager.getLogStream());
+                    ne.printStackTrace(DriverManager.getLogWriter());
                 }
                 throw new ExtendedIllegalStateException("dataSourceName", ExtendedIllegalStateException.OBJECT_CANNOT_BE_FOUND);  //@A2C
             }
