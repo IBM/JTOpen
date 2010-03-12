@@ -13,8 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -23,8 +21,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;                            // Java2
 import java.util.Vector;                              // Java2
-import javax.sql.ConnectionEvent;                     // JDBC std-ext
-import javax.sql.ConnectionEventListener;             // JDBC std-ext
 
 /**
 *  The AS400JDBCConnectionPool class represents a pool of JDBC connections
@@ -60,7 +56,7 @@ import javax.sql.ConnectionEventListener;             // JDBC std-ext
 **/
 public class AS400JDBCConnectionPool extends ConnectionPool implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
 

@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -43,7 +42,7 @@ import javax.sql.PooledConnection;
  **/
 public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDataSource implements ConnectionPoolDataSource, Referenceable, Serializable
 {
-  private static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
 
   // Note to developer: If you add a new property (that's not also in the superclass), remember to add a clause for the property to both the getReference() method and the constructor that takes a Reference argument.
 

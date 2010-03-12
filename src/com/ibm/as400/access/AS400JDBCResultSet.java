@@ -168,7 +168,7 @@ index rather than accessing them by their name.
 //
 public class AS400JDBCResultSet implements ResultSet
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     //New constants for JDBC 3.0.

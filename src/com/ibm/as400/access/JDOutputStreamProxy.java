@@ -24,7 +24,7 @@ class JDOutputStreamProxy
 extends OutputStream
 implements ProxyFactoryImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   // Private data.

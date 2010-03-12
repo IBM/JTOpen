@@ -14,14 +14,14 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
+
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.sql.Clob;
 import java.sql.SQLException;
-import java.util.Vector;
+
 
 // Note: This code in this class requires understanding of bit manipulation
 // and sign extension. Do not attempt to rework this code if you do not

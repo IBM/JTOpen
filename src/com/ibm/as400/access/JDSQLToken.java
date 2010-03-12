@@ -20,7 +20,7 @@ package com.ibm.as400.access;
 **/
 final class JDSQLToken
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
   
   char[] data_;
   int offset_;

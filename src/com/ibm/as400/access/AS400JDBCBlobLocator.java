@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.util.Vector;
 
 // Note: This code in this class requires understanding of bit manipulation
 // and sign extension. Do not attempt to rework this code if you do not

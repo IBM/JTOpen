@@ -335,7 +335,7 @@ Parse a URL.
         if (tokenCount == 1) {
 
           // Strip off // if it is there.
-          boolean doubleSlash = false;
+          //boolean doubleSlash = false;
           if (token.length () >= 2)
             if (token.substring (0, 2).equals ("//"))
               token = token.substring (2);

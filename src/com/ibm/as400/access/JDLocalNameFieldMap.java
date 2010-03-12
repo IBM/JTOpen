@@ -19,7 +19,7 @@ class JDLocalNameFieldMap
 extends JDTypeInfoFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private int typeIndex_;     //A1A
     JDLocalNameFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 

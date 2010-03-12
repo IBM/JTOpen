@@ -64,7 +64,7 @@ import java.lang.ref.SoftReference;
 **/
 public class AS400JDBCPooledConnection implements PooledConnection
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   private AS400JDBCConnection connection_;                          // The database connection.
 //@CRS - If we maintain a [direct] reference to the handle, and the user doesn't call close(), it

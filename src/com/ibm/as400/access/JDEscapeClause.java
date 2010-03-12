@@ -14,7 +14,6 @@
 package com.ibm.as400.access;
 
 import java.sql.SQLException;
-import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 

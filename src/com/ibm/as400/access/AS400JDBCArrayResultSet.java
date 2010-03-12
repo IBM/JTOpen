@@ -46,7 +46,7 @@ public class AS400JDBCArrayResultSet implements ResultSet
     private boolean isSQLData_;
  
     private int vrm_;    
-    private AS400JDBCConnection con_; //future use
+    // private AS400JDBCConnection con_; //future use
     ///////////////////
 
     
@@ -107,7 +107,7 @@ public class AS400JDBCArrayResultSet implements ResultSet
         isSQLData_ = isSQLData;
        
         vrm_ = vrm;
-        con_ = con;
+        // con_ = con;
 
         String[] columnNames = new String[] { "INDEX", "VALUE" };
 

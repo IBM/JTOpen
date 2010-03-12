@@ -27,7 +27,7 @@ import java.util.Calendar;
 
 //@DFA new class
 final class SQLDecFloat34 implements SQLData {
-    private static final String copyright = "Copyright (C) 2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 2006 International Business Machines Corporation and others.";
 
     private static final BigDecimal default_ = BigDecimal.valueOf(0);  
 
@@ -56,7 +56,7 @@ final class SQLDecFloat34 implements SQLData {
 
     private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(-Double.MAX_VALUE); //@PDC MIN_VALUE is positive
        
-    private static final int DECFLOAT34_MIN_EXP = -6143;  
+    static final int DECFLOAT34_MIN_EXP = -6143;  
     
     private SQLConversionSettings settings_;
 

@@ -24,7 +24,7 @@ where they were generated.
 class JDSimpleRowCache
 implements JDRowCache
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // Private data.
     private int         index_;

@@ -28,6 +28,7 @@ import java.util.Calendar;
 //@array new class
 class SQLArray implements SQLData
 {
+	static final String copyright = "Copyright (C) 2009-2010 International Business Machines Corporation and others.";
 
     private SQLData[] values_; // Since lobs do conversion during execute (not
                                 // setLob()), let SQLData objects manage
@@ -39,7 +40,7 @@ class SQLArray implements SQLData
     private int elemDataTypeLen_ = 0; //needed for to/fromRawBytes
     private int vrm_;
     
-    private SQLArray()
+    SQLArray()
     {
         // restrict type-less array construction
     }

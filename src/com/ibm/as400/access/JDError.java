@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 
@@ -503,7 +502,7 @@ trace for debugging purposes.
     // trace is on.
     // @J3d if (JDTrace.isTraceOn ()) {                                     // @D0A
     // @J3d    synchronized (DriverManager.class) {                        // @D0A
-    // @J3d        e.printStackTrace (DriverManager.getLogStream ());
+    // @J3d        e.printStackTrace (DriverManager.getLogWriter());
     // @J3d    }                                                           // @D0A
     // @J3d }                                                               // @D0A
 

@@ -54,7 +54,7 @@ getIsolation.
 //
 class JDTransactionManager
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // @C6A Server commit mode constants
@@ -64,7 +64,7 @@ class JDTransactionManager
   private static final int COMMIT_SERVER_MODE_CHG_   = 2;  // TRANSACTION_READ_UNCOMMITTED //@C6A
 
   // Client commit mode constants
-  private static final int    COMMIT_MODE_NOT_SET_  = -1;
+  static final int    COMMIT_MODE_NOT_SET_  = -1;
   private static final int    COMMIT_MODE_NONE_   = 0;    // TRANSACTION_NONE
   private static final int    COMMIT_MODE_CHG_    = 1;    // TRANSACTION_READ_UNCOMMITTED
   private static final int    COMMIT_MODE_CS_     = 2;    // TRANSACTION_READ_COMMITTED
@@ -630,7 +630,6 @@ Set the commit mode on the system.
 **/
   void setHoldIndicator(String hold) throws SQLException         // @C1
   {
-    int result;
     if (hold.equalsIgnoreCase (JDProperties.CURSORHOLD_TRUE))
       holdIndicator_ = CURSOR_HOLD_TRUE;
     else if (hold.equalsIgnoreCase (JDProperties.CURSORHOLD_FALSE))

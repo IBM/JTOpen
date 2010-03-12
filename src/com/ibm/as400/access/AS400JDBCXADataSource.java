@@ -47,7 +47,7 @@ public class AS400JDBCXADataSource
 extends AS400JDBCDataSource  
 implements XADataSource
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 

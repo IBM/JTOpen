@@ -23,7 +23,7 @@ class JDClassNameFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;                                  // @A1A

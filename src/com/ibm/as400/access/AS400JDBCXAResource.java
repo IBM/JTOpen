@@ -128,14 +128,14 @@ xaConnection.close();
 public class AS400JDBCXAResource
 implements XAResource
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
 
   // Private data.
   private static int              COUNT_                          = 64;
-  private static byte[]           DEFAULT_XA_INFORMATION_         = new byte[256];
+  static byte[]           DEFAULT_XA_INFORMATION_         = new byte[256];
 
   // Start the resource manager IDs at 0xC0001.  The system does not like 0.
   // Microsoft starts at 1.  CA ODBC will start with something else.  This will
@@ -964,7 +964,7 @@ specified.
     {
       synchronized(DriverManager.class)
       {
-        e.printStackTrace(DriverManager.getLogStream ());
+        e.printStackTrace(DriverManager.getLogWriter ());
       }
     }
     throw new XAException(XAException.XAER_RMFAIL);

@@ -13,17 +13,13 @@
 
 package com.ibm.as400.access;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import javax.sql.ConnectionEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Properties;
-import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 
@@ -45,7 +41,7 @@ implements ConnectionEventListener
 {
   private static final boolean DEBUG = false;  // turn on if debugging
   private static final boolean GATHER_STATS = false;  // turn on to gather/print additional statistics (useful when debugging and performance-tuning)
-  private static final boolean TESTING_ERROR_EVENTS = false;
+  static final boolean TESTING_ERROR_EVENTS = false;
 
 
   // Terminology for connections:
@@ -1250,7 +1246,7 @@ implements ConnectionEventListener
     }
     pauseIfPoolPaused(0);  // if pool is paused, wait until unpause() is called
 
-    int numAvailableForKey = 0;  // number of available connections in foreground list for the specified key
+    // int numAvailableForKey = 0;  // number of available connections in foreground list for the specified key
     boolean triedToSwap = false;
     boolean triedToCreateNewConnection = false;
     boolean keyIsDefault;

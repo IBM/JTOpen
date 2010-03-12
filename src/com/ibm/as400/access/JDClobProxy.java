@@ -33,11 +33,11 @@ class JDClobProxy
 extends AbstractProxyImpl
 implements Clob
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Copied from JDError:
-  private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
+  static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
  
 

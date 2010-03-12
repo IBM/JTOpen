@@ -31,7 +31,7 @@ import java.util.Calendar;
 final class SQLDecimal
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private.
     private static final BigDecimal default_ = BigDecimal.valueOf(0); // @C2A
@@ -43,10 +43,10 @@ implements SQLData
     private static final BigDecimal INTEGER_MIN_VALUE = BigDecimal.valueOf(Integer.MIN_VALUE);
     private static final BigDecimal LONG_MAX_VALUE = BigDecimal.valueOf(Long.MAX_VALUE);
     private static final BigDecimal LONG_MIN_VALUE = BigDecimal.valueOf(Long.MIN_VALUE);
-    private static final BigDecimal FLOAT_MAX_VALUE = new BigDecimal(Float.MAX_VALUE);
-    private static final BigDecimal FLOAT_MIN_VALUE = new BigDecimal(Float.MIN_VALUE);
-    private static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
-    private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(Double.MIN_VALUE);
+    static final BigDecimal FLOAT_MAX_VALUE = new BigDecimal(Float.MAX_VALUE);
+    static final BigDecimal FLOAT_MIN_VALUE = new BigDecimal(Float.MIN_VALUE);
+    static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
+    static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(Double.MIN_VALUE);
 
     private SQLConversionSettings   settings_;
     private int                     precision_;

@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
@@ -65,7 +64,7 @@ explicitly close statements rather than counting on garbage collection.
 //
 public class AS400JDBCStatement implements Statement
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     // Constants.

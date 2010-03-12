@@ -24,7 +24,7 @@ are generated on the system.
 class JDServerRowCache
 implements JDRowCache
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -509,7 +509,7 @@ Sets the fetch size.
       // If the row is in the cache, then move the index
       // withing the cache.
 
-      int newIndex = index_;
+      // int newIndex = index_;
       
       //int serverRowIndexFromBeg = cursorPositionOfFirstRowInCache_ + index_; //1 is on first row
       //int numberOfServerRows = cursorPositionOfFirstRowInCache_ + cached_ - 1;//!!when lastBlock_==true

@@ -2602,7 +2602,7 @@ implements Connection
             }                                                                               // @EAA
 
             request.setBasedOnORSHandle (0);                 // @DAC @EKC
-            DBReplyRequestedDS reply = null;
+            // DBReplyRequestedDS reply = null;
 
             if (dataCompression_ == DATA_COMPRESSION_RLE_)
             {                                // @ECA

@@ -23,7 +23,6 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
-import java.sql.DataTruncation;
 import java.sql.Date;
 import java.sql.Ref;
 import java.sql.SQLException;
@@ -40,7 +39,7 @@ class JDCallableStatementProxy
 extends JDPreparedStatementProxy
 implements CallableStatement
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   private Vector registeredTypes_ = new Vector ();
@@ -49,7 +48,7 @@ implements CallableStatement
   // This way we can match parameter indexes directory to element indexes.
 
     // Copied from JDError:
-    private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
+    static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
     private final static String NOT_SERIALIZABLE = "Parameter is not serializable.";
 

@@ -58,7 +58,7 @@ import javax.naming.Context;
  **/
 public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
-  private static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
   private static final boolean DEBUG = false;
 
 
@@ -131,7 +131,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   transient private AS400JDBCManagedConnectionPoolDataSource cpds_;
 
   // Handles loading the appropriate resource bundle
-  private static ResourceBundleLoader loader_;
+  // private static ResourceBundleLoader loader_;
 
   private boolean dataSourceNameSpecified_;
   transient private JDConnectionPoolManager poolManager_;
@@ -519,7 +519,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
     connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400);  // Note: This also does an AS400.connectService() to the database host server.
 
-    if (JDTrace.isTraceOn() || log_ != null) logInformation(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));
+    if (JDTrace.isTraceOn() || log_ != null) logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));
     return connection;
   }
 
@@ -2650,7 +2650,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
           throw new NullPointerException(property);
       validateProperty(property, decfloatRoundingMode, JDProperties.DECFLOAT_ROUNDING_MODE);
 
-      String old = getDecfloatRoundingMode();
+      getDecfloatRoundingMode();
 
       properties_.setString(JDProperties.DECFLOAT_ROUNDING_MODE, decfloatRoundingMode);
   }
@@ -3170,7 +3170,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
       connectionKeyNeedsUpdate_ = true;
       // Note: We deliberately do _not_ store the password into properties_.
     }
-    logInformation(loader_.getText("AS400_JDBC_DS_PASSWORD_SET"));
+    logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));
     logProperty(property, "***");
   }
 
@@ -4460,7 +4460,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
       //Bidi-HCG start
       //exception for "package ccsid" - it can accept any integer
-      if(index == properties_.PACKAGE_CCSID){            	            	            	
+      if(index == JDProperties.PACKAGE_CCSID){            	            	            	
       	try{            	
       		int ccsid = Integer.valueOf(value).intValue();
       		if(ccsid < 1)

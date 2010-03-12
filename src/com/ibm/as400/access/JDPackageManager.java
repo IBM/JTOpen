@@ -22,7 +22,7 @@ import java.sql.SQLException;
 **/
 class JDPackageManager
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -145,7 +145,7 @@ class JDPackageManager
           reply = connection_.sendAndReceive (request, id_); //@P0C
 
           int errorClass = reply.getErrorClass();
-          int returnCode = reply.getReturnCode();
+          // int returnCode = reply.getReturnCode();
 
           if (errorClass != 0)
           {

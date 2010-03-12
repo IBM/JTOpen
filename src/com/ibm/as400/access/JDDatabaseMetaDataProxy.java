@@ -23,7 +23,7 @@ class JDDatabaseMetaDataProxy
 extends AbstractProxyImpl
 implements java.sql.DatabaseMetaData
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -817,7 +817,7 @@ implements java.sql.DatabaseMetaData
     }
 
 
-    private boolean isCatalogValid (String catalog)
+    boolean isCatalogValid (String catalog)
     throws SQLException
     {
       return callMethodRtnBool ("isCatalogValid",

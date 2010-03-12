@@ -13,12 +13,12 @@
 
 package com.ibm.as400.access;
 
-import java.io.*;
+
 import java.sql.*;
 
 final class AS400JDBCClobLocatorOutputStream extends AS400JDBCOutputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
   
   private AS400JDBCClobLocator clob_;
   

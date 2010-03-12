@@ -27,12 +27,12 @@ class JDParameterMetaDataProxy
 extends AbstractProxyImpl
 implements ParameterMetaData
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   // Private data.
  
-  private JDConnectionProxy       jdConnection_;
+  JDConnectionProxy       jdConnection_;
                                   // The associated JDBC Connection object.
 
 

@@ -20,7 +20,7 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-import java.sql.Ref;
+
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;

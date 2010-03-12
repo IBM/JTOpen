@@ -94,7 +94,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private static final String FALSE_ = "false";
     private static final String TOOLBOX_DRIVER = "jdbc:as400:";
     private static final int MAX_THRESHOLD = 16777216;                  // Maximum threshold (bytes). @A3C, @A4A
-    private static final int MAX_SCALE = 63;                            // Maximum decimal scale
+    static final int MAX_SCALE = 63;                            // Maximum decimal scale
 
     // socket options to store away in JNDI
     private static final String SOCKET_KEEP_ALIVE = "soKeepAlive"; // @F1A
@@ -122,7 +122,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private boolean isSecure_ = false;  //@B4A
 
     // Handles loading the appropriate resource bundle
-    private static ResourceBundleLoader loader_;      //@A9A
+    // private static ResourceBundleLoader loader_;      //@A9A
 
 
     // In mod 5 support was added to optionally serialize the password with the
@@ -708,7 +708,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         connection.setSystem(as400);
         connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
 
-        log(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
+        log(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
         return connection;
     }
     
@@ -3303,7 +3303,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         as400_.setPassword(password);
         serialPWBytes_ = xpwConfuse(password);                  //@J3a
-        log(loader_.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
+        log(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
     }
 
     /**
@@ -4965,7 +4965,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
                         
             //Bidi-HCG start
             //exception for "package ccsid" - it can accept any integer
-            if(index == properties_.PACKAGE_CCSID){            	            	            	
+            if(index == JDProperties.PACKAGE_CCSID){            	            	            	
             	try{            	
             		int ccsid = Integer.valueOf(value).intValue();
             		if(ccsid < 1)

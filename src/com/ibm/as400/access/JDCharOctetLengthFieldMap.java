@@ -19,10 +19,10 @@ class JDCharOctetLengthFieldMap
 extends JDTypeInfoFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private int typeIndex_;     //@A1A
-    private int lengthIndex_;   //@A1A
+    int lengthIndex_;   //@A1A
     JDCharOctetLengthFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
                               int scaleIndex, int ccsidIndex, int vrm, JDProperties properties)    // @M0C - added vrm and properties //@KKB
     {

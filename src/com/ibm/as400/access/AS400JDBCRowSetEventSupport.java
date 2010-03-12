@@ -23,7 +23,7 @@ import java.util.Vector;
 **/
 class AS400JDBCRowSetEventSupport
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
    private Vector rowsetListeners_;              // The listener list.
    

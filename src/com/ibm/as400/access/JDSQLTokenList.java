@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 // This is more efficient than a Vector, and doesn't need to be synchronized.
 final class JDSQLTokenList
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   JDSQLToken[] tokens_ = new JDSQLToken[32]; // Even a space is a token, so there will be lots!
   int count_;

@@ -27,7 +27,7 @@ class JDNullableSmallintFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -52,7 +52,6 @@ implements JDFieldMap
         //                  else return procedureNullableUnknown
 
         String serverDataAsString = serverData.toString ();
-        int result;
 
         if(serverDataAsString.equalsIgnoreCase("NO"))
             return new Short ((short) DatabaseMetaData.procedureNoNulls);

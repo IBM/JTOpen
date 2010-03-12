@@ -64,7 +64,7 @@ attributes for the driver.
 //
 class JDProperties implements Serializable, Cloneable //@PDC 550
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
 

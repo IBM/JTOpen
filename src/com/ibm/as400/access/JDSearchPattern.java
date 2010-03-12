@@ -25,7 +25,7 @@ package com.ibm.as400.access;
 //
 final class JDSearchPattern
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+   static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     private static final String 	ESCAPE_CHAR_   = "\\"; // same as \

@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 **/
 class JDSortSequence
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   private static final int TYPE_HEX_                 = 0;
   private static final int TYPE_LANGUAGE_ID_SHARED_  = 1;

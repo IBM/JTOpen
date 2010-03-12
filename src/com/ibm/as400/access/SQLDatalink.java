@@ -27,13 +27,12 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.net.URL;                     // @d2a
 import java.net.MalformedURLException;
 
 final class SQLDatalink
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // Private data.
     private int                     length_;

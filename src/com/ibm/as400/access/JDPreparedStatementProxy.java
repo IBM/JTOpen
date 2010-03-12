@@ -20,10 +20,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.URL;            
 import java.sql.Array;
-import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.DataTruncation;
 import java.sql.Date;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
@@ -33,9 +31,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.Calendar;
-import java.util.Enumeration;
 
 
 
@@ -43,11 +39,10 @@ class JDPreparedStatementProxy
 extends JDStatementProxy
 implements PreparedStatement
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Copied from JDError:
-  private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
 
   private final static String NOT_SERIALIZABLE = "Parameter is not serializable.";

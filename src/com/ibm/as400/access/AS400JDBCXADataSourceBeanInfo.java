@@ -16,9 +16,6 @@ package com.ibm.as400.access;
 import java.awt.Image;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
-import java.beans.EventSetDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
 
@@ -29,7 +26,7 @@ import java.beans.SimpleBeanInfo;
 **/
 public class AS400JDBCXADataSourceBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
    // Class this bean info represents.

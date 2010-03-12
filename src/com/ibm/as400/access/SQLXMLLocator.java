@@ -29,7 +29,7 @@ import java.util.Calendar;
 //reading xml from host, this class acts like ClobLocator
 final class SQLXMLLocator implements SQLLocator
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private AS400JDBCConnection     connection_;
     //writing to host, we let host do all the conversion
@@ -310,7 +310,7 @@ final class SQLXMLLocator implements SQLLocator
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
 
-                    int objectLength = bytes.length;
+                    // int objectLength = bytes.length;
                     if(bytes.length > maxLength_)
                     {
                         byte[] newValue = new byte[maxLength_];
@@ -354,7 +354,7 @@ final class SQLXMLLocator implements SQLLocator
 
                     bytes = baos.toByteArray();
                     
-                    int objectLength = bytes.length;
+                    // int objectLength = bytes.length;
                     if(bytes.length > maxLength_)
                     {
                         byte[] newValue = new byte[maxLength_];

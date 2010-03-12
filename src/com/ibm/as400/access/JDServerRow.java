@@ -26,7 +26,7 @@ directly from a datastream to or from the system.
 class JDServerRow
 implements JDRow
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private int[] parameterTypes_;
 
@@ -223,7 +223,7 @@ implements JDRow
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
                                                           fieldType, dataLength_[i], precisions_[i], 
                                                           scales_[i], ccsids_[i], translateBinary, settings,
-                                                          maxLobSize, (i+1), dateFormat, timeFormat, compositeContentType, serverFormat_.getXMLCharType(i));    //@F1C // @C2C @550C @array //@xml3  
+                                                          maxLobSize, (i+1), dateFormat, timeFormat, compositeContentType, xmlCharType);    //@F1C // @C2C @550C @array //@xml3  
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);
@@ -318,7 +318,7 @@ implements JDRow
                     {                                                               //@array
                         if(isOutput(j+1))                                                 //@arrayout
                         {                                                               //@array
-                            String typeName = sqlData_[j].getTypeName();                //@array
+                            // String typeName = sqlData_[j].getTypeName();                //@array
                             int length = 0;                                             //@array
                             dataOffset_[j] = offset;                                    //@array
                             length = dataLengths[outCount];                                    //@arrayout  

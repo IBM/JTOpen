@@ -18,7 +18,6 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Savepoint; //@A1A
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -30,7 +29,7 @@ import java.util.Properties;
 class JDGenericConnection
 implements Connection
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Private data.

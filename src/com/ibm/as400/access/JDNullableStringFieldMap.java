@@ -25,7 +25,7 @@ class JDNullableStringFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -49,7 +49,6 @@ implements JDFieldMap
         //               == "N", return NO
         //                  else return empty string indicating we don't know
         String serverDataAsString = serverData.toString ();
-        String result;
 
         if(serverDataAsString.length() > 0)
         {

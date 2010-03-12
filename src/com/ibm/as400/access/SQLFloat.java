@@ -28,7 +28,8 @@ import java.util.Calendar;
 final class SQLFloat
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    
+	static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;

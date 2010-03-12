@@ -31,7 +31,7 @@ import java.util.Calendar;
 
 final class SQLClob implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
@@ -201,7 +201,7 @@ final class SQLClob implements SQLData
                         {
                             buf.append(charBuffer, 0, charsRead);
                             totalCharsRead += charsRead;
-                            int charsRemaining = length_ - totalCharsRead;
+                            // int charsRemaining = length_ - totalCharsRead;
                           
                             charsRead = stream.read(charBuffer, 0, blockSize);
                         }

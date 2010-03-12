@@ -28,7 +28,7 @@ Blob.setBinaryStream which both return an object of type OutputStream
 **/
 abstract class AS400JDBCOutputStream extends OutputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   private boolean closed_ = false;
@@ -104,7 +104,7 @@ abstract class AS400JDBCOutputStream extends OutputStream
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogStream());
+      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
       closed_ = true;
       throw new IOException(e.getMessage());
     }
@@ -134,7 +134,7 @@ abstract class AS400JDBCOutputStream extends OutputStream
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogStream());
+      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
       closed_ = true;
       throw new IOException(e.getMessage());
     }

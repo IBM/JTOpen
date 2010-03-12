@@ -47,7 +47,7 @@ public class AS400JDBCArray implements Array
     private boolean isSQLData_ = false; //true if data[0]_ == SQLData 
 
 
-    private AS400JDBCArray(){} //restrict
+    AS400JDBCArray(){} //restrict
     
 
     /**

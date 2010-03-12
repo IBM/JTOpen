@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.Vector;                            // @D0A
-import java.io.IOException;                         // @J0A
 
 
 
@@ -98,7 +97,7 @@ double-quotes.
 public class AS400JDBCDatabaseMetaData
 implements DatabaseMetaData
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
 
     //New constants for JDBC 3.0.
@@ -112,13 +111,13 @@ implements DatabaseMetaData
     private SQLConversionSettings   settings_;
 
     //@mdsp misc constants for sysibm stored procedures
-    private final static int SQL_NO_NULLS            = 0;   //@mdsp
-    private final static int SQL_NULLABLE            = 1;   //@mdsp
-    private final static int SQL_NULLABLE_UNKNOWN    = 2;   //@mdsp
-    private final static int SQL_BEST_ROWID          = 1;   //@mdsp
-    private final static int SQL_ROWVER              = 2;   //@mdsp
-    private static final String EMPTY_STRING         = "";  //@mdsp
-    private static final String MATCH_ALL            = "%"; //@mdsp
+    final static int SQL_NO_NULLS            = 0;   //@mdsp
+    final static int SQL_NULLABLE            = 1;   //@mdsp
+    final static int SQL_NULLABLE_UNKNOWN    = 2;   //@mdsp
+    final static int SQL_BEST_ROWID          = 1;   //@mdsp
+    final static int SQL_ROWVER              = 2;   //@mdsp
+    static final String EMPTY_STRING         = "";  //@mdsp
+    static final String MATCH_ALL            = "%"; //@mdsp
     
 
     private static final String VIEW          = "VIEW";          //@mdsp
@@ -454,7 +453,7 @@ implements DatabaseMetaData
 
                  ( (scope == bestRowTransaction) &&
                    ( (connection_.getAutoCommit()==true) ||
-                     (connection_.getTransactionIsolation() != connection_.TRANSACTION_REPEATABLE_READ)))))
+                     (connection_.getTransactionIsolation() != Connection.TRANSACTION_REPEATABLE_READ)))))
             { // Return empty result set
                 rowCache = new JDSimpleRowCache(formatRow);
             }
@@ -744,7 +743,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
+        // int vrm = connection_.getVRM();  //@trunc3
         
         //@mdsp SYSIBM SP Call - move block to top of method
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
@@ -2484,10 +2483,12 @@ implements DatabaseMetaData
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
 
+        String metadataSourceProperty = connection_.getProperties().getString(JDProperties.METADATA_SOURCE);  
         //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --start
         //@mdsp comment //note always call SP in v6r1 and later.  ROI was lacking in this area.
-        if(connection_.getVRM() >= JDUtilities.vrm610)          
-        {  
+		if (connection_.getVRM() >= JDUtilities.vrm610
+				|| (metadataSourceProperty
+						.equals(JDProperties.METADATA_SOURCE_STORED_PROCEDURE))) {  
         	short iUnique;
         	short reserved = 0;
 
@@ -3267,7 +3268,7 @@ implements DatabaseMetaData
                         // result set.
                         // This does not actual move the data, it just sets up
                         // the mapping.
-                        boolean nullValue = true; // used when hardcoding null
+                        // boolean nullValue = true; // used when hardcoding null
                         JDFieldMap[] maps = new JDFieldMap[6];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                         maps[1] = new JDSimpleDelimitedFieldMap (1); // pk schema //@PDC code to remove quotes
@@ -4050,7 +4051,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
+        // int vrm = connection_.getVRM();  //@trunc3
         
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
@@ -4270,7 +4271,7 @@ implements DatabaseMetaData
         // is available for use. Exception
         // is thrown if not available
 
-        int vrm = connection_.getVRM();  //@trunc3
+        // int vrm = connection_.getVRM();  //@trunc3
         
         
         //@mdsp SYSIBM SP Call and Native logic

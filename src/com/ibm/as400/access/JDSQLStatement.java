@@ -17,7 +17,7 @@ import java.sql.Connection;          // @G4A
 import java.sql.SQLException;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import java.io.IOException;
+
 
 
 
@@ -58,22 +58,22 @@ class JDSQLStatement
     private static final String     CALL0_          = "?";                      // @E1A
     private static final String     CALL1_          = "?=";
     private static final String     CALL2_          = "?=CALL";
-    private static final String     COMMA_          = ",";
+    static final String     COMMA_          = ",";
     private static final String     CONNECT_        = "CONNECT";
     private static final String     CONNECTION_     = "CONNECTION";             // @F1A
-    private static final String     CROSS_          = "CROSS";
+    static final String     CROSS_          = "CROSS";
     private static final String     CURRENT_        = "CURRENT";
     private static final String     DECLARE_        = "DECLARE";
     private static final String     DELETE_         = "DELETE";
     private static final String     DISCONNECT_     = "DISCONNECT";
-    private static final String     EXCEPTION_      = "EXCEPTION";
+    static final String     EXCEPTION_      = "EXCEPTION";
     private static final String     FETCH_          = "FETCH";
     private static final String     FOR_            = "FOR";
     private static final String     FROM_           = "FROM";
-    private static final String     INNER_          = "INNER";
+    static final String     INNER_          = "INNER";
     private static final String     INSERT_         = "INSERT";
-    private static final String     JOIN_           = "JOIN";
-    private static final String     LEFT_           = "LEFT";
+    static final String     JOIN_           = "JOIN";
+    static final String     LEFT_           = "LEFT";
     private static final String     LPAREN_         = "(";
     private static final String     OF_             = "OF";
     private static final String     ONLY_           = "ONLY";
@@ -114,7 +114,7 @@ class JDSQLStatement
     // @C3D private StringTokenizer tokenizer_                  = null;
     private JDSQLTokenizer tokenizer_                   = null; // @C3A
     private String          value_;
-    private String          valueForServer_             = null;     // @E1A
+    // private String          valueForServer_             = null;     // @E1A
     private boolean         selectTableNotSet_          = true;     //@K1A boolean to determine if selectTable_ has been set, if so, then selectTableNotSet_ is false
   private boolean         selectFromInsert_           = false;    // @GKA
 
@@ -615,14 +615,19 @@ class JDSQLStatement
         }
         else if((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
         {
-            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710)   //@blksql
+            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710) {  //@blksql
                 canBeBatched_ = true;   //@blksql
+                // JWE:  should only permit blocking if no literals are in the update statement
+
+            }
             isUpdateOrDelete_ = true;
         }
         else if(firstWord.equals(MERGE_)) //@blksql
         {
-            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710)   //@blksql
+            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710)  { //@blksql
+            	// JWE:  should only permit batching if no literals present
                 canBeBatched_ = true;   //@blksql
+            }
         }
         else if(firstWord.equals(DECLARE_))
         {

@@ -31,7 +31,7 @@ import java.util.Calendar;
 
 final class SQLDBClob implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private int                     length_;                    // Length of string, in characters.     @E3C
     private int                     maxLength_;                 // Max length of field, in bytes.       @E3C

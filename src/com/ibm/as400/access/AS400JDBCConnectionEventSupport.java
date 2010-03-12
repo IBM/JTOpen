@@ -23,7 +23,7 @@ import java.util.Vector;
 **/
 class AS400JDBCConnectionEventSupport
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
    private Vector connectionListeners_;              // The listener list.
    

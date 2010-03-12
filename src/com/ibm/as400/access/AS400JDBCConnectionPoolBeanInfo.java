@@ -17,7 +17,6 @@ import java.awt.Image;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.EventSetDescriptor;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
@@ -28,14 +27,14 @@ import java.beans.SimpleBeanInfo;
 **/
 public class AS400JDBCConnectionPoolBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
    // Class this bean info represents.
    private final static Class beanClass = AS400JDBCConnectionPool.class;
 
    // Handles loading the appropriate resource bundle
-   private static ResourceBundleLoader loader_;
+   // private static ResourceBundleLoader loader_;
 
    private static EventSetDescriptor[] events_;
    private static PropertyDescriptor[] properties_;
@@ -48,8 +47,8 @@ public class AS400JDBCConnectionPoolBeanInfo extends SimpleBeanInfo
                                                            "propertyChange",
                                                            java.beans.PropertyChangeListener.class,
                                                            "propertyChange");
-       changed.setDisplayName(loader_.getText("EVT_NAME_PROPERTY_CHANGE"));
-       changed.setShortDescription(loader_.getText("EVT_DESC_PROPERTY_CHANGE"));
+       changed.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_CHANGE"));
+       changed.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_CHANGE"));
 
        EventSetDescriptor[] events = { changed };
 
@@ -59,8 +58,8 @@ public class AS400JDBCConnectionPoolBeanInfo extends SimpleBeanInfo
                                        "getDataSource", "setDataSource");
        dataSource.setBound(true);
        dataSource.setConstrained(false);
-       dataSource.setDisplayName(loader_.getText("PROP_NAME_CP_DATA_SOURCE"));
-       dataSource.setShortDescription(loader_.getText("PROP_DESC_CP_DATA_SOURCE"));
+       dataSource.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CP_DATA_SOURCE"));
+       dataSource.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CP_DATA_SOURCE"));
 
        properties_ = new PropertyDescriptor[] { dataSource };
      }

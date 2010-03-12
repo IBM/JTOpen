@@ -23,7 +23,7 @@ import java.util.*;
 **/
 class JDSQLTokenizer implements Enumeration
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   /**
   Constant containing the default delimiters for SQLTokenizers.

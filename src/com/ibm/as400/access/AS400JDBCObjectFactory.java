@@ -53,7 +53,7 @@ import javax.naming.spi.ObjectFactory; // JNDI
 **/
 public class AS400JDBCObjectFactory implements ObjectFactory
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
    /**
    *  Returns the object requested.

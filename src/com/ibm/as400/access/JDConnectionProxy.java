@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Savepoint;   
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -35,7 +34,7 @@ implements Connection
   // Private data.
  
   private JDDatabaseMetaDataProxy metaData_;
-  private AS400 as400PublicClassObj_; // Prevents garbage collection.
+  AS400 as400PublicClassObj_; // Prevents garbage collection.
 
 
     // Copied from JDError:
@@ -628,7 +627,7 @@ implements Connection
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
           synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogStream ());
+            e.printStackTrace (DriverManager.getLogWriter ());
           }
         }
         throw new SQLException (
@@ -639,7 +638,7 @@ implements Connection
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
           synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogStream ());
+            e.printStackTrace (DriverManager.getLogWriter ());
           }
         }
         throw new SQLException (

@@ -38,7 +38,7 @@ transaction.
 //
 class AS400JDBCInputStream extends InputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   private boolean         closed_;
   private JDLobLocator    locator_;
@@ -84,7 +84,7 @@ Returns the number of bytes that can be read without blocking.
       if (JDTrace.isTraceOn())
       {
         JDTrace.logInformation(this, "Error in available");
-        e.printStackTrace(DriverManager.getLogStream());
+        e.printStackTrace(DriverManager.getLogWriter());
         closed_ = true;
       }
       throw new IOException(e.getMessage());  
@@ -245,7 +245,7 @@ exception is thrown.
       if (JDTrace.isTraceOn())
       {
         JDTrace.logInformation(this, "Error in read" + e.getMessage()); //@pdc
-        //@pdd e.printStackTrace(DriverManager.getLogStream());
+        //@pdd e.printStackTrace(DriverManager.getLogWriter());
         closed_ = true;                                   
       }
       throw new IOException(e.getMessage());             
@@ -308,7 +308,7 @@ Skips over and discards data.
       if (JDTrace.isTraceOn())
       {
         JDTrace.logInformation(this, "Error in skip");
-        e.printStackTrace(DriverManager.getLogStream());         
+        e.printStackTrace(DriverManager.getLogWriter());         
       }
       closed_ = true;
       throw new IOException(e.getMessage());  

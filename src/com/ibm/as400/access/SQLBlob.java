@@ -32,7 +32,7 @@ import java.util.Calendar;
 
 final class SQLBlob implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private static final byte[] default_ = new byte[0];
 
@@ -448,7 +448,7 @@ final class SQLBlob implements SQLData
         truncated_ = 0;
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(value_)));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(value_)));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -507,7 +507,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-        return new StringReader(BinaryConverter.bytesToString(value_));
+        return new StringReader(BinaryConverter.bytesToHexString(value_));
     }
 
     public Clob getClob()
@@ -515,7 +515,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-        String string = BinaryConverter.bytesToString(value_);
+        String string = BinaryConverter.bytesToHexString(value_);
         return new AS400JDBCClob(string, string.length());
     }
 
@@ -574,7 +574,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-        return BinaryConverter.bytesToString(value_);
+        return BinaryConverter.bytesToHexString(value_);
     }
 
     public Time getTime(Calendar calendar) //@CRS - Could use toLong() to make this work.
@@ -599,7 +599,7 @@ final class SQLBlob implements SQLData
 
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(value_)));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(value_)));
         }
         catch(UnsupportedEncodingException e)
         {

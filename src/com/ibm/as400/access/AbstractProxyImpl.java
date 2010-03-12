@@ -16,7 +16,11 @@ package com.ibm.as400.access;
 import java.lang.reflect.InvocationTargetException;
 
 // The AbstractProxyImpl class provides a default implementation for the ProxyImpl and ProxyFactoryImpl interfaces.
-abstract class AbstractProxyImpl implements ProxyImpl, ProxyFactoryImpl
+abstract class AbstractProxyImpl
+/*ifdef JDBC40
+extends ToolboxWrapper 
+endif */ 
+implements ProxyImpl, ProxyFactoryImpl
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 

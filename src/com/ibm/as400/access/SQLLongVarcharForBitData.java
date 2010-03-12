@@ -33,7 +33,7 @@ import java.util.Calendar;
 final class SQLLongVarcharForBitData
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[]     default_    = new byte[0]; // @C2A
@@ -414,7 +414,7 @@ implements SQLData
         // return new ByteArrayInputStream(getBytes());
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -489,7 +489,7 @@ implements SQLData
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new StringReader(new String(getBytes()));
-        return new StringReader(BinaryConverter.bytesToString(getBytes())); //@F1A
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes())); //@F1A
     }
 
     public Clob getClob()
@@ -499,7 +499,7 @@ implements SQLData
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new AS400JDBCClob(new String(getBytes()));
-        return new AS400JDBCClob(BinaryConverter.bytesToString(getBytes()), maxLength_); //@F1A
+        return new AS400JDBCClob(BinaryConverter.bytesToHexString(getBytes()), maxLength_); //@F1A
     }
 
     public Date getDate(Calendar calendar)
@@ -560,7 +560,7 @@ implements SQLData
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new String(getBytes());
-        return BinaryConverter.bytesToString(getBytes()); //@F1A
+        return BinaryConverter.bytesToHexString(getBytes()); //@F1A
     }
 
     public Time getTime(Calendar calendar)
@@ -588,7 +588,7 @@ implements SQLData
         // return new ByteArrayInputStream(getBytes());
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {

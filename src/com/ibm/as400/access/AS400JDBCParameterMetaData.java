@@ -26,7 +26,7 @@ Use PreparedStatement.getParameterMetaData() to create new ParameterMetaData obj
 public class AS400JDBCParameterMetaData
            implements ParameterMetaData                         
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     // Private data.

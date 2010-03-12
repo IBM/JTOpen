@@ -23,12 +23,11 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.Vector;
+
 
 final class SQLBlobLocator implements SQLLocator
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private AS400JDBCConnection     connection_;
     private ConvTable               converter_;
@@ -615,7 +614,7 @@ final class SQLBlobLocator implements SQLLocator
         // fix this to use a Stream
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -698,14 +697,14 @@ final class SQLBlobLocator implements SQLLocator
         //return new InputStreamReader(new AS400JDBCInputStream(new JDLobLocator(locator_)));
         
         // fix this to use a Stream
-        return new StringReader(BinaryConverter.bytesToString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
     }
 
     public Clob getClob()
     throws SQLException
     {
         truncated_ = 0;
-        String string = BinaryConverter.bytesToString(getBytes());
+        String string = BinaryConverter.bytesToHexString(getBytes());
         return new AS400JDBCClob(string, string.length());
     }
 
@@ -772,7 +771,7 @@ final class SQLBlobLocator implements SQLLocator
     throws SQLException
     {
         truncated_ = 0;
-        return BinaryConverter.bytesToString(getBytes());
+        return BinaryConverter.bytesToHexString(getBytes());
     }
 
     public Time getTime(Calendar calendar)
@@ -798,7 +797,7 @@ final class SQLBlobLocator implements SQLLocator
         // fix this to use a Stream
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {

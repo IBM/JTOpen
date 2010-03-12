@@ -23,13 +23,11 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.Vector;
 
 
 final class SQLClobLocator implements SQLLocator
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private AS400JDBCConnection     connection_;
     private SQLConversionSettings   settings_;

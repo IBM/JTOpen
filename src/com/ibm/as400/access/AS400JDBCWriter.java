@@ -14,9 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
-import java.io.OutputStream; 
 import java.io.Writer;
-import java.sql.Clob;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
@@ -29,7 +27,7 @@ which returns an object of type Writer.
 **/
 class AS400JDBCWriter extends Writer
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   private boolean closed_ = false;   // is the stream closed?
@@ -165,7 +163,7 @@ class AS400JDBCWriter extends Writer
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogStream());
+      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
       closed_ = true;
       throw new IOException(e.getMessage());
     }

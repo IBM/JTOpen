@@ -33,8 +33,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.Hashtable;             //@G4A
 import java.util.Vector;
+
 
 /**
 <p>The AS400JDBCCallableStatement class runs a stored procedure.
@@ -54,7 +54,7 @@ public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatement
 implements CallableStatement
 {
-    private static final int    NO_VALIDATION_  = -9999;
+    static final int    NO_VALIDATION_  = -9999;
 
     private int[]               registeredTypes_; // array of types to track what the user registers the output parm as
     private boolean[]           registered_;      // array of booleans to keep track of which parameters were registered

@@ -56,7 +56,7 @@ is new in modification 5 of the Toolbox JDBC driver.
 public class AS400JDBCSavepoint
 implements Savepoint
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
                                     
     // Counter for creating unique names.

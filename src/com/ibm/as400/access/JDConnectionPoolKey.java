@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.util.Arrays;
 
 /**
  Helper class for storing connection pool hashkeys, used by AS400JDBCManagedDataSource and JDConnectionPoolManager.

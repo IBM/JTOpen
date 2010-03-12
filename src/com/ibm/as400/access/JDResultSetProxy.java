@@ -14,7 +14,6 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -23,10 +22,7 @@ import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.DataTruncation;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -43,7 +39,7 @@ class JDResultSetProxy
 extends AbstractProxyImpl
 implements ResultSet
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Private data.

@@ -14,7 +14,6 @@
 package com.ibm.as400.access;
 
 import java.sql.SQLException;
-import java.util.Calendar;
 
 /**
  * <p>
@@ -31,7 +30,7 @@ import java.util.Calendar;
  * 5th column.
  */
 class JDSimpleDelimitedFieldMap implements JDFieldMap {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private int fromIndex_;
 

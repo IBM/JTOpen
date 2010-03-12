@@ -57,17 +57,20 @@ basis, not on a driver or connection basis.
 //    performance penalty when tracing is on.
 //
 // @CRS: 4. To provide compatibility between JDK 1.1 and JDK 1.2+,
-//    we now handle both DriverManager.getLogStream() and DriverManager.getLogWriter().
+//    we now handle both DriverManager.GetLogStream() and DriverManager.getLogWriter().
 //    In JDK 1.4.1, if a log writer is set, getLogStream() returns null, but if a
 //    log stream is set, getLogWriter() still returns a writer.  This is confusing.
 //    We attempt to treat the log writer and the log stream separately, and we log
 //    to both of them if they are available. This is to maintain backwards-compatibility
 //    with apps that are still using the deprecated log stream methods.
 //    Note that we also treat Toolbox JDBC tracing separately now.
+//
+// @JWE:  In March 2010, removed support for depreciated GetLogStream()
+//
 
 final class JDTrace
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   // This code copied from JDUtilities so we don't reference that class, 
   // in case we are running with the proxy jar file.
@@ -122,7 +125,7 @@ Indicates if tracing is turned on?
     {
       if (DriverManager.getLogWriter() != null) return true;
     }
-    return (DriverManager.getLogStream() != null);
+    return (DriverManager.getLogWriter() != null);
   }
 
 
@@ -376,10 +379,15 @@ Logs an open trace message.
       }
     }
     // Log to the DriverManager stream.
-    PrintStream ps = DriverManager.getLogStream();
+    Writer ps = DriverManager.getLogWriter();
     if (ps != null)
     {
-      ps.println(data);
+      try {
+		ps.write(data+"\n");
+  	  } catch (IOException e) {
+  		 // ignore any warning
+	  }
+      
     }
     // Log to Toolbox trace.
     Trace.log(Trace.JDBC, data);

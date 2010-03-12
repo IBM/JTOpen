@@ -25,7 +25,7 @@ class JDParameterModeFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     // fromIndex is the index of the data received from the system.
@@ -56,7 +56,6 @@ implements JDFieldMap
         // DB2/400 does not support return values from stored procedures.
 
         String serverDataAsString = serverData.toString ();
-        int result;
 
         if(serverDataAsString.equalsIgnoreCase("IN"))
             return new Short ((short) DatabaseMetaData.procedureColumnIn);

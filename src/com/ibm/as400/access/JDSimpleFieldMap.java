@@ -30,7 +30,7 @@ need to map it to the 5th column.
 class JDSimpleFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private int                 fromIndex_;
 

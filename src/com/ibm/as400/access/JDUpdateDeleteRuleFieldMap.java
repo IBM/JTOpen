@@ -65,7 +65,7 @@ class JDUpdateDeleteRuleFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // fromIndex is the index of the data received from the system.
     JDUpdateDeleteRuleFieldMap (int fromIndex)
@@ -81,7 +81,6 @@ implements JDFieldMap
     {
         Object serverData = super.getValue (row);    // gets data from correct column
         // using fromIndex
-        int result;
 
         switch(((Number) serverData).intValue ())
         {
