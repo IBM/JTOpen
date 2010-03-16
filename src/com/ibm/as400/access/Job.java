@@ -44,6 +44,7 @@ import java.util.Vector;
  *  }
  *  System.out.println("Job status is: " + job.getStatus());
  </pre>
+ <p>Note: Jobs created by SBMJOB tend to get cleaned-up immediately upon job completion (if no spooled files were created); whereupon <tt>getStatus()</tt>, <tt>getCompletionStatus()</tt>, and most other 'get' methods will throw an AS400Exception containing an AS400Message indicating "Internal job identifier no longer valid" (message ID CPF3C52).  That exception should be interpreted as an indication that the job has completed.
  <p>Note: To obtain information about the job in which a program or command runs, do something like the following:
  <pre>
  *  AS400 system = new AS400();
@@ -1382,7 +1383,7 @@ public class Job implements Serializable
      <p>Type: String
      <p>Can be loaded by JobList: false
      @see  #getInternalJobID
-     @deprecated  The internal job identifier should be treated as a byte array of 16 bytes.
+     @deprecated  Use {@link #INTERNAL_JOB_IDENTIFIER INTERNAL_JOB_IDENTIFIER} instead.  The internal job identifier should be treated as a byte array of 16 bytes.
      **/
     public static final int INTERNAL_JOB_ID = 11000;  // Always gets loaded.
 
@@ -3153,7 +3154,7 @@ public class Job implements Serializable
      Constructs a Job object.  This sets the job name to JOB_NAME_INTERNAL, the user name to USER_NAME_BLANK, and the job number to JOB_NUMBER_BLANK.
      @param  system  The system object representing the system on which the job exists.
      @param  internalJobID  The internal job identifier.
-     @deprecated  The internal job ID should be treated as a byte array of 16 bytes.
+     @deprecated  Use {@link #Job(AS400,byte[]) Job(AS400,byte[])} instead.  The internal job ID should be treated as a byte array of 16 bytes.
      **/
     public Job(AS400 system, String internalJobID)
     {
@@ -3247,7 +3248,7 @@ public class Job implements Serializable
         setValueInternal(USER_NAME, user);
         number_ = number;
         setValueInternal(JOB_NUMBER, number);
-        status_ = status;
+        status_ = status;  // Note: 'status' is NOT part of the job's identification.
         setValueInternal(JOB_STATUS, status);
         type_ = type;
         setValueInternal(JOB_TYPE, type);
@@ -3856,7 +3857,7 @@ public class Job implements Serializable
      <li>{@link #COMPLETION_STATUS_COMPLETED_ABNORMALLY COMPLETION_STATUS_COMPLETED_ABNORMALLY} - The job completed abnormally.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed, or if the job can no longer be found (AS400Exception)..
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
@@ -3865,6 +3866,7 @@ public class Job implements Serializable
     public String getCompletionStatus() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         return (String)getValue(COMPLETION_STATUS);
+        // See note under getStatus(), regarding SBMJOB.
     }
 
     /**
@@ -4205,7 +4207,7 @@ public class Job implements Serializable
     /**
      Returns the internal job identifier.  The internal job identifier is a value input to other APIs to increase the speed of locating the job on the system.  The identifier is not valid following an initial program load (IPL).  If you attempt to use it after an IPL, an exception occurs.
      @return  The internal job identifier.
-     @deprecated  The internal job identifier should be treated as a byte array of 16 bytes.
+     @deprecated  Use {@link #getInternalJobIdentifier() getInternalJobIdentifier()} instead.  The internal job identifier should be treated as a byte array of 16 bytes.
      **/
     public String getInternalJobID()
     {
@@ -4940,7 +4942,7 @@ public class Job implements Serializable
      <li>{@link #JOB_STATUS_OUTQ JOB_STATUS_OUTQ} - This job has completed running, but still has output on an output queue.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed, or if the job can no longer be found (AS400Exception).
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
@@ -4949,6 +4951,7 @@ public class Job implements Serializable
     public String getStatus() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         return ((String)getValue(JOB_STATUS)).trim();
+        // Note: For jobs created by SBMJOB: If the completed job still has spooled files attached to it, it will be found with *OUTQ status. But if there are no spooled files (i.e. a joblog or other output spooled by the job), or if they have SPLFACN set to *DETACH, then upon job completion the permanent job structure will be cleaned up immediately, and you will not find the job with DSPJOB, QUSRJOBI or any other means.  In that case, this method (and most other 'get' methods) will throw an AS400Exception containing an AS400Message indicating "Internal job identifier no longer valid" (message ID CPF3C52).  That exception should be interpreted as an indication that the job has completed.
     }
 
     /**
@@ -5313,16 +5316,17 @@ public class Job implements Serializable
         // Need to load an attribute from each format.
         try
         {
-            // Clear all values.
+            // Clear all cached attribute values.
             values_.clear();
 
-            // Reset all of the important information
-            setValueInternal(INTERNAL_JOB_ID, null);
-            setValueInternal(INTERNAL_JOB_IDENTIFIER, null);
+            // For those attributes that never change, retain the original value.
+
+            //setValueInternal(INTERNAL_JOB_ID, null);
+            //setValueInternal(INTERNAL_JOB_IDENTIFIER, null);
             setValueInternal(JOB_NAME, name_);
             setValueInternal(USER_NAME, user_);
             setValueInternal(JOB_NUMBER, number_);
-            setValueInternal(JOB_STATUS, status_);
+            //setValueInternal(JOB_STATUS, null);
             setValueInternal(JOB_TYPE, type_);
             setValueInternal(JOB_SUBTYPE, subtype_);
 
@@ -5363,22 +5367,24 @@ public class Job implements Serializable
                 byte[] format = lookupFormatName(attr);
                 formats[format[5] & 0x0F] = true;
 
-                // Clear/reset attr values, for consistency with loadInformation().
-                values_.remove(attr);  // Clear the value for that attribute.
+                // Clear the value for that attribute.
+                values_.remove(attr);
+
+                // For those attributes that never change, retain the original value.
                 switch (attr)
                 {
-                    case INTERNAL_JOB_ID:
-                        setValueInternal(INTERNAL_JOB_ID, null); break;
-                    case INTERNAL_JOB_IDENTIFIER:
-                        setValueInternal(INTERNAL_JOB_IDENTIFIER, null); break;
+                    //case INTERNAL_JOB_ID:
+                    //    setValueInternal(INTERNAL_JOB_ID, null); break;
+                    //case INTERNAL_JOB_IDENTIFIER:
+                    //    setValueInternal(INTERNAL_JOB_IDENTIFIER, null); break;
                     case JOB_NAME:
                         setValueInternal(JOB_NAME, name_); break;
                     case USER_NAME:
                         setValueInternal(USER_NAME, user_); break;
                     case JOB_NUMBER:
                         setValueInternal(JOB_NUMBER, number_); break;
-                    case JOB_STATUS:
-                        setValueInternal(JOB_STATUS, status_); break;
+                    //case JOB_STATUS:
+                    //    setValueInternal(JOB_STATUS, null); break;
                     case JOB_TYPE:
                         setValueInternal(JOB_TYPE, type_); break;
                     case JOB_SUBTYPE:
@@ -5388,14 +5394,14 @@ public class Job implements Serializable
             }
 
             // Retrieve values.  For each needed format, just specify any attribute associated with that format.
-            if (formats[1]) retrieve(THREAD_COUNT);  // Format JOBI0150.
+            if (formats[1]) retrieve(THREAD_COUNT);            // Format JOBI0150.
             if (formats[2]) retrieve(CURRENT_SYSTEM_POOL_ID);  // Format JOBI0200.
-            if (formats[3]) retrieve(JOB_DATE);  // Format JOBI0300.
-            if (formats[4]) retrieve(SERVER_TYPE);  // Format JOBI0400.
-            if (formats[5]) retrieve(LOGGING_TEXT);  // Format JOBI0500.
-            if (formats[6]) retrieve(SPECIAL_ENVIRONMENT);  // Format JOBI0600.
-            if (formats[7]) retrieve(USER_LIBRARY_LIST);  // Format JOBI0700.
-            if (formats[0]) retrieve(ELAPSED_CPU_TIME_USED);  // Format JOBI1000.
+            if (formats[3]) retrieve(JOB_DATE);                // Format JOBI0300.
+            if (formats[4]) retrieve(SERVER_TYPE);             // Format JOBI0400.
+            if (formats[5]) retrieve(LOGGING_TEXT);            // Format JOBI0500.
+            if (formats[6]) retrieve(SPECIAL_ENVIRONMENT);     // Format JOBI0600.
+            if (formats[7]) retrieve(USER_LIBRARY_LIST);       // Format JOBI0700.
+            if (formats[0]) retrieve(ELAPSED_CPU_TIME_USED);   // Format JOBI1000.
         }
         catch (Exception e)
         {
@@ -6327,7 +6333,7 @@ public class Job implements Serializable
      Sets the internal job identifier.  This does not change the job on the system.  Instead, it changes the job this Job object references.  The job name must be set to "*INT" for this to be recognized.  This cannot be changed if the object has established a connection to the system.
      @param  internalJobID  The internal job identifier.
      @exception  PropertyVetoException  If the property change is vetoed.
-     @deprecated  The internal job identifier should be treated as a byte array of 16 bytes.
+     @deprecated  Use {@link #setInternalJobIdentifier(byte[]) setInternalJobIdentifier(byte[])} instead.  The internal job identifier should be treated as a byte array of 16 bytes.
      **/
     public void setInternalJobID(String internalJobID) throws PropertyVetoException
     {
