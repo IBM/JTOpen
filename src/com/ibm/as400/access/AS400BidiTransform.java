@@ -16,17 +16,17 @@ package com.ibm.as400.access;
 import java.sql.SQLException;
 
 /**
- The AS400BidiTransform class provides layout transformations that allow the conversion of Bidi text in IBM i format (after its conversion to Unicode) to Bidi text in Java format, or vice-versa.
+ Provides layout transformations that allow the conversion of Bidi text in IBM i format (after its conversion to Unicode), to Bidi text in Java format; or vice-versa.
  <p>Bidi text is a combination of a sequence of characters and a set of Bidi flags.  That text (Arabic or Hebrew) has characters which are read from right to left.  That text might also be mixed with numbers which are read from left to right, and possibly also mixed with Latin characters.  Conversion support is needed to display text properly with the correct order and shape.
  <p>Bidi text from an IBM i system may be represented by a combination of a String (the characters) and a CCSID (which implies a set of Bidi flags specific to that CCSID).
- <p><b>Multi-threading considerations:</b> different threads may use the same AS400BidiTransform object if they have the same transformation needs, as follows:
+ <p><b>Multi-threading considerations:</b> Different threads may use the same AS400BidiTransform object if they have the same transformation needs, as follows:
  <ul>
  <li>Same CCSID for the IBM i data.
  <li>Same string type for the IBM i data (if the default string type of the CCSID is used, this will result from using the same CCSID).
  <li>Same orientation for Java data (if the Java data orientation is derived from the IBM i string type, this will result from using the same string type for IBM i data).
  </ul>
  <p>Otherwise, each thread must use its own instances of this class.
- <p>The following example illustrate how to transform bidi text:
+ <p>The following examples illustrate how to transform bidi text:
  <blockquote><pre>
  * // Java data to IBM i layout:
  * AS400BidiTransform abt;
@@ -49,10 +49,10 @@ import java.sql.SQLException;
  * abt.setJavaStringType(BidiStringType.ST6);   // Imp RTL //
  * String dst = abt.toJavaLayout("some bidi string");
  </pre></blockquote>
- A more simplified method is to use String bidiTransform(String str, int inFormat, int outFormat); the following example illustrates how to use it:
+ A more simplified method is to use {@link #bidiTransform(String,int,int) bidiTransform()}. The following example illustrates how to use it:
  <blockquote><pre>
  String src = "some bidi string";
- String result =  AS400BidiTransform(src,  BidiStringType.ST4,  BidiStringType.ST6);//from visual LTR to Implicit RTL
+ String result = AS400BidiTransform.bidiTransform(src, BidiStringType.ST4,  BidiStringType.ST6); // from visual LTR to Implicit RTL //
  </pre></blockquote>
  **/
 public class AS400BidiTransform
@@ -497,6 +497,7 @@ public class AS400BidiTransform
     	BidiFlagSet flagsOut = initFlagSet(outFormat);
     	
     	bdx.flags = flagsOut;
+    	bdx.removeMarkers = true;
     	BidiText textIn = new BidiText(flagsIn,str);
         BidiText textOut = textIn.transform(bdx);
         String strOut = textOut.toString();
