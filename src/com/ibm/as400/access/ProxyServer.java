@@ -23,7 +23,7 @@ import java.util.Vector;
 
 
 /**
-<p>The ProxyServer class is used to fulfill requests from programs
+Fulfills requests from programs
 using the proxy jar file.  The proxy server is responsible for
 creating and invoking methods on Toolbox objects on behalf of the
 program.  The proxy server is intended for use on a middle-tier in
@@ -769,8 +769,8 @@ for this proxy server.
         }
         catch (ClassNotFoundException e)
         {
-            if (Trace.isTraceErrorOn ())
-                Trace.log (Trace.ERROR, "SSLight classes are not in the classpath, SSL support is not enabled.");
+            if (Trace.isTraceDiagnosticOn ())
+                Trace.log (Trace.DIAGNOSTIC, "SSLight classes are not in the classpath, SSL support is not enabled.");
         }
         catch (IOException e)
         {
