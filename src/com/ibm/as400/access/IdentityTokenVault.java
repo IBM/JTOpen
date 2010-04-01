@@ -13,11 +13,13 @@
 
 package com.ibm.as400.access;
 
+import java.io.Serializable;
+
 /**
  * A vault which holds an identity token.  The identity token can be used for
  * authenticating to one or more IBM i host servers.
  */
-class IdentityTokenVault extends CredentialVault implements Cloneable
+class IdentityTokenVault extends CredentialVault implements Cloneable, Serializable
 {
   /**
    * Constructs an IdentityTokenVault object that does not contain a credential.

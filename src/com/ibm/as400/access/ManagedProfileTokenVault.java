@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
+import java.io.Serializable;
 
 /**
  * A vault which contains a profile token credential.  The primary purpose of this class is
@@ -117,7 +118,7 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
  * of the timeout interval for the profile token; so a profile token with a one hour timeout
  * interval will be refreshed once it has less than 30 minutes of time remaining before it expires.
  */
-class ManagedProfileTokenVault extends ProfileTokenVault implements Cloneable
+class ManagedProfileTokenVault extends ProfileTokenVault implements Cloneable, Serializable
 {
   /**
    * Constant that indicates the profile token credential managed by the vault

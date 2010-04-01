@@ -14,13 +14,14 @@
 package com.ibm.as400.access;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
+import java.io.Serializable;
 
 /**
  * A vault which holds a profile token.  The profile token represents the credentials
  * of an IBM i user profile for a system, and can be used for authenticating
  * to one or more IBM i host servers on that system.
  */
-class ProfileTokenVault extends CredentialVault implements Cloneable
+class ProfileTokenVault extends CredentialVault implements Cloneable, Serializable
 {
   /**
    * Constructs an ProfileTokenVault object that does not contain a credential

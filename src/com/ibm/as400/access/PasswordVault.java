@@ -14,12 +14,13 @@
 package com.ibm.as400.access;
 
 import com.ibm.as400.access.AS400;
+import java.io.Serializable;
 
 /**
  * A vault which holds a password for a user profile on an IBM i system.  The password
  * can be used for authenticating to one or more IBM i host servers.
  */
-class PasswordVault extends CredentialVault implements Cloneable
+class PasswordVault extends CredentialVault implements Cloneable, Serializable
 {
   private static final boolean PASSWORD_TRACE = false;
 

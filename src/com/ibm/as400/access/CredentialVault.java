@@ -13,11 +13,13 @@
 
 package com.ibm.as400.access;
 
+import java.io.Serializable;
+
 /**
  * A vault which holds an authentication credential to one or more IBM i host servers.
  * The type of credential stored varies, depending on the sub-class implementation.
  */
-abstract class CredentialVault implements Cloneable
+abstract class CredentialVault implements Cloneable, Serializable
 {
   static final boolean PASSWORD_TRACE = false;
 
