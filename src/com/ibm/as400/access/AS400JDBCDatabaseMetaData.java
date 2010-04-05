@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+/* ifdef JDBC40
+import java.sql.RowIdLifetime;
+endif */ 
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
@@ -95,6 +98,10 @@ double-quotes.
 //----------------------------------------------------------
 
 public class AS400JDBCDatabaseMetaData
+/* ifdef JDBC40 
+extends ToolboxWrapper 
+endif */ 
+
 implements DatabaseMetaData
 {
   static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
@@ -994,6 +1001,7 @@ implements DatabaseMetaData
         SQLData[] sqlData = null;                 //@F2C
         int[] fieldNullables = null;              //@F2C
         //@F2A Result sets must be different depending on whether we are running under JDBC 3.0
+        //@pda jdbc40 is also contained in same block as jdbc30, since this file is jdbc40 only compiled.
         int vrm = connection_.getVRM();  //@trunc3
         
         //@mdsp SYSIBM SP Call
@@ -1005,7 +1013,12 @@ implements DatabaseMetaData
             cs.setString(2, normalize(schemaPattern));
             cs.setString(3, normalize(tablePattern));
             cs.setString(4, normalize(columnPattern));
+/*ifdef JDBC40
+            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
+endif */ 
+/* ifndef JDBC40 */ 
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+/* endif */             
             cs.execute();
 
             ResultSet rs = cs.getResultSet();  //@mdrs
@@ -1106,10 +1119,21 @@ implements DatabaseMetaData
                 "CHAR_OCTET_LENGTH",
                 "ORDINAL_POSITION",
                 "IS_NULLABLE",
+/* ifdef JDBC40 
+                "SCOPE_CATLOG",    //@G4A
+endif */                 
+/* ifndef JDBC40 */                
                 "SCOPE_CATALOG",    //@G4A
+/* endif */                 
                 "SCOPE_SCHEMA",     //@G4A
                 "SCOPE_TABLE",      //@G4A
+/* ifndef JDBC40 */                
                 "SOURCE_DATA_TYPE"  //@G4A
+/* endif */ 
+/* ifdef JDBC40
+                "SOURCE_DATA_TYPE", //@G4A
+                "IS_AUTOINCREMENT"  //jdbc40
+endif */ 
             };
 
             sqlData = new SQLData[] { new SQLVarchar (128, settings_), // catalog
@@ -1134,6 +1158,9 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // scope schema        //@G4A
                 new SQLVarchar (128, settings_),  // scope table         //@G4A
                 new SQLSmallint (vrm), // source data type    //@G4A //@trunc3
+/* ifdef JDBC40
+                new SQLVarchar (128, settings_),  // is autoincrement    //jdbc40
+endif */ 
             };
 
             fieldNullables = new int[] {columnNullable, // catalog
@@ -1158,6 +1185,9 @@ implements DatabaseMetaData
                 columnNullable, // scope schema     //@G4A
                 columnNullable, // scope table      //@G4A
                 columnNullable, // source data type //@G4A
+/* ifdef JDBC40 
+                columnNoNulls,  // is autoincrement //jdbc40
+endif */ 
             };
         }
 
@@ -1290,7 +1320,12 @@ implements DatabaseMetaData
                     if (!isJDBC3)                  //@F2A
                         maps = new JDFieldMap[18];
                     else
+/* ifdef JDBC40 
+                       maps = new JDFieldMap[23]; //@G4A //jdbc40
+endif */ 
+/* ifndef JDBC40 */                    
                         maps = new JDFieldMap[22]; //@G4A
+/* endif */ 
 
                     maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                     maps[1] = new JDSimpleFieldMap (1); // library
@@ -1340,6 +1375,9 @@ implements DatabaseMetaData
                         maps[19] = new JDHardcodedFieldMap ("", true, false);  // scope schema     //@G4A
                         maps[20] = new JDHardcodedFieldMap ("", true, false);  // scope table      //@G4A
                         maps[21] = new JDHardcodedFieldMap (new Short((short) 0)); // source data type //@G4A
+/* ifdef JDBC40 
+                        maps[22] = new JDHardcodedFieldMap ("");  // is autoincrement "" till switch to sysibm //jdbc40
+endif */ 
                     }
 
                     // Create the mapped row cache that is returned in the
@@ -3352,7 +3390,12 @@ implements DatabaseMetaData
             cs.setString(2, normalize(schemaPattern));
             cs.setString(3, normalize(procedurePattern));
             cs.setString(4, normalize(columnPattern));
+/* ifdef JDBC40 
+            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
+endif */ 
+/* ifndef JDBC40 */ 
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+/* endif */ 
             cs.execute();
 
             ResultSet rs = cs.getResultSet();  //@mdrs
@@ -3622,7 +3665,13 @@ implements DatabaseMetaData
             "RESERVED2",
             "RESERVED3",
             "REMARKS",
+/* ifdef JDBC40 
+            "PROCEDURE_TYPE",
+            "SPECIFIC_NAME" //@JDBC40
+endif */ 
+/* ifndef JDBC40 */             
             "PROCEDURE_TYPE"
+/* endif */             
         };
 
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // catalog
@@ -3632,7 +3681,14 @@ implements DatabaseMetaData
             new SQLInteger (vrm),     // reserved //@trunc3
             new SQLInteger (vrm),     // reserved //@trunc3
             new SQLVarchar (2000, settings_),  // remarks
+/* ifdef JDBC40
+            new SQLSmallint (vrm),     // procedure type //@trunc3
+            new SQLVarchar (128, settings_)  // specific name //@JDBC40
+
+endif */ 
+/* ifndef JDBC40 */ 
             new SQLSmallint (vrm)     // procedure type //@trunc3
+/* endif */ 
         };
 
         int[] fieldNullables = {
@@ -3643,7 +3699,13 @@ implements DatabaseMetaData
             columnNullable,  // Reserved 2
             columnNullable,  // Reserved 3
             columnNoNulls,   // Remarks
+/* ifdef JDBC40 
+            columnNoNulls,   // Procedure type
+            columnNoNulls    // Specific name //@JDBC40
+endif */ 
+/* ifndef JDBC40 */             
             columnNoNulls    // Procedure type
+/* endif */ 
         };
 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
@@ -3668,7 +3730,12 @@ implements DatabaseMetaData
             else
             {  // Parameters are valid, build request and send
                 StringBuffer selectStmt = new StringBuffer();
+/* ifdef JDBC40 
+                selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS, SPECIFIC_NAME ");//@PROC //@JDBC40
+endif */ 
+/* ifndef JDBC40 */                 
                 selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS ");//@PROC
+/* endif */ 
                 selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPROCS "); // use . or /
 
 
@@ -3711,8 +3778,12 @@ implements DatabaseMetaData
 
                 JDRowCache serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
                 statement_.close ();
-
+/* ifdef JDBC40 
+               JDFieldMap[] maps = new JDFieldMap[9];
+endif */ 
+/* ifndef JDBC40 */ 
                 JDFieldMap[] maps = new JDFieldMap[8];
+/* endif */ 
                 maps[0] = new JDHardcodedFieldMap (connection_.getCatalog());
                 maps[1] = new JDSimpleFieldMap (1); // schema
                 maps[2] = new JDSimpleFieldMap (2); // procedure
@@ -3721,6 +3792,9 @@ implements DatabaseMetaData
                 maps[5] = new JDHardcodedFieldMap (new Integer (0));
                 maps[6] = new JDHandleNullFieldMap (3, ""); // remarks
                 maps[7] = new JDProcTypeFieldMap (4);
+/* ifdef JDBC40 
+                maps[8] = new JDSimpleFieldMap (5); //@jdbc40
+endif */ 
 
                 JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                 rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
@@ -4908,7 +4982,12 @@ implements DatabaseMetaData
             .prepareCall("CALL SYSIBM" +getCatalogSeparator() + "SQLGETTYPEINFO(?,?)");
 
             cs.setShort(1, (short) SQL_ALL_TYPES);
+/* ifdef  JDBC40 
+            cs.setString(2, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
+/* endif */ 
+/* ifndef JDBC40 */ 
             cs.setString(2, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+/* endif */ 
             cs.execute();
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
@@ -5203,7 +5282,12 @@ implements DatabaseMetaData
             }
 
             cs.setString(4, typesString);
+/* ifdef JDBC40             
+            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
+endif */ 
+/* ifndef JDBC40 */ 
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+/* endif */  
             cs.execute();
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
@@ -7407,7 +7491,28 @@ implements DatabaseMetaData
         return false;
     }
 
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "com.ibm.as400.access.AS400JDBCDatabaseMetaData", "java.sql.DatabaseMetaData" };
+    }
+  
 
+    //@PDA jdbc40
+    /**
+     * Retrieves whether a <code>SQLException</code> thrown while autoCommit is <code>true</code> indicates 
+     * that all open ResultSets are closed, even ones that are holdable.  When a <code>SQLException</code> occurs while
+     * autocommit is <code>true</code>, it is vendor specific whether the JDBC driver responds with a commit operation, a 
+     * rollback operation, or by doing neither a commit nor a rollback.  A potential result of this difference
+     * is in whether or not holdable ResultSets are closed.
+     *
+     * @return <code>true</code> if so; <code>false</code> otherwise 
+     * @exception SQLException if a database access error occurs
+     */
+    public boolean autoCommitFailureClosesAllResultSets() throws SQLException
+    {
+        return false;  //toolbox returns false based on current behavoir
+    }
 
     //@PDA jdbc40
     /**
@@ -7449,9 +7554,35 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Client Info", connection_); //@in2
+                                       "Client Info", connection_);  //@in2
     }
 
+
+    //@PDA jdbc40
+    /**
+     * Indicates whether or not this data source supports the SQL <code>ROWID</code> type,
+     * and if so  the lifetime for which a <code>RowId</code> object remains valid. 
+     * <p>
+     * The returned int values have the following relationship: 
+     * <pre>
+     *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
+     *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
+     * </pre>
+     * so conditional logic such as 
+     * <pre>
+     *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
+     * </pre>
+     * can be used. Valid Forever means valid across all Sessions, and valid for 
+     * a Session means valid across all its contained Transactions. 
+     *
+     * @throws SQLException if a database access error occurs
+     */
+    /* ifdef JDBC40 
+    public RowIdLifetime getRowIdLifetime() throws SQLException
+    {
+        return RowIdLifetime.ROWID_VALID_FOREVER; //toolbox rowid is forever
+    }
+   endif */ 
 
     //@PDA jdbc40
     /**
@@ -7497,7 +7628,22 @@ implements DatabaseMetaData
         return rs;  //@mdrs
     }
 
+
+    //@PDA jdbc40
+    /**
+     * Retrieves whether this database supports invoking user-defined or vendor functions 
+     * using the stored procedure escape syntax.
+     *
+     * @return <code>true</code> if so; <code>false</code> otherwise 
+     * @exception SQLException if a database access error occurs
+     */
+    public boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException
+    {
+        // toolbox does not support this
+        return false;
+    }
  
+
     //@PDA jdbc40
     /**
      * Retrieves a description of the user functions available in the given
@@ -7699,7 +7845,12 @@ implements DatabaseMetaData
         cstmt.setString(2, normalize(schemaPattern));
         cstmt.setString(3, normalize(functionNamePattern));
         cstmt.setString(4, normalize(columnNamePattern));
+/* ifdef JDBC40 
+        cstmt.setObject(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp //@ver
+endif */ 
+/* ifndef JDBC40 */         
         cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
+/* endif */ 
         cstmt.execute();//@mdrs
         ResultSet rs = cstmt.getResultSet();  //@mdrs
         if(rs != null)                        //@mdrs

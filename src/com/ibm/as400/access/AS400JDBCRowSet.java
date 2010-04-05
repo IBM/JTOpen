@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,15 +34,26 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
+/* ifdef JDBC40
+import java.sql.NClob;
 import java.sql.PreparedStatement;
+endif */ 
+
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+/* ifdef JDBC40 
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Calendar;
 import java.util.Hashtable;  //@A2A
 import java.util.Map;
@@ -107,9 +118,13 @@ import java.util.Map;
 *    </li>
 *  </ul>
 **/
-public class AS400JDBCRowSet extends Object implements RowSet, Serializable             // @A3C
+public class AS400JDBCRowSet 
+/* ifdef JDBC40
+extends ToolboxWrapper
+endif */ 
+implements RowSet, Serializable             // @A3C
 {
-  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
 
 
@@ -128,7 +143,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     // Toolbox classes.
     private Connection connection_;             // The JDBC connection.
     private DataSource dataSource_;             // The dataSource used to make the connection.
-    private PreparedStatement statement_;       // The prepared statement.
+    private AS400JDBCPreparedStatement statement_;       // The prepared statement. //@pdc jdbc40
     private transient AS400JDBCResultSet resultSet_;      // The result set.  @G4C //@scan1
     private transient AS400JDBCRowSetEventSupport eventSupport_;    // RowSetListener support.  @A3C
     private Context context_ = null;  //@A1A    // The JNDI naming context which specifies how naming
@@ -434,7 +449,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
             queryTimeout = statement_.getQueryTimeout();
             setParameters = true;
         }
-        statement_ = (PreparedStatement)connection_.prepareStatement(command_, type_, concurrency_);
+        statement_ = (AS400JDBCPreparedStatement)connection_.prepareStatement(command_, type_, concurrency_); //@PDC jdbc40
 
         if (setParameters)
         {
@@ -4517,4 +4532,2849 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
         validateResultSet();
         return resultSet_.wasNull();
     }
+
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object. The
+     * <code>Reader</code> reads the data till end-of-file is reached. The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param value the parameter value
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; or if a database access error occurs
+     */
+    public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setNCharacterStream(parameterIndex, value, length);
+    }
+
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object. The
+     * <code>Reader</code> reads the data till end-of-file is reached. The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+     * @param parameterName the name of the column to be set
+     * @param value the parameter value
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
+    public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setNCharacterStream(statement_.findParameterIndex(parameterName), value, length);
+    }
+
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
+     * SQL <code>NCLOB</code> value when it sends it to the database.
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; or if a database access error occurs
+     */
+    /* ifdef JDBC40 
+    public void setNClob(int parameterIndex, NClob value) throws SQLException
+    {
+        validateStatement();
+        statement_.setNClob(parameterIndex, value);
+    } 
+    endif */ 
+
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
+     * implements the <code>java.sql.NClob</code> interface. This <code>NClob</code>
+     * object maps to a SQL <code>NCLOB</code>.
+     * @param parameterName the name of the column to be set
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
+    /* ifdef JDBC40 
+    public void setNClob(String parameterName, NClob value) throws SQLException
+    {
+        validateStatement();
+        statement_.setNClob(statement_.findParameterIndex(parameterName), value);
+    }
+    endif */ 
+    
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to the given <code>String</code> object.
+     * The driver converts this to a SQL <code>NCHAR</code> or
+     * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
+     * (depending on the argument's
+     * size relative to the driver's limits on <code>NVARCHAR</code> values)
+     * when it sends it to the database.
+     *
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; or if a database access error occurs
+     */
+    public void setNString(int parameterIndex, String value) throws SQLException
+    {
+        validateStatement();
+        statement_.setNString(parameterIndex, value);
+    }
+
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to the given <code>String</code> object.
+     * The driver converts this to a SQL <code>NCHAR</code> or
+     * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code>
+     * @param parameterName the name of the column to be set
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
+    public void setNString(String parameterName, String value) throws SQLException
+    {
+        validateStatement();
+        statement_.setNString(statement_.findParameterIndex(parameterName), value);
+    }
+
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+     * driver converts this to a SQL <code>ROWID</code> value when it sends it
+     * to the database
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the parameter value
+     * @throws SQLException if a database access error occurs
+     */
+    /* ifdef JDBC40 
+    public void setRowId(int parameterIndex, RowId x) throws SQLException
+    {
+        validateStatement();
+        statement_.setRowId(parameterIndex, x);
+    }
+    endif */ 
+
+    //@pda jdbc40
+    /**
+    * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+    * driver converts this to a SQL <code>ROWID</code> when it sends it to the
+    * database.
+    *
+    * @param parameterName the name of the parameter
+    * @param x the parameter value
+    * @throws SQLException if a database access error occurs
+    */
+    /* ifdef JDBC40 
+    public void setRowId(String parameterName, RowId x) throws SQLException
+    {
+        validateStatement();
+        statement_.setRowId(statement_.findParameterIndex(parameterName), x);
+    }
+   endif */ 
+    //@pda jdbc40
+    /**
+      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
+      * SQL <code>XML</code> value when it sends it to the database.
+      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
+      * @throws SQLException if a database access error occurs, this method
+      *  is called on a closed result set,
+      *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+      * for the <code>SQLXML</code> object  or
+      *  if there is an error processing the XML value.  The <code>getCause</code> method 
+      *  of the exception may provide a more detailed exception, for example, if the 
+      *  stream does not contain valid XML.
+      */
+    /* ifdef JDBC40 
+    public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
+    {
+        validateStatement();
+        statement_.setSQLXML(parameterIndex, xmlObject);
+    }
+    endif */ 
+
+    //@pda jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
+     * <code>SQL XML</code> value when it sends it to the database.
+     * @param parameterName the name of the parameter
+     * @param xmlObject a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs, this method
+     *  is called on a closed result set,
+     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+     * for the <code>SQLXML</code> object  or
+     *  if there is an error processing the XML value.  The <code>getCause</code> method 
+     *  of the exception may provide a more detailed exception, for example, if the 
+     *  stream does not contain valid XML.
+     */
+    /* ifdef JDBC40 
+    public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException
+    {
+        validateStatement();
+        statement_.setSQLXML(statement_.findParameterIndex(parameterName), xmlObject);
+    }
+   endif */ 
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the holdability of this <code>RowSet</code> object
+     * @return  either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
+     * The holdability is derived in this order of precedence:
+       <ul>
+       <li>1.  The holdability, if any, that was specified on statement creation using
+        the methods createStatement(), prepareCall(), or prepareStatement() on the 
+        Connection object.
+       <li>2.  The holdability specified using the method setHoldability(int)
+        if this method was called on the Connection object.
+       <li>3.  If neither of above methods were called, the value of the 
+       <code> cursor hold </code> 
+       <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
+       Full functionality of #1 and #2 requires OS/400 v5r2
+       or IBM i.  If connecting to OS/400 V5R1 or earlier, 
+       the value specified on these two methods will be ignored and the default holdability
+       will be the value of #3.
+     * @throws SQLException if a database error occurs
+     */
+    /* ifdef JDBC40 
+    public int getHoldability() throws SQLException
+    {
+        return resultSet_.getHoldability();
+    }
+    endif */ 
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row 
+     * of this <code>ResultSet</code> object as a
+     * <code>java.io.Reader</code> object.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @return a <code>java.io.Reader</code> object that contains the column
+     * value; if the value is SQL <code>NULL</code>, the value returned is
+     * <code>null</code> in the Java programming language.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @exception SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public Reader getNCharacterStream(int columnIndex) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getNCharacterStream(columnIndex);
+    }
+
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row 
+     * of this <code>ResultSet</code> object as a
+     * <code>java.io.Reader</code> object.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     * 
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return a <code>java.io.Reader</code> object that contains the column
+     * value; if the value is SQL <code>NULL</code>, the value returned is
+     * <code>null</code> in the Java programming language
+     * @exception SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public Reader getNCharacterStream(String columnLabel) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getNCharacterStream(columnLabel);
+    }
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return a <code>NClob</code> object representing the SQL 
+     *         <code>NCLOB</code> value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set 
+     * or if a database access error occurs
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40
+    public NClob getNClob(int columnIndex) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getNClob(columnIndex);
+    }
+    endif */ 
+
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
+     * value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set 
+     * or if a database access error occurs
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public NClob getNClob(String columnLabel) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getNClob(columnLabel);
+    }
+    endif */ 
+
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as
+     * a <code>String</code> in the Java programming language.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL <code>NULL</code>, the
+     * value returned is <code>null</code>
+     * @exception SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public String getNString(int columnIndex) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getNString(columnIndex);
+    }
+
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as
+     * a <code>String</code> in the Java programming language.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return the column value; if the value is SQL <code>NULL</code>, the
+     * value returned is <code>null</code>
+     * @exception SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public String getNString(String columnLabel) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getNString(columnLabel);
+    }
+
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row of this 
+     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+     * programming language.
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @return the column value; if the value is a SQL <code>NULL</code> the
+     *     value returned is <code>null</code>
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public RowId getRowId(int columnIndex) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getRowId(columnIndex);
+    }
+    endif */ 
+
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row of this 
+     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+     * programming language.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return the column value ; if the value is a SQL <code>NULL</code> the
+     *     value returned is <code>null</code>
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public RowId getRowId(String columnLabel) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getRowId(columnLabel);
+    }
+   endif */ 
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in  the current row of
+     *  this <code>ResultSet</code> as a
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public SQLXML getSQLXML(int columnIndex) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getSQLXML(columnIndex);
+    }
+    endif */ 
+
+    //@pda jdbc40
+
+    /**
+     * Retrieves the value of the designated column in  the current row of
+     *  this <code>ResultSet</code> as a
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set    
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public SQLXML getSQLXML(String columnLabel) throws SQLException
+    {
+        validateResultSet();
+        return resultSet_.getSQLXML(columnLabel);
+    }
+    endif */ 
+
+    //@pda jdbc40
+    /**
+     * Retrieves whether this <code>ResultSet</code> object has been closed. A <code>ResultSet</code> is closed if the
+     * method close has been called on it, or if it is automatically closed.
+     *
+     * @return true if this <code>ResultSet</code> object is closed; false if it is still open
+     * @throws SQLException if a database access error occurs
+     */
+    public boolean isClosed() throws SQLException
+    {
+        return resultSet_.isClosed();
+    }
+
+    //@pda jdbc40
+    /** 
+     * Updates the designated column with an ascii stream value, which will have
+     * the specified number of bytes.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateAsciiStream (columnIndex, x, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@pda jdbc40
+    /** 
+     * Updates the designated column with an ascii stream value, which will have
+     * the specified number of bytes..
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param x the new column value
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateAsciiStream (columnLabel, x, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@pda jdbc40
+    /** 
+     * Updates the designated column with a binary stream value, which will have
+     * the specified number of bytes.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value     
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBinaryStream(columnIndex, x, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /** 
+     * Updates the designated column with a binary stream value, which will have
+     * the specified number of bytes.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param x the new column value
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBinaryStream(columnLabel, x, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column using the given input stream, which
+     * will have the specified number of bytes.
+     * When a very large ASCII value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code>. Data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from ASCII to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @param length the number of bytes in the parameter data.
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBlob (columnIndex, inputStream, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /** 
+     * Updates the designated column using the given input stream, which
+     * will have the specified number of bytes.
+     * When a very large ASCII value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code>. Data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from ASCII to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @param length the number of bytes in the parameter data.
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBlob(columnLabel, inputStream, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a character stream value, which will have
+     * the specified number of bytes.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateCharacterStream(columnIndex, x, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a character stream value, which will have
+     * the specified number of bytes.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader the <code>java.io.Reader</code> object containing
+     *        the new column value
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateCharacterStream(columnLabel, reader, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object, which is the given number of characters long.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method 
+     */
+    public void updateClob(int columnIndex, Reader reader, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateClob(columnIndex, reader, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /** 
+     * Updates the designated column using the given <code>Reader</code>
+     * object, which is the given number of characters long.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateClob(String columnLabel, Reader reader, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateClob(columnLabel, reader, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a character stream value, which will have
+     * the specified number of bytes.   The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+     * It is intended for use when
+     * updating  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     * 
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs, 
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNCharacterStream(columnIndex, x, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a character stream value, which will have
+     * the specified number of bytes.  The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.  
+     * It is intended for use when
+     * updating  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *     
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader the <code>java.io.Reader</code> object containing
+     *        the new column value
+     * @param length the length of the stream
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNCharacterStream(columnLabel, reader, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>java.sql.NClob</code> value.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param nClob the value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public void updateNClob(int columnIndex, NClob nClob) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNClob(columnIndex, nClob);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+    endif */ 
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>java.sql.NClob</code> value.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param nClob the value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set;
+     *  if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public void updateNClob(String columnLabel, NClob nClob) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNClob(columnLabel, nClob);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+    endif */ 
+    
+    
+    //@pda jdbc40
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object, which is the given number of characters long.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNClob(columnIndex, reader, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+    
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object, which is the given number of characters long.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set;
+     *  if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNClob(columnLabel, reader, length);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>String</code> value.
+     * It is intended for use when updating <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param nString the value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code>
+     * or if a database access error occurs
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNString(int columnIndex, String nString) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNString (columnIndex, nString);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>String</code> value.
+     * It is intended for use when updating <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param nString the value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set;
+     * the result set concurrency is <CODE>CONCUR_READ_ONLY</code> 
+     *  or if a database access error occurs
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNString(String columnLabel, String nString) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNString (columnLabel, nString);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>RowId</code> value. The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database.
+     * 
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param x the column value
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public void updateRowId(int columnIndex, RowId x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateRowId(columnIndex, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    } 
+    endif */ 
+    
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>RowId</code> value. The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database.
+     * 
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param x the column value
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public void updateRowId(String columnLabel, RowId x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateRowId(columnLabel, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+    endif */ 
+    
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>java.sql.SQLXML</code> value.
+     * The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database.
+     * <p>
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param xmlObject the value for the column to be updated
+     * @throws SQLException if a database access error occurs, this method
+     *  is called on a closed result set,
+     * the <code>java.xml.transform.Result</code>,
+     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+     * for the <code>SQLXML</code> object, 
+     *  if there is an error processing the XML value or   
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
+     *  of the exception may provide a more detailed exception, for example, if the 
+     *  stream does not contain valid XML.
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method 
+     */
+    /* ifdef JDBC40 
+    public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateSQLXML(columnIndex, xmlObject);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+    endif */ 
+    
+
+    //@pda jdbc40
+    /**
+     * Updates the designated column with a <code>java.sql.SQLXML</code> value. 
+     * The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database. 
+     * <p>
+     * 
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param xmlObject the column value
+     * @throws SQLException if a database access error occurs, this method
+     *  is called on a closed result set,
+     * the <code>java.xml.transform.Result</code>,
+     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+     * for the <code>SQLXML</code> object, 
+     *  if there is an error processing the XML value or   
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
+     *  of the exception may provide a more detailed exception, for example, if the 
+     *  stream does not contain valid XML.
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateSQLXML(columnLabel, xmlObject);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));  
+    }
+    endif */ 
+
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "com.ibm.as400.access.AS400JDBCRowSet", "javax.sql.RowSet" };
+    } 
+    
+    
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter in this <code>RowSet</code> object's command 
+     * to the given input stream.
+     * When a very large ASCII value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code>. Data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from ASCII to the database char format.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setAsciiStream</code> which takes a length parameter.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the Java input stream that contains the ASCII parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException
+    {
+        validateStatement();
+        statement_.setAsciiStream(parameterIndex, x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given input stream, which will have
+     * the specified number of bytes.
+     * When a very large ASCII value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code>. Data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from ASCII to the database char format.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the Java input stream that contains the ASCII parameter value
+     * @param length the number of bytes in the stream
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException
+    {
+        validateStatement();
+        statement_.setAsciiStream(statement_.findParameterIndex(parameterName), x, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given input stream.
+     * When a very large ASCII value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code>. Data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from ASCII to the database char format.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setAsciiStream</code> which takes a length parameter.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the Java input stream that contains the ASCII parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+    */
+    public void setAsciiStream(String parameterName, InputStream x) throws SQLException
+    {
+        validateStatement();
+        statement_.setAsciiStream(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given
+     * <code>java.math.BigDecimal</code> value.
+     * The driver converts this to an SQL <code>NUMERIC</code> value when
+     * it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getBigDecimal
+     */
+    public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException
+    {
+        validateStatement();
+        statement_.setBigDecimal(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter in this <code>RowSet</code> object's command 
+     * to the given input stream.
+     * When a very large binary value is input to a <code>LONGVARBINARY</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code> object. The data will be read from the
+     * stream as needed until end-of-file is reached.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setBinaryStream</code> which takes a length parameter.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the java input stream which contains the binary parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException
+    {
+        validateStatement();
+        statement_.setBinaryStream(parameterIndex, x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given input stream, which will have
+     * the specified number of bytes.
+     * When a very large binary value is input to a <code>LONGVARBINARY</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the java input stream which contains the binary parameter value
+     * @param length the number of bytes in the stream
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException
+    {
+        validateStatement();
+        statement_.setBinaryStream(statement_.findParameterIndex(parameterName), x, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given input stream.
+     * When a very large binary value is input to a <code>LONGVARBINARY</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code> object. The data will be read from the
+     * stream as needed until end-of-file is reached.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setBinaryStream</code> which takes a length parameter.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the java input stream which contains the binary parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setBinaryStream(String parameterName, InputStream x) throws SQLException
+    {
+        validateStatement();
+        statement_.setBinaryStream(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>InputStream</code> object.  The inputstream must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>PreparedStatement</code> is executed.
+     * This method differs from the <code>setBinaryStream (int, InputStream, int)</code>
+     * method because it informs the driver that the parameter value should be
+     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * the driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     * @param parameterIndex index of the first parameter is 1,
+     * the second is 2, ...
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @param length the number of bytes in the parameter data.
+     * @throws SQLException if a database access error occurs,
+     * this method is called on a closed <code>PreparedStatement</code>,
+     * if parameterIndex does not correspond
+     * to a parameter marker in the SQL statement,  if the length specified
+     * is less than zero or if the number of bytes in the inputstream does not match
+     * the specfied length.
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     *
+     */
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setBlob(parameterIndex, inputStream, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>InputStream</code> object.
+     * This method differs from the <code>setBinaryStream (int, InputStream)</code>
+     * method because it informs the driver that the parameter value should be
+     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * the driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setBlob</code> which takes a length parameter.
+     *
+     * @param parameterIndex index of the first parameter is 1,
+     * the second is 2, ...
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @throws SQLException if a database access error occurs,
+     * this method is called on a closed <code>PreparedStatement</code> or
+     * if parameterIndex does not correspond
+     * to a parameter marker in the SQL statement,
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     *
+     */
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException
+    {
+        validateStatement();
+        statement_.setBlob(parameterIndex, inputStream);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Blob</code> object.
+     * The driver converts this to an SQL <code>BLOB</code> value when it
+     * sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x a <code>Blob</code> object that maps an SQL <code>BLOB</code> value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setBlob(String parameterName, Blob x) throws SQLException
+    {
+        validateStatement();
+        statement_.setBlob(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>InputStream</code> object.  The <code>inputstream</code> must contain  the number
+     * of characters specified by length, otherwise a <code>SQLException</code> will be
+     * generated when the <code>CallableStatement</code> is executed.
+     * This method differs from the <code>setBinaryStream (int, InputStream, int)</code>
+     * method because it informs the driver that the parameter value should be
+     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * the driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     *
+     * @param parameterName the name of the parameter to be set
+     * the second is 2, ...
+     *
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @param length the number of bytes in the parameter data.
+     * @throws SQLException  if parameterIndex does not correspond
+     * to a parameter marker in the SQL statement,  or if the length specified
+     * is less than zero; if the number of bytes in the inputstream does not match
+     * the specfied length; if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     *
+     */
+    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setBlob(statement_.findParameterIndex(parameterName), inputStream, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>InputStream</code> object.
+     * This method differs from the <code>setBinaryStream (int, InputStream)</code>
+     * method because it informs the driver that the parameter value should be
+     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * the driver may have to do extra work to determine whether the parameter
+     * data should be send to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setBlob</code> which takes a length parameter.
+     *
+     * @param parameterName the name of the parameter
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @throws SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     *
+     */
+    public void setBlob(String parameterName, InputStream inputStream) throws SQLException
+    {
+        validateStatement();
+        statement_.setBlob(statement_.findParameterIndex(parameterName), inputStream);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>boolean</code> value.
+     * The driver converts this
+     * to an SQL <code>BIT</code> or <code>BOOLEAN</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @see #getBoolean
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setBoolean(String parameterName, boolean x) throws SQLException
+    {
+        validateStatement();
+        statement_.setBoolean(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>byte</code> value.
+     * The driver converts this
+     * to an SQL <code>TINYINT</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getByte
+     */
+    public void setByte(String parameterName, byte x) throws SQLException
+    {
+        validateStatement();
+        statement_.setByte(statement_.findParameterIndex(parameterName), x);  
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java array of bytes.
+     * The driver converts this to an SQL <code>VARBINARY</code> or
+     * <code>LONGVARBINARY</code> (depending on the argument's size relative
+     * to the driver's limits on <code>VARBINARY</code> values) when it sends
+     * it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getBytes
+     */
+    public void setBytes(String parameterName, byte[] x) throws SQLException
+    {
+        validateStatement();
+        statement_.setBytes(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter in this <code>RowSet</code> object's command
+     * to the given <code>Reader</code>
+     * object.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setCharacterStream</code> which takes a length parameter.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param reader the <code>java.io.Reader</code> object that contains the
+     *        Unicode data
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException
+    {
+        validateStatement();
+        statement_.setCharacterStream(parameterIndex, reader);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>Reader</code>
+     * object, which is the given number of characters long.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterName the name of the parameter
+     * @param reader the <code>java.io.Reader</code> object that
+     *        contains the UNICODE data used as the designated parameter
+     * @param length the number of characters in the stream
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException
+    {
+        validateStatement();
+        statement_.setCharacterStream(statement_.findParameterIndex(parameterName), reader, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>Reader</code>
+     * object.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     *
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setCharacterStream</code> which takes a length parameter.
+     *
+     * @param parameterName the name of the parameter
+     * @param reader the <code>java.io.Reader</code> object that contains the
+     *        Unicode data
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setCharacterStream(String parameterName, Reader reader) throws SQLException
+    {
+        validateStatement();
+        statement_.setCharacterStream(statement_.findParameterIndex(parameterName), reader);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>PreparedStatement</code> is executed.
+     *This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if a database access error occurs, this method is called on
+     * a closed <code>PreparedStatement</code>, if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement, or if the length specified is less than zero.
+     *
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this metho
+     */
+    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setClob(parameterIndex, reader, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.
+     * This method differs from the <code>setCharacterStream (int, Reader)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setClob</code> which takes a length parameter.
+     *
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if a database access error occurs, this method is called on
+     * a closed <code>PreparedStatement</code>or if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement
+     *
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setClob(int parameterIndex, Reader reader) throws SQLException
+    {
+        validateStatement();
+        statement_.setClob(parameterIndex, reader);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Clob</code> object.
+     * The driver converts this to an SQL <code>CLOB</code> value when it
+     * sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x a <code>Clob</code> object that maps an SQL <code>CLOB</code> value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setClob(String parameterName, Clob x) throws SQLException
+    {
+        validateStatement();
+        statement_.setClob(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>CallableStatement</code> is executed.
+     * This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * @param parameterName the name of the parameter to be set
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if the length specified is less than zero;
+     * a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     *
+     */
+    public void setClob(String parameterName, Reader reader, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setClob(statement_.findParameterIndex(parameterName), reader, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.
+     * This method differs from the <code>setCharacterStream (int, Reader)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setClob</code> which takes a length parameter.
+     *
+     * @param parameterName the name of the parameter
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if a database access error occurs or this method is called on
+     * a closed <code>CallableStatement</code>
+     *
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setClob(String parameterName, Reader reader) throws SQLException
+    {
+        validateStatement();
+        statement_.setClob(statement_.findParameterIndex(parameterName), reader);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Date</code> value,
+     * using the given <code>Calendar</code> object.  The driver uses
+     * the <code>Calendar</code> object to construct an SQL <code>DATE</code> value,
+     * which the driver then sends to the database.  With a
+     * a <code>Calendar</code> object, the driver can calculate the date
+     * taking into account a custom timezone.  If no
+     * <code>Calendar</code> object is specified, the driver uses the default
+     * timezone, which is that of the virtual machine running the application.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @param cal the <code>Calendar</code> object the driver will use
+     *            to construct the date
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getDate
+     */
+    public void setDate(String parameterName, Date x, Calendar cal) throws SQLException
+    {
+        validateStatement();
+        statement_.setDate(statement_.findParameterIndex(parameterName), x, cal);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Date</code> value
+     * using the default time zone of the virtual machine that is running
+     * the application.
+     * The driver converts this
+     * to an SQL <code>DATE</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getDate
+     */
+    public void setDate(String parameterName, Date x) throws SQLException
+    {
+        validateStatement();
+        statement_.setDate(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>double</code> value.
+     * The driver converts this
+     * to an SQL <code>DOUBLE</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getDouble
+     */
+    public void setDouble(String parameterName, double x) throws SQLException
+    {
+        validateStatement();
+        statement_.setDouble(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>float</code> value.
+     * The driver converts this
+     * to an SQL <code>FLOAT</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getFloat
+     */
+    public void setFloat(String parameterName, float x) throws SQLException
+    {
+        validateStatement();
+        statement_.setFloat(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>int</code> value.
+     * The driver converts this
+     * to an SQL <code>INTEGER</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getInt
+     */
+    public void setInt(String parameterName, int x) throws SQLException
+    {
+        validateStatement();
+        statement_.setInt(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>long</code> value.
+     * The driver converts this
+     * to an SQL <code>BIGINT</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getLong
+     */
+    public void setLong(String parameterName, long x) throws SQLException
+    {
+        validateStatement();
+        statement_.setLong(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter in this <code>RowSet</code> object's command
+     * to a <code>Reader</code> object. The
+     * <code>Reader</code> reads the data till end-of-file is reached. The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setNCharacterStream</code> which takes a length parameter.
+     *
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; if a database access error occurs; or
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException
+    {
+        validateStatement();
+        statement_.setNCharacterStream(parameterIndex, value);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object. The
+     * <code>Reader</code> reads the data till end-of-file is reached. The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setNCharacterStream</code> which takes a length parameter.
+     *
+     * @param parameterName the name of the parameter
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; if a database access error occurs; or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setNCharacterStream(String parameterName, Reader value) throws SQLException
+    {
+        validateStatement();
+        statement_.setNCharacterStream(statement_.findParameterIndex(parameterName), value);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>PreparedStatement</code> is executed.
+     * This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if the length specified is less than zero;
+     * if the driver does not support national character sets;
+     * if the driver can detect that a data conversion
+     *  error could occur;  if a database access error occurs or
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     *
+     */
+    public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setNClob(parameterIndex, reader, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.
+     * This method differs from the <code>setCharacterStream (int, Reader)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setNClob</code> which takes a length parameter.
+     *
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement;
+     * if the driver does not support national character sets;
+     * if the driver can detect that a data conversion
+     *  error could occur;  if a database access error occurs or
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     *
+     */
+    public void setNClob(int parameterIndex, Reader reader) throws SQLException
+    {
+        validateStatement();
+        statement_.setNClob(parameterIndex, reader);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>CallableStatement</code> is executed.
+     * This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     *
+     * @param parameterName the name of the parameter to be set
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if the length specified is less than zero;
+     * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setNClob(String parameterName, Reader reader, long length) throws SQLException
+    {
+        validateStatement();
+        statement_.setNClob(statement_.findParameterIndex(parameterName), reader, length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.
+     * This method differs from the <code>setCharacterStream (int, Reader)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
+     * it might be more efficient to use a version of
+     * <code>setNClob</code> which takes a length parameter.
+     *
+     * @param parameterName the name of the parameter
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if the driver does not support national character sets;
+     * if the driver can detect that a data conversion
+     *  error could occur;  if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     *
+     */
+    public void setNClob(String parameterName, Reader reader) throws SQLException
+    {
+        validateStatement();
+        statement_.setNClob(statement_.findParameterIndex(parameterName), reader);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to SQL <code>NULL</code>.
+     * This version of the method <code>setNull</code> should
+     * be used for user-defined types and REF type parameters.  Examples
+     * of user-defined types include: STRUCT, DISTINCT, JAVA_OBJECT, and
+     * named array types.
+     *
+     * <P><B>Note:</B> To be portable, applications must give the
+     * SQL type code and the fully-qualified SQL type name when specifying
+     * a NULL user-defined or REF parameter.  In the case of a user-defined type
+     * the name is the type name of the parameter itself.  For a REF
+     * parameter, the name is the type name of the referenced type.  If
+     * a JDBC driver does not need the type code or type name information,
+     * it may ignore it.
+     *
+     * Although it is intended for user-defined and Ref parameters,
+     * this method may be used to set a null parameter of any JDBC type.
+     * If the parameter does not have a user-defined or REF type, the given
+     * typeName is ignored.
+     *
+     *
+     * @param parameterName the name of the parameter
+     * @param sqlType a value from <code>java.sql.Types</code>
+     * @param typeName the fully-qualified name of an SQL user-defined type;
+     *        ignored if the parameter is not a user-defined type or
+     *        SQL <code>REF</code> value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setNull(String parameterName, int sqlType, String typeName) throws SQLException
+    {
+        validateStatement();
+        statement_.setNull(statement_.findParameterIndex(parameterName), sqlType, typeName);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to SQL <code>NULL</code>.
+     *
+     * <P><B>Note:</B> You must specify the parameter's SQL type.
+     *
+     * @param parameterName the name of the parameter
+     * @param sqlType the SQL type code defined in <code>java.sql.Types</code>
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void setNull(String parameterName, int sqlType) throws SQLException
+    {
+        validateStatement();
+        statement_.setNull(statement_.findParameterIndex(parameterName), sqlType);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the value of the designated parameter with the given object. The second
+     * argument must be an object type; for integral values, the
+     * <code>java.lang</code> equivalent objects should be used.
+     *
+     * <p>The given Java object will be converted to the given targetSqlType
+     * before being sent to the database.
+     *
+     * If the object has a custom mapping (is of a class implementing the
+     * interface <code>SQLData</code>),
+     * the JDBC driver should call the method <code>SQLData.writeSQL</code> to write it
+     * to the SQL data stream.
+     * If, on the other hand, the object is of a class implementing
+     * <code>Ref</code>, <code>Blob</code>, <code>Clob</code>,  <code>NClob</code>,
+     *  <code>Struct</code>, <code>java.net.URL</code>,
+     * or <code>Array</code>, the driver should pass it to the database as a
+     * value of the corresponding SQL type.
+     * <P>
+     * Note that this method may be used to pass datatabase-
+     * specific abstract data types.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the object containing the input parameter value
+     * @param targetSqlType the SQL type (as defined in java.sql.Types) to be
+     * sent to the database. The scale argument may further qualify this type.
+     * @param scale for java.sql.Types.DECIMAL or java.sql.Types.NUMERIC types,
+     *          this is the number of digits after the decimal point.  For all other
+     *          types, this value will be ignored.
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if <code>targetSqlType</code> is
+     * a <code>ARRAY</code>, <code>BLOB</code>, <code>CLOB</code>,
+     * <code>DATALINK</code>, <code>JAVA_OBJECT</code>, <code>NCHAR</code>,
+     * <code>NCLOB</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>,
+     *  <code>REF</code>, <code>ROWID</code>, <code>SQLXML</code>
+     * or  <code>STRUCT</code> data type and the JDBC driver does not support
+     * this data type
+     * @see Types
+     * @see #getObject
+     */
+    public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException
+    {
+        validateStatement();
+        statement_.setObject(statement_.findParameterIndex(parameterName), x, targetSqlType, scale);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the value of the designated parameter with the given object.
+     * This method is like the method <code>setObject</code>
+     * above, except that it assumes a scale of zero.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the object containing the input parameter value
+     * @param targetSqlType the SQL type (as defined in java.sql.Types) to be
+     *                      sent to the database
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if <code>targetSqlType</code> is
+     * a <code>ARRAY</code>, <code>BLOB</code>, <code>CLOB</code>,
+     * <code>DATALINK</code>, <code>JAVA_OBJECT</code>, <code>NCHAR</code>,
+     * <code>NCLOB</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>,
+     *  <code>REF</code>, <code>ROWID</code>, <code>SQLXML</code>
+     * or  <code>STRUCT</code> data type and the JDBC driver does not support
+     * this data type
+     * @see #getObject
+     */
+    public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException
+    {
+        validateStatement();
+        statement_.setObject(statement_.findParameterIndex(parameterName), x, targetSqlType);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the value of the designated parameter with the given object.
+     * The second parameter must be of type <code>Object</code>; therefore, the
+     * <code>java.lang</code> equivalent objects should be used for built-in types.
+     *
+     * <p>The JDBC specification specifies a standard mapping from
+     * Java <code>Object</code> types to SQL types.  The given argument
+     * will be converted to the corresponding SQL type before being
+     * sent to the database.
+     *
+     * <p>Note that this method may be used to pass datatabase-
+     * specific abstract data types, by using a driver-specific Java
+     * type.
+     *
+     * If the object is of a class implementing the interface <code>SQLData</code>,
+     * the JDBC driver should call the method <code>SQLData.writeSQL</code>
+     * to write it to the SQL data stream.
+     * If, on the other hand, the object is of a class implementing
+     * <code>Ref</code>, <code>Blob</code>, <code>Clob</code>,  <code>NClob</code>,
+     *  <code>Struct</code>, <code>java.net.URL</code>,
+     * or <code>Array</code>, the driver should pass it to the database as a
+     * value of the corresponding SQL type.
+     * <P>
+     * This method throws an exception if there is an ambiguity, for example, if the
+     * object is of a class implementing more than one of the interfaces named above.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the object containing the input parameter value
+     * @exception SQLException if a database access error occurs,
+     * this method is called on a closed <code>CallableStatement</code> or if the given
+     *            <code>Object</code> parameter is ambiguous
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getObject
+     */
+    public void setObject(String parameterName, Object x) throws SQLException
+    {
+        validateStatement();
+        statement_.setObject(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>short</code> value.
+     * The driver converts this
+     * to an SQL <code>SMALLINT</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getShort
+     */
+    public void setShort(String parameterName, short x) throws SQLException
+    {
+        validateStatement();
+        statement_.setShort(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given Java <code>String</code> value.
+     * The driver converts this
+     * to an SQL <code>VARCHAR</code> or <code>LONGVARCHAR</code> value
+     * (depending on the argument's
+     * size relative to the driver's limits on <code>VARCHAR</code> values)
+     * when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getString
+     */
+    public void setString(String parameterName, String x) throws SQLException
+    {
+        validateStatement();
+        statement_.setString(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Time</code> value,
+     * using the given <code>Calendar</code> object.  The driver uses
+     * the <code>Calendar</code> object to construct an SQL <code>TIME</code> value,
+     * which the driver then sends to the database.  With a
+     * a <code>Calendar</code> object, the driver can calculate the time
+     * taking into account a custom timezone.  If no
+     * <code>Calendar</code> object is specified, the driver uses the default
+     * timezone, which is that of the virtual machine running the application.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @param cal the <code>Calendar</code> object the driver will use
+     *            to construct the time
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getTime
+     */
+    public void setTime(String parameterName, Time x, Calendar cal) throws SQLException
+    {
+        validateStatement();
+        statement_.setTime(statement_.findParameterIndex(parameterName), x, cal);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Time</code> value.
+     * The driver converts this
+     * to an SQL <code>TIME</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getTime
+     */
+    public void setTime(String parameterName, Time x) throws SQLException
+    {
+        validateStatement();
+        statement_.setTime(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Timestamp</code> value,
+     * using the given <code>Calendar</code> object.  The driver uses
+     * the <code>Calendar</code> object to construct an SQL <code>TIMESTAMP</code> value,
+     * which the driver then sends to the database.  With a
+     * a <code>Calendar</code> object, the driver can calculate the timestamp
+     * taking into account a custom timezone.  If no
+     * <code>Calendar</code> object is specified, the driver uses the default
+     * timezone, which is that of the virtual machine running the application.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @param cal the <code>Calendar</code> object the driver will use
+     *            to construct the timestamp
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getTimestamp
+     */
+    public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException
+    {
+        validateStatement();
+        statement_.setTimestamp(statement_.findParameterIndex(parameterName), x, cal);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.Timestamp</code> value.
+     * The driver
+     * converts this to an SQL <code>TIMESTAMP</code> value when it sends it to the
+     * database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     * @see #getTimestamp
+     */
+    public void setTimestamp(String parameterName, Timestamp x) throws SQLException
+    {
+        validateStatement();
+        statement_.setTimestamp(statement_.findParameterIndex(parameterName), x);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.net.URL</code> value.
+     * The driver converts this to an SQL <code>DATALINK</code> value
+     * when it sends it to the database.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the <code>java.net.URL</code> object to be set
+     * @exception SQLException if a database access error occurs or
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setURL(int parameterIndex, URL x) throws SQLException
+    {
+        validateStatement();
+        statement_.setURL(parameterIndex, x); 
+    }
+
+    //@PDA jdbc40
+    /** 
+     * Updates the designated column with an ascii stream value.
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateAsciiStream</code> which takes a length parameter.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateAsciiStream (columnIndex, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /** 
+     * Updates the designated column with an ascii stream value.
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateAsciiStream</code> which takes a length parameter.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param x the new column value
+     * @exception SQLException if the columnLabel is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateAsciiStream (columnLabel, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+    
+    //@PDA jdbc40
+    /** 
+     * Updates the designated column with a binary stream value.
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateBinaryStream</code> which takes a length parameter.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value     
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBinaryStream(columnIndex, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+    
+    //@PDA jdbc40
+    /** 
+     * Updates the designated column with a binary stream value.
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateBinaryStream</code> which takes a length parameter.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param x the new column value
+     * @exception SQLException if the columnLabel is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBinaryStream(columnLabel, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+    
+    //@PDA jdbc40
+    /**
+     * Updates the designated column using the given input stream. The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database. 
+     * 
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateBlob</code> which takes a length parameter.     
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBlob(columnIndex, inputStream);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+    
+    //@PDA jdbc40
+    /** 
+     * Updates the designated column using the given input stream. The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     *   <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateBlob</code> which takes a length parameter.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateBlob(columnLabel, inputStream);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /**
+     * Updates the designated column with a character stream value.
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateCharacterStream</code> which takes a length parameter.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateCharacterStream(int columnIndex, Reader x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateCharacterStream(columnIndex, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /**
+     * Updates the designated column with a character stream value.
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateCharacterStream</code> which takes a length parameter.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader the <code>java.io.Reader</code> object containing
+     *        the new column value
+     * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateCharacterStream (columnLabel, reader);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object.
+     *  The data will be read from the stream
+     * as needed until end-of-stream is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     *   <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateClob</code> which takes a length parameter.
+     *     
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method 
+     */
+    public void updateClob(int columnIndex, Reader reader) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateClob(columnIndex, reader);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /** 
+     * Updates the designated column using the given <code>Reader</code>
+     * object.
+     *  The data will be read from the stream
+     * as needed until end-of-stream is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     * 
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateClob</code> which takes a length parameter.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader An object that contains the data to set the parameter value to.
+     * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateClob(String columnLabel, Reader reader) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateClob (columnLabel, reader);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /**
+     * Updates the designated column with a character stream value.  
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.  The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+     * It is intended for use when
+     * updating  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateNCharacterStream</code> which takes a length parameter.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs; 
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNCharacterStream (columnIndex, x);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /**
+     * Updates the designated column with a character stream value.  
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.  The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.  
+     * It is intended for use when
+     * updating  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     * <p>    
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateNCharacterStream</code> which takes a length parameter.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader the <code>java.io.Reader</code> object containing
+     *        the new column value
+     * @exception SQLException if the columnLabel is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNCharacterStream (columnLabel, reader);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * 
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateNClob</code> which takes a length parameter.
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if the columnIndex is not valid; 
+    * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob(int columnIndex, Reader reader) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNClob(columnIndex, reader);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
+    //@PDA jdbc40
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object.
+     * The data will be read from the stream
+     * as needed until end-of-stream is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     *
+     * <p>
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>updateNClob</code> which takes a length parameter.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if the columnLabel is not valid; if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set;
+     *  if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob(String columnLabel, Reader reader) throws SQLException
+    {
+        validateResultSet();
+        resultSet_.updateNClob(columnLabel, reader);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));   
+    }
+
 }

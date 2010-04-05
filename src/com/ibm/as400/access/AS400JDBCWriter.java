@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,7 @@ class AS400JDBCWriter extends Writer
   private long position_;      // position from which the user wanted us to start writing
   private AS400JDBCClob clob_; // We have separate vars for clob and locator to remove build dependency on JDBC 3.0.
   private AS400JDBCClobLocator locator_;
+  private AS400JDBCSQLXML xml_; //@pda jdbc40
 
 
   AS400JDBCWriter(AS400JDBCClob clob, long positionToStartWriting) 
@@ -48,6 +49,14 @@ class AS400JDBCWriter extends Writer
     locator_ = locator;
     position_ = positionToStartWriting;
   }
+  
+  //@pda jdbc40
+  AS400JDBCWriter(AS400JDBCSQLXML xml, long positionToStartWriting) 
+  {
+    xml_ = xml;
+    position_ = positionToStartWriting;
+  }
+
 
 
 
@@ -158,7 +167,8 @@ class AS400JDBCWriter extends Writer
     try
     {
       if (clob_ != null) clob_.setString(position_, str, off, len);
-      else locator_.setString(position_, str, off, len);
+      else if (locator_ != null) locator_.setString(position_, str, off, len); //@PDC jdbc40
+      else if (xml_ != null ) xml_.setString(position_, str, off, len); //@PDA jdbc40
       position_ += len;
     }
     catch (SQLException e)

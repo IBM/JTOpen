@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                            
+//                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCClob.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,10 +46,13 @@ transaction.
 **/
 public class AS400JDBCClob implements Clob
 {
-  private char[] data_;
-  private int maxLength_;
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-private boolean isXML_ = false;      //@xmltrim true if this data originated from a native XML column type
+  protected char[] data_;                                 //@pdc jdbc40
+  protected int maxLength_;                               //@pdc jdbc40
+  static final int MAX_LOB_SIZE = 2147483647;   //@PDA jdbc40 same as native driver. (if column is a DBCLOB the limit is 1,073,741,823)
+  private boolean isXML_ = false;      //@xmltrim true if this data originated from a native XML column type
+  
 /**
 Constructs an AS400JDBCClob object.  The data is contained
 in the String.  No further communication with the IBM i system is necessary.
@@ -94,23 +97,6 @@ in the String.  No further communication with the IBM i system is necessary.
   
 
 
-  //@PDA 550
-  /**
-   * This method frees the <code>Clob</code> object and releases the
-   * resources the resources that it holds. The object is invalid once the
-   * <code>free</code> method is called. If <code>free</code> is called
-   * multiple times, the subsequent calls to <code>free</code> are treated
-   * as a no-op.
-   * 
-   * @throws SQLException
-   *             if an error occurs releasing the Clob's resources
-   */
-  public synchronized void free() throws SQLException
-  {
-      data_ = null; //@pda make available for GC
-  }
-  
-  
 /**
 Returns the entire CLOB as a stream of ASCII characters.
 
@@ -481,4 +467,51 @@ Returns the position at which a pattern is found in the CLOB.
     int numToCopy = length < temp.length ? length : temp.length;
     System.arraycopy(temp, 0, data_, 0, numToCopy);
   }
+
+    // @PDA jdbc40
+    /**
+     * This method frees the <code>Clob</code> object and releases the
+     * resources the resources that it holds. The object is invalid once the
+     * <code>free</code> method is called. If <code>free</code> is called
+     * multiple times, the subsequent calls to <code>free</code> are treated
+     * as a no-op.
+     * 
+     * @throws SQLException
+     *             if an error occurs releasing the Clob's resources
+     */
+    public synchronized void free() throws SQLException
+    {
+        data_ = null; //@pda make available for GC
+    }
+
+    // @PDA jdbc40
+    /**
+     * Returns a <code>Reader</code> object that contains a partial
+     * <code>Clob</code> value, starting with the character specified by pos,
+     * which is length characters in length.
+     * 
+     * @param pos
+     *            the offset to the first character of the partial value to be
+     *            retrieved. The first character in the Clob is at position 1.
+     * @param length
+     *            the length in characters of the partial value to be retrieved.
+     * @return <code>Reader</code> through which the partial <code>Clob</code>
+     *         value can be read.
+     * @throws SQLException
+     *             if pos is less than 1 or if pos is greater than the number of
+     *             characters in the <code>Clob</code> or if pos + length is
+     *             greater than the number of characters in the
+     *             <code>Clob</code>
+     */
+    public synchronized Reader getCharacterStream(long pos, long length) throws SQLException
+    {
+        if(data_ == null)//@free
+            JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+        
+        if(isXML_ )//@xmltrim
+            return new CharArrayReader( JDUtilities.stripXMLDeclaration( new String(data_)).toCharArray(), (int) pos-1, (int)length);  //@xmltrim
+        else
+            return new CharArrayReader(data_, (int) pos-1, (int)length);
+    }
+ 
 }

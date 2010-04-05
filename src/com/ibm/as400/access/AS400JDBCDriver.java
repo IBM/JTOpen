@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 
 
 /**
-A JDBC 3.0 driver that accesses DB2 for IBM i databases.
+A JDBC 3.0/4.0 driver that accesses DB2 for IBM i databases.
 
 <p>To use this driver, the application or caller must register 
 the driver with the JDBC DriverManager.  This class also registers 
@@ -107,7 +107,12 @@ implements java.sql.Driver
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
 	static final String DRIVER_LEVEL_            = Copyright.DRIVER_LEVEL;
 
+/* ifdef JDBC40 
+    public static final int JDBC_MAJOR_VERSION_ = 4; // JDBC spec version: 4.0
+endif */ 
+/* ifndef JDBC40 */ 
     public static final int JDBC_MAJOR_VERSION_ = 3; // JDBC spec version: 3.0
+/* endif */ 
     public static final int JDBC_MINOR_VERSION_ = 0;
 
 

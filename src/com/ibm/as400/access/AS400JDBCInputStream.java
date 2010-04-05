@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.IOException;
+/* ifdef JDBC40 
 import java.sql.DriverManager;
+endif */ 
 import java.sql.SQLException;
 
 
@@ -38,11 +40,12 @@ transaction.
 //
 class AS400JDBCInputStream extends InputStream
 {
-  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
   private boolean         closed_;
   private JDLobLocator    locator_;
   private long             offset_;
+  private long             length_; //@pda jdbc40
 
   private long mark_ = 0;
 
@@ -58,8 +61,46 @@ system, using the locator handle.
     locator_        = locator;
     offset_         = 0;
     closed_         = false;
+    try  //@pda jdbc40 set length (for sub-streams)
+    {                           
+        length_ = locator.getLength();
+    }catch(SQLException e) 
+    {
+        length_ = 0;
+        closed_ = true; 
+    }
+    
   }
 
+  //@pda jdbc40 new constructor
+  /**
+  Constructs an AS400JDBCInputStream object.  The data for the
+  binary stream will be retrieved as requested, directly from the
+  system, using the locator handle.
+
+  @param  locator             The locator.
+  @param  pos                 The starting position.
+  @param  length              The length of the stream.
+  **/
+    AS400JDBCInputStream(JDLobLocator locator, long pos, long length)
+    {
+      locator_        = locator;
+      offset_         = pos;
+      length_         = length;
+      closed_         = false;
+      long actualLen;
+      try  
+      {                           
+          actualLen = locator.getLength();
+
+      }catch(SQLException e) 
+      {
+          actualLen = 0;
+          closed_ = true;
+      }
+      if(length_ > actualLen)
+          length_ = actualLen;
+    }
 
 /**
 Returns the number of bytes that can be read without blocking.
@@ -73,22 +114,22 @@ Returns the number of bytes that can be read without blocking.
     if (closed_) throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE);
 
     long returnValue = 0;
-    try
-    {
-      returnValue = locator_.getLength() - offset_;
+   // try                                                          //@PDd jdbc40
+   // {                                                            //@PDd jdbc40
+      returnValue = length_ - offset_; //@PDC jdbc40
 
       if (returnValue < 0) returnValue = 0;
-    }
-    catch (SQLException e)
-    {
-      if (JDTrace.isTraceOn())
-      {
-        JDTrace.logInformation(this, "Error in available");
-        e.printStackTrace(DriverManager.getLogWriter());
-        closed_ = true;
-      }
-      throw new IOException(e.getMessage());  
-    }
+   // }                                                            //@PDd jdbc40
+   // catch (SQLException e)                                       //@PDd jdbc40
+   // {                                                            //@PDd jdbc40
+   //   if (JDTrace.isTraceOn())                                   //@PDd jdbc40
+   //  {                                                           //@PDd jdbc40
+   //     JDTrace.logInformation(this, "Error in available");      //@PDd jdbc40
+   //     e.printStackTrace(DriverManager.getLogStream());         //@PDd jdbc40
+   //     closed_ = true;                                          //@PDd jdbc40
+   //   }                                                          //@PDd jdbc40
+   //   throw new IOException(e.getMessage());                     //@PDd jdbc40
+   // }                                                            //@PDd jdbc40
 
     if (returnValue > 0x7FFFFFFF) returnValue = 0x7FFFFFFF;
 
@@ -204,8 +245,7 @@ exception is thrown.
     {
       throw new ExtendedIllegalArgumentException("start", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-
-    if ((length < 0) || (start + length > data.length))
+    if ((length < 0) || (start + length > data.length))//@pdc locator_.retrieveData(,len) does not fail if len is greater that available length
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -218,7 +258,7 @@ exception is thrown.
 
     try
     {
-      if (offset_ >= locator_.getLength())
+      if (offset_ >= length_) //@PDC jdbc40
       {
         //@CRS - Is this really the end? Or is the end getMaxLength()?
         return -1;                          
@@ -245,7 +285,7 @@ exception is thrown.
       if (JDTrace.isTraceOn())
       {
         JDTrace.logInformation(this, "Error in read" + e.getMessage()); //@pdc
-        //@pdd e.printStackTrace(DriverManager.getLogWriter());
+        //@pdd e.printStackTrace(DriverManager.getLogStream());
         closed_ = true;                                   
       }
       throw new IOException(e.getMessage());             
@@ -287,10 +327,10 @@ Skips over and discards data.
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     if (length == 0) return 0;
-    try
-    {
+    //try                                                    //@PDD jdbc40
+    //{                                                      //@PDD jdbc40
       long newOffset = length + offset_;
-      long len = locator_.getLength();
+      long len = length_;                                    //@PDC jdbc40
 
       if (newOffset > len)
       {
@@ -302,16 +342,16 @@ Skips over and discards data.
         offset_ = offset_ + length;
       }  
       return length;         
-    }
-    catch (SQLException e)
-    {
-      if (JDTrace.isTraceOn())
-      {
-        JDTrace.logInformation(this, "Error in skip");
-        e.printStackTrace(DriverManager.getLogWriter());         
-      }
-      closed_ = true;
-      throw new IOException(e.getMessage());  
-    }
+    //}                                                     //@PDD jdbc40
+    //catch (SQLException e)                                //@PDD jdbc40
+    //{                                                     //@PDD jdbc40
+     // if (JDTrace.isTraceOn())                            //@PDD jdbc40
+     // {                                                   //@PDD jdbc40
+     //   JDTrace.logInformation(this, "Error in skip");    //@PDD jdbc40
+     //   e.printStackTrace(DriverManager.getLogStream());  //@PDD jdbc40
+     // }                                                   //@PDD jdbc40
+     // closed_ = true;                                     //@PDD jdbc40
+     // throw new IOException(e.getMessage());              //@PDD jdbc40
+    //}                                                     //@PDD jdbc40
   }
 }

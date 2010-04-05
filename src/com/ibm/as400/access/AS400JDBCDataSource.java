@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,12 @@ import javax.naming.StringRefAddr;                // JNDI
 *  Connection connection = datasource.getConnection("myUser", "MYPWD");
 *  </pre></blockquote>
 **/
-public class AS400JDBCDataSource implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
+public class AS400JDBCDataSource 
+/*ifdef JDBC40 
+extends ToolboxWrapper
+endif */ 
+
+implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
     static final long serialVersionUID = 4L;
 
@@ -5100,8 +5105,14 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             buf[i] = (char)(buf[i] - adder[i % 9]);
         }
         return buf;
-    }    
-
+    }
+    
+    
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "com.ibm.as400.access.AS400JDBCDataSource", "javax.sql.DataSource" };
+    } 
 
 
 }

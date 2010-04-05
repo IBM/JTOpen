@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,8 @@ import javax.sql.PooledConnection;
 **/
 public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource implements ConnectionPoolDataSource, Referenceable, Serializable
 {
+    static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
+
     static final long serialVersionUID = 4L;
 
     //@B2D private transient AS400JDBCConnectionPool connectionPool_;  //@A2A
@@ -431,5 +433,12 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     //@B2D     propertyCycle_ = propertyCycle;
     //@B2D     changes_.firePropertyChange(property, old, new Integer(propertyCycle_));
     //@B2D }
+    
+   
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "com.ibm.as400.access.AS400JDBCConnectionPoolDataSource", "java.sql.ConnectionPoolDataSource" };
+    }
 }
 

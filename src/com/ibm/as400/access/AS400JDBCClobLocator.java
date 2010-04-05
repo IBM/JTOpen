@@ -6,13 +6,14 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import java.io.OutputStream;
@@ -48,7 +49,7 @@ transaction.
 **/
 public class AS400JDBCClobLocator implements Clob
 {
-  private ConvTable converter_;
+  protected ConvTable converter_;       //@pdc jdbc40
   JDLobLocator locator_;
 
   Object savedObject_; // This is our InputStream or byte[] or whatever that needs to be written if we are batching.
@@ -59,7 +60,7 @@ public class AS400JDBCClobLocator implements Clob
   private static final char[] INIT_CACHE = new char[0];
 
   //private int truncate_ = -1;
-  private int maxLength_; // The max length in LOB-characters. See JDLobLocator.
+  protected int maxLength_; // The max length in LOB-characters. See JDLobLocator.  //@pdc jdbc40
   private boolean isXML_ = false;      //@xml3 true if this data originated from a native XML column type
 
   /**
@@ -98,33 +99,7 @@ public class AS400JDBCClobLocator implements Clob
     isXML_ = isXML;
   }
 
-  //@PDA 550
-  /**
-   * This method frees the <code>Clob</code> object and releases the
-   * resources that it holds. The object is invalid once the
-   * <code>free</code> method is called. If <code>free</code> is called
-   * multiple times, the subsequent calls to <code>free</code> are treated
-   * as a no-op.
-   * 
-   * @throws SQLException
-   *             if an error occurs releasing the Clob's resources
-   */
-  public void free() throws SQLException //@sync
-  {
-      if(locator_ == null)
-          return;  //no-op
-      
-      synchronized(locator_) //@sync
-      {   
-          locator_.free();
  
-          locator_  = null;  //@pda make objects available for GC
-          converter_ = null;
-          savedObject_ = null;
-          cache_ = null;
-      }
-  }
-
   /**
   Returns the entire CLOB as a stream of ASCII characters.
   
@@ -606,4 +581,84 @@ Returns the handle to this CLOB locator in the database.
       locator_.writeData(length, new byte[0], 0, 0, true);          //@k1A
     }
   }
+  
+   //@PDA 550
+  /**
+   * This method frees the <code>Clob</code> object and releases the
+   * resources that it holds. The object is invalid once the
+   * <code>free</code> method is called. If <code>free</code> is called
+   * multiple times, the subsequent calls to <code>free</code> are treated
+   * as a no-op.
+   * 
+   * @throws SQLException
+   *             if an error occurs releasing the Clob's resources
+   */
+  public void free() throws SQLException //@sync
+  {
+      if(locator_ == null)
+          return;  //no-op
+      
+      synchronized(locator_) //@sync
+      {   
+          locator_.free();
+ 
+          locator_  = null;  //@pda make objects available for GC
+          converter_ = null;
+          savedObject_ = null;
+          cache_ = null;
+      }
+  }
+
+  // @PDA jdbc40
+  /**
+   * Returns a <code>Reader</code> object that contains a partial
+   * <code>Clob</code> value, starting with the character specified by pos,
+   * which is length characters in length.
+   * 
+   * @param pos
+   *            the offset to the first character of the partial value to be
+   *            retrieved. The first character in the Clob is at position 1.
+   * @param length
+   *            the length in characters of the partial value to be retrieved.
+   * @return <code>Reader</code> through which the partial <code>Clob</code>
+   *         value can be read.
+   * @throws SQLException
+   *             if pos is less than 1 or if pos is greater than the number of
+   *             characters in the <code>Clob</code> or if pos + length is
+   *             greater than the number of characters in the
+   *             <code>Clob</code>
+   */
+  public Reader getCharacterStream(long pos, long length) throws SQLException //@sync
+  {
+      if(locator_ == null)//@free
+          JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+
+      synchronized(locator_) //@sync
+      {   
+          if (pos < 1 || (pos - 1 + length) > locator_.getMaxLength() || length < 0 )  //@pdc change parm check like getSubString
+          {
+              JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+          }
+          Reader r = null;
+
+          try
+          {
+              //@xml3 if xml column, remove xml declaration via ConvTableReader
+              r = new ConvTableReader(new AS400JDBCInputStream( locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_); //@xml3
+              r.skip(pos); 
+              return r;
+          }
+          catch (UnsupportedEncodingException e)
+          {
+              JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+              return null;
+          }
+          catch (IOException e)
+          {
+              JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+              return null;
+          }
+      }
+  }
+  
 }

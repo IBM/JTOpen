@@ -7,7 +7,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2005-2005 International Business Machines Corporation and     
+// Copyright (C) 2005-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,9 +56,15 @@ import javax.naming.Context;
  @see AS400JDBCConnectionPoolDataSource
  @see AS400JDBCXADataSource
  **/
-public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
+public class AS400JDBCManagedDataSource 
+/* ifdef JDBC40
+extends ToolboxWrapper
+endif */ 
+
+implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
-  static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
+	private static final long serialVersionUID = 1L;
+static final String copyright = "Copyright (C) 2005-2010 International Business Machines Corporation and others.";
   private static final boolean DEBUG = false;
 
 
@@ -4583,5 +4589,12 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     }
     return buf;
   }
+
+  
+  //@pda jdbc40
+  protected String[] getValidWrappedList()
+  {
+      return new String[] {  "com.ibm.as400.access.AS400JDBCManagedDataSource", "javax.sql.DataSource" };
+  } 
 
 }

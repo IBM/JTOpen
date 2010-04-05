@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,10 +14,17 @@
 package com.ibm.as400.access;
 
 import java.sql.Connection;
+/* ifdef JDBC40 
+import java.sql.DatabaseMetaData;
+endif */ 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+/* ifdef JDBC40 
+import java.sql.Statement;
+endif */ 
+
 
 /**
 <p>The AS400JDBCResultSetMetaData class describes the
@@ -35,9 +42,12 @@ columns in a result set.
 //   before executing a query (via PreparedStatement.getMetaData()).
 //
 public class AS400JDBCResultSetMetaData
+/* ifdef JDBC40 
+extends ToolboxWrapper
+endif */ 
 implements ResultSetMetaData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
     // Private static final ints
     // Searchable constants 
@@ -549,6 +559,13 @@ implements ResultSetMetaData
     {
         return cursorName_;
     }
+    
+    
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "com.ibm.as400.access.AS400JDBCResultSetMetaData", "java.sql.ResultSetMetaData" };
+    } 
          
     //@in1 (copied from AS400JDBCDatabaseMetadata)
     /**

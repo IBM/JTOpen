@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,21 +16,38 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.Array;
+import java.sql.Blob;
 import java.sql.CallableStatement;
+/* ifdef JDBC40 
+import java.sql.ClientInfoStatus;
+import java.sql.SQLClientInfoException;
+endif */ 
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+/* ifdef JDBC40 
+import java.sql.NClob;
+endif */ 
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Statement;
 import java.sql.Savepoint;                        // @E10a                
+import java.sql.Struct;
 import java.util.Enumeration;               // @DAA
+/* ifdef JDBC40 
+import java.util.HashMap;
+endif */ 
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 
@@ -81,6 +98,9 @@ statements.
 //     sendXXX() methods.  This makes debugging cleaner.
 //    
 public class AS400JDBCConnection
+/*ifdef JDBC40 
+extends ToolboxWrapper
+endif */ 
 implements Connection
 {
     // Turn this flag on to prevent this Connection object from establishing an actual connection to the IBM i system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
@@ -131,7 +151,7 @@ implements Connection
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
     //        The IBM i passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching. 
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V6R1M01   "; // @EDA F8c H2c pdc 610
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R1M01   "; // @EDA F8c H2c pdc 610
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
@@ -223,6 +243,8 @@ implements Connection
     private String clientProgramID_ = ""; //@pdc
     
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
+
+	private boolean doUpdateDeleteBlocking_ = false;
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -2602,7 +2624,7 @@ implements Connection
             }                                                                               // @EAA
 
             request.setBasedOnORSHandle (0);                 // @DAC @EKC
-            // DBReplyRequestedDS reply = null;
+            DBReplyRequestedDS reply = null;
 
             if (dataCompression_ == DATA_COMPRESSION_RLE_)
             {                                // @ECA
@@ -3200,6 +3222,10 @@ implements Connection
         else                                                                         //@KBA
             newAutoCommitSupport_ = 2;                                               //@KBA         //run autocommit with specified isolation level
 
+        
+        if (as400_.getVRM() >= JDUtilities.vrm710) {
+        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING); 
+        }
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
@@ -4369,13 +4395,159 @@ implements Connection
     {
         return extendedFormats_;
     }
+ 
+    
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "com.ibm.as400.access.AS400JDBCConnection", "java.sql.Connection" };
+    }
+
+
+
+    //@PDA jdbc40
+    /**
+     * Returns true if the connection has not been closed and is still valid.  
+     * The driver shall submit a query on the connection or use some other 
+     * mechanism that positively verifies the connection is still valid when 
+     * this method is called.
+     * <p>
+     * The query submitted by the driver to validate the connection shall be 
+     * executed in the context of the current transaction.
+     * 
+     * @param timeout -     The time in seconds to wait for the database operation 
+     *                      used to validate the connection to complete.  If 
+     *                      the timeout period expires before the operation 
+     *                      completes, this method returns false.  A value of 
+     *                      0 indicates a timeout is not applied to the 
+     *                      database operation.  Note that currently the timeout
+     *                      value is not used.
+     * <p>
+     * @return true if the connection is valid, false otherwise
+     * @exception SQLException if a database access error occurs.
+     */ 
+    public boolean isValid(int timeout) throws SQLException 
+    { 
+        DBSQLRequestDS request = null;
+        DBReplyRequestedDS reply = null; 
+        int errorClass = 0; 
+        int returnCode = 0; 
+        ReentrantLock lock = new ReentrantLock();
+
+        try 
+        { 
+            /* inner class to run timer in sep thread */
+            class CommTimer implements Runnable 
+            {      
+       
+                Thread otherThread;
+                ReentrantLock lock;
+                int timeout;
+                
+                public void run() 
+                { 
+                    try 
+                    { 
+                        Thread.sleep(timeout * 1000);
+                        lock.lockInterruptibly(); //lock, so only one thread can call interrupt
+                        otherThread.interrupt();
+                        
+                    }catch(InterruptedException ie)
+                    { 
+                        //interrupted from notifyThread because request/reply is done.  just return from run()
+                        if (JDTrace.isTraceOn())
+                            JDTrace.logInformation (this, "Connection.isValid timer interrupted and stopped");
+                    } 
+                    
+                }
+                
+                public CommTimer(Thread otherThread, int timeout, ReentrantLock lock ) 
+                { 
+                    this.otherThread = otherThread;
+                    this.timeout = timeout;
+                    this.lock = lock;
+                } 
+            };
+            
+            CommTimer timer = new CommTimer( Thread.currentThread(), timeout, lock); //pass in ref to main thread so timer can interrupt if blocked on IO
+            Thread t = new  Thread(timer);
+            t.start(); //sleeps for timeout and then interrupts main thread if it is still blocked on IO
+            
+            try
+            {
+                request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_TEST_CONNECTION, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0); 
+                reply = sendAndReceive(request); 
+
+                lock.lockInterruptibly(); //lock, so only one thread can call interrupt
+                t.interrupt(); //stop timer thread
+                errorClass = reply.getErrorClass(); 
+                returnCode = reply.getReturnCode();
+             
+            }catch(Exception ex)
+            {
+                //interruptedException is wrapped in sqlException
+                //if exception occurs, just return false since connection is not valid
+                //this happens if timer ends before sendAndReceive returns
+                if (JDTrace.isTraceOn())
+                    JDTrace.logInformation (this, "Connection.isValid timed out or could not verify valid connection");
+                return false;
+            } 
+            
+            if(errorClass == 7 && returnCode == -201) 
+                return true; 
+            else
+                return false; 
+            
+        }
+        catch(Exception e) 
+        { 
+            //implmentation note:  if any exception happens, just return false, since conn is not valid
+            return false;  
+        } 
+        finally
+        { 
+            if (request != null) 
+                request.inUse_ =   false; 
+            if (reply != null)
+                reply.inUse_ = false; 
+            
+            if (JDTrace.isTraceOn())
+                JDTrace.logInformation (this, "Connection.isValid call complete");
+        } 
+         
+    }
+          
+
+
 
     //@PDA 550 client info
     /**
      * Sets the value of the client info property specified by name to the 
      * value specified by value.  
      * <p>
-     * The following are client info properties.  
+     * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code> 
+     * method to determine the client info properties supported by the driver 
+     * and the maximum length that may be specified for each property.
+     * <p>
+     * The driver stores the value specified in a suitable location in the 
+     * database.  For example in a special register, session parameter, or 
+     * system table column.  For efficiency the driver may defer setting the 
+     * value in the database until the next time a statement is executed or 
+     * prepared.  Other than storing the client information in the appropriate 
+     * place in the database, these methods shall not alter the behavior of 
+     * the connection in anyway.  The values supplied to these methods are 
+     * used for accounting, diagnostics and debugging purposes only.
+     * <p>
+     * The driver shall generate a warning if the client info name specified 
+     * is not recognized by the driver.
+     * <p>
+     * If the value specified to this method is greater than the maximum 
+     * length for the property the driver may either truncate the value and 
+     * generate a warning or generate a <code>SQLException</code>.  If the driver 
+     * generates a <code>SQLException</code>, the value specified was not set on the 
+     * connection.
+     * <p>
+     * The following client info properties are supported in Toobox for Java.  
      * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing 
@@ -4395,11 +4567,17 @@ implements Connection
      *                  value is null, the current value of the specified
      *                  property is cleared.
      * <p>
-     * @throws  SQLException if the database returns an error while 
-     *          setting the client info value on the database.
+     * @throws  SQLClientInfoException if the database returns an error while 
+     *          setting the client info value on the database server.
      * <p>
      */
-    public void setClientInfo(String name, String value) throws SQLException
+    public void setClientInfo(String name, String value) 
+/* ifdef JDBC40     
+    throws SQLClientInfoException
+endif */ 
+    /* ifndef JDBC40 */ 
+    throws SQLException
+    /* endif  */
     {
 
         DBSQLAttributesDS request = null;
@@ -4484,8 +4662,17 @@ implements Connection
                 clientHostname_ = oldValue;
             else if (name.equals(clientProgramIDPropertyName_)) //@pda
                 clientProgramID_ = oldValue;
+/* ifdef JDBC40 
 
+            //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
+            HashMap m = new HashMap();
+            m.put(name, ClientInfoStatus.REASON_UNKNOWN);
+            JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m );
+
+endif */ 
+/* ifndef JDBC40 */ 
             JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
+/* endif */ 
         } finally
         {
             if (request != null)
@@ -4535,12 +4722,18 @@ implements Connection
      * @param properties
      *            the list of client info properties to set
      *            <p>
-     * @throws SQLException
+     * @throws SQLClientInfoException
      *             if the database returns an error while setting the
      *             clientInfo values on the database
      *             <p>
      */
-    public void setClientInfo(Properties properties) throws SQLException
+    public void setClientInfo(Properties properties) 
+    /* ifdef JDBC40 
+    throws SQLClientInfoException
+    endif */ 
+    /* ifndef JDBC40 */ 
+    throws SQLException
+    /* endif */ 
     {
         String newApplicationName = properties.getProperty(applicationNamePropertyName_);
         String newClientHostname = properties.getProperty(clientHostnamePropertyName_);
@@ -4596,7 +4789,22 @@ implements Connection
             
         } catch( Exception e)
         {
+/* ifdef JDBC40 
+            //create Map<String,ClientInfoStatus> for exception constructor
+            //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
+            HashMap m = new HashMap();
+            Enumeration clientInfoNames = properties.keys();
+            while( clientInfoNames.hasMoreElements())
+            {
+                String clientInfoName = (String)clientInfoNames.nextElement();
+                m.put(clientInfoName, ClientInfoStatus.REASON_UNKNOWN);
+            }
+            JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m);
+
+endif */ 
+/* ifndef JDBC40 */         
         	JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
+/* endif */ 
         } finally
         {
             if (request != null)
@@ -4640,6 +4848,8 @@ implements Connection
      * <p>
      * @throws SQLException     if the database returns an error when 
      *                          fetching the client info value from the database.
+     * <p>
+     * see java.sql.DatabaseMetaData#getClientInfoProperties
      */
     public String getClientInfo(String name) throws SQLException
     {
@@ -4701,6 +4911,77 @@ implements Connection
         props.setProperty(clientProgramIDPropertyName_, clientProgramID_); //@pda
         return props;
     }
+ 
+ 
+ 
+ 
+     
+    //@PDA jdbc40
+    /**
+     * Constructs an object that implements the <code>Clob</code> interface. The object
+     * returned initially contains no data.  The <code>setAsciiStream</code>,
+     * <code>setCharacterStream</code> and <code>setString</code> methods of 
+     * the <code>Clob</code> interface may be used to add data to the <code>Clob</code>.
+     * @return An object that implements the <code>Clob</code> interface
+     * @throws SQLException if an object that implements the
+     * <code>Clob</code> interface can not be constructed.
+     *
+     */
+    public Clob createClob() throws SQLException
+    {
+        return new AS400JDBCClob("", AS400JDBCClob.MAX_LOB_SIZE);
+    }
+    
+    //@PDA jdbc40
+    /**
+     * Constructs an object that implements the <code>Blob</code> interface. The object
+     * returned initially contains no data.  The <code>setBinaryStream</code> and
+     * <code>setBytes</code> methods of the <code>Blob</code> interface may be used to add data to
+     * the <code>Blob</code>.
+     * @return  An object that implements the <code>Blob</code> interface
+     * @throws SQLException if an object that implements the
+     * <code>Blob</code> interface can not be constructed
+     *
+     */
+    public Blob createBlob() throws SQLException
+    {
+        return new AS400JDBCBlob(new byte[0], AS400JDBCBlob.MAX_LOB_SIZE);  //@pdc 0 len array
+    }
+  
+    //@PDA jdbc40
+    /**
+     * Constructs an object that implements the <code>NClob</code> interface. The object
+     * returned initially contains no data.  The <code>setAsciiStream</code>,
+     * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+     * be used to add data to the <code>NClob</code>.
+     * @return An object that implements the <code>NClob</code> interface
+     * @throws SQLException if an object that implements the
+     * <code>NClob</code> interface can not be constructed.
+     *
+     */
+     /*ifdef JDBC40 
+    public NClob createNClob() throws SQLException
+    {
+        return new AS400JDBCNClob("", AS400JDBCNClob.MAX_LOB_SIZE);
+    }
+endif */ 
+
+    //@PDA jdbc40
+    /**
+     * Constructs an object that implements the <code>SQLXML</code> interface. The object
+     * returned initially contains no data. The <code>createXMLStreamWriter</code> object and
+     * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+     * object.
+     * @return An object that implements the <code>SQLXML</code> interface
+     * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+     * be constructed
+     */
+     /*ifdef JDBC40 
+    public SQLXML createSQLXML() throws SQLException
+    {
+        return new AS400JDBCSQLXML("", AS400JDBCSQLXML.MAX_XML_SIZE); 
+    }
+    endif */ 
     
     //@PDA //@array
     /**
@@ -4721,6 +5002,26 @@ implements Connection
         //@array            
         return new AS400JDBCArray(typeName, elements, this.vrm_, this);
     }
+
+   //@PDA jdbc40
+    /**
+     * Factory method for creating Struct objects.
+     *
+     * @param typeName the SQL type name of the SQL structured type that this <code>Struct</code> 
+     * object maps to. The typeName is the name of  a user-defined type that
+     * has been defined for this database. It is the value returned by
+     * <code>Struct.getSQLTypeName</code>.
+     * @param attributes the attributes that populate the returned object
+     *  @return a Struct object that maps to the given SQL type and is populated with the given attributes
+     * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
+     */
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException
+    {   
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        return null;
+    }
+    
 
     //@2KRA
     /**
@@ -4790,5 +5091,13 @@ implements Connection
         }
 
     }
+
+
+
+	public boolean doUpdateDeleteBlocking() {
+		return doUpdateDeleteBlocking_; 
+	}
+
+
 
 }

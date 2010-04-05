@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,12 +27,21 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
+/* ifdef JDBC40 
+import java.sql.NClob;
+endif */ 
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+/* ifdef JDBC40 
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -82,7 +91,7 @@ a target SQL type.
 //
 public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements PreparedStatement
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
     private boolean             dataTruncation_;        // @B5A
@@ -97,7 +106,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private boolean[]           parameterNulls_;
     private boolean[]           parameterDefaults_;    //@EIA
     private boolean[]           parameterUnassigned_;  //@EIA
-    //@re-prep move to statement JDServerRow         parameterRow_;          // private protected
+    private String[]            parameterNames_; //@pda jdbc40
+    //@re-prep move to statement JDServerRow    JDServerRow         parameterRow_;          // private protected
     Vector              batchParameterRows_;    // private protected            @G9A
     private int                 parameterTotalSize_;
     private int                 indicatorTotalSize_; //@array Used with array containing data only.  Is total size of all indicators (including array element indicators)
@@ -121,7 +131,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private boolean isjvm16Synchronizer;//@dmy
     //@dmy private dummy outputstream
     OutputStream dummyOutputStream = new OutputStream() {
-        private int b1 = 0;
+        int b1 = 0;
         public synchronized void write(int b) throws IOException {  b1 = b; }
     };
     private PrintWriter dummyPrint = new PrintWriter(dummyOutputStream, true); //@dmy
@@ -291,7 +301,10 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     int sqlType = sqlData.getSQLType();             //@KBA
                     if (sqlType == SQLData.CLOB_LOCATOR ||          //@KBA
                         sqlType == SQLData.BLOB_LOCATOR ||          //@KBA
-                        sqlType == SQLData.DBCLOB_LOCATOR ||         //@KBA
+                        sqlType == SQLData.DBCLOB_LOCATOR ||        //@KBA  //@pdc jdbc40
+/* ifdef JDBC40                         
+                        sqlType == SQLData.NCLOB_LOCATOR ||                 //@pda jdbc40
+endif */
                         sqlType == SQLData.XML_LOCATOR)                     //@xml3
                     {                                               //@KBA
                         containsLocator_ = LOCATOR_FOUND;           //@KBA
@@ -1858,6 +1871,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     if(sqlType == SQLData.CLOB_LOCATOR ||
                        sqlType == SQLData.BLOB_LOCATOR ||
                        sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+/* ifdef JDBC40 
+                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+endif */ 
                        sqlType == SQLData.XML_LOCATOR)                      //@xml3
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -2220,6 +2236,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 if(sqlType == SQLData.CLOB_LOCATOR ||
                    sqlType == SQLData.BLOB_LOCATOR ||
                    sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
                    sqlType == SQLData.XML_LOCATOR)                      //@xml3
                 {
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -2735,6 +2752,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
         if(scale < 0)
             JDError.throwSQLException (this, JDError.EXC_SCALE_INVALID);
+/* ifdef JDBC40 
+        if (parameterValue instanceof SQLXML)                   //@xmlspec
+            setSQLXML(parameterIndex, (SQLXML)parameterValue);  //@xmlspec
+        else
+endif */ 
 
         setValue (parameterIndex, parameterValue, null, scale); //@P0C
     }
@@ -3042,6 +3064,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     if(sqlType == SQLData.CLOB_LOCATOR ||
                        sqlType == SQLData.BLOB_LOCATOR ||
                        sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+/* ifdef JDBC40 
+                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+endif */ 
                        sqlType == SQLData.XML_LOCATOR)                      //@xml3
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -3160,7 +3185,10 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 int sqlType = sqlData.getSQLType();
                 if((sqlType == SQLData.CLOB_LOCATOR ||
                     sqlType == SQLData.BLOB_LOCATOR ||
-                    sqlType == SQLData.DBCLOB_LOCATOR ||
+                    sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+/* ifdef JDBC40 
+                    sqlType == SQLData.NCLOB_LOCATOR ||                   //@pda jdbc40
+endif */ 
                     sqlType == SQLData.XML_LOCATOR))                      //@xml3
                 {                                                        // @B6A
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
@@ -3316,4 +3344,862 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         return resultRow_;
     }
 
+   
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+     * driver converts this to a SQL <code>ROWID</code> value when it sends it
+     * to the database
+     *
+     * @param parameterIndex 
+     * @param x the parameter value
+     * @throws SQLException if a database access error occurs
+     *
+     */
+/* ifdef JDBC40
+    public void setRowId(int parameterIndex, RowId x) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {              
+            JDTrace.logInformation (this, "setRowId()");                  
+            if(x == null)
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");
+            else
+                JDTrace.logInformation (this, "parameter index: "  + parameterIndex + " value: "  + x.toString());
+        }                                                                
+
+        setValue (parameterIndex, x, null, -1);
+    }
+ endif */ 
+    //@PDA jdbc40
+    /**
+     * Sets the designated paramter to the given <code>String</code> object.
+     * The driver converts this to a SQL <code>NCHAR</code> or
+     * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
+     * (depending on the argument's
+     * size relative to the driver's limits on <code>NVARCHAR</code> values)
+     * when it sends it to the database.
+     *
+     * @param parameterIndex
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; or if a database access error occurs
+     */
+     public void setNString(int parameterIndex, String value) throws SQLException
+     {
+         if(JDTrace.isTraceOn())
+         {                                       
+             JDTrace.logInformation (this, "setNString()"); 
+             if(value == null) 
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL"); 
+             else if(value.length() > maxToLog_) 
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + value.length()); 
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + value);
+         }
+         setString(parameterIndex, value);
+     }
+
+     //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object. The
+     * <code>Reader</code> reads the data till end-of-file is reached. The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+     * @param parameterIndex
+     * @param value the parameter value
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; or if a database access error occurs
+     */
+     public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException
+     {          
+         if(JDTrace.isTraceOn())
+         { 
+             JDTrace.logInformation (this, "setNCharacterStream()"); 
+             if(value == null)   
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length);
+         }              
+         setCharacterStream(parameterIndex, value, (int) length); 
+     }
+
+     //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
+     * SQL <code>NCLOB</code> value when it sends it to the database.
+     * @param parameterIndex
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; or if a database access error occurs
+     */
+     /* ifdef JDBC40 
+     public void setNClob(int parameterIndex, NClob value) throws SQLException
+     {
+
+         if(JDTrace.isTraceOn())
+         {  
+             JDTrace.logInformation (this, "setNClob()"); 
+             if(value == null) 
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  
+             else if(value.length() > maxToLog_) 
+                 JDTrace.logInformation (this, "parameter index: "  + parameterIndex + " value: "  + value.getSubString(1, (int)value.length())); 
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + value.length()); 
+         }         
+         setClob(parameterIndex, value);
+     }
+     endif */ 
+     
+     //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>PreparedStatement</code> is executed.
+     * @param parameterIndex
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement, or if the length specified is less than zero.
+     *
+     */
+     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException
+     {
+         if(JDTrace.isTraceOn())
+         {     
+             JDTrace.logInformation (this, "setClob()"); 
+             if(reader == null)   
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL"); 
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length); 
+         } 
+
+         setCharacterStream(parameterIndex, reader, (int)length);
+     }
+
+     //@PDA jdbc40
+    /**
+     * Sets the designated parameter to an <code>InputStream</code> object.  The inputStream must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>PreparedStatement</code> is executed.
+     * @param parameterIndex
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @param length the number of bytes in the parameter data.
+     * @throws SQLException if parameterIndex does not correspond
+     * to a parameter marker in the SQL statement,  if the length specified
+     * is less than zero or if the number of bytes in the inputstream does not match
+     * the specfied length.
+     *
+     */
+     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException
+     {
+         if(JDTrace.isTraceOn())
+         { 
+             JDTrace.logInformation (this, "setBlob()");  
+             if(inputStream == null) 
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL"); 
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length); 
+         }     
+         setBinaryStream(parameterIndex, inputStream, (int)length);
+     }
+     
+     //@PDA jdbc40
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
+     * of characters specified by length otherwise a <code>SQLException</code> will be
+     * generated when the <code>PreparedStatement</code> is executed.
+     * @param parameterIndex
+     * @param reader An object that contains the data to set the parameter value to.
+     * @param length the number of characters in the parameter data.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if the length specified is less than zero;
+     * if the driver does not support national character sets;
+     * if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     *
+     */
+     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException
+     {
+         if(JDTrace.isTraceOn())
+         { 
+             JDTrace.logInformation (this, "setNClob()");  
+             if(reader == null) 
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL"); 
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length); 
+         } 
+
+         setCharacterStream(parameterIndex, reader, (int)length);
+     }
+
+     //@PDA jdbc40
+     /**
+      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. 
+      * @param parameterIndex
+      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
+      * @throws SQLException if a database access error occurs
+      */
+      /* ifdef JDBC40 
+     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
+     {
+         if(JDTrace.isTraceOn())
+         {              
+             int len;  
+            
+             if(xmlObject == null)
+                 len = 0;
+             else 
+                 len = xmlObject.getString().length();  //no length() method yet in jdbc.
+                     
+             JDTrace.logInformation (this, "setSQLXML()");                  
+             if(xmlObject == null)                                   
+                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  
+             else if(len < maxToLog_)                  
+                 JDTrace.logInformation (this, "parameter index: "  + parameterIndex + " value: "  + xmlObject.getString());
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + len); 
+         }                                                                
+
+         //@xmlspec special handling of blob/clob column types
+         if(xmlObject == null)                                                      //@xmlspec3
+         {                                                                          //@xmlspec3
+             setValue (parameterIndex, xmlObject, null, -1);                        //@xmlspec3
+             return;                                                                //@xmlspec3
+         }                                                                          //@xmlspec3
+         SQLData sqlData = parameterRow_.getSQLType(parameterIndex);                //@xmlspec
+         int sqlDataType = sqlData.getType();                                       //@xmlspec
+         switch(sqlDataType) {                                                      //@xmlspec
+             case Types.CLOB:                                                       //@xmlspec
+                 setCharacterStream(parameterIndex, xmlObject.getCharacterStream());//@xmlspec
+                 break;                                                             //@xmlspec
+             case Types.BLOB:                                                       //@xmlspec
+                 setBinaryStream(parameterIndex,  xmlObject.getBinaryStream());     //@xmlspec
+                 break;                                                             //@xmlspec
+             default:                                                               //@xmlspec
+                 setValue (parameterIndex, xmlObject, null, -1);
+         }
+     }
+    endif */ 
+    
+
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] { "com.ibm.as400.access.AS400JDBCPreparedStatement", "java.sql.PreparedStatement" };
+    } 
+    
+    
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given input stream, which will have 
+     * the specified number of bytes.
+     * When a very large ASCII value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code>. Data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from ASCII to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterIndex
+     * @param x the Java input stream that contains the ASCII parameter value
+     * @param length the number of bytes in the stream 
+     * @exception SQLException if a database access error occurs or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     */
+    public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException
+    {
+        setAsciiStream( parameterIndex, x, (int)length);
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given input stream, which will have 
+     * the specified number of bytes.
+     * When a very large binary value is input to a <code>LONGVARBINARY</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code> object. The data will be read from the 
+     * stream as needed until end-of-file is reached.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterIndex
+     * @param x the java input stream which contains the binary parameter value
+     * @param length the number of bytes in the stream 
+     * @exception SQLException if a database access error occurs or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     */
+    public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException
+    {
+        setBinaryStream(parameterIndex, x, (int)length); 
+    }
+
+    //@PDA jdbc40
+    /**
+     * Sets the designated parameter to the given <code>Reader</code>
+     * object, which is the given number of characters long.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterIndex
+     * @param reader the <code>java.io.Reader</code> object that contains the 
+     *        Unicode data
+     * @param length the number of characters in the stream 
+     * @exception SQLException if a database access error occurs or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     */
+    public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException
+    {
+        setCharacterStream(parameterIndex, reader, (int)length);
+    }
+
+    //@pda jdbc40 needed for rowset.setX methods.  Moved from callableStatement.
+    /*
+    Find the column index that matches this parameter name.
+    @param  parameterName    The parameter name to change into a column index (1-based).
+    */
+    int findParameterIndex(String parameterName)
+    throws SQLException
+    {                                                          
+        // Throw an exception if null was passed in
+        if(parameterName == null)
+            JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        // Throw an exception if the Statement is closed (FUNCTION SEQUENCE)
+        if(isClosed())
+            JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
+
+        boolean caseSensitive = false;
+        int count = 0;
+        int returnParm = 0;
+
+        // determine if our search should be case insensitive or not
+        if(parameterName.startsWith("\"") && parameterName.endsWith("\"")) // assume no leading or trailing blanks
+
+        {
+            parameterName = JDUtilities.stripOuterDoubleQuotes(parameterName);
+
+            caseSensitive = true;
+        }
+
+        // If we have a cache created, try to find the column name in it.
+        if(parameterNames_ != null)
+        {
+            // Look up the mapping in our cache.
+            while(count < parameterNames_.length)
+            {
+              if (parameterNames_[count] != null)
+              {
+                if((caseSensitive && parameterNames_[count].equals(parameterName))
+                   || (!caseSensitive && parameterNames_[count].equalsIgnoreCase(parameterName)))
+                {
+                    returnParm = count+1;
+                    break;
+                }
+              }
+
+              ++count;
+            }
+        }
+        else
+        {
+            // Else, create a new hash table to hold all the column name/number mappings.
+            parameterNames_ = new String[parameterCount_];
+
+            // Cache all the parm names and numbers.
+            Statement s = null; //@scan1
+            ResultSet rs = null; //@scan1
+            try{
+            s = connection_.createStatement();
+            String catalogSeparator = "";                                                           //@74A Added a check for the naming used.  Need to use separator appropriate to naming.
+            if (connection_.getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))  //@74A
+                catalogSeparator = ".";                                                             //@74A
+            else                                                                                    //@74A
+                catalogSeparator = "/";                                                             //@74A
+
+            String schema = sqlStatement_.getSchema();
+            if(schema == null || schema.equals(""))  // no schema in statement
+            { // Derive the schema.
+              schema = connection_.getDefaultSchema(true); // get raw value
+
+              if(schema == null)    // No default schema was set on the connection url, or by the libraries connection property.
+              {
+                if(catalogSeparator.equals(".")) // using sql naming
+                {
+                  schema = connection_.getUserName(); // set to user profile
+                }
+                else // using system naming
+                {
+                  // Retrieve the library list from the IBM i - Use ROI Retrieve Library List.
+                  ResultSet rs1 = JDUtilities.getLibraries(this, connection_, null, true);
+                  Vector libListV = new Vector();
+                  while(rs1.next()) {
+                    libListV.addElement(rs1.getString(1));
+                  }
+                  rs1.close(); //@SS
+                  String[] libList = new String[libListV.size()];
+                  libListV.toArray(libList);
+
+                  // Get a result set that we can scroll forward/backward through.
+                  Statement s1 = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                  rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
+                                  + catalogSeparator
+                                  + "SYSPROCS WHERE ROUTINE_NAME='"
+                                  + unquote(sqlStatement_.getProcedure())
+                                  + "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = "
+                                  + parameterCount_);
+                  if(!rs.next())
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL);  // didn't find the procedure in any schema
+
+                  // If we get this far, at least one schema contains a procedure similar to ours.
+                  boolean found = false;
+                  for(int i=0; i<libList.length && !found; i++)
+                  {
+                    if (libList[i].length() != 0) {
+                      rs.beforeFirst(); // re-position to before the first row
+                      while(rs.next() && !found){
+                        if(rs.getString(1).equals(libList[i])) {
+                          schema = rs.getString(1);
+                          found = true; // we found a procedure that matches our criteria
+                        }
+                      }
+                    }
+                  }
+                  rs.close(); //@SS
+                  s1.close(); //@SS
+                  if(!found)    // none of the libraries in our library list contain a stored procedure that we are looking for
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+                }
+              }
+            }
+
+            rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
+                                          "' AND ROUTINE_NAME = '" + unquote(sqlStatement_.getProcedure()) + //@DELIMc
+                                          "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
+
+            // If there are no rows, throw an internal driver exception
+            if(!rs.next())
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+
+            String specificName = rs.getString(1);
+            rs.close(); //@SS
+
+            rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2" + catalogSeparator + "SYSPARMS WHERE " + //@74A
+                                " SPECIFIC_NAME = '" + unquoteNoUppercase(specificName) + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); //@DELIMc
+
+            while(rs.next())
+            {
+                count++;
+    
+                String colName = rs.getString(1);
+                int colInd = rs.getInt(2);
+                parameterNames_[colInd-1] = colName; 
+    
+                if(caseSensitive && colName.equals(parameterName))
+                    returnParm = colInd;
+                else if(!caseSensitive && colName.equalsIgnoreCase(parameterName))
+                    returnParm = colInd;
+            }
+            }finally //@scan1
+            {
+                if(rs != null) //@scan1
+                    rs.close(); //@SS
+                if(s != null)  //@scan1
+                    s.close();  //@SS
+            }
+            
+            // If the number of parm names didn't equal the number of parameters, throw
+            // an exception (INTERNAL).
+            if(count != parameterCount_) {
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+            }
+    
+        }
+
+        // Throw an exception if the column name is not found (COLUMN NOT FOUND). 
+        if(returnParm == 0)
+            JDError.throwSQLException(this, JDError.EXC_COLUMN_NOT_FOUND);
+
+        return returnParm;
+    }
+
+    //@PDA jdbc40 move from callableStatement
+    private static final String unquote(String name)
+    {
+      return JDUtilities.prepareForSingleQuotes(name, true);
+    }
+    
+    //@PDA jdbc40 move from callableStatement
+    private static final String unquoteNoUppercase(String name)
+    {
+      return JDUtilities.prepareForSingleQuotes(name, false);
+    }
+
+    //@PDA jdbc40 helper method
+    private void setInputStream(int parameterIndex, InputStream x) throws SQLException
+    {                                                                   
+        // @J0A added the code from setValue in this method because streams and readers are handled specially
+        synchronized(internalLock_)
+        {
+            checkOpen ();
+
+            // Validate the parameter index.
+            if((parameterIndex < 1) || (parameterIndex > parameterCount_))
+                JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+
+            // Check if the parameter index refers to the return value parameter.
+            // This is an OUT parameter, so sets are not allowed.  If its not
+            // parameter index 1, then decrement the parameter index, since we
+            // are "faking" the return value parameter.
+            if(useReturnValueParameter_)
+            {
+                if(parameterIndex == 1)
+                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+                else
+                    --parameterIndex;
+            }
+
+            // Check that the parameter is an input parameter.
+            if(! parameterRow_.isInput (parameterIndex))
+                JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+            // Set the parameter data.  If there is a type mismatch,
+            // set() with throw an exception.
+            SQLData sqlData = parameterRow_.getSQLType(parameterIndex);
+            if(x != null)
+            {
+                // If the data is a locator, then set its handle.
+                int sqlType = sqlData.getSQLType();  //@xml3
+                if(sqlType == SQLData.CLOB_LOCATOR ||
+                   sqlType == SQLData.BLOB_LOCATOR ||
+                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
+                {
+                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
+                    sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                    if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                    sqlData.set(x, null, -2);//new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE), null, -2); //@readerlen -2 flag to read all of reader bytes
+                }
+                else
+                {
+                    sqlData.set(x, null, -2);//sqlData.set (JDUtilities.readerToString(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE)), null, -1); //@readerlen -2 flag to read all of reader bytes
+                }
+
+                testDataTruncation (parameterIndex, sqlData);
+            }
+            // Parameters can be null; you can call one of the set methods to null out a
+            // field of the database.
+            parameterNulls_[parameterIndex-1] = (x == null);
+            parameterSet_[parameterIndex-1] = true;
+
+        }
+    }
+    
+    //@PDA jdbc40 
+    /**
+     * Sets the designated parameter to the given input stream.
+     * When a very large ASCII value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code>. Data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from ASCII to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterIndex
+     * @param x the Java input stream that contains the ASCII parameter value
+     * @exception SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if a database access error occurs or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {                                          
+            JDTrace.logInformation (this, "setAsciiStream(int, InputStream)");        
+            if(x == null)                                 
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");   
+        }                                                                   
+        setInputStream(parameterIndex, x);
+    }
+
+    //@PDA jdbc40 
+    /**
+     * Sets the designated parameter to the given input stream.
+     * When a very large binary value is input to a <code>LONGVARBINARY</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.InputStream</code> object. The data will be read from the 
+     * stream as needed until end-of-file is reached.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     *
+     * @param parameterIndex
+     * @param x the java input stream which contains the binary parameter value
+     * @exception SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if a database access error occurs or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {                                          
+            JDTrace.logInformation (this, "setBinaryStream(int, InputStream)");        
+            if(x == null)                                 
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");   
+        }                                                                   
+        setInputStream(parameterIndex, x);
+    }
+
+    //@PDA jdbc40 
+    /**
+     * Sets the designated parameter to a <code>InputStream</code> object. 
+     * This method differs from the <code>setBinaryStream (int, InputStream)</code>
+     * method because it informs the driver that the parameter value should be
+     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * the driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     *
+     * @param parameterIndex
+     * @param inputStream An object that contains the data to set the parameter
+     * value to.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if a database access error occurs; 
+     * this method is called on a closed <code>PreparedStatement</code> or
+     * if parameterIndex does not correspond
+     * to a parameter marker in the SQL statement,  
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     *
+     */
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {                                          
+            JDTrace.logInformation (this, "setBlob(int, InputStream)");        
+            if(inputStream == null)                                 
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");   
+        }                                                                   
+        setInputStream(parameterIndex, inputStream);
+    }
+
+    //@PDA jdbc40 helper
+    private void setReader(int parameterIndex, Reader reader) throws SQLException
+    {
+        // @J0A added the code from setValue in this method because streams and readers are handled specially
+        synchronized(internalLock_)
+        {
+            checkOpen ();
+
+            // Validate the parameter index.
+            if((parameterIndex < 1) || (parameterIndex > parameterCount_))
+                JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+
+            // Check if the parameter index refers to the return value parameter.
+            // This is an OUT parameter, so sets are not allowed.  If its not
+            // parameter index 1, then decrement the parameter index, since we
+            // are "faking" the return value parameter.
+            if(useReturnValueParameter_)
+            {
+                if(parameterIndex == 1)
+                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+                else
+                    --parameterIndex;
+            }
+
+            // Check that the parameter is an input parameter.
+            if(! parameterRow_.isInput (parameterIndex))
+                JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+            // Set the parameter data.  If there is a type mismatch,
+            // set() with throw an exception.
+            SQLData sqlData = parameterRow_.getSQLType(parameterIndex);
+            if(reader != null)
+            {
+
+                // If the data is a locator, then set its handle.
+                int sqlType = sqlData.getSQLType();  //@xml3
+                if(sqlType == SQLData.CLOB_LOCATOR ||
+                   sqlType == SQLData.BLOB_LOCATOR ||
+                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
+                {
+                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
+                    sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                    if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                    sqlData.set(reader, null, -2); //@readerlen -2 flag to read all of reader chars
+                }
+                else
+                {
+                    sqlData.set(JDUtilities.readerToString(reader), null, -1);
+                }
+
+                testDataTruncation (parameterIndex, sqlData);
+            }
+            // Parameters can be null; you can call one of the set methods to null out a
+            // field of the database.
+            parameterNulls_[parameterIndex-1] = (reader == null);
+            parameterSet_[parameterIndex-1] = true;
+
+        }
+        
+    }
+    
+    //@PDA jdbc40 
+    /**
+     * Sets the designated parameter to the given <code>Reader</code>
+     * object.
+     * When a very large UNICODE value is input to a <code>LONGVARCHAR</code>
+     * parameter, it may be more practical to send it via a
+     * <code>java.io.Reader</code> object. The data will be read from the stream
+     * as needed until end-of-file is reached.  The JDBC driver will
+     * do any necessary conversion from UNICODE to the database char format.
+     * 
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>setCharacterStream</code> which takes a length parameter. 
+     *
+     * @param parameterIndex
+     * @param reader the <code>java.io.Reader</code> object that contains the 
+     *        Unicode data
+     * @exception SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if a database access error occurs or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {
+            JDTrace.logInformation (this, "setCharacterStream(int, Reader)");
+            if(reader == null)
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");
+        }
+        
+        setReader(parameterIndex, reader);
+    }
+
+
+    //@PDA jdbc40 
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object. 
+     * This method differs from the <code>setCharacterStream (int, Reader)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * 
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>setClob</code> which takes a length parameter.
+     *
+     * @param parameterIndex
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if a database access error occurs; this method is called on
+     * a closed <code>PreparedStatement</code>or if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement
+     *
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setClob(int parameterIndex, Reader reader) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {
+            JDTrace.logInformation (this, "setClob(int, Reader)");
+            if(reader == null)
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");
+        }
+        
+        setReader(parameterIndex, reader);
+    }
+
+
+    //@PDA jdbc40 
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object. The
+     * <code>Reader</code> reads the data till end-of-file is reached. The
+     * driver does the necessary conversion from Java character format to
+     * the national character set in the database.
+     
+     * <P><B>Note:</B> This stream object can either be a standard
+     * Java stream object or your own subclass that implements the
+     * standard interface.
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>setNCharacterStream</code> which takes a length parameter.
+     *      
+     * @param parameterIndex
+     * @param value the parameter value
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; if a database access error occurs; or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {
+            JDTrace.logInformation (this, "setNCharacterStream(int, Reader)");
+            if(value == null)
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");
+        }
+        
+        setReader(parameterIndex, value);
+    }
+
+    //@PDA jdbc40 
+    /**
+     * Sets the designated parameter to a <code>Reader</code> object.  
+     * This method differs from the <code>setCharacterStream (int, Reader)</code> method
+     * because it informs the driver that the parameter value should be sent to
+     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * driver may have to do extra work to determine whether the parameter
+     * data should be sent to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
+     * it might be more efficient to use a version of 
+     * <code>setNClob</code> which takes a length parameter.
+     *
+     * @param parameterIndex
+     * @param reader An object that contains the data to set the parameter value to.
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; 
+     * if the driver does not support national character sets;
+     * if the driver can detect that a data conversion
+     *  error could occur;  if a database access error occurs or 
+     * this method is called on a closed <code>PreparedStatement</code>
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     */
+    public void setNClob(int parameterIndex, Reader reader) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {
+            JDTrace.logInformation (this, "setNClob(int, Reader)");
+            if(reader == null)
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");
+        }
+        
+        setReader(parameterIndex, reader);
+    }
 }
