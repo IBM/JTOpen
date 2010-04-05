@@ -15,7 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.IOException;
+/* ifdef JDBC40 */
 import java.sql.DriverManager;
+/* endif */ 
 import java.sql.SQLException;
 
 
@@ -38,7 +40,7 @@ transaction.
 //
 class AS400JDBCInputStream extends InputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
   private boolean         closed_;
   private JDLobLocator    locator_;

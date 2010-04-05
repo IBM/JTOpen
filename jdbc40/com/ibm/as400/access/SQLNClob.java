@@ -24,13 +24,17 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;  
+/* endif */ 
 
 //@PDA jdbc40 brand new class
 //This is almost the same as SQLClob, and I would have liked to extend it, but it is final, and so decided
@@ -134,8 +138,11 @@ final class SQLNClob implements SQLData
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if(!(object instanceof Clob) && //@PDC NClob extends Clob
                 !(object instanceof InputStream) && 
-                !(object instanceof Reader) && //@PDC jdbc40
-                !(object instanceof SQLXML)) //@PDC jdbc40
+                !(object instanceof Reader)  //@PDC jdbc40
+/* ifdef JDBC40 */
+                && !(object instanceof SQLXML)
+/* endif */ 
+                ) //@PDC jdbc40
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
@@ -225,11 +232,13 @@ final class SQLNClob implements SQLData
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
+/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) //@PDA jdbc40 
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
+/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -333,7 +342,14 @@ final class SQLNClob implements SQLData
 
     public int getType()
     {
+/* ifdef JDBC40 */
         return java.sql.Types.NCLOB;
+/* endif */ 
+/* ifndef JDBC40 
+    	return java.sql.Types.CLOB; 
+ endif */ 
+    	 
+    	 
     }
 
     public String getTypeName()
@@ -502,7 +518,12 @@ final class SQLNClob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
+/* ifdef JDBC40 */
         return new AS400JDBCNClob(value_, maxLength_);
+/* endif */ 
+/* ifndef JDBC40 
+        return new AS400JDBCClob(value_, maxLength_);
+ endif */ 
     }
 
     public short getShort()
@@ -558,14 +579,14 @@ final class SQLNClob implements SQLData
         return new StringReader(value_);
     }
     
-
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
         return new AS400JDBCNClob(value_, maxLength_);
     }
-
+/* endif */ 
 
     public String getNString() throws SQLException
     {
@@ -574,23 +595,23 @@ final class SQLNClob implements SQLData
         return value_;     
     }
 
-
+/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
-        /*
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0;
-        try
-        {
-            return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
-        }
-        catch(NumberFormatException nfe)
-        {
+        //
+        //if(savedObject_ != null) doConversion();
+        //truncated_ = 0;
+        //try
+        //{
+        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        //}
+        //catch(NumberFormatException nfe)
+        //{
             // this NClob contains non-hex characters
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-            return null;
-        }
-        */
+            //JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            //return null;
+        //}
+        
         //Decided this is of no use because rowid is so specific to the dbms internals.
         //And there are issues in length and difficulties in converting to a
         //valid rowid that is useful.
@@ -605,6 +626,8 @@ final class SQLNClob implements SQLData
         return new AS400JDBCSQLXML(value_.toCharArray());     
     }
 
+/* endif */ 
+    
     // @array
     public Array getArray() throws SQLException
     {

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,19 +25,27 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DataTruncation;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+/* ifdef JDBC40 */
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+/* ifdef JDBC40 */
 import java.sql.Types;
+/* endif */ 
 import java.util.Calendar;
 import java.util.Map;
 
@@ -170,10 +178,14 @@ index rather than accessing them by their name.
 //    so the very example given in the spec does not work.  As a
 //    result, we must create a new default Calendar each time.
 //
-public class AS400JDBCResultSet extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCResultSet 
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
+
 implements ResultSet
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
 
     //New constants for JDBC 3.0.
@@ -392,7 +404,7 @@ implements ResultSet
         {
             for(int i = 0; i < columnCount_; ++i)
             {
-                updateNulls_[i]  = true;        //@IEC  //@EIC2 
+                updateNulls_[i]  = true;        //@IEC //@EIC2 
                 updateDefaults_[i] = false;      //@EIA
                 updateUnassigned_[i] = false;    //@EIA
                 updateSet_[i]    = false;
@@ -1247,7 +1259,7 @@ implements ResultSet
     throws SQLException
     {
         checkOpen ();
-
+        
         if((scrollable) && (getType() == TYPE_FORWARD_ONLY))  //@cur
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
@@ -2287,7 +2299,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getBinaryStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2342,7 +2354,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Blob value = (data == null) ? null : data.getBlob ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2396,7 +2408,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             boolean value = (data == null) ? false : data.getBoolean ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2591,7 +2603,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.getCharacterStream ();
             openReader_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2647,7 +2659,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Clob value = (data == null) ? null : data.getClob ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3077,7 +3089,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Object value = (data == null) ? null : data.getObject ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3277,7 +3289,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.getString ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3480,7 +3492,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Timestamp value = (data == null) ? null : data.getTimestamp (calendar);
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3577,7 +3589,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getUnicodeStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3644,8 +3656,8 @@ implements ResultSet
         // row.
         if(concurrency_ == CONCUR_UPDATABLE)
         {
-            if((updateSet_[columnIndex-1] == true)                       //@EIC2 changed back to original logic.  For case of after insertrow is inserted, the updateSet[] is reset, but can still have non-null data.
-               || (positionInsert_ == true))                          
+            if((updateSet_[columnIndex-1] == true)     //@EIC2 changed back to original logic.  For case of after insertrow is inserted, the updateSet[] is reset, but can still have non-null data.
+               || (positionInsert_ == true))               
             {
                 wasNull_ = updateNulls_[columnIndex-1];
                 wasDataMappingError_ = false;
@@ -3701,7 +3713,7 @@ implements ResultSet
             {
                 //if 610 and number data type and called on certain getX() methods, then throw SQLException
                 //if 610, follow Native driver to thow exc if data is text and getX() is a number type getter method.
-                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm610) && (exceptionOnTrunc == true))   //@trunc //@trunc2
+                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm610)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
                 {                                                                    //@trunc
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
                 }                                                                    //@trunc
@@ -5232,10 +5244,11 @@ implements ResultSet
         if(scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
-
+/* ifdef JDBC40 */
         if (columnValue instanceof SQLXML)                   //@xmlspec
             updateSQLXML(columnIndex, (SQLXML)columnValue);  //@xmlspec
         else
+/* endif */ 
             updateValue (columnIndex, columnValue, null, scale); //@P0C
     }
 
@@ -5755,7 +5768,7 @@ implements ResultSet
                 {
                     /*ignore*/
                 }                                                                                  //@G7A
-                
+/* ifdef JDBC40 */
                 try                                                                              //@PDA jdbc40 -  following upon existing design
                 {                                                                                 //@PDA jdbc40
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@PDA jdbc40
@@ -5763,7 +5776,7 @@ implements ResultSet
                 }                                                                                  //@PDA jdbc40
                 catch(ClassCastException cce)                                                     //@PDA jdbc40
                 {
-                    /*ignore*/
+                    // ignore
                 }            
                 try                                                                              //@olddesc
                 {                                                                                 //@olddesc
@@ -5772,8 +5785,9 @@ implements ResultSet
                 }                                                                                 //@olddesc
                 catch(ClassCastException cce)                                                    //@olddesc
                 {
-                    /*ignore*/
-                }            
+                    // ignore
+                }    
+/* endif */ 
             }
 
             if(columnValue != null)
@@ -5787,6 +5801,9 @@ implements ResultSet
                 testDataTruncation2 (columnIndex, sqlData);         // @B2C
         }
     }
+
+
+
 
     //@PDA jdbc40
     /**
@@ -5909,6 +5926,7 @@ implements ResultSet
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurss
      */
+/* ifdef JDBC40 */
     public NClob getNClob(int columnIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -5919,7 +5937,7 @@ implements ResultSet
             return value;
         }
     }
-
+/* endif */ 
 
     //@pda jdbc40
     /**
@@ -5934,11 +5952,12 @@ implements ResultSet
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurs
      */
+/* ifdef JDBC40 */
     public NClob getNClob(String columnName) throws SQLException
     {
         return getNClob (findColumn (columnName));
     }
-
+/* endif */ 
 
     //@pda jdbc40
     /**
@@ -5997,6 +6016,7 @@ implements ResultSet
      *     value returned is <code>null</code>
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public RowId getRowId(int columnIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -6007,6 +6027,8 @@ implements ResultSet
             return value;
         }
     }
+/* endif */ 
+    
 
 
     //@pda jdbc40
@@ -6020,11 +6042,12 @@ implements ResultSet
      *     value returned is <code>null</code>
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public RowId getRowId(String columnName) throws SQLException
     {
         return getRowId(findColumn (columnName));
     }
-
+/* endif */ 
 
     //@pda jdbc40
     /**
@@ -6035,6 +6058,7 @@ implements ResultSet
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(int columnIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -6045,6 +6069,7 @@ implements ResultSet
             return value;
         }
     }
+/* endif */ 
 
 
     //@pda jdbc40
@@ -6056,10 +6081,13 @@ implements ResultSet
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(String columnName) throws SQLException
     {
         return getSQLXML(findColumn (columnName));
     }
+/* endif */ 
+    
 
 
 
@@ -6077,11 +6105,13 @@ implements ResultSet
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurs
      */
+/* ifdef JDBC40 */
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
     {
         updateValue (columnIndex, nClob, null, -1);
     }
-
+/* endif */ 
+    
     //@PDA jdbc40
     /**
      * Updates the designated column with a <code>java.sql.NClob</code> value.
@@ -6096,11 +6126,14 @@ implements ResultSet
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurs
      */
+/* ifdef JDBC40 */
     public void updateNClob(String columnName, NClob nClob) throws SQLException
     {
         updateNClob (findColumn (columnName), nClob);
         
     }
+/* endif */ 
+    
 
     //@pda jdbc40
     /**
@@ -6156,10 +6189,13 @@ implements ResultSet
      * @param x the column value
      * @throws SQLException if a database access occurs 
      */
+/* ifdef JDBC40 */
     public void updateRowId(int columnIndex, RowId x) throws SQLException
     {
         updateValue (columnIndex, x, null, -1);
     }
+/* endif */ 
+    
 
     //@pda jdbc40
     /**
@@ -6173,11 +6209,12 @@ implements ResultSet
      * @param x the column value
      * @throws SQLException if a database access occurs 
      */
+/* ifdef JDBC40 */
     public void updateRowId(String columnName, RowId x) throws SQLException
     {
         updateRowId (findColumn (columnName), x);
     }
-
+/* endif */ 
 
     //@pda jdbc40
     /**
@@ -6191,6 +6228,7 @@ implements ResultSet
      * @param xmlObject the value for the column to be updated
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
     {
         //@xmlspec special handling of blob/clob column types
@@ -6218,7 +6256,7 @@ implements ResultSet
                 updateValue (columnIndex, xmlObject, null, -1); 
         }
     }
-
+/* endif */ 
 
     //@pda jdbc40
     /**
@@ -6233,10 +6271,12 @@ implements ResultSet
      * @param xmlObject the column value
      * @throws SQLException if a database access occurs 
      */
+/* ifdef JDBC40 */
     public void updateSQLXML(String columnName, SQLXML xmlObject) throws SQLException
     {
         updateSQLXML(findColumn(columnName), xmlObject);
     }
+/* endif */ 
     
     //@pda jdbc40
     protected String[] getValidWrappedList()
@@ -7164,14 +7204,20 @@ implements ResultSet
 
             // Set the update value.  If there is a type mismatch,
             // set() with throw an exception.
-          
+           
             int columnIndex0 = columnIndex - 1;
             
             updateNulls_[columnIndex0] = false;
             updateDefaults_[columnIndex0] = columnValue == 1 ? true: false;     
             updateUnassigned_[columnIndex0] =  columnValue == 2 ? true: false;   
-            updateSet_[columnIndex0] = true; 
+            updateSet_[columnIndex0] = true;
+
+                 
         }
     }
 
+
+ 
 }
+
+

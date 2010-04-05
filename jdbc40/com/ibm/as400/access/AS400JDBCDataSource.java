@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,11 @@ import javax.naming.StringRefAddr;                // JNDI
 *  Connection connection = datasource.getConnection("myUser", "MYPWD");
 *  </pre></blockquote>
 **/
-public class AS400JDBCDataSource extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCDataSource 
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
+
 implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
     static final long serialVersionUID = 4L;
@@ -95,7 +99,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     private static final String FALSE_ = "false";
     private static final String TOOLBOX_DRIVER = "jdbc:as400:";
     private static final int MAX_THRESHOLD = 16777216;                  // Maximum threshold (bytes). @A3C, @A4A
-    private static final int MAX_SCALE = 63;                            // Maximum decimal scale
+    static final int MAX_SCALE = 63;                            // Maximum decimal scale
 
     // socket options to store away in JNDI
     private static final String SOCKET_KEEP_ALIVE = "soKeepAlive"; // @F1A
@@ -123,7 +127,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     private boolean isSecure_ = false;  //@B4A
 
     // Handles loading the appropriate resource bundle
-    private static ResourceBundleLoader loader_;      //@A9A
+    // private static ResourceBundleLoader loader_;      //@A9A
 
 
     // In mod 5 support was added to optionally serialize the password with the

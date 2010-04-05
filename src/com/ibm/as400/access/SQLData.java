@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,15 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-
+/* ifdef JDBC40 
+import java.sql.NClob;
+import java.sql.Ref;
+import java.sql.RowId;
+ endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40  
+import java.sql.SQLXML;
+ endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -493,8 +500,63 @@ extends Cloneable
     **/
     public abstract InputStream getUnicodeStream()
     throws SQLException;
-
- 
+    
+    //@PDA jdbc40
+    /**
+    Converts the data to a java.io.Reader object.
+    @return     the result of the conversion.
+    @exception  SQLException    If the conversion is not
+                                required or not possible.
+    **/
+    public abstract Reader getNCharacterStream()
+    throws SQLException;
+    
+    //@PDA jdbc40
+    /**
+    Converts the data to a java.sql.NClob object
+    @return     the result of the conversion.
+    @exception  SQLException    If the conversion is not
+                                required or not possible.
+    **/
+    /* ifdef JDBC40  
+    public abstract NClob getNClob()
+    throws SQLException;
+     endif */ 
+    //@PDA jdbc40
+    /**
+    Converts the data to String object.
+    @return     the result of the conversion.
+    @exception  SQLException    If the conversion is not
+                                required or not possible.
+    **/
+    public abstract String getNString()
+    throws SQLException;
+    
+    //@PDA jdbc40
+    /**
+    Converts the data to a java.sql.SQLXML object.
+    @return     the result of the conversion.
+    @exception  SQLException    If the conversion is not
+                                required or not possible.
+    **/
+    /* ifdef JDBC40  
+    public abstract SQLXML getSQLXML()
+    throws SQLException;
+    endif */     
+    
+    //@PDA jdbc40
+    /**
+    Converts the data to a java.sql.RowId object.
+    @return     the result of the conversion.
+    @exception  SQLException    If the conversion is not
+                                required or not possible.
+    **/
+    /* ifdef JDBC40 
+    
+    public abstract RowId getRowId()
+    throws SQLException;
+     endif */ 
+    
     //@array
     /**
     Converts (returns) the data to a java.sql.Array object.
@@ -504,5 +566,5 @@ extends Cloneable
     **/
     public abstract Array getArray()
     throws SQLException;
-    
+
 }

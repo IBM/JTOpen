@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,15 +17,21 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
+/* ifdef JDBC40 */
 import java.sql.ClientInfoStatus;
+/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.PreparedStatement;
+/* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Savepoint;   
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -37,18 +43,17 @@ import java.util.Map;
 import java.util.Properties;
 
 
-
 class JDConnectionProxy
 extends AbstractProxyImpl
 implements Connection
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   // Private data.
  
   private JDDatabaseMetaDataProxy metaData_;
-  private AS400 as400PublicClassObj_; // Prevents garbage collection.
+  AS400 as400PublicClassObj_; // Prevents garbage collection.
 
 
     // Copied from JDError:
@@ -126,18 +131,20 @@ implements Connection
     }
   }
 
-    //@PDA jdbc40
-    private Object callMethodRtnObj(String methodName, Class[] argClasses, Object[] argValues) throws SQLException
-    {
-        try
-        {
-            return connection_.callMethod(pxId_, methodName, argClasses, argValues).getReturnValue();
-        } catch (InvocationTargetException e)
-        {
-            throw rethrow1(e);
-        }
-    }
-  
+
+  //@PDA 550
+  private Object callMethodRtnObj(String methodName, Class[] argClasses, Object[] argValues) throws SQLException
+  {
+      try
+      {
+          return connection_.callMethod(pxId_, methodName, argClasses, argValues).getReturnValue();
+      } catch (InvocationTargetException e)
+      {
+          throw rethrow1(e);
+      }
+  }
+
+
   public void clearWarnings ()
     throws SQLException
   {
@@ -837,7 +844,13 @@ implements Connection
    *          setting the client info value on the database server.
    * <p>
    */
-  public void setClientInfo(String name, String value) throws SQLClientInfoException
+  public void setClientInfo(String name, String value) 
+/* ifdef JDBC40 */
+    throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+   throws SQLException 
+ endif */ 
     {
         try
         {
@@ -846,6 +859,7 @@ implements Connection
                     new Object[] { name, value });
         } catch (SQLException e)
         {
+/* ifdef JDBC40 */
             //may be SQLException or SQLClientInfoException
             if(e instanceof SQLClientInfoException)
                 throw (SQLClientInfoException)e;
@@ -858,10 +872,14 @@ implements Connection
                 SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
                 throw clientIE;
             }
+/* endif */ 
+/* ifndef JDBC40 
+	throw e;
+ endif */ 
         }
     }
 
-  // @PDA jdbc40
+  // @PDA 550 client info
   /**
    * Sets the value of the connection's client info properties. The
    * <code>Properties</code> object contains the names and values of the
@@ -881,7 +899,6 @@ implements Connection
    * properties to be set atomically. For those databases, one or more
    * properties may have been set before the error occurred.
    * <p>
-   * 
    * The following client info properties are supported in Toobox for Java.  
    * <p>
    * <ul>
@@ -897,18 +914,23 @@ implements Connection
    * <li>ClientProgramID  -   The client program identification.</li>
    * </ul>
    * <p>
-   * 
    * @param properties
    *            the list of client info properties to set
    *            <p>
-   * @throws ClientInfoException
+   * @throws SQLException
    *             if the database server returns an error while setting the
    *             clientInfo values on the database server
    *             <p>
    * @see java.sql.Connection#setClientInfo(String, String)
    *      setClientInfo(String, String)
    */
-  public void setClientInfo(Properties properties) throws SQLClientInfoException
+  public void setClientInfo(Properties properties) 
+/* ifdef JDBC40 */
+  throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+  throws SQLException
+ endif */ 
   {
       try
       {
@@ -917,6 +939,7 @@ implements Connection
                   new Object[] { properties });
       }catch(SQLException e)
       {
+/* ifdef JDBC40 */
           //may be SQLException or SQLClientInfoException
           if(e instanceof SQLClientInfoException)
               throw (SQLClientInfoException)e;
@@ -935,10 +958,14 @@ implements Connection
               SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
               throw clientIE;
           }
+/* endif */ 
+/* ifndef JDBC40 
+          	throw e; 
+ endif */ 
       }
   }
 
-  //@PDA jdbc40
+  //@PDA 550 client info
   /**
    * Returns the value of the client info property specified by name.  This 
    * method may return null if the specified client info property has not 
@@ -949,7 +976,6 @@ implements Connection
    * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
    * method to determine the client info properties supported by the driver.
    * <p>
-   * 
    * The following client info properties are supported in Toobox for Java.  
    * <p>
    * <ul>
@@ -981,14 +1007,13 @@ implements Connection
               new Object[] { name });
   }
 
-  //@PDA jdbc40
+  //@PDA 550 client info
   /**
    * Returns a list containing the name and current value of each client info 
    * property supported by the driver.  The value of a client info property 
    * may be null if the property has not been set and does not have a 
    * default value.
    * <p>
-   * 
    * The following client info properties are supported in Toobox for Java.  
    * <p>
    * <ul>
@@ -1058,11 +1083,12 @@ implements Connection
    * <code>NClob</code> interface can not be constructed.
    *
    */
+/* ifdef JDBC40 */
   public NClob createNClob() throws SQLException
   {
       return (NClob) callMethodRtnObj("createNClob");
   }
-
+/* endif */ 
   //@PDA jdbc40
   /**
    * Constructs an object that implements the <code>SQLXML</code> interface. The object
@@ -1073,11 +1099,12 @@ implements Connection
    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
    * be constructed
    */
+/* ifdef JDBC40 */
   public SQLXML createSQLXML() throws SQLException
   {
       return (SQLXML) callMethodRtnObj("createSQLXML");
   }
-  
+/* endif */ 
   //@PDA jdbc40
   /**
    * Factory method for creating Array objects.
@@ -1142,4 +1169,5 @@ implements Connection
       return (String) callMethodRtnObj("getServerJobIdentifier");     // @pd2
   }                                                                   // @pd2
 
+  
 }

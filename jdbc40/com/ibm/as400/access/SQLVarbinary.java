@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,10 +25,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -36,7 +40,7 @@ import java.util.Calendar;
 final class SQLVarbinary
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[]     default_    = new byte[0];
@@ -598,6 +602,7 @@ implements SQLData
         return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
     }
 
+/* ifdef JDBC40 */
     //@PDA jdbc40
     public NClob getNClob() throws SQLException
     {        
@@ -607,6 +612,7 @@ implements SQLData
         String string = BinaryConverter.bytesToHexString(getBytes());
         return new AS400JDBCNClob(string, maxLength_);
     }
+/* endif */ 
 
     //@PDA jdbc40
     public String getNString() throws SQLException
@@ -617,6 +623,7 @@ implements SQLData
         return BinaryConverter.bytesToHexString(getBytes());
     }
 
+/* ifdef JDBC40 */
     //@PDA jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -630,6 +637,7 @@ implements SQLData
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
+/* endif */ 
 
     // @array
     public Array getArray() throws SQLException

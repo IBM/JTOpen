@@ -21,10 +21,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -59,7 +63,7 @@ final class SQLDecFloat16 implements SQLData {
 
     private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(-Double.MAX_VALUE); //@PDC MIN_VALUE is positive
     
-    private static final int DECFLOAT16_MIN_EXP = -383;  
+    static final int DECFLOAT16_MIN_EXP = -383;  
 
     private SQLConversionSettings settings_;
 
@@ -622,12 +626,14 @@ final class SQLDecFloat16 implements SQLData {
     }
     
     //@pda jdbc40
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
+    
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -649,19 +655,21 @@ final class SQLDecFloat16 implements SQLData {
     }
 
     //@pda jdbc40
+/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
     //@pda jdbc40
+/* ifdef JDBC40 */
     public SQLXML getSQLXML() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
     // @array
     public Array getArray() throws SQLException
     {

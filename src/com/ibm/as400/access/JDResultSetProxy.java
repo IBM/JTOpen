@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,11 +23,20 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40
+import java.sql.NClob;
+endif */ 
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+/* ifdef JDBC40 
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -1786,7 +1795,647 @@ implements ResultSet
     {
         updateTimestamp (findColumn (columnName), columnValue);
     }
+                                                                     
+    
+    //@PDA jdbc40
+    public int getHoldability() throws SQLException
+    {
+        return callMethodRtnInt ("getHoldability");
+    }
+    
+    
+    //@pda jdbc40
+    public Reader getNCharacterStream(int columnIndex) throws SQLException
+    {
+        try {
+            JDReaderProxy newReader = new JDReaderProxy ();
+            return (JDReaderProxy) connection_.callFactoryMethod (
+                    pxId_, "getNCharacterStream",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer (columnIndex) },
+                    newReader);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row 
+     * of this <code>ResultSet</code> object as a
+     * <code>java.io.Reader</code> object.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     * 
+     * @param columnName the name of the column
+     * @return a <code>java.io.Reader</code> object that contains the column
+     * value; if the value is SQL <code>NULL</code>, the value returned is
+     * <code>null</code> in the Java programming language
+     * @exception SQLException if a database access error occurs
+     */
+    public Reader getNCharacterStream(String columnName) throws SQLException
+    {
+        return getNCharacterStream (findColumn (columnName));
+    }
+    
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return a <code>NClob</code> object representing the SQL 
+     *         <code>NCLOB</code> value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurss
+     */
+    /* ifdef JDBC40 
+    public NClob getNClob(int columnIndex) throws SQLException
+    {
+        try {
+            JDNClobProxy newClob = new JDNClobProxy ();
+            return (JDNClobProxy) connection_.callFactoryMethod (pxId_,
+                    "getNClob",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer(columnIndex) },
+                    newClob);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    endif */ 
+    
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnName the name of the column from which to retrieve the value
+     * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
+     * value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
+    /* ifdef JDBC40 
+    public NClob getNClob(String columnName) throws SQLException
+    {
+        return getNClob (findColumn (columnName));
+    }
+    endif */ 
+    
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as
+     * a <code>String</code> in the Java programming language.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return the column value; if the value is SQL <code>NULL</code>, the
+     * value returned is <code>null</code>
+     * @exception SQLException if a database access error occurs 
+     */
+    public String getNString(int columnIndex) throws SQLException
+    {
+        return (String) callMethodRtnObj ("getNString",
+                new Class[] { Integer.TYPE},
+                new Object[] { new Integer (columnIndex) });
+    }
+    
+    
+    //@pda jdbc40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as
+     * a <code>String</code> in the Java programming language.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param columnName the SQL name of the column
+     * @return the column value; if the value is SQL <code>NULL</code>, the
+     * value returned is <code>null</code>
+     * @exception SQLException if a database access error occurs
+     */
+    public String getNString(String columnName) throws SQLException
+    {
+        return getNString (findColumn (columnName));
+    }
+    
+    
+    //@pda jdbc40
+    /* ifdef JDBC40
+    public RowId getRowId(int columnIndex) throws SQLException
+    {
+        try {
+            JDRowIdProxy newClob = new JDRowIdProxy ();
+            return (JDRowIdProxy) connection_.callFactoryMethod (pxId_,
+                    "getRowId",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer(columnIndex) },
+                    newClob);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    
+    //@pda jdbc40
+    public RowId getRowId(String columnName) throws SQLException
+    {
+        return getRowId(findColumn (columnName));
+    }
+    
+    //@pda jdbc40
+    public SQLXML getSQLXML(int columnIndex) throws SQLException
+    {
+        try {
+            JDSQLXMLProxy newXML = new JDSQLXMLProxy ();
+            return (JDSQLXMLProxy) connection_.callFactoryMethod (pxId_,
+                    "getSQLXML",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer(columnIndex) },
+                    newXML);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+
+    //@pda jdbc40
+    public SQLXML getSQLXML(String columnName) throws SQLException
+    {
+        return getSQLXML(findColumn (columnName));
+    }
+    endif */ 
+     
+    //@pda jdbc40
+    public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
+    {
+        try {
+            SerializableReader reader;
+            if (x == null)
+                reader = null;
+            else
+                reader = new SerializableReader (x, Math.max(0,(int)length));
+            callMethod ("updateNCharacterStream",
+                    new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
+                    new Object[] { new Integer (columnIndex),
+                    reader, new Long (length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+        
+    }
+    
+    //@PDA jdbc40
+    public void updateNCharacterStream(String columnName, Reader x, long length) throws SQLException
+    {
+        updateNCharacterStream (findColumn (columnName), x, length);
+    }
+    
+    //@PDA jdbc40
+    /* ifdef JDBC40 
+    public void updateNClob(int columnIndex, NClob nClob) throws SQLException
+    {
+        callMethod ("updateNClob",
+                new Class[] { String.class, NClob.class },
+                new Object[] { new Integer (columnIndex),
+                nClob });
+    }
+    
+    //@PDA jdbc40
+    public void updateNClob(String columnName, NClob nClob) throws SQLException
+    {
+        updateNClob (findColumn (columnName), nClob);
+        
+    }
+    endif */ 
+    
+    //@pda jdbc40
+    public void updateNString(int columnIndex, String nString) throws SQLException
+    {
+        callMethod ("updateNString",
+                new Class[] { Integer.TYPE, String.class },
+                new Object[] { new Integer (columnIndex),
+                nString });
+    }
+    
+    //@PDA jdbc40
+    public void updateNString(String columnName, String nString) throws SQLException
+    {
+        updateNString (findColumn (columnName), nString);
+    }
+    
+    /* ifdef JDBC40 
+    //@PDA jdbc40
+    public void updateRowId(int columnIndex, RowId x) throws SQLException
+    {
+        callMethod ("updateRowId",
+                new Class[] { String.class, RowId.class },
+                new Object[] { new Integer (columnIndex),
+                x });
+    }
+    
+    //@pda jdbc40
+    public void updateRowId(String columnName, RowId x) throws SQLException
+    {
+        updateRowId (findColumn (columnName), x);
+    }
+    
+    
+    //@pda jdbc40
+    public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
+    {
+        callMethod ("updateSQLXML",
+                new Class[] { String.class, SQLXML.class },
+                new Object[] { new Integer (columnIndex),
+                xmlObject });
+    }
+    
+    //@pda jdbc40
+    public void updateSQLXML(String columnName, SQLXML xmlObject) throws SQLException
+    {
+        updateSQLXML(findColumn(columnName), xmlObject);
+    }
+    
+    endif */ 
+    
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "java.sql.ResultSet" }; //@pdc user cannot cast to AS400JDBCResultSet
+    } 
+    
+    //@PDA jdbc40
+    public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null || x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("updateAsciiStream",
+                new Class[] { Integer.TYPE, InputStream.class,
+                Long.TYPE },
+                new Object[] { new Integer (columnIndex),
+                iStream,
+                new Long (length) });        
+    }
+    
+    
+    //@PDA jdbc40
+    public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException
+    {
+        updateAsciiStream (findColumn (columnLabel), x, length);
+    }
+    
+    
+    //@PDA jdbc40
+    public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null || x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("updateBinaryStream",
+                new Class[] { Integer.TYPE, InputStream.class,
+                Long.TYPE },
+                new Object[] { new Integer (columnIndex),
+                iStream,
+                new Long (length) });
+    }
+    
+    //@PDA jdbc40
+    public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException
+    {
+        updateBinaryStream (findColumn (columnLabel), x, length);
+    }
+    
+    //@PDA jdbc40
+    public void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException
+    {
+        InputStream iStream;
+        if (inputStream == null || inputStream instanceof Serializable)
+            iStream = inputStream;
+        else {
+            try {
+                iStream = new SerializableInputStream (inputStream);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("updateBlob",
+                new Class[] { Integer.TYPE, InputStream.class,
+                Long.TYPE },
+                new Object[] { new Integer (columnIndex),
+                iStream,
+                new Long (length) });
+    }
+    
+    //@PDA jdbc40
+    public void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException
+    {
+        updateBlob (findColumn (columnLabel), inputStream, length);
+    }
+    
+    //@PDA jdbc40
+    public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException
+    {
+        try {
+            SerializableReader reader;
+            if (x == null)
+                reader = null;
+            else
+                reader = new SerializableReader (x, Math.max(0,(int)length));
+            callMethod ("updateCharacterStream",
+                    new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
+                    new Object[] { new Integer (columnIndex),
+                    reader, new Long (length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+    
+    //@PDA jdbc40
+    public void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
+    {
+        updateCharacterStream (findColumn (columnLabel), reader, length);
+    }
+    
+    //@PDA jdbc40
+    public void updateClob(int columnIndex, Reader reader, long length) throws SQLException
+    {
+        try {
+            SerializableReader sReader;
+            if (reader == null)
+                sReader = null;
+            else
+                sReader = new SerializableReader (reader, Math.max(0,(int)length));
+            callMethod ("updateClob",
+                    new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
+                    new Object[] { new Integer (columnIndex),
+                    sReader, new Long (length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+    
+    //@PDA jdbc40
+    public void updateClob(String columnLabel, Reader reader, long length) throws SQLException
+    {
+        updateClob (findColumn (columnLabel), reader, length);
+    }
+        
+    
+    
+    //@PDA jdbc40
+    public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException
+    {
+        try {
+            SerializableReader sReader;
+            if (reader == null)
+                sReader = null;
+            else
+                sReader = new SerializableReader (reader, Math.max(0,(int)length));
+            callMethod ("updateNClob",
+                    new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
+                    new Object[] { new Integer (columnIndex),
+                    sReader, new Long (length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+    
+    
+    //@PDA jdbc40
+    public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException
+    {
+        updateNClob (findColumn (columnLabel), reader, length);
+    }
+    
+    //@PDA jdbc40 
+    public boolean isClosed () throws SQLException
+    {
+        return callMethodRtnBool ("isClosed");
+    }
 
 
+    //@pda jdbc40 
+    public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null || x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("updateAsciiStream",
+                new Class[] { Integer.TYPE, InputStream.class },
+                new Object[] { new Integer (columnIndex),
+                iStream });
+    }
+
+
+    //@PDA jdbc40 
+    public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException
+    {
+        updateAsciiStream (findColumn (columnLabel), x);
+    }
+
+
+    //@PDA jdbc40 
+    public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null || x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("updateBinaryStream",
+                new Class[] { Integer.TYPE, InputStream.class },
+                new Object[] { new Integer (columnIndex),
+                iStream });
+    }
+
+
+    //@PDA jdbc40 
+    public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException
+    {
+        updateBinaryStream (findColumn (columnLabel), x);
+        
+    }
+
+
+    //@PDA jdbc40 
+    public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException
+    {
+        InputStream iStream;
+        if ( inputStream== null || inputStream instanceof Serializable)
+            iStream = inputStream;
+        else {
+            try {
+                iStream = new SerializableInputStream (inputStream);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("updateBlob",
+                new Class[] { Integer.TYPE, InputStream.class },
+                new Object[] { new Integer (columnIndex),
+                iStream });
+    }
+
+
+    //@PDA jdbc40 
+    public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException
+    {
+        updateBlob (findColumn (columnLabel), inputStream);
+    }
+
+
+    //@PDA jdbc40 
+    public void updateCharacterStream(int columnIndex, Reader x) throws SQLException
+    {
+        try {
+            SerializableReader sReader;
+            if (x == null)
+                sReader = null;
+            else
+                sReader = new SerializableReader (x);
+            callMethod ("updateCharacterStream",
+                    new Class[] { Integer.TYPE, Reader.class },
+                    new Object[] { new Integer (columnIndex), sReader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+
+
+    //@PDA jdbc40 
+    public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException
+    {
+        updateCharacterStream(findColumn (columnLabel), reader);
+    }
+
+
+    //@PDA jdbc40 
+    public void updateClob(int columnIndex, Reader reader) throws SQLException
+    {
+        try {
+            SerializableReader sReader;
+            if (reader == null)
+                sReader = null;
+            else
+                sReader = new SerializableReader (reader);
+            callMethod ("updateClob",
+                    new Class[] { Integer.TYPE, Reader.class },
+                    new Object[] { new Integer (columnIndex), sReader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+
+
+    //@PDA jdbc40 
+    public void updateClob(String columnLabel, Reader reader) throws SQLException
+    {
+        updateClob(findColumn (columnLabel), reader);
+    }
+
+    //@PDA jdbc40 
+    public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException
+    {
+        try {
+            SerializableReader sReader;
+            if (x == null)
+                sReader = null;
+            else
+                sReader = new SerializableReader (x);
+            callMethod ("updateNCharacterStream",
+                    new Class[] { Integer.TYPE, Reader.class },
+                    new Object[] { new Integer (columnIndex), sReader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+        
+    }
+
+    //@PDA jdbc40 
+    public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException
+    {
+        updateNCharacterStream(findColumn (columnLabel), reader);
+    }
+
+    //@PDA jdbc40 
+    public void updateNClob(int columnIndex, Reader reader) throws SQLException
+    {
+        try {
+            SerializableReader sReader;
+            if (reader == null)
+                sReader = null;
+            else
+                sReader = new SerializableReader (reader);
+            callMethod ("updateNClob",
+                    new Class[] { Integer.TYPE, Reader.class },
+                    new Object[] { new Integer (columnIndex), sReader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+
+    //@PDA jdbc40 
+    public void updateNClob(String columnLabel, Reader reader) throws SQLException
+    {
+        updateNClob(findColumn (columnLabel), reader);
+    }
 
 }

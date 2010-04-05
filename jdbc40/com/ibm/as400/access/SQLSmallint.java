@@ -20,10 +20,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -31,7 +35,7 @@ import java.util.Calendar;
 final class SQLSmallint
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private int                 truncated_;
@@ -234,7 +238,7 @@ implements SQLData
     public String getJavaClassName()
     { 
         /* smallints are Integers from jdbc 4.0 spec: 
-        Note – The JDBC 1.0 specification defined the Java object mapping for the
+        Note ï¿½ The JDBC 1.0 specification defined the Java object mapping for the
         SMALLINT and TINYINT JDBC types to be Integer. The Java language did not
         include the Byte and Short data types when the JDBC 1.0 specification was
         finalized. The mapping of SMALLINT and TINYINT to Integer is maintained to
@@ -502,13 +506,14 @@ implements SQLData
         return null;
     }
     
+/* ifdef JDBC40 */
     //@pda jdbc40
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -518,7 +523,7 @@ implements SQLData
         else                                       
             return Short.toString(value_);         
     }
-
+/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -532,7 +537,7 @@ implements SQLData
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
     // @array
     public Array getArray() throws SQLException
     {

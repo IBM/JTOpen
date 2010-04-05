@@ -13,10 +13,15 @@
 
 package com.ibm.as400.access;
 
+/* ifdef JDBC40 */
 import java.sql.RowId;
+/* endif */ 
 
 //@PDA jdbc40 new class
-public class AS400JDBCRowId implements RowId
+public class AS400JDBCRowId 
+/* ifdef JDBC40 */
+implements RowId
+/* endif */ 
 {
    
     private byte[] data_;
@@ -55,6 +60,7 @@ public class AS400JDBCRowId implements RowId
      *     against.
      * @return true if the <code>RowId</code>s are equal; false otherwise
      */
+/* ifdef JDBC40 */
     public boolean equals(Object obj)
     {
         if (!(obj instanceof RowId))
@@ -73,7 +79,8 @@ public class AS400JDBCRowId implements RowId
         }
         return true;
     }
-
+/* endif */ 
+    
     /** 
      * Returns an array of bytes representing the value of the SQL <code>ROWID</code>
      * designated by this <code>java.sql.RowId</code> object.

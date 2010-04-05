@@ -23,9 +23,14 @@ import java.sql.SQLException;
  * Note that this ResultSet is limited in its functionality since it is not tied back to a cursor in the database.
  * Its primary purpose is for retrieving data back from the database.
  **/
-public class AS400JDBCArrayResultSet implements ResultSet
+public class AS400JDBCArrayResultSet  
+/* ifdef JDBC40 
+extends ToolboxWrapper 
+ endif */ 
+implements ResultSet
 {
 
+    private int holdability_; // Used by JDBC 40
     private int concurrency_;
     private int fetchDirection_;
     private int fetchSize_;
@@ -46,7 +51,7 @@ public class AS400JDBCArrayResultSet implements ResultSet
     private boolean isSQLData_;
  
     private int vrm_;    
-    // private AS400JDBCConnection con_; //future use
+    AS400JDBCConnection con_; //future use
     ///////////////////
 
     
@@ -107,7 +112,7 @@ public class AS400JDBCArrayResultSet implements ResultSet
         isSQLData_ = isSQLData;
        
         vrm_ = vrm;
-        // con_ = con;
+        con_ = con;
 
         String[] columnNames = new String[] { "INDEX", "VALUE" };
 
@@ -127,7 +132,7 @@ public class AS400JDBCArrayResultSet implements ResultSet
     void init (  int concurrency, int type, int fetchDirection, int fetchSize,
             Object[][] data, String[] columnNames)
     {
-       
+        holdability_ = java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT;
         concurrency_ = concurrency;
         fetchDirection_ = fetchDirection;
         fetchSize_ = fetchSize;
@@ -3279,4 +3284,946 @@ public class AS400JDBCArrayResultSet implements ResultSet
         checkForConcurrency ();
     }
  
+    // ---------- JDBC 4 methods ----------
+
+    /**
+    Indicates if the result set is closed.
+    
+    @return     true if this result set is closed;
+                false otherwise.
+    **/
+    public boolean isClosed () throws java.sql.SQLException
+    {
+        return !openOnClient_;
+    }
+
+    /**
+     * Retrieves the holdability.
+     * @throws SQLException if a database error occurs
+     */
+    public int getHoldability () throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getHoldability");
+        checkForClosedResultSet ();
+        return holdability_;
+    }
+
+    /**
+     * Retrieves the value of the designated column in the current row 
+     * of this <code>ResultSet</code> object as a
+     * <code>java.io.Reader</code> object.
+     * @return a <code>java.io.Reader</code> object that contains the column
+     * value; if the value is SQL <code>NULL</code>, the value returned is
+     * <code>null</code> in the Java programming language.
+     * @param column
+     * @exception SQLException if a database access error occurs
+     */
+    public java.io.Reader getNCharacterStream (int column) throws java.sql.SQLException
+    {
+       
+        checkGetterPreconditions (column);
+        java.io.Reader result = null;
+        Object[] columnData = data_[column - 1];
+       
+        if(isSQLData_)
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getNCharacterStream();
+        }
+        else
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getNCharacterStream();
+            }
+        } 
+
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNCharacterStream");
+        wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
+        return result;
+    }
+
+    /**
+     * Retrieves the value of the designated column in the current row 
+     * of this <code>ResultSet</code> object as a
+     * <code>java.io.Reader</code> object.
+     * @return a <code>java.io.Reader</code> object that contains the column
+     * value; if the value is SQL <code>NULL</code>, the value returned is
+     * <code>null</code> in the Java programming language.
+     * @param columnName
+     * @exception SQLException if a database access error occurs
+     */
+    public java.io.Reader getNCharacterStream (String columnName) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNCharacterStream");
+        return getNCharacterStream (findColumnX (columnName));
+    }
+
+
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param column 
+     * @return a <code>NClob</code> object representing the SQL 
+     *         <code>NCLOB</code> value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurss
+     */
+ /* ifdef JDBC40 
+    public java.sql.NClob getNClob (int column) throws java.sql.SQLException
+    {
+        
+        checkGetterPreconditions (column);
+        java.sql.NClob result = null;
+        Object[] columnData = data_[column - 1];
+
+        if(isSQLData_)
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getNClob();
+        }
+        else
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getNClob();
+            }
+        } 
+
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNClob");
+        wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
+        return result;
+    }
+endif */
+    
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnName 
+     * @return a <code>NClob</code> object representing the SQL 
+     *         <code>NCLOB</code> value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurss
+     */
+/* ifdef JDBC40 
+    public java.sql.NClob getNClob (String columnName) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNClob");
+        return getNClob (findColumnX (columnName));
+    }
+
+endif */ 
+
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as
+     * a <code>String</code> in the Java programming language.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param column 
+     * @return the column value; if the value is SQL <code>NULL</code>, the
+     * value returned is <code>null</code>
+     * @exception SQLException if a database access error occurs 
+    */
+    public String getNString (int column) throws java.sql.SQLException
+    {
+       
+        checkGetterPreconditions (column);
+        String result = null;
+        Object[] columnData = data_[column - 1];
+
+        if(isSQLData_)
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem  
+                result = ((SQLData)columnData[currentRowInRowset_]).getNString();
+        }
+        else
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getNString();
+            }
+        } 
+        
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNString");
+        wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
+        return result;
+    }
+
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as
+     * a <code>String</code> in the Java programming language.
+     * It is intended for use when
+     * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param columnName 
+     * @return the column value; if the value is SQL <code>NULL</code>, the
+     * value returned is <code>null</code>
+     * @exception SQLException if a database access error occurs 
+    */
+    public String getNString (String columnName) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNString");
+        return getNString (findColumnX (columnName));
+    }
+
+    /**
+     * Retrieves the value of the designated column in the current row of this 
+     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+     * programming language.
+     *
+     * @param column    The column number
+     * @return the column value ; if the value is a SQL <code>NULL</code> the
+     *     value returned is <code>null</code>
+     * @throws SQLException if a database access error occurs
+     */
+/* ifdef JDBC40 
+    public java.sql.RowId getRowId (int column) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getRowId");
+        checkGetterPreconditions (column);
+        java.sql.RowId result = null;
+        Object[] columnData = data_[column - 1];
+
+        if(isSQLData_)
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getRowId();
+        }
+        else
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getRowId();
+            }
+        } 
+        
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getRowId");
+        wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
+        return result;
+    }
+endif */ 
+
+    /**
+     * Retrieves the value of the designated column in the current row of this 
+     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+     * programming language.
+     *
+     * @param columnName  The column name
+     * @return the column value ; if the value is a SQL <code>NULL</code> the
+     *     value returned is <code>null</code>
+     * @throws SQLException if a database access error occurs
+     */
+/* ifdef JDBC40  
+    public java.sql.RowId getRowId (String columnName) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getRowId");
+        return getRowId (findColumnX (columnName));
+    }
+ endif */ 
+
+    /**
+     * Retrieves the value of the designated column in  the current row of
+     *  this <code>ResultSet</code> as a
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param column
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs
+     */
+/* ifdef JDBC40  
+    public java.sql.SQLXML getSQLXML (int column) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getSQLXML");
+        checkGetterPreconditions (column);
+        java.sql.SQLXML result = null;
+        Object[] columnData = data_[column - 1];
+       
+        if(isSQLData_)
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getSQLXML();
+        }
+        else
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getSQLXML();
+            }
+        } 
+        
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getSQLXML");
+        wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
+        return result;
+    }
+ endif */ 
+
+    /**
+     * Retrieves the value of the designated column in  the current row of
+     *  this <code>ResultSet</code> as a
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param columnName
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs
+     */
+/* ifdef JDBC40  
+    public java.sql.SQLXML getSQLXML (String columnName) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getSQLXML");
+        return getSQLXML (findColumnX (columnName));
+    }
+endif */ 
+    /** 
+     * Updates the designated column with an ascii stream value, which will have
+     * the specified number of bytes.
+    
+     * @param column 
+     * @param x the new column value
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream (int column, java.io.InputStream x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateAsciiStream");
+        checkUpdatePreconditions (column);
+    }
+
+    /** 
+     * Updates the designated column with an ascii stream value, which will have
+     * the specified number of bytes.
+     * @param columnName
+     * @param x the new column value
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream (String columnName, java.io.InputStream x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateAsciiStream");
+        updateAsciiStream (findColumnX (columnName), x);
+    }
+
+    /** 
+     * Updates the designated column with an ascii stream value, which will have
+     * the specified number of bytes.
+     * @param column
+     * @param x the new column value
+     * @param length
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream (int column, java.io.InputStream x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateAsciiStream");
+        checkUpdatePreconditions (column);
+    }
+
+    /** 
+     * Updates the designated column with an ascii stream value, which will have
+     * the specified number of bytes.
+     * @param columnName
+     * @param x the new column value
+     * @param length
+     * @exception SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateAsciiStream (String columnName, java.io.InputStream x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateAsciiStream");
+        updateAsciiStream (findColumnX (columnName), x, length);
+    }
+
+    /** 
+     * Updates the designated column with a binary stream value.
+     *
+     * @param column
+     * @param x the new column value     
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateBinaryStream (int column, java.io.InputStream x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBinaryStream");
+        checkUpdatePreconditions (column);
+    }
+
+    /** 
+     * Updates the designated column with a binary stream value.
+     *
+     * @param columnName
+     * @param x the new column value     
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateBinaryStream (String columnName, java.io.InputStream x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBinaryStream");
+        updateBinaryStream (findColumnX (columnName), x);
+    }
+
+    /** 
+     * Updates the designated column with a binary stream value.
+     *
+     * @param column
+     * @param x the new column value     
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateBinaryStream (int column, java.io.InputStream x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBinaryStream");
+        checkUpdatePreconditions (column);
+    }
+
+    /** 
+     * Updates the designated column with a binary stream value.
+     *
+     * @param columnName
+     * @param x the new column value     
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateBinaryStream (String columnName, java.io.InputStream x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBinaryStream");
+        updateBinaryStream (findColumnX (columnName), x, length);
+    }
+
+    /**
+     * Updates the designated column using the given input stream. The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     *
+     * @param column
+     * @param x     An object that contains the data to set the parameter value to.
+     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBlob (int column, java.io.InputStream x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBlob");
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column using the given input stream. The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     *
+     * @param columnName
+     * @param x     An object that contains the data to set the parameter value to.
+     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBlob (String columnName, java.io.InputStream x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBlob" );
+        updateBlob (findColumnX (columnName), x);
+    }
+
+    /**
+     * Updates the designated column using the given input stream. The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     *
+     * @param column
+     * @param x     An object that contains the data to set the parameter value to.
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateBlob (int column, java.io.InputStream x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBlob" );
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column using the given input stream. The data will be read from the stream
+     * as needed until end-of-stream is reached.
+     *
+     * @param columnName
+     * @param x     An object that contains the data to set the parameter value to.
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateBlob (String columnName, java.io.InputStream x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateBlob" );
+        updateBlob (findColumnX (columnName), x, length);
+    }
+
+    /**
+     * Updates the designated column with a character stream value.
+     *
+     * @param column
+     * @param x the new column value
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateCharacterStream (int column, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateCharacterStream" );
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column with a character stream value.
+     *
+     * @param columnName
+     * @param x the new column value
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateCharacterStream (String columnName, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateCharacterStream" );
+        updateCharacterStream (findColumnX (columnName), x);
+    }
+
+    /**
+     * Updates the designated column with a character stream value.
+     *
+     * @param column
+     * @param x the new column value
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateCharacterStream (int column, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateCharacterStream");
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column with a character stream value.
+     *
+     * @param columnName
+     * @param x the new column value
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateCharacterStream (String columnName, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateCharacterStream");
+        updateCharacterStream (findColumnX (columnName), x, length);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object.
+     *
+     * @param column
+     * @param x An object that contains the data to set the parameter value to.
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateClob (int column, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateClob");
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object.
+     *
+     * @param columnName
+     * @param x An object that contains the data to set the parameter value to.
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateClob (String columnName, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateClob");
+        updateClob (findColumnX (columnName), x);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object.
+     *
+     * @param column
+     * @param x An object that contains the data to set the parameter value to.
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateClob (int column, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateClob");
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     * object.
+     *
+     * @param columnName
+     * @param x An object that contains the data to set the parameter value to.
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs;
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+    public void updateClob (String columnName, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateClob");
+        updateClob (findColumnX (columnName), x, length);
+    }
+
+    /**
+     * Updates the designated column with a character stream value.  
+     *
+     * @param column
+     * @param x the new column value
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs; 
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream (int column, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNCharacterStream");
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column with a character stream value.  
+     *
+     * @param columnName
+     * @param x the new column value
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs; 
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream (String columnName, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNCharacterStream");
+        updateNCharacterStream (findColumnX (columnName), x);
+    }
+
+    /**
+     * Updates the designated column with a character stream value.  
+     *
+     * @param column
+     * @param x the new column value
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs; 
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream (int column, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNCharacterStream");
+        checkUpdatePreconditions (column);
+    }
+
+
+    /**
+     * Updates the designated column with a character stream value.  
+     *
+     * @param columnName
+     * @param x the new column value
+     * @param length
+     * @exception SQLException if the columnIndex is not valid; 
+     * if a database access error occurs; 
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNCharacterStream (String columnName, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNCharacterStream" );
+        updateNCharacterStream (findColumnX (columnName), x, length);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     *
+     * @param column
+     * @param x      An object that contains the data to set the parameter value to.
+     * @throws SQLException if the columnIndex is not valid; 
+     * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public void updateNClob (int column, java.sql.NClob x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob" );
+        checkUpdatePreconditions (column);
+    }
+    endif */ 
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     *
+     * @param columnName
+     * @param x      An object that contains the data to set the parameter value to.
+     * @throws SQLException if the columnIndex is not valid; 
+     * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    /* ifdef JDBC40 
+    public void updateNClob (String columnName, java.sql.NClob x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob" );
+        updateNClob (findColumnX (columnName), x);
+    }
+    endif */
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     *
+     * @param column
+     * @param x      An object that contains the data to set the parameter value to.
+     * @throws SQLException if the columnIndex is not valid; 
+     * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob (int column, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob" );
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     *
+     * @param columnName
+     * @param x      An object that contains the data to set the parameter value to.
+     * @throws SQLException if the columnIndex is not valid; 
+     * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob (String columnName, java.io.Reader x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob" );
+        updateNClob (findColumnX (columnName), x);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     *
+     * @param column
+     * @param x      An object that contains the data to set the parameter value to.
+     * @param length
+     * @throws SQLException if the columnIndex is not valid; 
+     * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob (int column, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob");
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column using the given <code>Reader</code>
+     *
+     * @param columnName
+     * @param x      An object that contains the data to set the parameter value to.
+     * @param length
+     * @throws SQLException if the columnIndex is not valid; 
+     * if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
+    public void updateNClob (String columnName, java.io.Reader x, long length) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob");
+        updateNClob (findColumnX (columnName), x, length);
+    }
+
+    /**
+     * Updates the designated column with a <code>String</code> value.
+     * It is intended for use when updating <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param column 
+     * @param x    The value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
+    public void updateNString (int column, String x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNString" );
+        checkUpdatePreconditions (column);
+    }
+
+    /**
+     * Updates the designated column with a <code>String</code> value.
+     * It is intended for use when updating <code>NCHAR</code>,<code>NVARCHAR</code>
+     * and <code>LONGNVARCHAR</code> columns.
+     *
+     * @param columnName 
+     * @param x    The value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
+    public void updateNString (String columnName, String x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNString" );
+        updateNString (findColumnX (columnName), x);
+    }
+
+    /**
+     * Updates the designated column with a <code>RowId</code> value. 
+     * 
+     * @param column
+     * @param x the column value
+     * @throws SQLException if a database access occurs 
+     */
+/* ifdef JDBC40 
+
+    public void updateRowId (int column, java.sql.RowId x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateRowId");
+        checkUpdatePreconditions (column);
+    }
+endif */ 
+    /**
+     * Updates the designated column with a <code>RowId</code> value. 
+     * 
+     * @param columnName
+     * @param x the column value
+     * @throws SQLException if a database access occurs 
+     */
+    /* ifdef JDBC40 
+    public void updateRowId (String columnName, java.sql.RowId x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateRowId");
+        updateRowId (findColumnX (columnName), x);
+    }
+endif */ 
+    /**
+     * Updates the designated column with a <code>java.sql.SQLXML</code> value.
+     *
+     * @param column
+     * @param x    The value for the column to be updated
+     * @throws SQLException if a database access error occurs
+     */
+    /* ifdef JDBC40 
+
+    public void updateSQLXML (int column, java.sql.SQLXML x) throws java.sql.SQLException
+    {
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateSQLXML");
+        checkUpdatePreconditions (column);
+    }
+endif */ 
+    /**
+     * Updates the designated column with a <code>java.sql.SQLXML</code> value.
+     *
+     * @param columnName
+     * @param x    The value for the column to be updated
+     * @throws SQLException if a database access error occurs
+     */
+    /* ifdef JDBC40 
+
+    public void updateSQLXML (String columnName, java.sql.SQLXML x) throws java.sql.SQLException
+    {
+        updateSQLXML (findColumnX (columnName), x);
+        if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateSQLXML");
+    }
+   endif */ 
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "com.ibm.as400.access.AS400JDBCArrayResultSet",  "java.sql.ResultSet" };
+    } 
+
 }

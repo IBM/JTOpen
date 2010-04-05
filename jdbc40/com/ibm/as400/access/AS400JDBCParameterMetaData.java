@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,10 +23,13 @@ of a PreparedStatement.
 
 Use PreparedStatement.getParameterMetaData() to create new ParameterMetaData objects.
 **/
-public class AS400JDBCParameterMetaData extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCParameterMetaData
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
            implements ParameterMetaData                         
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
 
     // Private data.

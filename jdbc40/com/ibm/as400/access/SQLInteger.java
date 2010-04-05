@@ -20,10 +20,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -31,7 +35,7 @@ import java.util.Calendar;
 final class SQLInteger
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private int                 truncated_;
@@ -511,12 +515,14 @@ implements SQLData
     }
     
     //@pda jdbc40
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
+    
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -526,7 +532,7 @@ implements SQLData
         else                                
             return Integer.toString(value_);
     }
-
+/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -540,7 +546,8 @@ implements SQLData
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
+    
     // @array
     public Array getArray() throws SQLException
     {

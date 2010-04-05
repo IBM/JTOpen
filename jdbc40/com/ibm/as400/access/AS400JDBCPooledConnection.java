@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010import javax.sql.StatementEventListener; International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,9 @@ package com.ibm.as400.access;
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.PooledConnection;
+/* ifdef JDBC40 */
 import javax.sql.StatementEventListener;
+/* endif */ 
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -65,7 +67,7 @@ import java.lang.ref.SoftReference;
 **/
 public class AS400JDBCPooledConnection implements PooledConnection
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
   private AS400JDBCConnection connection_;                          // The database connection.
 //@CRS - If we maintain a [direct] reference to the handle, and the user doesn't call close(), it
@@ -94,7 +96,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
   // from the associated AS400JDBCPooledConnection.
   // The garbage collector will then notice that the only reference to the handle
   // is a soft reference; and the GC will then collect/remove the handle.
-
+ 
   private PoolItemProperties properties_;                  // The usage properties.
   private AS400JDBCConnectionEventSupport eventManager_;
 
@@ -419,6 +421,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
      * @param listener  an component which implements the <code>StatementEventListener</code> 
      *                  interface that is to be registered with this <code>PooledConnection</code> object
      */
+/* ifdef JDBC40 */
   public void addStatementEventListener(StatementEventListener listener)
   {
       //Currently toolbox does not have a pooledStatemnt.
@@ -430,6 +433,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
         JDTrace.logInformation(this, "AS400JDBCPooledConnection.addStatementEventListener is called, but is N/A."); 
       }
   }
+/* endif */ 
   
     //@PDA jdbc40 
     /**
@@ -441,6 +445,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
      *                  <code>StatementEventListener</code> interface that was previously 
      *                  registered with this <code>PooledConnection</code> object
      */
+/* ifdef JDBC40 */
   public void removeStatementEventListener(StatementEventListener listener)
   {
       //Method can not throw SQLException
@@ -450,5 +455,6 @@ public class AS400JDBCPooledConnection implements PooledConnection
         JDTrace.logInformation(this, "AS400JDBCPooledConnection.removeStatementEventListener is called, but is N/A."); 
       }
   }
+/* endif */ 
 
 }

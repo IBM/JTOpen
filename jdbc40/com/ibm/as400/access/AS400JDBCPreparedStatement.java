@@ -27,15 +27,21 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+/* ifdef JDBC40 */
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -296,7 +302,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     if (sqlType == SQLData.CLOB_LOCATOR ||          //@KBA
                         sqlType == SQLData.BLOB_LOCATOR ||          //@KBA
                         sqlType == SQLData.DBCLOB_LOCATOR ||        //@KBA  //@pdc jdbc40
+/* ifdef JDBC40 */
                         sqlType == SQLData.NCLOB_LOCATOR ||                 //@pda jdbc40
+/* endif */ 
                         sqlType == SQLData.XML_LOCATOR)                     //@xml3
                     {                                               //@KBA
                         containsLocator_ = LOCATOR_FOUND;           //@KBA
@@ -1863,7 +1871,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     if(sqlType == SQLData.CLOB_LOCATOR ||
                        sqlType == SQLData.BLOB_LOCATOR ||
                        sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+/* ifdef JDBC40 */
                        sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+/* endif */ 
                        sqlType == SQLData.XML_LOCATOR)                      //@xml3
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -2742,11 +2752,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
         if(scale < 0)
             JDError.throwSQLException (this, JDError.EXC_SCALE_INVALID);
-
+/* ifdef JDBC40 */
         if (parameterValue instanceof SQLXML)                   //@xmlspec
             setSQLXML(parameterIndex, (SQLXML)parameterValue);  //@xmlspec
         else
-            setValue (parameterIndex, parameterValue, null, scale); //@P0C
+/* endif */ 
+
+        setValue (parameterIndex, parameterValue, null, scale); //@P0C
     }
 
 
@@ -3052,7 +3064,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     if(sqlType == SQLData.CLOB_LOCATOR ||
                        sqlType == SQLData.BLOB_LOCATOR ||
                        sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+/* ifdef JDBC40 */
                        sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+/* endif */ 
                        sqlType == SQLData.XML_LOCATOR)                      //@xml3
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -3136,6 +3150,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
   **/
     void setValue(int parameterIndex, Object parameterValue, Calendar calendar, int scale) throws SQLException
     {
+        
         synchronized(internalLock_)
         {                                            // @F1A
             checkOpen();
@@ -3171,7 +3186,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 if((sqlType == SQLData.CLOB_LOCATOR ||
                     sqlType == SQLData.BLOB_LOCATOR ||
                     sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+/* ifdef JDBC40 */
                     sqlType == SQLData.NCLOB_LOCATOR ||                   //@pda jdbc40
+/* endif */ 
                     sqlType == SQLData.XML_LOCATOR))                      //@xml3
                 {                                                        // @B6A
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
@@ -3268,11 +3285,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             // The SQLData object determined if data was truncated as part of the setValue() processing.
             int truncated = data.getTruncated ();
             if(truncated > 0)
-            {
+            {                
                 int actualSize = data.getActualSize ();
-                //boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same as native (only select is read) //@pdc match native
-                DataTruncation dt = new DataTruncation(parameterIndex, true, false, actualSize + truncated, actualSize); //@pdc jdbc40 //@pdc match native
-              
+                //boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same as native (only select is read) //@trunc //@pdc match native
+                DataTruncation dt = new DataTruncation(parameterIndex, true, false, actualSize + truncated, actualSize); //@pdc jdbc40 //@trunc //@pdc match native
+
                 //if 610 and number data type, then throw DataTruncation
                 //if text, then use old code path and post/throw DataTruncation
                 if((connection_.getVRM() >= JDUtilities.vrm610) && (data.isText() == false))   //@trunc2
@@ -3301,7 +3318,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
   
     @exception  SQLException    If the SQL type is not compatible.
     **/
-    void testSQLType(int sqlType, int parameterIndex)
+     void testSQLType(int sqlType, int parameterIndex)
     throws SQLException
     {
         int parameterType = parameterRow_.getSQLType(parameterIndex).getType(); //@P0C
@@ -3339,6 +3356,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * @throws SQLException if a database access error occurs
      *
      */
+/* ifdef JDBC40 */
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -3352,7 +3370,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
         setValue (parameterIndex, x, null, -1);
     }
- 
+/* endif */ 
     //@PDA jdbc40
     /**
      * Sets the designated paramter to the given <code>String</code> object.
@@ -3417,6 +3435,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur ; or if a database access error occurs
      */
+/* ifdef JDBC40 */
      public void setNClob(int parameterIndex, NClob value) throws SQLException
      {
 
@@ -3431,7 +3450,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
          }         
          setClob(parameterIndex, value);
      }
-
+/* endif */ 
+     
      //@PDA jdbc40
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
@@ -3519,6 +3539,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
       * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
       * @throws SQLException if a database access error occurs
       */
+/* ifdef JDBC40 */
      public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
      {
          if(JDTrace.isTraceOn())
@@ -3557,7 +3578,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                  setValue (parameterIndex, xmlObject, null, -1);
          }
      }
-
+/* endif */ 
+    
 
     //@pda jdbc40
     protected String[] getValidWrappedList()

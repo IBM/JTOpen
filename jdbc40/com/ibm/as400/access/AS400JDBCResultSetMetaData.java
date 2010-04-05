@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,12 +14,17 @@
 package com.ibm.as400.access;
 
 import java.sql.Connection;
+/* ifdef JDBC40 */
 import java.sql.DatabaseMetaData;
+/* endif */ 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.Statement;
+/* endif */ 
+
 
 /**
 <p>The AS400JDBCResultSetMetaData class describes the
@@ -36,24 +41,27 @@ columns in a result set.
 //   data.  This is again because of the need to create this object
 //   before executing a query (via PreparedStatement.getMetaData()).
 //
-public class AS400JDBCResultSetMetaData extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCResultSetMetaData
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
 implements ResultSetMetaData
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
     // Private static final ints
     // Searchable constants 
     //@G1A @G2C
-    private static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
-    private static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our IBM i system
-    private static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
-    private static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
+    static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
+    static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our IBM i system
+    static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
+    static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
 
     // Updateable constants
     //@G1A @G2C
-    private static final int SQL_READ_ONLY          = 0xF0;  // isReadOnly = true, isWriteable = false
-    private static final int SQL_WRITE_CAPABLE      = 0xF1;  // isReadOnly = false, isWriteable = true
-    private static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our IBM i system
+    static final int SQL_READ_ONLY          = 0xF0;  // isReadOnly = true, isWriteable = false
+    static final int SQL_WRITE_CAPABLE      = 0xF1;  // isReadOnly = false, isWriteable = true
+    static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our IBM i system
 
     // Private data.
     private String              catalog_;

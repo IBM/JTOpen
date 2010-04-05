@@ -24,25 +24,36 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-
+/* endif */ 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+/* ifdef JDBC40 */
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+/* endif */ 
 import javax.xml.transform.Result;
+/* ifdef JDBC40 */
 import javax.xml.transform.Source;
+/* endif */ 
 import javax.xml.transform.dom.DOMResult;
+/* ifdef JDBC40 */
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 import org.xml.sax.InputSource;
+/* endif */ 
+
 import javax.xml.parsers.ParserConfigurationException;
+/* ifdef JDBC40 */
 import org.xml.sax.SAXException;
+/* endif */ 
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
@@ -56,8 +67,13 @@ XML is a built-in type that stores an XML value as a column value in a row of a 
 The SQLXML interface provides methods for accessing the XML value as a String, a Reader or Writer, or as a Stream. 
 This class returns the data as an XML type.  The actual type on the host may vary.
 Instances of this class are created by AS400JDBCConnection.
+This class should not be used if JDK 1.6 is not in use. 
 **/
-public class AS400JDBCSQLXML implements SQLXML  
+public class AS400JDBCSQLXML
+/* ifdef JDBC40 */
+implements SQLXML  
+/* endif */ 
+
 { 
    
     static final int MAX_XML_SIZE = AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3
@@ -812,6 +828,7 @@ public class AS400JDBCSQLXML implements SQLXML
      *   if an XML parser exception occurs. 
      *   An exception is thrown if the state is not readable.
      */
+/* ifdef JDBC40 */
     public synchronized <T extends Source> T getSource(Class<T> sourceClass) throws SQLException
     {
         String classname;
@@ -885,6 +902,7 @@ public class AS400JDBCSQLXML implements SQLXML
                 JDError.throwSQLException(this, JDError.EXC_XML_PARSING_ERROR, e);
                 return null;
             }
+
         } else if (classname.equals("javax.xml.transform.stream.StreamSource"))
         {
             return (T) new javax.xml.transform.stream.StreamSource( getCharacterStream());
@@ -895,6 +913,7 @@ public class AS400JDBCSQLXML implements SQLXML
         }
          
     }
+/* endif */ 
 
     /**
      * Retrieves a stream that can be used to write the XML value that this SQLXML instance represents.
@@ -1018,11 +1037,15 @@ public class AS400JDBCSQLXML implements SQLXML
         {
             try
             {
-
+/* ifdef JDBC40 */
                 XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
                 XMLStreamWriter xmlStreamWriter;
                 xmlStreamWriter = outputFactory.createXMLStreamWriter(setCharacterStream());
                 return (T) new StAXResult(xmlStreamWriter);
+/* endif */ 
+/* ifndef JDBC40 
+            	throw new SQLException("NOT SUPPORTED"); 
+ endif */ 
             } catch (Exception e)
             {
                 JDError.throwSQLException(this, JDError.EXC_XML_PARSING_ERROR, e);
@@ -1076,7 +1099,9 @@ public class AS400JDBCSQLXML implements SQLXML
 
         if (clobValue_ != null)
         {
+/* ifdef JDBC40 */
             clobValue_.free();
+/* endif */ 
             clobValue_ = null;
         }
 

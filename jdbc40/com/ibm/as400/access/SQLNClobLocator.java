@@ -19,10 +19,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -124,8 +128,12 @@ final class SQLNClobLocator implements SQLLocator
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
-           !(object instanceof Clob) &&
-           !(object instanceof SQLXML)) //@PDC jdbc40
+           !(object instanceof Clob) 
+/* ifdef JDBC40 */
+           && !(object instanceof SQLXML)
+/* endif */ 
+           
+           ) //@PDC jdbc40
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
@@ -227,11 +235,14 @@ final class SQLNClobLocator implements SQLLocator
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
+/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) 
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
+/* endif */ 
+            
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -483,6 +494,7 @@ final class SQLNClobLocator implements SQLLocator
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
+/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) //@PDA jdbc40 
             {
                 SQLXML xml = (SQLXML)object;
@@ -490,6 +502,7 @@ final class SQLNClobLocator implements SQLLocator
                 String stringVal = xml.getString();
                 locator_.writeData(0L, converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);           
             }
+/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -580,12 +593,22 @@ final class SQLNClobLocator implements SQLLocator
 
     public int getType()
     {
+/* ifdef JDBC40 */
         return java.sql.Types.NCLOB;
+/* endif */ 
+/* ifndef JDBC40 
+    	return java.sql.Types.CLOB; 
+ endif */ 
     }
 
     public String getTypeName()
     {
+/* ifdef JDBC40 */
         return "NCLOB";
+/* endif */ 
+/* ifndef JDBC40 
+    	return "CLOB"; 
+ endif */ 
     }
 
     public boolean isSigned()
@@ -795,7 +818,13 @@ final class SQLNClobLocator implements SQLLocator
         // inside the AS400JDBCNClobLocator. Then, when convertToRawBytes() is called, the writeToServer()
         // code checks the AS400JDBCNClobLocator's saved InputStream... if it exists, then it writes the
         // data out of the InputStream to the system by calling writeToServer() again.
+/* ifdef JDBC40 */
         return new AS400JDBCNClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
+/* endif */ 
+/* ifndef JDBC40 
+        return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
+        
+ endif */ 
     }
 
     public short getShort()
@@ -886,7 +915,7 @@ final class SQLNClobLocator implements SQLLocator
         }
     }
     
-
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
@@ -902,7 +931,7 @@ final class SQLNClobLocator implements SQLLocator
         return new AS400JDBCNClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
  
     }
-
+/* endif */ 
    
     public String getNString() throws SQLException
     {
@@ -923,21 +952,22 @@ final class SQLNClobLocator implements SQLLocator
         return value;  
     }
 
+/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
-        /*
-        truncated_ = 0;
-        try
-        {
-            return new AS400JDBCRowId(BinaryConverter.stringToBytes(getString()));
-        }
-        catch(NumberFormatException nfe)
-        {
+        
+        //truncated_ = 0;
+        //try
+        //{
+         //   return new AS400JDBCRowId(BinaryConverter.stringToBytes(getString()));
+        //}
+        //catch(NumberFormatException nfe)
+        //{
             // this Clob contains non-hex characters
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-            return null;
-        }
-        */
+        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+        //    return null;
+        //}
+        
         //Decided this is of no use because rowid is so specific to the dbms internals.
         //And there are issues in length and difficulties in converting to a
         //valid rowid that is useful.
@@ -957,7 +987,8 @@ final class SQLNClobLocator implements SQLLocator
         }                       //@loch
         return new AS400JDBCSQLXML( getString().toCharArray() );        
     }
-
+/* endif */ 
+    
     // @array
     public Array getArray() throws SQLException
     {

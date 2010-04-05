@@ -15,12 +15,14 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.sql.Clob;
 import java.sql.SQLException;
+
 
 // Note: This code in this class requires understanding of bit manipulation
 // and sign extension. Do not attempt to rework this code if you do not
@@ -97,8 +99,7 @@ public class AS400JDBCClobLocator implements Clob
     isXML_ = isXML;
   }
 
-
-
+ 
   /**
   Returns the entire CLOB as a stream of ASCII characters.
   
@@ -581,8 +582,7 @@ Returns the handle to this CLOB locator in the database.
     }
   }
   
-  
-  // @PDA jdbc40
+   //@PDA 550
   /**
    * This method frees the <code>Clob</code> object and releases the
    * resources that it holds. The object is invalid once the

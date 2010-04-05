@@ -25,10 +25,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -620,6 +624,8 @@ final class SQLBlob implements SQLData
     }
 
     //@PDA jdbc40
+/* ifdef JDBC40 */
+
     public NClob getNClob() throws SQLException
     {        
         if(savedObject_ != null) doConversion();  //@pdc
@@ -627,7 +633,7 @@ final class SQLBlob implements SQLData
         String string = BinaryConverter.bytesToHexString(value_); //@pdc
         return new AS400JDBCNClob(string, string.length());  //@pdc
     }
-
+/* endif */ 
     //@PDA jdbc40
     public String getNString() throws SQLException
     {
@@ -635,6 +641,7 @@ final class SQLBlob implements SQLData
         truncated_ = 0;                               //@pdc
         return BinaryConverter.bytesToHexString(value_); //@pdc
     }
+/* ifdef JDBC40 */
 
     //@PDA jdbc40
     public RowId getRowId() throws SQLException
@@ -652,7 +659,7 @@ final class SQLBlob implements SQLData
         return new AS400JDBCSQLXML(value_, maxLength_); //@xml2
         //return new AS400JDBCSQLXML(string, string.length());  //@xml2
     }
-
+/* endif */ 
     // @array
     public Array getArray() throws SQLException
     {

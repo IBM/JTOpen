@@ -23,10 +23,14 @@ import java.sql.SQLException;
  * Note that this ResultSet is limited in its functionality since it is not tied back to a cursor in the database.
  * Its primary purpose is for retrieving data back from the database.
  **/
-public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSet
+public class AS400JDBCArrayResultSet  
+/* ifdef JDBC40 */
+extends ToolboxWrapper 
+/* endif */ 
+implements ResultSet
 {
 
-    private int holdability_;
+    private int holdability_; // Used by JDBC 40
     private int concurrency_;
     private int fetchDirection_;
     private int fetchSize_;
@@ -47,7 +51,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     private boolean isSQLData_;
  
     private int vrm_;    
-    private AS400JDBCConnection con_; //future use
+    AS400JDBCConnection con_; //future use
     ///////////////////
 
     
@@ -3356,6 +3360,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         return getNCharacterStream (findColumnX (columnName));
     }
 
+
     /**
      * Retrieves the value of the designated column in the current row
      * of this <code>ResultSet</code> object as a <code>NClob</code> object
@@ -3368,6 +3373,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurss
      */
+/* ifdef JDBC40 */
     public java.sql.NClob getNClob (int column) throws java.sql.SQLException
     {
         
@@ -3393,7 +3399,8 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
         return result;
     }
-
+/* endif */ 
+    
     /**
      * Retrieves the value of the designated column in the current row
      * of this <code>ResultSet</code> object as a <code>NClob</code> object
@@ -3406,11 +3413,14 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurss
      */
+/* ifdef JDBC40 */
     public java.sql.NClob getNClob (String columnName) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNClob");
         return getNClob (findColumnX (columnName));
     }
+
+/* endif */ 
 
     /**
      * Retrieves the value of the designated column in the current row
@@ -3480,6 +3490,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      *     value returned is <code>null</code>
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public java.sql.RowId getRowId (int column) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getRowId");
@@ -3505,6 +3516,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
         return result;
     }
+/* endif */ 
 
     /**
      * Retrieves the value of the designated column in the current row of this 
@@ -3516,11 +3528,13 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      *     value returned is <code>null</code>
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public java.sql.RowId getRowId (String columnName) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getRowId");
         return getRowId (findColumnX (columnName));
     }
+/* endif */ 
 
     /**
      * Retrieves the value of the designated column in  the current row of
@@ -3530,6 +3544,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public java.sql.SQLXML getSQLXML (int column) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getSQLXML");
@@ -3555,6 +3570,7 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
         return result;
     }
+/* endif */ 
 
     /**
      * Retrieves the value of the designated column in  the current row of
@@ -3564,12 +3580,13 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
     public java.sql.SQLXML getSQLXML (String columnName) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getSQLXML");
         return getSQLXML (findColumnX (columnName));
     }
-
+/* endif */ 
     /** 
      * Updates the designated column with an ascii stream value, which will have
      * the specified number of bytes.
@@ -4000,11 +4017,13 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public void updateNClob (int column, java.sql.NClob x) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob" );
         checkUpdatePreconditions (column);
     }
+/* endif */ 
 
     /**
      * Updates the designated column using the given <code>Reader</code>
@@ -4020,12 +4039,13 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public void updateNClob (String columnName, java.sql.NClob x) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateNClob" );
         updateNClob (findColumnX (columnName), x);
     }
-
+/* endif */ 
     /**
      * Updates the designated column using the given <code>Reader</code>
      *
@@ -4149,12 +4169,14 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @param x the column value
      * @throws SQLException if a database access occurs 
      */
+/* ifdef JDBC40 */
+
     public void updateRowId (int column, java.sql.RowId x) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateRowId");
         checkUpdatePreconditions (column);
     }
-
+/* endif */ 
     /**
      * Updates the designated column with a <code>RowId</code> value. 
      * 
@@ -4162,12 +4184,13 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @param x the column value
      * @throws SQLException if a database access occurs 
      */
+/* ifdef JDBC40 */
     public void updateRowId (String columnName, java.sql.RowId x) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateRowId");
         updateRowId (findColumnX (columnName), x);
     }
-
+/* endif */ 
     /**
      * Updates the designated column with a <code>java.sql.SQLXML</code> value.
      *
@@ -4175,12 +4198,14 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @param x    The value for the column to be updated
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
+
     public void updateSQLXML (int column, java.sql.SQLXML x) throws java.sql.SQLException
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateSQLXML");
         checkUpdatePreconditions (column);
     }
-
+/* endif */ 
     /**
      * Updates the designated column with a <code>java.sql.SQLXML</code> value.
      *
@@ -4188,12 +4213,14 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
      * @param x    The value for the column to be updated
      * @throws SQLException if a database access error occurs
      */
+/* ifdef JDBC40 */
+
     public void updateSQLXML (String columnName, java.sql.SQLXML x) throws java.sql.SQLException
     {
         updateSQLXML (findColumnX (columnName), x);
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateSQLXML");
     }
-
+/* endif */ 
     protected String[] getValidWrappedList()
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCArrayResultSet",  "java.sql.ResultSet" };

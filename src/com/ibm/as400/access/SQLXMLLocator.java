@@ -19,7 +19,15 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 
+import java.sql.NClob;
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
+
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -310,7 +318,7 @@ final class SQLXMLLocator implements SQLLocator
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
 
-                    // int objectLength = bytes.length;
+                    int objectLength = bytes.length;
                     if(bytes.length > maxLength_)
                     {
                         byte[] newValue = new byte[maxLength_];
@@ -354,7 +362,7 @@ final class SQLXMLLocator implements SQLLocator
 
                     bytes = baos.toByteArray();
                     
-                    // int objectLength = bytes.length;
+                    int objectLength = bytes.length;
                     if(bytes.length > maxLength_)
                     {
                         byte[] newValue = new byte[maxLength_];
@@ -424,6 +432,56 @@ final class SQLXMLLocator implements SQLLocator
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
+        /* ifdef JDBC40  
+        else if( savedObject_ instanceof SQLXML ) //@olddesc
+        {
+           SQLXML xml = (SQLXML)savedObject_;
+           
+           boolean set = false;
+           if(savedObject_ instanceof AS400JDBCSQLXMLLocator)
+           {
+               AS400JDBCSQLXMLLocator xmlLocator = (AS400JDBCSQLXMLLocator)savedObject_;
+
+               //Synchronize on a lock so that the user can't keep making updates
+               //to the xml while we are taking updates off the vectors.
+               synchronized(xmlLocator)
+               {
+                   // See if we saved off our real object from earlier.
+                   if(xmlLocator.clobLocatorValue_ != null && xmlLocator.clobLocatorValue_.savedObject_ != null)
+                   {
+                       savedObject_ = xmlLocator.clobLocatorValue_.savedObject_;
+                       scale_ = xmlLocator.clobLocatorValue_.savedScale_;
+                       xmlLocator.clobLocatorValue_.savedObject_ = null;
+                       writeToServer();
+                       return;
+                   }
+                   else if(xmlLocator.blobLocatorValue_ != null && xmlLocator.blobLocatorValue_.savedObject_ != null)
+                   {
+                       savedObject_ = xmlLocator.blobLocatorValue_.savedObject_;
+                       scale_ = xmlLocator.blobLocatorValue_.savedScale_;
+                       xmlLocator.blobLocatorValue_.savedObject_ = null;
+                       writeToServer();
+                       return;
+                   }
+               }
+           }
+                      
+           if(!set)
+           {
+               
+               //getString() handles internal representation of clob/dbclob/blob...
+               String stringVal = xml.getString();
+               byte[] inputBytes;                                                            //@len2utf8
+               if(JDUtilities.hasXMLDeclaration(stringVal))                                 //@xmlutf8
+                   inputBytes = unicodeConverter_.stringToByteArray(JDUtilities.handleXMLDeclarationEncoding(stringVal));      //@len2utf8 //here, we have a string, so it has to be in utf-16, so just take out encoding and sq and detect encoding
+               else
+                   inputBytes = unicodeUtf8Converter_.stringToByteArray(stringVal); //@len2utf8
+                   
+              
+               locator_.writeData(0L, inputBytes, 0, inputBytes.length, true);  //@xmlutf8
+           }
+        }
+endif */ 
         else
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -644,6 +702,13 @@ final class SQLXMLLocator implements SQLLocator
                     }
                   //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
                 }
+                /* ifdef JDBC40 
+                else if( savedObject_ instanceof SQLXML ) 
+                {
+                    SQLXML xml = (SQLXML)savedObject_;
+                    valueClob_ = xml.getString();
+                }
+                endif */
                 else
                 {
                     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
@@ -703,7 +768,12 @@ final class SQLXMLLocator implements SQLLocator
 
     public int getMaximumPrecision()
     {
+/*ifdef JDBC40 
+        return AS400JDBCSQLXML.MAX_XML_SIZE;  
+endif */ 
+/* ifndef JDBC40 */ 
         return AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH;
+/* endif */         
     }
 
     public int getMaximumScale()
@@ -951,8 +1021,17 @@ final class SQLXMLLocator implements SQLLocator
         // the prepared statement is calling toObject() to store off the parameters,
         // but it's all we can do for now.
         truncated_ = 0;
+        /* ifdef JDBC40 
+        if(savedObject_ != null)//@xmlupdate //either return savedObject_ here, or add two iterations of getting savedObject_ in writeToServer if type is AS400JDBCSQLXML since it contains clob which contains savedObject_
+            return savedObject_;    //@xmlupdate
+        return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, true);  //@xml4   
+
+        endif */
+        /* ifndef JDBC40  */ 
         return  getClob();  //@xml4   
+        /* endif */ 
     }
+     
 
     public short getShort()
     throws SQLException
@@ -1044,6 +1123,66 @@ final class SQLXMLLocator implements SQLLocator
         }
     }
     
+    /* ifdef JDBC40 
+    //@pda jdbc40
+    public NClob getNClob() throws SQLException
+    {
+        truncated_ = 0;
+        
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new AS400JDBCNClob(valueClob_, maxLength_); //@loch
+        }                       //@loch
+        
+        return new AS400JDBCNClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, true);   //@xml4    
+ 
+    }
+    endif */ 
+    
+    //@pda jdbc40
+    public String getNString() throws SQLException
+    {
+        truncated_ = 0;
+        
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return valueClob_;   //@loch
+        }                       //@loch
+
+        DBLobData data = locator_.retrieveData(0, locator_.getMaxLength());
+        String value = converter_.byteArrayToString(data.getRawBytes(),
+                                                    data.getOffset(),
+                                                    data.getLength());
+        value = JDUtilities.stripXMLDeclaration(value); //remove xml declaration 
+        return value;  
+    }
+
+/* ifdef JDBC40 
+    //@pda jdbc40
+    public RowId getRowId() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+
+    //@PDA jdbc40
+    public SQLXML getSQLXML() throws SQLException
+    {
+        truncated_ = 0;
+        //xml data is always retrieved from host in binary 65535 format
+        //may or maynot need converter depending on how user gets data from SQLXML
+        //return xmllocator which will treat data as cloblocator and do conversion
+        //@xml3 if xml column, remove xml declaration from within internal cloblocator inside of sqlxmllocator.
+        return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, true);   //@xml4   
+    }
+endif */ 
+
      
     // @array
     public Array getArray() throws SQLException

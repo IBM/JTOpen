@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 
+import java.sql.NClob;
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -27,7 +34,7 @@ import java.util.Calendar;
 
 final class SQLBlobLocator implements SQLLocator
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private AS400JDBCConnection     connection_;
     private ConvTable               converter_;
@@ -806,6 +813,60 @@ final class SQLBlobLocator implements SQLLocator
         }
     }
     
+    //@PDA jdbc40
+    public Reader getNCharacterStream() throws SQLException
+    {
+        truncated_ = 0;                                                     //@PDC
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes())); //@PDC
+    }
+
+    //@PDA jdbc40
+    /* ifdef JDBC40 
+
+    public NClob getNClob() throws SQLException
+    {        
+        truncated_ = 0;
+        String string = BinaryConverter.bytesToHexString(getBytes());//@pdc
+        return new AS400JDBCNClob(string, string.length()); //@pdc
+    }
+endif */ 
+    //@PDA jdbc40
+    public String getNString() throws SQLException
+    {
+        truncated_ = 0;                                       //@pdc
+        return BinaryConverter.bytesToHexString(getBytes());     //@pdc
+    }
+
+    /* ifdef JDBC40 
+
+    //@PDA jdbc40
+    public RowId getRowId() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+endif */ 
+
+    /* ifdef JDBC40 
+
+    //@PDA jdbc40
+    public SQLXML getSQLXML() throws SQLException
+    {
+        truncated_ = 0;
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new AS400JDBCSQLXML(value_, value_.length);//@loch
+        }                       //@loch
+        
+        String string = BinaryConverter.bytesToHexString(getBytes());
+        //return new AS400JDBCSQLXML(string, string.length());
+        return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), savedObject_, scale_); //@xml3
+    }
+    
+endif */ 
     // @array
     public Array getArray() throws SQLException
     {

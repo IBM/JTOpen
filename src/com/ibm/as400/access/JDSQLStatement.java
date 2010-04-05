@@ -616,8 +616,10 @@ class JDSQLStatement
         else if((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
         {
             if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710) {  //@blksql
-                canBeBatched_ = true;   //@blksql
-                // JWE:  should only permit blocking if no literals are in the update statement
+            	
+            	if (((AS400JDBCConnection)connection).doUpdateDeleteBlocking()) { 
+                    canBeBatched_ = true;   //@blksql
+            	}
 
             }
             isUpdateOrDelete_ = true;
@@ -625,7 +627,6 @@ class JDSQLStatement
         else if(firstWord.equals(MERGE_)) //@blksql
         {
             if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710)  { //@blksql
-            	// JWE:  should only permit batching if no literals present
                 canBeBatched_ = true;   //@blksql
             }
         }

@@ -14,7 +14,10 @@
 package com.ibm.as400.access;
 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.Wrapper;
+/* endif */ 
+
 
 /* 
  * This class provides a single point where we implement java.sql.Wrapper.
@@ -27,7 +30,11 @@ import java.sql.Wrapper;
  * "stub" infrastructure.  But since this class design was a nice way to keep the
  * wrapper code in one class, we decided to keep it. 
  */
-class ToolboxWrapper implements Wrapper {
+class ToolboxWrapper 
+/* ifdef JDBC40 */
+implements Wrapper 
+/* endif */ 
+{
 
   
     //@PDA jdbc40

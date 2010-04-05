@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,6 +15,9 @@ package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
+/* ifdef JDBC40 
+import java.sql.RowIdLifetime;
+endif */ 
 import java.sql.SQLException;
 
 
@@ -151,7 +154,30 @@ implements java.sql.DatabaseMetaData
       }
     }
 
-
+    //@PDA jdbc40
+    private Object callMethodRtnObj (String methodName)
+      throws SQLException
+    {
+      try {
+        return connection_.callMethodReturnsObject (pxId_, methodName);
+      }
+      catch (InvocationTargetException e) {
+        throw JDConnectionProxy.rethrow1 (e);
+      }
+    }
+    
+    //@PDA jdbc40
+    Object callMethodRtnObj(String methodName, Class[] argClasses, Object[] argValues) throws SQLException
+    {
+        try
+        {
+            return connection_.callMethod(pxId_, methodName, argClasses, argValues).getReturnValue();
+        } catch (InvocationTargetException e)
+        {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
     public boolean dataDefinitionCausesTransactionCommit ()
     throws SQLException
     {
@@ -1479,6 +1505,18 @@ implements java.sql.DatabaseMetaData
       return callMethodRtnBool ("usesLocalFiles");
     }
 
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] { "java.sql.DatabaseMetaData" };
+    } 
+  
+
+    //@PDA jdbc40
+    public boolean autoCommitFailureClosesAllResultSets() throws SQLException
+    {
+        return callMethodRtnBool("autoCommitFailureClosesAllResultSets");
+    }
 
     
     //@PDA 550
@@ -1487,15 +1525,36 @@ implements java.sql.DatabaseMetaData
         return callMethodRtnRSet("getClientInfoProperties");
     }
 
+    /* ifdef JDBC40 
 
-    //@PDA 550
+    //@PDA jdbc40
+    public RowIdLifetime getRowIdLifetime() throws SQLException
+    {
+        return (RowIdLifetime) callMethodRtnObj("getRowIdLifetime");
+    }
+    endif */ 
+
+    //@PDA jdbc40
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException
     {
         return callMethodRtnRSet("getSchemas", new Class[] {String.class, String.class}, new Object[] {catalog, schemaPattern});
     }
 
+    // @PDA jdbc40
+    public boolean providesQueryObjectGenerator() throws SQLException
+    {
+        return callMethodRtnBool("providesQueryObjectGenerator");
+    }
 
-    //@PDA 550
+    //@PDA jdbc40
+    public boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException
+    {
+        return callMethodRtnBool("supportsStoredFunctionsUsingCallSyntax");
+    }
+
+    //@pdd removde getFunctionParameters.  It was renamed to getFunctionColumns()
+
+    //@PDA jdbc40
     public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException
     {
         return callMethodRtnRSet ("getFunctions",

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,15 +14,31 @@
 package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Array;
+import java.sql.Blob;
 import java.sql.CallableStatement;
+/* ifdef JDBC40 
+import java.sql.ClientInfoStatus;
+endif */ 
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+/* ifdef JDBC40 
+import java.sql.NClob;
+endif */ 
 import java.sql.PreparedStatement;
+/* ifdef JDBC40 
+import java.sql.SQLClientInfoException;
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Savepoint;   
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.sql.Struct;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,6 +47,9 @@ class JDConnectionProxy
 extends AbstractProxyImpl
 implements Connection
 {
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+
+
   // Private data.
  
   private JDDatabaseMetaDataProxy metaData_;
@@ -737,9 +756,44 @@ implements Connection
       throw ProxyClientConnection.rethrow (e);
     }
   }
+  
+  
+  //@pda jdbc40
+  protected String[] getValidWrappedList()
+  {
+      return new String[] {  "java.sql.Connection"  };
+  } 
+  
 
 
-  //@PDA 550 client info
+  //@PDA jdbc40
+  /**
+   * Returns true if the connection has not been closed and is still valid.  
+   * The driver shall submit a query on the connection or use some other 
+   * mechanism that positively verifies the connection is still valid when 
+   * this method is called.
+   * <p>
+   * The query submitted by the driver to validate the connection shall be 
+   * executed in the context of the current transaction.
+   * 
+   * @param timeout -     The time in seconds to wait for the database operation 
+   *                      used to validate the connection to complete.  If 
+   *                      the timeout period expires before the operation 
+   *                      completes, this method returns false.  A value of 
+   *                      0 indicates a timeout is not applied to the 
+   *                      database operation.  Note that currently the timeout
+   *                      value is not used.
+   * <p>
+   * @return true if the connection is valid, false otherwise
+   * @exception SQLException if a database access error occurs.
+   */ 
+  public boolean isValid(int timeout) throws SQLException 
+  { 
+      Object[] oa = new Object[] {new Integer(timeout)};
+      return ((Boolean)callMethodRtnObj("isValid", new Class[] {Integer.TYPE}, oa)).booleanValue();
+  }
+        
+  //@PDA jdbc40
   /**
    * Sets the value of the client info property specified by name to the 
    * value specified by value.  
@@ -790,11 +844,39 @@ implements Connection
    *          setting the client info value on the database server.
    * <p>
    */
-  public void setClientInfo(String name, String value) throws SQLException
-  {
-      callMethod("setClientInfo", 
+  public void setClientInfo(String name, String value) 
+/* ifdef JDBC40 
+    throws SQLClientInfoException
+endif */ 
+/* ifndef JDBC40 */ 
+   throws SQLException 
+/* endif */ 
+    {
+        try
+        {
+            callMethod("setClientInfo", 
                     new Class[] { String.class, String.class }, 
                     new Object[] { name, value });
+        } catch (SQLException e)
+        {
+        /* ifdef JDBC40 
+            //may be SQLException or SQLClientInfoException
+            if(e instanceof SQLClientInfoException)
+                throw (SQLClientInfoException)e;
+            else
+            {
+                //HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>(); //@pdd jdbc40 merge
+            	//@PDC jdbc40 merge.  code hashmap without generic references for pre-jdk1.6
+            	HashMap m = new HashMap();
+                m.put(name, ClientInfoStatus.REASON_UNKNOWN);
+                SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
+                throw clientIE;
+            }
+endif */ 
+/* ifndef JDBC40 */ 
+	throw e;
+/* endif */ 
+        }
     }
 
   // @PDA 550 client info
@@ -842,12 +924,45 @@ implements Connection
    * @see java.sql.Connection#setClientInfo(String, String)
    *      setClientInfo(String, String)
    */
-  public void setClientInfo(Properties properties) throws SQLException
+  public void setClientInfo(Properties properties) 
+  /* ifdef JDBC40 
+  throws SQLClientInfoException
+endif */ 
+/* ifndef JDBC40 */ 
+  throws SQLException
+/* endif */ 
   {
-      callMethod ("setClientInfo",
+      try
+      {
+          callMethod ("setClientInfo",
                   new Class[] { Properties.class },
                   new Object[] { properties });
-      
+      }catch(SQLException e)
+      {
+      /* ifdef JDBC40 
+          //may be SQLException or SQLClientInfoException
+          if(e instanceof SQLClientInfoException)
+              throw (SQLClientInfoException)e;
+          else
+          {
+              //create Map<String,ClientInfoStatus> for exception constructor
+              //HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>(); //@pdd jdbc40 merge
+        	  //@PDC jdbc40 merge.  code hashmap without generic references for pre-jdk1.6
+        	  HashMap m = new HashMap();
+              Enumeration clientInfoNames = properties.keys();
+              while( clientInfoNames.hasMoreElements())
+              {
+                  String clientInfoName = (String)clientInfoNames.nextElement();
+                  m.put(clientInfoName, ClientInfoStatus.REASON_UNKNOWN);
+              }
+              SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
+              throw clientIE;
+          }
+          endif */ 
+          /* ifndef JDBC40 */ 
+          	throw e; 
+          /* endif */ 
+      }
   }
 
   //@PDA 550 client info
@@ -923,6 +1038,110 @@ implements Connection
   public Properties getClientInfo() throws SQLException
   {
       return (Properties) callMethodRtnObj("getClientInfo");
+  }
+  
+  //@PDA jdbc40
+  /**
+   * Constructs an object that implements the <code>Clob</code> interface. The object
+   * returned initially contains no data.  The <code>setAsciiStream</code>,
+   * <code>setCharacterStream</code> and <code>setString</code> methods of 
+   * the <code>Clob</code> interface may be used to add data to the <code>Clob</code>.
+   * @return An object that implements the <code>Clob</code> interface
+   * @throws SQLException if an object that implements the
+   * <code>Clob</code> interface can not be constructed.
+   *
+   */
+  public Clob createClob() throws SQLException
+  {
+      return (Clob) callMethodRtnObj("createClob");
+  }
+  
+  //@PDA jdbc40
+  /**
+   * Constructs an object that implements the <code>Blob</code> interface. The object
+   * returned initially contains no data.  The <code>setBinaryStream</code> and
+   * <code>setBytes</code> methods of the <code>Blob</code> interface may be used to add data to
+   * the <code>Blob</code>.
+   * @return  An object that implements the <code>Blob</code> interface
+   * @throws SQLException if an object that implements the
+   * <code>Blob</code> interface can not be constructed
+   *
+   */
+  public Blob createBlob() throws SQLException
+  {
+      return (Blob) callMethodRtnObj("createBlob");
+  }
+
+  //@PDA jdbc40
+  /**
+   * Constructs an object that implements the <code>NClob</code> interface. The object
+   * returned initially contains no data.  The <code>setAsciiStream</code>,
+   * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+   * be used to add data to the <code>NClob</code>.
+   * @return An object that implements the <code>NClob</code> interface
+   * @throws SQLException if an object that implements the
+   * <code>NClob</code> interface can not be constructed.
+   *
+   */
+  /* ifdef JDBC40 
+  public NClob createNClob() throws SQLException
+  {
+      return (NClob) callMethodRtnObj("createNClob");
+  }
+endif */ 
+  //@PDA jdbc40
+  /**
+   * Constructs an object that implements the <code>SQLXML</code> interface. The object
+   * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
+   * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+   * object.
+   * @return An object that implements the <code>SQLXML</code> interface
+   * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+   * be constructed
+   */
+  /* ifdef JDBC40 
+  public SQLXML createSQLXML() throws SQLException
+  {
+      return (SQLXML) callMethodRtnObj("createSQLXML");
+  }
+  endif */  
+  //@PDA jdbc40
+  /**
+   * Factory method for creating Array objects.
+   *
+   * @param typeName the SQL name of the type the elements of the array map to. The typeName is a
+   * database-specific name which may be the name of a built-in type, a user-defined type or a standard  SQL type supported by this database. This
+   *  is the value returned by <code>Array.getBaseTypeName</code>
+   * @param elements the elements that populate the returned object
+   * @return an Array object whose elements map to the specified SQL type
+   * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
+   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
+   */
+  public Array createArrayOf(String typeName, Object[] elements) throws SQLException
+  {  
+      return (Array) callMethodRtnObj("createArrayOf",
+              new Class[] { String.class, Object[].class },
+              new Object[] { typeName, elements });
+  }
+
+  //@PDA jdbc40
+  /**
+   * Factory method for creating Struct objects.
+   *
+   * @param typeName the SQL type name of the SQL structured type that this <code>Struct</code> 
+   * object maps to. The typeName is the name of  a user-defined type that
+   * has been defined for this database. It is the value returned by
+   * <code>Struct.getSQLTypeName</code>.
+   * @param attributes the attributes that populate the returned object
+   *  @return a Struct object that maps to the given SQL type and is populated with the given attributes
+   * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
+   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
+   */
+  public Struct createStruct(String typeName, Object[] attributes) throws SQLException
+  {   
+      return (Struct) callMethodRtnObj("createStruct",
+              new Class[] { String.class, Object[].class },
+              new Object[] { typeName, attributes });
   }
   
   //@pd2 add missing proxy method.  This is needed for various testcases that use jobid.

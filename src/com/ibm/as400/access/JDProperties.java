@@ -159,9 +159,10 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              CONCURRENT_ACCESS_RESOLUTION  = 79; //@cc1
     static final int              JVM16_SYNCHRONIZE          = 80; //@dmy
     static final int              SOCKET_TIMEOUT              = 81; //@STIMEOUT
+    static final int              DO_UPDATE_DELETE_BLOCKING  = 82; 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 82;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 83;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -252,7 +253,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String CONCURRENT_ACCESS_RESOLUTION_ = "concurrent access resolution"; //@cc1
     private static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy 
     private static final String SOCKET_TIMEOUT_ = "socket timeout"; //@STIMEOUT
-
+    private static final String DO_UPDATE_DELETE_BLOCKING_ = "use block update"; 
 
     // Common String objects.  Using these will theoretically
     // cut down on the number of String allocations.
@@ -1361,7 +1362,16 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]  = EMPTY_;  //default set by platform
-      
+
+        
+        // Socket timeout  //@STIMEOUT
+        i = DO_UPDATE_DELETE_BLOCKING;
+        dpi_[i] = new DriverPropertyInfo (DO_UPDATE_DELETE_BLOCKING_, "");
+        dpi_[i].description = "DO_UPDATE_DELETE_BLOCKING_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]  = EMPTY_;  //default set by platform
+
         
     }
 

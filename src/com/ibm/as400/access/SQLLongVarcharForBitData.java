@@ -25,7 +25,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/*ifdef JDBC40 
+import java.sql.NClob;
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/*ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -596,6 +603,53 @@ implements SQLData
             return null;
         }
     }
+
+    //@PDA jdbc40
+    public Reader getNCharacterStream() throws SQLException
+    {
+        truncated_ = 0;
+
+        // This is written in terms of toBytes(), since it will
+        // handle truncating to the max field size if needed.
+        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
+    }
+
+    //@PDA jdbc40
+    /* ifdef JDBC40 
+    public NClob getNClob() throws SQLException
+    {        
+        truncated_ = 0;
+
+        // This is written in terms of getString(), since it will
+        // handle truncating to the max field size if needed.
+        return new AS400JDBCNClob(BinaryConverter.bytesToHexString(getBytes()), maxLength_);
+    }
+    endif */ 
+    
+    //@PDA jdbc40
+    public String getNString() throws SQLException
+    {
+        truncated_ = 0;
+
+        // This is written in terms of toBytes(), since it will
+        // handle truncating to the max field size if needed.
+        return BinaryConverter.bytesToHexString(getBytes());  
+    }
+    /* ifdef JDBC40 
+    //@PDA jdbc40
+    public RowId getRowId() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+
+    //@PDA jdbc40
+    public SQLXML getSQLXML() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+    endif */ 
     
     // @array
     public Array getArray() throws SQLException

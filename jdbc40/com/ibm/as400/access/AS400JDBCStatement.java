@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,10 +63,13 @@ explicitly close statements rather than counting on garbage collection.
 //    are not intended to be used outside of the class
 //    hierarchy.
 //
-public class AS400JDBCStatement extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCStatement 
+/* ifdef JDBC40 */
+extends ToolboxWrapper 
+/* endif */ 
 implements Statement
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     // Constants.
@@ -396,10 +399,10 @@ implements Statement
             // effect if the user explicitly closed the result set
             // before closing the statement.
             //@PDA perf2 comment:  if we get back 700,2 from fetch, then cursor is already closed, but resultSet_ is still usable
-            //if(! cursor_.isClosed())    //@perf3 cursor can be closed, but resultset still needs to be closed.  closeResultSet checks for closed cursor before closing cursor.
-            //{    // @B3A                //@perf3
+            //if(! cursor_.isClosed())   //@perf3 cursor can be closed, but resultset still needs to be closed.  closeResultSet checks for closed cursor before closing cursor.
+            //{    // @B3A               //@perf3
                 closeResultSet (JDCursor.REUSE_NO);
-            //}    // @B3A                //@perf3
+            //}    // @B3A               //@perf3
 
             // If, even after closing the current result set,
             // there are more result sets that were returned, we

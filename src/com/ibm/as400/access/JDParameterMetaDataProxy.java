@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,6 +136,12 @@ implements ParameterMetaData
   throws SQLException
   {
      return callMethodRtnRaw ("getParameterMode", param).getReturnValueInt();
+  }
+
+  //@pda jdbc40
+  protected String[] getValidWrappedList()
+  {
+      return new String[] { "java.sql.ParameterMetaData" };
   }
 
 }

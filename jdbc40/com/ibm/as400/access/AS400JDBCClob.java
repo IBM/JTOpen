@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.io.CharArrayReader;
@@ -45,7 +46,7 @@ transaction.
 **/
 public class AS400JDBCClob implements Clob
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   protected char[] data_;                                 //@pdc jdbc40
   protected int maxLength_;                               //@pdc jdbc40

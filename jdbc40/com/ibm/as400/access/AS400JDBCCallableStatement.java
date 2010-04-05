@@ -24,20 +24,29 @@ import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.Ref;
+/* ifdef JDBC40 */
 import java.sql.ResultSet;              //@G4A
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
 import java.sql.Statement;              //@G4A
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Map;
+/* ifdef JDBC40 */
 import java.util.Hashtable;             //@G4A
 import java.util.Vector;
+/* endif */ 
+
 
 /**
 <p>The AS400JDBCCallableStatement class runs a stored procedure.
@@ -57,9 +66,9 @@ public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatement
 implements CallableStatement
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    private static final int    NO_VALIDATION_  = -9999;
+    static final int    NO_VALIDATION_  = -9999;
 
     private int[]               registeredTypes_; // array of types to track what the user registers the output parm as
     private boolean[]           registered_;      // array of booleans to keep track of which parameters were registered
@@ -205,8 +214,10 @@ implements CallableStatement
             parameterNames_ = new String[parameterCount_];
 
             // Cache all the parm names and numbers.
-
-            Statement s = connection_.createStatement();
+            Statement s = null; //@scan1
+            ResultSet rs = null; //@scan1
+            try{
+            s = connection_.createStatement();
             String catalogSeparator = "";                                                           //@74A Added a check for the naming used.  Need to use separator appropriate to naming.
             if (connection_.getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))  //@74A
                 catalogSeparator = ".";                                                             //@74A
@@ -232,17 +243,18 @@ implements CallableStatement
                   while(rs1.next()) {
                     libListV.addElement(rs1.getString(1));
                   }
+                  rs1.close(); //@SS
                   String[] libList = new String[libListV.size()];
                   libListV.toArray(libList);
 
                   // Get a result set that we can scroll forward/backward through.
                   Statement s1 = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                  ResultSet rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
+                  rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
                                   + catalogSeparator
                                   + "SYSPROCS WHERE ROUTINE_NAME='"
                                   + unquote(sqlStatement_.getProcedure())
                                   + "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = "
-                                  + parameterCount_);
+                                  + parameterCount_);//@scan1
                   if(!rs.next())
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);	// didn't find the procedure in any schema
 
@@ -260,13 +272,17 @@ implements CallableStatement
                       }
                     }
                   }
+                  try{
+                      rs.close(); //@SS
+                  }catch(Exception e){} //allow next close to execute
+                  s1.close(); //@SS
                   if(!found)	// none of the libraries in our library list contain a stored procedure that we are looking for
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);
                 }
               }
             }
 
-            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
+            rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
                                           "' AND ROUTINE_NAME = '" + unquote(sqlStatement_.getProcedure()) + //@DELIMc
                                           "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
 
@@ -275,7 +291,8 @@ implements CallableStatement
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL);
 
             String specificName = rs.getString(1);
-
+            rs.close(); //@SS
+            
             rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2" + catalogSeparator + "SYSPARMS WHERE " + //@74A
                                 " SPECIFIC_NAME = '" + unquoteNoUppercase(specificName) + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); //@DELIMc
 
@@ -292,6 +309,15 @@ implements CallableStatement
                 else if(!caseSensitive && colName.equalsIgnoreCase(parameterName))
                     returnParm = colInd;
             }
+            }finally //@scan1
+            {
+                try{
+                    if(rs != null) //@scan1
+                        rs.close(); //@SS
+                }catch(Exception e){} //allow next close to execute
+                if(s != null)  //@scan1
+                    s.close();  //@SS
+            }
     
             // If the number of parm names didn't equal the number of parameters, throw
             // an exception (INTERNAL).
@@ -306,7 +332,7 @@ implements CallableStatement
             JDError.throwSQLException(this, JDError.EXC_COLUMN_NOT_FOUND);
 
         return returnParm;
-    } */
+    }
 
     // JDBC 2.0
     /**
@@ -3400,6 +3426,7 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public NClob getNClob(int parameterIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -3450,7 +3477,8 @@ implements CallableStatement
             return value;
         }
     }
-
+/* endif */ 
+    
     //@PDA jdbc40
     /**
      * Retrieves the value of a JDBC <code>NCLOB</code> parameter as a
@@ -3466,10 +3494,12 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public NClob getNClob(String parameterName) throws SQLException
     {
         return getNClob(findParameterIndex(parameterName));  
     }
+/* endif */ 
 
     //@PDA jdbc40
     /**
@@ -3581,6 +3611,7 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public RowId getRowId(int parameterIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -3627,7 +3658,8 @@ implements CallableStatement
             return value;
         }
     }
-
+/* endif */ 
+    
     //@PDA jdbc40
     /**
      * Retrieves the value of the designated JDBC <code>ROWID</code> parameter as a  
@@ -3642,10 +3674,12 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public RowId getRowId(String parameterName) throws SQLException
     {
         return getRowId(findParameterIndex(parameterName));  
     }
+/* endif */ 
     
     //@PDA jdbc40
     /**
@@ -3658,6 +3692,7 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(int parameterIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -3704,7 +3739,8 @@ implements CallableStatement
             return value;
         }
     }
-
+/* endif */ 
+    
     //@PDA jdbc40
     /**
      * Retrieves the value of the designated <code>SQL XML</code> parameter as a
@@ -3716,10 +3752,12 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(String parameterName) throws SQLException
     {
         return getSQLXML(findParameterIndex(parameterName));  
-    }
+    } 
+/* endif */ 
 
     //@PDA jdbc40
     /**
@@ -3994,6 +4032,7 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public void setNClob(String parameterName, NClob value) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -4006,7 +4045,8 @@ implements CallableStatement
 
         setNClob(findParameterIndex(parameterName), value);
     }
-
+/* endif */ 
+    
     //@PDA jdbc40
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
@@ -4085,6 +4125,7 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public void setRowId(String parameterName, RowId x) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -4097,7 +4138,8 @@ implements CallableStatement
 
         setRowId(findParameterIndex(parameterName), x);
     }
-
+/* endif */ 
+    
     //@PDA jdbc40
     /**
      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
@@ -4112,6 +4154,7 @@ implements CallableStatement
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
+/* ifdef JDBC40 */
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -4124,6 +4167,7 @@ implements CallableStatement
 
         setSQLXML(findParameterIndex(parameterName), xmlObject);
     }
+/* endif */ 
 
     //@PDA jdbc40 
     /**

@@ -20,17 +20,21 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 //@DFA new class
 final class SQLDecFloat34 implements SQLData {
-    private static final String copyright = "Copyright (C) 2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 2006 International Business Machines Corporation and others.";
 
     private static final BigDecimal default_ = BigDecimal.valueOf(0);  
 
@@ -59,7 +63,7 @@ final class SQLDecFloat34 implements SQLData {
 
     private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(-Double.MAX_VALUE); //@PDC MIN_VALUE is positive
        
-    private static final int DECFLOAT34_MIN_EXP = -6143;  
+    static final int DECFLOAT34_MIN_EXP = -6143;  
     
     private SQLConversionSettings settings_;
 
@@ -207,20 +211,20 @@ final class SQLDecFloat34 implements SQLData {
         //follow native and allow rounding mode to handle
         //@pdd int otherScale = bigDecimal.scale();
         //@pdd if(otherScale > ((-1) * DECFLOAT34_MIN_EXP)) //absolute of min_exp is max scale
-        //@pdd     truncated_ += otherScale + DECFLOAT34_MIN_EXP; //diff in scales
+        //@pdd    truncated_ += otherScale + DECFLOAT34_MIN_EXP; //diff in scales
     
         //get precision from bigDecimal without 0's on right side      
         //@pdd int otherPrecision =  SQLDataFactory.getPrecisionForTruncation(bigDecimal, 34);
         
         //follow native and allow rounding mode to handle
         //@pdd if(otherPrecision > precision_)
-        //@pdd{
+        //@pdd {
         //@pdd    int digits = otherPrecision - precision_;
-        //@pdd    truncated_ += digits;
-        //@pdd}
-        //@pddelse                                                             
-        //@pdd    truncated_ = 0;  // No left side truncation, report nothing       
-        //@pdd                     // (even if there was right side truncation).     
+        //@pdd     truncated_ += digits;
+        //@pdd }
+        //@pdd else                                                             
+        //@pdd     truncated_ = 0;  // No left side truncation, report nothing       
+        //@pdd                      // (even if there was right side truncation).     
  
         value_ = AS400DecFloat.roundByMode(bigDecimal, 34, roundingModeStr);
     }
@@ -619,12 +623,14 @@ final class SQLDecFloat34 implements SQLData {
     }
     
     //@pda jdbc40
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
+    
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -646,24 +652,27 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     //@pda jdbc40
+/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
     //@pda jdbc40
+/* ifdef JDBC40 */
     public SQLXML getSQLXML() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
+    
     // @array
     public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
+    
 }
-

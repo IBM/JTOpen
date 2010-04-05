@@ -17,20 +17,26 @@ import javax.sql.ConnectionEvent;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
+/* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
+/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;        //@A5A
 import java.sql.DatabaseMetaData;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.PreparedStatement;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Savepoint;         //@A6A
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Properties; //@pda client info
 
 /**
 *  The AS400JDBCConnectionHandle class represents an AS400JDBCConnection object
@@ -60,12 +66,15 @@ import java.util.Properties;
 *  </blockquote></pre>
 *
 **/
-public class AS400JDBCConnectionHandle extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCConnectionHandle 
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
 implements Connection //@A5A
 //@A5D extends AS400JDBCConnection
 {
   
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   private AS400JDBCPooledConnection pooledConnection_ = null;
   private AS400JDBCConnection connection_ = null;
@@ -264,7 +273,7 @@ implements Connection //@A5A
     is more efficient to use prepareStatement().
     
     <p>Full functionality of this method requires support in OS/400 V5R2  
-    or i5/0S.  If connecting to OS/400 V5R1 or earlier, the value for 
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
     resultSetHoldability will be ignored.
         
     @param resultSetType            The result set type.  Valid values are:
@@ -1633,207 +1642,155 @@ ResultSet.CONCUR_READ_ONLY.
    
         
   //@PDA jdbc40
-  /**
-   * Sets the value of the client info property specified by name to the 
-   * value specified by value.  
-   * <p>
-   * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code> 
-   * method to determine the client info properties supported by the driver 
-   * and the maximum length that may be specified for each property.
-   * <p>
-   * The driver stores the value specified in a suitable location in the 
-   * database.  For example in a special register, session parameter, or 
-   * system table column.  For efficiency the driver may defer setting the 
-   * value in the database until the next time a statement is executed or 
-   * prepared.  Other than storing the client information in the appropriate 
-   * place in the database, these methods shall not alter the behavior of 
-   * the connection in anyway.  The values supplied to these methods are 
-   * used for accounting, diagnostics and debugging purposes only.
-   * <p>
-   * The driver shall generate a warning if the client info name specified 
-   * is not recognized by the driver.
-   * <p>
-   * If the value specified to this method is greater than the maximum 
-   * length for the property the driver may either truncate the value and 
-   * generate a warning or generate a <code>SQLException</code>.  If the driver 
-   * generates a <code>SQLException</code>, the value specified was not set on the 
-   * connection.
-   * <p>
-   * 
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
-   * @param name      The name of the client info property to set 
-   * @param value     The value to set the client info property to.  If the 
-   *                  value is null, the current value of the specified
-   *                  property is cleared.
-   * <p>
-   * @throws  SQLException if the database server returns an error while 
-   *          setting the client info value on the database server.
-   * <p>
-   */
-  public void setClientInfo(String name, String value) throws SQLClientInfoException
-  {
-      try
-      {
-          validateConnection();
-      }catch(SQLException e)
+
+    // @PDA 550 client info
+    /**
+     * Sets the value of the connection's client info properties. The
+     * <code>Properties</code> object contains the names and values of the
+     * client info properties to be set. The set of client info properties
+     * contained in the properties list replaces the current set of client info
+     * properties on the connection. If a property that is currently set on the
+     * connection is not present in the properties list, that property is
+     * cleared. Specifying an empty properties list will clear all of the
+     * properties on the connection. See
+     * <code>setClientInfo (String, String)</code> for more information.
+     * <p>
+     * If an error occurs in setting any of the client info properties, a
+     * <code>ClientInfoException</code> is thrown. The
+     * <code>ClientInfoException</code> contains information indicating which
+     * client info properties were not set. The state of the client information
+     * is unknown because some databases do not allow multiple client info
+     * properties to be set atomically. For those databases, one or more
+     * properties may have been set before the error occurred.
+     * <p>
+     * The following client info properties are supported in Toobox for Java.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
+     * </ul>
+     * <p>
+     * 
+     * @param properties
+     *            the list of client info properties to set
+     *            <p>
+     * @throws SQLException
+     *             if the database server returns an error while setting the
+     *             clientInfo values on the database server
+     *             <p>
+     * see java.sql.Connection#setClientInfo(String, String)
+     *      setClientInfo(String, String)
+     */
+    public void setClientInfo(Properties properties) 
+/* ifdef JDBC40 */
+     throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+    throws SQLException
+ endif */ 
+    {
+/* ifdef JDBC40 */
+    try { 
+/* endif */ 
+        validateConnection();
+/* ifdef JDBC40 */
+          }catch(SQLException e)
       {
           SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), null);
           throw clientIE;
       }
-      connection_.setClientInfo(name, value);
-  }
+/* endif */ 
+        
+        
+        connection_.setClientInfo(properties);
+    } /* setClientInfo */ 
 
-  // @PDA jdbc40
-  /**
-   * Sets the value of the connection's client info properties. The
-   * <code>Properties</code> object contains the names and values of the
-   * client info properties to be set. The set of client info properties
-   * contained in the properties list replaces the current set of client info
-   * properties on the connection. If a property that is currently set on the
-   * connection is not present in the properties list, that property is
-   * cleared. Specifying an empty properties list will clear all of the
-   * properties on the connection. See
-   * <code>setClientInfo (String, String)</code> for more information.
-   * <p>
-   * If an error occurs in setting any of the client info properties, a
-   * <code>ClientInfoException</code> is thrown. The
-   * <code>ClientInfoException</code> contains information indicating which
-   * client info properties were not set. The state of the client information
-   * is unknown because some databases do not allow multiple client info
-   * properties to be set atomically. For those databases, one or more
-   * properties may have been set before the error occurred.
-   * <p>
-   * 
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
-   * 
-   * @param properties
-   *            the list of client info properties to set
-   *            <p>
-   * @throws ClientInfoException
-   *             if the database server returns an error while setting the
-   *             clientInfo values on the database server
-   *             <p>
-   * see java.sql.Connection#setClientInfo(String, String)
-   *      setClientInfo(String, String)
-   */
-  public void setClientInfo(Properties properties) throws SQLClientInfoException
-  {
-      try
-      {
-          validateConnection();
-      }catch(SQLException e)
-      {
-          SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), null);
-          throw clientIE;
-      }
-      connection_.setClientInfo(properties);
-  }
 
-  //@PDA jdbc40
-  /**
-   * Returns the value of the client info property specified by name.  This 
-   * method may return null if the specified client info property has not 
-   * been set and does not have a default value.  This method will also 
-   * return null if the specified client info property name is not supported 
-   * by the driver.
-   * <p>
-   * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
-   * method to determine the client info properties supported by the driver.
-   * <p>
-   * 
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
-   * @param name      The name of the client info property to retrieve
-   * <p>
-   * @return          The value of the client info property specified
-   * <p>
-   * @throws SQLException     if the database server returns an error when 
-   *                          fetching the client info value from the database.
-   * <p>
-   * see java.sql.DatabaseMetaData#getClientInfoProperties
-   */
-  public String getClientInfo(String name) throws SQLException
-  {
-      validateConnection();
-      return connection_.getClientInfo(name);
-  }
+    //@PDA 550 client info
+    /**
+     * Returns the value of the client info property specified by name.  This 
+     * method may return null if the specified client info property has not 
+     * been set and does not have a default value.  This method will also 
+     * return null if the specified client info property name is not supported 
+     * by the driver.
+     * <p>
+     * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
+     * method to determine the client info properties supported by the driver.
+     * <p>
+     * The following client info properties are supported in Toobox for Java.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
+     * </ul>
+     * <p>
+     * @param name      The name of the client info property to retrieve
+     * <p>
+     * @return          The value of the client info property specified
+     * <p>
+     * @throws SQLException     if the database server returns an error when 
+     *                          fetching the client info value from the database.
+     * <p>
+     * see java.sql.DatabaseMetaData#getClientInfoProperties
+     */
+    public String getClientInfo(String name) throws SQLException
+    {
+        validateConnection();
+        return connection_.getClientInfo(name);
+    }
 
-  //@PDA jdbc40
-  /**
-   * Returns a list containing the name and current value of each client info 
-   * property supported by the driver.  The value of a client info property 
-   * may be null if the property has not been set and does not have a 
-   * default value.
-   * <p>
-   * 
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
-   * @return  A <code>Properties</code> object that contains the name and current value of 
-   *          each of the client info properties supported by the driver.  
-   * <p>
-   * @throws  SQLException if the database server returns an error when 
-   *          fetching the client info values from the database
-   */
-  public Properties getClientInfo() throws SQLException
-  {
-      validateConnection();
-      return connection_.getClientInfo();
-  }
-  
+
+
+    //@PDA 550 client info
+    /**
+     * Returns a list containing the name and current value of each client info 
+     * property supported by the driver.  The value of a client info property 
+     * may be null if the property has not been set and does not have a 
+     * default value.
+     * <p>
+     * The following client info properties are supported in Toobox for Java.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
+     * </ul>
+     * <p>
+     * @return  A <code>Properties</code> object that contains the name and current value of 
+     *          each of the client info properties supported by the driver.  
+     * <p>
+     * @throws  SQLException if the database server returns an error when 
+     *          fetching the client info values from the database
+     */
+    public Properties getClientInfo() throws SQLException
+    {
+        validateConnection();
+        return connection_.getClientInfo();
+    }
+
   //@PDA jdbc40
   /**
    * Constructs an object that implements the <code>Clob</code> interface. The object
@@ -1868,6 +1825,9 @@ ResultSet.CONCUR_READ_ONLY.
       return connection_.createBlob();
   }
 
+
+
+
   //@PDA jdbc40
   /**
    * Constructs an object that implements the <code>NClob</code> interface. The object
@@ -1879,11 +1839,13 @@ ResultSet.CONCUR_READ_ONLY.
    * <code>NClob</code> interface can not be constructed.
    *
    */
+/* ifdef JDBC40 */
   public NClob createNClob() throws SQLException
   {
       validateConnection();
       return connection_.createNClob();
   }
+/* endif */ 
 
   //@PDA jdbc40
   /**
@@ -1895,11 +1857,13 @@ ResultSet.CONCUR_READ_ONLY.
    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
    * be constructed
    */
+/* ifdef JDBC40 */
   public SQLXML createSQLXML() throws SQLException
   {
       validateConnection();
       return connection_.createSQLXML();
   }
+/* endif */ 
 
   //@PDA jdbc40
   /**
@@ -1938,6 +1902,81 @@ ResultSet.CONCUR_READ_ONLY.
       return connection_.createStruct(typeName, attributes);
   }
 
+
+    //@PDA 550 client info
+    /**
+     * Sets the value of the client info property specified by name to the 
+     * value specified by value.  
+     * <p>
+     * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code> 
+     * method to determine the client info properties supported by the driver 
+     * and the maximum length that may be specified for each property.
+     * <p>
+     * The driver stores the value specified in a suitable location in the 
+     * database.  For example in a special register, session parameter, or 
+     * system table column.  For efficiency the driver may defer setting the 
+     * value in the database until the next time a statement is executed or 
+     * prepared.  Other than storing the client information in the appropriate 
+     * place in the database, these methods shall not alter the behavior of 
+     * the connection in anyway.  The values supplied to these methods are 
+     * used for accounting, diagnostics and debugging purposes only.
+     * <p>
+     * The driver shall generate a warning if the client info name specified 
+     * is not recognized by the driver.
+     * <p>
+     * If the value specified to this method is greater than the maximum 
+     * length for the property the driver may either truncate the value and 
+     * generate a warning or generate a <code>SQLException</code>.  If the driver 
+     * generates a <code>SQLException</code>, the value specified was not set on the 
+     * connection.
+     * <p>
+     * The following client info properties are supported in Toobox for Java.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
+     * </ul>
+     * <p>
+     * @param name      The name of the client info property to set 
+     * @param value     The value to set the client info property to.  If the 
+     *                  value is null, the current value of the specified
+     *                  property is cleared.
+     * <p>
+     * @throws  SQLException if the database server returns an error while 
+     *          setting the client info value on the database server.
+     * <p>
+     */
+    public void setClientInfo(String name, String value)
+/* ifdef JDBC40 */
+     throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+    throws SQLException
+ endif */ 
+    {
+/* ifdef JDBC40 */
+    	try {
+/* endif */ 
+        validateConnection();
+/* ifdef JDBC40 */
+           }catch(SQLException e)
+        {
+            SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), null);
+            throw clientIE;
+        }
+/* endif */ 
+        
+        connection_.setClientInfo(name, value);
+    }
+
   //@2KRA
     /**
      * Starts or stops the Database Host Server trace for this connection.
@@ -1946,9 +1985,19 @@ ResultSet.CONCUR_READ_ONLY.
      * using the 'server trace' connection property.
      * @param trace true to start database host server tracing, false to end it.
      */
-    public void setDBHostServerTrace(boolean trace)throws SQLException { //@pdc
+    public void setDBHostServerTrace(boolean trace) throws SQLException { //@pdc
+/* ifdef JDBC40 */
+    	try {
+/* endif */ 
         validateConnection();
+/* ifdef JDBC40 */
+           }catch(SQLException e)
+        {
+            SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), null);
+            throw clientIE;
+        }
+/* endif */ 
         connection_.setDBHostServerTrace(trace);
     }
-  
+    
 }

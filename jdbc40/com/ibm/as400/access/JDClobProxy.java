@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,11 +33,11 @@ class JDClobProxy
 extends AbstractProxyImpl
 implements Clob
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Copied from JDError:
-  private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
+  static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
  
 

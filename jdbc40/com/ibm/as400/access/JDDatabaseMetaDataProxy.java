@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,9 @@ package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
+/* ifdef JDBC40 */
 import java.sql.RowIdLifetime;
+/* endif */ 
 import java.sql.SQLException;
 
 
@@ -24,7 +26,7 @@ class JDDatabaseMetaDataProxy
 extends AbstractProxyImpl
 implements java.sql.DatabaseMetaData
 {
-  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -1517,19 +1519,20 @@ implements java.sql.DatabaseMetaData
     }
 
     
-    //@PDA jdbc40
+    //@PDA 550
     public ResultSet getClientInfoProperties() throws SQLException
     {
         return callMethodRtnRSet("getClientInfoProperties");
     }
 
+/* ifdef JDBC40 */
 
     //@PDA jdbc40
     public RowIdLifetime getRowIdLifetime() throws SQLException
     {
         return (RowIdLifetime) callMethodRtnObj("getRowIdLifetime");
     }
-
+/* endif */ 
 
     //@PDA jdbc40
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException
@@ -1559,12 +1562,13 @@ implements java.sql.DatabaseMetaData
                 new Object[] { catalog, schemaPattern, functionNamePattern });
     }
     
-    //@pda jdbc40
+    //@pda 550
     public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException
     { 
         return callMethodRtnRSet ("getFunctionColumns",
                 new Class[] { String.class, String.class, String.class, String.class },
                 new Object[] { catalog, schemaPattern, functionNamePattern, columnNamePattern });
     }
+
 
 }

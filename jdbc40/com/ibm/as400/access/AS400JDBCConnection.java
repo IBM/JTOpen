@@ -18,24 +18,32 @@ import java.io.UnsupportedEncodingException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
+/* ifdef JDBC40 */
 import java.sql.ClientInfoStatus;
 import java.sql.SQLClientInfoException;
+/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Statement;
 import java.sql.Savepoint;                        // @E10a                
 import java.sql.Struct;
 import java.util.Enumeration;               // @DAA
+/* ifdef JDBC40 */
 import java.util.HashMap;
+/* endif */ 
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -89,10 +97,12 @@ statements.
 //     its context should be sent via a variation of one of the
 //     sendXXX() methods.  This makes debugging cleaner.
 //    
-public class AS400JDBCConnection extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCConnection
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
 implements Connection
 {
- 
     // Turn this flag on to prevent this Connection object from establishing an actual connection to the IBM i system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
     // For production, this flag _must_ be set to 'false'.
     private static final boolean TESTING_THREAD_SAFETY = false;             //@CPMa
@@ -141,7 +151,7 @@ implements Connection
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
     //        The IBM i passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching. 
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V6R1M01   "; // @EDA F8c H2c pdc 610
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R1M01   "; // @EDA F8c H2c pdc 610
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
@@ -217,9 +227,7 @@ implements Connection
     int newAutoCommitSupport_ = 1;                                      //@KBA  
 
     private boolean wrappedInsert_ = false;                             // @GKA
-    //pda jdbc40 client info
-    //Decided to not include these with JDProperties, but could be in future if needed, 
-    //but would need to clone properties from datasource
+    //@pda 550 client info
     //Names for clientInfo identifiers.  DatabaseMetadata also will use these names
     static final String applicationNamePropertyName_ = "ApplicationName";
     static final String clientUserPropertyName_ = "ClientUser";
@@ -227,7 +235,7 @@ implements Connection
     static final String clientAccountingPropertyName_ = "ClientAccounting";
     static final String clientProgramIDPropertyName_ = "ClientProgramID"; //@pda
     
-    //clientInfo values
+    //@pda 550 client info values
     private String applicationName_ = "";   //@pdc so can be added to Properties object in getClientInfo()
     private String clientUser_ = ""; //@pdc
     private String clientHostname_ = ""; //@pdc
@@ -235,6 +243,8 @@ implements Connection
     private String clientProgramID_ = ""; //@pdc
     
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
+
+	private boolean doUpdateDeleteBlocking_ = false;
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -3212,6 +3222,10 @@ implements Connection
         else                                                                         //@KBA
             newAutoCommitSupport_ = 2;                                               //@KBA         //run autocommit with specified isolation level
 
+        
+        if (as400_.getVRM() >= JDUtilities.vrm710) {
+        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING); 
+        }
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
@@ -3987,7 +4001,7 @@ implements Connection
                     }                                                                                             // @J2a
                 }                                                                                                 // @J2a
 
-                //@PDA jdbc40 client interface info settings
+                //@PDA 550 client interface info settings
                 //These three settings cannot be updated by user apps.
                 //This gives driver information to host server for any logging or future diagnostics.
                 if (vrm_ >= JDUtilities.vrm610)
@@ -4389,6 +4403,8 @@ implements Connection
         return new String[] {  "com.ibm.as400.access.AS400JDBCConnection", "java.sql.Connection" };
     }
 
+
+
     //@PDA jdbc40
     /**
      * Returns true if the connection has not been closed and is still valid.  
@@ -4501,7 +4517,10 @@ implements Connection
          
     }
           
-    //@PDA jdbc40
+
+
+
+    //@PDA 550 client info
     /**
      * Sets the value of the client info property specified by name to the 
      * value specified by value.  
@@ -4552,7 +4571,13 @@ implements Connection
      *          setting the client info value on the database server.
      * <p>
      */
-    public void setClientInfo(String name, String value) throws SQLClientInfoException
+    public void setClientInfo(String name, String value) 
+/* ifdef JDBC40 */
+    throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+    throws SQLException
+ endif */ 
     {
 
         DBSQLAttributesDS request = null;
@@ -4619,7 +4644,7 @@ implements Connection
             {
                 reply = sendAndReceive(request);
                 int errorClass = reply.getErrorClass();
-                //throw SQLException and wrap in SQLClientInfoException below
+                //throw SQLException  
                 if (errorClass != 0)     
                     JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
                 
@@ -4637,11 +4662,17 @@ implements Connection
                 clientHostname_ = oldValue;
             else if (name.equals(clientProgramIDPropertyName_)) //@pda
                 clientProgramID_ = oldValue;
+/* ifdef JDBC40 */
 
             //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
             HashMap m = new HashMap();
             m.put(name, ClientInfoStatus.REASON_UNKNOWN);
             JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m );
+
+/* endif */ 
+/* ifndef JDBC40 
+            JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
+ endif */ 
         } finally
         {
             if (request != null)
@@ -4651,7 +4682,7 @@ implements Connection
         }
     }
 
-    // @PDA jdbc40
+    //@PDA 550 client info
     /**
      * Sets the value of the connection's client info properties. The
      * <code>Properties</code> object contains the names and values of the
@@ -4696,7 +4727,13 @@ implements Connection
      *             clientInfo values on the database
      *             <p>
      */
-    public void setClientInfo(Properties properties) throws SQLClientInfoException
+    public void setClientInfo(Properties properties) 
+/* ifdef JDBC40 */
+    throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+    throws SQLException
+ endif */ 
     {
         String newApplicationName = properties.getProperty(applicationNamePropertyName_);
         String newClientHostname = properties.getProperty(clientHostnamePropertyName_);
@@ -4750,8 +4787,9 @@ implements Connection
             clientAccounting_ = newClientAccounting;
             clientProgramID_ = newClientProgramID;
             
-        } catch (Exception e)
+        } catch( Exception e)
         {
+/* ifdef JDBC40 */
             //create Map<String,ClientInfoStatus> for exception constructor
             //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
             HashMap m = new HashMap();
@@ -4762,7 +4800,11 @@ implements Connection
                 m.put(clientInfoName, ClientInfoStatus.REASON_UNKNOWN);
             }
             JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m);
-          
+
+/* endif */ 
+/* ifndef JDBC40 
+        	JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
+ endif */ 
         } finally
         {
             if (request != null)
@@ -4773,7 +4815,7 @@ implements Connection
         
     }
 
-    //@PDA jdbc40
+    //@PDA 550 client info
     /**
      * Returns the value of the client info property specified by name.  This 
      * method may return null if the specified client info property has not 
@@ -4830,7 +4872,7 @@ implements Connection
         }
     }
 
-    //@PDA jdbc40
+    //@PDA 550 client info
     /**
      * Returns a list containing the name and current value of each client info 
      * property supported by the driver.  The value of a client info property 
@@ -4869,7 +4911,11 @@ implements Connection
         props.setProperty(clientProgramIDPropertyName_, clientProgramID_); //@pda
         return props;
     }
-    
+ 
+ 
+ 
+ 
+     
     //@PDA jdbc40
     /**
      * Constructs an object that implements the <code>Clob</code> interface. The object
@@ -4913,10 +4959,12 @@ implements Connection
      * <code>NClob</code> interface can not be constructed.
      *
      */
+/* ifdef JDBC40 */
     public NClob createNClob() throws SQLException
     {
         return new AS400JDBCNClob("", AS400JDBCNClob.MAX_LOB_SIZE);
     }
+/* endif */ 
 
     //@PDA jdbc40
     /**
@@ -4928,12 +4976,14 @@ implements Connection
      * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
      * be constructed
      */
+/* ifdef JDBC40 */
     public SQLXML createSQLXML() throws SQLException
     {
         return new AS400JDBCSQLXML("", AS400JDBCSQLXML.MAX_XML_SIZE); 
     }
-
-    //@PDA jdbc40
+/* endif */ 
+    
+    //@PDA //@array
     /**
      * Factory method for creating Array objects.
      *
@@ -4953,7 +5003,7 @@ implements Connection
         return new AS400JDBCArray(typeName, elements, this.vrm_, this);
     }
 
-    //@PDA jdbc40
+   //@PDA jdbc40
     /**
      * Factory method for creating Struct objects.
      *
@@ -5041,5 +5091,13 @@ implements Connection
         }
 
     }
+
+
+
+	public boolean doUpdateDeleteBlocking() {
+		return doUpdateDeleteBlocking_; 
+	}
+
+
 
 }

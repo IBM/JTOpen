@@ -41,7 +41,7 @@ import java.sql.SQLException;
 **/
 public class AS400JDBCBlob implements Blob
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   private byte[] data_;
   private int maxLength_;
@@ -61,7 +61,7 @@ is necessary.
   }
 
 
-
+  
 /**
 Returns the entire BLOB as a stream of uninterpreted bytes.
 

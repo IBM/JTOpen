@@ -7,7 +7,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2005-2006 International Business Machines Corporation and     
+// Copyright (C) 2005-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,14 +56,15 @@ import javax.naming.Context;
  @see AS400JDBCConnectionPoolDataSource
  @see AS400JDBCXADataSource
  **/
-public class AS400JDBCManagedDataSource extends ToolboxWrapper //@pdc jdbc40
+public class AS400JDBCManagedDataSource 
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
+
 implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
-  /**
-	 * 
-	 */
-  private static final long serialVersionUID = -4801564675581024370L;
-  private static final String copyright = "Copyright (C) 2005-2010 International Business Machines Corporation and others.";
+	private static final long serialVersionUID = 1L;
+static final String copyright = "Copyright (C) 2005-2010 International Business Machines Corporation and others.";
   private static final boolean DEBUG = false;
 
 
@@ -136,7 +137,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
   transient private AS400JDBCManagedConnectionPoolDataSource cpds_;
 
   // Handles loading the appropriate resource bundle
-  private static ResourceBundleLoader loader_;
+  // private static ResourceBundleLoader loader_;
 
   private boolean dataSourceNameSpecified_;
   transient private JDConnectionPoolManager poolManager_;
@@ -2655,7 +2656,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
           throw new NullPointerException(property);
       validateProperty(property, decfloatRoundingMode, JDProperties.DECFLOAT_ROUNDING_MODE);
 
-      String old = getDecfloatRoundingMode();
+      getDecfloatRoundingMode();
 
       properties_.setString(JDProperties.DECFLOAT_ROUNDING_MODE, decfloatRoundingMode);
   }
@@ -3739,7 +3740,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     savePasswordWhenSerialized_ = savePassword;
 
-    logProperty(property, Boolean.toString(savePasswordWhenSerialized_));
+    logProperty(property, String.valueOf(savePasswordWhenSerialized_)); //@jvm13 Boolean.toString(savePasswordWhenSerialized_));
   }
 
   //@STIMEOUT
@@ -4060,7 +4061,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
   public void setKeepAlive(boolean keepAlive)
   {
     sockProps_.setKeepAlive(keepAlive);
-    logProperty("keepAlive", Boolean.toString(keepAlive));
+    logProperty("keepAlive", String.valueOf(keepAlive)); //@jvm13 Boolean.toString(keepAlive));
   }
 
   /**
@@ -4134,7 +4135,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
   public void setTcpNoDelay(boolean noDelay)
   {
     sockProps_.setTcpNoDelay(noDelay);
-    logProperty("tcpNoDelay", Boolean.toString(noDelay));
+    logProperty("tcpNoDelay", String.valueOf(noDelay)); //@jvm13 Boolean.toString(noDelay));
   }
 
   /**

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,10 +23,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -34,7 +38,7 @@ import java.util.Calendar;
 final class SQLLongVargraphic
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -178,12 +182,14 @@ implements SQLData
         {
             Clob clob = (Clob)object;
             value = clob.getSubString(1, (int)clob.length());
-        }        
+        }    
+/* ifdef JDBC40 */
         else if(object instanceof SQLXML) //@PDA jdbc40 
         {    
             SQLXML xml = (SQLXML)object;
             value = xml.getString();
-        }     
+        }  
+/* endif */ 
 
         if(value == null)
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -621,6 +627,7 @@ implements SQLData
     }
     
     //@pda jdbc40
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
@@ -630,7 +637,8 @@ implements SQLData
         String string = getNString();
         return new AS400JDBCNClob(string, maxLength_);
     }
-
+/* endif */ 
+    
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -646,23 +654,23 @@ implements SQLData
             return value_;
         } 
     }
-
+/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
-        /*
-        truncated_ = 0;
-        try
-        {
-            return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
-        }
-        catch(NumberFormatException nfe)
-        {
+        //
+        //truncated_ = 0;
+        //try
+        //{
+        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        //}
+        //catch(NumberFormatException nfe)
+        //{
             // this string contains non-hex characters
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-            return null;
-        }
-        */
+        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+        //    return null;
+        //}
+        
         //decided this is of no use
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
@@ -676,7 +684,8 @@ implements SQLData
         truncated_ = 0;
         return new AS400JDBCSQLXML(getString().toCharArray());     
     }
-
+/* endif */ 
+    
     // @array
     public Array getArray() throws SQLException
     {

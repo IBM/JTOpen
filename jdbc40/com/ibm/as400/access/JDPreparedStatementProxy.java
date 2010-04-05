@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,15 +23,21 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+/* ifdef JDBC40 */
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -42,11 +48,10 @@ class JDPreparedStatementProxy
 extends JDStatementProxy
 implements PreparedStatement
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Copied from JDError:
-  private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
 
   private final static String NOT_SERIALIZABLE = "Parameter is not serializable.";
@@ -617,7 +622,7 @@ implements PreparedStatement
     }
 
 
-    
+/* ifdef JDBC40 */
     //@PDA jdbc40
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
@@ -625,6 +630,7 @@ implements PreparedStatement
                 new Class[] { Integer.TYPE, RowId.class},
                 new Object[] { new Integer (parameterIndex), x });        
     }
+/* endif */ 
     
     //@PDA jdbc40
     public void setNString(int parameterIndex, String value) throws SQLException
@@ -656,6 +662,7 @@ implements PreparedStatement
     }
     
     //@PDA jdbc40
+/* ifdef JDBC40 */
     public void setNClob(int parameterIndex, NClob value) throws SQLException
     {
         if (value != null &&
@@ -670,6 +677,7 @@ implements PreparedStatement
                 new Object[] { new Integer (parameterIndex),
                 value });
     }
+/* endif */ 
     
     //@PDA jdbc40
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException
@@ -737,6 +745,7 @@ implements PreparedStatement
     }
     
     //@PDA jdbc40
+/* ifdef JDBC40 */
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
     {                                    
         if (xmlObject != null &&
@@ -751,6 +760,7 @@ implements PreparedStatement
                 new Object[] { new Integer (parameterIndex),
                 xmlObject });
     }
+/* endif */ 
     
     //@pda jdbc40
     protected String[] getValidWrappedList()

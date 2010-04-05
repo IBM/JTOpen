@@ -40,7 +40,7 @@ transaction.
 **/
 public class AS400JDBCBlobLocator implements Blob
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   JDLobLocator locator_; 
@@ -83,7 +83,7 @@ Returns the entire BLOB as a stream of uninterpreted bytes.
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
     synchronized(locator_)
-    {       
+    {
       return new AS400JDBCInputStream(locator_);
     }
   }
@@ -169,7 +169,7 @@ Returns the length of the BLOB.
 
   // Used for position().
   private int getCachedByte(int index) throws SQLException
-  {      
+  {
     int realIndex = index - cacheOffset_;
     if (realIndex >= cache_.length)
     {
@@ -204,7 +204,7 @@ Returns the position at which a pattern is found in the BLOB.
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
     synchronized(locator_)
-    {        
+    {
       int offset = (int)position-1;
       if (pattern == null || offset < 0 || offset >= locator_.getLength())
       {
@@ -329,7 +329,7 @@ Returns the position at which a pattern is found in the BLOB.
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
     synchronized(locator_)
-    {      
+    {
       int offset = (int)position-1;
 
       if (offset < 0 || offset >= maxLength_ || bytesToWrite == null)
@@ -440,9 +440,8 @@ Returns the position at which a pattern is found in the BLOB.
       locator_.writeData(length, new byte[0], 0, 0, true);                  //@K1A
     }
   }
-  
 
-  // @PDA jdbc40
+  //@PDA 550
   /**
    * This method frees the <code>Blob</code> object and releases the
    * resources that it holds. The object is invalid once the <code>free</code>
@@ -466,6 +465,7 @@ Returns the position at which a pattern is found in the BLOB.
          cache_ = null;
      }
   }
+  
 
   // @PDA jdbc40
   /**
@@ -496,4 +496,5 @@ Returns the position at which a pattern is found in the BLOB.
           return new AS400JDBCInputStream(locator_, pos, length);
       }
   }
+
 }

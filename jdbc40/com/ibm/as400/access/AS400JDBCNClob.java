@@ -13,8 +13,9 @@
 
 package com.ibm.as400.access;
 
+/* ifdef JDBC40 */
 import java.sql.NClob;
-
+/* endif */ 
 
 /**
  * The AS400JDBCNClob class provides access to character large objects. The data
@@ -23,7 +24,10 @@ import java.sql.NClob;
 
 //@PDA jdbc40 new class
 
-public class AS400JDBCNClob extends AS400JDBCClob implements NClob
+public class AS400JDBCNClob extends AS400JDBCClob 
+/* ifdef JDBC40 */
+   implements NClob
+/* endif */ 
 {
   
 

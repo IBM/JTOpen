@@ -23,7 +23,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/*ifdef JDBC40
+import java.sql.NClob;
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/*ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -175,7 +182,15 @@ implements SQLData
             Clob clob = (Clob)object;                                              // @C1C
             value = clob.getSubString(1, (int)clob.length());                      // @C1C  @D1
         }                                                                          // @C1C
-
+        
+        /*ifdef JDBC40 
+        else if(object instanceof SQLXML) //@PDA jdbc40 
+        {    
+            SQLXML xml = (SQLXML)object;
+            value = xml.getString();
+        }     
+        endif */ 
+        
         if(value == null)                                                          // @C1C
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         value_ = value;                                                            // @C1A
@@ -627,6 +642,78 @@ implements SQLData
         }
     }
     
+    //@pda jdbc40
+    public Reader getNCharacterStream() throws SQLException
+    {
+        truncated_ = 0;
+
+        // This is written in terms of getNString(), since it will
+        // handle truncating to the max field size if needed.
+        return new StringReader(getNString());
+    }
+    
+    //@pda jdbc40
+    /* ifdef JDBC40 
+    public NClob getNClob() throws SQLException
+    {
+        truncated_ = 0;
+
+        // This is written in terms of getNString(), since it will
+        // handle truncating to the max field size if needed.
+        String string = getNString();
+        return new AS400JDBCNClob(string, maxLength_);
+    }
+    endif */ 
+
+    //@pda jdbc40
+    public String getNString() throws SQLException
+    {
+        truncated_ = 0;
+        // Truncate to the max field size if needed.
+        // Do not signal a DataTruncation per the spec.
+        int maxFieldSize = settings_.getMaxFieldSize();
+        if((value_.length() > maxFieldSize) && (maxFieldSize > 0))
+        {
+            return value_.substring(0, maxFieldSize);
+        }
+        else
+        {
+            return value_;
+        } 
+     
+    }
+
+    /* ifdef JDBC40 
+    //@pda jdbc40
+    public RowId getRowId() throws SQLException
+    {
+        
+        //truncated_ = 0;
+        //try
+        //{
+        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        //}
+        //catch(NumberFormatException nfe)
+        //{
+            // this string contains non-hex characters
+        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+        //    return null;
+        //}
+       
+        //decided this is of no use
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+
+    //@pda jdbc40
+    public SQLXML getSQLXML() throws SQLException
+    {
+        //This is written in terms of getString(), since it will
+        // handle truncating to the max field size if needed.
+        truncated_ = 0;
+        return new AS400JDBCSQLXML(getString().toCharArray());     
+    }
+    endif */ 
     // @array
     public Array getArray() throws SQLException
     {

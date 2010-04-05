@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,11 +24,17 @@ import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.Ref;
+/* ifdef JDBC40 */
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -42,7 +48,7 @@ class JDCallableStatementProxy
 extends JDPreparedStatementProxy
 implements CallableStatement
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   private Vector registeredTypes_ = new Vector ();
@@ -51,7 +57,7 @@ implements CallableStatement
   // This way we can match parameter indexes directory to element indexes.
 
     // Copied from JDError:
-    private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
+    static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
     private final static String NOT_SERIALIZABLE = "Parameter is not serializable.";
 
@@ -1237,6 +1243,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
+/* ifdef JDBC40 */
     public NClob getNClob(int parameterIndex) throws SQLException
     {
         try {
@@ -1268,6 +1275,8 @@ implements CallableStatement
         }
     }
     
+/* endif */ 
+    
     //@PDA jdbc40
     public String getNString(int parameterIndex) throws SQLException
     {
@@ -1281,6 +1290,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
+/* ifdef JDBC40 */
     public RowId getRowId(int parameterIndex) throws SQLException
     {
         try {
@@ -1311,8 +1321,10 @@ implements CallableStatement
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
+/* endif */ 
     
     //@PDA jdbc40
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(int parameterIndex) throws SQLException
     {
         try {
@@ -1343,7 +1355,8 @@ implements CallableStatement
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-    
+     
+/* endif */ 
     //@PDA jdbc40
     public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException
     {
@@ -1509,6 +1522,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
+/* ifdef JDBC40 */
     public void setNClob(String parameterName, NClob value) throws SQLException
     {
         if (value != null &&
@@ -1523,6 +1537,8 @@ implements CallableStatement
                 new Object[] { parameterName,
                 value });
     }
+    
+/* endif */ 
     
     //@PDA jdbc40
     public void setNClob(String parameterName, Reader reader, long length) throws SQLException
@@ -1554,6 +1570,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
+/* ifdef JDBC40 */
     public void setRowId(String parameterName, RowId x) throws SQLException
     {
         callMethod ("setRowId",
@@ -1577,7 +1594,8 @@ implements CallableStatement
                 xmlObject });
     }
 
-
+/* endif */ 
+    
     public void setAsciiStream(String parameterName, InputStream x) throws SQLException
     {
         InputStream iStream;

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,4 +175,32 @@ implements Blob
         }
     }
 
+    
+    //@PDA jdbc40
+    public synchronized void free() throws SQLException
+    {
+        try {
+            connection_.callMethod (pxId_, "free");
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    public synchronized InputStream getBinaryStream(long pos, long length) throws SQLException
+    {
+        try {            
+            JDInputStreamProxy newStream = new JDInputStreamProxy ();
+            return (JDInputStreamProxy) connection_.callFactoryMethod (
+                    pxId_, "getBinaryStream",
+                    new Class[] { Long.TYPE, Long.TYPE},
+                    new Object[] { new Long(pos),  new Long(length)},
+                    newStream);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
 }

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,14 +19,21 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 
+import java.sql.NClob;
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLDBClobLocator implements SQLLocator
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private AS400JDBCConnection     connection_;
     private ConvTable               converter_;
@@ -118,7 +125,11 @@ final class SQLDBClobLocator implements SQLLocator
         }
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
-           (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob)))
+           (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob))
+  /* ifdef JDBC40          
+           &&   !(object instanceof SQLXML)
+    endif*/        
+           )
         {
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
@@ -217,6 +228,13 @@ final class SQLDBClobLocator implements SQLLocator
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
+            /*ifdef JDBC40 
+            else if( object instanceof SQLXML ) 
+            {
+                SQLXML xml = (SQLXML)object;
+                value_ = xml.getString();
+            }
+            endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -455,6 +473,16 @@ final class SQLDBClobLocator implements SQLLocator
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
+        /* ifdef JDBC40 
+        else if( object instanceof SQLXML ) //@PDA jdbc40
+        {
+            SQLXML xml = (SQLXML)object;
+           
+            String stringVal = xml.getString();
+            
+            locator_.writeData(0L, converter_.stringToByteArray(stringVal), 0, stringVal.length()*2, true); //@xml4           
+        }
+        endif */ 
         else
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -816,12 +844,115 @@ final class SQLDBClobLocator implements SQLLocator
             return null;
         }
     }
+    
 
+    //@pda jdbc40
+    public Reader getNCharacterStream() throws SQLException
+    {
+        truncated_ = 0;
+        
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new StringReader(value_);  //@loch
+        }                       //@loch
+        
+        try
+        {
+            return new ConvTableReader(new AS400JDBCInputStream(new JDLobLocator(locator_)), converter_.getCcsid());
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
+    }
+    
+    //@pda jdbc40
+    /* ifdef JDBC40 
+
+    public NClob getNClob() throws SQLException
+    {
+        truncated_ = 0;
+        
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new AS400JDBCNClob(value_, maxLength_); //@loch
+        }                       //@loch
+        
+        return new AS400JDBCNClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
+ 
+    }
+   endif */ 
+    //@pda jdbc40
+    public String getNString() throws SQLException
+    {
+        truncated_ = 0;
+        
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return value_;      //@loch
+        }                       //@loch
+
+        DBLobData data = locator_.retrieveData(0, locator_.getMaxLength());
+        String value = converter_.byteArrayToString(data.getRawBytes(),
+                                                    data.getOffset(),
+                                                    data.getLength());
+        return value;  
+    }
+
+    //@pda jdbc40
+    /* ifdef JDBC40 
+    public RowId getRowId() throws SQLException
+    {
+        //
+        //truncated_ = 0;
+        //try
+        //{
+        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(getString()));
+        //}
+        //catch(NumberFormatException nfe)
+        //{
+            // this Clob contains non-hex characters
+        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+        //    return null;
+        //}
+        //decided this is of no use
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+endif */ 
+    //@pda jdbc40
+/* ifdef JDBC40 
+      public SQLXML getSQLXML() throws SQLException
+    {
+        truncated_ = 0;
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new AS400JDBCSQLXML(value_, maxLength_); //@loch
+        }                       //@loch
+        
+        //return new AS400JDBCSQLXML( getString().toCharArray() );  
+        return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, false); //@xml3 //@xml4
+    }
+endif */ 
     // @array
     public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
+ 
 }
 

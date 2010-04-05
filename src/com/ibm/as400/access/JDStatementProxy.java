@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -537,5 +537,30 @@ implements java.sql.Statement
         throw ProxyClientConnection.rethrow (e);
       }
     }
-
+     
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] {  "java.sql.Statement" };
+    } 
+    
+    //@PDA jdbc40
+    public boolean isClosed () throws SQLException
+    {
+        return callMethodRtnBool ("isClosed");
+    }
+    
+    //@PDA jdbc40
+    public void setPoolable(boolean poolable) throws SQLException
+    {
+        callMethod ("setPoolable",
+                new Class[] { Boolean.TYPE },
+                new Object[] { new Boolean (poolable) });  
+    }
+    
+    //@PDA jdbc40
+    public boolean isPoolable() throws SQLException
+    {
+        return callMethodRtnBool ("isPoolable");
+    }
 }

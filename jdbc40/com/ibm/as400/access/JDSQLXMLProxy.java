@@ -18,7 +18,9 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.SQLException;
 
 import javax.xml.transform.Result;
@@ -34,7 +36,9 @@ import javax.xml.transform.Source;
  **/
 class JDSQLXMLProxy
 extends AbstractProxyImpl
+/* ifdef JDBC40 */
 implements SQLXML
+/* endif */ 
 {
     
     

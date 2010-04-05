@@ -6,15 +6,31 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+/* ifdef JDBC40 
+import java.sql.ClientInfoStatus;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLDataException;
+endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.SQLInvalidAuthorizationSpecException;
+import java.sql.SQLNonTransientConnectionException;
+import java.sql.SQLSyntaxErrorException;
+import java.sql.SQLTimeoutException;
+import java.sql.SQLTransactionRollbackException;
+endif */ 
+
 import java.sql.SQLWarning;
+import java.util.Map;
 
 
 
@@ -380,9 +396,14 @@ error table.
     // we should set the native error code to -99999
     // when the driver generates the error.
     //      
-    String reason  = getReason(sqlState);                                               
+    String reason  = getReason(sqlState);  
+    /* ifdef JDBC40 
+    SQLException e = createSQLExceptionSubClass(reason, sqlState, -99999); //@PDA jdbc40
+  
+     endif */ 
+    /* ifndef JDBC40   */                                            
     SQLException e = new SQLException (reason, sqlState, -99999);   
-    
+    /* endif */  
     if (JDTrace.isTraceOn ())                                           
     {
        String message = "Throwing exception, sqlState: " + sqlState    
@@ -464,8 +485,14 @@ trace for debugging purposes.
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
-    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);
+    
+    /* ifdef JDBC40 
+    SQLException e2 = createSQLExceptionSubClass(buffer.toString(), sqlState, -99999); //@PDA jdbc40
 
+    endif */ 
+    /* ifndef JDBC40 */ 
+    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);
+    /* endif */ 
     if (JDTrace.isTraceOn ())
     {                    
       String m2 = "Throwing exception. Message text: "+message;
@@ -520,8 +547,13 @@ trace for debugging purposes.
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
-    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   // @E3C
+    /* ifdef JDBC40 
+    SQLException e2 = createSQLExceptionSubClass(buffer.toString(), sqlState, -99999); //@PDA jdbc40
 
+    endif */
+    /* ifndef JDBC40 */ 
+    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   // @E3C
+    /* endif */ 
     if (JDTrace.isTraceOn ())                                           // @J3a
     {                                                                   // @J3a
       String m2 = "Throwing exception. Original exception: ";          // @J3a
@@ -569,8 +601,13 @@ trace for debugging purposes.
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
+    /* ifdef JDBC40 
+    SQLException e2 = createSQLExceptionSubClass(buffer.toString(), sqlState, -99999); //@PDA jdbc40
+    
+    endif */ 
+    /* ifndef JDBC40 */ 
     SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   
-
+    /* endif */ 
     if (JDTrace.isTraceOn ())                                           
     {                                                                   
       String m2 = "Throwing exception. Original exception: ";          
@@ -642,8 +679,13 @@ retrieved from the system.
     String reason = getReason(connection, id, returnCode);
     String state  = getSQLState(connection, id);
 
+    /* ifdef JDBC40 
+   SQLException e = createSQLExceptionSubClass(reason, state, returnCode); //@PDA jdbc40
+   
+    endif */ 
+    /* ifndef JDBC40 */ 
     SQLException e = new SQLException (reason, state, returnCode);      // @E2C
-
+    /* endif */ 
     if (JDTrace.isTraceOn ())                                           // @J3a
     {                                                           // @J3a
       String message = "Throwing exception, id: " + id                 // @J3a
@@ -657,8 +699,146 @@ retrieved from the system.
     throw e;
   }
 
+  
+  
+  //@PDA jdbc40
+  /**
+   Throws an SQLClientInfoException exception based on an error in the
+   error table and dumps an internal exception stack
+   trace for debugging purposes.
+   
+   @param  thrower     The object that is throwing the exception.
+   @param  sqlState    The SQL State.
+   @param  e           The internal exception.
+   
+   @exception          SQLClientInfoException    Always.
+   **/
+  //
+  //@pdc jdbc40 merge public static void throwSQLClientInfoException (Object thrower, String sqlState, Exception e, Map<String,ClientInfoStatus> m)
+  /* ifdef JDBC40 
+  public static void throwSQLClientInfoException (Object thrower, String sqlState, Exception e, Map m)
+  throws SQLClientInfoException
+  {
+      String reason = getReason(sqlState);                                                                                    
+      StringBuffer buffer = new StringBuffer(reason);             
+      buffer.append(" (");                    
+      String message = e.getMessage();              
+      if (message != null)                                      
+          buffer.append(message);    
+      else                                       
+          buffer.append(e.getClass());        
+      buffer.append(')');             
+      
+      // The DB2 for IBM i SQL CLI manual says that
+      // we should set the native error code to -99999
+      // when the driver generates the error.
 
+      SQLClientInfoException e2 = new SQLClientInfoException (buffer.toString(), sqlState, -99999, m);  
+      
+      if (JDTrace.isTraceOn ())                                         
+      {                                                                 
+          String m2 = "Throwing exception. Original exception: ";       
+          JDTrace.logException(thrower, m2, e);                           
+          // @J3a
+          m2 = "Throwing exception.  Actual exception: "                  
+              + buffer.toString()                     
+              + " sqlState: " + sqlState               
+              + " vendor code -99999";               
+          JDTrace.logException(thrower, m2, e2);                   
+      }                                                                 
+      
+      throw e2;
+  }
+  endif */   
+  //@PDA jdbc40
+  /**
+   Helper class that creates a new sub-class object of SQLException for new jdbc 4.0 SQLException sub-classes.
+   Sub-class is determined based upon sqlState.  
+   Modeled after Native driver SQLException factory.
+   
+   @param  sqlState    The SQL State.
+   **/
+  
+  /* ifdef JDBC40 
 
+  public static SQLException createSQLExceptionSubClass ( String message, String sqlState, int vendorCode )
+  {
+
+      //
+      // Check the first two digits of the SQL state and create the appropriate
+      // exception
+      // 
+
+      char digit0 = sqlState.charAt(0);
+      char digit1 = sqlState.charAt(1);
+
+      switch (digit0) {
+      case '0': {
+          switch (digit1) {
+          case 'A':
+              return new SQLFeatureNotSupportedException(message, sqlState, vendorCode);
+
+          case '8':
+              if (vendorCode == -30082) {
+                  return new SQLInvalidAuthorizationSpecException(message, sqlState, vendorCode);
+              } else {
+                  // All connection exceptions on IBM i are NonTransient
+                  return new SQLNonTransientConnectionException(message, sqlState, vendorCode);
+              }
+          default:
+              return new SQLException(message, sqlState, vendorCode); 
+
+          }
+      }
+      case '2': {
+          switch (digit1) {
+          case '2':
+              return new SQLDataException(message, sqlState, vendorCode);
+          case '3':
+              return new SQLIntegrityConstraintViolationException(message, sqlState, vendorCode);
+          case '8':
+              return new SQLInvalidAuthorizationSpecException(message, sqlState, vendorCode);
+
+          default :
+              return new SQLException(message, sqlState, vendorCode); 
+
+          }
+      }
+      case '4':
+          switch (digit1) {
+          case '0':
+              return new SQLTransactionRollbackException(message, sqlState, vendorCode);
+          case '2':
+              return new SQLSyntaxErrorException(message, sqlState, vendorCode);
+          default :
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+      case '5':
+          if ( vendorCode == -952) {
+              return new SQLTimeoutException(message, sqlState, vendorCode);
+          } else {
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+      case 'I':
+          if ("IM001".equals(sqlState)) {
+              return new SQLFeatureNotSupportedException(message, sqlState, vendorCode);
+          } else {
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+
+      case 'H' :
+          if ("HY017".equals(sqlState)) {
+              return new SQLNonTransientConnectionException(message, sqlState, vendorCode);
+          } else {
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+
+      default:
+          return new SQLException(message, sqlState, vendorCode); 
+      }
+
+  }
+  endif */ 
 }
 
 

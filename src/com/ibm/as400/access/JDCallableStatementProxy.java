@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,8 +24,17 @@ import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 
+import java.sql.NClob;
+endif */ 
 import java.sql.Ref;
+/* ifdef JDBC40 
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -1161,6 +1170,568 @@ implements CallableStatement
     }
 
 
+    //@pda jdbc40
+    protected String[] getValidWrappedList()
+    {
+        return new String[] { "java.sql.CallableStatement" };
+    } 
+    
+   
+    
+    //@PDA jdbc40
+    public Reader getCharacterStream(int parameterIndex) throws SQLException
+    {
+        try {
+            JDReaderProxy newReader = new JDReaderProxy ();
+            return (JDReaderProxy) connection_.callFactoryMethod (
+                    pxId_, "getCharacterStream",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer (parameterIndex) },
+                    newReader);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    public Reader getCharacterStream(String parameterName) throws SQLException
+    {
+        try {
+            JDReaderProxy newReader = new JDReaderProxy ();
+            return (JDReaderProxy) connection_.callFactoryMethod (
+                    pxId_, "getCharacterStream",
+                    new Class[] { String.class },
+                    new Object[] { new Integer (parameterName) },
+                    newReader);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    public Reader getNCharacterStream(int parameterIndex) throws SQLException
+    {
+        try {
+            JDReaderProxy newReader = new JDReaderProxy ();
+            return (JDReaderProxy) connection_.callFactoryMethod (
+                    pxId_, "getNCharacterStream",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer (parameterIndex) },
+                    newReader);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    public Reader getNCharacterStream(String parameterName) throws SQLException
+    {
+        try {
+            JDReaderProxy newReader = new JDReaderProxy ();
+            return (JDReaderProxy) connection_.callFactoryMethod (
+                    pxId_, "getNCharacterStream",
+                    new Class[] { String.class },
+                    new Object[] { new Integer (parameterName) },
+                    newReader);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    /* ifdef JDBC40 
+    public NClob getNClob(int parameterIndex) throws SQLException
+    {
+        try {
+            JDNClobProxy newClob = new JDNClobProxy ();
+            return (JDNClobProxy) connection_.callFactoryMethod (pxId_,
+                    "getNClob",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer(parameterIndex) },
+                    newClob);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    public NClob getNClob(String parameterName) throws SQLException
+    {
+        try {
+            JDNClobProxy newClob = new JDNClobProxy ();
+            return (JDNClobProxy) connection_.callFactoryMethod (pxId_,
+                    "getNClob",
+                    new Class[] { String.class },
+                    new Object[] { new Integer(parameterName) },
+                    newClob);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    endif */ 
+    
+    //@PDA jdbc40
+    public String getNString(int parameterIndex) throws SQLException
+    {
+        return (String) callMethodRtnRaw ("getNString", parameterIndex).getReturnValue ();
+    }
+    
+    //@PDA jdbc40    
+    public String getNString(String parameterName) throws SQLException
+    {
+        return (String) callMethodRtnRaw ("getNString", parameterName).getReturnValue ();
+    }
+    
+    //@PDA jdbc40
+    /* ifdef JDBC40 
+    public RowId getRowId(int parameterIndex) throws SQLException
+    {
+        try {
+            JDRowIdProxy newRowId = new JDRowIdProxy ();
+            return (JDRowIdProxy) connection_.callFactoryMethod (pxId_,
+                    "getRowId",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer(parameterIndex) },
+                    newRowId);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    public RowId getRowId(String parameterName) throws SQLException
+    {
+        try {
+            JDRowIdProxy newRowId = new JDRowIdProxy ();
+            return (JDRowIdProxy) connection_.callFactoryMethod (pxId_,
+                    "getRowId",
+                    new Class[] { String.class },
+                    new Object[] { new Integer(parameterName) },
+                    newRowId);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    endif */ 
+    
+    //@PDA jdbc40
+    /* ifdef JDBC40
+    public SQLXML getSQLXML(int parameterIndex) throws SQLException
+    {
+        try {
+            JDSQLXMLProxy newXML = new JDSQLXMLProxy ();
+            return (JDSQLXMLProxy) connection_.callFactoryMethod (pxId_,
+                    "getSQLXML",
+                    new Class[] { Integer.TYPE },
+                    new Object[] { new Integer(parameterIndex) },
+                    newXML);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+    
+    //@PDA jdbc40
+    public SQLXML getSQLXML(String parameterName) throws SQLException
+    {
+        try {
+            JDSQLXMLProxy newXML = new JDSQLXMLProxy ();
+            return (JDSQLXMLProxy) connection_.callFactoryMethod (pxId_,
+                    "getSQLXML",
+                    new Class[] { String.class },
+                    new Object[] { new Integer(parameterName) },
+                    newXML);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+     
+     endif */ 
+    //@PDA jdbc40
+    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null ||
+                x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("setAsciiStream",
+                new Class[] { String.class, InputStream.class,
+                Long.TYPE },
+                new Object[] { parameterName,
+                iStream,
+                new Long (length) });
+    }
+    
+    //@PDA jdbc40
+    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null ||
+                x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("setBinaryStream",
+                new Class[] { String.class, InputStream.class,
+                Long.TYPE },
+                new Object[] { parameterName,
+                iStream,
+                new Long (length) });
+    }
+    
+    //@PDA jdbc40
+    public void setBlob(String parameterName, Blob x) throws SQLException
+    {
+        if (x != null &&
+                !(x instanceof Serializable) ){
+            if (JDTrace.isTraceOn())
+                JDTrace.logInformation (this, NOT_SERIALIZABLE);
+            throw new SQLException ();
+        }
+        
+        callMethod ("setBlob",
+                new Class[] { String.class, Blob.class },
+                new Object[] { parameterName,
+                x });
+    }
+    
+    //@PDA jdbc40
+    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException
+    {
+        InputStream iStream;
+        if (inputStream == null ||
+                inputStream instanceof Serializable)
+            iStream = inputStream;
+        else {
+            try {
+                iStream = new SerializableInputStream (inputStream);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("setBlob",
+                new Class[] { String.class, InputStream.class,
+                Long.TYPE },
+                new Object[] { parameterName,
+                iStream,
+                new Long (length) });
+    }
+    
+    //@PDA jdbc40
+    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException
+    {
+        try {
+            SerializableReader serialReader;
+            if (reader == null)
+                serialReader = null;
+            else
+                serialReader = new SerializableReader (reader, (int)Math.max(0,length));
+            callMethod ("setCharacterStream",
+                    new Class[] { String.class, Reader.class,
+                    Long.TYPE },
+                    new Object[] { parameterName,
+                    serialReader,
+                    new Long (length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+    
+    //@PDA jdbc40
+    public void setClob(String parameterName, Clob x) throws SQLException
+    {
+        if (x != null &&
+                !(x instanceof Serializable) ){
+            if (JDTrace.isTraceOn())
+                JDTrace.logInformation (this, NOT_SERIALIZABLE);
+            throw new SQLException ();
+        }
+        
+        callMethod ("setClob",
+                new Class[] { String.class, Clob.class },
+                new Object[] { parameterName,
+                x });   
+    }
+    
+    //@PDA jdbc40
+    public void setClob(String parameterName, Reader reader, long length) throws SQLException
+    {
+        try {
+            SerializableReader serialRreader;
+            if (reader == null)
+                serialRreader = null;
+            else
+                serialRreader = new SerializableReader (reader, (int) Math.max(0,length));
+            callMethod ("setClob",
+                    new Class[] { String.class, Reader.class,
+                    Long.TYPE },
+                    new Object[] { parameterName,
+                    serialRreader,
+                    new Long (length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+    
+    //@PDA jdbc40
+    public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException
+    {
+        try {
+            SerializableReader reader;
+            if (value == null)
+                reader = null;
+            else
+                reader = new SerializableReader (value, (int) Math.max(0,length));
+            callMethod ("setNCharacterStream",
+                    new Class[] { String.class, Reader.class,
+                    Long.TYPE },
+                    new Object[] { parameterName,
+                    reader,
+                    new Long(length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+    
+    //@PDA jdbc40
+    /* ifdef JDBC40 
+    public void setNClob(String parameterName, NClob value) throws SQLException
+    {
+        if (value != null &&
+                !(value instanceof Serializable) ){
+            if (JDTrace.isTraceOn())
+                JDTrace.logInformation (this, NOT_SERIALIZABLE);
+            throw new SQLException ();
+        }
+        
+        callMethod ("setNClob",
+                new Class[] { String.class, NClob.class },
+                new Object[] { parameterName,
+                value });
+    }
+    
+    endif */ 
+    
+    //@PDA jdbc40
+    public void setNClob(String parameterName, Reader reader, long length) throws SQLException
+    {
+        try {
+            SerializableReader serialRreader;
+            if (reader == null)
+                serialRreader = null;
+            else
+                serialRreader = new SerializableReader (reader, (int) Math.max(0,length));
+            callMethod ("setNClob",
+                    new Class[] { String.class, Reader.class,
+                    Long.TYPE },
+                    new Object[] { parameterName,
+                    serialRreader,
+                    new Long (length) });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }
+    }
+    
+    //@PDA jdbc40
+    public void setNString(String parameterName, String value) throws SQLException
+    {
+        callMethod ("setNString",
+                new Class[] { String.class, String.class },
+                new Object[] { parameterName, value });          
+    }
+    
+    //@PDA jdbc40
+    /* ifdef JDBC40 
+    public void setRowId(String parameterName, RowId x) throws SQLException
+    {
+        callMethod ("setRowId",
+                new Class[] { String.class, RowId.class},
+                new Object[] { parameterName, x });  
+    }
+    
+    //@PDA jdbc40
+    public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException
+    {
+        if (xmlObject != null &&
+                !(xmlObject instanceof Serializable) ){
+            if (JDTrace.isTraceOn())
+                JDTrace.logInformation (this, NOT_SERIALIZABLE);
+            throw new SQLException ();
+        }
+        
+        callMethod ("setSQLXML",
+                new Class[] { String.class, SQLXML.class },
+                new Object[] { parameterName,
+                xmlObject });
+    }
+
+    endif */ 
+    
+    public void setAsciiStream(String parameterName, InputStream x) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null ||
+                x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("setAsciiStream",
+                new Class[] { String.class, InputStream.class },
+                new Object[] { parameterName,
+                iStream });
+    }
 
 
+    public void setBinaryStream(String parameterName, InputStream x) throws SQLException
+    {
+        InputStream iStream;
+        if (x == null ||
+                x instanceof Serializable)
+            iStream = x;
+        else {
+            try {
+                iStream = new SerializableInputStream (x);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("setBinaryStream",
+                new Class[] { String.class, InputStream.class },
+                new Object[] { parameterName,
+                iStream });
+    }
+
+
+    public void setBlob(String parameterName, InputStream inputStream) throws SQLException
+    {
+        InputStream iStream;
+        if (inputStream == null ||
+                inputStream instanceof Serializable)
+            iStream = inputStream;
+        else {
+            try {
+                iStream = new SerializableInputStream (inputStream);
+            }
+            catch (java.io.IOException e) {
+                throw new SQLException (e.getMessage ());
+            }
+        }
+        callMethod ("setBlob",
+                new Class[] { String.class, InputStream.class },
+                new Object[] { parameterName,
+                iStream });
+    }
+
+
+    public void setCharacterStream(String parameterName, Reader reader) throws SQLException
+    {
+        try {
+            SerializableReader serialRreader;
+            if (reader == null)
+                serialRreader = null;
+            else
+                serialRreader = new SerializableReader (reader);
+            callMethod ("setCharacterStream",
+                    new Class[] { String.class, Reader.class },
+                    new Object[] { parameterName,
+                    serialRreader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }    
+    }
+
+
+    public void setClob(String parameterName, Reader reader) throws SQLException
+    {
+        try {
+            SerializableReader serialRreader;
+            if (reader == null)
+                serialRreader = null;
+            else
+                serialRreader = new SerializableReader (reader);
+            callMethod ("setClob",
+                    new Class[] { String.class, Reader.class },
+                    new Object[] { parameterName,
+                    serialRreader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }    
+    }
+
+
+    public void setNCharacterStream(String parameterName, Reader value) throws SQLException
+    {
+        try {
+            SerializableReader serialRreader;
+            if (value == null)
+                serialRreader = null;
+            else
+                serialRreader = new SerializableReader (value);
+            callMethod ("setNCharacterStream",
+                    new Class[] { String.class, Reader.class },
+                    new Object[] { parameterName,
+                    serialRreader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }    
+    }
+
+
+    public void setNClob(String parameterName, Reader reader) throws SQLException
+    {
+        try {
+            SerializableReader serialRreader;
+            if (reader == null)
+                serialRreader = null;
+            else
+                serialRreader = new SerializableReader (reader);
+            callMethod ("setNClob",
+                    new Class[] { String.class, Reader.class },
+                    new Object[] { parameterName,
+                    serialRreader });
+        }
+        catch (java.io.IOException e) {
+            throw new SQLException (e.getMessage ());
+        }    
+    }
+    
 }

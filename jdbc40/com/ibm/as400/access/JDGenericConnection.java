@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,13 +17,19 @@ import java.lang.reflect.*; //@A2C
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
+/* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
+/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+/* ifdef JDBC40 */
 import java.sql.NClob;
+/* endif */ 
 import java.sql.PreparedStatement;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Savepoint; //@A1A
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -33,10 +39,13 @@ import java.util.Map;
 import java.util.Properties;
 
 
-class JDGenericConnection extends ToolboxWrapper //@pdc jdbc40
+class JDGenericConnection
+/* ifdef JDBC40 */
+extends ToolboxWrapper
+/* endif */ 
 implements Connection
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -590,11 +599,12 @@ implements Connection
    * @return true if the connection is valid, false otherwise
    * @exception SQLException if a database access error occurs.
    */ 
+/* ifdef JDBC40 */
   public boolean isValid(int timeout) throws SQLException 
   { 
       return actualConnection_.isValid(timeout);
   }
-   
+/* endif */ 
         
   //@PDA jdbc40
   /**
@@ -648,9 +658,15 @@ implements Connection
    *          setting the client info value on the database server.
    * <p>
    */
-  public void setClientInfo(String name, String value) throws SQLClientInfoException
+  public void setClientInfo(String name, String value) 
+/* ifdef JDBC40 */
+  throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+  throws SQLException
+ endif */ 
   {
-      actualConnection_.setClientInfo(name, value);
+	  ((AS400JDBCConnection)actualConnection_).setClientInfo(name, value);
   }
 
   // @PDA jdbc40
@@ -700,9 +716,15 @@ implements Connection
    * @see java.sql.Connection#setClientInfo(String, String)
    *      setClientInfo(String, String)
    */
-  public void setClientInfo(Properties properties) throws SQLClientInfoException
+  public void setClientInfo(Properties properties) 
+/* ifdef JDBC40 */
+  throws SQLClientInfoException
+/* endif */ 
+/* ifndef JDBC40 
+  throws SQLException 
+ endif */ 
   {
-      actualConnection_.setClientInfo(properties);
+	  ((AS400JDBCConnection)actualConnection_).setClientInfo(properties);
   }
 
   //@PDA jdbc40
@@ -743,7 +765,7 @@ implements Connection
    */
   public String getClientInfo(String name) throws SQLException
   {
-      return actualConnection_.getClientInfo(name);
+      return ((AS400JDBCConnection)actualConnection_).getClientInfo(name);
   }
 
   //@PDA jdbc40
@@ -777,7 +799,7 @@ implements Connection
    */
   public Properties getClientInfo() throws SQLException
   {
-      return actualConnection_.getClientInfo();
+      return ((AS400JDBCConnection)actualConnection_).getClientInfo();
   }
   
   //@PDA jdbc40
@@ -793,7 +815,7 @@ implements Connection
    */
   public Clob createClob() throws SQLException
   {
-      return actualConnection_.createClob();
+      return ((AS400JDBCConnection)actualConnection_).createClob();
   }
   
   //@PDA jdbc40
@@ -809,7 +831,7 @@ implements Connection
    */
   public Blob createBlob() throws SQLException
   {
-      return actualConnection_.createBlob();
+      return ((AS400JDBCConnection)actualConnection_).createBlob();
   }
 
   //@PDA jdbc40
@@ -823,11 +845,12 @@ implements Connection
    * <code>NClob</code> interface can not be constructed.
    *
    */
+/* ifdef JDBC40 */
   public NClob createNClob() throws SQLException
   {
       return actualConnection_.createNClob();
   }
-
+/* endif */ 
   //@PDA jdbc40
   /**
    * Constructs an object that implements the <code>SQLXML</code> interface. The object
@@ -838,10 +861,13 @@ implements Connection
    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
    * be constructed
    */
+/* ifdef JDBC40 */
   public SQLXML createSQLXML() throws SQLException
   {
       return actualConnection_.createSQLXML();
   }
+/* endif */ 
+  
 
   //@PDA jdbc40
   /**
@@ -857,7 +883,7 @@ implements Connection
    */
   public Array createArrayOf(String typeName, Object[] elements) throws SQLException
   {
-      return actualConnection_.createArrayOf(typeName, elements);
+      return ((AS400JDBCConnection)actualConnection_).createArrayOf(typeName, elements);
   }
 
   //@PDA jdbc40
@@ -875,7 +901,7 @@ implements Connection
    */
   public Struct createStruct(String typeName, Object[] attributes) throws SQLException
   {   
-      return actualConnection_.createStruct(typeName, attributes);
+      return ((AS400JDBCConnection)actualConnection_).createStruct(typeName, attributes);
   }
   
   

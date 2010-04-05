@@ -20,7 +20,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 
+import java.sql.NClob;
+import java.sql.RowId;
+endif */ 
 import java.sql.SQLException;
+/*ifdef JDBC40 
+import java.sql.SQLXML;
+endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -608,6 +615,59 @@ final class SQLDecFloat34 implements SQLData {
             return null; //not a special value
     }
 
+    //@pda jdbc40
+    public Reader getNCharacterStream() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+    
+    //@pda jdbc40
+    /*ifdef JDBC40 
+    public NClob getNClob() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+   endif */ 
+    
+    //@pda jdbc40
+    public String getNString() throws SQLException
+    {
+        truncated_ = 0;
+        
+        //NaN, Infinity, -Infinity
+        if(specialValue_ != null){
+            return specialValue_;
+        }
+        
+        String stringRep = value_.toString();
+        int decimal = stringRep.indexOf('.');
+        if(decimal == -1)
+            return stringRep;
+        else
+            return stringRep.substring(0, decimal)
+            + settings_.getDecimalSeparator()
+            + stringRep.substring(decimal+1);
+    }
+
+    //@pda jdbc40
+    /* ifdef JDBC40
+    public RowId getRowId() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+   endif */ 
+    //@pda jdbc40
+    /* ifdef JDBC40 
+    public SQLXML getSQLXML() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+    endif */ 
+    
     // @array
     public Array getArray() throws SQLException
     {

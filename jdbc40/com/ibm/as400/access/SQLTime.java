@@ -21,10 +21,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
+/* endif */ 
 import java.sql.SQLException;
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -32,7 +36,7 @@ import java.util.Calendar;
 final class SQLTime
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -235,7 +239,7 @@ implements SQLData
         }
 
         // The Calendar class represents 24:00:00 as 00:00:00.        // @E3A
-        if(hourIn == 24 && hour==0 && minute==0 && second==0)  // @E3A //@tim3
+        if(hourIn == 24 && hour==0 && minute==0 && second==0 )  // @E3A //@tim3
         {
             buffer.setCharAt(0,'2');                                    // @E3A
             buffer.setCharAt(1,'4');                                    // @E3A
@@ -649,13 +653,15 @@ implements SQLData
         return null;  //@pdc
     }
     
+/* ifdef JDBC40 */
     //@pda jdbc40
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
+    
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -667,6 +673,7 @@ implements SQLData
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 
+/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -680,7 +687,7 @@ implements SQLData
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
+/* endif */ 
     // @array
     public Array getArray() throws SQLException
     {
