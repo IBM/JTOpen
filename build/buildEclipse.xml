@@ -2,7 +2,10 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
-// Filename: build.xml
+// Filename: buildEclipse.xml
+//
+// This will build the jar files using the source in the eclipse projects as 
+// source.  This is a modified version of build.xml. 
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -138,11 +141,6 @@
 //    clean         - Removes all built files and javadoc. Does not remove the /include
 //                    or /build subdirectories. This target is not a pre-requisite for any other
 //                    targets.
-//    clean-source  - Removes the source. This target is not a pre-requisite for any other
-//                    targets.
-//    source        - Downloads the JTOpen repository files off of the IBM CVS server
-//                    using an anonymous login. Internet connection required. This target
-//                    is not a pre-requisite for any other targets.
 //    jar           - Builds just the jars (and any pre-requisite targets, such as compile...).
 //    javadoc       - Builds just the javadoc (assuming the source has been downloaded).
 //    micro         - Builds just the jt400Micro.jar (including compiling and pre-verification).
@@ -151,7 +149,7 @@
 //                    
 // Suggested build invocation:
 //
-//   java org.apache.tools.ant.Main clean clean-source source all
+//   java org.apache.tools.ant.Main clean all
 //
 // The resulting jar and zip files can be found in the "dist" subdirectory.
 // The resulting class files can be found in the various "output" subdirectories.
@@ -176,7 +174,7 @@
 ////////////////////////////////////////////////////////////////////////////-->
   
 
-<project name="JTOpen" basedir="." default="usage">
+<project name="JTOpen" default="jar">
   
 
 <!--///////////////////////////////////////////////////////////////////////////
@@ -191,8 +189,8 @@
 
 
   <property name="bin" value="${build}/bin"/>  
-  <property name="source" value="${build}/src"/>
-  <property name="jdbc40source" value="${build}/jdbc40"/>
+  <property name="source" value="${basedir}/../src"/>
+  <property name="jdbc40source" value="${basedir}/../jdbc40"/>
   <property name="source-contrib" value="${build}/contrib"/>
   <property name="source-micro" value="${build}/micro"/>
   <property name="dist" value="${build}/dist"/>
@@ -280,19 +278,6 @@
   </target>
   
 
-
-<!--///////////////////////////////////////////////////////////////////////////
-    // Target: clean-source
-    ///////////////////////////////////////////////////////////////////////////-->
-  <target name="clean-source">
-    <delete dir="${source}"/>
-    <delete dir="${source-contrib}"/>
-    <delete dir="${source-micro}"/>
-    <delete dir="${build}/CVS"/>
-    <delete file="${build}/license.html"/>
-    <delete file="${build}/readme.html"/>
-    <delete file="${build}/changes.html"/>
-  </target>
 
 
   
@@ -592,7 +577,7 @@
       </and>
     </condition>
     <fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
-    <taskdef name="pcml" classname="PCMLTask"/>
+    <taskdef name="pcml" classname="PCMLTask" classpath="."/>
     <pcml srcdir="${source}"
           destdir="${output}"
           classpath="${output}:${include}:${source}"
@@ -610,7 +595,7 @@
     // Target: copyright
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="copyright" depends="init">
-    <taskdef name="copyright" classname="CopyrightInsertionTask"/>
+    <taskdef name="copyright" classname="CopyrightInsertionTask" classpath="."/>
     <copyright destdir="${output}"
                includes="**/*.class"
                verbose="${show-progress}"/>
@@ -628,44 +613,6 @@
 	  </target>
 
 
-
-
-<!--///////////////////////////////////////////////////////////////////////////
-    // Target: source
-    ///////////////////////////////////////////////////////////////////////////-->
-  <target name="source" depends="init">
-<!-- For some reason, this condition doesn't work with newer cvs.exe files.  So we'll just proceed on the assumption that cvs.exe exists along the PATH.
-    <condition property="cvsExeExists">
-      <or>
-        <and>
-          <os family="windows"/>
-          <available resource="cvs.exe"/>     // Windows.
-        </and>
-        <not>
-          <os family="windows"/>      // Assume CVS is available.
-        </not>
-      </or>
-    </condition>        
-    <fail message="Can't find cvs executable.  Copy cvs.exe to local directory." unless="cvsExeExists"/>
--->
-    <cvspass cvsroot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400" password=""/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="src" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="contrib" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="include" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="micro" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="build" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="stubs" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="license.html" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="readme.html" dest="${build}"/>
-  </target>
 
 
 

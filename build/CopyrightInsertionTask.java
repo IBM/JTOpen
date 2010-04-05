@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.*;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.taskdefs.MatchingTask;

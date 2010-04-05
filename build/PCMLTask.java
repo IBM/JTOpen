@@ -14,14 +14,13 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
 import org.apache.tools.ant.types.*;
 import java.io.*;
-import java.util.*;
 
 /**
  * ANT task used to generate serialized PCML files.
 **/
 public class PCMLTask extends MatchingTask
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   private File srcDir_;
   private File destDir_;
