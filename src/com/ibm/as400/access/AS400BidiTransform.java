@@ -497,11 +497,13 @@ public class AS400BidiTransform
     	BidiFlagSet flagsOut = initFlagSet(outFormat);
     	
     	bdx.flags = flagsOut;
-    	bdx.removeMarkers = true;
+    	
+    	bdx.removeMarkers = true;//Bidi-HCG1    	
+    	
     	BidiText textIn = new BidiText(flagsIn,str);
         BidiText textOut = textIn.transform(bdx);
         String strOut = textOut.toString();
-    	
+        
         return strOut;    	
     }
     
@@ -604,12 +606,12 @@ public class AS400BidiTransform
     	int host_bidi_format, host_ccsid, package_bidi_format, package_ccsid;
     	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);
 		    	
-    	if(connection.getSystem() != null) //@pdc
-               host_ccsid = connection.getSystem().getCcsid();       
+    	if(connection.getSystem() != null){ //@pdc
+               host_ccsid = connection.getSystem().getCcsid();
+               host_bidi_format = getStringType(host_ccsid);	
+    	}
     	else
-              host_ccsid = 37; //@pdc
-    	   
-		host_bidi_format = getStringType(host_ccsid);				
+    		host_bidi_format = 4;    	  		
 
 		package_ccsid = connection.getProperties().getInt(JDProperties.PACKAGE_CCSID);
 		package_bidi_format = getStringType(package_ccsid);
@@ -644,8 +646,11 @@ public class AS400BidiTransform
 		    	
 		host_bidi_format = getStringType(host_ccsid);
 		if(host_bidi_format == 0){
-			host_ccsid = connection.getSystem().getCcsid();
-			host_bidi_format = getStringType(host_ccsid);
+			if(connection.getSystem() != null){
+				host_ccsid = connection.getSystem().getCcsid();			
+				host_bidi_format = getStringType(host_ccsid);
+			}
+			else host_bidi_format = 4;
 		}
 		    	
     	if(bidi_format != 0 && host_bidi_format != 0){    		    		
