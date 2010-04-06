@@ -985,6 +985,7 @@ endif */
      *   An exception is thrown if the state is not writable.
      * @exception If there is an error
      */
+    /* ifdef JDBC40 
     public synchronized <T extends Result> T setResult(Class<T> resultClass) throws SQLException
     {
         String classname;
@@ -1037,15 +1038,10 @@ endif */
         {
             try
             {
-/* ifdef JDBC40 
                 XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
                 XMLStreamWriter xmlStreamWriter;
                 xmlStreamWriter = outputFactory.createXMLStreamWriter(setCharacterStream());
                 return (T) new StAXResult(xmlStreamWriter);
-                endif */ 
-            	/* ifndef JDBC40 */ 
-            	throw new SQLException("NOT SUPPORTED"); 
-            	/* endif */ 
             } catch (Exception e)
             {
                 JDError.throwSQLException(this, JDError.EXC_XML_PARSING_ERROR, e);
@@ -1061,7 +1057,7 @@ endif */
         }
     }
     
-
+    endif */ 
     
     /**
      * This method frees the object and releases the

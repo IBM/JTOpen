@@ -114,7 +114,7 @@ endif */
         }
     }
     
-    
+    /* ifdef JDBC40 
     public <T extends Source> T getSource(Class<T> sourceClass) throws SQLException
     {
         try
@@ -130,7 +130,7 @@ endif */
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-    
+    endif */ 
     
     public String getString() throws SQLException
     {
@@ -157,7 +157,7 @@ endif */
     }
     
     
-    
+    /* ifdef JDBC40 
     public <T extends Result> T setResult(Class<T> resultClass) throws SQLException
     {
         try
@@ -174,6 +174,6 @@ endif */
         }
     }
     
-    
+    endif */ 
     
 }
