@@ -606,9 +606,13 @@ class JDSQLStatement
                         canBeBatched_ = true;                               //@J1A
                     else                                                    //@J1A - make sure there is only one literal, otherwise a syntax error occured.
                     {                                                       //@J1A
-                        StringTokenizer tokenizer = new StringTokenizer(valuesString, ",");     //@J1A
-                        if(tokenizer.countTokens() > 1)                                         //@J1A
-                            JDError.throwSQLException(this, JDError.EXC_SYNTAX_ERROR);          //@J1A
+                    	// @A1D
+                    	// If a syntax error can occur, leave it to the engine to throw the exception.
+                    	// This code to throw an exception was removed because after V6R1 the syntax 
+                    	// "insert into x values 1,2,3" is valid
+                        //StringTokenizer tokenizer = new StringTokenizer(valuesString, ",");     //@J1A
+                        //if(tokenizer.countTokens() > 1)                                         //@J1A
+                        //    JDError.throwSQLException(this, JDError.EXC_SYNTAX_ERROR);          //@J1A
                     }                                           //@J1A
                 }                                               //@J1A
             }

@@ -96,6 +96,16 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 //    Instead, suggest to developers to externalize the URL
 //    to users, rather than hardcoding it.
 //
+
+//
+// Toolbox driver change log
+//
+// Flag  YYYYMMDD  Reason
+// ----- --------  ---------------
+// @A1   20100406  Correct Syntax Error on Insert 
+//--------------------------------------------------------------------
+
+
 public class AS400JDBCDriver
 implements java.sql.Driver
 {
