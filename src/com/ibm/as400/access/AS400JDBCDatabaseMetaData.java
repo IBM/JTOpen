@@ -7696,11 +7696,13 @@ endif */
     {
         connection_.checkOpen();
 
-        if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
-        {
-            JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
-            return null;
-        }
+        // @A3 Not sure why this was not supported, since the stored procedure exists on V5R4
+        // if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
+        // {
+        //    JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        //    return null;
+        //}
+        
         /*
          SYSIBM.SQLFunctions(
          CatalogName     varchar(128),
@@ -7825,11 +7827,12 @@ endif */
         //@PDA add support to call stored procedure
         connection_.checkOpen();
 
-        if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
-        {
-            JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
-            return null;
-        }
+        //@A3D  Allow this to occur to V5R4 
+        // if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
+        // {
+        //    JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        //    return null;
+        // }
         /*
          SQLFunctionCols(
           CatalogName     varchar(128),
