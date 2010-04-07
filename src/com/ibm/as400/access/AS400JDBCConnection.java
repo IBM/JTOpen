@@ -47,8 +47,9 @@ endif */
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+/* ifdef JDBC40 
 import java.util.concurrent.locks.ReentrantLock;
-
+endif */ 
 
 
 /**
@@ -3224,7 +3225,7 @@ implements Connection
 
         
         if (as400_.getVRM() >= JDUtilities.vrm710) {
-        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING); 
+        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);  
         }
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
@@ -4426,6 +4427,7 @@ implements Connection
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if a database access error occurs.
      */ 
+    /* ifdef JDBC40 
     public boolean isValid(int timeout) throws SQLException 
     { 
         DBSQLRequestDS request = null;
@@ -4436,7 +4438,7 @@ implements Connection
 
         try 
         { 
-            /* inner class to run timer in sep thread */
+            // inner class to run timer in sep thread 
             class CommTimer implements Runnable 
             {      
        
@@ -4516,7 +4518,8 @@ implements Connection
         } 
          
     }
-          
+       
+    endif */ 
 
 
 

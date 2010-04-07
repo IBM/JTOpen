@@ -487,17 +487,19 @@ endif */
                 s = sb.toString();
 
                 break; // end of BLOB case
+                /* ifdef JDBC40 
             case DOM_DOCUMENT:
 
                 DOMImplementation implementation = domDocument_.getImplementation();
 
                 DOMImplementationLS domImplementationLS = (DOMImplementationLS) implementation
                     .getFeature("LS", "3.0");
-
                 LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
                 s  = lsSerializer.writeToString(domDocument_);
 
                 break;
+                endif */ 
+
             case 0:
                 //freed already
                 JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
