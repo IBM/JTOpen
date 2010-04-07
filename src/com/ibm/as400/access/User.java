@@ -306,13 +306,19 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'name' is null.");
             throw new NullPointerException("name");
         }
+        name = name.trim();
         if (name.length() > 10)
         {
             Trace.log(Trace.ERROR, "Length of parameter 'name' is not valid: '" + name + "'");
             throw new ExtendedIllegalArgumentException("name (" + name + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
+        if (name.equalsIgnoreCase(NONE))
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'name' is not valid: '" + name + "'");
+            throw new ExtendedIllegalArgumentException("name (" + name + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
         system_ = system;
-        name_ = name.toUpperCase().trim();
+        name_ = name.toUpperCase();
     }
 
     // Called by UserList.getUsers() and a UserGroup constructor.
@@ -2864,10 +2870,16 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'name' is null.");
             throw new NullPointerException("name");
         }
+        name = name.trim();
         if (name.length() > 10)
         {
             Trace.log(Trace.ERROR, "Length of parameter 'name' is not valid: '" + name + "'");
             throw new ExtendedIllegalArgumentException("name (" + name + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        if (name.equalsIgnoreCase(NONE))
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'name' is not valid: '" + name + "'");
+            throw new ExtendedIllegalArgumentException("name (" + name + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         if (connected_)
         {
@@ -2877,12 +2889,12 @@ public class User implements Serializable
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
         {
-            name_ = name.toUpperCase().trim();
+            name_ = name.toUpperCase();
         }
         else
         {
             String oldValue = name_;
-            String newValue = name.toUpperCase().trim();
+            String newValue = name.toUpperCase();
             if (vetoableChangeListeners_ != null)
             {
                 vetoableChangeListeners_.fireVetoableChange("name", oldValue, newValue);
