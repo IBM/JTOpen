@@ -70,6 +70,7 @@ implements Wrapper
      *             if an error occurs while determining whether this is a
      *             wrapper for an object with the given interface.
      */
+/* ifdef JDBC40 */
     public boolean isWrapperFor(Class<?> iface) throws SQLException 
     {
         if (iface == null)
@@ -84,7 +85,7 @@ implements Wrapper
 
         return false;
     }
-
+/* endif */ 
     /**
      * Returns an object that implements the given interface to allow access to
      * non-standard methods, or standard methods not exposed by the proxy.
@@ -104,6 +105,7 @@ implements Wrapper
      * @throws java.sql.SQLException
      *             If no object found that implements the interface
      */
+/* ifdef JDBC40 */
     public <T> T unwrap(Class<T> iface) throws SQLException {
         if (isWrapperFor(iface))
             return (T)this;
@@ -116,5 +118,5 @@ implements Wrapper
         }
         
     }
-
+/* endif */ 
 }

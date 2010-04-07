@@ -487,17 +487,19 @@ implements SQLXML
                 s = sb.toString();
 
                 break; // end of BLOB case
+/* ifdef JDBC40 */
             case DOM_DOCUMENT:
 
                 DOMImplementation implementation = domDocument_.getImplementation();
 
                 DOMImplementationLS domImplementationLS = (DOMImplementationLS) implementation
                     .getFeature("LS", "3.0");
-
                 LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
                 s  = lsSerializer.writeToString(domDocument_);
 
                 break;
+/* endif */ 
+
             case 0:
                 //freed already
                 JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
@@ -985,6 +987,7 @@ implements SQLXML
      *   An exception is thrown if the state is not writable.
      * @exception If there is an error
      */
+/* ifdef JDBC40 */
     public synchronized <T extends Result> T setResult(Class<T> resultClass) throws SQLException
     {
         String classname;
@@ -1037,15 +1040,10 @@ implements SQLXML
         {
             try
             {
-/* ifdef JDBC40 */
                 XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
                 XMLStreamWriter xmlStreamWriter;
                 xmlStreamWriter = outputFactory.createXMLStreamWriter(setCharacterStream());
                 return (T) new StAXResult(xmlStreamWriter);
-/* endif */ 
-/* ifndef JDBC40 
-            	throw new SQLException("NOT SUPPORTED"); 
- endif */ 
             } catch (Exception e)
             {
                 JDError.throwSQLException(this, JDError.EXC_XML_PARSING_ERROR, e);
@@ -1061,7 +1059,7 @@ implements SQLXML
         }
     }
     
-
+/* endif */ 
     
     /**
      * This method frees the object and releases the

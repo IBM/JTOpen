@@ -1634,12 +1634,13 @@ ResultSet.CONCUR_READ_ONLY.
    * @return true if the connection is valid, false otherwise
    * @exception SQLException if a database access error occurs.
    */ 
+/* ifdef JDBC40 */
   public boolean isValid(int timeout) throws SQLException 
   { 
       validateConnection();
       return connection_.isValid(timeout);
   }
-   
+/* endif */ 
         
   //@PDA jdbc40
 
