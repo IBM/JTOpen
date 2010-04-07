@@ -22,7 +22,7 @@ import java.util.Properties;
 
 
 /**
-<p>A class representing the properties passed as connection
+Represents the properties passed as connection
 attributes for the driver.
 **/
 //
@@ -34,7 +34,7 @@ attributes for the driver.
 //    __ Update JDProperties.java (this source file).  NEW PROPERTIES
 //       MUST BE ADDED TO THE END OF THE ARRAY (see @W2)
 //
-//    __ Add an entry to JDBCProperties.html.  Contact ID to
+//    __ Add an entry to JDBCProperties.html.  Contact Information Development to
 //       change this file.
 //
 //    __ Add an entry to JDBCProperties.html in micro package also.
@@ -64,10 +64,6 @@ attributes for the driver.
 //
 class JDProperties implements Serializable, Cloneable //@PDC 550
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -390,6 +386,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String              BIDI_STRING_TYPE_ST9        = "9";              // @E9A
     static final String              BIDI_STRING_TYPE_ST10       = "10";             // @E9A
     static final String              BIDI_STRING_TYPE_ST11       = "11";             // @E9A
+    static final String              BIDI_STRING_TYPE_NONE       = "-1";             //Bidi-HCG1
 
     static final String              PACKAGE_CCSID_UCS2          = "13488";          // @M0A - support sending SQL statements in UTF-16
     static final String              PACKAGE_CCSID_UTF16         = "1200";           // and consequently storing them in package in that CCSID
@@ -511,7 +508,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i] = new DriverPropertyInfo (BIDI_STRING_TYPE_, "");
         dpi_[i].description = "BIDI_STRING_TYPE_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[10];
+        dpi_[i].choices     = new String[11];
         dpi_[i].choices[0]  = BIDI_STRING_TYPE_NOTSET;
         dpi_[i].choices[1]  = BIDI_STRING_TYPE_DEFAULT;
         dpi_[i].choices[2]  = BIDI_STRING_TYPE_ST4;
@@ -522,6 +519,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[7]  = BIDI_STRING_TYPE_ST9;
         dpi_[i].choices[8]  = BIDI_STRING_TYPE_ST10;
         dpi_[i].choices[9]  = BIDI_STRING_TYPE_ST11;
+        dpi_[i].choices[10] = BIDI_STRING_TYPE_NONE;//Bidi-HCG1
         defaults_[i]        = BIDI_STRING_TYPE_ST5; //Bidi-HCG 
         	//BIDI_STRING_TYPE_NOTSET;
 
@@ -1362,7 +1360,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]  = EMPTY_;  //default set by platform
-
+      
         
         // Socket timeout  //@STIMEOUT
         i = DO_UPDATE_DELETE_BLOCKING;
