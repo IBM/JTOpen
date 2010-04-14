@@ -1286,6 +1286,9 @@ public class Trace implements Runnable
     // Flush the current destination stream.
     destination_.flush();
 
+    // If we created our PrintWriter internally (based on a file), close it.
+    if (fileName_ != null) destination_.close();
+
     if (fileName != null)
     {
       // Create a FileOutputStream and PrintWriter to handle the trace data.
@@ -1294,17 +1297,10 @@ public class Trace implements Runnable
       FileOutputStream os = new FileOutputStream(fileName, file.exists());
       destination_ = new PrintWriter(os, true); // note: leave the stream open
       userSpecifiedDestination_ = true;
-
-      // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
-
       fileName_ = fileName;
     }
     else  // The specified fileName is null - Use default destination.
     {
-      // destination_.close();   // avoid closing System.out
-
-      // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
-
       fileName_ = null;
       destination_ = new PrintWriter(System.out, true);
       userSpecifiedDestination_ = false;
