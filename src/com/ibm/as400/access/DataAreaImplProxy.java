@@ -370,10 +370,14 @@ implements DataAreaImpl
    ObjectDoesNotExistException
    {
      try {
-       return connection_.callMethod (pxId_, "readBytes",
+            ProxyReturnValue rv = connection_.callMethod (pxId_, "readBytes",
                          new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, Integer.TYPE },
-                         new Object[] { data, new Integer(dataBufferOffset), new Integer(dataAreaOffset), new Integer(dataLength) })
-                         .getReturnValueInt();
+                         new Object[] { data, new Integer(dataBufferOffset), new Integer(dataAreaOffset), new Integer(dataLength) },
+                         new boolean[] { true, false, false, false }, // returnArguments
+                         true);
+            byte[] returnData = (byte[])rv.getArgument(0);
+            System.arraycopy(returnData, 0, data, 0, returnData.length);
+            return rv.getReturnValueInt();
      }
      catch (InvocationTargetException e) {
        Throwable e2 = e.getTargetException ();
