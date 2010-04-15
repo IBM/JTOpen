@@ -3361,18 +3361,18 @@ implements ResultSet
     }
 
 
-    /**
-     * Retrieves the value of the designated column in the current row
-     * of this <code>ResultSet</code> object as a <code>NClob</code> object
-     * in the Java programming language.
-     *
-     * @param column 
-     * @return a <code>NClob</code> object representing the SQL 
-     *         <code>NCLOB</code> value in the specified column
-     * @exception SQLException if the driver does not support national
-     *         character sets;  if the driver can detect that a data conversion
-     *  error could occur; or if a database access error occurss
-     */
+  //JDBC40DOC /**
+  //JDBC40DOC  * Retrieves the value of the designated column in the current row
+  //JDBC40DOC   * of this <code>ResultSet</code> object as a <code>NClob</code> object
+  //JDBC40DOC   * in the Java programming language.
+  //JDBC40DOC   *
+  //JDBC40DOC   * @param column 
+  //JDBC40DOC   * @return a <code>NClob</code> object representing the SQL 
+  //JDBC40DOC   *         <code>NCLOB</code> value in the specified column
+  //JDBC40DOC   * @exception SQLException if the driver does not support national
+  //JDBC40DOC   *         character sets;  if the driver can detect that a data conversion
+  //JDBC40DOC   *  error could occur; or if a database access error occurss
+  //JDBC40DOC   */
  /* ifdef JDBC40 
     public java.sql.NClob getNClob (int column) throws java.sql.SQLException
     {
@@ -3401,18 +3401,18 @@ implements ResultSet
     }
 endif */
     
-    /**
-     * Retrieves the value of the designated column in the current row
-     * of this <code>ResultSet</code> object as a <code>NClob</code> object
-     * in the Java programming language.
-     *
-     * @param columnName 
-     * @return a <code>NClob</code> object representing the SQL 
-     *         <code>NCLOB</code> value in the specified column
-     * @exception SQLException if the driver does not support national
-     *         character sets;  if the driver can detect that a data conversion
-     *  error could occur; or if a database access error occurss
-     */
+  //JDBC40DOC   /**
+  //JDBC40DOC   * Retrieves the value of the designated column in the current row
+  //JDBC40DOC   * of this <code>ResultSet</code> object as a <code>NClob</code> object
+  //JDBC40DOC   * in the Java programming language.
+  //JDBC40DOC   *
+  //JDBC40DOC   * @param columnName 
+  //JDBC40DOC   * @return a <code>NClob</code> object representing the SQL 
+  //JDBC40DOC   *         <code>NCLOB</code> value in the specified column
+  //JDBC40DOC   * @exception SQLException if the driver does not support national
+  //JDBC40DOC   *         character sets;  if the driver can detect that a data conversion
+  //JDBC40DOC   *  error could occur; or if a database access error occurss
+  //JDBC40DOC   */
 /* ifdef JDBC40 
     public java.sql.NClob getNClob (String columnName) throws java.sql.SQLException
     {
@@ -3480,16 +3480,16 @@ endif */
         return getNString (findColumnX (columnName));
     }
 
-    /**
-     * Retrieves the value of the designated column in the current row of this 
-     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
-     * programming language.
-     *
-     * @param column    The column number
-     * @return the column value ; if the value is a SQL <code>NULL</code> the
-     *     value returned is <code>null</code>
-     * @throws SQLException if a database access error occurs
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Retrieves the value of the designated column in the current row of this 
+  //JDBC40DOC      * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+  //JDBC40DOC      * programming language.
+  //JDBC40DOC      *
+  //JDBC40DOC      * @param column    The column number
+  //JDBC40DOC      * @return the column value ; if the value is a SQL <code>NULL</code> the
+  //JDBC40DOC      *     value returned is <code>null</code>
+  //JDBC40DOC      * @throws SQLException if a database access error occurs
+  //JDBC40DOC      */
 /* ifdef JDBC40 
     public java.sql.RowId getRowId (int column) throws java.sql.SQLException
     {
@@ -3518,16 +3518,16 @@ endif */
     }
 endif */ 
 
-    /**
-     * Retrieves the value of the designated column in the current row of this 
-     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
-     * programming language.
-     *
-     * @param columnName  The column name
-     * @return the column value ; if the value is a SQL <code>NULL</code> the
-     *     value returned is <code>null</code>
-     * @throws SQLException if a database access error occurs
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Retrieves the value of the designated column in the current row of this 
+  //JDBC40DOC      * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+  //JDBC40DOC      * programming language.
+  //JDBC40DOC      *
+  //JDBC40DOC      * @param columnName  The column name
+  //JDBC40DOC      * @return the column value ; if the value is a SQL <code>NULL</code> the
+  //JDBC40DOC      *     value returned is <code>null</code>
+  //JDBC40DOC      * @throws SQLException if a database access error occurs
+  //JDBC40DOC      */
 /* ifdef JDBC40  
     public java.sql.RowId getRowId (String columnName) throws java.sql.SQLException
     {
@@ -3536,14 +3536,14 @@ endif */
     }
  endif */ 
 
-    /**
-     * Retrieves the value of the designated column in  the current row of
-     *  this <code>ResultSet</code> as a
-     * <code>java.sql.SQLXML</code> object in the Java programming language.
-     * @param column
-     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
-     * @throws SQLException if a database access error occurs
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Retrieves the value of the designated column in  the current row of
+  //JDBC40DOC      *  this <code>ResultSet</code> as a
+  //JDBC40DOC      * <code>java.sql.SQLXML</code> object in the Java programming language.
+  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+  //JDBC40DOC      * @throws SQLException if a database access error occurs
+  //JDBC40DOC      */
 /* ifdef JDBC40  
     public java.sql.SQLXML getSQLXML (int column) throws java.sql.SQLException
     {
@@ -3572,14 +3572,14 @@ endif */
     }
  endif */ 
 
-    /**
-     * Retrieves the value of the designated column in  the current row of
-     *  this <code>ResultSet</code> as a
-     * <code>java.sql.SQLXML</code> object in the Java programming language.
-     * @param columnName
-     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
-     * @throws SQLException if a database access error occurs
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Retrieves the value of the designated column in  the current row of
+  //JDBC40DOC      *  this <code>ResultSet</code> as a
+  //JDBC40DOC      * <code>java.sql.SQLXML</code> object in the Java programming language.
+  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+  //JDBC40DOC      * @throws SQLException if a database access error occurs
+  //JDBC40DOC      */
 /* ifdef JDBC40  
     public java.sql.SQLXML getSQLXML (String columnName) throws java.sql.SQLException
     {
@@ -4003,20 +4003,20 @@ endif */
         updateNCharacterStream (findColumnX (columnName), x, length);
     }
 
-    /**
-     * Updates the designated column using the given <code>Reader</code>
-     *
-     * @param column
-     * @param x      An object that contains the data to set the parameter value to.
-     * @throws SQLException if the columnIndex is not valid; 
-     * if the driver does not support national
-     *         character sets;  if the driver can detect that a data conversion
-     *  error could occur; this method is called on a closed result set,  
-     * if a database access error occurs or
-     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Updates the designated column using the given <code>Reader</code>
+  //JDBC40DOC      *
+  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @param x      An object that contains the data to set the parameter value to.
+  //JDBC40DOC      * @throws SQLException if the columnIndex is not valid; 
+  //JDBC40DOC      * if the driver does not support national
+  //JDBC40DOC      *         character sets;  if the driver can detect that a data conversion
+  //JDBC40DOC      *  error could occur; this method is called on a closed result set,  
+  //JDBC40DOC      * if a database access error occurs or
+  //JDBC40DOC      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+  //JDBC40DOC      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+  //JDBC40DOC      * this method
+  //JDBC40DOC      */
     /* ifdef JDBC40 
     public void updateNClob (int column, java.sql.NClob x) throws java.sql.SQLException
     {
@@ -4025,20 +4025,20 @@ endif */
     }
     endif */ 
 
-    /**
-     * Updates the designated column using the given <code>Reader</code>
-     *
-     * @param columnName
-     * @param x      An object that contains the data to set the parameter value to.
-     * @throws SQLException if the columnIndex is not valid; 
-     * if the driver does not support national
-     *         character sets;  if the driver can detect that a data conversion
-     *  error could occur; this method is called on a closed result set,  
-     * if a database access error occurs or
-     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Updates the designated column using the given <code>Reader</code>
+  //JDBC40DOC      *
+  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @param x      An object that contains the data to set the parameter value to.
+  //JDBC40DOC      * @throws SQLException if the columnIndex is not valid; 
+  //JDBC40DOC      * if the driver does not support national
+  //JDBC40DOC      *         character sets;  if the driver can detect that a data conversion
+  //JDBC40DOC      *  error could occur; this method is called on a closed result set,  
+  //JDBC40DOC      * if a database access error occurs or
+  //JDBC40DOC      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+  //JDBC40DOC      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+  //JDBC40DOC      * this method
+  //JDBC40DOC      */
     /* ifdef JDBC40 
     public void updateNClob (String columnName, java.sql.NClob x) throws java.sql.SQLException
     {
@@ -4162,13 +4162,13 @@ endif */
         updateNString (findColumnX (columnName), x);
     }
 
-    /**
-     * Updates the designated column with a <code>RowId</code> value. 
-     * 
-     * @param column
-     * @param x the column value
-     * @throws SQLException if a database access occurs 
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Updates the designated column with a <code>RowId</code> value. 
+  //JDBC40DOC      * 
+  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @param x the column value
+  //JDBC40DOC      * @throws SQLException if a database access occurs 
+  //JDBC40DOC      */
 /* ifdef JDBC40 
 
     public void updateRowId (int column, java.sql.RowId x) throws java.sql.SQLException
@@ -4177,13 +4177,13 @@ endif */
         checkUpdatePreconditions (column);
     }
 endif */ 
-    /**
-     * Updates the designated column with a <code>RowId</code> value. 
-     * 
-     * @param columnName
-     * @param x the column value
-     * @throws SQLException if a database access occurs 
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Updates the designated column with a <code>RowId</code> value. 
+  //JDBC40DOC      * 
+  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @param x the column value
+  //JDBC40DOC      * @throws SQLException if a database access occurs 
+  //JDBC40DOC      */
     /* ifdef JDBC40 
     public void updateRowId (String columnName, java.sql.RowId x) throws java.sql.SQLException
     {
@@ -4191,13 +4191,13 @@ endif */
         updateRowId (findColumnX (columnName), x);
     }
 endif */ 
-    /**
-     * Updates the designated column with a <code>java.sql.SQLXML</code> value.
-     *
-     * @param column
-     * @param x    The value for the column to be updated
-     * @throws SQLException if a database access error occurs
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Updates the designated column with a <code>java.sql.SQLXML</code> value.
+  //JDBC40DOC      *
+  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @param x    The value for the column to be updated
+  //JDBC40DOC      * @throws SQLException if a database access error occurs
+  //JDBC40DOC      */
     /* ifdef JDBC40 
 
     public void updateSQLXML (int column, java.sql.SQLXML x) throws java.sql.SQLException
@@ -4206,13 +4206,13 @@ endif */
         checkUpdatePreconditions (column);
     }
 endif */ 
-    /**
-     * Updates the designated column with a <code>java.sql.SQLXML</code> value.
-     *
-     * @param columnName
-     * @param x    The value for the column to be updated
-     * @throws SQLException if a database access error occurs
-     */
+  //JDBC40DOC     /**
+  //JDBC40DOC      * Updates the designated column with a <code>java.sql.SQLXML</code> value.
+  //JDBC40DOC      *
+  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @param x    The value for the column to be updated
+  //JDBC40DOC      * @throws SQLException if a database access error occurs
+  //JDBC40DOC      */
     /* ifdef JDBC40 
 
     public void updateSQLXML (String columnName, java.sql.SQLXML x) throws java.sql.SQLException

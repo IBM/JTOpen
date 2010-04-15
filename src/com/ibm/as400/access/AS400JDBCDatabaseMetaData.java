@@ -7559,24 +7559,24 @@ endif */
 
 
     //@PDA jdbc40
-    /**
-     * Indicates whether or not this data source supports the SQL <code>ROWID</code> type,
-     * and if so  the lifetime for which a <code>RowId</code> object remains valid. 
-     * <p>
-     * The returned int values have the following relationship: 
-     * <pre>
-     *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
-     *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
-     * </pre>
-     * so conditional logic such as 
-     * <pre>
-     *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
-     * </pre>
-     * can be used. Valid Forever means valid across all Sessions, and valid for 
-     * a Session means valid across all its contained Transactions. 
-     *
-     * @throws SQLException if a database access error occurs
-     */
+  //JDBC40DOC /**
+  //JDBC40DOC      * Indicates whether or not this data source supports the SQL <code>ROWID</code> type,
+  //JDBC40DOC      * and if so  the lifetime for which a <code>RowId</code> object remains valid. 
+  //JDBC40DOC      * <p>
+  //JDBC40DOC      * The returned int values have the following relationship: 
+  //JDBC40DOC      * <pre>
+  //JDBC40DOC      *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
+  //JDBC40DOC      *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
+  //JDBC40DOC      * </pre>
+  //JDBC40DOC      * so conditional logic such as 
+  //JDBC40DOC      * <pre>
+  //JDBC40DOC      *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
+  //JDBC40DOC      * </pre>
+  //JDBC40DOC      * can be used. Valid Forever means valid across all Sessions, and valid for 
+  //JDBC40DOC      * a Session means valid across all its contained Transactions. 
+  //JDBC40DOC      *
+  //JDBC40DOC      * @throws SQLException if a database access error occurs
+  //JDBC40DOC      */
     /* ifdef JDBC40 
     public RowIdLifetime getRowIdLifetime() throws SQLException
     {

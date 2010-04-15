@@ -412,15 +412,15 @@ public class AS400JDBCPooledConnection implements PooledConnection
   }
   
     //@PDA jdbc40
-    /**
-     * Registers a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.  Components that 
-     * wish to be notified when  <code>PreparedStatement</code>s created by the
-     * connection are closed or are detected to be invalid may use this method 
-     * to register a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.
-     * <p>
-     * @param listener  an component which implements the <code>StatementEventListener</code> 
-     *                  interface that is to be registered with this <code>PooledConnection</code> object
-     */
+//JDBC40DOC     /**
+//JDBC40DOC      * Registers a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.  Components that 
+//JDBC40DOC      * wish to be notified when  <code>PreparedStatement</code>s created by the
+//JDBC40DOC      * connection are closed or are detected to be invalid may use this method 
+//JDBC40DOC      * to register a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.
+//JDBC40DOC      * <p>
+//JDBC40DOC      * @param listener  an component which implements the <code>StatementEventListener</code> 
+//JDBC40DOC      *                  interface that is to be registered with this <code>PooledConnection</code> object
+//JDBC40DOC      */
   /* ifdef JDBC40 
   public void addStatementEventListener(StatementEventListener listener)
   {
@@ -436,15 +436,15 @@ public class AS400JDBCPooledConnection implements PooledConnection
   endif */ 
   
     //@PDA jdbc40 
-    /**
-     * Removes the specified <code>StatementEventListener</code> from the list of 
-     * components that will be notified when the driver detects that a 
-     * <code>PreparedStatement</code> has been closed or is invalid.
-     * <p> 
-     * @param listener  the component which implements the
-     *                  <code>StatementEventListener</code> interface that was previously 
-     *                  registered with this <code>PooledConnection</code> object
-     */
+//JDBC40DOC     /**
+//JDBC40DOC      * Removes the specified <code>StatementEventListener</code> from the list of 
+//JDBC40DOC      * components that will be notified when the driver detects that a 
+//JDBC40DOC      * <code>PreparedStatement</code> has been closed or is invalid.
+//JDBC40DOC      * <p> 
+//JDBC40DOC      * @param listener  the component which implements the
+//JDBC40DOC      *                  <code>StatementEventListener</code> interface that was previously 
+//JDBC40DOC      *                  registered with this <code>PooledConnection</code> object
+//JDBC40DOC      */
   /* ifdef JDBC40 
   public void removeStatementEventListener(StatementEventListener listener)
   {
