@@ -1073,16 +1073,16 @@ endif */
   }
 
   //@PDA jdbc40
-  /**
-   * Constructs an object that implements the <code>NClob</code> interface. The object
-   * returned initially contains no data.  The <code>setAsciiStream</code>,
-   * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
-   * be used to add data to the <code>NClob</code>.
-   * @return An object that implements the <code>NClob</code> interface
-   * @throws SQLException if an object that implements the
-   * <code>NClob</code> interface can not be constructed.
-   *
-   */
+//JDBC40DOC   /**
+//JDBC40DOC    * Constructs an object that implements the <code>NClob</code> interface. The object
+//JDBC40DOC    * returned initially contains no data.  The <code>setAsciiStream</code>,
+//JDBC40DOC    * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+//JDBC40DOC    * be used to add data to the <code>NClob</code>.
+//JDBC40DOC    * @return An object that implements the <code>NClob</code> interface
+//JDBC40DOC    * @throws SQLException if an object that implements the
+//JDBC40DOC    * <code>NClob</code> interface can not be constructed.
+//JDBC40DOC    *
+//JDBC40DOC    */
   /* ifdef JDBC40 
   public NClob createNClob() throws SQLException
   {
@@ -1090,15 +1090,15 @@ endif */
   }
 endif */ 
   //@PDA jdbc40
-  /**
-   * Constructs an object that implements the <code>SQLXML</code> interface. The object
-   * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
-   * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
-   * object.
-   * @return An object that implements the <code>SQLXML</code> interface
-   * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
-   * be constructed
-   */
+//JDBC40DOC   /**
+//JDBC40DOC    * Constructs an object that implements the <code>SQLXML</code> interface. The object
+//JDBC40DOC    * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
+//JDBC40DOC    * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+//JDBC40DOC    * object.
+//JDBC40DOC    * @return An object that implements the <code>SQLXML</code> interface
+//JDBC40DOC    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+//JDBC40DOC    * be constructed
+//JDBC40DOC    */
   /* ifdef JDBC40 
   public SQLXML createSQLXML() throws SQLException
   {

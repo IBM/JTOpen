@@ -702,17 +702,17 @@ retrieved from the system.
   
   
   //@PDA jdbc40
-  /**
-   Throws an SQLClientInfoException exception based on an error in the
-   error table and dumps an internal exception stack
-   trace for debugging purposes.
-   
-   @param  thrower     The object that is throwing the exception.
-   @param  sqlState    The SQL State.
-   @param  e           The internal exception.
-   
-   @exception          SQLClientInfoException    Always.
-   **/
+//JDBC40DOC   /**
+//JDBC40DOC    Throws an SQLClientInfoException exception based on an error in the
+//JDBC40DOC    error table and dumps an internal exception stack
+//JDBC40DOC    trace for debugging purposes.
+//JDBC40DOC    
+//JDBC40DOC    @param  thrower     The object that is throwing the exception.
+//JDBC40DOC    @param  sqlState    The SQL State.
+//JDBC40DOC    @param  e           The internal exception.
+//JDBC40DOC    
+//JDBC40DOC    @exception          SQLClientInfoException    Always.
+//JDBC40DOC    **/
   //
   //@pdc jdbc40 merge public static void throwSQLClientInfoException (Object thrower, String sqlState, Exception e, Map<String,ClientInfoStatus> m)
   /* ifdef JDBC40 
@@ -751,13 +751,13 @@ retrieved from the system.
   }
   endif */   
   //@PDA jdbc40
-  /**
-   Helper class that creates a new sub-class object of SQLException for new jdbc 4.0 SQLException sub-classes.
-   Sub-class is determined based upon sqlState.  
-   Modeled after Native driver SQLException factory.
-   
-   @param  sqlState    The SQL State.
-   **/
+//JDBC40DOC   /**
+//JDBC40DOC    Helper class that creates a new sub-class object of SQLException for new jdbc 4.0 SQLException sub-classes.
+//JDBC40DOC    Sub-class is determined based upon sqlState.  
+//JDBC40DOC    Modeled after Native driver SQLException factory.
+//JDBC40DOC    
+//JDBC40DOC    @param  sqlState    The SQL State.
+//JDBC40DOC    **/
   
   /* ifdef JDBC40 
 
