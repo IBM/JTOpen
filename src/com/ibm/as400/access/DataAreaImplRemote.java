@@ -1181,7 +1181,7 @@ class DataAreaImplRemote implements DataAreaImpl
             Trace.log(Trace.DIAGNOSTIC, "wrtcmd2=["+wrtcmd2+"]"); //@A2A
         }                                                         //@A2A
         // Run the command as bytes
-        boolean result = rmtCmd_.runCommand(wrtcmd, "QSYS/CHGDTAARA");   //@D2C
+        boolean result = rmtCmd_.runCommand(wrtcmd, "QSYS/CHGDTAARA"); // not threadsafe
         messageList_ = rmtCmd_.getMessageList();                //$D2A
 
         if(!result)                                             //$D2C
@@ -1304,7 +1304,7 @@ class DataAreaImplRemote implements DataAreaImpl
         Trace.log(Trace.DIAGNOSTIC, "wrtcmd=["+wrtcmd+"]");
       }
       // Run the command as bytes
-      boolean result = rmtCmd_.runCommand(wrtcmd);
+      boolean result = rmtCmd_.runCommand(wrtcmd); // CHGDTAARA is not threadsafe
       messageList_ = rmtCmd_.getMessageList();
 
       if(!result)
