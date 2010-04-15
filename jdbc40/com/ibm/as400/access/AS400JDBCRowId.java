@@ -41,25 +41,25 @@ implements RowId
         data_ = data;
     }
 
-    /**
-     * Compares this <code>RowId</code> to the specified object. The result is 
-     * <code>true</code> if and only if the argument is not null and is a RowId 
-     * object that represents the same ROWID as  this object. 
-     * <p>
-     * It is important 
-     * to consider both the origin and the valid lifetime of a <code>RowId</code>
-     * when comparing it to another <code>RowId</code>. If both are valid, and 
-     * both are from the same table on the same data source, then if they are equal
-     * they identify 
-     * the same row; if one or more is no longer guaranteed to be valid, or if 
-     * they originate from different data sources, or different tables on the
-     * same data source, they  may be equal but still
-     * not identify the same row. 
-     * 
-     * @param obj the <code>Object</code> to compare this <code>RowId</code> object
-     *     against.
-     * @return true if the <code>RowId</code>s are equal; false otherwise
-     */
+     /**
+      * Compares this <code>RowId</code> to the specified object. The result is 
+      * <code>true</code> if and only if the argument is not null and is a RowId 
+      * object that represents the same ROWID as  this object. 
+      * <p>
+      * It is important 
+      * to consider both the origin and the valid lifetime of a <code>RowId</code>
+      * when comparing it to another <code>RowId</code>. If both are valid, and 
+      * both are from the same table on the same data source, then if they are equal
+      * they identify 
+      * the same row; if one or more is no longer guaranteed to be valid, or if 
+      * they originate from different data sources, or different tables on the
+      * same data source, they  may be equal but still
+      * not identify the same row. 
+      * 
+      * @param obj the <code>Object</code> to compare this <code>RowId</code> object
+      *     against.
+      * @return true if the <code>RowId</code>s are equal; false otherwise
+      */
 /* ifdef JDBC40 */
     public boolean equals(Object obj)
     {

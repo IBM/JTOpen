@@ -1982,7 +1982,7 @@ ResultSet.CONCUR_READ_ONLY.
     /**
      * Starts or stops the Database Host Server trace for this connection.
      * Note:  This method is only supported when running to i5/OS V5R3 or later 
-     * and is ignored if you specified to turn on database host server tracing
+     * and is ignored if you specified to turn on database host server tracingfs
      * using the 'server trace' connection property.
      * @param trace true to start database host server tracing, false to end it.
      */

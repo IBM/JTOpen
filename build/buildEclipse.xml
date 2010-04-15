@@ -187,7 +187,12 @@
        directory. --> 
   <property name="build" value="/jtopen_build"/>
 
-
+  <property name="userid" value="USERID"/>
+  <property name="password" value="PASSWORK"/>
+  <property name="v7r1server" value="SYSTEMNAME"/>
+  
+  <property name="jdk14home" value="C:/jdk1.4"/>
+	
   <property name="bin" value="${build}/bin"/>  
   <property name="source" value="${basedir}/../src"/>
   <property name="jdbc40source" value="${basedir}/../jdbc40"/>
@@ -195,13 +200,13 @@
   <property name="source-jdbc40-combined" value="${build}/jdbc40-combined"/>
   <property name="source-contrib" value="${build}/contrib"/>
   <property name="source-micro" value="${build}/micro"/>
-  <property name="dist" value="${build}/dist"/>
+  <property name="dist" value="${build}/dist14"/>
   <property name="dist6" value="${build}/dist6"/>
   <property name="include" value="${build}/include"/>
   <property name="stubs" value="${build}/stubs"/> <!-- stubs are classes we need for compiling, but we don't ship. -->
   <property name="javadoc" value="${build}/javadoc"/>
   <property name="javadoc6" value="${build}/javadoc"/>
-  <property name="output" value="${build}/output"/>
+  <property name="output" value="${build}/output14"/>
   <property name="output6" value="${build}/output6"/>
   <property name="output-micro" value="${build}/output-micro"/>
   <property name="output-micro-verified" value="${build}/output-micro-verified"/>
@@ -261,7 +266,7 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: all
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="all" depends="jar,javadoc,zip"/>
+  <target name="all" depends="jar,javadoc,javadoc6,zip"/>
 
   
 <!--///////////////////////////////////////////////////////////////////////////
@@ -332,6 +337,9 @@
            debuglevel="lines,source"
            fork="true"
            encoding="iso-8859-1"
+    	   executable="${jdk14home}/bin/javac"
+    	   compiler="javac1.4"
+    	   source="1.2"
            target="1.1">
       <classpath>
         <pathelement path="${include}"/>
@@ -430,7 +438,8 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: jar
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet"/>
+  	
+  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jt4006"/>
 
   <!-- Note that the utilities package is now included in the jt400.jar. -->  
   <target name="jar-jt400" depends="init,compile,pcml,copyright">
@@ -739,7 +748,9 @@
 	    <taskdef name="jdbc40src" classname="Jdbc40Task" classpath="."/>
 	    <jdbc40src destdir="${jdbc40source}"
 	               srcdir="${source}"
-	               verbose="${show-progress}"/>
+	    	
+	               verbose="${show-progress}"
+	    />
 	  </target>
 
 
@@ -748,10 +759,10 @@
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="source6" depends="init, jdbc40src">
 	<!-- copy all source to new dir, and then copy the new jdbc40 specific files replacing any pre-jdbc40 files -->
-	    <copy todir="${source-jdbc40-combined}" overwrite="yes"  preservelastmodified="yes"> 
+	    <copy todir="${source-jdbc40-combined}"  preservelastmodified="yes"> 
 	         <fileset dir="${source}"/>  
 	    </copy>
-	    <copy todir="${source-jdbc40-combined}" overwrite="yes" preservelastmodified="yes"> 
+	    <copy todir="${source-jdbc40-combined}"  preservelastmodified="yes"> 
 	         <fileset dir="${source-jdbc40}"/>  
 	   </copy>
 
@@ -834,5 +845,43 @@ Available Ant targets for the JTOpen build script include:
     </zip>
     <checksum file="${dist}/src.zip"/>
   </target>  
+	
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: ftp
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="ftp" depends="jar">
+	  	<!-- V7R1 server --> 
+		  <ftp server="${v7r1server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="yes"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v7r1server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="yes"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+
+	  	
+	  	
+	  </target>  
+		
+
 
 </project>

@@ -245,7 +245,7 @@ implements Connection
     
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
 
-	private boolean doUpdateDeleteBlocking_ = false;
+	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -3225,7 +3225,7 @@ implements Connection
 
         
         if (as400_.getVRM() >= JDUtilities.vrm710) {
-        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);  
+        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);  //@A2A
         }
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
@@ -4426,7 +4426,7 @@ implements Connection
      * <p>
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if a database access error occurs.
-     */ 
+ */ 
 /* ifdef JDBC40 */
     public boolean isValid(int timeout) throws SQLException 
     { 
@@ -5096,7 +5096,7 @@ implements Connection
     }
 
 
-
+    //@A2A
 	public boolean doUpdateDeleteBlocking() {
 		return doUpdateDeleteBlocking_; 
 	}

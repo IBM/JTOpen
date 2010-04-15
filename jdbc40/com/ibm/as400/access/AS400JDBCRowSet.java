@@ -4963,7 +4963,7 @@ implements RowSet, Serializable             // @A3C
     /**
      * Retrieves the value of the designated column in  the current row of
      *  this <code>ResultSet</code> as a
-     * <code>java.sql.SQLXML</code> object in the Java programming language.
+ * <code>java.sql.SQLXML</code> object in the Java programming language.
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs 

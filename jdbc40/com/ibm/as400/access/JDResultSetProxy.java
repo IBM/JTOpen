@@ -1843,18 +1843,18 @@ implements ResultSet
     
     
     //@pda jdbc40
-    /**
-     * Retrieves the value of the designated column in the current row
-     * of this <code>ResultSet</code> object as a <code>NClob</code> object
-     * in the Java programming language.
-     *
-     * @param columnIndex the first column is 1, the second is 2, ...
-     * @return a <code>NClob</code> object representing the SQL 
-     *         <code>NCLOB</code> value in the specified column
-     * @exception SQLException if the driver does not support national
-     *         character sets;  if the driver can detect that a data conversion
-     *  error could occur; or if a database access error occurss
-     */
+     /**
+      * Retrieves the value of the designated column in the current row
+      * of this <code>ResultSet</code> object as a <code>NClob</code> object
+      * in the Java programming language.
+      *
+      * @param columnIndex the first column is 1, the second is 2, ...
+      * @return a <code>NClob</code> object representing the SQL 
+      *         <code>NCLOB</code> value in the specified column
+      * @exception SQLException if the driver does not support national
+      *         character sets;  if the driver can detect that a data conversion
+      *  error could occur; or if a database access error occurss
+      */
 /* ifdef JDBC40 */
     public NClob getNClob(int columnIndex) throws SQLException
     {
@@ -1874,18 +1874,18 @@ implements ResultSet
     
     
     //@pda jdbc40
-    /**
-     * Retrieves the value of the designated column in the current row
-     * of this <code>ResultSet</code> object as a <code>NClob</code> object
-     * in the Java programming language.
-     *
-     * @param columnName the name of the column from which to retrieve the value
-     * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
-     * value in the specified column
-     * @exception SQLException if the driver does not support national
-     *         character sets;  if the driver can detect that a data conversion
-     *  error could occur; or if a database access error occurs
-     */
+     /**
+      * Retrieves the value of the designated column in the current row
+      * of this <code>ResultSet</code> object as a <code>NClob</code> object
+      * in the Java programming language.
+      *
+      * @param columnName the name of the column from which to retrieve the value
+      * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
+      * value in the specified column
+      * @exception SQLException if the driver does not support national
+      *         character sets;  if the driver can detect that a data conversion
+      *  error could occur; or if a database access error occurs
+      */
 /* ifdef JDBC40 */
     public NClob getNClob(String columnName) throws SQLException
     {

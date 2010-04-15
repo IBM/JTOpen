@@ -1944,6 +1944,18 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.TRANSLATE_BOOLEAN);
     }
      
+    
+    /**
+     *  Indicates whether blocking is used for update and delete operations
+     *  @return true if enabled; false otherwise.
+     *  The default value is false.
+     **/
+     public boolean isUseBlockUpdate()
+     {
+         return properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);
+     }
+
+
     /**
     *  Logs a message to the event log.
     *  @param message The message to log.
@@ -4278,6 +4290,29 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
     
 
+    /**
+     *  Indicates whether blocking should be used for updates and delete.
+     *  @param value true if blocking is used for updates and deletes.
+     *  The default value is false.
+     **/
+     public void setUseBlockUpdate(boolean value)
+     {
+         String property = JDProperties.DO_UPDATE_DELETE_BLOCKING_  ;
+         Boolean oldValue = new Boolean(isUseBlockUpdate());
+         Boolean newValue = new Boolean(value);
+
+         if (value)
+             properties_.setString(JDProperties.DO_UPDATE_DELETE_BLOCKING, TRUE_);
+         else
+             properties_.setString(JDProperties.DO_UPDATE_DELETE_BLOCKING, FALSE_);
+
+         changes_.firePropertyChange(property, oldValue, newValue);
+
+         if (JDTrace.isTraceOn()) 
+             JDTrace.logInformation (this, property + ": " + value);      
+     }
+
+    
     /**
     *  Sets the database user.
     *  @param user The user.

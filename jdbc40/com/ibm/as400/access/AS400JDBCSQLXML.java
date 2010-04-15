@@ -811,25 +811,25 @@ implements SQLXML
 
 
 
-    /**
-     * Returns a Source for reading the XML value designated by this SQLXML instance.
-     * Sources are used as inputs to XML parsers and XSLT transformers.
-     * @param sourceClass The class of the source, or null.  
-     * If the class is null, a vendor specific Source implementation will be returned.
-     * The following classes are supported at a minimum:
-     * <pre>
-     *   javax.xml.transform.dom.DOMSource - returns a DOMSource
-     *   javax.xml.transform.sax.SAXSource - returns a SAXSource
-     *   javax.xml.transform.stax.StAXSource - returns a StAXSource
-     *   javax.xml.transform.stream.StreamSource - returns a StreamSource
-     * </pre>
-     * @return a Source for reading the XML value.
-     * @throws SQLException if there is an error processing the XML value
-     *   or if this feature is not supported.
-     *   The getCause() method of the exception may provide a more detailed exception, for example,
-     *   if an XML parser exception occurs. 
-     *   An exception is thrown if the state is not readable.
-     */
+     /**
+      * Returns a Source for reading the XML value designated by this SQLXML instance.
+      * Sources are used as inputs to XML parsers and XSLT transformers.
+      * @param sourceClass The class of the source, or null.  
+      * If the class is null, a vendor specific Source implementation will be returned.
+      * The following classes are supported at a minimum:
+      * <pre>
+      *   javax.xml.transform.dom.DOMSource - returns a DOMSource
+      *   javax.xml.transform.sax.SAXSource - returns a SAXSource
+      *   javax.xml.transform.stax.StAXSource - returns a StAXSource
+      *   javax.xml.transform.stream.StreamSource - returns a StreamSource
+      * </pre>
+      * @return a Source for reading the XML value.
+      * @throws SQLException if there is an error processing the XML value
+      *   or if this feature is not supported.
+      *   The getCause() method of the exception may provide a more detailed exception, for example,
+      *   if an XML parser exception occurs. 
+      *   An exception is thrown if the state is not readable.
+      */
 /* ifdef JDBC40 */
     public synchronized <T extends Source> T getSource(Class<T> sourceClass) throws SQLException
     {
@@ -968,25 +968,25 @@ implements SQLXML
         return clobValue_.setCharacterStream(1L); 
     }
 
-    /**
-     * Returns a Result for setting the XML value designated by this SQLXML instance.
-     * @param resultClass The class of the result, or null.  
-     * If resultClass is null, a vendor specific Result implementation will be returned.
-     * The following classes are supported at a minimum:
-     * <pre>
-     *   javax.xml.transform.dom.DOMResult - returns a DOMResult
-     *   javax.xml.transform.sax.SAXResult - returns a SAXResult
-     *   javax.xml.transform.stax.StAXResult - returns a StAXResult
-     *   javax.xml.transform.stream.StreamResult - returns a StreamResult
-     * </pre>
-     * @return Returns a Result for setting the XML value.
-     * @throws SQLException if there is an error processing the XML value
-     *   or if this feature is not supported.
-     *   The getCause() method of the exception may provide a more detailed exception, for example,
-     *   if an XML parser exception occurs. 
-     *   An exception is thrown if the state is not writable.
-     * @exception If there is an error
-     */
+     /**
+      * Returns a Result for setting the XML value designated by this SQLXML instance.
+      * @param resultClass The class of the result, or null.  
+      * If resultClass is null, a vendor specific Result implementation will be returned.
+      * The following classes are supported at a minimum:
+      * <pre>
+      *   javax.xml.transform.dom.DOMResult - returns a DOMResult
+      *   javax.xml.transform.sax.SAXResult - returns a SAXResult
+      *   javax.xml.transform.stax.StAXResult - returns a StAXResult
+      *   javax.xml.transform.stream.StreamResult - returns a StreamResult
+      * </pre>
+      * @return Returns a Result for setting the XML value.
+      * @throws SQLException if there is an error processing the XML value
+      *   or if this feature is not supported.
+      *   The getCause() method of the exception may provide a more detailed exception, for example,
+      *   if an XML parser exception occurs. 
+      *   An exception is thrown if the state is not writable.
+      * @exception If there is an error
+      */
 /* ifdef JDBC40 */
     public synchronized <T extends Result> T setResult(Class<T> resultClass) throws SQLException
     {

@@ -1073,16 +1073,16 @@ implements Connection
   }
 
   //@PDA jdbc40
-  /**
-   * Constructs an object that implements the <code>NClob</code> interface. The object
-   * returned initially contains no data.  The <code>setAsciiStream</code>,
-   * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
-   * be used to add data to the <code>NClob</code>.
-   * @return An object that implements the <code>NClob</code> interface
-   * @throws SQLException if an object that implements the
-   * <code>NClob</code> interface can not be constructed.
-   *
-   */
+   /**
+    * Constructs an object that implements the <code>NClob</code> interface. The object
+    * returned initially contains no data.  The <code>setAsciiStream</code>,
+    * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+    * be used to add data to the <code>NClob</code>.
+    * @return An object that implements the <code>NClob</code> interface
+    * @throws SQLException if an object that implements the
+    * <code>NClob</code> interface can not be constructed.
+    *
+    */
 /* ifdef JDBC40 */
   public NClob createNClob() throws SQLException
   {
@@ -1090,15 +1090,15 @@ implements Connection
   }
 /* endif */ 
   //@PDA jdbc40
-  /**
-   * Constructs an object that implements the <code>SQLXML</code> interface. The object
-   * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
-   * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
-   * object.
-   * @return An object that implements the <code>SQLXML</code> interface
-   * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
-   * be constructed
-   */
+   /**
+    * Constructs an object that implements the <code>SQLXML</code> interface. The object
+    * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
+    * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+    * object.
+    * @return An object that implements the <code>SQLXML</code> interface
+    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+    * be constructed
+    */
 /* ifdef JDBC40 */
   public SQLXML createSQLXML() throws SQLException
   {

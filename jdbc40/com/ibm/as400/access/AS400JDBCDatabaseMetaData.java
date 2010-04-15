@@ -7559,24 +7559,24 @@ implements DatabaseMetaData
 
 
     //@PDA jdbc40
-    /**
-     * Indicates whether or not this data source supports the SQL <code>ROWID</code> type,
-     * and if so  the lifetime for which a <code>RowId</code> object remains valid. 
-     * <p>
-     * The returned int values have the following relationship: 
-     * <pre>
-     *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
-     *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
-     * </pre>
-     * so conditional logic such as 
-     * <pre>
-     *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
-     * </pre>
-     * can be used. Valid Forever means valid across all Sessions, and valid for 
-     * a Session means valid across all its contained Transactions. 
-     *
-     * @throws SQLException if a database access error occurs
-     */
+ /**
+      * Indicates whether or not this data source supports the SQL <code>ROWID</code> type,
+      * and if so  the lifetime for which a <code>RowId</code> object remains valid. 
+      * <p>
+      * The returned int values have the following relationship: 
+      * <pre>
+      *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
+      *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
+      * </pre>
+      * so conditional logic such as 
+      * <pre>
+      *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
+      * </pre>
+      * can be used. Valid Forever means valid across all Sessions, and valid for 
+      * a Session means valid across all its contained Transactions. 
+      *
+      * @throws SQLException if a database access error occurs
+      */
 /* ifdef JDBC40 */
     public RowIdLifetime getRowIdLifetime() throws SQLException
     {

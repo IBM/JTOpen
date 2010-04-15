@@ -5914,18 +5914,18 @@ implements ResultSet
 
 
     //@pda jdbc40
-    /**
-     * Retrieves the value of the designated column in the current row
-     * of this <code>ResultSet</code> object as a <code>NClob</code> object
-     * in the Java programming language.
-     *
-     * @param columnIndex
-     * @return a <code>NClob</code> object representing the SQL 
-     *         <code>NCLOB</code> value in the specified column
-     * @exception SQLException if the driver does not support national
-     *         character sets;  if the driver can detect that a data conversion
-     *  error could occur; or if a database access error occurss
-     */
+     /**
+      * Retrieves the value of the designated column in the current row
+      * of this <code>ResultSet</code> object as a <code>NClob</code> object
+      * in the Java programming language.
+      *
+      * @param columnIndex
+      * @return a <code>NClob</code> object representing the SQL 
+      *         <code>NCLOB</code> value in the specified column
+      * @exception SQLException if the driver does not support national
+      *         character sets;  if the driver can detect that a data conversion
+      *  error could occur; or if a database access error occurss
+      */
 /* ifdef JDBC40 */
     public NClob getNClob(int columnIndex) throws SQLException
     {
