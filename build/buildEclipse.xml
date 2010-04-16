@@ -187,9 +187,6 @@
        directory. --> 
   <property name="build" value="/jtopen_build"/>
 
-  <property name="userid" value="USERID"/>
-  <property name="password" value="PASSWORK"/>
-  <property name="v7r1server" value="SYSTEMNAME"/>
   
   <property name="jdk14home" value="C:/jdk1.4"/>
 	
@@ -443,7 +440,7 @@
 
   <!-- Note that the utilities package is now included in the jt400.jar. -->  
   <target name="jar-jt400" depends="init,compile,pcml,copyright">
-    <jar jarfile="${dist}/jt400.jar" manifest="${build}/build/jt400_manifest.txt">
+    <jar jarfile="${dist}/jt400.jar" manifest="jt400_manifest.txt">
       <fileset dir="${output}">
         <patternset refid="exclude.native.optimizations"/>
         <patternset refid="exclude.local.socket.implementation"/>
@@ -467,7 +464,7 @@
   </target>
 
 	  <target name="jar-jt4006" depends="init,compile6,pcml6,copyright6">
-	    <jar jarfile="${dist6}/jt400.jar" manifest="${build}/build/jt400_manifest.txt">
+	    <jar jarfile="${dist6}/jt400.jar" manifest="jt400_manifest.txt">
 	      <fileset dir="${output6}">
 	        <patternset refid="exclude.native.optimizations"/>
 	        <patternset refid="exclude.local.socket.implementation"/>
@@ -494,7 +491,7 @@
 
 	
   <target name="jar-jt400Micro" depends="init,compile-micro,micro-preverify">
-    <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
+    <jar jarfile="${dist}/jt400Micro.jar" manifest="jt400Micro_manifest.txt">
       <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
@@ -502,7 +499,7 @@
   </target>
 
   <target name="jar-jt400Native" depends="init,compile,pcml,copyright">
-    <jar jarfile="${dist}/jt400Native.jar" manifest="${build}/build/jt400Native_manifest.txt">
+    <jar jarfile="${dist}/jt400Native.jar" manifest="jt400Native_manifest.txt">
       <fileset dir="${output}">
         <patternset>
             <!-- Exclude everything in the 'utilities' package except the AboutToolbox class. -->
@@ -530,7 +527,7 @@
   </target>
   
   <target name="jar-jt400Proxy" depends="init,compile">
-    <jar jarfile="${dist}/jt400Proxy.jar" manifest="${build}/build/jt400Proxy_manifest.txt">
+    <jar jarfile="${dist}/jt400Proxy.jar" manifest="jt400Proxy_manifest.txt">
       <fileset dir="${output}" includesfile="${build}/build/proxy.includes"/>
       <fileset dir="${include}" includesfile="${build}/build/proxy.includes"/>
       <fileset dir="${source}" includesfile="${build}/build/proxy.includes"/>
@@ -540,7 +537,7 @@
   </target>
 
   <target name="jar-jt400Servlet" depends="init,compile">
-    <jar jarfile="${dist}/jt400Servlet.jar" manifest="${build}/build/jt400Servlet_manifest.txt">
+    <jar jarfile="${dist}/jt400Servlet.jar" manifest="jt400Servlet_manifest.txt">
       <fileset dir="${output}">
         <patternset>
             <include name="com/ibm/as400/util/html/**"/>
@@ -848,6 +845,9 @@ Available Ant targets for the JTOpen build script include:
 	
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftp
+	    // 
+	    // Note:  depends="no" set because the dependency checking takes a 
+	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftp" depends="jar">
 	  	<!-- V7R1 server --> 
@@ -856,7 +856,7 @@ Available Ant targets for the JTOpen build script include:
 		       userid="${userid}"
 		       password="${password}"
 		       passive="yes"
-		       depends="yes"
+		       depends="no"
 		  	   verbose="yes"
 		       binary="yes">
 		    <fileset dir="${dist}">
@@ -870,7 +870,7 @@ Available Ant targets for the JTOpen build script include:
 		       userid="${userid}"
 		       password="${password}"
 		       passive="yes"
-		       depends="yes"
+		       depends="no"
 		  	   verbose="yes"
 		       binary="yes">
 		    <fileset dir="${dist6}">
