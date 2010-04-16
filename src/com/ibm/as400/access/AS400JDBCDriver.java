@@ -105,6 +105,7 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @A1   20100406  Correct Syntax Error on Insert 
 // @A2   20100407  Update/Delete Blocking fix 
 // @A3   20100407  Allow DMD.getFunctions call on V5R4
+// @A4   20100415  Fix update counts for batched update
 //--------------------------------------------------------------------
 
 

@@ -66,7 +66,7 @@ arbitrary type conversions are required, then use setObject() with
 a target SQL type.
 **/
 //
-// Implementation notes:
+// Implementation notes:  
 //
 // 1. See implementation note in AS400JDBCStatement.java about
 //    "private protected" methods.
@@ -81,7 +81,7 @@ a target SQL type.
 //    Of course in that case we are always mapping the caller's parameter
 //    indices to the database's indices by decrementing by 1 as needed.
 //
-// @G8c
+// @G8c  
 // 3. If there is a return value (ie ?=call xxxx) and the parameter
 //    index is 1 then return data for the return value (always an Integer).
 //    If not, decrement the parm index by one because internally the return
@@ -1163,6 +1163,7 @@ endif */
                 {
                     Enumeration list = batch_.elements();
                     int count = 0;                                //@K1A   Added support for allowing more than 32000 SQL Statements to be batched and run
+                    int totalUpdateCount = 0;  /* @A4A*/ 
                     while (list.hasMoreElements())                
                     {
                         batchParameterRows_.add(list.nextElement());
@@ -1171,7 +1172,9 @@ endif */
                         {                                           //@K1A
                             if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");  //@K1A
                             commonExecute(sqlStatement_, resultRow_);        //@K1A
+                            totalUpdateCount += updateCount_;    /* @A4A*/
                             batchParameterRows_.clear();                     //@K1A
+                            
                             if (resultSet_ != null)                          //@K1A
                             {                                                //@K1A
                                 closeResultSet(JDCursor.REUSE_YES);          //@K1A
@@ -1182,6 +1185,7 @@ endif */
                     }
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");
                     commonExecute(sqlStatement_, resultRow_);
+                    totalUpdateCount += updateCount_;      /* @A4A*/
                     batchParameterRows_.clear();
                     if(resultSet_ != null)
                     {
@@ -1189,13 +1193,23 @@ endif */
                         JDError.throwSQLException(this, JDError.EXC_CURSOR_STATE_INVALID);
                     }
                     numSuccessful = batchSize;
+                    // The host server does not currently report the update counts for each statement in
+                    // the batch.  We use -2 here because that is the constant for Statement.SUCCESS_NO_INFO
+                    // as of JDBC 3.0 and JDK 1.4. When we change to build against JDK 1.4 instead of 1.3,
+                    // we can change this to use the actual constant.
+                    // However, if the total number of updated rows is the same as the batch size then
+                    // we can set each of the update counts to 1.    @A4A
+                    
+                    // Only set the count to one if the statement is an insert statement.  
+                    // The logic in JDSQLStatement only allows in insert to be batched if it is of the 
+                    // form insert ... VALUES(?,?,?) ... Any other form will not be batched  
+                    int updateCount = -2; 
+                    if ( batchSize == totalUpdateCount && sqlStatement_.isInsert_) {
+                    	updateCount = 1; 
+                    }
                     for(int i=0; i<batchSize; ++i)
                     {
-                        // The host server does not currently report the update counts for each statement in
-                        // the batch.  We use -2 here because that is the constant for Statement.SUCCESS_NO_INFO
-                        // as of JDBC 3.0 and JDK 1.4. When we change to build against JDK 1.4 instead of 1.3,
-                        // we can change this to use the actual constant.
-                        updateCounts[i] = -2;
+                        updateCounts[i] = updateCount;
                     }
                 }
                 else
