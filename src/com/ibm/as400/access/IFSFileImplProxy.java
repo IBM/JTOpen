@@ -90,7 +90,7 @@ implements IFSFileImpl
     }
     catch (InvocationTargetException e)
     {
-      throw rethrow2(e);
+      throw rethrow3a(e);
     }
   }
   
@@ -149,7 +149,7 @@ implements IFSFileImpl
       return connection_.callMethodReturnsInt (pxId_, "getCCSID");
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -163,7 +163,7 @@ implements IFSFileImpl
         .getReturnValueLong();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -177,7 +177,7 @@ implements IFSFileImpl
         .getReturnValueLong();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -189,7 +189,7 @@ implements IFSFileImpl
       return (String)connection_.callMethod (pxId_, "getOwnerName").getReturnValue();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -202,7 +202,7 @@ implements IFSFileImpl
       return connection_.callMethod (pxId_, "getOwnerUID").getReturnValueLong();   // @C0c
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -214,7 +214,7 @@ implements IFSFileImpl
                                 .getReturnValue();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -227,7 +227,7 @@ implements IFSFileImpl
                                 .getReturnValue();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -455,6 +455,20 @@ implements IFSFileImpl
       return ProxyClientConnection.rethrow (e);
   }
 
+  private static InternalErrorException rethrow3a (InvocationTargetException e)
+    throws IOException, AS400SecurityException, ObjectAlreadyExistsException
+  {
+    Throwable e2 = e.getTargetException ();
+    if (e2 instanceof IOException)
+      throw (IOException) e2;
+    else if (e2 instanceof AS400SecurityException)
+      throw (AS400SecurityException) e2;
+    else if (e2 instanceof ObjectAlreadyExistsException)
+      throw (ObjectAlreadyExistsException) e2;
+    else
+      return ProxyClientConnection.rethrow (e);
+  }
+
   public boolean setAccess(int accessType, boolean enableAccess, boolean ownerOnly)
     throws IOException, AS400SecurityException
   {
@@ -465,7 +479,7 @@ implements IFSFileImpl
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -479,7 +493,7 @@ implements IFSFileImpl
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -495,7 +509,7 @@ implements IFSFileImpl
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -510,7 +524,7 @@ implements IFSFileImpl
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -524,7 +538,7 @@ implements IFSFileImpl
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -539,7 +553,7 @@ implements IFSFileImpl
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
@@ -566,7 +580,7 @@ implements IFSFileImpl
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
-      throw ProxyClientConnection.rethrow1 (e);
+      throw ProxyClientConnection.rethrow2 (e);
     }
   }
 
