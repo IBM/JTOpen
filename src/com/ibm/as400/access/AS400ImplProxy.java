@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
+import java.beans.PropertyVetoException;
 
 // AS400ImplProxy forwards implementation methods from proxy client to proxy server.
 class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
@@ -121,26 +122,46 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     // Sets the raw bytes for the provided profile token.
     public void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException
     {
-        try
-        {
-            connection_.callMethod(pxId_, "generateProfileToken", new Class[] { ProfileTokenCredential.class, String.class }, new Object[] { profileToken, userIdentity });
+        try {
+          ProxyReturnValue rv = connection_.callMethod (pxId_, "generateProfileToken",
+             new Class[] { ProfileTokenCredential.class, String.class },
+             new Object[] { profileToken, userIdentity },
+             new boolean[] { true, false }, // indicate that 1st arg gets modified
+             true);
+          ProfileTokenCredential returnArg = (ProfileTokenCredential)rv.getArgument(0);
+          profileToken.setToken(returnArg.getToken());
+          return;
         }
         catch (InvocationTargetException e)
         {
             throw ProxyClientConnection.rethrow2(e);
+        }
+        catch (PropertyVetoException e) { // will never happen
+          Trace.log(Trace.ERROR, e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
     }
 
     // Sets the raw bytes for the provided profile token.
     public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException
     {
-        try
-        {
-            connection_.callMethod(pxId_, "generateProfileToken", new Class[] { ProfileTokenCredential.class, String.class, CredentialVault.class, String.class }, new Object[] { profileToken, userId, vault, gssName });
+        try {
+          ProxyReturnValue rv = connection_.callMethod (pxId_, "generateProfileToken",
+             new Class[] { ProfileTokenCredential.class, String.class, CredentialVault.class, String.class },
+             new Object[] { profileToken, userId, vault, gssName },
+             new boolean[] { true, false, false, false }, // indicate that 1st arg gets modified
+             true);
+          ProfileTokenCredential returnArg = (ProfileTokenCredential)rv.getArgument(0);
+          profileToken.setToken(returnArg.getToken());
+          return;
         }
         catch (InvocationTargetException e)
         {
             throw ProxyClientConnection.rethrow3(e);
+        }
+        catch (PropertyVetoException e) { // will never happen
+          Trace.log(Trace.ERROR, e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
     }
 
