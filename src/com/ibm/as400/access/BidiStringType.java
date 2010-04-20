@@ -72,14 +72,14 @@ package com.ibm.as400.access;
  * Visual LTR CCSIDs (420 for Arabic and 424 for Hebrew) only.  
  * <p>
  * Note that "LTR" means left-to-right, "RTL" means right-to-left, and
- * "Implicit" is alias for "Logical".
+ * "Implicit" is an alias for "Logical".
  **/
 public interface BidiStringType
 {
     /**
-     The default Bidi string type for client data (Logical LTR).
+     The default string type for Bidi data (Logical LTR). This value maps to ST5.
      **/
-    final static int DEFAULT = 5;
+    final static int DEFAULT = 0;
 
     /**
      String type used when an EBCDIC/Unicode conversion is desired, but without swapping, shaping, or transformation.
