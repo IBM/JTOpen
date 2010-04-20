@@ -204,9 +204,15 @@ class PortMapper
             }
             catch (Throwable e)
             {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE falling back to sslight:", e);
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE; falling back to SSLight:", e);
                 sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
-                sc.setProperties(socket, null, null, 0, useSSL);
+                try { sc.setProperties(socket, null, null, 0, useSSL); }
+                catch (NoClassDefFoundError e)
+                {
+                  Trace.log(Trace.ERROR, "SSLight classes are not found on classpath.", e);
+                  throw e; 
+                }
+
             }
         }
         else
@@ -265,14 +271,14 @@ class PortMapper
                     throw (IOException) e2;                   //@timeout
                 }else                                         //@timeout
                 {                                             //@timeout
-                    //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
+                    //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
                     throw new ClassNotFoundException();       //@timeout
                 }                                             //@timeout
             } catch (IllegalAccessException e) {              //@timeout
-                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
+                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
                 throw new ClassNotFoundException();           //@timeout
             } catch (NoSuchMethodException e) {               //@timeout
-                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
+                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
                 throw new ClassNotFoundException();           //@timeout
             }                                                 //@timeout
             
