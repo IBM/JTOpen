@@ -20,7 +20,7 @@ public interface Copyright
 {
     /** @deprecated This field is reserved for use within the Toolbox product. **/
     public static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
-    public static final String version   = "Open Source Software, JTOpen 7.0, codebase 5770-JC1 V7R1M0.01";
+    public static final String version   = "Open Source Software, JTOpen 7.0, codebase 5770-SS1 V7R1M0.01";  // as of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9;  // ex: "9" indicates V7R1
