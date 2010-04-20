@@ -207,10 +207,10 @@ class PortMapper
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE; falling back to SSLight:", e);
                 sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
                 try { sc.setProperties(socket, null, null, 0, useSSL); }
-                catch (NoClassDefFoundError e)
+                catch (NoClassDefFoundError e1)
                 {
-                  Trace.log(Trace.ERROR, "SSLight classes are not found on classpath.", e);
-                  throw e; 
+                  Trace.log(Trace.ERROR, "SSLight classes are not found on classpath.", e1);
+                  throw e1; 
                 }
 
             }
