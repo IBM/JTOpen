@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.Serializable;
 
 /**
- The BidiConversionProperties class provides a set of properties that can be used to control the conversion of character set data.
+ Provides a set of properties that can be used to control the conversion of character set data.
  **/
 public class BidiConversionProperties implements Serializable
 {
@@ -141,7 +141,7 @@ public class BidiConversionProperties implements Serializable
         if (bidiStringType != BidiStringType.NONE && bidiStringType != BidiStringType.DEFAULT && (bidiStringType < BidiStringType.ST4 || bidiStringType > BidiStringType.ST11))
         {
             Trace.log(Trace.ERROR, "Value of parameter 'bidiStringType' is not valid:", bidiStringType);
-            throw new ExtendedIllegalArgumentException("bidiStringType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("bidiStringType (" + bidiStringType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         bidiStringType_ = bidiStringType;
     }
