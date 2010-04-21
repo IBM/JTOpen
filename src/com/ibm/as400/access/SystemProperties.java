@@ -38,6 +38,7 @@ public class SystemProperties
      If set to <tt>true</tt>, then the {@link AS400 AS400} class may prompt during sign-on to display error conditions, to obtain additional signon information, or to change the password.
      If set to <tt>false</tt>, then connection error conditions or missing information will result in exceptions.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.guiAvailable
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>true</tt>
      <li>Overridden by: {@link AS400#setGuiAvailable AS400.setGuiAvailable()}
@@ -49,6 +50,7 @@ public class SystemProperties
      Specifies the proxy server host name and port number.
      The port number is optional.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.proxyServer
      <li>Values/syntax: <i>hostName:portNumber</i>
      <li>Default: (no default)
      <li>Overridden by: {@link AS400#setProxyServer AS400.setProxyServer()}
@@ -59,6 +61,7 @@ public class SystemProperties
     /**
      Specifies the name of the default signon handler class used by the {@link AS400 AS400} class.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.signonHandler
      <li>Values/syntax: <i>packageName.classname</i>
      <li>Default: An internal Toolbox class is used.
      <li>Overridden by: {@link AS400#setSignonHandler AS400.setSignonHandler()} and {@link AS400#setDefaultSignonHandler AS400.setDefaultSignonHandler()}
@@ -70,6 +73,7 @@ public class SystemProperties
      Specifies whether the {@link AS400 AS400} class should attempt to add the appropriate secondary language library to the library list.
      This property is ignored if not running on the IBM i system.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.mustAddLanguageLibrary
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
      <li>Overridden by: {@link AS400#setMustAddLanguageLibrary AS400.setMustAddLanguageLibrary()}
@@ -80,6 +84,7 @@ public class SystemProperties
     /**
      Specifies whether sockets must be used when communicating with the system.  Setting this property to <tt>true</tt> directs the Toolbox to refrain from exploiting native optimizations, when running directly on the system.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.mustUseSockets
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
      <li>Overridden by: {@link AS400#setMustUseSockets AS400.setMustUseSockets()}
@@ -90,6 +95,7 @@ public class SystemProperties
     /**
      Specifies whether only Internet domain sockets must be used when communicating with the system.  Setting this property to <tt>true</tt> directs the Toolbox to refrain from exploiting Unix sockets, when running directly on the system.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.mustUseNetSockets
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
      <li>Overridden by: {@link AS400#setMustUseNetSockets AS400.setMustUseNetSockets()}
@@ -100,6 +106,7 @@ public class SystemProperties
     /**
      Specifies whether the explicitly supplied profile must be used when communicating with the system.  Setting this property to <tt>true</tt> directs the Toolbox to refrain from exploiting the currently signed-on profile by default, when running directly on the system.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.mustUseSuppliedProfile
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
      <li>Overridden by: {@link AS400#setMustUseSuppliedProfile AS400.setMustUseSuppliedProfile()}
@@ -111,6 +118,7 @@ public class SystemProperties
      Specifies whether threads are used when communicating with the host servers.
      By default, the AS400 object creates separate threads to listen on communication sockets to the host servers.  Setting this property to <tt>false</tt> directs the Toolbox to refrain from creating separate threads for host server communications.
      <ul>
+     <li>Property name: com.ibm.as400.access.AS400.threadUsed
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>true</tt>
      <li>Overridden by: {@link AS400#setThreadUsed AS400.setThreadUsed()}
@@ -125,6 +133,7 @@ public class SystemProperties
      Specifies which trace categories to enable. This is a comma-delimited
      list containing any combination of trace categories.
      <ul>
+     <li>Property name: com.ibm.as400.access.Trace.category
      <li>Values/syntax: <tt>datastream</tt>, <tt>diagnostic</tt>, <tt>error</tt>, <tt>information</tt>, ...
      <br>(Refer to the {@link Trace Trace} class for complete list.)
      <li>Default: (no default)
@@ -136,6 +145,7 @@ public class SystemProperties
     /**
      Specifies the file to which the {@link Trace Trace} class writes output.
      <ul>
+     <li>Property name: com.ibm.as400.access.Trace.file
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: {@link System#out System.out}.
      <li>Overridden by: Any of the <tt>Trace.setFileName()</tt> or <tt>Trace.setPrintWriter()</tt> methods.
@@ -146,6 +156,7 @@ public class SystemProperties
     /**
      Specifies which trace categories to start on the JDBC server job.
      <ul>
+     <li>Property name: com.ibm.as400.access.ServerTrace.JDBC
      <li>Values/syntax: Refer to the javadoc for class {@link AS400JDBCDriver AS400JDBCDriver}. Follow the link labeled "JDBC properties", and search for the "server trace" property.
      <li>Default: (no default)
      <li>Overridden by: Specifying property values in either the connection URL or via one of the <tt>connect()</tt> methods of class {@link AS400JDBCDriver AS400JDBCDriver}
@@ -160,6 +171,7 @@ public class SystemProperties
      If <tt>true</tt>, all called commands are assumed to be threadsafe.
      If <tt>false</tt>, all called commands are assumed to be non-threadsafe.
      <ul>
+     <li>Property name: com.ibm.as400.access.CommandCall.threadSafe
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
      <li>Overridden by: {@link CommandCall#setThreadSafe(Boolean) CommandCall.setThreadSafe()}
@@ -172,6 +184,7 @@ public class SystemProperties
      If <tt>true</tt>, all called programs are assumed to be thread-safe.
      If <tt>false</tt>, all called programs are assumed to be non-thread-safe.
      <ul>
+     <li>Property name: com.ibm.as400.access.ProgramCall.threadSafe
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>false</tt>
      <li>Overridden by: {@link ProgramCall#setThreadSafe ProgramCall.setThreadSafe()}
@@ -185,6 +198,7 @@ public class SystemProperties
      communicating. Use this property to set how often the thread looks for idle
      connections.
      <ul>
+     <li>Property name: com.ibm.as400.access.TunnelProxyServer.clientCleanupInterval
      <li>Values/syntax: <i>numberOfSeconds</i>
      <li>Default: 2 hours
      <li>Overridden by: (none)
@@ -200,6 +214,7 @@ public class SystemProperties
      communicating. Use this property to set how long a client can be idle before
      performing garbage collection on it.
      <ul>
+     <li>Property name: com.ibm.as400.access.TunnelProxyServer.clientLifetime
      <li>Values/syntax: <i>numberOfSeconds</i>
      <li>Default: 30 minutes
      <li>Overridden by: (none)
@@ -214,6 +229,7 @@ public class SystemProperties
      This property is ignored for a given FTP object if <tt>FTP.setReuseSocket(true/false)</tt> has
      been performed on the object.
      <ul>
+     <li>Property name: com.ibm.as400.access.FTP.reuseSocket
      <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
      <li>Default: <tt>true</tt>
      <li>Overridden by: {@link FTP#setReuseSocket FTP.setReuseSocket()}
