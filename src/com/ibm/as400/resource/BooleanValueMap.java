@@ -19,22 +19,14 @@ import java.io.Serializable;
 
 
 /**
-The BooleanValueMap class maps between a logical Boolean value 
-and specified physical values.
+Maps between a logical Boolean value and specified physical values.
 @deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class BooleanValueMap
 extends AbstractValueMap
 implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
-
     static final long serialVersionUID = 4L;
-
-
 
     // Private data.
     private Object[]      falseValues_         = null;
@@ -89,7 +81,7 @@ Maps from a logical value to a physical value.
         if (logicalValue == null)
             throw new NullPointerException("logicalValue");
         if (!(logicalValue instanceof Boolean))
-            throw new ExtendedIllegalArgumentException("logicalValue", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("logicalValue([class "+logicalValue.getClass().getName()+"]: "+logicalValue.toString() + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         return (((Boolean)logicalValue).booleanValue()) ? trueValues_[0] : falseValues_[0];
     }
@@ -115,7 +107,7 @@ Maps from a physical value to a logical value.
             if (physicalValue.equals(trueValues_[i]))
                 return Boolean.TRUE;
             
-        throw new ExtendedIllegalArgumentException("physicalValue(" + physicalValue + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        throw new ExtendedIllegalArgumentException("physicalValue([class "+physicalValue.getClass().getName()+"]: "+physicalValue.toString() + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
 
