@@ -20,7 +20,7 @@ import java.beans.PropertyVetoException;
 import java.util.Vector;
 
 /**
- The NetServerSession class represents a NetServer session.
+ Represents a NetServer session.
  <p>
  Note: A <b>session</b> (represented by this class) corresponds to a workstation.  A workstation could be a Windows Terminal Server or it could be a single PC on someone's desktop.  A <b>connection</b> (represented by class {@link NetServerConnection NetServerConnection}) corresponds to a specific user who has mapped a drive and has files opened or spooled output on a print queue.  Since a <b>session</b> can have multiple users, a <b>connection</b> shows a particular user's statistics on that session.
  <p>
@@ -90,9 +90,6 @@ For String-valued attributes, if the current actual value of the corresponding p
 public class NetServerSession
 extends Resource
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
   //-------------------------------------------------------------------------
@@ -174,7 +171,8 @@ extends Resource
   public static final String IS_ENCRYPT_PASSWORD = "IS_ENCRYPT_PASSWORD";
   static {
     attributes_.add(IS_ENCRYPT_PASSWORD, Boolean.class, true);
-    ValueMap valueMap = new BooleanValueMap("0", "1");
+    //ValueMap valueMap = new BooleanValueMap("0", "1");
+    ValueMap valueMap = new BooleanValueMap(new String[] {"0", ""}, new String[] { "1" });  // Note: During testing, we occasionally see a blank returned.
     getterMap_.add (IS_ENCRYPT_PASSWORD, OLST0300_, "receiverVariable.encryptedPassword", INDICES_, valueMap);
     openListAttributeMap_.add (IS_ENCRYPT_PASSWORD, OLST0300_, "receiverVariable.encryptedPassword", valueMap);
   }
@@ -186,8 +184,9 @@ extends Resource
   public static final String IS_GUEST = "IS_GUEST";
   static {
     attributes_.add(IS_GUEST, Boolean.class, true);
-    ValueMap valueMap = new BooleanValueMap("1", "0");
+    //ValueMap valueMap = new BooleanValueMap("1", "0");
         // Note the reverse logic: The API field is "logon type", which is 0 if guest, 1 if regular user.
+    ValueMap valueMap = new BooleanValueMap(new String[] {"1", ""}, new String[] { "0" });  // Note: During testing, we occasionally see a blank returned.
     getterMap_.add (IS_GUEST, OLST0300_, "receiverVariable.logonType", INDICES_, valueMap);
     openListAttributeMap_.add (IS_GUEST, OLST0300_, "receiverVariable.logonType", valueMap);
   }
@@ -298,7 +297,7 @@ extends Resource
     }
 
     endSession(getSystem(), name_);
-    /// fireSessionEnded();  // TBD
+    // fireSessionEnded();  // future
   }
 
 
@@ -479,6 +478,7 @@ extends Resource
       int index = 0;
       int[] indices = new int[1];
       Object[] attributeIDs = openListAttributeMap_.getIDs();
+
       for (int i=0; i<recCount; i++)
       {
         indices[0] = i;
