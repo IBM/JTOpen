@@ -543,6 +543,8 @@ class AS400FileImplNative extends AS400FileImplBase
 
     /**
      *Executes a command on the server.
+     *Submits the command string via the "Process Commands" (QCAPCMD) API.
+     *Note: Although QCAPCMD is threadsafe, it "should not be used to run a command that is not threadsafe in a job that has multiple threads".
      *@param cmd the command
      *@return the message feedback data
      **/
