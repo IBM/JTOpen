@@ -2176,8 +2176,9 @@ public class SystemPool
 
 
      /**
-      * Sets the activity level for the pool.  The activity level of a
-      * "machine" pool (*MACHINE) cannot be changed.
+      * Sets the activity level for the pool.  This is the maximum number of
+      * threads that can be active in the pool at any one time.
+      * The activity level of a "machine" pool (*MACHINE) cannot be changed.
       *
       * @param value The new activity level for the pool.
       * @exception AS400Exception If the system returns an error
@@ -2213,8 +2214,9 @@ public class SystemPool
 
 
      /**
-      * Sets the activity level for the pool.  The activity level of a
-      * "machine" pool (*MACHINE) cannot be changed.
+      * Sets the activity level for the pool.  This is the maximum number of
+      * threads that can be active in the pool at any one time.
+      * The activity level of a "machine" pool (*MACHINE) cannot be changed.
       *
       * Recommended coding pattern:
       *  systemPool.setCaching(true);
