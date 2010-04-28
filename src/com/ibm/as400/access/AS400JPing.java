@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- The AS400JPing class is used to determine if services are running.
+ Determines if services are running on the IBM i system.
  <p>Here is an example of calling AS400JPing within a Java program to ping the Remote Command Service:
  <pre>
  * AS400JPing pingObj = new AS400JPing("myAS400", AS400.COMMAND, false);
@@ -29,6 +29,8 @@ import java.net.Socket;
  * else
  *     System.out.println("FAILED");
  </pre>
+ *
+ * @see utilities.JPing
  **/
 public class AS400JPing
 {
