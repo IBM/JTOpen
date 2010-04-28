@@ -237,6 +237,7 @@ class PcmlSAXParser extends DefaultHandler
       }
       catch (SAXException e)
       {
+        Trace.log(Trace.PCML, e);
         ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
         pe.addMessage(e.getMessage());
         throw pe;
@@ -279,7 +280,7 @@ class PcmlSAXParser extends DefaultHandler
       }
       catch (XmlException e)
       {
-        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs...");
+        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs.", e);
         throw new SAXException(e);
       }
 
@@ -293,16 +294,20 @@ class PcmlSAXParser extends DefaultHandler
     finally
     {
       if (isHeader != null) {
-        try { isHeader.close(); } catch (Exception e) {};
+        try { isHeader.close(); }
+        catch (Exception e) { Trace.log(Trace.WARNING, e); }
       }
       if (isPCML != null) {
-        try { isPCML.close(); } catch (Exception e) {};
+        try { isPCML.close(); }
+        catch (Exception e) { Trace.log(Trace.WARNING, e); }
       }
       if (sis != null) {
-        try { sis.close(); } catch (Exception e) {};
+        try { sis.close(); }
+        catch (Exception e) { Trace.log(Trace.WARNING, e); }
       }
       if (bis != null) {
-        try { bis.close(); } catch (Exception e) {};
+        try { bis.close(); }
+        catch (Exception e) { Trace.log(Trace.WARNING, e); }
       }
     }
   }
@@ -447,6 +452,7 @@ class PcmlSAXParser extends DefaultHandler
       }
       catch (SAXException e)
       {
+        Trace.log(Trace.PCML, e);
         ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
         pe.addMessage(e.getMessage());
         throw pe;
@@ -489,7 +495,7 @@ class PcmlSAXParser extends DefaultHandler
       }
       catch (XmlException e)
       {
-        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs...");
+        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs.", e);
         throw new SAXException(e);
       }
 
@@ -503,16 +509,19 @@ class PcmlSAXParser extends DefaultHandler
     finally
     {
       if (isHeader != null) {
-        try { isHeader.close(); } catch (Exception e) {};
+        try { isHeader.close(); }
+        catch (Exception e) { Trace.log(Trace.WARNING, e); }
       }
       //if (isPCML != null) {
       //  try { isPCML.close(); } catch (Exception e) {};
       //}
       if (sis != null) {
-        try { sis.close(); } catch (Exception e) {};
+        try { sis.close(); }
+        catch (Exception e) { Trace.log(Trace.WARNING, e); }
       }
       if (bis != null) {
-        try { bis.close(); } catch (Exception e) {};
+        try { bis.close(); }
+        catch (Exception e) { Trace.log(Trace.WARNING, e); }
       }
     }
   }
@@ -974,7 +983,7 @@ class PcmlSAXParser extends DefaultHandler
           }  // end try
           catch (IOException e)
           {
-            Trace.log(Trace.PCML,"Error reading xsd stream in startElement");
+            Trace.log(Trace.PCML,"Error reading xsd stream in startElement.", e);
           }
         }
       }  // end if xsdStream not null
@@ -1530,7 +1539,7 @@ class PcmlSAXParser extends DefaultHandler
         }
         catch (Exception e)
         {
-          Trace.log(Trace.PCML,"Exception when doing setValue");
+          Trace.log(Trace.PCML,"Exception when doing setValue", e);
           Trace.log(Trace.PCML,"current node=" + m_currentNode.getQualifiedName());
           Trace.log(Trace.PCML,"initial value=" + initValue + "..");
           try
@@ -1539,7 +1548,7 @@ class PcmlSAXParser extends DefaultHandler
           }
           catch (Exception e1)
           {
-            Trace.log(Trace.PCML,"Exception due to length not being set when doing setValue");
+            Trace.log(Trace.PCML,"Exception due to length not being set when doing setValue", e1);
             Trace.log(Trace.PCML,"setValue not done but init attribute set");
             return;
           }
@@ -1751,7 +1760,7 @@ class PcmlSAXParser extends DefaultHandler
           }
           catch (IOException e)
           {
-            Trace.log(Trace.PCML,"Error reading xsd stream in endElement");
+            Trace.log(Trace.PCML,"Error reading xsd stream in endElement", e);
           }
         }
       }
@@ -1811,7 +1820,7 @@ class PcmlSAXParser extends DefaultHandler
 
   /** Error. */
   public void error(SAXParseException ex) throws SAXException {
-    Trace.log(Trace.PCML, "[Error]: "+  ex.getMessage());
+    Trace.log(Trace.PCML, "[Error]: "+  ex.getMessage(), ex);
   } // error(SAXParseException)
 
 }

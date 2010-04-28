@@ -337,47 +337,31 @@ public class ProgramCallDocument implements Serializable, Cloneable
      */
     public static void main(String[] args)
     {
-		PcmlDocument pd = null;;
+      PcmlDocument pd = null;
+      System.setErr(System.out);
 
-        System.setErr(System.out);
-        final String errMsg = SystemResourceFinder.format(DAMRI.PCD_ARGUMENTS);
+      if (args.length != 2 ||
+          !args[0].equalsIgnoreCase("-SERIALIZE"))
+      {
+        String errMsg = SystemResourceFinder.format(DAMRI.PCD_ARGUMENTS);
+        System.out.println(errMsg);
+        System.exit(-1);
+      }
 
-		if (args.length == 2)
-        {
-        	if (!args[0].equalsIgnoreCase("-SERIALIZE"))
-        	{
-        		System.out.println(errMsg);
-        		System.exit(-1);
-        	}
 
-            // Load the document from source (previously serialized documents are ignored)
-            try
-            {
-				pd = loadSourcePcmlDocument(args[1], null,null);         // @C8C
-            }
-			catch (PcmlException e)
-			{
-				System.out.println(e.getLocalizedMessage());
-				System.exit(-1);
-			}
+      try
+      {
+        // Load the document from source (previously serialized documents are ignored)
+        pd = loadSourcePcmlDocument(args[1], null,null);         // @C8C
 
-            // Save the document as a serialized file
-			try
-			{
-				savePcmlDocument(pd);
-			}
-			catch (Exception e)
-			{
-				System.out.println(e.getLocalizedMessage());
-				System.exit(-1);
-			}
-
-        }
-		else
-		{
-    		System.out.println(errMsg);
-    		System.exit(-1);
-		}
+        // Save the document as a serialized file
+        savePcmlDocument(pd);
+      }
+      catch (Throwable e)
+      {
+        System.out.println(e.getLocalizedMessage());
+        System.exit(-1);
+      }
 
     }
 
