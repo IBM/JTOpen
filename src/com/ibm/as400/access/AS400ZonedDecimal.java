@@ -399,7 +399,8 @@ public class AS400ZonedDecimal implements AS400DataType
                 break;
             default: 
                 throwNumberFormatException(HIGH_NIBBLE, rightMostOffset,
-                                           as400Value[rightMostOffset] & 0x00FF);
+                                           as400Value[rightMostOffset] & 0x00FF,
+                                           as400Value);
         }
 
         return doubleValue;
@@ -454,7 +455,8 @@ public class AS400ZonedDecimal implements AS400DataType
           break;
          default: // others invalid
           throwNumberFormatException(HIGH_NIBBLE, offset+size-1,
-                                     as400Value[offset+size-1] & 0xFF);
+                                     as400Value[offset+size-1] & 0xFF,
+                                     as400Value);
      }
 
      // place the digits
@@ -463,7 +465,8 @@ public class AS400ZonedDecimal implements AS400DataType
          nibble = as400Value[offset++] & 0x000F;
          if (nibble > 0x0009)
            throwNumberFormatException(LOW_NIBBLE, offset-1,
-                                      as400Value[offset-1] & 0x00FF);
+                                      as400Value[offset-1] & 0x00FF,
+                                      as400Value);
          outputData[outputPosition++] = (char)(nibble | 0x0030);
      }
 
@@ -471,9 +474,9 @@ public class AS400ZonedDecimal implements AS400DataType
      return new BigDecimal(new BigInteger(new String(outputData)), this.scale);
     }
 
-    private static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue) throws NumberFormatException
+    private static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
     {
-      AS400PackedDecimal.throwNumberFormatException(highNibble, byteOffset, byteValue);
+      AS400PackedDecimal.throwNumberFormatException(highNibble, byteOffset, byteValue, fieldBytes);
     }
 
 }

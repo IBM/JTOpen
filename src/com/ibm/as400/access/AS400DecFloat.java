@@ -712,16 +712,9 @@ public class AS400DecFloat implements AS400DataType
     /**
      *  helper method to throw exception during conversion 
      */
-    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue) throws NumberFormatException
+    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
     {
-        String text;
-        if (highNibble) {
-            text = ResourceBundleLoader.getText("EXC_HIGH_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
-        }
-        else {
-            text = ResourceBundleLoader.getText("EXC_LOW_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
-        }
-        throw new NumberFormatException(text);
+      AS400PackedDecimal.throwNumberFormatException(highNibble, byteOffset, byteValue, fieldBytes);
     }
 
     /** 

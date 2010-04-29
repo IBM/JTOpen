@@ -478,7 +478,8 @@ public class AS400PackedDecimal implements AS400DataType
                 break;
             default:
               throwNumberFormatException(LOW_NIBBLE, rightMostOffset,
-                                         as400Value[rightMostOffset] & 0x00FF);
+                                         as400Value[rightMostOffset] & 0x00FF,
+                                         as400Value);
         }
 
         return doubleValue;
@@ -536,7 +537,8 @@ public class AS400PackedDecimal implements AS400DataType
           break;
          default: // others invalid
           throwNumberFormatException(LOW_NIBBLE, offset+inputSize-1,
-                                     as400Value[offset+inputSize-1] & 0xFF);
+                                     as400Value[offset+inputSize-1] & 0xFF,
+                                     as400Value);
      }
 
      // read all the digits except last one
@@ -545,13 +547,15 @@ public class AS400PackedDecimal implements AS400DataType
          nibble = (as400Value[offset] & 0xFF) >>> 4;
          if (nibble > 0x09)
            throwNumberFormatException(HIGH_NIBBLE, offset,
-                                      as400Value[offset] & 0xFF);
+                                      as400Value[offset] & 0xFF,
+                                      as400Value);
          outputData[outputPosition++] = (char)(nibble | 0x0030);
 
          nibble = (as400Value[offset++] & 0x0F);
          if (nibble > 0x09)
            throwNumberFormatException(LOW_NIBBLE, offset-1,
-                                      as400Value[offset-1] & 0xFF);
+                                      as400Value[offset-1] & 0xFF,
+                                      as400Value);
          outputData[outputPosition++] = (char)(nibble | 0x0030);
      }
 
@@ -559,14 +563,15 @@ public class AS400PackedDecimal implements AS400DataType
      nibble = (as400Value[offset] & 0xFF) >>> 4;
      if (nibble > 0x09)
        throwNumberFormatException(HIGH_NIBBLE, offset,
-                                  as400Value[offset] & 0xFF);
+                                  as400Value[offset] & 0xFF,
+                                  as400Value);
      outputData[outputPosition++] = (char)(nibble | 0x0030);
 
      // construct New BigDecimal object
      return new BigDecimal(new BigInteger(new String(outputData)), this.scale);
     }
 
-    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue) throws NumberFormatException
+    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
     {
       String text;
       if (highNibble) {
@@ -575,6 +580,7 @@ public class AS400PackedDecimal implements AS400DataType
       else {
         text = ResourceBundleLoader.getText("EXC_LOW_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
       }
+      Trace.log(Trace.ERROR, text, fieldBytes);
       throw new NumberFormatException(text);
     }
 
