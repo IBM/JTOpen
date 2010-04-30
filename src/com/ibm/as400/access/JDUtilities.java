@@ -259,6 +259,8 @@ for use in implementing various pieces of the JDBC driver.
             }
             finally
             {
+                // if (request != null) request.returnToPool();
+                // if (reply != null) reply.returnToPool();
                 if (request != null) request.inUse_ = false;
                 if (reply != null) reply.inUse_ = false;
             }
@@ -560,13 +562,25 @@ Reads an input stream and returns its data as a byte array.
         try {
             byte[] rawBytes = new byte[(length == 0) ? 1 : length];
             int actualLength = 0;
-            while (input.available () > 0) {
-                int length2 = input.read (rawBytes);
-                if (actualLength + length2 <= length)
-                    System.arraycopy (rawBytes, 0, buffer, actualLength, length2);
-                actualLength += length2;
+    	    //
+    	    // Restructured logic to not use available ..
+    	    // @A5C 
+            int length2 = input.read (rawBytes);                 /*@A5A*/ 
+
+            while (length2 >= 0 && actualLength < length ) {     /*@A5C*/ 
+        		if (length2 > 0) {                               /*@A5A*/ 
+        		    if (actualLength + length2 <= length) {	
+        			   System.arraycopy (rawBytes, 0, buffer, actualLength, length2);
+        		    } else {
+        		       // copy part (if needed).
+        			   System.arraycopy (rawBytes, 0, buffer, actualLength, length - actualLength); 
+        		    }             
+        		    actualLength += length2;
+        		}                                                /*@A5A*/ 
+        		length2 = input.read (rawBytes);                 /*@A5A*/ 
             }
 
+            
             // The spec says to throw an exception when the
             // actual length does not match the specified length.
             // I think this is strange since this means the length

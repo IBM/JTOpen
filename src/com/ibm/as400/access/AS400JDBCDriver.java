@@ -106,6 +106,7 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @A2   20100407  Update/Delete Blocking fix 
 // @A3   20100407  Allow DMD.getFunctions call on V5R4
 // @A4   20100415  Fix update counts for batched update
+// @A5   20100430  Correct JDUtilities.streamToBytes
 //--------------------------------------------------------------------
 
 
