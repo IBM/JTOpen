@@ -474,9 +474,28 @@ public class AS400ZonedDecimal implements AS400DataType
      return new BigDecimal(new BigInteger(new String(outputData)), this.scale);
     }
 
-    private static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
+    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
     {
-      AS400PackedDecimal.throwNumberFormatException(highNibble, byteOffset, byteValue, fieldBytes);
+      String text;
+      if (highNibble) {
+        text = ResourceBundleLoader.getText("EXC_HIGH_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
+      }
+      else {
+        text = ResourceBundleLoader.getText("EXC_LOW_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
+      }
+      Trace.log(Trace.ERROR, text, fieldBytes);
+      throw new NumberFormatException(text);
+    }
+
+    private static final String byteToString(int byteVal)
+    {
+      int leftDigitValue = (byteVal >>> 4) & 0x0F;
+      int rightDigitValue = byteVal & 0x0F;
+      char[] digitChars = new char[2];
+      // 0x30 = '0', 0x41 = 'A'
+      digitChars[0] = leftDigitValue < 0x0A ? (char)(0x30 + leftDigitValue) : (char)(leftDigitValue - 0x0A + 0x41);
+      digitChars[1] = rightDigitValue < 0x0A ? (char)(0x30 + rightDigitValue) : (char)(rightDigitValue - 0x0A + 0x41);
+      return new String(digitChars);
     }
 
 }
