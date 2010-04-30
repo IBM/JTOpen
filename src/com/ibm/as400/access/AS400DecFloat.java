@@ -709,13 +709,13 @@ public class AS400DecFloat implements AS400DataType
         }
     }
 
-    /**
-     *  helper method to throw exception during conversion 
-     */
-    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
-    {
-      AS400PackedDecimal.throwNumberFormatException(highNibble, byteOffset, byteValue, fieldBytes);
-    }
+//    /**
+//     *  helper method to throw exception during conversion 
+//     */
+//    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
+//    {
+//      AS400PackedDecimal.throwNumberFormatException(highNibble, byteOffset, byteValue, fieldBytes);
+//    }
 
     /** 
      * Converts byte to string */
