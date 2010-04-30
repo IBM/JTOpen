@@ -289,12 +289,12 @@ public class AS400BidiTransform
         //    throw new ExtendedIllegalArgumentException("as400Type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         //}
 
-        as400Type_ = as400Type;                
-        if (FLAG_SET[as400Type] == null) 
+        as400Type_ = as400Type;
+        if (FLAG_SET[as400Type] == null)
         	FLAG_SET[as400Type] = initFlagSet(as400Type);
-        bdxJ2A_.flags = FLAG_SET[as400Type];        
-        	
-        //Bidi-HCG setJavaStringType(as400Type);        
+        bdxJ2A_.flags = FLAG_SET[as400Type];
+
+        //Bidi-HCG setJavaStringType(as400Type);
     }
 
     /**
@@ -328,9 +328,9 @@ public class AS400BidiTransform
         //else if (orient == BidiFlag.ORIENTATION_CONTEXT_LTR) javaType_ = 10;
         //else if (orient == BidiFlag.ORIENTATION_CONTEXT_RTL) javaType_ = 11;
         //else javaType_ = 5;  // Must never happen.
-                    
-    	javaType_ = javaType;//Bidi-HCG     	 
-        bdxA2J_.flags = initFlagSet(javaType);//Bidi-HCG 
+
+    	javaType_ = javaType;//Bidi-HCG
+        bdxA2J_.flags = initFlagSet(javaType);//Bidi-HCG
     }
 
     /**
@@ -396,6 +396,11 @@ public class AS400BidiTransform
         return src.transform(bdxJ2A_).toString();
     }
 
+    /**
+     * Returns Bidi string type defined for CCSID
+     * @param ccsid
+     * @return Bidi string type
+     */
     public static int getStringType(int ccsid)
     {
         // Return default string type for parm ccsid based on CCSID_TABLE.
@@ -413,6 +418,14 @@ public class AS400BidiTransform
         return 0;
     }
 
+    //Bidi-HCG1
+    private static int getStringTypeM(int ccsid){
+    	if(ccsid == 13488 || ccsid == 1200)
+    		return 5;
+    	else
+    		return getStringType(ccsid);
+    }
+    
     // Return BidiFlagSet according to string type.
     private static BidiFlagSet initFlagSet(int stringType)
     {
@@ -469,7 +482,8 @@ public class AS400BidiTransform
             default:
                 return  new BidiFlagSet(BidiFlag.TYPE_IMPLICIT,
                                         BidiFlag.NUMERALS_NOMINAL,
-                                        BidiFlag.ORIENTATION_CONTEXT_LTR,
+                                        //BidiFlag.ORIENTATION_CONTEXT_LTR,
+                                        BidiFlag.ORIENTATION_LTR,//Bidi-HCG1
                                         BidiFlag.TEXT_NOMINAL,
                                         BidiFlag.SWAP_YES);
         }
@@ -630,7 +644,7 @@ public class AS400BidiTransform
             return value_;
     	JDProperties prop = connection.getProperties();        	       	        		
     	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);		    	
-		int host_bidi_format = getStringType(host_ccsid);				
+		int host_bidi_format = getStringTypeM(host_ccsid);				
     	if(bidi_format != 0 && host_bidi_format != 0){    		    		
     		value_ = bidiTransform(value_, bidi_format, host_bidi_format);
     	}	
@@ -648,7 +662,7 @@ public class AS400BidiTransform
 		if(host_bidi_format == 0){
 			if(connection.getSystem() != null){
 				host_ccsid = connection.getSystem().getCcsid();			
-				host_bidi_format = getStringType(host_ccsid);
+				host_bidi_format = getStringTypeM(host_ccsid);
 			}
 			else host_bidi_format = 4;
 		}
