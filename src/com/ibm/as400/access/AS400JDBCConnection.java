@@ -246,6 +246,7 @@ implements Connection
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
 
 	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
+	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A 
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -331,8 +332,8 @@ implements Connection
                     }
                     finally
                     {
-                        if (request != null) request.inUse_ = false;
-                        if (reply != null) reply.inUse_ = false;
+                        if (request != null) request.returnToPool();
+                        if (reply != null) reply.returnToPool();
                     }
                 }
                 else
@@ -822,9 +823,10 @@ implements Connection
     protected void finalize ()
     throws Throwable
     {
-        if (! isClosed ())
+        if (! isClosed ()) {
+        	JDTrace.logInformation (this, "WARNING: Finalizer thread closing connection object.");
             close ();
-
+        }
         super.finalize ();
     }
 
@@ -3033,9 +3035,9 @@ implements Connection
         } finally
         {
             if (request != null)
-                request.inUse_ = false;
+                request.returnToPool();
             if (reply != null)
-                reply.inUse_ = false;
+                reply.returnToPool();
         }
        
         concurrentAccessResolution_ = concurrentAccessResolution;
@@ -3078,8 +3080,8 @@ implements Connection
             }   
             finally
             {
-                if (request != null) request.inUse_ = false;
-                if (reply != null) reply.inUse_ = false;
+                if (request != null) request.returnToPool();
+                if (reply != null) reply.returnToPool();
             }
         }
     }
@@ -3227,6 +3229,11 @@ implements Connection
         if (as400_.getVRM() >= JDUtilities.vrm710) {
         	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);  //@A2A
         }
+        
+        maximumBlockedInputRows_ = properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);       // @A6A
+        if ( maximumBlockedInputRows_ > 32000 ) maximumBlockedInputRows_ = 32000;                     // @A6A
+        if ( maximumBlockedInputRows_ < 1 ) maximumBlockedInputRows_ = 1;                             // @A6A
+        	
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
@@ -4092,8 +4099,8 @@ implements Connection
             }
             finally
             {
-                if (request != null) request.inUse_ = false;
-                if (reply != null) reply.inUse_ = false;
+                if (request != null) request.returnToPool();
+                if (reply != null) reply.returnToPool();
             }
 
             // The CCSID that comes back is a mixed CCSID (i.e. mixed
@@ -4508,11 +4515,16 @@ implements Connection
         } 
         finally
         { 
-            if (request != null) 
-                request.inUse_ =   false; 
-            if (reply != null)
-                reply.inUse_ = false; 
-            
+            if (request != null) {
+            	synchronized(request) { // @A7C
+                   request.inUse_ =   false;
+                }
+            } 
+            if (reply != null) {
+                synchronized(reply) {   //  @A7C
+                   reply.inUse_ = false; 
+                }
+            }
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Connection.isValid call complete");
         } 
@@ -4679,9 +4691,9 @@ endif */
         } finally
         {
             if (request != null)
-                request.inUse_ = false;
+                request.returnToPool();
             if (reply != null)
-                reply.inUse_ = false;
+                reply.returnToPool();
         }
     }
 
@@ -4811,9 +4823,9 @@ endif */
         } finally
         {
             if (request != null)
-                request.inUse_ = false;
+                request.returnToPool();
             if (reply != null)
-                reply.inUse_ = false;
+                reply.returnToPool();
         }
         
     }
@@ -5101,6 +5113,10 @@ endif */
 		return doUpdateDeleteBlocking_; 
 	}
 
+	// @A6A 
+	public int getMaximumBlockedInputRows() { 
+		return maximumBlockedInputRows_; 
+	}
 
 
 }

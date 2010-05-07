@@ -1596,8 +1596,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       logWarning("No datasource name was specified, so connections will not be pooled");
       return;
     }
-
-    inUse_ = true;
+    synchronized(this) { /*@A7A */  
+        inUse_ = true;
+    }
     if (poolManager_ == null)
     {
       try
@@ -1633,8 +1634,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     poolManagerInitialized_ = false;
     defaultConnectionPoolKey_ = null;
     connectionKeyNeedsUpdate_ = true;
-    inUse_ = false;
-
     if (isSecure_)
       as400_ = new SecureAS400();
     else
@@ -1695,6 +1694,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       }
     }
     catch (PropertyVetoException pve) {} // will never happen
+
+    synchronized(this) {  //@A7A
+        inUse_ = false;
+    }
 
   }
 
@@ -1916,7 +1919,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Used for checking state conditions.  The default is false.
    @return true if the pool is in use; false otherwise.
    **/
-  private final boolean isInUse()
+  private synchronized final boolean isInUse()  // @A7C 
   {
     return inUse_;
   }
@@ -4212,6 +4215,19 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
   }
 
+  /** 
+   * Gets the maximum block input rows.  This property indicates the
+   * number of rows sent to the database engine for a block insert
+   * operation.  Valid values: 1-32000.  32000 is default. 
+   * @return The maximum block input rows 
+   */
+ public int getMaximumBlockedInputRows()
+ {
+   return properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);
+ }
+
+
+  
   /**
    Gets the maximum precision property. This property indicates the
    maximum decimal precision the IBM i system should use.
@@ -4248,6 +4264,25 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     properties_.setString(JDProperties.MINIMUM_DIVIDE_SCALE, Integer.toString(scale));
   }
+  
+
+  // @A6A 
+  /**
+   * Sets the maximum blocked input rows.  This property indicates the 
+   * maximum number of rows sent to the database engine for a blocked
+   * input operation.  Valid values:  1-32000.  32000 is the default
+   * @param maximumBlockedInputRows  The maximum number of input rows 
+   */
+
+  public void setMaximumBlockedInputRows(int maximumBlockedInputRows)
+  {
+    final String property = "maximumBlockedInputRows";
+
+    validateProperty(property, Integer.toString(maximumBlockedInputRows), JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);
+
+    properties_.setString(JDProperties.MAXIMUM_PRECISION, Integer.toString(maximumBlockedInputRows));
+  }
+
 
   /**
    Sets the maximum precision property. This property indicates the

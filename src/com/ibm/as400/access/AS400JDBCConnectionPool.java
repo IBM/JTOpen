@@ -231,9 +231,10 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       maintenance_.shutdown();  // tell the thread to terminate
     }
 
-    if (isInUse())
-      setInUse(false);                     // data source CAN be changed.
-
+    synchronized( this) { // @A7A  
+      if (isInUse())
+        setInUse(false);                     // data source CAN be changed.
+    }
     // Notify the listeners.
     if (poolListeners_ != null)
     {
@@ -327,12 +328,14 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       throw new ConnectionPoolException(e);
     }
 
+    synchronized(this) { 
     if (!isInUse())
-    {
-      setInUse(true);                   // Data source now can NOT be changed.
+      {
+        setInUse(true);                   // Data source now can NOT be changed.
 
-      if (isClosed())
-        closed_ = false;                          // Set the state to OPEN if previously closed.
+        if (isClosed())
+          closed_ = false;                          // Set the state to OPEN if previously closed.
+      }
     }
 
     if (isRunMaintenance() && isThreadUsed())

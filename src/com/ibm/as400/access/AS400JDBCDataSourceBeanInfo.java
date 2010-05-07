@@ -473,6 +473,15 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             minimumDivideScale.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_MINIMUM_DIVIDE_SCALE"));
             minimumDivideScale.setShortDescription(AS400JDBCDriver.getResource("MINIMUM_DIVIDE_SCALE_DESC"));
 
+            // @A6A 
+            PropertyDescriptor maximumBlockedInputRows = new PropertyDescriptor("maximumBlockedInputRows", beanClass, "getMaximumBlockedInputRows", "setMaximumBlockedInputRows");
+            maximumBlockedInputRows.setBound(true);
+            maximumBlockedInputRows.setConstrained(false);
+            maximumBlockedInputRows.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_MAXIMUM_BLOCKED_INPUT_ROWS"));
+            maximumBlockedInputRows.setShortDescription(AS400JDBCDriver.getResource("MAXIMUM_BLOCKED_INPUT_ROWS_DESC"));
+
+            
+            
             // @M0A
             PropertyDescriptor maximumPrecision = new PropertyDescriptor("maximumPrecision", beanClass, "getMaximumPrecision", "setMaximumPrecision");
             maximumPrecision.setBound(true);
@@ -611,7 +620,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, concurrentAccessResolution, jvm16Synchronize, socketTimeout }; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, concurrentAccessResolution, jvm16Synchronize, socketTimeout, maximumBlockedInputRows }; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
         }
         catch(Exception e)
         {
