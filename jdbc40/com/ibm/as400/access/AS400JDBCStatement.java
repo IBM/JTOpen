@@ -471,8 +471,8 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request3 != null) request3.inUse_ = false;    //@P0A
-                    if(reply != null) reply.inUse_ = false;
+                    if(request3 != null) request3.returnToPool();    //@P0A
+                    if(reply != null) reply.returnToPool();
                 }
             }    // @EDA
 
@@ -502,7 +502,7 @@ implements Statement
             }
             finally
             {    //@P0A
-                if(request2 != null) request2.inUse_ = false;    //@P0A
+                if(request2 != null) request2.returnToPool();    //@P0A
             }
 
             // Ignore errors, since we would not be able to get
@@ -568,8 +568,8 @@ implements Statement
                 }
                 finally
                 {    
-                    if(request3 != null) request3.inUse_ = false;    
-                    if(reply != null) reply.inUse_ = false;
+                    if(request3 != null) request3.returnToPool();    
+                    if(reply != null) reply.returnToPool();
                 }
             }    
 
@@ -594,7 +594,7 @@ implements Statement
             }
             finally
             {    
-                if(request2 != null) request2.inUse_ = false;    
+                if(request2 != null) request2.returnToPool();    
             }
 
             // Ignore errors, since we would not be able to get
@@ -1050,8 +1050,8 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.inUse_ = false;    //@P0A
-                    if(reply != null) reply.inUse_ = false;    //@P0A
+                    if(request != null) request.returnToPool();    //@P0A
+                    if(reply != null) reply.returnToPool();    //@P0A
                 }
             }
             catch(DBDataStreamException e)
@@ -1300,8 +1300,8 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.inUse_ = false;    //@P0A
-                    if(reply != null) reply.inUse_ = false;    //@P0A
+                    if(request != null) request.returnToPool();    //@P0A
+                    if(reply != null) reply.returnToPool();    //@P0A
                 }
 
                 // Inform the transaction manager that a statement
@@ -1488,8 +1488,8 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.inUse_ = false;    //@P0A
-                    if(reply != null) reply.inUse_ = false;    //@P0A
+                    if(request != null) request.returnToPool();    //@P0A
+                    if(reply != null) reply.returnToPool();    //@P0A
                 }
 
                 // Inform the transaction manager that a statement
@@ -1612,8 +1612,8 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.inUse_ = false;    //@P0A
-                    if(reply != null) reply.inUse_ = false;    //@P0A
+                    if(request != null) request.returnToPool();    //@P0A
+                    if(reply != null) reply.returnToPool();    //@P0A
                 }
 
                 // Output a summary as a trace message.  The * signifies that the
@@ -2496,8 +2496,10 @@ implements Statement
     throws Throwable
     {
         try{
-            if(! isClosed ())
+            if(! isClosed ()) {
+            	JDTrace.logInformation (this, "WARNING: Finalizer thread closing statement object.");
                 close ();
+            }
         }
         catch(Exception e){
             //catch any exceptions and don't throw them
@@ -2897,8 +2899,8 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.inUse_ = false;    //@P0A
-                    if(reply != null) reply.inUse_ = false;    //@P0A
+                    if(request != null) request.returnToPool();    //@P0A
+                    if(reply != null) reply.returnToPool();    //@P0A
                 }
             }
 
@@ -3712,7 +3714,7 @@ implements Statement
             }
             finally
             {    //@P0A
-                if(request != null) request.inUse_ = false;    //@P0A
+                if(request != null) request.returnToPool();    //@P0A
             }
 
             rpbCreated_ = true;

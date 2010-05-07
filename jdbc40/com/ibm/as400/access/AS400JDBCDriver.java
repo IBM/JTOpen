@@ -105,6 +105,11 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @A1   20100406  Correct Syntax Error on Insert 
 // @A2   20100407  Update/Delete Blocking fix 
 // @A3   20100407  Allow DMD.getFunctions call on V5R4
+// @A4   20100415  Fix update counts for batched update
+// @A5   20100430  Correct JDUtilities.streamToBytes
+// @A6   20100503  maximum blocked input rows property / Free storage used by blocked updates. 
+// @A7   20100506  buffer synchronization / remove Class.forName() contention / gc tracing
+// @A8   20100507  minimize buffer usage for blocked insert
 //--------------------------------------------------------------------
 
 

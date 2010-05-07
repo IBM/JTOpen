@@ -160,13 +160,15 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              JVM16_SYNCHRONIZE          = 80; //@dmy
     static final int              SOCKET_TIMEOUT              = 81; //@STIMEOUT
     static final int              DO_UPDATE_DELETE_BLOCKING  = 82;  //@A2A
+    static final int              MAXIMUM_BLOCKED_INPUT_ROWS = 83;  //@A6A
+    
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 83;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 84;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
-                                                               // @A2C 
+                                                               // @A2C @A6C 
 
 
     // Property names.
@@ -255,6 +257,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy 
     private static final String SOCKET_TIMEOUT_ = "socket timeout"; //@STIMEOUT
     static final String DO_UPDATE_DELETE_BLOCKING_ = "use block update"; // @A2 Property must be visible in package 
+    static final String MAXIMUM_BLOCKED_INPUT_ROWS_ = "maximum blocked input rows";  // @A6A
 
     // Common String objects.  Using these will theoretically
     // cut down on the number of String allocations.
@@ -1376,6 +1379,22 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = FALSE_;
+
+        
+        
+        i = MAXIMUM_BLOCKED_INPUT_ROWS;
+        dpi_[i] = new DriverPropertyInfo (MAXIMUM_BLOCKED_INPUT_ROWS_, "");
+        dpi_[i].description = "MAXIMUM_BLOCKED_INPUT_ROWS_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[6];
+        dpi_[i].choices[0]  = "1000";
+        dpi_[i].choices[1]  = "2000";
+        dpi_[i].choices[2]  = "4000";
+        dpi_[i].choices[3]  = "8000";
+        dpi_[i].choices[4]  = "16000";
+        dpi_[i].choices[5]  = "32000";
+       defaults_[i]  = "32000";
+
 
         
     }

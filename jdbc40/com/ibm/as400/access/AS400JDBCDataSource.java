@@ -4586,6 +4586,16 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
     }
 
+    /** 
+     * Gets the maximum block input rows.  This property indicates the
+     * number of rows sent to the database engine for a block insert
+     * operation.  Valid values: 1-32000.  32000 is default. 
+     * @return The maximum block input rows 
+     */
+    public int getMaximumBlockedInputRows() {
+    	return properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS); 
+    }
+    
     // @M0A
     /**
     * Gets the maximum precision property. This property indicates the 
@@ -4634,6 +4644,31 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + scale);
     }
 
+    // @A6A 
+    /**
+     * Sets the maximum blocked input rows.  This property indicates the 
+     * maximum number of rows sent to the database engine for a blocked
+     * input operation.  Valid values:  1-32000.  32000 is the default
+     * @param maximumBlockedInputRows  The maximum number of input rows 
+     */
+    public void setMaximumBlockedInputRows(int maximumBlockedInputRows)
+    {
+        String property = "maximumBlockedInputRows"; 
+
+        Integer oldValue = new Integer(getMaximumBlockedInputRows());
+        Integer newValue = new Integer(maximumBlockedInputRows);
+
+        validateProperty(property, newValue.toString(), JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);
+
+        properties_.setString(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + maximumBlockedInputRows);
+    }
+    
+    
     // @M0A
     /**
     * Sets the maximum precision property. This property indicates the 
