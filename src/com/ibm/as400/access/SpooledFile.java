@@ -18,11 +18,11 @@ import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
 
 /**
- * The SpooledFile class represents a spooled file.
+ * Represents a spooled file.
  * You can use an instance of this class to manipulate an individual
  * spooled file (hold, release, delete, send, read, and so on).
  * To create new spooled files on the system, use the
- * SpooledFileOutputStream class.
+ * {@link SpooledFileOutputStream SpooledFileOutputStream} class.
  *
  * See <a href="{@docRoot}/com/ibm/as400/access/doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
  * valid attributes.
@@ -1063,12 +1063,8 @@ implements java.io.Serializable
       *                        data from SCS or AFP to ASCII.
       *   <LI> ATTR_SCS2ASCII - Specifies whether the print data is to be transformed to
       *                         ASCII.  May be *NO or *YES.  *NO is the default.
-      *   <LI> ATTR_WSCUSTMOBJ - Specifies the name of the workstation customization object.
-      *   <LI> ATTR_WSCUSTMOBJL - Specifies the name of the workstation customization object library.
       *   <LI> ATTR_SEPPAGE - Specifies whether to print the separator page.  May be
       *                        *NO or *YES.  *YES is the default.
-      *   <LI> ATTR_USRDTATFMLIB - Specifies the name of the user data transform library.
-      *   <LI> ATTR_USRDTATFM - Specifies the name of the user data transform.
       * </UL>
       *
       * @exception AS400Exception If the system returns an error message.
