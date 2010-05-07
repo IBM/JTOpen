@@ -169,8 +169,8 @@ Commit the current transaction.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
 
     }
@@ -444,8 +444,8 @@ enabled, then do nothing.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
     }
     catch (DBDataStreamException e)
@@ -545,8 +545,8 @@ Set the auto-commit mode.
           }                                                                                   //@KBA
           finally                                                                             //@KBA
           {                                                                                   //@KBA
-              if (request != null) request.inUse_ = false;                                    //@KBA
-              if (reply != null) reply.inUse_ = false;                                        //@KBA
+              if (request != null) request.returnToPool();                                    //@KBA
+              if (reply != null) reply.returnToPool();                                        //@KBA
           }                                                                                   //@KBA
       }                                                                                       //@KBA
     }                                                                       // @C4A
@@ -609,8 +609,8 @@ Set the commit mode on the system.
         }
         finally
         {
-          if (request != null) request.inUse_ = false;
-          if (reply != null) reply.inUse_ = false;
+          if (request != null) request.returnToPool();
+          if (reply != null) reply.returnToPool();
         }
       }
       catch (DBDataStreamException e)
@@ -699,8 +699,8 @@ java.sql.Connection.TRANSACTION_* values.
           }                                                                                   //@KBA
           finally                                                                             //@KBA
           {                                                                                   //@KBA
-              if (request != null) request.inUse_ = false;                                    //@KBA
-              if (reply != null) reply.inUse_ = false;                                        //@KBA
+              if (request != null) request.returnToPool();                                    //@KBA
+              if (reply != null) reply.returnToPool();                                        //@KBA
           }                                                                                   //@KBA
           serverCommitMode_ = commitMode;                                            //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
     }                                                                                         //@KBA
@@ -759,8 +759,8 @@ can not be called directly on this object.
           }                                                                                   
           finally                                                                             
           {                                                                                   
-              if (request != null) request.inUse_ = false;                                    
-              if (reply != null) reply.inUse_ = false;                                        
+              if (request != null) request.returnToPool();                                    
+              if (reply != null) reply.returnToPool();                                        
           }                                                                                     
       }
 
@@ -796,8 +796,8 @@ can not be called directly on this object.
           }                                                                                   //@KBA
           finally                                                                             //@KBA
           {                                                                                   //@KBA
-              if (request != null) request.inUse_ = false;                                    //@KBA
-              if (reply != null) reply.inUse_ = false;                                        //@KBA
+              if (request != null) request.returnToPool();                                    //@KBA
+              if (reply != null) reply.returnToPool();                                        //@KBA
           }                                                                                   //@KBA
             serverCommitMode_ = currentCommitMode_;                                             //@KBA
       }

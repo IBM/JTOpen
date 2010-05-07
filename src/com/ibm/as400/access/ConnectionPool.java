@@ -247,7 +247,7 @@ public abstract class ConnectionPool implements Serializable
   *  Used for checking state conditions.  The default is false.
   *  @return true if the pool is in use; false otherwise.
   **/
-  boolean isInUse()
+  synchronized boolean isInUse()
   {
     return inUse_;
   }
@@ -347,7 +347,7 @@ public abstract class ConnectionPool implements Serializable
   *  Used for setting state conditions.
   *  @param inUse true if the pool is in use; false otherwise.
   **/
-  void setInUse(boolean inUse)
+  synchronized void setInUse(boolean inUse)
   {
     inUse_ = inUse;
   }

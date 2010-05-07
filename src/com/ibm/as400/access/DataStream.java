@@ -16,6 +16,8 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 // Base class for data streams.  Provides methods to access common data stream parts.
 abstract class DataStream
@@ -56,6 +58,7 @@ abstract class DataStream
             {
                 bytesRead += temp;
             }
+            
         }
 
         if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream data received (connID="+connectionID+") ...", buf, offset, bytesRead); //@P0C
@@ -63,6 +66,62 @@ abstract class DataStream
         return bytesRead;
     }
 
+    
+    // readFromStreamDebug is used to debugging problems with readFromStream
+    // left here so that it can be easily reused  @A7A
+    static boolean traceOpened = false; 
+    
+    static final int readFromStreamDebug(InputStream in, byte[] buf, int offset, int length, int connectionID) throws IOException //@P0C
+    {
+    	long lastReadTime = System.currentTimeMillis(); 
+        boolean endOfFile = false;
+        int bytesRead = 0;
+        while ((bytesRead < length) && !endOfFile)
+        {
+        	int availableCount = in.available();  
+			if ( availableCount > 0) {
+				int temp = in.read(buf, offset + bytesRead, length - bytesRead);
+				if (temp == -1) {
+					endOfFile = true;
+				} else {
+					bytesRead += temp;
+				}
+				lastReadTime = System.currentTimeMillis();
+			} else {
+                if (System.currentTimeMillis() > lastReadTime+120000) {
+                	if (! traceOpened) { 
+                		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
+                		
+                		Trace.setFileName("/tmp/toolboxTrace."+sdf.format(new Date())+".txt");
+                	    traceOpened=true; 
+                	}
+                	boolean traceTurnedOn = false; 
+                	if (!Trace.traceOn_) {
+                		traceTurnedOn = true;
+                		Trace.setTraceAllOn(true); 
+                		Trace.setTraceOn(true); 
+                	}
+                	Trace.log(Trace.DATASTREAM, "Waited more than 120 seconds to read "+length+" bytes.  Current buffer with header is "); 
+                	Trace.log(Trace.DATASTREAM, "Data stream data received (connID="+connectionID+") ...", buf, 0, offset + bytesRead); //@P0C
+                	if (traceTurnedOn) { 
+                		Trace.setTraceAllOn(false); 
+                		Trace.setTraceOn(false); 
+                	}
+                }
+                try {
+                	Thread.sleep(50); 
+                } catch (Exception e) { 
+                	
+                }
+            }
+        }
+
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream data received (connID="+connectionID+") ...", buf, offset, bytesRead); //@P0C
+
+        return bytesRead;
+    }
+
+    
     // Read the number of bytes asked for and loop until either that many bytes have been read or until we hit the end of file.
     // @param  in  Inputstream to read from.
     // @param  buf  Where to read the data into.
@@ -75,6 +134,12 @@ abstract class DataStream
       return readFromStream(in, buf, offset, length, connectionID_);
     }
 
+    final int readFromStreamDebug(InputStream in, byte[] buf, int offset, int length) throws IOException
+    {
+      return readFromStreamDebug(in, buf, offset, length, connectionID_);
+    }
+
+    
     protected AS400ImplRemote system_;
 
     protected byte[] data_;  // Contains complete data stream data.
@@ -174,6 +239,8 @@ abstract class DataStream
     // @exception  IOException  Unable to read from the input stream.
     int readAfterHeader(InputStream in) throws IOException
     {
+        // int bytesRead = readFromStreamDebug(in, data_, headerLength_, data_.length - headerLength_);
+    
         int bytesRead = readFromStream(in, data_, headerLength_, data_.length - headerLength_);
         if (bytesRead < data_.length - headerLength_)
         {

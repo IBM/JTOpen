@@ -114,8 +114,10 @@ Write the datastream.
         ByteArrayOutputStream concatenated = new ByteArrayOutputStream();
         for(int i = 0; i < countMinusOne_; ++i) //@P1C - Don't mark the last one free yet...
         {
-            requests_[i].write(concatenated);
-            requests_[i].inUse_ = false; //@P1A
+            synchronized(requests_[i]) {  // @A7A  
+              requests_[i].write(concatenated);
+              requests_[i].inUse_ = false; //@P1A
+            }
         }
         requests_[countMinusOne_].write(concatenated); //@P1A - ...the caller will mark it free, we just write it.
                                                 

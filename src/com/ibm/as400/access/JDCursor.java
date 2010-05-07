@@ -121,7 +121,7 @@ Closes the cursor.
     }
     finally
     {
-      if (request != null && !keepDS) request.inUse_ = false; //@P1C
+      if (request != null && !keepDS) request.returnToPool(); //@P1C
     }
 
     closed_ = true;
@@ -345,8 +345,8 @@ Opens the cursor and describes the data format.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
     }
     catch (DBDataStreamException e)

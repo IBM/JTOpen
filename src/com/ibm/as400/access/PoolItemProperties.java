@@ -101,7 +101,7 @@ class PoolItemProperties
    *  Indicates if the pooled connection is currently assigned.
    *  @return true if the pooled connection is in use; false otherwise.
    **/
-   public boolean isInUse()
+   synchronized public boolean isInUse()
    {
       if (lastUseTime_ == 0) 
          return false;
@@ -114,7 +114,7 @@ class PoolItemProperties
    *  Sets the connection timer values based on the active usage state of the connection.
    *  @param inUse true if the connection is currently active; false otherwise.
    **/
-   void setInUse(boolean inUse)
+   synchronized void setInUse(boolean inUse)
    {
       if (inUse)
             {

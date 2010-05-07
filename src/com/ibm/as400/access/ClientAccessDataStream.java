@@ -15,6 +15,8 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 
 // Base class for client access server data streams.  Provides methods to access common client access data stream header.
@@ -48,17 +50,22 @@ class ClientAccessDataStream extends DataStream
       if (readFromStream(is, baseDataStream.data_, 0, HEADER_LENGTH, connectionID) < HEADER_LENGTH)
       {
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the data stream header."); //@P0C
-        baseDataStream.inUse_ = false; //@P0A
+        synchronized(baseDataStream) { // @A7A 
+          baseDataStream.inUse_ = false; //@P0A
+         }  
         throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
       }
-
+      int length = baseDataStream.getLength(); 
+      
       if (baseDataStream.data_[6] != (byte)0xE0)
       {
         if (Trace.traceOn_) {
           Trace.log(Trace.ERROR, "Incorrect data stream header detected.",
                     baseDataStream.data_, 0, HEADER_LENGTH);
         }
-        baseDataStream.inUse_ = false;
+        synchronized(baseDataStream) {  // @A7A 
+           baseDataStream.inUse_ = false;
+        }  
         is.skip(is.available());  // disregard the rest of this data stream
         throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
       }
@@ -91,20 +98,45 @@ class ClientAccessDataStream extends DataStream
       newDataStream.system_ = system;
       if (Trace.traceOn_) newDataStream.setConnectionID(connectionID);
       // Initialize the header section of the new data stream.
-      newDataStream.data_ = new byte[baseDataStream.getLength()];
+      
+      int nowLength = baseDataStream.getLength();
+
+      // Debugging code 
+      //if (nowLength != length) { 
+      //	if (! DataStream.traceOpened) { 
+      //		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
+      //		
+      // 		Trace.setFileName("/tmp/toolboxTrace."+sdf.format(new Date())+".txt");
+      //	    DataStream.traceOpened=true; 
+      // 	}
+      //	boolean traceTurnedOn = false; 
+      //	if (!Trace.traceOn_) {
+      //		traceTurnedOn = true;
+      //		Trace.setTraceAllOn(true); 
+      //		Trace.setTraceOn(true); 
+      //	}
+      //	Trace.log(Trace.DATASTREAM, "Buffer corrupted.. Original length="+length+" nowLength="+nowLength); 
+      //	if (traceTurnedOn) { 
+      //		Trace.setTraceAllOn(false); 
+      //		Trace.setTraceOn(false); 
+      //	}
+      //  }
+      newDataStream.data_ = new byte[nowLength];
       System.arraycopy(baseDataStream.data_, 0, newDataStream.data_, 0, HEADER_LENGTH);
 
       if (newDataStream.data_.length - HEADER_LENGTH > 0)
       {
         // Receive any remaining bytes.
+    	// The number of bytes to read is calculated from newDataStream.data_.length - HEADER_LENGTH 
         newDataStream.readAfterHeader(is);
       }
-
       return newDataStream;
     }
     finally
     {
-      baseDataStream.inUse_ = false;
+    	synchronized(baseDataStream) {  // @A7A 
+           baseDataStream.inUse_ = false;
+    	}  
     }
   }
 
@@ -232,4 +264,14 @@ class ClientAccessDataStream extends DataStream
   {
     set16bit(len, 16);
   }
+
+  // 
+  // Indicate that the buffer can be returned to the pool.  In the past, the pooling implementation
+  // just set inUse_=false to return to the pool.  This is provided so that the request buffer can be resized
+  // by inheriting classes 
+  //  
+  synchronized void returnToPool() {  // @A7C  
+	  inUse_ = false; 
+  }
+  
 }

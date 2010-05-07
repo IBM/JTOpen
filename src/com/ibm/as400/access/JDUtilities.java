@@ -259,10 +259,8 @@ for use in implementing various pieces of the JDBC driver.
             }
             finally
             {
-                // if (request != null) request.returnToPool();
-                // if (reply != null) reply.returnToPool();
-                if (request != null) request.inUse_ = false;
-                if (reply != null) reply.inUse_ = false;
+                if (request != null) request.returnToPool();
+                if (reply != null) reply.returnToPool();
             }
 
         } // End of try block

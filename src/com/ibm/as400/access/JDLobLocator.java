@@ -124,8 +124,8 @@ class JDLobLocator
         }
         finally
         {
-          if (request != null) request.inUse_ = false;
-          if (reply != null) reply.inUse_ = false;
+          if (request != null) request.returnToPool();
+          if (reply != null) reply.returnToPool();
         }                                                                                     
       }
       catch (DBDataStreamException e)
@@ -213,8 +213,8 @@ Retrieves part of the contents of the lob.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
     }
     catch (DBDataStreamException e)
@@ -325,8 +325,8 @@ Writes part of the contents of the lob.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
     }
     catch (DBDataStreamException e)
@@ -387,9 +387,9 @@ Writes part of the contents of the lob.
       }finally
       {
           if (request != null)
-              request.inUse_ = false;
+              request.returnToPool();
           if (reply != null)
-              reply.inUse_ = false;
+              reply.returnToPool();
       }   
   }
 }

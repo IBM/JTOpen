@@ -103,10 +103,14 @@ are available, a brand new one will be allocated.
         pool_[i] = storage; //@P0A
         return storage; //@P0A
       }
-      else if (!storage.inUse_) //@P0A
-      {
-        storage.inUse_ = true; //@P0A
-        return storage; //@P0A
+      else {
+    	synchronized(storage) { // @A7A
+    	  if (!storage.inUse_) //@P0A
+            {
+             storage.inUse_ = true; //@P0A
+             return storage; //@P0A
+            }
+        }
       }
     }
 

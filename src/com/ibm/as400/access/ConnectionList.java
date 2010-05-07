@@ -330,7 +330,9 @@ final class ConnectionList
       }
       if (poolItem != null)  //@A5A
       {
-        poolItem.setInUse(true);  //@A5M
+    	  synchronized (poolItem) { 
+             poolItem.setInUse(true);  //@A5M
+    	  }
       }
     } //end synchronized
 
@@ -426,8 +428,10 @@ final class ConnectionList
       }
       if (poolItem != null)  //B1A
       {
-        if (!poolItem.getAS400Object().isConnected(service)) poolItem.getAS400Object().connectService(service); //@CRS
-        poolItem.setInUse(true); //@B1M
+    	synchronized(poolItem ) {   
+          if (!poolItem.getAS400Object().isConnected(service)) poolItem.getAS400Object().connectService(service); //@CRS
+          poolItem.setInUse(true); //@B1M
+    	}
       }
     }//@B1A end synchronized block
 

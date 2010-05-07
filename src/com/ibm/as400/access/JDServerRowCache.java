@@ -381,8 +381,8 @@ Fetches a block of data from the system.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
     }
     catch (DBDataStreamException e)

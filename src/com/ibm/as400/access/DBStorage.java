@@ -23,7 +23,8 @@ repeatedly.
 **/
 final class DBStorage //@P0C
 {
-  byte[] data_ = new byte[1024]; //@P0C
+  public final static int DEFAULT_SIZE = 1024; 	
+  byte[] data_ = new byte[DEFAULT_SIZE]; //@P0C
   //@P0D private int     id_;
 
   boolean inUse_ = false; //@P0A
@@ -70,14 +71,30 @@ Checks the size of the array and resizes the storage if needed.
   {
     if (size > data_.length)
     {
-      // Double the size each time.
-      byte[] newdata = new byte[Math.max(data_.length * 2, size)]; // @C1C
+      // Double the size each time, until the size is greater then 4 meg.  
+      // Then just go up 4 meg at a time to avoid excessive storage consumption @A8A
+      int increment = data_.length; 
+      if (increment > 4096 * 1024 ) increment = 4096 * 1024; 
+      byte[] newdata = new byte[Math.max(data_.length + increment, size)]; // @C1C
       System.arraycopy(data_, 0, newdata, 0, data_.length);
       data_ = newdata;
       return true;
     }
     return false;
   }
+
+/**
+ * Reduce the size of the allocated buffer if needed.   @A8A
+ */
+public void reclaim(int length) {
+	  if(data_.length>length && length >= DEFAULT_SIZE ) {
+		  byte[] oldData = data_; 
+		  data_ = new byte[length];
+		  // The two byte client server ID is only set in the constructor, NOT in initialize.
+		  // This caused a failure unless those 2 bytes are preserved
+		  System.arraycopy(oldData, 6, data_, 6, 2);
+	  }
+}
 
 
 
