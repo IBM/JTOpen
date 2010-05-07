@@ -252,8 +252,8 @@ Commits a global transaction.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
 
       // Mark the transaction state.
@@ -345,8 +345,8 @@ specified and lets the transaction be completed.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
 
       // Mark the transaction state.
@@ -432,8 +432,8 @@ transaction branch.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
       
       //@pda throw XAException for return codes not thrown in processXAReturnCode()
@@ -608,8 +608,8 @@ Prepares for a transaction commit.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
       //@pda throw XAException for return codes not thrown in processXAReturnCode()
       //per spec: return if XA_RDONLY or XA_OK, throw XAExecption for anything else
@@ -725,8 +725,8 @@ resource manager.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
     }
     catch (XAException e)
@@ -779,8 +779,8 @@ Rolls back a transaction branch.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
 
       // Mark the transaction state.
@@ -915,8 +915,8 @@ specified.
       }
       finally
       {
-        if (request != null) request.inUse_ = false;
-        if (reply != null) reply.inUse_ = false;
+        if (request != null) request.returnToPool();
+        if (reply != null) reply.returnToPool();
       }
 
       // Mark the transaction state.

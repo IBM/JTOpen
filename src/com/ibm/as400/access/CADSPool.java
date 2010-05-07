@@ -34,10 +34,13 @@ final class CADSPool
           streams_[i].inUse_ = true;
           return streams_[i];
         }
-        if (!streams_[i].inUse_)
-        {
-          streams_[i].inUse_ = true;
-          return streams_[i];
+        // Synchronize because looking at inUse_ @A7A
+         synchronized(streams_[i]) { 
+          if (!streams_[i].inUse_)
+          {
+            streams_[i].inUse_ = true;
+            return streams_[i];
+          }
         }
       }
       // Need more streams

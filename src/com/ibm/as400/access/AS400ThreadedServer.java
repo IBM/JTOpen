@@ -368,8 +368,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 if (Trace.traceOn_)
                 {
                   if (disconnecting_ &&
-                      e instanceof SocketException &&
-                      e.getMessage().equals("Socket closed"))
+                      e instanceof SocketException )
                   {
                     // It's an expected consequence of a client-initiated disconnect.
                     Trace.log(Trace.DIAGNOSTIC, "run(): Caught SocketException during disconnect:", e);

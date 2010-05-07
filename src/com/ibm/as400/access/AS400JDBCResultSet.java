@@ -515,8 +515,10 @@ implements ResultSet
     throws Throwable
     {
         try{
-            if(! closed_)
-                close ();
+            if(! closed_) {
+            	JDTrace.logInformation (this, "WARNING: Finalizer thread closing result set object.");
+            	close ();
+            }
         }
         catch(Exception e){
             //catch any exceptions and don't throw them

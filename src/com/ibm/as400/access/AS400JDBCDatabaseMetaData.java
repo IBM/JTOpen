@@ -548,8 +548,8 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }
         }
@@ -944,8 +944,8 @@ implements DatabaseMetaData
             }
             finally
             {
-                if (request != null) request.inUse_ = false;
-                if (reply != null) reply.inUse_ = false;
+                if (request != null) request.returnToPool();
+                if (reply != null) reply.returnToPool();
             }
             // Return the results
             return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_); //@in2
@@ -1387,8 +1387,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  // end of else blank
 
@@ -1729,8 +1729,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -2186,8 +2186,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  
         }
@@ -2463,8 +2463,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -2750,8 +2750,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -3327,8 +3327,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -4293,8 +4293,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -4815,8 +4815,8 @@ endif */
                     }
                     finally
                     {
-                        if (request != null) request.inUse_ = false;
-                        if (reply != null) reply.inUse_ = false;
+                        if (request != null) request.returnToPool();
+                        if (reply != null) reply.returnToPool();
                     }
                 } // End of if file attribute != -1
                 else
@@ -5750,8 +5750,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
+                    if (request != null) request.returnToPool();
+                    if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
