@@ -16,30 +16,40 @@ package com.ibm.as400.access;
 // This handles all of the datastream pooling for JDBC.
 final class DBDSPool
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
   private DBDSPool() {}
 
   // Request streams.
   private static DBSQLRPBDS[] dbsqlrpbdsPool_ = new DBSQLRPBDS[4];
   private static final Object dbsqlrpbdsPoolLock_ = new Object(); //@P1A
+  
   private static DBSQLDescriptorDS[] dbsqldescriptordsPool_ = new DBSQLDescriptorDS[4];
   private static final Object dbsqldescriptordsPoolLock_ = new Object(); //@P1A
+  
   private static DBSQLResultSetDS[] dbsqlresultsetdsPool_ = new DBSQLResultSetDS[4];
   private static final Object dbsqlresultsetdsPoolLock_ = new Object(); //@P1A
+  
   private static DBSQLRequestDS[] dbsqlrequestdsPool_ = new DBSQLRequestDS[4];
   private static final Object dbsqlrequestdsPoolLock_ = new Object(); //@P1A
+  private static int          dbsqlrequestdsPoolHighMark_ = 0;        // @A8A
+  private static int          dbsqlrequestdsPoolAllocations_ = 0; 
+  private static int          dbsqlrequestdsPoolReclaimThreshold = 1000;  
+   
   private static DBNativeDatabaseRequestDS[] dbnativedatabaserequestdsPool_ = new DBNativeDatabaseRequestDS[4];
   private static final Object dbnativedatabaserequestdsPoolLock_ = new Object(); //@P1A
+  
   private static DBReturnObjectInformationRequestDS[] dbreturnobjectinformationrequestdsPool_ = new DBReturnObjectInformationRequestDS[4];
   private static final Object dbreturnobjectinformationrequestdsPoolLock_ = new Object(); //@P1A
+  
   private static DBSQLAttributesDS[] dbsqlattributesdsPool_ = new DBSQLAttributesDS[4];
   private static final Object dbsqlattributesdsPoolLock_ = new Object(); //@P1A
+  
   private static DBXARequestDS[] dbxarequestdsPool_ = new DBXARequestDS[4];
   private static final Object dbxarequestdsPoolLock_ = new Object(); //@P1A
 
   // Reply streams.
-  private static DBReplyRequestedDS[] dbreplyrequesteddsPool_ = new DBReplyRequestedDS[4];
+  /* private  */ static DBReplyRequestedDS[] dbreplyrequesteddsPool_ = new DBReplyRequestedDS[4];
   private static final Object dbreplyrequesteddsPoolLock_ = new Object(); //@P1A
 
   static final DBStoragePool storagePool_ = new DBStoragePool();
@@ -62,11 +72,14 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        else if (!pool[i].inUse_)
-        {
-          pool[i].initialize();
-          pool[i].inUse_ = true;
-          return pool[i];
+        else { 
+        	synchronized(pool[i]) {   // @A7A  
+        	   if (!pool[i].inUse_) {
+        		pool[i].initialize();
+        		pool[i].inUse_ = true;
+        		return pool[i];
+        	  }
+        	}
         }
       }
       // All are in use, so expand the pool.
@@ -94,12 +107,14 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
-        }
+    	synchronized(pool[i]) {   // @A7A  
+         if (!pool[i].inUse_)
+           {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            return pool[i];
+           }
+    	}
       }
       // All are in use, so expand the pool.
       DBXARequestDS[] temp = new DBXARequestDS[max*2];
@@ -125,12 +140,15 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
-        }
+    	synchronized(pool[i]) {   // @A7A  
+
+          if (!pool[i].inUse_)
+          {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            return pool[i];
+          }
+    	}
       }
       // All are in use, so expand the pool.
       DBSQLAttributesDS[] temp = new DBSQLAttributesDS[max*2];
@@ -156,12 +174,14 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
-        }
+    	synchronized(pool[i]) {   // @A7A  
+          if (!pool[i].inUse_)
+          {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            return pool[i];
+          }
+    	}
       }
       // All are in use, so expand the pool.
       DBNativeDatabaseRequestDS[] temp = new DBNativeDatabaseRequestDS[max*2];
@@ -187,11 +207,14 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
+    	synchronized(pool[i]) {   // @A7A  
+
+          if (!pool[i].inUse_)
+          {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            return pool[i];
+         }
         }
       }
       // All are in use, so expand the pool.
@@ -218,12 +241,15 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
-        }
+    	synchronized(pool[i]) {   // @A7A  
+
+          if (!pool[i].inUse_)
+          {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            return pool[i];
+          }
+    	}
       }
       // All are in use, so expand the pool.
       DBSQLDescriptorDS[] temp = new DBSQLDescriptorDS[max*2];
@@ -240,20 +266,42 @@ final class DBDSPool
     synchronized(dbsqlrequestdsPoolLock_) //@P1C
     {
       DBSQLRequestDS[] pool = dbsqlrequestdsPool_; //@P1M
+
       int max = pool.length;
+
+      //  @A8A  
+      dbsqlrequestdsPoolAllocations_++; 
+      if (dbsqlrequestdsPoolAllocations_ > dbsqlrequestdsPoolReclaimThreshold) {
+    	  dbsqlrequestdsPoolAllocations_ = 0; 
+    	  for (int i = dbsqlrequestdsPoolHighMark_+1; i < max; i++) {
+   	        if (pool[i] != null) {
+   	          synchronized(pool[i]) { 
+   	        	if (!pool[i].inUse_) {
+     	          pool[i].reclaim(); 
+   	            }
+   	          }
+   	        }
+    	  }
+    	  dbsqlrequestdsPoolHighMark_ = 0; 
+      }
+      
       for (int i=0; i<max; ++i)
       {
         if (pool[i] == null)
         {
           pool[i] = new DBSQLRequestDS(a,b,c,d);
           pool[i].inUse_ = true;
+          if (i > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = i;   // @A8A
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
+        synchronized(pool[i]) { 
+          if (!pool[i].inUse_)
+          {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            if (i > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = i; 
+            return pool[i];
+          }
         }
       }
       // All are in use, so expand the pool.
@@ -262,6 +310,7 @@ final class DBDSPool
       temp[max] = new DBSQLRequestDS(a,b,c,d);
       temp[max].inUse_ = true;
       dbsqlrequestdsPool_ = temp;
+      if (max > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = max;   // @A8A
       return temp[max];
     }
   }
@@ -280,11 +329,13 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
+        synchronized(pool[i]) { 
+          if (!pool[i].inUse_)
+          {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            return pool[i];
+          }
         }
       }
       // All are in use, so expand the pool.
@@ -311,11 +362,13 @@ final class DBDSPool
           pool[i].inUse_ = true;
           return pool[i];
         }
-        if (!pool[i].inUse_)
-        {
-          pool[i].inUse_ = true;
-          pool[i].initialize(a,b,c,d);
-          return pool[i];
+        synchronized(pool[i]) { // @A7A  
+          if (!pool[i].inUse_)
+          {
+            pool[i].inUse_ = true;
+            pool[i].initialize(a,b,c,d);
+            return pool[i];
+          }
         }
       }
       // All are in use, so expand the pool.

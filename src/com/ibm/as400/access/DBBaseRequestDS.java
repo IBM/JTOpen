@@ -191,6 +191,7 @@ import java.sql.SQLException;
 abstract class DBBaseRequestDS
 extends ClientAccessDataStream
 {
+  public static int              SEND_HISTORY_SIZE=10;  /*@A8A*/ 
   // Private data.
   private int                    currentOffset_;
   private int                    lockedLength_;
@@ -198,7 +199,8 @@ extends ClientAccessDataStream
   private int                    parameterCount_;
   private boolean                rleCompressed_ = false;              // @E3A
   private final DBStorage storage_ = DBDSPool.storagePool_.getUnusedStorage(); //@P0A
-
+  private int[]                  sendHistory = new int[SEND_HISTORY_SIZE];  // @A8A
+  private int                    sendHistoryOffset = 0;                     // @A8A
 
   // Values for operation result bitmap.
   public static final int       ORS_BITMAP_RETURN_DATA                 = 0x80000000;    // Bit 1
@@ -853,7 +855,11 @@ four bytes, and sixteen bytes per line.
   throws Throwable
   {
     //@P0D freeCommunicationsBuffer();
-    if (storage_ != null) storage_.inUse_ = false; //@P0A
+    if (storage_ != null) {
+    	synchronized(storage_) {  // @A8A  
+    	   storage_.inUse_ = false; //@P0A
+    	}
+    }
     data_ = null; //@P0A
     super.finalize();
   }
@@ -936,6 +942,10 @@ Overrides the superclass to write the datastream.
   void write(OutputStream out)
   throws IOException
   {
+	// record the length of this packet for each send  @A8A
+	sendHistory[sendHistoryOffset] = currentOffset_; 
+	sendHistoryOffset = (sendHistoryOffset + 1) % SEND_HISTORY_SIZE; 
+	
     setLength(currentOffset_);
     set16bit(parameterCount_, 38);
 
@@ -996,7 +1006,9 @@ Overrides the superclass to write the datastream.
         }
         finally //@P0A
         {
-          secondaryStorage.inUse_ = false; //@P0A
+          synchronized(secondaryStorage) { // @A8A 
+              secondaryStorage.inUse_ = false; //@P0A
+          }
         }
       }                                                                                   // @E3A
       else
@@ -1025,6 +1037,44 @@ Overrides the superclass to write the datastream.
       if (Trace.traceOn_ && !(out instanceof ByteArrayOutputStream)) Trace.log(Trace.DATASTREAM, "Data stream sent (connID="+connectionID_+") ...", data_, 0, currentOffset_);  //@E6A @P0C
     }                                                                                       // @E3A
   }
+  
+  
+  
+  // 
+  // Indicate that the buffer can be returned to the pool.  In the past, the pooling implementation
+  // just set inUse_=false to return to the pool.  This is provided so that the request buffer can be resized.
+  //  
+  synchronized void returnToPool() {  // @A8A
+	  // Determine the maximum size of the most recent X request. 
+	  // Resize the data. 
+	  // 
+      int length = DBStorage.DEFAULT_SIZE; 
+      
+      for (int i = 0 ; i < SEND_HISTORY_SIZE; i++ ) {
+    	  if (sendHistory[i] > length) length = sendHistory[i];  
+      }
+            
+	  storage_.reclaim(length); 
+	  
+	  data_ = null;   //Safe, this is assigned during initialize.
+	  
+	  inUse_ = false; 
+  }
+
+  //
+  // reclaim the storage
+  //
+  void reclaim() {
+	  int defaultSize = DBStorage.DEFAULT_SIZE; 
+      for (int i = 0 ; i < SEND_HISTORY_SIZE; i++ ) {
+    	  sendHistory[i] = defaultSize;  
+      }
+	  storage_.reclaim(defaultSize); 
+	  
+	  data_ = null;   //Safe, this is assigned during initialize.
+	  
+  }
+  
 }
 
 
