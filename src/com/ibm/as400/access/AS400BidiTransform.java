@@ -421,9 +421,23 @@ public class AS400BidiTransform
     //Bidi-HCG1
     private static int getStringTypeM(int ccsid){
     	if(ccsid == 13488 || ccsid == 1200)
-    		return 5;
+    		return ST5;
     	else
     		return getStringType(ccsid);
+    }
+    
+    private static int getStringTypeX(int ccsid, AS400 as400){
+    	if(as400 == null)
+    		return getStringType(ccsid);   
+    	
+    	if(ccsid == 13488 || ccsid == 1200){    		    	
+    		if(isBidiCcsid(as400.getCcsid()))
+    			return ST10;
+    			else    		
+    			return ST5;
+    	}
+    	else
+    		return getStringType(ccsid);    	
     }
     
     // Return BidiFlagSet according to string type.
@@ -628,7 +642,7 @@ public class AS400BidiTransform
     		host_bidi_format = 4;    	  		
 
 		package_ccsid = connection.getProperties().getInt(JDProperties.PACKAGE_CCSID);
-		package_bidi_format = getStringType(package_ccsid);
+		package_bidi_format = getStringTypeM(package_ccsid);
     	
     	if(bidi_format != 0 && host_bidi_format != 0){
     		if(prop.getString(JDProperties.BIDI_IMPLICIT_REORDERING).equalsIgnoreCase("true"))				       			
@@ -644,7 +658,7 @@ public class AS400BidiTransform
             return value_;
     	JDProperties prop = connection.getProperties();        	       	        		
     	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);		    	
-		int host_bidi_format = getStringTypeM(host_ccsid);				
+		int host_bidi_format = getStringTypeX(host_ccsid, connection.getSystem());				
     	if(bidi_format != 0 && host_bidi_format != 0){    		    		
     		value_ = bidiTransform(value_, bidi_format, host_bidi_format);
     	}	
@@ -658,11 +672,11 @@ public class AS400BidiTransform
     	int host_bidi_format;
     	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);
 		    	
-		host_bidi_format = getStringType(host_ccsid);
+		host_bidi_format = getStringTypeX(host_ccsid, connection.getSystem());
 		if(host_bidi_format == 0){
 			if(connection.getSystem() != null){
 				host_ccsid = connection.getSystem().getCcsid();			
-				host_bidi_format = getStringTypeM(host_ccsid);
+				host_bidi_format = getStringType(host_ccsid);
 			}
 			else host_bidi_format = 4;
 		}
