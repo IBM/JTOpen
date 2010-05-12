@@ -9,7 +9,7 @@ Copyright (C) 1997-2010 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: January 29, 2010
+Last updated: May 12, 2010
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
@@ -23,6 +23,7 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 IBM Toolbox for Java web site:
 <A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
+<!-- On 2010-05-12: cvs log -rJTOpen_6_7:JTOpen_7_0 -N -d>2010-01-27 -->
 <!-- On 2010-01-19: cvs log -rJTOpen_6_6:JTOpen_6_7 -N -d>2009-08-27 -->
 <!-- On 2009-08-25: cvs log -rJTOpen_6_5_1:JTOpen_6_6 -N -d>2009-05-05 -->
 <!-- On 2009-05-05: cvs log -rJTOpen_6_4:JTOpen_6_5 -N -d>2008-12-08 -->
@@ -47,6 +48,7 @@ with the following error:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#70">Fixes and enhancements in JTOpen 7.0</A><BR>
 <A HREF="#67">Fixes and enhancements in JTOpen 6.7</A><BR>
 <A HREF="#66">Fixes and enhancements in JTOpen 6.6</A><BR>
 <A HREF="#65_1">Fixes and enhancements in JTOpen 6.5.1</A><BR>
@@ -77,9 +79,60 @@ with the following error:
 <P>
 
 <HR>
-<H3><A NAME="67">Fixes and enhancements in JTOpen 6.7</A> <i>(released 2010-02-05)</i></H3>
+<H3><A NAME="70">Fixes and enhancements in JTOpen 7.0</A> <i>(released 2010-05-14)</i></H3>
 <PRE>
 - <i>Various:</i> Added or improved error messages and trace messages.
+- <i>Various:</i> Javadoc enhancements.  Improved code comments.
+- Data conversion: Refined the default behaviors for Bidi conversion.
+- Connection pool: Improved tracing of connection pool management events.
+- Connection: Added PASE-specific native methods with unique names, to eliminate socket errors due to PASE/ILE ambiguity.
+- Connection: Catch AccessControlException during static initialization of AS400Credential.
+- Connection: Eliminated limitation on getJobs() method, regarding the RECORDACCESS service.
+- Connection: Enabled AS400.generateToken() methods to work with proxy server.
+- Connection: Improved tracing of authentication scheme.
+- Data area: Enabled/fixed read(byte[]) methods when running in proxy mode.
+- Data conversion: Added BIDI_STRING_TYPE_NONE (-1) as a value for JDBC property 'bidi string type'.
+- Data conversion: Changed default Bidi string type from 'Implicit LTR' to 'Implicit Contextual LTR'.
+- Data conversion: Eliminated method AS400BidiTransform.convertDataToHostCCSID().
+- Data conversion: Eliminated unused internal method in AS400DecFloat.
+- Data conversion: Fixed NullPointerException in AS400BidiTransform.convertDataFromHostCCSID().
+- Data conversion: If host CCSID is 13488 or 1200, default to a Bidi 'string type' of 5.
+- Data conversion: If throw NumberFormatException (for packed or zoned decimal), trace field bytes.
+- Data conversion: Modified CharConverter(ccsid,system) to tolerate null-valued 'system' argument.
+- Data conversion: Refined determination of default 'string type': Consider whether the system's default CCSID is a Bidi CCSID.
+- Data conversion: Reset value of BidiStringType.DEFAULT to original value of 0 (which now maps to ST5).
+- Date conversion: Don't trace stack-trace of NullPointerException from TimeZone.getTimeZone().
+- IFS: Fix bug in IFSFileEnumeration.nextElement(), observed in /QNTC.
+- IFS: Fixed several proxy methods to call correct rethrowX() method.
+- JDBC: Added "use block update" connection property.
+- JDBC: Added 'maximum blocked input rows' connection property.
+- JDBC: Allow DatabaseMetaData.getFunctions() call to V5R4.
+- JDBC: Buffer synchronization fixes.
+- JDBC: Code cleanup.
+- JDBC: Correct JDUtilities.streamToBytes().
+- JDBC: Correct syntax error for Insert statement.
+- JDBC: Fix to not return array out of bounds exception when bad char data is converted.
+- JDBC: Fix update counts for batched insert statements.
+- JDBC: JDBC40 single source restructure.
+- JDBC: Minimize buffer usage for blocked insert.
+- Job: Fixed bug: Job.loadInformation() doesn't clear cached 'job status' value.
+- NetServer: Tolerate blanks values returned for 'encrypted password' and 'logon type'.
+- NetServer: Updated with new API fields that were added in V6R1.
+- Proxy: Changed an 'error' trace message to 'diagnostic'.
+- Proxy: Made CredentialVault and its subclasses Serializable, to fix ProxyServer problem introduced in JTOpen 6.7.
+- RLA: Commented-out unused methods in DDMRequestDataStream.
+- RLA: Performance improvement in KeyedFile.readNextEqual() and readPreviousEqual().
+- Spooled file: Removed non-public attributes from javadoc for SpooledFile.sendTCP() method.
+- Trace: If we created our PrintWriter internally (based on a file), close it when replacing it.
+- Trace: Incorporate systemName/jobName in receiver thread names, for more useful traces.
+- User: Added new method: User.refresh().
+- User: Check for (and reject) user profile name '*NONE'.
+</PRE>
+
+<HR>
+<H3><A NAME="67">Fixes and enhancements in JTOpen 6.7</A> <i>(released 2010-02-05)</i></H3>
+<PRE>
+- <i>Various:</i> Added and improved error messages and trace messages.
 - <i>Various:</i> Corrected html tags.
 - <i>Various:</i> Fixes for potential bugs identified by static analysis.
 - <i>Various:</i> Javadoc enhancements.  Improved code comments.
@@ -94,11 +147,11 @@ with the following error:
 - Connection: In AS400 class, loosen definition of 'numeric profile name' when implicitly prepending 'Q' to profile name.
 - Connection: In AS400ThreadedServer, if SocketException during disconnect(), trace a 'diagnostic' instead of an 'error'.
 - Data conversion: In CharConverter, added checks for null-valued arguments.
+- Data conversion: Added more complete Bidi support.
 - Date conversion: If unable to determine server time zone, assume same as client.
-- Date conversion: Added more complete bidi support.
 - IFS: Added new constructor IFSFile(IFSFile directory,String filename).
 - IFS: In IFSFileDescriptor, changed lock object from a Boolean to an Object.
-- JDBC: Added more complete bidi support.
+- JDBC: Added more complete Bidi support.
 - JDBC: Change XML trim of declaration to match Native driver.
 - JDBC: Fix Array max size of element data.
 - JDBC: Fix SQL array and non-array types in same output parm procedure.
@@ -427,7 +480,7 @@ with the following error:
 - Connection: Corrected misspelled constant name.
 - Connection: Use socket timeout when connecting if running in Java 1.4 or higher.
 - Data area: Added methods to read/write unconverted bytes.
-- Data conversion: Added setters and getters for numeral shaping, bidi expand alef.
+- Data conversion: Added setters and getters for numeral shaping, Bidi expand alef.
 - Data conversion: Eliminated possible ArrayIndexOutOfBoundsException in ConvTableReader.fillCache(), for example when incorrect data CCSID is specified.
 - Data conversion: Made the Mlog class non-public.
 - IFS: Modifications for IFSFile.clearCachedAttributes() to clear all cached attributes.
@@ -660,7 +713,7 @@ with the following error:
 - Connection:  Added new properties to prevent use of current user and Unix domain sockets.
 - Connection:  Improved warning messages.
 - Connection pool:  Fixed JTOpen Bug 1459369:  Added support to terminate maintenance thread when pool is closed.
-- Data conversion:  Enhanced bidi support.
+- Data conversion:  Enhanced Bidi support.
 - FTP:  Added support so FTP datastreams use CRLF.
 - IFS:  Added new IFSFile methods:  setSorted() and getOwnerName().
 - IFS:  Un-deprecated classes IFSTextFileInputStream and IFSTextFileOutputStream.
@@ -738,7 +791,7 @@ with the following error:
 - <i>Various:</i> Call setThreadSafe() only if threadsafe property not set.
 - <i>Various:</i> Javadoc fixes and enhancements.
 - <i>Various:</i> Native method updates.
-- Data conversion: Additional bidi transform options.
+- Data conversion: Additional Bidi transform options.
 - IFS: Tolerate quotes within filenames.
 - JDBC: Added support for 2 MB SQL Statements, 128 byte column names, database host server trace, and added the query optimize goal property.
 - JDBC: Allow TMRESUME on a start() request if the server supports it.
@@ -928,8 +981,8 @@ with the following error:
 - CommandHelpRetriever: Set charset to UTF-8 instead of ISO-8859-1.
 - CommandHelpRetriever: Javadoc for generateHTML() now indicates the charset is UTF-8.
 - Data conversion: Added constant BidiStringType.NONE.
-- Data conversion: Fixed possible thread-safety issue with bidi conversion.
-- Data conversion: Various fixes and enhancements related to bidi conversion.
+- Data conversion: Fixed possible thread-safety issue with Bidi conversion.
+- Data conversion: Various fixes and enhancements related to Bidi conversion.
 - Data conversion: Added class BidiConversionProperties.
 - Documentation: Various javadoc fixes, additions, and enhancements.
 - IFS: Fixed bug in IFSFile.mkdirs().
@@ -947,7 +1000,7 @@ with the following error:
 - JDBC: SQLResultSetTableModel: Removed beforeFirst() call since stored procedures might not return a scrollable cursor if one is requested.
 - JDBC: AS400JDBCResultSet now returns null if a data mapping error occurs.
 - JDBC: SQLResultSetTableModel will now output "++++++++++++++" when a data mapping error occurs.
-- JDBC: Use BidiConversionProperties class instead on only bidi string type.
+- JDBC: Use BidiConversionProperties class instead on only Bidi string type.
 - JDBC: Added two connection properties "bidi implicit reordering" and "bidi numeric ordering".
 - Job: Return -1 on getQueuePriority() if job's status is *OUTQ.
 - Job list: Trace a warning message if there are open enumerations returned by a JobList and the JobList is being closed.
@@ -979,7 +1032,7 @@ with the following error:
 - Connection pool: Set thread name on maintenance thread.
 - Connection pool: Don't start maintenance thread if threadUsed is false.
 - Data conversion: Added another variant of CharConverter.byteArrayToString() and stringToByteArray().
-- Data conversion: Enhanced bidi algorithms.
+- Data conversion: Enhanced Bidi algorithms.
 - Data conversion: Directly support CCSID 1208 (UTF-8).
 - Data queue: Updates to allow user to write to a data queue without having read authority.
 - HTML: Properly allow multiple options to be selected in a SelectFormElement.
