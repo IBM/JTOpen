@@ -162,6 +162,7 @@ public class AS400BidiTransform
         bdxA2J_.flags = new BidiFlagSet(NORMAL_FLAG_SET);
         setAS400Ccsid(as400Ccsid);
         setJavaStringType(BidiStringType.DEFAULT);//Bidi-HCG
+        //setJavaStringType(BidiStringType.ST5);//Bidi-HCG
     }
 
     /**
@@ -377,8 +378,8 @@ public class AS400BidiTransform
      **/
     public String toJavaLayout(String as400Text)
     {   lastTransform_ = bdxA2J_;
-    	if(javaType_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG
-    		return as400Text;											//Bidi-HCG        
+    	if(as400Type_ == BidiStringType.NONE || javaType_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG2
+    		return as400Text;																					//Bidi-HCG        
         BidiText src = new BidiText(bdxJ2A_.flags, as400Text);
         return src.transform(bdxA2J_).toString();
     }
@@ -390,8 +391,8 @@ public class AS400BidiTransform
      **/
     public String toAS400Layout(String javaText)    
     {  	lastTransform_ = bdxJ2A_;
-    	if(as400Type_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG
-    		return javaText;												//Bidi-HCG
+    	if(as400Type_ == BidiStringType.NONE || javaType_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG2
+    		return javaText;																					//Bidi-HCG
         BidiText src = new BidiText(bdxA2J_.flags, javaText);
         return src.transform(bdxJ2A_).toString();
     }
@@ -653,20 +654,22 @@ public class AS400BidiTransform
     	return value_;
 	}
 
-	static String convertDataToHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
-	    if(connection == null || value_ == null) //@pdc
-            return value_;
-    	JDProperties prop = connection.getProperties();        	       	        		
-    	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);		    	
-		int host_bidi_format = getStringTypeX(host_ccsid, connection.getSystem());				
-    	if(bidi_format != 0 && host_bidi_format != 0){    		    		
-    		value_ = bidiTransform(value_, bidi_format, host_bidi_format);
-    	}	
-    	return value_;
-	}
+//Bidi-HCG2: Remove this method, and re-implement ConvTableBidiMap.stringToByteArray() instead.
+//	static String convertDataToHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
+//	    if(connection == null || value_ == null) //@pdc
+//            return value_;
+//    	JDProperties prop = connection.getProperties();        	       	        		
+//    	int bidi_format = prop.getInt(JDProperties.BIDI_STRING_TYPE);		    	
+//		int host_bidi_format = getStringTypeX(host_ccsid, connection.getSystem());				
+//    	if(bidi_format != 0 && host_bidi_format != 0){    		    		
+//    		value_ = bidiTransform(value_, bidi_format, host_bidi_format);
+//    	}	
+//    	return value_;
+//	}
 
 	static String convertDataFromHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
-	    if(connection == null || value_ == null) //@pdc
+	
+		if(connection == null || value_ == null) //@pdc
             return value_;
     	JDProperties prop = connection.getProperties();        	       	        		
     	int host_bidi_format;
@@ -685,6 +688,7 @@ public class AS400BidiTransform
     		value_ = bidiTransform(value_, host_bidi_format, bidi_format);
     		
     	}	
+    	
     	return value_;
 	}
 	

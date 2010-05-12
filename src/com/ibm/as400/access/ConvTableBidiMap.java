@@ -13,14 +13,12 @@
 
 package com.ibm.as400.access;
 
-// This is the parent class for all ConvTableXXX classes that represent bidi ccsids.
+// The parent class for all ConvTableXXX classes that represent bidi ccsids.
 abstract class ConvTableBidiMap extends ConvTable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     char[] toUnicode_ = null;
     byte[] fromUnicode_ = null;
-
+  
     // Constructor.
     ConvTableBidiMap(int ccsid, char[] toUnicode, char[] fromUnicode)
     {
@@ -74,10 +72,7 @@ abstract class ConvTableBidiMap extends ConvTable
 
     // Perform a Unicode to OS/400 CCSID conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
-    {
-        //Bidi-HCG-delete, Bidi transformation should not be performed here
-    	//
-
+    {        
     	//int type = properties.getBidiStringType();
         //char[] src = null;
         //if (type == BidiStringType.NONE)
@@ -102,6 +97,15 @@ abstract class ConvTableBidiMap extends ConvTable
             //src = abt.toAS400Layout(source).toCharArray();
             //if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array (after java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));                        
         //}
+    	
+    	//Bidi-HCG2 start
+    	if (Trace.traceOn_)
+    		Trace.log(Trace.CONVERSION, "Converting string to byte array (before java layout was applied) for ccsid: " + ccsid_, 
+    				ConvTable.dumpCharArray(source.toCharArray()));
+    	AS400BidiTransform abt = new AS400BidiTransform(ccsid_);
+    	abt.setJavaStringType(properties.getBidiStringType());    	
+    	source = abt.toAS400Layout(source);
+    	//Bidi-HCG2 end
     	
     	char[] src = source.toCharArray();//Bidi-HCG
         
