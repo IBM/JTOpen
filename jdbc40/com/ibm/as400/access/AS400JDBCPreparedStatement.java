@@ -2861,9 +2861,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + parameterValue.length());  // @H1A
             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
         }                                                                  // @H1A
-        if(parameterIndex <= parameterCount_ && parameterIndex > 0) //@pdc
-        parameterValue = AS400BidiTransform.convertDataToHostCCSID(parameterValue, connection_,		//Bidi-HCG
-        		parameterRow_.getCCSID (parameterIndex));											//Bidi-HCG 
+        //if(parameterIndex <= parameterCount_ && parameterIndex > 0) //@pdc
+        //parameterValue = AS400BidiTransform.convertDataToHostCCSID(parameterValue, connection_,		//Bidi-HCG
+        //		parameterRow_.getCCSID (parameterIndex));											//Bidi-HCG 
                      
         setValue (parameterIndex, parameterValue, null, -1); // @B7C @P0C
     }
