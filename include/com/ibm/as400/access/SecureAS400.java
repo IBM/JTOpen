@@ -25,6 +25,8 @@ import com.ibm.sslight.SSLightKeyRing;
  **/
 public class SecureAS400 extends AS400
 {
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+
     static final long serialVersionUID = 4L;
     /**
      Constant indicating that encryption should only be done on the connection between the client and the proxy server.
