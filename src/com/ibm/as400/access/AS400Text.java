@@ -17,7 +17,6 @@ import java.io.UnsupportedEncodingException;
 
 /**
  Provides character set conversion between Java String objects and IBM i code pages.
- <P>Note that in the past few releases, several constructors were deprecated because they did not accept a system object as an argument.  Due to recent changes in the behavior of the character conversion routines, this system object is no longer necessary, except when the AS400Text object is to be passed as a parameter on a Toolbox Proxy connection.  Since this case is extremely rare, it is more beneficial not to have the constructors issue deprecation warnings.
  @see  com.ibm.as400.access.CharConverter
  **/
 public class AS400Text implements AS400DataType
