@@ -1396,8 +1396,23 @@ public class FileAttributes
         getAttributes();
         return journal_;
     }
+
     // The last date and time for which the object had journaling started for it.
-    Date lastJounalingStartTime_;
+    Date lastJournalingStartTime_;
+    /**
+     Returns the last date and time for which the object had journaling started for it.  If this object has never been journaled, null is returned.
+     @return  The last date and time for which the object had journaling started for it.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @deprecated Use {@link #getJournalingStartTime getJournalingStartTime()} instead.
+     **/
+    public Date getJounalingStartTime() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        return getJournalingStartTime();
+    }
     /**
      Returns the last date and time for which the object had journaling started for it.  If this object has never been journaled, null is returned.
      @return  The last date and time for which the object had journaling started for it.
@@ -1407,11 +1422,13 @@ public class FileAttributes
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
-    public Date getJounalingStartTime() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    public Date getJournalingStartTime() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         getAttributes();
-        return lastJounalingStartTime_;
+        return lastJournalingStartTime_;
     }
+
+
     // The starting journal receiver for apply.
     String startingJournalReceiverForApply_;
     /**
@@ -1857,7 +1874,7 @@ public class FileAttributes
                                 journal_ = QSYSObjectPathName.toPath(journalLibrary, journalName, "JRN");
                             }
                             seconds = BinaryConverter.byteArrayToUnsignedInt(buffer, offset + 48);
-                            lastJounalingStartTime_ = seconds == 0 ? null : new Date(seconds * 1000);
+                            lastJournalingStartTime_ = seconds == 0 ? null : new Date(seconds * 1000);
                         }
                         break;
                     case 26:
@@ -1922,7 +1939,7 @@ public class FileAttributes
                             journal_ = QSYSObjectPathName.toPath(journalLibrary, journalName, "JRN");
                         }
                         seconds = BinaryConverter.byteArrayToUnsignedInt(buffer, offset + 48);
-                        lastJounalingStartTime_ = seconds == 0 ? null : new Date(seconds * 1000);
+                        lastJournalingStartTime_ = seconds == 0 ? null : new Date(seconds * 1000);
                         String journalReceiverName = conv.byteArrayToString(buffer, offset + 52, 10).trim();
                         String journalReceiverLibrary = conv.byteArrayToString(buffer, offset + 62, 10).trim();
                         startingJournalReceiverForApply_ = journalReceiverName.equals("") ? null : QSYSObjectPathName.toPath(journalReceiverLibrary, journalReceiverName, "JRNRCV");
