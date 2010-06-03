@@ -243,6 +243,22 @@ public class SystemProperties
     /*public*/ static final String TRACE_MONITOR = ACCESS_PREFIX + "Trace.monitor";
     /*public*/ static final String TRACE_MONITOR_PORT = ACCESS_PREFIX + "Trace.monitorPort";
 
+    /**
+     Specifies the fallback CCSID to use in cases where a text data field with CCSID 65535 is encountered and must be converted.
+     Sometimes, especially in non-English environments, the default CCSID is left at 65535. That causes classes such as {@link AS400Text AS400Text} to make a "best guess" on the CCSID, based on the default locale.
+     This option overrides the best guess with a specific CCSID value.
+     This is useful where the Locale of a client system is different from that of the IBM i system.
+     <ul>
+     <li>Property name: com.ibm.as400.access.AS400.fallbackCCSID
+     <li>Values/syntax: <tt>0-65535</tt>
+     <li>Default: (no default)
+     <li>Overridden by: (none)
+     </ul>
+     **/
+    public static final String FALLBACK_CCSID = ACCESS_PREFIX + "AS400.fallbackCCSID";
+
+
+
     //  *** Note: ***
     //
     // If you add a new system property, remember to also add it to the

@@ -17,8 +17,6 @@ import java.util.Locale;
 
 class ExecutionEnvironment
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-    
     // No need for instances of this class.
     private ExecutionEnvironment()
     {
@@ -28,29 +26,43 @@ class ExecutionEnvironment
     // @return  The CCSID.
     static int getBestGuessAS400Ccsid()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting best guess CCSID.");
-        try
+      if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting best guess CCSID.");
+      try
+      {
+        // See if the "fallback CCSID" property has been set.
+        String ccsidString = SystemProperties.getProperty(SystemProperties.FALLBACK_CCSID);
+        if (ccsidString != null)
         {
-            String localeString = Locale.getDefault().toString();
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Default Locale: " + localeString);
-            // Search from most specific to most general.
-            while (true)
-            {
-                String ccsidString = (String)ConversionMaps.localeCcsidMap_.get(localeString);
-                if (ccsidString != null)
-                {
-                    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Best guess for Locale: " + localeString + ", CCSID: " + ccsidString);
-                    return Integer.parseInt(ccsidString);
-                }
-                localeString = localeString.substring(0, localeString.lastIndexOf('_'));
-            }
+          Trace.log(Trace.DIAGNOSTIC, "Fallback CCSID specified:", ccsidString);
+          try {
+            return Integer.parseInt(ccsidString);
+          }
+          catch (NumberFormatException e) {
+            Trace.log(Trace.ERROR, "Ignoring invalid fallback CCSID value.", e);
+          }
         }
-        catch (Exception e)
+        else Trace.log(Trace.DIAGNOSTIC, "Fallback CCSID not specified, using Locale.");
+
+        String localeString = Locale.getDefault().toString();
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Default Locale: " + localeString);
+        // Search from most specific to most general.
+        while (true)
         {
-            // If all else fails return 37.
-            Trace.log(Trace.DIAGNOSTIC, "Exception taking best guess CCSID, default to 37:", e);
-            return 37;
+          ccsidString = (String)ConversionMaps.localeCcsidMap_.get(localeString);
+          if (ccsidString != null)
+          {
+            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Best guess for Locale: " + localeString + ", CCSID: " + ccsidString);
+            return Integer.parseInt(ccsidString);
+          }
+          localeString = localeString.substring(0, localeString.lastIndexOf('_'));
         }
+      }
+      catch (Exception e)
+      {
+        // If all else fails return 37.
+        Trace.log(Trace.DIAGNOSTIC, "Exception taking best guess CCSID, default to 37:", e);
+        return 37;
+      }
     }
 
     // Get the CCSID for this execution environment.
