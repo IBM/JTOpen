@@ -23,15 +23,13 @@ import java.io.Serializable;
 import java.util.Enumeration;
 
 /**
- The UserList class represents a list of user profiles on the system.
- <p>Implementation note:  This class internally uses the Open List APIs (e.g. QGYOLAUS).
+ Represents a list of user profiles on the system.
+ <p>Implementation note:  This class internally uses the Open List APIs (such as QGYOLAUS).
  @see  com.ibm.as400.access.User
  @see  com.ibm.as400.access.UserGroup
  **/
 public class UserList implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 5L;
 
     /**
@@ -371,7 +369,7 @@ public class UserList implements Serializable
 
     /**
      Returns the list of users in the user list.
-     @return  An Enumeration of {@link com.ibm.as400.access.User User} objects.
+     @return  An Enumeration of {@link com.ibm.as400.access.User User} and/or {@link com.ibm.as400.access.UserGroup UserGroup} objects.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
@@ -394,7 +392,7 @@ public class UserList implements Serializable
      Returns a subset of the list of users.  This method allows the user to retrieve the user list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the users at a given offset will change, so a subsequent call to getUsers() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same Users as the previous call.
      @param  listOffset  The offset into the list of users.  This value must be greater than 0 and less than the list length, or specify -1 to retrieve all of the users.
      @param  number  The number of users to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
-     @return  The array of retrieved {@link com.ibm.as400.access.User User} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
+     @return  The array of retrieved {@link com.ibm.as400.access.User User} and/or {@link com.ibm.as400.access.UserGroup UserGroup} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
