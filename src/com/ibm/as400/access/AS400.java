@@ -1115,7 +1115,7 @@ public class AS400 implements Serializable
      <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
      <li>{@link #DATABASE DATABASE} - JDBC classes.
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -1197,7 +1197,7 @@ public class AS400 implements Serializable
      <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
      <li>{@link #DATABASE DATABASE} - JDBC classes.
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      **/
@@ -1486,7 +1486,7 @@ public class AS400 implements Serializable
      <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
      <li>{@link #DATABASE DATABASE} - JDBC classes.
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  The array of job objects.
@@ -1871,7 +1871,7 @@ public class AS400 implements Serializable
      <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
      <li>{@link #DATABASE DATABASE} - JDBC classes.
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  The port specified in the service port table.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} will be returned if the service has not been set, and the service has not been connected.
@@ -2096,7 +2096,7 @@ public class AS400 implements Serializable
      <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
      <li>{@link #DATABASE DATABASE} - JDBC classes.
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  true if service is connected; false otherwise.
@@ -2121,7 +2121,7 @@ public class AS400 implements Serializable
     /**
      Tests the connection to the system, to verify that it is still working.
      This is similar in concept to "pinging" the system over the connection.
-     <p>Note: This method is <b>not fully supported until the release following IBM i V6R1</b>.  If running to V6R1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
+     <p>Note: This method is <b>not fully supported until IBM i 7.1</b>.  If running to IBM i 6.1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
      <p>Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
      </ul>
      @return  true if the connection is still working; false otherwise.
@@ -2144,7 +2144,7 @@ public class AS400 implements Serializable
     /**
      Tests the connection to a service on the system, to verify that it is still working.
      This is similar in concept to "pinging" the system over the connection.
-     <p>Note: This method is <b>not fully supported until the release following IBM i V6R1</b>.  If running to V6R1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
+     <p>Note: This method is <b>not fully supported until IBM i 7.1</b>.  If running to IBM i 6.1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
      <p>Note: If the specified service is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
      @param  service  The name of the service.  Valid services are:
      <ul>
@@ -2154,7 +2154,7 @@ public class AS400 implements Serializable
      <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
      <li>{@link #DATABASE DATABASE} - JDBC classes.
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  true if the connection to the service is still working; false otherwise.
@@ -3405,7 +3405,7 @@ public class AS400 implements Serializable
      <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
      <li>{@link #DATABASE DATABASE} - JDBC classes.
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @param  port  The port to use for this service.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} can be used to specify that the next connection to this service should ask the port mapper server for the port number.
