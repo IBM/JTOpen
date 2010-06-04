@@ -165,8 +165,8 @@ public class ServiceProgramCall extends ProgramCall
      @param  procedureName  The procedure in the service program to call.
      @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
      <ul>
-     <li>NO_RETURN_VALUE  The procedure does not return a value.
-     <li>RETURN_INTEGER  The procedure returns an integer.
+     <li>{@link #NO_RETURN_VALUE NO_RETURN_VALUE}  The procedure does not return a value.
+     <li>{@link #RETURN_INTEGER RETURN_INTEGER}  The procedure returns an integer.
      </ul>
      @param  parameterList  A list of up to 7 parameters with which to call the program.
      **/
@@ -244,7 +244,11 @@ public class ServiceProgramCall extends ProgramCall
 
     /**
      Returns the format of the returned data.
-     @return  The format of the returned data.
+     @return  The format of the returned data.  Possible values are:
+     <ul>
+     <li>{@link #NO_RETURN_VALUE NO_RETURN_VALUE}  The procedure does not return a value.
+     <li>{@link #RETURN_INTEGER RETURN_INTEGER}  The procedure returns an integer.
+     </ul>
      **/
     public int getReturnValueFormat()
     {
@@ -341,8 +345,8 @@ public class ServiceProgramCall extends ProgramCall
      @param  procedureName  The procedure in the service program to call.
      @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
      <ul>
-     <li>NO_RETURN_VALUE  The procedure does not return a value.
-     <li>RETURN_INTEGER  The procedure returns an integer.
+     <li>{@link #NO_RETURN_VALUE NO_RETURN_VALUE}  The procedure does not return a value.
+     <li>{@link #RETURN_INTEGER RETURN_INTEGER}  The procedure returns an integer.
      </ul>
      @param  parameterList  A list of up to 7 parameters with which to call the program.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -461,8 +465,8 @@ public class ServiceProgramCall extends ProgramCall
      Sets the format of the returned data.
      @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
      <ul>
-     <li>NO_RETURN_VALUE  The procedure does not return a value.
-     <li>RETURN_INTEGER  The procedure returns an integer.
+     <li>{@link #NO_RETURN_VALUE NO_RETURN_VALUE}  The procedure does not return a value.
+     <li>{@link #RETURN_INTEGER RETURN_INTEGER}  The procedure returns an integer.
      </ul>
      @exception  PropertyVetoException  If a change for the value of returnValueFormat is vetoed.
      **/
