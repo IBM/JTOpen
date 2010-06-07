@@ -69,24 +69,21 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBReplyRequestedDS();
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
         else { 
-        	synchronized(pool[i]) {   // @A7A  
-        	   if (!pool[i].inUse_) {
+        	   if (pool[i].canUse()) {
         		pool[i].initialize();
-        		pool[i].inUse_ = true;
         		return pool[i];
         	  }
-        	}
         }
       }
       // All are in use, so expand the pool.
       DBReplyRequestedDS[] temp = new DBReplyRequestedDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBReplyRequestedDS();
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbreplyrequesteddsPool_ = temp;
       return temp[max];
     }
@@ -104,23 +101,20 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBXARequestDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
-    	synchronized(pool[i]) {   // @A7A  
-         if (!pool[i].inUse_)
+         if (pool[i].canUse())
            {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             return pool[i];
            }
-    	}
       }
       // All are in use, so expand the pool.
       DBXARequestDS[] temp = new DBXARequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBXARequestDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbxarequestdsPool_ = temp;
       return temp[max];
     }
@@ -137,24 +131,21 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBSQLAttributesDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
-    	synchronized(pool[i]) {   // @A7A  
 
-          if (!pool[i].inUse_)
+          if (pool[i].canUse())
           {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             return pool[i];
           }
-    	}
       }
       // All are in use, so expand the pool.
       DBSQLAttributesDS[] temp = new DBSQLAttributesDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBSQLAttributesDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbsqlattributesdsPool_ = temp;
       return temp[max];
     }
@@ -171,13 +162,12 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBNativeDatabaseRequestDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
     	synchronized(pool[i]) {   // @A7A  
-          if (!pool[i].inUse_)
+          if (pool[i].canUse())
           {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             return pool[i];
           }
@@ -187,7 +177,7 @@ final class DBDSPool
       DBNativeDatabaseRequestDS[] temp = new DBNativeDatabaseRequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBNativeDatabaseRequestDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbnativedatabaserequestdsPool_ = temp;
       return temp[max];
     }
@@ -204,14 +194,13 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBReturnObjectInformationRequestDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
     	synchronized(pool[i]) {   // @A7A  
 
-          if (!pool[i].inUse_)
+          if (pool[i].canUse())
           {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             return pool[i];
          }
@@ -221,7 +210,7 @@ final class DBDSPool
       DBReturnObjectInformationRequestDS[] temp = new DBReturnObjectInformationRequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBReturnObjectInformationRequestDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbreturnobjectinformationrequestdsPool_ = temp;
       return temp[max];
     }
@@ -238,14 +227,13 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBSQLDescriptorDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
     	synchronized(pool[i]) {   // @A7A  
 
-          if (!pool[i].inUse_)
+          if (pool[i].canUse())
           {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             return pool[i];
           }
@@ -255,7 +243,7 @@ final class DBDSPool
       DBSQLDescriptorDS[] temp = new DBSQLDescriptorDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBSQLDescriptorDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbsqldescriptordsPool_ = temp;
       return temp[max];
     }
@@ -275,11 +263,10 @@ final class DBDSPool
     	  dbsqlrequestdsPoolAllocations_ = 0; 
     	  for (int i = dbsqlrequestdsPoolHighMark_+1; i < max; i++) {
    	        if (pool[i] != null) {
-   	          synchronized(pool[i]) { 
-   	        	if (!pool[i].inUse_) {
+   	        	if (pool[i].canUse()) {
      	          pool[i].reclaim(); 
+     	          pool[i].returnToPool();
    	            }
-   	          }
    	        }
     	  }
     	  dbsqlrequestdsPoolHighMark_ = 0; 
@@ -290,25 +277,22 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBSQLRequestDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           if (i > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = i;   // @A8A
           return pool[i];
         }
-        synchronized(pool[i]) { 
-          if (!pool[i].inUse_)
+          if (pool[i].canUse())
           {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             if (i > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = i; 
             return pool[i];
           }
-        }
       }
       // All are in use, so expand the pool.
       DBSQLRequestDS[] temp = new DBSQLRequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBSQLRequestDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbsqlrequestdsPool_ = temp;
       if (max > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = max;   // @A8A
       return temp[max];
@@ -326,23 +310,20 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBSQLResultSetDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
-        synchronized(pool[i]) { 
-          if (!pool[i].inUse_)
+          if (pool[i].canUse())
           {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             return pool[i];
           }
-        }
       }
       // All are in use, so expand the pool.
       DBSQLResultSetDS[] temp = new DBSQLResultSetDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBSQLResultSetDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbsqlresultsetdsPool_ = temp;
       return temp[max];
     }
@@ -359,23 +340,20 @@ final class DBDSPool
         if (pool[i] == null)
         {
           pool[i] = new DBSQLRPBDS(a,b,c,d);
-          pool[i].inUse_ = true;
+          pool[i].canUse();
           return pool[i];
         }
-        synchronized(pool[i]) { // @A7A  
-          if (!pool[i].inUse_)
+          if (pool[i].canUse())
           {
-            pool[i].inUse_ = true;
             pool[i].initialize(a,b,c,d);
             return pool[i];
           }
-        }
       }
       // All are in use, so expand the pool.
       DBSQLRPBDS[] temp = new DBSQLRPBDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
       temp[max] = new DBSQLRPBDS(a,b,c,d);
-      temp[max].inUse_ = true;
+      temp[max].canUse();
       dbsqlrpbdsPool_ = temp;
       return temp[max];
     }

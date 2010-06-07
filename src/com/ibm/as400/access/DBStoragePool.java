@@ -99,18 +99,15 @@ are available, a brand new one will be allocated.
       if (storage == null) //@P0A
       {
         storage = new DBStorage(); //@P0A
-        storage.inUse_ = true; //@P0A
+        storage.canUse(); //@P0A
         pool_[i] = storage; //@P0A
         return storage; //@P0A
       }
       else {
-    	synchronized(storage) { // @A7A
-    	  if (!storage.inUse_) //@P0A
+    	  if (storage.canUse()) //@P0A
             {
-             storage.inUse_ = true; //@P0A
              return storage; //@P0A
             }
-        }
       }
     }
 
@@ -125,7 +122,7 @@ are available, a brand new one will be allocated.
       tempPool[i] = pool_[i]; //@P0A
     }
     DBStorage storage = new DBStorage(); //@P0A
-    storage.inUse_ = true; //@P0A
+    storage.canUse(); //@P0A
     tempPool[max] = storage; //@P0A
     pool_ = tempPool; //@P0A
     

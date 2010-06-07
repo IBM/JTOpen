@@ -13,6 +13,10 @@
 
 package com.ibm.as400.access;
 
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+
 
 
 /**
@@ -24,10 +28,10 @@ repeatedly.
 final class DBStorage //@P0C
 {
   public final static int DEFAULT_SIZE = 1024; 	
-  byte[] data_ = new byte[DEFAULT_SIZE]; //@P0C
+  private byte[] data_ = new byte[DEFAULT_SIZE]; //@P0C
   //@P0D private int     id_;
 
-  boolean inUse_ = false; //@P0A
+  private boolean inUse_ = false; //@P0A
 
 /**
 Constructs a DBStorage object.
@@ -67,7 +71,7 @@ Checks the size of the array and resizes the storage if needed.
 
 @return     true if the storage was resize; false otherwise.
 **/
-  final boolean checkSize(final int size) //@P0C
+  final synchronized boolean checkSize(final int size) //@P0C
   {
     if (size > data_.length)
     {
@@ -86,7 +90,7 @@ Checks the size of the array and resizes the storage if needed.
 /**
  * Reduce the size of the allocated buffer if needed.   @A8A
  */
-public void reclaim(int length) {
+public synchronized void reclaim(int length) {
 	  if(data_.length>length && length >= DEFAULT_SIZE ) {
 		  byte[] oldData = data_; 
 		  data_ = new byte[length];
@@ -96,8 +100,67 @@ public void reclaim(int length) {
 	  }
 }
 
+/**
+ * Set the inUse_ flags so that the storage can be returned to the pool
+ */
+public synchronized void returnToPool() {
+	// Fill the array with garbage before it is reused. 
+	// This is to catch the case where the array is still being 
+	// used but has been returned to the pool. 
+	// if (data_ != null) {
+	//   Arrays.fill(data_, (byte) 0xeb); 
+	// }
+	inUse_ = false; 
+}
+
+/**
+ * Can this be used.  If not, false is returned.
+ * If it can be used, then inUse_ is set to return and true is returned
+ * @return
+ */
+public synchronized boolean canUse() {
+   if (inUse_) {
+	   return false; 
+   } else {
+	   inUse_ = true; 
+	   return true; 
+   }
+}
 
 
+/**
+ * get the data buffer
+ */
+public synchronized byte[] getData() {
+	// if (!inUse_) {
+		// Error case for now just trace it
+  	    // Debugging code. 
+    	// if (! DataStream.traceOpened) { 
+      	//	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
+      	//	try { 
+       	//	Trace.setFileName("/tmp/toolboxTrace."+sdf.format(new Date())+".txt");
+      	//	} catch (Exception e) { 
+      	//		
+      	//	}
+      	//   DataStream.traceOpened=true; 
+       	//}
+
+    	//boolean traceTurnedOn = false; 
+      	//if (!Trace.traceOn_) {
+      	//	traceTurnedOn = true;
+      	//	Trace.setTraceAllOn(true); 
+      	//	Trace.setTraceOn(true); 
+      	//}
+      	// Exception e = new Exception("getData() called when inUse_ = "+inUse_);
+        // Trace.log(Trace.ERROR, "Debug0601: DBStorage.getData() called when DBStorage not in use", e); 
+     	// if (traceTurnedOn) { 
+  	  	//  Trace.setTraceAllOn(false); 
+  		//  Trace.setTraceOn(false); 
+  	    //}
+
+	// }
+	return data_;
+}
 /**
 Clears the contents of the storage.
 **/
