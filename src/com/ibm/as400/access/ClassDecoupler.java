@@ -37,9 +37,7 @@ class ClassDecoupler
   {
     if (ds instanceof DBReplyRequestedDS)
     {
-      synchronized(ds) { // @A7A 	
-      ((DBReplyRequestedDS)ds).inUse_ = false;
-      }
+      ((DBReplyRequestedDS)ds).returnToPool();
     }
   }
 

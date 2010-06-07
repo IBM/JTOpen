@@ -101,8 +101,8 @@ abstract class DataStream
                 		Trace.setTraceAllOn(true); 
                 		Trace.setTraceOn(true); 
                 	}
-                	Trace.log(Trace.DATASTREAM, "Waited more than 120 seconds to read "+length+" bytes.  Current buffer with header is "); 
-                	Trace.log(Trace.DATASTREAM, "Data stream data received (connID="+connectionID+") ...", buf, 0, offset + bytesRead); //@P0C
+                	// Trace.log(Trace.DATASTREAM, "Debug0601: Waited more than 120 seconds to read "+length+" bytes.  Current buffer with header is "); 
+                	// Trace.log(Trace.DATASTREAM, "Debug0601: Data stream data received (connID="+connectionID+") ...", buf, 0, offset + bytesRead); //@P0C
                 	if (traceTurnedOn) { 
                 		Trace.setTraceAllOn(false); 
                 		Trace.setTraceOn(false); 
@@ -240,8 +240,8 @@ abstract class DataStream
     int readAfterHeader(InputStream in) throws IOException
     {
         // int bytesRead = readFromStreamDebug(in, data_, headerLength_, data_.length - headerLength_);
-    
         int bytesRead = readFromStream(in, data_, headerLength_, data_.length - headerLength_);
+
         if (bytesRead < data_.length - headerLength_)
         {
             if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the data stream."); //@P0C

@@ -31,23 +31,19 @@ final class CADSPool
         if (streams_[i] == null)
         {
           streams_[i] = new ClientAccessDataStream();
-          streams_[i].inUse_ = true;
+          streams_[i].canUse();
           return streams_[i];
         }
-        // Synchronize because looking at inUse_ @A7A
-         synchronized(streams_[i]) { 
-          if (!streams_[i].inUse_)
+          if (streams_[i].canUse())
           {
-            streams_[i].inUse_ = true;
             return streams_[i];
           }
-        }
       }
       // Need more streams
       ClientAccessDataStream[] newStreams = new ClientAccessDataStream[max*2];
       System.arraycopy(streams_, 0, newStreams, 0, max);
       newStreams[max] = new ClientAccessDataStream();
-      newStreams[max].inUse_ = true;
+      newStreams[max].canUse(); 
       streams_ = newStreams;
       return newStreams[max];
     }
