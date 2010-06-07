@@ -368,7 +368,8 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
-   
+        DBReplyRequestedDS getBestRowIdentifierReply = null;
+
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
@@ -471,7 +472,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
 
@@ -510,23 +510,23 @@ implements DatabaseMetaData
                     //--------------------------------------------------------
                     //  Send the request and cache all results from the system
                     //--------------------------------------------------------
-
-                    reply = connection_.sendAndReceive(request);
+                    if (getBestRowIdentifierReply != null) getBestRowIdentifierReply.returnToPool();
+                    getBestRowIdentifierReply = connection_.sendAndReceive(request);
 
 
                     // Check for errors - throw exception if errors were
                     // returned
-                    int errorClass = reply.getErrorClass();
+                    int errorClass = getBestRowIdentifierReply.getErrorClass();
                     if (errorClass !=0)
                     {
-                        int returnCode = reply.getReturnCode();
+                        int returnCode = getBestRowIdentifierReply.getReturnCode();
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
                     // Get the data format and result data
-                    DBDataFormat dataFormat = reply.getDataFormat();
-                    DBData resultData = reply.getResultData();
+                    DBDataFormat dataFormat = getBestRowIdentifierReply.getDataFormat();
+                    DBData resultData = getBestRowIdentifierReply.getResultData();
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
@@ -549,7 +549,8 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // Cannot return to pool yet because array in use by resultData.  Pased to result set to be closed there 
+                    // if (getBestRowIdentifierReply != null) getBestRowIdentifierReply.returnToPool();
                 }
             }
         }
@@ -558,7 +559,7 @@ implements DatabaseMetaData
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "BestRowIdentifier", connection_); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "BestRowIdentifier", connection_, getBestRowIdentifierReply); //@in2
     }
 
 
@@ -668,7 +669,7 @@ implements DatabaseMetaData
         }                                                                                // @F1a
 
         JDSimpleRowCache rowCache = new JDSimpleRowCache (formatRow, data, nulls, dataMappingErrors);
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "Catalogs", connection_); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "Catalogs", connection_, null); //@in2
     }
 
 
@@ -845,7 +846,7 @@ implements DatabaseMetaData
                 ((columnPattern != null) && (columnPattern.length()==0)))
         { // Return empty result set
             rowCache = new JDSimpleRowCache (formatRow);
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_); //@in2 //@PDC
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_, null); //@in2 //@PDC
             
         }
         else
@@ -945,10 +946,10 @@ implements DatabaseMetaData
             finally
             {
                 if (request != null) request.returnToPool();
-                if (reply != null) reply.returnToPool();
+                // if (reply != null) reply.returnToPool();
             }
             // Return the results
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_); //@in2
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_, reply); //@in2
      
         }  // End of else to build and send request
         
@@ -991,6 +992,8 @@ implements DatabaseMetaData
                                  String columnPattern)
     throws SQLException
     {
+
+        DBReplyRequestedDS reply = null;
 
         connection_.checkOpen ();
 
@@ -1226,7 +1229,6 @@ implements DatabaseMetaData
                 // Create a request
                 //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -1388,7 +1390,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  // end of else blank
 
@@ -1401,7 +1403,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Columns", connection_); //@in2
+                                       "Columns", connection_, reply); //@in2
 
     }  // End of getColumns
 
@@ -1522,6 +1524,8 @@ implements DatabaseMetaData
                                         String foreignTable)
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
+
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
@@ -1631,7 +1635,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -1730,7 +1733,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -1742,7 +1745,7 @@ implements DatabaseMetaData
 
 
         // Return the results
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "CrossReference", connection_); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "CrossReference", connection_, reply); //@in2
 
     }  // End of getCrossReference
 
@@ -1987,6 +1990,8 @@ implements DatabaseMetaData
                                       String table)
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
+
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
@@ -2092,7 +2097,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -2187,7 +2191,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  
         }
@@ -2197,7 +2201,7 @@ implements DatabaseMetaData
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ExportedKeys", connection_); //@in2
+                                       "ExportedKeys", connection_, reply); //@in2
     }
 
 
@@ -2268,6 +2272,8 @@ implements DatabaseMetaData
                                       String table)
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
+
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
@@ -2372,7 +2378,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -2464,7 +2469,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -2476,7 +2481,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ImportedKeys", connection_); //@in2
+                                       "ImportedKeys", connection_, reply); //@in2
     }
 
 
@@ -2518,6 +2523,8 @@ implements DatabaseMetaData
                                    boolean approximate)
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
+
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
 
@@ -2650,7 +2657,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -2751,7 +2757,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -2763,7 +2769,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "IndexInfo", connection_); //@in2
+                                       "IndexInfo", connection_, reply); //@in2
 
     } // End of getIndexInfo
 
@@ -3175,6 +3181,7 @@ implements DatabaseMetaData
                                      String table)
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc
 
@@ -3251,7 +3258,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -3328,7 +3334,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -3340,7 +3346,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "PrimaryKeys", connection_); //@in2
+                                       "PrimaryKeys", connection_, reply); //@in2
     } 
 
 
@@ -3598,7 +3604,7 @@ implements DatabaseMetaData
 
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ProcedureColumns", connection_); //@in2
+                                       "ProcedureColumns", connection_, null); //@in2
 
     } // End of getProcedureColumns
 
@@ -3813,7 +3819,7 @@ implements DatabaseMetaData
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Procedures", connection_); //@in2
+                                       "Procedures", connection_, null); //@in2
 
     }
 
@@ -4124,6 +4130,7 @@ implements DatabaseMetaData
                                          String tablePattern)
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
         connection_.checkOpen ();
         // int vrm = connection_.getVRM();  //@trunc3
         
@@ -4204,7 +4211,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -4294,7 +4300,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -4306,7 +4312,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "TablePrivileges", connection_); //@in2      //@G4C
+                                       "TablePrivileges", connection_, reply); //@in2      //@G4C
     }
 
 
@@ -4340,6 +4346,7 @@ implements DatabaseMetaData
                                 String tableTypes[])
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
 
         connection_.checkOpen ();// Verify that a connection
         // is available for use. Exception
@@ -4652,7 +4659,6 @@ implements DatabaseMetaData
                   // Create a request
                   //@P0C
                     DBReturnObjectInformationRequestDS request = null;
-                    DBReplyRequestedDS reply = null;
                     try
                     {
                         request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -4816,7 +4822,7 @@ implements DatabaseMetaData
                     finally
                     {
                         if (request != null) request.returnToPool();
-                        if (reply != null) reply.returnToPool();
+                        // if (reply != null) reply.returnToPool();
                     }
                 } // End of if file attribute != -1
                 else
@@ -4834,7 +4840,7 @@ implements DatabaseMetaData
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Tables", connection_); //@in2
+                                       "Tables", connection_, reply); //@in2
     }
 
 //@K3A                                                           
@@ -4935,7 +4941,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Table Types", connection_); //@in2
+                                       "Table Types", connection_, null); //@in2
         
     }
 
@@ -5197,7 +5203,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data, nulls, dataMappingErrors);
 
         return new AS400JDBCResultSet (rowCache,
-                                       connection_.getCatalog(), "Type Info", connection_); //@in2
+                                       connection_.getCatalog(), "Type Info", connection_, null); //@in2
 
 
 
@@ -5501,7 +5507,7 @@ implements DatabaseMetaData
         }
 
         // Return the result set.
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "UDTs", connection_); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "UDTs", connection_, null); //@in2
     }
 
 
@@ -5572,6 +5578,8 @@ implements DatabaseMetaData
                                         String table)
     throws SQLException
     {
+        DBReplyRequestedDS reply = null;
+
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
@@ -5665,7 +5673,6 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -5751,7 +5758,7 @@ implements DatabaseMetaData
                 finally
                 {
                     if (request != null) request.returnToPool();
-                    if (reply != null) reply.returnToPool();
+                    // if (reply != null) reply.returnToPool();
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -5763,7 +5770,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "VersionColumns", connection_); //@in2
+                                       "VersionColumns", connection_, reply); //@in2
     }
 
 
@@ -7554,7 +7561,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Client Info", connection_);  //@in2
+                                       "Client Info", connection_, null);  //@in2
     }
 
 

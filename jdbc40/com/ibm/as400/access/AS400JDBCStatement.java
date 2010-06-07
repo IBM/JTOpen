@@ -130,6 +130,15 @@ implements Statement
     private boolean     useVariableFieldCompression_ = false;    //@K54
     private boolean     isPoolable_ = false;         //@PDA  jdbc40
     JDServerRow         parameterRow_;          // private protected //@re-prep moved from preparedStatement so that it has visibility here
+    private boolean     threadInterrupted = false; 
+    private DBReplyRequestedDS commonExecuteReply = null; // reply from commonExecute.  Note:  This cannot be returned to the pool until it is 
+                                                          // no longer being used.  The data_ pointer from this replied is shared with
+                                                          // all kinds of objects
+    private DBReplyRequestedDS connectReply = null;    
+    private DBReplyRequestedDS execImmediateReply = null; 
+    private DBReplyRequestedDS normalPrepareReply = null;    
+    private DBReplyRequestedDS getMoreResultsReply = null;   
+
     
     /**
     Constructs an AS400JDBCStatement object.
@@ -401,9 +410,9 @@ implements Statement
             //@PDA perf2 comment:  if we get back 700,2 from fetch, then cursor is already closed, but resultSet_ is still usable
             //if(! cursor_.isClosed())   //@perf3 cursor can be closed, but resultset still needs to be closed.  closeResultSet checks for closed cursor before closing cursor.
             //{    // @B3A               //@perf3
-                closeResultSet (JDCursor.REUSE_NO);
+            closeResultSet (JDCursor.REUSE_NO);
             //}    // @B3A               //@perf3
-
+                
             // If, even after closing the current result set,
             // there are more result sets that were returned, we
             // need to close them, too.  At first I though we
@@ -441,15 +450,15 @@ implements Statement
             if(rpbCreated_)
             {    // @EDA
                 DBSQLRPBDS request3 = null;    //@P0A
-                DBReplyRequestedDS reply = null;    //@P0A
+                DBReplyRequestedDS closeReply = null;    //@P0A
                 try
                 {    //@P0A
                     request3 = DBDSPool.getDBSQLRPBDS(DBSQLRPBDS.FUNCTIONID_DELETE_RPB, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);    //@P0C
 
-                    reply = connection_.sendAndReceive(request3, id_);    // @EDC @P0C
+                    closeReply = connection_.sendAndReceive(request3, id_);    // @EDC @P0C
 
-                    int errorClass = reply.getErrorClass();    // @EDA
-                    int returnCode = reply.getReturnCode();    // @EDA
+                    int errorClass = closeReply.getErrorClass();    // @EDA
+                    int returnCode = closeReply.getReturnCode();    // @EDA
                     if(errorClass != 0)
                     {    // @EDA
                         if(returnCode < 0)
@@ -472,7 +481,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request3 != null) request3.returnToPool();    //@P0A
-                    if(reply != null) reply.returnToPool();
+                    if(closeReply != null) closeReply.returnToPool();
                 }
             }    // @EDA
 
@@ -508,6 +517,12 @@ implements Statement
             // Ignore errors, since we would not be able to get
             // the message text anyway (because the ORS is gone.)
 
+            // free the pooled commonExecuteReply 
+            if (commonExecuteReply != null) commonExecuteReply.returnToPool();
+            if (connectReply != null) connectReply.returnToPool();    
+            if (execImmediateReply != null) execImmediateReply.returnToPool(); 
+            if (normalPrepareReply != null) normalPrepareReply.returnToPool(); 
+            if (getMoreResultsReply != null) getMoreResultsReply.returnToPool(); 
             closed_ = true;
             connection_.notifyClose (this, id_);
 
@@ -538,15 +553,15 @@ implements Statement
             if(rpbCreated_)
             {    
                 DBSQLRPBDS request3 = null;    
-                DBReplyRequestedDS reply = null;    
+                DBReplyRequestedDS finishClosingReply = null;    
                 try
                 {    
                     request3 = DBDSPool.getDBSQLRPBDS(DBSQLRPBDS.FUNCTIONID_DELETE_RPB, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);    //@P0C
 
-                    reply = connection_.sendAndReceive(request3, id_);    
+                    finishClosingReply = connection_.sendAndReceive(request3, id_);    
 
-                    int errorClass = reply.getErrorClass();    
-                    int returnCode = reply.getReturnCode();    
+                    int errorClass = finishClosingReply.getErrorClass();    
+                    int returnCode = finishClosingReply.getReturnCode();    
                     if(errorClass != 0)
                     {    
                         if(returnCode < 0)
@@ -569,7 +584,7 @@ implements Statement
                 finally
                 {    
                     if(request3 != null) request3.returnToPool();    
-                    if(reply != null) reply.returnToPool();
+                    if(finishClosingReply != null) finishClosingReply.returnToPool();
                 }
             }    
 
@@ -633,8 +648,18 @@ implements Statement
             resultSet_ = null;
         }
 
-        if(! cursor_.isClosed ())
-            cursor_.close (reuseFlag);
+        if (threadInterrupted) {
+        	// Force a close to be flowed
+        	try { 
+        		cursor_.setState(false); 
+        		cursor_.close (reuseFlag); 
+        	} catch (Exception e) { 
+        		
+        	}
+        } else { 
+           if(! cursor_.isClosed ())
+              cursor_.close (reuseFlag);
+        }
 
         updateCount_ = -1;
     }
@@ -697,7 +722,7 @@ implements Statement
                     functionId = DBSQLRequestDS.FUNCTIONID_EXECUTE;
 
                 DBSQLRequestDS request = null;    //@P0A
-                DBReplyRequestedDS reply = null;    //@P0A
+                DBReplyRequestedDS replyX = null;    //@P0A
                 int openAttributes = 0;
                 try
                 {
@@ -857,25 +882,27 @@ implements Statement
 
                     commonExecuteBefore(sqlStatement, request);
 
-                    reply = connection_.sendAndReceive(request, id_);    //@P0C
+                    if (commonExecuteReply != null) commonExecuteReply.returnToPool();
+                    
+                    commonExecuteReply = connection_.sendAndReceive(request, id_);    //@P0C
 
                     // Gather information from the reply.
-                    cursor_.processConcurrencyOverride(openAttributes, reply);    // @E1A @EAC
+                    cursor_.processConcurrencyOverride(openAttributes, commonExecuteReply);    // @E1A @EAC
                     
-                    cursor_.processCursorAttributes(reply);                  //@cur
+                    cursor_.processCursorAttributes(commonExecuteReply);                  //@cur
                     
-                    transactionManager_.processCommitOnReturn(reply);    // @E2A
-                    DBReplySQLCA sqlca = reply.getSQLCA();
+                    transactionManager_.processCommitOnReturn(commonExecuteReply);    // @E2A
+                    DBReplySQLCA sqlca = commonExecuteReply.getSQLCA();
                     DBData resultData = null;
-                    if(fetchFirstBlock) resultData = reply.getResultData();
+                    if(fetchFirstBlock) resultData = commonExecuteReply.getResultData();
 
                     // Note the number of rows inserted/updated
                     rowsInserted_ = sqlca.getErrd(3);    // @G5A
 
                     // Check for system errors.  Take note on prefetch
                     // if the last block was fetched.
-                    int errorClass = reply.getErrorClass();
-                    int returnCode = reply.getReturnCode();
+                    int errorClass = commonExecuteReply.getErrorClass();
+                    int returnCode = commonExecuteReply.getReturnCode();
 
                     // Remember that a cursor is open even when most
                     // errors occur.
@@ -1004,7 +1031,7 @@ implements Statement
 
                     if(extendedMetaData)    //@541A
                     {
-                        extendedColumnDescriptors_ = reply.getExtendedColumnDescriptors ();    //@F5A
+                        extendedColumnDescriptors_ = commonExecuteReply.getExtendedColumnDescriptors ();    //@F5A
                     }
 
                     // If this is a CALL and result sets came back, but
@@ -1046,12 +1073,27 @@ implements Statement
                         }
                     }
 
-                    commonExecuteAfter (sqlStatement, reply);
+                    commonExecuteAfter (sqlStatement, commonExecuteReply);
+                } catch (SQLException sqlex) {
+                	
+                	// Handle interrupted exception
+                	String messageText = sqlex.getMessage();
+                	messageText = messageText.toLowerCase(); 
+                	if (messageText.indexOf("internal driver error") >= 0) {
+						if (messageText.indexOf("interrupted") > 0) {
+							threadInterrupted = true;
+						}
+					}
+                	throw sqlex; 
                 }
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    if(reply != null) reply.returnToPool();    //@P0A
+                    // Don't return the reply to the pool because references to the 
+                    // data pointer are shared by other objects that have been created.
+                    // The commonExecuteReply will be returned to the pool before the 
+                    // next execute or when the statement is closed. 
+                    // if(reply != null) reply.returnToPool();    //@P0A
                 }
             }
             catch(DBDataStreamException e)
@@ -1240,7 +1282,6 @@ implements Statement
                 syncRPB();
 
                 DBSQLRequestDS request = null;    //@P0A
-                DBReplyRequestedDS reply = null;    //@P0A
                 try
                 {
 
@@ -1271,14 +1312,15 @@ implements Statement
                     commonPrepareBefore (sqlStatement, request);
                     commonExecuteBefore (sqlStatement, request);
 
-                    reply = connection_.sendAndReceive (request, id_);    //@P0C
+                    if (connectReply != null) connectReply.returnToPool(); 
+                    connectReply = connection_.sendAndReceive (request, id_);    //@P0C
 
-                    int errorClass = reply.getErrorClass();
-                    int returnCode = reply.getReturnCode();
+                    int errorClass = connectReply.getErrorClass();
+                    int returnCode = connectReply.getReturnCode();
 
                     if(errorClass != 0)
                     {
-                        positionOfSyntaxError_ = reply.getSQLCA().getErrd(5);    //@F10A
+                        positionOfSyntaxError_ = connectReply.getSQLCA().getErrd(5);    //@F10A
 
                         if(returnCode < 0)
                             JDError.throwSQLException (connection_, id_, errorClass, returnCode);
@@ -1290,8 +1332,8 @@ implements Statement
                     updateCount_ = 0;
                     numberOfResults_ = 0;
 
-                    commonPrepareAfter (sqlStatement, reply);
-                    commonExecuteAfter (sqlStatement, reply);
+                    commonPrepareAfter (sqlStatement, connectReply);
+                    commonExecuteAfter (sqlStatement, connectReply);
                     
                 }
                 catch(DBDataStreamException e)
@@ -1301,7 +1343,6 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    if(reply != null) reply.returnToPool();    //@P0A
                 }
 
                 // Inform the transaction manager that a statement
@@ -1332,7 +1373,6 @@ implements Statement
                 syncRPB ();
 
                 DBSQLRequestDS request = null;    //@P0A
-                DBReplyRequestedDS reply = null;    //@P0A
                 try
                 {
                     
@@ -1392,12 +1432,13 @@ implements Statement
                     commonPrepareBefore (sqlStatement, request);
                     commonExecuteBefore (sqlStatement, request);
 
-                    reply = connection_.sendAndReceive (request, id_);    //@P0C
+                    if (execImmediateReply != null) execImmediateReply.returnToPool(); 
+                    execImmediateReply = connection_.sendAndReceive (request, id_);    //@P0C
 
-                    int errorClass = reply.getErrorClass();
-                    int returnCode = reply.getReturnCode();
+                    int errorClass = execImmediateReply.getErrorClass();
+                    int returnCode = execImmediateReply.getReturnCode();
 
-                    DBReplySQLCA sqlca = reply.getSQLCA ();    //@F10M
+                    DBReplySQLCA sqlca = execImmediateReply.getSQLCA ();    //@F10M
 
                     if(errorClass != 0)
                     {
@@ -1408,9 +1449,9 @@ implements Statement
                             postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
                     }
 
-                    transactionManager_.processCommitOnReturn(reply);    // @E2A
+                    transactionManager_.processCommitOnReturn(execImmediateReply);    // @E2A
 
-                    cursor_.processCursorAttributes(reply);                   //@cur
+                    cursor_.processCursorAttributes(execImmediateReply);                   //@cur
                     
                     // Compute the update count.
                     //@F10M DBReplySQLCA sqlca = reply.getSQLCA ();
@@ -1422,7 +1463,7 @@ implements Statement
                     if(extendedMetaData)    //@F5A 
                     {
                         //@F5A 
-                        extendedColumnDescriptors_ = reply.getExtendedColumnDescriptors ();    //@F5A
+                        extendedColumnDescriptors_ = execImmediateReply.getExtendedColumnDescriptors ();    //@F5A
                     }    //@F5A
 
                     //Make an auto-generated key result set if it was requested              //@F5A
@@ -1479,8 +1520,8 @@ implements Statement
                             postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                     }
 
-                    commonPrepareAfter (sqlStatement, reply);
-                    commonExecuteAfter (sqlStatement, reply);
+                    commonPrepareAfter (sqlStatement, execImmediateReply);
+                    commonExecuteAfter (sqlStatement, execImmediateReply);
                 }
                 catch(DBDataStreamException e)
                 {
@@ -1489,7 +1530,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    if(reply != null) reply.returnToPool();    //@P0A
+                    // if(execImmediateReply != null) execImmediateReply.returnToPool();    //@P0A
                 }
 
                 // Inform the transaction manager that a statement
@@ -1521,7 +1562,7 @@ implements Statement
                 syncRPB ();
 
                 DBSQLRequestDS request = null;    //@P0A
-                DBReplyRequestedDS reply = null;    //@P0A
+                DBReplyRequestedDS normalPrepareReply = null;    //@P0A
                 try
                 {
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A @F10C
@@ -1572,15 +1613,15 @@ implements Statement
                     }    //@F5A
 
                     commonPrepareBefore (sqlStatement, request);
+                    if (normalPrepareReply != null) normalPrepareReply.returnToPool(); 
+                    normalPrepareReply = connection_.sendAndReceive (request, id_);    //@P0C
 
-                    reply = connection_.sendAndReceive (request, id_);    //@P0C
-
-                    int errorClass = reply.getErrorClass();
-                    int returnCode = reply.getReturnCode();
+                    int errorClass = normalPrepareReply.getErrorClass();
+                    int returnCode = normalPrepareReply.getReturnCode();
 
                     if(errorClass != 0)
                     {
-                        positionOfSyntaxError_ = reply.getSQLCA().getErrd(5);    //@F10A
+                        positionOfSyntaxError_ = normalPrepareReply.getSQLCA().getErrd(5);    //@F10A
 
                         if(returnCode < 0)
                             JDError.throwSQLException (connection_, id_, errorClass, returnCode);
@@ -1589,7 +1630,7 @@ implements Statement
                     }
 
                     // Gather results from the reply.
-                    DBDataFormat dataFormat = reply.getDataFormat ();
+                    DBDataFormat dataFormat = normalPrepareReply.getDataFormat ();
                     if(dataFormat == null)
                         resultRow = null;
                     else
@@ -1601,10 +1642,10 @@ implements Statement
                     if(extendedMetaData)    //@F5A
                     {
                         //@F5A 
-                        extendedColumnDescriptors_ = reply.getExtendedColumnDescriptors ();    //@F5A                                                              
+                        extendedColumnDescriptors_ = normalPrepareReply.getExtendedColumnDescriptors ();    //@F5A                                                              
                     }    //@F5A
 
-                    commonPrepareAfter (sqlStatement, reply);
+                    commonPrepareAfter (sqlStatement, normalPrepareReply);
                 }
                 catch(DBDataStreamException e)
                 {
@@ -1613,7 +1654,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    if(reply != null) reply.returnToPool();    //@P0A
+                    // if(reply != null) reply.returnToPool();    //@P0A
                 }
 
                 // Output a summary as a trace message.  The * signifies that the
@@ -2804,7 +2845,6 @@ implements Statement
 
                 // Send the data stream.
                 DBSQLRequestDS request = null;    //@P0A
-                DBReplyRequestedDS reply = null;    //@P0A
                 try
                 {
                     if((connection_.getVRM() >= JDUtilities.vrm610))                           //@cur //@isol
@@ -2843,17 +2883,18 @@ implements Statement
                         }    //@KBA
                     }
 
-                    reply = connection_.sendAndReceive (request, id_);    //@P0C
+                    if (getMoreResultsReply != null) getMoreResultsReply.returnToPool(); 
+                    getMoreResultsReply = connection_.sendAndReceive (request, id_);    //@P0C
 
                     // Gather information from the reply.
-                    DBReplySQLCA sqlca = reply.getSQLCA ();
-                    DBDataFormat dataFormat = reply.getDataFormat ();
+                    DBReplySQLCA sqlca = getMoreResultsReply.getSQLCA ();
+                    DBDataFormat dataFormat = getMoreResultsReply.getDataFormat ();
                     if(this instanceof AS400JDBCCallableStatement)	// @550A
                     	dataFormat.setCSRSData(true);				// @550A
 
                     // Check for system errors.
-                    int errorClass = reply.getErrorClass();
-                    int returnCode = reply.getReturnCode();
+                    int errorClass = getMoreResultsReply.getErrorClass();
+                    int returnCode = getMoreResultsReply.getReturnCode();
 
                     if(errorClass != 0)
                     {
@@ -2864,9 +2905,9 @@ implements Statement
                     }
 
                     // Process a potential cursor conecurrency override.                             @E1A @EAC
-                    cursor_.processConcurrencyOverride(openAttributes, reply);    // @E1A @EAC
+                    cursor_.processConcurrencyOverride(openAttributes, getMoreResultsReply);    // @E1A @EAC
 
-                    cursor_.processCursorAttributes(reply);                   //@cur
+                    cursor_.processCursorAttributes(getMoreResultsReply);                   //@cur
                     
                     // Note that the cursor was opened.
                     cursor_.setState (false);
@@ -2900,7 +2941,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    if(reply != null) reply.returnToPool();    //@P0A
+                    // if(getMoreResultsReply != null) getMoreResultsReply.returnToPool();    //@P0A
                 }
             }
 
@@ -3254,7 +3295,7 @@ implements Statement
             rowCache = new JDSimpleRowCache (formatRow, data, nulls, dataMappingErrors);
         }
         // Construct with row cache, no catalog, and no cursor name
-        generatedKeys_ = new AS400JDBCResultSet (rowCache, "", "", connection_); //@in2
+        generatedKeys_ = new AS400JDBCResultSet (rowCache, "", "", connection_, null); //@in2
     }
 
 

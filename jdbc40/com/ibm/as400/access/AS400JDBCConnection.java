@@ -313,16 +313,16 @@ implements Connection
 
                     // Send the cancel request.
                     DBSQLRequestDS request = null;
-                    DBReplyRequestedDS reply = null;
+                    DBReplyRequestedDS cancelReply = null;
                     try
                     {
                         request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_CANCEL, id_,
                                                              DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
                         request.setJobIdentifier(serverJobIdentifier_, converter_);
-                        reply = cancelConnection.sendAndReceive (request);
+                        cancelReply = cancelConnection.sendAndReceive (request);
 
-                        int errorClass = reply.getErrorClass();
-                        int returnCode = reply.getReturnCode();
+                        int errorClass = cancelReply.getErrorClass();
+                        int returnCode = cancelReply.getReturnCode();
                         if (errorClass != 0)
                             JDError.throwSQLException(this, id_, errorClass, returnCode);
                     }
@@ -332,8 +332,14 @@ implements Connection
                     }
                     finally
                     {
-                        if (request != null) request.returnToPool();
-                        if (reply != null) reply.returnToPool();
+                        if (request != null) {
+                        	request.returnToPool();
+                        	request = null; 
+                        }
+                        if (cancelReply != null) {
+                        	cancelReply.returnToPool();
+                        	cancelReply = null; 
+                        }
                     }
                 }
                 else
@@ -3034,10 +3040,9 @@ implements Connection
             JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
         } finally
         {
-            if (request != null)
+            if (request != null) 
                 request.returnToPool();
-            if (reply != null)
-                reply.returnToPool();
+            if (reply != null) reply.returnToPool(); // Can return -- only errorClass accessed 
         }
        
         concurrentAccessResolution_ = concurrentAccessResolution;
@@ -3081,7 +3086,7 @@ implements Connection
             finally
             {
                 if (request != null) request.returnToPool();
-                if (reply != null) reply.returnToPool();
+                if (reply != null) reply.returnToPool(); // Return to pool since only errorClass accessed
             }
         }
     }
@@ -3623,13 +3628,13 @@ implements Connection
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
+        DBReplyRequestedDS reply = null;
         try
         {
             vrm_ = as400_.getVRM();                                     // @D0A @ECM
 
             //@P0C
             DBSQLAttributesDS request = null;
-            DBReplyRequestedDS reply = null;
             int decimalSeparator, dateFormat, dateSeparator, timeFormat, timeSeparator;
             DBReplyServerAttributes serverAttributes = null;
             try
@@ -4099,8 +4104,12 @@ implements Connection
             }
             finally
             {
-                if (request != null) request.returnToPool();
-                if (reply != null) reply.returnToPool();
+                if (request != null) { 
+                	request.returnToPool();
+                	request = null; 
+                }
+                // We cannot return the reply to the pool while it is still being used in the serverAttributes structure 
+                // if (reply != null) reply.returnToPool();
             }
 
             // The CCSID that comes back is a mixed CCSID (i.e. mixed
@@ -4295,6 +4304,12 @@ implements Connection
         catch (UnsupportedEncodingException e)
         {                      // @J5C
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
+        }
+        finally 
+        {
+        	// Don't return the reply to the pool until the very end,
+        	// as it is used by the DBReplyServerAttributes object 
+            if (reply != null) reply.returnToPool();
         }
     }
 
@@ -4516,14 +4531,10 @@ implements Connection
         finally
         { 
             if (request != null) {
-            	synchronized(request) { // @A7C
-                   request.inUse_ =   false;
-                }
+                   request.returnToPool(); 
             } 
             if (reply != null) {
-                synchronized(reply) {   //  @A7C
-                   reply.inUse_ = false; 
-                }
+                   reply.returnToPool();   // commented out code 
             }
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Connection.isValid call complete");
@@ -4596,7 +4607,7 @@ implements Connection
     {
 
         DBSQLAttributesDS request = null;
-        DBReplyRequestedDS reply = null;
+        DBReplyRequestedDS setClientInfoReply = null;
         ConvTable tempConverter = null;
 
         String oldValue = null;  //save in case we get error from host db
@@ -4657,11 +4668,11 @@ implements Connection
 
             if ((getVRM() >= JDUtilities.vrm610) && (oldValue != null))
             {
-                reply = sendAndReceive(request);
-                int errorClass = reply.getErrorClass();
+            	setClientInfoReply = sendAndReceive(request);
+                int errorClass = setClientInfoReply.getErrorClass();
                 //throw SQLException  
                 if (errorClass != 0)     
-                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+                    JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
                 
             }
         } catch (Exception e)
@@ -4692,8 +4703,8 @@ implements Connection
         {
             if (request != null)
                 request.returnToPool();
-            if (reply != null)
-                reply.returnToPool();
+            if (setClientInfoReply != null)
+            	setClientInfoReply.returnToPool(); // only error class used 
         }
     }
 
@@ -4770,7 +4781,7 @@ implements Connection
             newClientProgramID = "";
         
         DBSQLAttributesDS request = null;
-        DBReplyRequestedDS reply = null;
+        DBReplyRequestedDS setClientInfoReply = null;
         ConvTable tempConverter = null;
         try
         {
@@ -4789,10 +4800,10 @@ implements Connection
                 
                 request.setClientInfoProgramID(newClientProgramID, tempConverter); //@pda
                 
-                reply = sendAndReceive(request);
-                int errorClass = reply.getErrorClass();
+                setClientInfoReply = sendAndReceive(request);
+                int errorClass = setClientInfoReply.getErrorClass();
                 if (errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+                    JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
             }
             
             //update local values after request/reply in case of exception
@@ -4824,8 +4835,7 @@ implements Connection
         {
             if (request != null)
                 request.returnToPool();
-            if (reply != null)
-                reply.returnToPool();
+            if (setClientInfoReply != null) 	setClientInfoReply.returnToPool(); // only error class used  
         }
         
     }
