@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -28,7 +29,7 @@ class ClientAccessDataStream extends DataStream
 
   private static final CADSPool basePool_ = new CADSPool(); //@P0A - base datastream pool
 
-  boolean inUse_; //@P0A
+  private boolean inUse_; //@P0A
 
   // Note: The following method is called by AS400ThreadedServer and AS400NoThreadServer.
 
@@ -47,26 +48,72 @@ class ClientAccessDataStream extends DataStream
     try
     {
       // Receive the header.
-      if (readFromStream(is, baseDataStream.data_, 0, HEADER_LENGTH, connectionID) < HEADER_LENGTH)
+      byte[] data = baseDataStream.data_; 
+      if (readFromStream(is, data, 0, HEADER_LENGTH, connectionID) < HEADER_LENGTH)
       {
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the data stream header."); //@P0C
-        synchronized(baseDataStream) { // @A7A 
-          baseDataStream.inUse_ = false; //@P0A
-         }  
+        baseDataStream.returnToPool(); 
+        baseDataStream=null; 
         throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
       }
+      // int length2 = ((data[0] & 0xFF) << 24) + ((data[1] & 0xFF) << 16) + ((data[2] & 0xFF) << 8) + (data[3] & 0xFF); 
       int length = baseDataStream.getLength(); 
       
       if (baseDataStream.data_[6] != (byte)0xE0)
       {
+    	
+
+      	//  boolean traceTurnedOn = false; 
+      	// if (!Trace.traceOn_) {
+      	//	traceTurnedOn = true;
+      	// }
+      	
+    	  // Debugging code. 
+        //	if (! DataStream.traceOpened) { 
+        //  		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
+          		
+        //   		Trace.setFileName("/tmp/toolboxTrace."+sdf.format(new Date())+".txt");
+        //  	    DataStream.traceOpened=true; 
+        //   	}
+
+        //  	if (!Trace.traceOn_) {
+        //  		traceTurnedOn = true;
+        //  		Trace.setTraceAllOn(true); 
+        //  		Trace.setTraceOn(true); 
+        //  	}
+        //    Trace.log(Trace.ERROR, "Debug0601: Incorrect data stream header detected. baseDataStream.data_("+baseDataStream.data_.toString()+") length=("+length+")",
+        //            baseDataStream.data_, 0, HEADER_LENGTH);
+        //    Trace.log(Trace.ERROR, "Debug0601: Incorrect data stream header detected. data_("+data.toString()+") length=("+length2+")",
+        //            data, 0, HEADER_LENGTH);
+    	  
+    	  
         if (Trace.traceOn_) {
           Trace.log(Trace.ERROR, "Incorrect data stream header detected.",
                     baseDataStream.data_, 0, HEADER_LENGTH);
         }
-        synchronized(baseDataStream) {  // @A7A 
-           baseDataStream.inUse_ = false;
-        }  
+        
+        // Debugging code 
+      	//if (traceTurnedOn) { 
+      	//	Trace.setTraceAllOn(false); 
+      	//	Trace.setTraceOn(false); 
+      	//}
+
+      	
+        baseDataStream.returnToPool(); 
+        baseDataStream=null; 
+        
         is.skip(is.available());  // disregard the rest of this data stream
+        
+        // Debug... 
+        // Just hang the thread
+        // while (true) {
+        //	try {
+        //	Thread.sleep(100000);
+        //	} catch (Exception e) { 
+        //		break; 
+        //	}
+        //}
+        
         throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
       }
 
@@ -102,28 +149,38 @@ class ClientAccessDataStream extends DataStream
       int nowLength = baseDataStream.getLength();
 
       // Debugging code 
-      //if (nowLength != length) { 
+      // if ((nowLength != length) || (length != length2) || (data != baseDataStream.data_ )) { 
       //	if (! DataStream.traceOpened) { 
       //		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
       //		
       // 		Trace.setFileName("/tmp/toolboxTrace."+sdf.format(new Date())+".txt");
-      //	    DataStream.traceOpened=true; 
+      // 	    DataStream.traceOpened=true; 
       // 	}
+      //	
       //	boolean traceTurnedOn = false; 
       //	if (!Trace.traceOn_) {
       //		traceTurnedOn = true;
       //		Trace.setTraceAllOn(true); 
       //		Trace.setTraceOn(true); 
       //	}
-      //	Trace.log(Trace.DATASTREAM, "Buffer corrupted.. Original length="+length+" nowLength="+nowLength); 
+      //	if (nowLength != length) { 
+      //  	Trace.log(Trace.DATASTREAM, "Debug0601: Buffer corrupted.. Original length="+length+" nowLength="+nowLength);
+      //	}
+      //	if (length != length2) { 
+      //   	Trace.log(Trace.DATASTREAM, "Debug0601: Buffer corrupted.. Original length="+length+" length2="+length2);
+      //	}
+      //	if (data != baseDataStream.data_) { 
+      //   	Trace.log(Trace.DATASTREAM, "Debug0601: Buffer corrupted.. data="+data+" baseDataStream.data_="+baseDataStream.data_);
+      //	}
       //	if (traceTurnedOn) { 
       //		Trace.setTraceAllOn(false); 
       //		Trace.setTraceOn(false); 
       //	}
-      //  }
+      //}
       newDataStream.data_ = new byte[nowLength];
       System.arraycopy(baseDataStream.data_, 0, newDataStream.data_, 0, HEADER_LENGTH);
 
+      
       if (newDataStream.data_.length - HEADER_LENGTH > 0)
       {
         // Receive any remaining bytes.
@@ -134,9 +191,9 @@ class ClientAccessDataStream extends DataStream
     }
     finally
     {
-    	synchronized(baseDataStream) {  // @A7A 
-           baseDataStream.inUse_ = false;
-    	}  
+    	if (baseDataStream != null) { 
+           baseDataStream.returnToPool();
+    	}
     }
   }
 
@@ -270,8 +327,32 @@ class ClientAccessDataStream extends DataStream
   // just set inUse_=false to return to the pool.  This is provided so that the request buffer can be resized
   // by inheriting classes 
   //  
-  synchronized void returnToPool() {  // @A7C  
-	  inUse_ = false; 
+  synchronized void returnToPool() throws InternalErrorException {  // @A7C  
+	  if (inUse_) { 
+	    // Use this to find places where the object is used after it is returned to the pool  
+	    // if (data_ != null) {
+		//    Arrays.fill(data_, (byte) 0xeb); 
+	    // }
+	    inUse_ = false;
+	  } else {
+		  // This is an error case.   You cannot double free a buffer
+		  throw new InternalErrorException(InternalErrorException.UNKNOWN);		  
+	  }
   }
+  
+  /**
+   * Can this be used.  If not, false is returned.
+   * If it can be used, then inUse_ is set to return and true is returned
+   * @return
+   */
+  public synchronized boolean canUse() {
+     if (inUse_) {
+  	   return false; 
+     } else {
+  	   inUse_ = true; 
+  	   return true; 
+     }
+  }
+
   
 }

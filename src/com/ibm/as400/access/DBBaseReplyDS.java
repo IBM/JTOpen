@@ -234,7 +234,7 @@ extends ClientAccessDataStream
   //@P0A - Call this in place of constructing a new reply datastream.
   final void initialize()
   { 
-    data_ = storage_.data_;
+    data_ = storage_.getData();
     errorClass_ = 0;
     returnCode_ = 0;
     byteCount_ = -1;

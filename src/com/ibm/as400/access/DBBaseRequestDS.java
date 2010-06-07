@@ -260,7 +260,7 @@ Constructor.
     // Allocate the large byte array for storage of the
     // data stream.
 
-    data_ = storage_.data_; //@P0C
+    data_ = storage_.getData(); //@P0C
 
     // Initialization.
     currentOffset_          = HEADER_LENGTH + 20;
@@ -856,9 +856,7 @@ four bytes, and sixteen bytes per line.
   {
     //@P0D freeCommunicationsBuffer();
     if (storage_ != null) {
-    	synchronized(storage_) {  // @A8A  
-    	   storage_.inUse_ = false; //@P0A
-    	}
+    	   storage_.returnToPool(); //@P0A
     }
     data_ = null; //@P0A
     super.finalize();
@@ -878,7 +876,7 @@ byte array and grow it as needed.
   throws DBDataStreamException
   {
     if (storage_.checkSize(currentOffset_ + length + 6))
-      data_ = storage_.data_; //@P0C
+      data_ = storage_.getData(); //@P0C
     lockedLength_ = length;
 
     set32bit(length + 6, currentOffset_);          // LL
@@ -961,7 +959,7 @@ Overrides the superclass to write the datastream.
         try //@P0A
         {
           secondaryStorage.checkSize(currentOffset_);                                     // @E3A
-          byte[] compressedBytes = secondaryStorage.data_;                      // @E3A @P0C
+          byte[] compressedBytes = secondaryStorage.getData();                      // @E3A @P0C
 
           // Compress the bytes not including the header (20 bytes) and template             @E3A
           // (20 bytes).  If the compression was successful, send the compressed             @E3A
@@ -1006,9 +1004,7 @@ Overrides the superclass to write the datastream.
         }
         finally //@P0A
         {
-          synchronized(secondaryStorage) { // @A8A 
-              secondaryStorage.inUse_ = false; //@P0A
-          }
+              secondaryStorage.returnToPool(); //@P0A
         }
       }                                                                                   // @E3A
       else
@@ -1058,9 +1054,11 @@ Overrides the superclass to write the datastream.
 	  
 	  data_ = null;   //Safe, this is assigned during initialize.
 	  
-	  inUse_ = false; 
+	  super.returnToPool(); 
   }
 
+
+  
   //
   // reclaim the storage
   //
