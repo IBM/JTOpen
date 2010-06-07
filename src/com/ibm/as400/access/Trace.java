@@ -1718,8 +1718,10 @@ public class Trace implements Runnable
         BufferedReader in = new BufferedReader(new InputStreamReader(currentSocket.getInputStream()));
         PrintWriter out = new PrintWriter(currentSocket.getOutputStream(), true);
         String command = in.readLine();			  
-        String result = handleTraceStatusChange(command);
-        out.println(result);
+        if (command != null) { 
+          String result = handleTraceStatusChange(command);
+          out.println(result);
+        }
         currentSocket.close();
       }
     }
