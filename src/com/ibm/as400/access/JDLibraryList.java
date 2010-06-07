@@ -313,7 +313,7 @@ in the server job's library list.
       finally //@P0A
       {
         if (request != null) request.returnToPool(); //@P0A
-        if (reply != null) reply.returnToPool(); //@P0A
+        if (reply != null) reply.returnToPool(); //@P0A // Only getErrorCode used
       }
     }
   }

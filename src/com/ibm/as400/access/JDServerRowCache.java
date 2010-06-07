@@ -42,6 +42,7 @@ implements JDRowCache
   private boolean                 variableFieldCompressionSupported_ = false;   //@K54
   private int                     bufferSize_;                                  //@K54  
   private JDCursor                cursor_ = null; //@pda perf2 - fetch/close
+  private DBReplyRequestedDS fetchReply = null; //@P0A
   
 
   // Index always points to the row within the cache.
@@ -291,7 +292,6 @@ Fetches a block of data from the system.
     try
     {
       DBSQLRequestDS request = null; //@P0A
-      DBReplyRequestedDS reply = null; //@P0A
       try
       {
         request = DBDSPool.getDBSQLRequestDS ( //@P0C
@@ -333,10 +333,11 @@ Fetches a block of data from the system.
         if (JDTrace.isTraceOn ())
           JDTrace.logInformation (connection_, "Fetching a block of data from the system");
 
-        reply = connection_.sendAndReceive (request, id_); //@P0C
+        if (fetchReply != null) fetchReply.returnToPool(); 
+        fetchReply = connection_.sendAndReceive (request, id_); //@P0C
 
-        int errorClass = reply.getErrorClass();
-        int returnCode = reply.getReturnCode();
+        int errorClass = fetchReply.getErrorClass();
+        int returnCode = fetchReply.getReturnCode();
 
         if (((errorClass == 1) && (returnCode == 100))
             || ((errorClass == 2) && (returnCode == 701)))
@@ -360,7 +361,7 @@ Fetches a block of data from the system.
         }                                                                                // @D1a
 
         // Extract data from the row.
-        serverData_ = reply.getResultData ();
+        serverData_ = fetchReply.getResultData ();
 
         if (serverData_ == null)
         {
@@ -382,7 +383,7 @@ Fetches a block of data from the system.
       finally
       {
         if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        // if (fetchReply != null) fetchReply.returnToPool();
       }
     }
     catch (DBDataStreamException e)
@@ -435,6 +436,12 @@ Sets the fetch size.
   {
     // No-op.  It is assumed that the cursor will be closed
     // elsewhere.
+    
+      // Make sure reply is returned to pool 
+      if (fetchReply != null) {
+        fetchReply.returnToPool(); 
+        fetchReply = null; 
+      }
   }
 
 
@@ -931,5 +938,10 @@ Sets the fetch size.
     }
 
     row_.setRowIndex (index_);
+  }
+  
+  protected void finalize() throws Throwable {
+		super.finalize();
+        if (fetchReply != null) fetchReply.returnToPool(); 
   }
 }

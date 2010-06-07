@@ -163,7 +163,7 @@ class JDPackageManager
         finally
         {
           if (request != null) request.returnToPool();
-          if (reply != null) reply.returnToPool();
+          if (reply != null) reply.returnToPool(); // only ErrorClass used from reply
         }
       }
       catch (DBDataStreamException e)
@@ -247,7 +247,7 @@ class JDPackageManager
         finally
         {
           if (request != null) request.returnToPool();
-          if (reply != null) reply.returnToPool();
+          if (reply != null) reply.returnToPool(); // only errorClass used in reply 
         }
       }
       catch (DBDataStreamException e)

@@ -162,15 +162,16 @@ Commit the current transaction.
         reply = connection_.sendAndReceive (request); //@P0C
 
         int errorClass = reply.getErrorClass();
-        int returnCode = reply.getReturnCode();
 
-        if (errorClass != 0)
+        if (errorClass != 0) { 
+            int returnCode = reply.getReturnCode();
           JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+        }
       }
       finally
       {
         if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        if (reply != null) reply.returnToPool(); // Only errorClass used from reply 
       }
 
     }
@@ -437,15 +438,16 @@ enabled, then do nothing.
         reply = connection_.sendAndReceive (request); //@P0C
 
         int errorClass = reply.getErrorClass();
-        int returnCode = reply.getReturnCode();
 
-        if (errorClass != 0)
+        if (errorClass != 0) { 
+        	int returnCode = reply.getReturnCode();
           JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+        }
       }
       finally
       {
         if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        if (reply != null) reply.returnToPool(); // Only errorClass used from reply 
       }
     }
     catch (DBDataStreamException e)
@@ -546,7 +548,7 @@ Set the auto-commit mode.
           finally                                                                             //@KBA
           {                                                                                   //@KBA
               if (request != null) request.returnToPool();                                    //@KBA
-              if (reply != null) reply.returnToPool();                                        //@KBA
+              if (reply != null) reply.returnToPool(); // Only errorClass used from reply     //@KBA
           }                                                                                   //@KBA
       }                                                                                       //@KBA
     }                                                                       // @C4A
@@ -610,7 +612,7 @@ Set the commit mode on the system.
         finally
         {
           if (request != null) request.returnToPool();
-          if (reply != null) reply.returnToPool();
+          if (reply != null) reply.returnToPool(); // Only errorClass Used from reply 
         }
       }
       catch (DBDataStreamException e)
@@ -700,7 +702,7 @@ java.sql.Connection.TRANSACTION_* values.
           finally                                                                             //@KBA
           {                                                                                   //@KBA
               if (request != null) request.returnToPool();                                    //@KBA
-              if (reply != null) reply.returnToPool();                                        //@KBA
+              if (reply != null) reply.returnToPool();  // Only errorClass used from reply    //@KBA
           }                                                                                   //@KBA
           serverCommitMode_ = commitMode;                                            //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
     }                                                                                         //@KBA
@@ -760,7 +762,7 @@ can not be called directly on this object.
           finally                                                                             
           {                                                                                   
               if (request != null) request.returnToPool();                                    
-              if (reply != null) reply.returnToPool();                                        
+              if (reply != null) reply.returnToPool(); // Only errorClass used from reply                                         
           }                                                                                     
       }
 
@@ -797,7 +799,7 @@ can not be called directly on this object.
           finally                                                                             //@KBA
           {                                                                                   //@KBA
               if (request != null) request.returnToPool();                                    //@KBA
-              if (reply != null) reply.returnToPool();                                        //@KBA
+              if (reply != null) reply.returnToPool();    // Only errorClass used from reply  //@KBA
           }                                                                                   //@KBA
             serverCommitMode_ = currentCommitMode_;                                             //@KBA
       }

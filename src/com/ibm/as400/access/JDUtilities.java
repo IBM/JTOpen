@@ -156,13 +156,13 @@ for use in implementing various pieces of the JDBC driver.
           settings = new SQLConversionSettings (connection);
         }
         int id = connection.getID();
+        DBReplyRequestedDS reply = null;
 
         try
         {
             // Create a request
             //@P0C
             DBReturnObjectInformationRequestDS request = null;
-            DBReplyRequestedDS reply = null;
             try
             {
                 request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -260,7 +260,8 @@ for use in implementing various pieces of the JDBC driver.
             finally
             {
                 if (request != null) request.returnToPool();
-                if (reply != null) reply.returnToPool();
+                // Cannot close this reply.  Pass to AS400JDBCResultSet to close
+                // if (reply != null) reply.returnToPool(); 
             }
 
         } // End of try block
@@ -272,7 +273,7 @@ for use in implementing various pieces of the JDBC driver.
 
         // Return the results
         return new AS400JDBCResultSet (rowCache,
-                                       connection.getCatalog(), "Schemas", connection); //@in2
+                                       connection.getCatalog(), "Schemas", connection, reply); //@in2
 
     }
 

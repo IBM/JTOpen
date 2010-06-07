@@ -50,6 +50,7 @@ class JDCursor
   private int                 sensitive_ = -1;           //@cur
   private int                 isolationLevel_ = -1;      //@isol  
 
+  private DBReplyRequestedDS openReply = null; 
 
 /**
 Constructs a JDCursor object.
@@ -124,6 +125,11 @@ Closes the cursor.
       if (request != null && !keepDS) request.returnToPool(); //@P1C
     }
 
+    if (openReply != null) {
+      openReply.returnToPool(); 
+      openReply = null; 
+    }
+    
     closed_ = true;
 
     if (JDTrace.isTraceOn())
@@ -255,7 +261,6 @@ Opens the cursor and describes the data format.
     try
     {
       DBSQLRequestDS request = null; //@P0A
-      DBReplyRequestedDS reply = null; //@P0A
       try
       {
         request = DBDSPool.getDBSQLRequestDS ( //@P0C
@@ -328,16 +333,17 @@ Opens the cursor and describes the data format.
                      request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@KBA        Option 2
                 }    //@KBA
 
-      reply = connection_.sendAndReceive (request, id_); //@P0C
+      if (openReply != null) openReply.returnToPool(); 
+      openReply = connection_.sendAndReceive (request, id_); //@P0C
 
-      int errorClass = reply.getErrorClass();
-      int returnCode = reply.getReturnCode();
+      int errorClass = openReply.getErrorClass();
+      int returnCode = openReply.getReturnCode();
 
       if (errorClass != 0)
         JDError.throwSQLException (connection_, id_, errorClass, returnCode);
 
-      processConcurrencyOverride(openAttributes, reply);                            // @E1A @E4C
-      dataFormat = reply.getDataFormat ();
+      processConcurrencyOverride(openAttributes, openReply);                            // @E1A @E4C
+      dataFormat = openReply.getDataFormat ();
       // @550A  NOTE:  openDescribe() currently is only called for a result set returned from a CallableStatement
       // if that were to change, this method needs to be modified so that it correctly indicates to the data format
       // when the data is from a stored procedure result set.
@@ -346,7 +352,7 @@ Opens the cursor and describes the data format.
       finally
       {
         if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        // if (openReply != null) openReply.returnToPool();
       }
     }
     catch (DBDataStreamException e)

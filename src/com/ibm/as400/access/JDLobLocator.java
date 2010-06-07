@@ -40,6 +40,7 @@ class JDLobLocator
   private int                     maxLength_; // The max length in LOB-characters.
   private int                     columnIndex_        = -1;
   private boolean                 graphic_;        
+  DBReplyRequestedDS retrieveDataReply = null;
 
 
   /**
@@ -98,7 +99,7 @@ class JDLobLocator
       try
       {
         DBSQLRequestDS request = null;                                                        
-        DBReplyRequestedDS reply = null;                                                      
+        DBReplyRequestedDS getLengthReply = null;                                                      
         try
         {
           request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_RETRIEVE_LOB_DATA,   
@@ -113,19 +114,20 @@ class JDLobLocator
           {
             request.setColumnIndex(columnIndex_);                                             
           }
-          reply = connection_.sendAndReceive(request, id_); //@CRS: Why are we reusing the correlation ID here?
-          int errorClass = reply.getErrorClass();                                             
-          int returnCode = reply.getReturnCode();                                             
+          getLengthReply = connection_.sendAndReceive(request, id_); //@CRS: Why are we reusing the correlation ID here?
+          int errorClass = getLengthReply.getErrorClass();                                             
+          int returnCode = getLengthReply.getReturnCode();                                             
 
           if (errorClass != 0)
             JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
 
-          length_ = reply.getCurrentLOBLength();                                              
+          length_ = getLengthReply.getCurrentLOBLength();                                              
         }
         finally
         {
           if (request != null) request.returnToPool();
-          if (reply != null) reply.returnToPool();
+          if (getLengthReply != null) getLengthReply.returnToPool(); // Note:  No portion of this reply is cached, so it can be returned to the pool
+          
         }                                                                                     
       }
       catch (DBDataStreamException e)
@@ -169,7 +171,6 @@ Retrieves part of the contents of the lob.
     try
     {
       DBSQLRequestDS request = null;
-      DBReplyRequestedDS reply = null;
       try
       {
         request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_RETRIEVE_LOB_DATA,
@@ -194,15 +195,16 @@ Retrieves part of the contents of the lob.
                                  " dataCompression: " + dataCompression_ + " columnIndex: " + columnIndex_);
         }
 
-        reply = connection_.sendAndReceive(request, id_);
-        int errorClass = reply.getErrorClass();
-        int returnCode = reply.getReturnCode();
+        if (retrieveDataReply != null) retrieveDataReply.returnToPool(); 
+        retrieveDataReply = connection_.sendAndReceive(request, id_);
+        int errorClass = retrieveDataReply.getErrorClass();
+        int returnCode = retrieveDataReply.getReturnCode();
 
         if (errorClass != 0) JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
 
-        length_ = reply.getCurrentLOBLength();
+        length_ = retrieveDataReply.getCurrentLOBLength();
 
-        DBLobData lobData = reply.getLOBData();
+        DBLobData lobData = retrieveDataReply.getLOBData();
 
         if (graphic_)
         {
@@ -214,7 +216,8 @@ Retrieves part of the contents of the lob.
       finally
       {
         if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        // Cannot return this to the pool because the data_ array is now part of lobData
+        // if (retrieveDataReply != null) retrieveDataReply.returnToPool();
       }
     }
     catch (DBDataStreamException e)
@@ -294,7 +297,7 @@ Writes part of the contents of the lob.
     try
     {
       DBSQLRequestDS request = null;
-      DBReplyRequestedDS reply = null;
+      DBReplyRequestedDS writeDataReply = null;
       try
       {
         request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_WRITE_LOB_DATA,
@@ -312,9 +315,9 @@ Writes part of the contents of the lob.
           JDTrace.logInformation(connection_, "Writing lob data to handle: " + handle_ + " offset: " + lobOffset + " length: " + length);
         }
 
-        reply = connection_.sendAndReceive(request, id_);
-        int errorClass = reply.getErrorClass();
-        int returnCode = reply.getReturnCode();
+        writeDataReply = connection_.sendAndReceive(request, id_);
+        int errorClass = writeDataReply.getErrorClass();
+        int returnCode = writeDataReply.getReturnCode();
 
         if (errorClass != 0)
         {
@@ -326,7 +329,8 @@ Writes part of the contents of the lob.
       finally
       {
         if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        // Can be returned immediately 
+        if (writeDataReply != null) writeDataReply.returnToPool();
       }
     }
     catch (DBDataStreamException e)
@@ -361,7 +365,7 @@ Writes part of the contents of the lob.
       }                                                                          //@ns1
       
       DBSQLRequestDS request = null;
-      DBReplyRequestedDS reply = null;
+      DBReplyRequestedDS freeReply = null;
       try
       {
           request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_FREE_LOB, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
@@ -373,13 +377,22 @@ Writes part of the contents of the lob.
          // {                                    //@pdd
            //   request.setColumnIndex(columnIndex_); //@pdd
          // }                                    //@pdd
-          reply = connection_.sendAndReceive(request, id_);
-          int errorClass = reply.getErrorClass();
-          int returnCode = reply.getReturnCode();
+          freeReply = connection_.sendAndReceive(request, id_);
+          int errorClass = freeReply.getErrorClass();
+          int returnCode = freeReply.getReturnCode();
           
           //7,-401 signals already free
           //if (errorClass != 0 && !(errorClass == 7 && returnCode == -401))
               //JDError.throwSQLException(this, connection_, id_, errorClass, returnCode); //@free2 hostnow has various errors if locator is already freed.
+          
+          
+          // In free, if the retrieveDataReply is set, then return it to the pool 
+          if (retrieveDataReply != null) { 
+        	  	retrieveDataReply.returnToPool();
+        	  	retrieveDataReply = null; 
+          }
+
+          
           
       }  catch (DBDataStreamException e)
       {
@@ -388,8 +401,20 @@ Writes part of the contents of the lob.
       {
           if (request != null)
               request.returnToPool();
-          if (reply != null)
-              reply.returnToPool();
+          if (freeReply != null) freeReply.returnToPool();
       }   
   }
+  
+  
+  protected void finalize() throws Throwable {
+		super.finalize();
+        if (retrieveDataReply != null) { 
+    	  	retrieveDataReply.returnToPool();
+    	  	retrieveDataReply = null; 
+      }
+		
+		
+	}
+  
+  
 }
