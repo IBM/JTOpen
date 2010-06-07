@@ -223,7 +223,7 @@ implements ResultSet
     private boolean                     wasNull_;
     private boolean                     wasDataMappingError_;
     boolean                             isMetadataResultSet = false; //@mdrs
-
+    private DBReplyRequestedDS          reply_ = null; 
 
     /*---------------------------------------------------------*/
     /*                                                         */
@@ -351,6 +351,7 @@ implements ResultSet
     @param  rowCache        The row cache.
     @param  catalog         The catalog.
     @param  cursorName      The cursor name.
+    @param  reply           Reply object that must be returned to pool when result set closed 
     
     @exception              SQLException    If an error occurs.
     **/
@@ -361,13 +362,16 @@ implements ResultSet
     AS400JDBCResultSet (JDRowCache rowCache,
                         String catalog,
                         String cursorName,
-                        AS400JDBCConnection con)  //@in2
+                        AS400JDBCConnection con, 
+                        DBReplyRequestedDS reply)  //@in2
     throws SQLException
     {
         this (null, null, rowCache, catalog, cursorName, 0,
               TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY,
               FETCH_FORWARD, 0);
-        
+
+    	this.reply_ = reply; 
+
         //connection is needed in AS400JDBCResultsetMetadata.  connection is passed in from AS400JDBCDatabaseMetaData
         if(con != null)         //@in2
             connection_ = con;  //@in2
@@ -488,6 +492,7 @@ implements ResultSet
                 return;
 
             rowCache_.close ();
+            if (reply_ != null) reply_.returnToPool(); 
             closed_ = true;
             if(statement_ != null)
                 statement_.notifyClose ();
@@ -5858,8 +5863,8 @@ endif */
             }                                                                            //@cur
             
             //if above cannot determine holdability, then do best guess
-            if(connection_ != null)                                                      //@cur
-                return connection_.getHoldability();                                     //@cur
+            if(connection_ instanceof AS400JDBCConnection && connection_ != null)        //@cur
+                return ((AS400JDBCConnection) connection_).getHoldability();             //@cur  CAST needed for JDK 1.3 
             else                                                                         //@cur
                 return ResultSet.CLOSE_CURSORS_AT_COMMIT;                                //@cur (if no statment exists for this, then safest is to return close at commit to prevent cursor reuse errors)
         }
