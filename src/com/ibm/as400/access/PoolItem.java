@@ -23,13 +23,13 @@ import java.io.IOException;  //@B4A
 import java.util.Locale;      //@B2A
 
 /**
-  *  PoolItem manages a particular connection to a system.  The pool item is used to
+  *  Manages a particular connection to a system.  The pool item is used to
   *  keep track of how long a connection has existed, when it was last used, and how
   *  long it has been inactive.
   **/
 class PoolItem
 {
-  private AS400 AS400object_; 
+  private AS400 AS400object_; // after object construction, never null
   private PoolItemProperties properties_;
   private Locale locale_ = null; //@C1C
   //private String locale_ = "";     //@B2A	what locale was used to create the AS400 object
@@ -146,7 +146,7 @@ class PoolItem
 
   /**
   *  Returns the AS400 contained in the pool item.
-  *  @return The AS400 object.
+  *  @return The AS400 object.  Never returns null.
   **/
   AS400 getAS400Object()
   {
@@ -155,7 +155,7 @@ class PoolItem
 
   /**
    *  Returns the elapsed time the connection has been idle waiting in the pool.
-   *  @return The idle time.
+   *  @return The idle time (milliseconds).
    *  If the connection is currently in use, 0 is returned.
    **/
   long getInactivityTime()
@@ -167,7 +167,7 @@ class PoolItem
   /**
    *  Returns the elapsed time the connection has been in use
    *  since it was most recently allocated from the pool.
-   *  @return The elapsed time.
+   *  @return The elapsed time (milliseconds).
    *  If the connection is not currently in use, 0 is returned.
    **/
   long getInUseTime()
@@ -178,7 +178,7 @@ class PoolItem
 
   /**
    *  Returns the elapsed time the pooled connection has been alive.
-   *  @return The elapsed time.
+   *  @return The elapsed time (milliseconds).
    **/
   long getLifeSpan()
   {
