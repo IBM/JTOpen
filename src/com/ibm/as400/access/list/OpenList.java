@@ -24,7 +24,8 @@ import com.ibm.as400.access.AS400Exception;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.BinaryConverter;
-import com.ibm.as400.access.CharConverter;
+//import com.ibm.as400.access.CharConverter;
+import com.ibm.as400.access.ErrorCodeParameter;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -54,7 +55,7 @@ public abstract class OpenList implements Serializable
          }
      </pre>
      **/
-    protected static final ProgramParameter EMPTY_ERROR_CODE_PARM = new ProgramParameter(new byte[8]);
+    protected static final ProgramParameter EMPTY_ERROR_CODE_PARM = new ErrorCodeParameter();
 
     /*
      Status indicating complete and accurate information.  All of the requested records have been returned in the receiver variable of the Open List API.
@@ -400,7 +401,7 @@ public abstract class OpenList implements Serializable
             }
         } while (recordsReturned < number || listInformation == null);
 
-        int totalRecords = BinaryConverter.byteArrayToInt(listInformation, 0);
+        //int totalRecords = BinaryConverter.byteArrayToInt(listInformation, 0);
         int recordLength = BinaryConverter.byteArrayToInt(listInformation, 12);
         // informationStatus_ = listInfo[16];
         // CharConverter conv = new CharConverter(system_.getCcsid(), system_);
