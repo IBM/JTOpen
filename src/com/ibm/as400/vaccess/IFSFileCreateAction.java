@@ -26,17 +26,11 @@ import java.io.IOException;
 
 
 /**
-The IFSFileCreateAction class represents the action of
-creating a new file.
+Represents the action of creating a new file.
 **/
 class IFSFileCreateAction
 implements VAction, CellEditorListener
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
-
     // MRI.
     private static final String newName_    = ResourceLoader.getText ("IFS_NEW_FILE");
     private static final String text_       = ResourceLoader.getText ("ACTION_FILE_CREATE");
@@ -181,6 +175,7 @@ Performs the action.
 **/
     public void perform (VActionContext context)
     {
+        IFSFileOutputStream outputStream = null;
         try {
             // Determine the default name for the new file.  Make
             // sure that a file with the name does not already
@@ -199,8 +194,8 @@ Performs the action.
                 Trace.log (Trace.INFORMATION, "Creating file ["
                     + newFile_.getName () + "].");
 
-            IFSFileOutputStream outputStream = new IFSFileOutputStream (system,
-                newFile_, IFSFileOutputStream.SHARE_ALL, false);
+            outputStream = new IFSFileOutputStream (system,
+                newFile_, IFSFileOutputStream.SHARE_ALL, false); // creates file
             newObject_ = new VIFSFile (newFile_);
 
             // Make sure new directory is incorporated into object.
@@ -214,6 +209,12 @@ Performs the action.
         }
         catch (Exception e) {
             errorEventSupport_.fireError (e);
+        }
+        finally {
+          if (outputStream != null) {
+            try { outputStream.close(); }
+            catch (Throwable e) { Trace.log(Trace.ERROR, e); }
+          }
         }
     }
 
