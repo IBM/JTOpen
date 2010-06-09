@@ -1712,9 +1712,9 @@ private static Hashtable parseArgs(String[] args)
             if (args[i].equalsIgnoreCase("-?") ||
                 args[i].equalsIgnoreCase("-help")||args[i].equalsIgnoreCase("-h"))
             {
-                arguments = null;
+                //arguments = null;
                 printUsage (System.out);
-                return arguments;
+                return null;
             }
             else
             {
@@ -1746,7 +1746,7 @@ private static Hashtable parseArgs(String[] args)
     if (successful == false)
     {
         printUsage (System.out);
-        return arguments = null;
+        return null;
     }
 
     if(!arguments.containsKey("isinstall"))
