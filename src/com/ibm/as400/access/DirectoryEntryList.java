@@ -19,8 +19,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * The DirectoryEntryList class is used to retrieve a list of system
- * distribution directory entries.
+ * Retrieves a list of system distribution directory entries.
  * <p>
  * By default, all entries are returned as if by calling addSelection(DirectoryEntryList.USER_PROFILE, "*").
  *
@@ -31,7 +30,7 @@ import java.util.Hashtable;
  * list.addSelection(DirectoryEntryList.USER_PROFILE, "B*");
  * DirectoryEntry[] entries = list.getEntries();
  * </pre>
- *
+ * <p>
  * Here is an example of using selection IDs:
  * <pre>
  * AS400 system = new AS400();
@@ -47,8 +46,6 @@ import java.util.Hashtable;
 **/
 public class DirectoryEntryList
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-  
   private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
   private AS400 system_;
@@ -270,7 +267,7 @@ public class DirectoryEntryList
 
   /**
    * Retrieves the directory entry information from the system.
-   * This method internally calls the OS/400 QOKSCHD system API.
+   * This method internally calls the following system API: QOKSCHD
    * @return An array of directory entries.
   **/
   public DirectoryEntry[] getEntries()
@@ -403,7 +400,7 @@ public class DirectoryEntryList
       data = parms[0].getOutputData();
       numReturned = BinaryConverter.byteArrayToInt(data, 0);
     }
-    int orderArrayOffset = BinaryConverter.byteArrayToInt(data, 4);
+    //int orderArrayOffset = BinaryConverter.byteArrayToInt(data, 4);
     int userArrayOffset = BinaryConverter.byteArrayToInt(data, 8);
     int numEntries = BinaryConverter.byteArrayToInt(data, 12);
     byte continuationHandle = data[16];
