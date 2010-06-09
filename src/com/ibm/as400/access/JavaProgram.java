@@ -20,9 +20,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
-Represents an IBM i Java program.   This is supported
-only when connecting to systems running OS/400 V5R1 or later, or systems running IBM i.
-
+Represents an IBM i Java program.   This class is supported
+only when connecting to systems running IBM i V5R1 or higher.
+<p>
 In the context of this discussion, a "Java program" is the IBM i executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 <br>
 Using the JavaProgram class, you can obtain the following information about an IBM i Java program:
@@ -532,16 +532,16 @@ public class JavaProgram implements Serializable
 
         byte[] output = parms[0].getOutputData();
         //int bytesReturned = BinaryConverter.byteArrayToInt(output, 0);
-        int bytesAvailable = BinaryConverter.byteArrayToInt(output, 4);
+        //int bytesAvailable = BinaryConverter.byteArrayToInt(output, 4);
         fileOwner_ = conv.byteArrayToString(output, 8, 10);
         String d = conv.byteArrayToString(output, 18, 13);
-        // Parse the date
+        // Parse the "file change" date
         if (d.trim().length() == 13)
         {
             Calendar cal = Calendar.getInstance();
             cal.clear();
             cal.set(Integer.parseInt(d.substring(0,3)) + 1900, // year
-                Integer.parseInt(d.substring(3,5))-1,     // month is zero based
+                Integer.parseInt(d.substring(3,5))-1,     // month is zero-based
                 Integer.parseInt(d.substring(5,7)),       // day
                 Integer.parseInt(d.substring(7,9)),       // hour
                 Integer.parseInt(d.substring(9,11)),      // minute
@@ -553,13 +553,13 @@ public class JavaProgram implements Serializable
             fileChangeDate_ = null;
         }
         d = conv.byteArrayToString(output, 31, 13);
-        //Parse the date
+        //Parse the "Java program creation" date
         if (d.trim().length() == 13)
         {
             Calendar cal = Calendar.getInstance();
             cal.clear();
             cal.set(Integer.parseInt(d.substring(0,3)) + 1900, // year
-                Integer.parseInt(d.substring(3,5))-1,     // month is zero based
+                Integer.parseInt(d.substring(3,5))-1,     // month is zero-based
                 Integer.parseInt(d.substring(5,7)),       // day
                 Integer.parseInt(d.substring(7,9)),       // hour
                 Integer.parseInt(d.substring(9,11)),      // minute
@@ -581,8 +581,8 @@ public class JavaProgram implements Serializable
         String useAdopAuthority = conv.byteArrayToString(output, 70, 1);
         adoptedAuthorityProfile_ = conv.byteArrayToString(output, 71, 1);
         sizeOfAttachedPrograms_ = BinaryConverter.byteArrayToInt(output, 72);
-        String version = Integer.toString( (output[76] & 0xff ) + 0x100, 16 /* radix */ ) .substring( 1 );  //GET VERSION
-        String release = Integer.toString( (output[77] & 0xff ) + 0x100, 16 /* radix */ ) .substring( 1 );  //GET RELEASE AND MODIFICATION
+        String version = Integer.toString( (output[76] & 0xff ) + 0x100, 16 /* radix */ ) .substring( 1 );  //get version
+        String release = Integer.toString( (output[77] & 0xff ) + 0x100, 16 /* radix */ ) .substring( 1 );  //get release and modification
         javaProgramVersion_ = getVersion((version + release).toCharArray());
         profilingDataStatus_ = Byte.toString(output[78]);
         int offsetToLICOptions = BinaryConverter.byteArrayToInt(output, 80);
