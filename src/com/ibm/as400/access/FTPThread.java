@@ -44,7 +44,7 @@ class FTPThread implements Runnable
   {
     try
     {
-      if (!running_)
+      while (!running_)
       {
         synchronized (runLock_)
         {
@@ -95,7 +95,7 @@ class FTPThread implements Runnable
       String addr = localAddress_.getHostAddress();
       // Try the extended port command.
       String response = ftp_.issueCommand("EPRT |" + (addr.indexOf(':') == -1 ? "1" : "2") + "|" + addr + "|" + port_ + "|");
-      if (ftp_.lastMessage_.startsWith("200")) return;
+      if (response.startsWith("200")) return;
 
       // System may not support EPRT, fallback to the port command.
     StringTokenizer st = new StringTokenizer(addr, ".");
@@ -110,9 +110,9 @@ class FTPThread implements Runnable
     cmd.append(port_ % 256);
     response = ftp_.issueCommand(cmd.toString());
     // A "successful" response will begin with 200.
-    if (!ftp_.lastMessage_.startsWith("200"))
+    if (!response.startsWith("200"))
     {
-      Trace.log(Trace.ERROR, "Unexpected response to " + cmd + ": " + ftp_.lastMessage_);
+      Trace.log(Trace.ERROR, "Unexpected response to " + cmd + ": " + response);
     }
   }
 
@@ -192,31 +192,19 @@ class FTPThread implements Runnable
         }
       }
     }
-    catch (Exception e)
+    catch (Throwable e)
     {
       Trace.log(Trace.ERROR, "Exception in FTP thread.", e);
     }
     finally
     {
-      if (socket_ != null)
-      {
-        try
-        {
-          socket_.close();
-        }
-        catch (Exception e)
-        {
-        }
+      if (socket_ != null) {
+        try { socket_.close(); }
+        catch (Throwable e) { Trace.log(Trace.ERROR, e); }
       }
-      if (ss != null)
-      {
-        try
-        {
-          ss.close();
-        }
-        catch (Exception e)
-        {
-        }
+      if (ss != null) {
+        try { ss.close(); }
+        catch (Throwable e) { Trace.log(Trace.ERROR, e); }
       }
     }
   }
