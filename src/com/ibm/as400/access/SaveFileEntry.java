@@ -220,6 +220,16 @@ implements Serializable, Comparable
     return aspDevName_;
   }
 
+  /**
+   Returns a hash code value for the object.
+   @return A hash code value for this object.
+   **/
+  public int hashCode()
+  {
+    // We must conform to the invariant that equal objects must have equal hashcodes.
+    return (objName_.hashCode() + libSaved_.hashCode() + objType_.hashCode() + dloName_.hashCode() + folder_.hashCode() + aspDevName_.hashCode() + asp_ );
+  }
+
 
   /**
    Returns the String representation of this object.
