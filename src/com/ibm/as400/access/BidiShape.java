@@ -349,7 +349,7 @@ class BidiShape {
     char wLamalef;
     int flag;
 
-    BidiFlag   inTextType, outTextType, inTextShape, outTextShape;
+    BidiFlag   inTextType, outTextType, /*inTextShape,*/ outTextShape;
 
     int bufLen = str.length;
     if ( bufLen == 0)
@@ -358,7 +358,7 @@ class BidiShape {
     //Initialize variables
     inTextType   = inAttr.getType();
     outTextType  = outAttr.getType();
-    inTextShape  = inAttr.getText();
+    //inTextShape  = inAttr.getText();
     outTextShape = outAttr.getText();
 
     if(inTextType == BidiFlag.TYPE_VISUAL && outTextType == BidiFlag.TYPE_IMPLICIT) //Visual to Implicit
@@ -535,7 +535,7 @@ class BidiShape {
   synchronized char[] shape(BidiFlagSet inAttr, BidiFlagSet outAttr, char str[], ArabicOptionSet optionSet)
   {
     boolean rtl = true;
-    BidiFlag   inTextType, outTextType, inTextShape, outTextShape;
+    BidiFlag   inTextType, outTextType, /*inTextShape,*/ outTextShape;
     ArabicOption lamAlefOpt, seenOpt, yehHamzaOpt, tashkeelOpt;
 
     int bufLen = str.length;
@@ -551,7 +551,7 @@ class BidiShape {
     inTextType   = inAttr.getType();
     outTextType  = outAttr.getType();
     rtl = outAttr.getOrientation() == BidiFlag.ORIENTATION_RTL;
-    inTextShape  = inAttr.getText();
+    //inTextShape  = inAttr.getText();
     outTextShape = outAttr.getText();
     lamAlefOpt   = optionSet.getLamAlefMode();
     seenOpt      = optionSet.getSeenMode();
