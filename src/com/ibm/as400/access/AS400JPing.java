@@ -49,9 +49,9 @@ public class AS400JPing
 
     private PrintWriter writer_;
     // SocketContainer to all Services but the DDM Server.
-    private SocketContainer sc_;
+    private SocketContainer socketContainer_;
     // Socket to the DDM Server.
-    private Socket s_;
+    private Socket ddmSocket_;
     // Thread to handle timeout values.
     private Thread jpingDaemon_;
     // Inner class that implements runnable.
@@ -64,6 +64,7 @@ public class AS400JPing
     /**
      Constructs an AS400JPing object with the specified <i>systemName</i>.  A JPing object created with this constructor will ping all of the services when ping() is called.
      @param  systemName  The system to ping.  The <i>systemName</i> string can be in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), or IP address (eg. "9.1.2.3").
+     @see AS400#getSystemName()
      **/
     public AS400JPing(String systemName)
     {
@@ -73,8 +74,19 @@ public class AS400JPing
     /**
      Constructs an AS400JPing object with the specified <i>systemName</i> and <i>service</i>.
      @param  systemName  The system to ping.  The <i>systemName</i> string can be in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), or IP address (eg. "9.1.2.3").
-     @param  service  The service to ping.  One of the following constants: AS400.FILE, AS400.DATABASE, AS400.COMMAND, AS400.SIGNON, AS400.CENTRAL, AS400.DATAQUEUE, AS400.RECORDACCESS, AS400.PRINT, or ALL_SERVICES.
-     @see com.ibm.as400.access.AS400
+     @param  service  The service to ping.  Valid services are:
+     <ul>
+     <li>{@link AS400#FILE AS400.FILE} - the IFS file service
+     <li>{@link AS400#PRINT AS400.PRINT} - the print service
+     <li>{@link AS400#COMMAND AS400.COMMAND} - the command and program call service
+     <li>{@link AS400#DATAQUEUE AS400.DATAQUEUE} - the data queue service
+     <li>{@link AS400#DATABASE AS400.DATABASE} - the JDBC service
+     <li>{@link AS400#RECORDACCESS AS400.RECORDACCESS} - the record level access service
+     <li>{@link AS400#CENTRAL AS400.CENTRAL} - the license management service
+     <li>{@link AS400#SIGNON AS400.SIGNON} - the sign-on service
+     <li>{@link #ALL_SERVICES ALL_SERVICES} - all services
+     </ul>
+     @see AS400#getSystemName()
      **/
     public AS400JPing(String systemName, int service)
     {
@@ -84,9 +96,20 @@ public class AS400JPing
     /**
      Constructs an AS400JPing object.
      @param  systemName  The system to ping.  The <i>systemName</i> string can be in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), or IP address (eg. "9.1.2.3").
-     @param  service  The service to ping.  One of the following constants:  AS400.FILE, AS400.DATABASE, AS400.COMMAND, AS400.SIGNON, AS400.CENTRAL, AS400.DATAQUEUE, AS400.RECORDACCESS, AS400.PRINT, or ALL_SERVICES.
+     @param  service  The service to ping.  Valid services are:
+     <ul>
+     <li>{@link AS400#FILE AS400.FILE} - the IFS file service
+     <li>{@link AS400#PRINT AS400.PRINT} - the print service
+     <li>{@link AS400#COMMAND AS400.COMMAND} - the command and program call service
+     <li>{@link AS400#DATAQUEUE AS400.DATAQUEUE} - the data queue service
+     <li>{@link AS400#DATABASE AS400.DATABASE} - the JDBC service
+     <li>{@link AS400#RECORDACCESS AS400.RECORDACCESS} - the record level access service
+     <li>{@link AS400#CENTRAL AS400.CENTRAL} - the license management service
+     <li>{@link AS400#SIGNON AS400.SIGNON} - the sign-on service
+     <li>{@link #ALL_SERVICES ALL_SERVICES} - all services
+     </ul>
      @param  useSSL  true if the pinging the SSL port for the service, false otherwise.  The default is false.
-     @see com.ibm.as400.access.AS400
+     @see AS400#getSystemName()
      **/
     public AS400JPing(String systemName, int service, boolean useSSL)
     {
@@ -94,7 +117,7 @@ public class AS400JPing
             throw new NullPointerException("systemName");
 
         if (service < AS400.FILE || (service > AS400.SIGNON && service != ALL_SERVICES))
-            throw new ExtendedIllegalArgumentException("service", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         systemName_ = systemName;
         service_ = service;
@@ -126,13 +149,27 @@ public class AS400JPing
     }
 
     /**
-     Ping a specific service.  One of the following constants: AS400.FILE, AS400.DATABASE,
-     AS400.COMMAND, AS400.SIGNON, AS400.CENTRAL, AS400.DATAQUEUE, AS400.RECORDACCESS, AS400.PRINT,
-     or ALL_SERVICES.
+     Ping a specific service.
+     @param  service  The service to ping.  Valid services are:
+     <ul>
+     <li>{@link AS400#FILE AS400.FILE} - the IFS file service
+     <li>{@link AS400#PRINT AS400.PRINT} - the print service
+     <li>{@link AS400#COMMAND AS400.COMMAND} - the command and program call service
+     <li>{@link AS400#DATAQUEUE AS400.DATAQUEUE} - the data queue service
+     <li>{@link AS400#DATABASE AS400.DATABASE} - the JDBC service
+     <li>{@link AS400#RECORDACCESS AS400.RECORDACCESS} - the record level access service
+     <li>{@link AS400#CENTRAL AS400.CENTRAL} - the license management service
+     <li>{@link AS400#SIGNON AS400.SIGNON} - the sign-on service
+     </ul>
      @return  true if the service can be pinged successfully, and false otherwise.
      **/
     public synchronized boolean ping(int service)
     {
+        if (service < AS400.FILE || service > AS400.SIGNON)
+          throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        InputStream inStream = null;
+        OutputStream outStream = null;
         try
         {
             if (Trace.isTraceOn())
@@ -173,17 +210,17 @@ public class AS400JPing
                     }
                 }
 
-                // If the Thread has not returned within the timeout period, stop the thread
-                // and fail the ping attempt.
-                if (sc_ == null)
+                // If the Thread has not returned within the timeout period,
+                // interrupt the thread and fail the ping attempt.
+                if (socketContainer_ == null)
                 {
-                    jpingDaemon_.stop();
+                    jpingDaemon_.interrupt();
                     throw new Exception("Ping timeout occurred.");
                 }
                 else  // The Thread has returned within the timeout period.
                 {
-                    InputStream inStream = sc_.getInputStream();
-                    OutputStream outStream = sc_.getOutputStream();
+                    inStream = socketContainer_.getInputStream();
+                    outStream = socketContainer_.getOutputStream();
 
                     // buffer is the data that is pinged back and forth to the system.
                     byte[] buffer = new byte[length_];
@@ -213,18 +250,6 @@ public class AS400JPing
                         JPingDS req = new JPingDS(service, buffer);
                         req.write(outStream);
                         outStream.flush();
-                    }
-
-                    // Close the socket and Input/Output Streams.
-                    try
-                    {
-                        outStream.close();
-                        inStream.close();
-                        sc_.close();
-                    }
-                    catch (Exception e)
-                    {
-                        Trace.log(Trace.ERROR, "Problem closing the streams and socket connections.");
                     }
                 }
             }
@@ -257,6 +282,22 @@ public class AS400JPing
                 Trace.log(Trace.ERROR, e);
 
             return false;
+        }
+        finally
+        {
+          // Close the input/output streams and the socket.
+          if (outStream != null) {
+            try { outStream.close(); }
+            catch (Throwable e) { Trace.log(Trace.ERROR, e); }
+          }
+          if (inStream != null) {
+            try { inStream.close(); }
+            catch (Throwable e) { Trace.log(Trace.ERROR, e); }
+          }
+          if (socketContainer_ != null) {
+            try { socketContainer_.close(); }
+            catch (Throwable e) { Trace.log(Trace.ERROR, e); }
+          }
         }
     }
 
@@ -291,6 +332,8 @@ public class AS400JPing
             0x04
         };
 
+        OutputStream os = null;
+        InputStream is = null;
         try
         {
             jpingThread_ = new JPingThread();
@@ -314,20 +357,20 @@ public class AS400JPing
                 }
             }
 
-            // If the Thread has not returned within the timeout period, stop the thread
-            // and fail the ping attempt.
-            if (s_ == null)
+            // If the Thread has not returned within the timeout period,
+            // interrupt the thread and fail the ping attempt.
+            if (ddmSocket_ == null)
             {
-                jpingDaemon_.stop();
+                jpingDaemon_.interrupt();
                 throw new Exception("Ping Timeout occurred.");
             }
             else  // The Thread has returned within the timeout period.
             {
-                OutputStream os = s_.getOutputStream();
+                os = ddmSocket_.getOutputStream();
                 os.write(excsatReq);
                 os.flush();
 
-                InputStream is = s_.getInputStream();
+                is = ddmSocket_.getInputStream();
                 byte[] excsatRep = new byte[113];
                 int numBytesRead = is.read(excsatRep);
                 if (numBytesRead < excsatRep.length)
@@ -335,11 +378,6 @@ public class AS400JPing
                   Trace.log(Trace.ERROR, "Unexpected ddm server response.", excsatRep);
                   throw new Exception("Unexpected ddm server response.");
                 }
-
-                // Close the input/output streams and the socket.
-                is.close();
-                os.close();
-                s_.close();
 
                 for (int i=0; i<113; ++i)
                 {
@@ -359,6 +397,22 @@ public class AS400JPing
             else
                 throw new Exception("Unexpected exception.");
         }
+        finally
+        {
+          // Close the input/output streams and the socket.
+          if (is != null) {
+            try { is.close(); }
+            catch (Throwable e) { Trace.log(Trace.ERROR, e); }
+          }
+          if (os != null) {
+            try { os.close(); }
+            catch (Throwable e) { Trace.log(Trace.ERROR, e); }
+          }
+          if (ddmSocket_ != null) {
+            try { ddmSocket_.close(); }
+            catch (Throwable e) { Trace.log(Trace.ERROR, e); }
+          }
+        }
     }
 
     /**
@@ -376,7 +430,7 @@ public class AS400JPing
     }
 
     /**
-     Set the timeout period in milliseconds.  The default timeout period is 20000 (20 sec).
+     Set the timeout period in milliseconds.  The default timeout period is 20000 (20 seconds).
      @param  time  The timeout period.
      **/
     public void setTimeout(long time)
@@ -413,7 +467,7 @@ public class AS400JPing
     private class JPingThread implements Runnable
     {
         /**
-         A Thread is started to do the Socket creation.  The socket creation will hang if the system is not responding.  To aleviate the long hang times, if this Thread does not return within the timeout period, it is assumed the system is unreachable.  The hang could also be attributed to network speed.  The default timeout period is 20000ms (20 sec).
+         A Thread is started to do the Socket creation.  The socket creation will hang if the system is not responding.  To alleviate the long hang times, if this Thread does not return within the timeout period, it is assumed the system is unreachable.  The hang could also be attributed to network speed.  The default timeout period is 20000ms (20 sec).
          **/
         public void run()
         {
@@ -422,23 +476,26 @@ public class AS400JPing
                 if (service_ == AS400.RECORDACCESS)
                 {
                     // Create a socket to the DDM Server.
-                    s_ = new Socket(systemName_, 446);
+                    ddmSocket_ = new Socket(systemName_, 446); // DRDA is on port 446
                 }
                 else
                 {
-                    // Create a socket to the service.
-                    sc_ = PortMapper.getServerSocket(systemName_, service_, useSSL_, socketProperties_, false);
+                    // Create a socket to the service (let PortMapper figure out which port).
+                    socketContainer_ = PortMapper.getServerSocket(systemName_, service_, useSSL_, socketProperties_, false);
                 }
             }
             catch (Exception e)
             {
                 if (Trace.isTraceOn())
                     Trace.log(Trace.ERROR, "Unexpected exception.", e);
+                // Note: Calling interrupt() on this JPingThread object, won't cause the JPingThread object to incur an InterruptedException.
             }
-
-            synchronized (AS400JPing.this)
+            finally
             {
+              synchronized (AS400JPing.this)
+              {
                 AS400JPing.this.notifyAll();
+              }
             }
         }
     }
