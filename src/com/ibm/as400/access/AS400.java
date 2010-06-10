@@ -1168,7 +1168,8 @@ public class AS400 implements Serializable
     }
 
     /**
-     Disconnects all services.  All socket connections associated with this object will be closed.
+     Disconnects all services.  All socket connections associated with this object will be closed.  The signon information is not changed, and connection properties remain frozen. 
+     @see #resetAllServices
      **/
     public void disconnectAllServices()
     {
@@ -2723,7 +2724,9 @@ public class AS400 implements Serializable
     }
 
     /**
-     Disconnect all services and clear sign-on information.
+     Disconnects all services, and clears the sign-on information.
+     This intent of this method is to "wipe the slate clean" for this AS400 object, enabling connection properties to be subsequently reset.
+     @see #disconnectAllServices
      **/
     public synchronized void resetAllServices()
     {
