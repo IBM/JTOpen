@@ -25,6 +25,20 @@ class DDMEXCSATReplyDataStream extends DDMDataStream
         if (getCodePoint() != DDMTerm.EXCSATRD)
         {
             Trace.log(Trace.ERROR, "DDM EXCSAT failed with code point:", data_, 8, 2);
+            String text;
+            switch (getCodePoint())
+            {  // Some common errors, that might be meaningful to user:
+              case DDMTerm.AGNPRMRM : text = "Permanent agent error."; break;
+              case DDMTerm.CMDATHRM : text = "Not authorized to command."; break;
+              case DDMTerm.CMDCHKRM : text = "Command check."; break;
+              case DDMTerm.CMDNSPRM : text = "Command not supported."; break;
+              case DDMTerm.PRMNSPRM : text = "Parameter not supported."; break;
+              case DDMTerm.RDBAFLRM : text = "RDB access failed reply message."; break;
+              case DDMTerm.RDBATHRM : text = "Not authorized to RDB."; break;
+              case DDMTerm.SYNTAXRM : text = "Data stream syntax error."; break;
+              default:                text = null;
+            }
+            if (text != null) Trace.log(Trace.ERROR, text);
             return false;
         }
         return true;
