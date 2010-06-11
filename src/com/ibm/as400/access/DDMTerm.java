@@ -14,13 +14,13 @@
 package com.ibm.as400.access;
 
 /**
- *DDM terms.  This class consists of defined
- *constants for the DDM term code points.
+ *DDM terms.  This class consists of defined constants for the DDM term code points.
 **/
 class DDMTerm
 {
 //@B1D  static final int ACCORD     = 0x1162; // Access order for ULDRECF
   static final int ACCSEC     = 0x106D; // Access method for exchange attributes - added by DDM server
+  static final int ACCRDBRM   = 0x2201; // Access to RDB completed
   static final int ACCSECRD   = 0x14AC; // Access method reply from ACCSEC
   static final int AGENT      = 0x1403; // Agent resource manager
   static final int AGNPRMRM   = 0x1232; // Permanent agent error
@@ -31,6 +31,7 @@ class DDMTerm
   static final int CMBACCAM   = 0x1405; // Combined access access method
   static final int CMBKEYAM   = 0x1406; // Combined keyed access method
   static final int CMBRNBAM   = 0x1407; // Combined record number access method
+  static final int CMDATHRM   = 0x121C; // Not authorized to command
   static final int CMDCHKRM   = 0x1254; // Command check
   static final int CMDCMPRM   = 0x124B; // Command processing complete reply
   static final int CMDNSPRM   = 0x1250; // Command not supported
@@ -58,6 +59,7 @@ class DDMTerm
   static final int KEYORD     = 0x145D; // Key order
   static final int LCKMGR     = 0x1422; // Lock manager
   static final int LUWHLDCSR  = 0x11B5; // Hold cursor parameter
+  static final int MGRDEPRM   = 0x1218; // Manager dependency error
   static final int MGRLVLLS   = 0x1404; // Manager level list
   static final int NAMDR      = 0x0066; // Name string
   static final int NAMSYMDR   = 0x0061; // Name string with only A-Z, 0-9 and '_'
@@ -65,7 +67,11 @@ class DDMTerm
   static final int PRCCNVRM   = 0x1245; // Conversational protocol error
   static final int PRMNSPRM   = 0x1251; // Parameter not supported
   static final int RDB        = 0x240F; // Relational database
+  static final int RDBACCRM   = 0x2207; // RDB currently accessed
+  static final int RDBAFLRM   = 0x221A; // RDB access failed reply message
+  static final int RDBATHRM   = 0x2203; // Not authorized to RDB
   static final int RDBNAM     = 0x2110; // Relational database name
+  static final int RDBNFNRM   = 0x2211; // RDB not found
 //@B1D  static final int RECCNT     = 0x111A; // Record count returned from ULDRECF
   static final int RECAL      = 0x1430; // Record attribute list
 //@B1D  static final int RECORD     = 0x144A; // Record object returned from ULDRECF
@@ -131,6 +137,7 @@ class DDMTerm
   static final int S38UPDAT   = 0xD019; // Update record
   static final int SXXASPRQ   = 0xD02A; // Set ASP group
   static final int SXXPUTDR   = 0xD01C; // Insert record at file position
+  static final int TRGNSPRM   = 0x125F; // Target not supported
 //@B1D  static final int ULDRECF    = 0x1040; // Unload records from file
   static final int UOWDSP     = 0x2115; // Unit of work disposition
   static final int USRID      = 0x11A0; // Userid for connecting
