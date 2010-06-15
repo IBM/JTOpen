@@ -468,6 +468,17 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   }
 
 
+  /**
+   * Returns the CCSID that is used when creating new connections.
+   * The default value is the system default CCSID as determined by the AS400 class.
+   * @return The CCSID, or {@link #CCSID_DEFAULT CCSID_DEFAULT} if the system default CCSID is used.
+   **/
+  public int getCCSID()
+  {
+    return super.getCCSID();
+  }
+
+
   /** 
    * Get a connected AS400 object from the connection pool.  If an appropriate one is 
    * not found, one is created.  If the maximum connection limit has been reached, an exception
@@ -506,16 +517,6 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       throw new ConnectionPoolException(ie);
     }
-  }
-
-  /**
-   * Returns the CCSID that is used when creating new connections.
-   * The default value is the system default CCSID as determined by the AS400 class.
-   * @return The CCSID, or {@link #CCSID_DEFAULT CCSID_DEFAULT} if the system default CCSID is used.
-   **/
-  public int getCCSID()
-  {
-    return super.getCCSID();
   }
 
 
@@ -1533,8 +1534,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
           {
             log(Trace.WARNING, "Disconnecting pooled connection because it was returned, and belongs to a different list than expected.");
           }
-          poolItem.getAS400Object().disconnectAllServices();
           connList.removeElement(system);  
+          poolItem.getAS400Object().disconnectAllServices();
           break;
         }
       } 
@@ -1568,8 +1569,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         {
           log(Trace.DIAGNOSTIC, "Disconnecting pooled connection because it was returned,  and removeFromPool() has been called for its systemName/userID.");
         }
-        poolItem.getAS400Object().disconnectAllServices();
         removedConnections.removeElement(system); 
+        poolItem.getAS400Object().disconnectAllServices();
         if (log_ != null || Trace.traceOn_)
         {
           log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
@@ -1597,8 +1598,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
             {
               log(Trace.DIAGNOSTIC, "Disconnecting pooled connection because it was returned, and removeFromPool() has been called for its systemName/userID.");
             }
-            poolItem.getAS400Object().disconnectAllServices();
             connList.removeElement(system);
+            poolItem.getAS400Object().disconnectAllServices();
             break;
           }
         } 
@@ -1622,7 +1623,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   }
 
   /**
-   *  Run cleanupConnections().
+   *  Notify the maintenance thread to run cleanupConnections().
    *  @param reduced true if need to check current num connections; false otherwise.
    **/
   void runMaintenance(boolean reduced)
@@ -1674,7 +1675,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
             }                                                                   
           }                                                                       
           //@A6A End new code
-          maintenance_.notify();
+
+          maintenance_.notify();  // PoolMaintenance.run() calls ConnectionPool.cleanupConnections()
         }
       }
     }
