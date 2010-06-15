@@ -2122,6 +2122,7 @@ public class AS400 implements Serializable
     /**
      Tests the connection to the system, to verify that it is still working.
      This is similar in concept to "pinging" the system over the connection.
+     If no services have been connected, this method returns false; it doesn't implicitly connect services.
      <p>Note: This method is <b>not fully supported until IBM i 7.1</b>.  If running to IBM i 6.1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
      <p>Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
      </ul>
@@ -2145,6 +2146,7 @@ public class AS400 implements Serializable
     /**
      Tests the connection to a service on the system, to verify that it is still working.
      This is similar in concept to "pinging" the system over the connection.
+     If no services have been connected, this method returns false; it doesn't implicitly connect services.
      <p>Note: This method is <b>not fully supported until IBM i 7.1</b>.  If running to IBM i 6.1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
      <p>Note: If the specified service is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
      @param  service  The name of the service.  Valid services are:
