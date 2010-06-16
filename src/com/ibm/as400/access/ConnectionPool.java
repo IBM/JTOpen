@@ -52,7 +52,6 @@ public abstract class ConnectionPool implements Serializable
   private boolean inUse_ = false;
   private boolean isRunMaintenance_ = true;
   //@A4D private boolean useThreads_ = true;
-
   transient PoolMaintenance maintenance_;                // Maintenance thread.
   transient PropertyChangeSupport changes_;
   transient ConnectionPoolEventSupport poolListeners_;   // Manage the ConnectionPoolEvent listeners.
@@ -253,6 +252,19 @@ public abstract class ConnectionPool implements Serializable
   }
 
   /**
+   *  Indicates whether connections are pretested before they are allocated to requesters.
+   *  Pretesting verifies that the connection is still valid.
+   *  By default, connections are not pretested.
+   *  <p>Note: The <tt>pretestConnections</tt> property is not fully effective until IBM i 7.1.
+   *  @param pretest If connections are pretested before being allocated.
+   *  @see AS400#isConnectionAlive
+   **/
+  public boolean isPretestConnections()
+  {
+    return properties_.isPretestConnections();
+  }
+
+  /**
   *  Indicates whether the maintenance thread is used to cleanup expired connections.
   *  The default is true.
   *  @return true if expired connection are cleaned up by the maintenance thread; false otherwise.
@@ -405,6 +417,19 @@ public abstract class ConnectionPool implements Serializable
   public void setMaxUseTime(long maxUseTime)
   {
     properties_.setMaxUseTime(maxUseTime);
+  }
+
+  /**
+   *  Sets whether connections are pretested before they are allocated to requesters.
+   *  Pretesting verifies that the connection is still valid.
+   *  By default, connections are not pretested.
+   *  <p>Note: The <tt>pretestConnections</tt> property is not fully effective until IBM i 7.1.
+   *  @param pretest If connections are pretested before being allocated.
+   *  @see AS400#isConnectionAlive
+   **/
+  public void setPretestConnections(boolean pretest)
+  {
+    properties_.setPretestConnections(pretest);
   }
 
   /**

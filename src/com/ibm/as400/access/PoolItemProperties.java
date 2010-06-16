@@ -19,6 +19,7 @@ class PoolItemProperties
    private long lastUseTime_    = 0;  // Time when this connection became in-use.
    private long timeIdleInPool_ = 0;  // Time when this connection became available.
    private int  timesUsedCount_ = 0;  // Number of times connection has been assigned.
+   private boolean isFailedPretest_ = false;  // Whether the connection has failed a validity pretest.
 
    /**
    *  Constructs a default PoolItemProperties object.
@@ -97,6 +98,16 @@ class PoolItemProperties
       return timesUsedCount_;
    }
 
+
+   /**
+   *  Indicates if the connection has failed a pretest validity check.
+   *  @return true if the connection has failed a pretest; false otherwise.
+   **/
+   boolean isFailedPretest()
+   {
+     return isFailedPretest_;
+   }
+
    /**
    *  Indicates if the pooled connection is currently assigned.
    *  @return true if the pooled connection is in use; false otherwise.
@@ -107,6 +118,15 @@ class PoolItemProperties
          return false;
       else
          return true;
+   }
+
+
+   /**
+   *  Records that the connection has failed a pretest validity check.
+   **/
+   void setFailedPretest()
+   {
+     isFailedPretest_ = true;
    }
 
 
@@ -128,4 +148,5 @@ class PoolItemProperties
             lastUseTime_ = 0;                                  // no longer being used.
             }
     }
-    }
+
+}

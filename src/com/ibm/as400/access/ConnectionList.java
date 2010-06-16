@@ -35,6 +35,7 @@ final class ConnectionList
   private static final String EXPIRED_MAX_LIFETIME = "CL_REMLIFE";
   private static final String EXPIRED_MAX_USE_COUNT = "CL_REMUSECOUNT";
   private static final String EXPIRED_MAX_USE_TIME = "CL_REMUSETIME";
+  private static final String EXPIRED_FAILED_PRETEST = "CL_REMPRETEST";
 
   private String systemName_;
   private String userID_;
@@ -233,7 +234,7 @@ final class ConnectionList
   }
 
   /**
-   *  Return the number of active connections which are in use.
+   *  Return the number of active connections (that is, connections that are in use).
    *
    *  @return The number of active connections.
    **/
@@ -256,7 +257,7 @@ final class ConnectionList
   }
 
   /**
-   *  Return the number of available connections which are not in use.
+   *  Return the number of available connections (that is, connections that are not in use).
    *
    *  @return The number of available connections.
    **/
@@ -296,6 +297,7 @@ final class ConnectionList
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
+    boolean pretestConnections = properties_.isPretestConnections();
     synchronized(connectionList_)  //@A5A
     {
       int size = connectionList_.size();
@@ -312,6 +314,9 @@ final class ConnectionList
               && ((item.getLocale() == null && locale == null)        //@B2A //@C1C
                   || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))   //@B2A //@C1C
           {
+            if (pretestConnections && !isConnectionAlive(item)) {
+              continue;  // Skip this connection, since it's no longer valid.
+            }
             // return item found
             poolItem = item; 
             break;   
@@ -322,12 +327,15 @@ final class ConnectionList
                    && ((item.getLocale() == null && locale == null)   //@B2A //@C1C
                        || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))   //@B2A //@C1C
           {
+            if (pretestConnections && !isConnectionAlive(item)) {
+              continue;  // Skip this connection, since it's no longer valid.
+            }
             // return item found
             poolItem = item; 
             break;
           }
         }
-      }
+      }  //end 'for' loop
       if (poolItem != null)  //@A5A
       {
     	  synchronized (poolItem) { 
@@ -344,7 +352,6 @@ final class ConnectionList
 
     return poolItem;
   }
-
 
   /**
    *  Gets a connection to a service from the pool.
@@ -363,6 +370,7 @@ final class ConnectionList
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
+    boolean pretestConnections = properties_.isPretestConnections();
     synchronized (connectionList_)  //@B1A
     {
       int size = connectionList_.size();       
@@ -377,6 +385,9 @@ final class ConnectionList
               && ((item.getLocale() == null && locale == null)         //@B2A //@C1C
                   || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale)))) //@B2A //@C1C
           {
+            if (pretestConnections && !isConnectionAlive(item)) {
+              continue;  // Skip this connection, since it's no longer valid.
+            }
             if (Trace.traceOn_)
               log(Trace.INFORMATION, "Using already connected connection");
             poolItem = item;
@@ -387,6 +398,9 @@ final class ConnectionList
                    && ((item.getLocale() == null && locale == null)     //@B2A //@C1C
                        || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))     //@B2A //@C1C
           {
+            if (pretestConnections && !isConnectionAlive(item)) {
+              continue;  // Skip this connection, since it's no longer valid.
+            }
             if (Trace.traceOn_)
               log(Trace.INFORMATION, "Using already connected connection");
             poolItem = item;
@@ -409,6 +423,9 @@ final class ConnectionList
                 && ((item.getLocale() == null && locale == null)  //@B2A //@C1C
                     || (locale != null && item.getLocale().equals(locale))))      //@B2A //@C1C
             {
+              if (pretestConnections && !isConnectionAlive(item)) {
+                continue;  // Skip this connection, since it's no longer valid.
+              }
               if (Trace.traceOn_)
                 log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
               poolItem = item;                  
@@ -418,6 +435,9 @@ final class ConnectionList
                      && ((item.getLocale() == null && locale == null)     //@B2A //@C1C
                          || (locale != null && item.getLocale().equals(locale))))     //@B2A //@C1C
             {
+              if (pretestConnections && !isConnectionAlive(item)) {
+                continue;  // Skip this connection, since it's no longer valid.
+              }
               if (Trace.traceOn_)
                 log(Trace.INFORMATION, "Must not have found a suitable connection, using first available.");
               poolItem = item;                  
@@ -433,7 +453,7 @@ final class ConnectionList
           poolItem.setInUse(true); //@B1M
     	}
       }
-    }//@B1A end synchronized block
+    }//@B1A end outer synchronized block
 
     if (poolItem == null)
     {
@@ -475,6 +495,18 @@ final class ConnectionList
       }
     }
     return false;
+  }
+
+
+  // Returns false if the connection has previously (or currently) failed a connection validation pretest.  If the connection fails this test, it is marked as failed.
+  private final boolean isConnectionAlive(PoolItem item)
+  {
+    if (item.isFailedPretest()) return false;
+    else if (item.getAS400Object().isConnectionAlive()) return true;
+    else {
+      item.setFailedPretest();  // Mark it for removal from pool.
+      return false;
+    }
   }
 
 
@@ -526,59 +558,60 @@ final class ConnectionList
   //  }
 
 
-  /**
-   *  Reconnect all services to the AS/400.
-   *
-   *  @param oldItem The old connection.
-   *  @param newItem The new connection.
-   *  @exception IOException If a communications error occured.
-   *  @exception AS400SecurityException If a security error occured.
-   **/
-  private void reconnectAllServices(PoolItem oldItem, PoolItem newItem)
-  throws IOException, AS400SecurityException
-  {
-    if (oldItem == null)
-      throw new NullPointerException("oldItem");
-    if (newItem == null)
-      throw new NullPointerException("newItem");
-    AS400 oldAS400Item = oldItem.getAS400Object();
-    AS400 newAS400Item = newItem.getAS400Object();
-    if (oldAS400Item.isConnected(AS400.FILE))
-    {
-      log(Trace.INFORMATION, "Replacing connection to service FILE.");
-      newAS400Item.connectService(AS400.FILE);
-    }
-    if (oldAS400Item.isConnected(AS400.PRINT))
-    {
-      log(Trace.INFORMATION, "Replacing connection to service PRINT.");         
-      newAS400Item.connectService(AS400.PRINT);
-    }
-    if (oldAS400Item.isConnected(AS400.COMMAND))
-    {
-      log(Trace.INFORMATION, "Replacing connection to service COMMAND.");
-      newAS400Item.connectService(AS400.COMMAND);
-    }
-    if (oldAS400Item.isConnected(AS400.DATAQUEUE))
-    {
-      log(Trace.INFORMATION, "Replacing connection to service DATAQUEUE.");
-      newAS400Item.connectService(AS400.DATAQUEUE);        
-    }
-    if (oldAS400Item.isConnected(AS400.DATABASE))
-    {
-      log(Trace.INFORMATION, "Replacing connection to service DATABASE.");
-      newAS400Item.connectService(AS400.DATABASE);        
-    }
-    if (oldAS400Item.isConnected(AS400.RECORDACCESS))
-    {
-      log(Trace.INFORMATION, "Replacing connection to service RECORDACCESS.");
-      newAS400Item.connectService(AS400.RECORDACCESS); 
-    }
-    if (oldAS400Item.isConnected(AS400.CENTRAL))
-    {
-      log(Trace.INFORMATION, "Replacing connection to service CENTRAL.");
-      newAS400Item.connectService(AS400.CENTRAL);
-    }
-  }
+  // Not used.
+  //  /**
+  //   *  Reconnect all services to the server.
+  //   *
+  //   *  @param oldItem The old connection.
+  //   *  @param newItem The new connection.
+  //   *  @exception IOException If a communications error occured.
+  //   *  @exception AS400SecurityException If a security error occured.
+  //   **/
+  //  private void reconnectAllServices(PoolItem oldItem, PoolItem newItem)
+  //  throws IOException, AS400SecurityException
+  //  {
+  //    if (oldItem == null)
+  //      throw new NullPointerException("oldItem");
+  //    if (newItem == null)
+  //      throw new NullPointerException("newItem");
+  //    AS400 oldAS400Item = oldItem.getAS400Object();
+  //    AS400 newAS400Item = newItem.getAS400Object();
+  //    if (oldAS400Item.isConnected(AS400.FILE))
+  //    {
+  //      log(Trace.INFORMATION, "Replacing connection to service FILE.");
+  //      newAS400Item.connectService(AS400.FILE);
+  //    }
+  //    if (oldAS400Item.isConnected(AS400.PRINT))
+  //    {
+  //      log(Trace.INFORMATION, "Replacing connection to service PRINT.");         
+  //      newAS400Item.connectService(AS400.PRINT);
+  //    }
+  //    if (oldAS400Item.isConnected(AS400.COMMAND))
+  //    {
+  //      log(Trace.INFORMATION, "Replacing connection to service COMMAND.");
+  //      newAS400Item.connectService(AS400.COMMAND);
+  //    }
+  //    if (oldAS400Item.isConnected(AS400.DATAQUEUE))
+  //    {
+  //      log(Trace.INFORMATION, "Replacing connection to service DATAQUEUE.");
+  //      newAS400Item.connectService(AS400.DATAQUEUE);        
+  //    }
+  //    if (oldAS400Item.isConnected(AS400.DATABASE))
+  //    {
+  //      log(Trace.INFORMATION, "Replacing connection to service DATABASE.");
+  //      newAS400Item.connectService(AS400.DATABASE);        
+  //    }
+  //    if (oldAS400Item.isConnected(AS400.RECORDACCESS))
+  //    {
+  //      log(Trace.INFORMATION, "Replacing connection to service RECORDACCESS.");
+  //      newAS400Item.connectService(AS400.RECORDACCESS); 
+  //    }
+  //    if (oldAS400Item.isConnected(AS400.CENTRAL))
+  //    {
+  //      log(Trace.INFORMATION, "Replacing connection to service CENTRAL.");
+  //      newAS400Item.connectService(AS400.CENTRAL);
+  //    }
+  //  }
 
 
   /**
@@ -624,6 +657,26 @@ final class ConnectionList
 
 
         // The remaining cases are for connections that aren't currently in use.
+
+
+        // See if the pool item has failed a connection validity pretest.
+        else if (p.isFailedPretest())
+        {
+          // Failed a validation, so disconnect and remove the connection.
+          if (log_ != null || Trace.traceOn_) {
+            log(ResourceBundleLoader.getText(EXPIRED_FAILED_PRETEST, new String[] {systemName_, userID_} ));
+          }
+          if (Trace.traceOn_) {
+            log(Trace.DIAGNOSTIC, "Disconnecting pooled connection (not currently in use) because it has failed a validation pretest.");
+          }
+          p.getAS400Object().disconnectAllServices();
+          connectionList_.removeElementAt(i);
+          if (poolListeners != null)
+          {
+            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED);
+            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+          }
+        }
 
 
         // See if the connection has exceeded the maximum inactivity time.
@@ -686,7 +739,7 @@ final class ConnectionList
           }
         }
 
-      }//end for
+      }//end 'for' loop
     }//@B1A end synchronized
   }
 
@@ -765,7 +818,7 @@ final class ConnectionList
             item.getAS400Object().disconnectAllServices();
             connectionList_.removeElementAt(numToCheck);   
           }
-        }
+        }// end 'for' loop
       }//end if (connectionList_.size() > 0)	 
     }//end synchronized
     return true;
@@ -773,6 +826,8 @@ final class ConnectionList
 
   /**
    *  Remove the pool item in the list that contains this AS400 instance.
+   *  The caller takes responsibility for subsequently calling disconnectAllServices().
+   *  Called by AS400ConnectionPool.
    **/
   void removeElement(AS400 systemToFind)
   {
@@ -849,7 +904,7 @@ final class ConnectionList
               log(ResourceBundleLoader.getText("CL_REMOLDCOMP", new String[] {systemName_, userID_} ));
           }
         }//end if (connectionList_.size() > 0)	
-      }//end fill  
+      }//end 'for' loop
     }//end synchronized
   }//end shutDownOldest()
 }

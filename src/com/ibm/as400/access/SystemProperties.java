@@ -257,6 +257,17 @@ public class SystemProperties
      **/
     public static final String FALLBACK_CCSID = ACCESS_PREFIX + "AS400.fallbackCCSID";
 
+    /**
+     Specifies whether pooled connections are to be pretested before being allocated to a requester by the connection pool manager.
+     <ul>
+     <li>Property name: com.ibm.as400.access.ConnectionPool.pretest
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: {@link ConnectionPool#setPretestConnections(boolean) ConnectionPool.setPretestConnections()}
+     </ul>
+     **/
+    public static final String CONNECTIONPOOL_PRETEST = ACCESS_PREFIX + "ConnectionPool.pretest";
+
 
 
     //  *** Note: ***

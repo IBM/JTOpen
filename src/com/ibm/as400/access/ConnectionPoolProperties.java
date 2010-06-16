@@ -36,12 +36,29 @@ class ConnectionPoolProperties implements Serializable
    **/
   static final int CCSID_DEFAULT = -1;
 
+  // Default setting for pretestConnections property.
+  private static boolean defaultPretestConnections_ = false;
+  static
+  {
+    String propVal = SystemProperties.getProperty(SystemProperties.CONNECTIONPOOL_PRETEST);
+    if (propVal != null)
+    {
+      try {
+        defaultPretestConnections_ = Boolean.valueOf(propVal).booleanValue();
+      }
+      catch (Exception e) {
+        Trace.log(Trace.WARNING, "Error retrieving default pretestConnections property value:", e);
+      }
+    }
+  }
+
   private long cleanupInterval_ = 300000;           // 5 minutes maintenance intervals
   private int maxConnections_ = -1;                 // maximum number of active connections for the datasource.
   private long maxInactivity_ = 3600000;                // 60 minutes
   private long maxLifetime_ = 86400000;                 // 24 hours
   private int maxUseCount_ = -1;                        // maximum number of times connection can be used.
   private long maxUseTime_ = -1;                  // maximum usage time, release after this period, -1 for never
+  private boolean pretestConnections_ = defaultPretestConnections_;
   private boolean useThreads_ = true;
   private int ccsid_ = -1;                        // CCSID to use when creating connections
 
@@ -70,6 +87,16 @@ class ConnectionPoolProperties implements Serializable
       if (changes_ == null) changes_ = new PropertyChangeSupport(this);
       changes_.addPropertyChangeListener(listener);
     }
+  }
+
+  /**
+  *  Indicates whether connections are pretested before being allocated to a requester.
+  *  The default value is false.
+  *  @return true if connections are pretested; false otherwise.
+  **/
+  public boolean isPretestConnections()
+  {
+   	return pretestConnections_;
   }
 
   /**
@@ -295,6 +322,24 @@ class ConnectionPoolProperties implements Serializable
 
 		maxLifetime_ = maxLifetime;
     if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(maxLifetime));
+  }
+
+
+  /**
+   *  Sets whether connections are pretested before being allocated to requesters. 
+   *  The default value is false.   
+   *  @param pretest true to pretest connections; false otherwise.
+   **/
+  public void setPretestConnections(boolean pretest)
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setPretestConnections("+pretest+")");
+
+    String property = "pretestConnections";
+    boolean oldValue = pretestConnections_;
+
+    pretestConnections_ = pretest;
+    if (changes_ != null) changes_.firePropertyChange(property, new Boolean(oldValue), new Boolean(pretest));
+
   }
 
 

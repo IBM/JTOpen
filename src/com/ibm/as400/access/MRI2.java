@@ -495,6 +495,9 @@ public class MRI2 extends ListResourceBundle
       // #TRANNOTE removing connection that exceeded maximum use time for system/userid
       { "CL_REMUSETIME", "removing connection that exceeded maximum use time for &0/&1" },
 
+      // #TRANNOTE removing connection that failed a connection pretest for system/userid
+      { "CL_REMPRETEST", "removing connection that failed a connection validation test for &0/&1" },
+
       // #TRANNOTE filling numberOfConnections connections to system/userid      // @E8A
       { "AS400CP_FILLING", "filling &0 connections to &1/&2" },                  // @E8A
 

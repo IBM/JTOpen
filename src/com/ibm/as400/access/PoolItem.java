@@ -29,7 +29,7 @@ import java.util.Locale;      //@B2A
   **/
 class PoolItem
 {
-  private AS400 AS400object_; // after object construction, never null
+  private AS400 AS400object_; // never null after object is constructed
   private PoolItemProperties properties_;
   private Locale locale_ = null; //@C1C
   //private String locale_ = "";     //@B2A	what locale was used to create the AS400 object
@@ -207,6 +207,16 @@ class PoolItem
   }
 
 
+   /**
+   *  Indicates if the connection has failed a pretest validity check.
+   *  @return true if the connection has failed a pretest; false otherwise.
+   **/
+   boolean isFailedPretest()
+   {
+     return properties_.isFailedPretest();
+   }
+
+
   /**
    *  Indicates if the pooled connection is in use.
    *  @return true if the pooled connection is in use; false otherwise.
@@ -215,6 +225,15 @@ class PoolItem
   {
     return properties_.isInUse();
   }
+
+
+   /**
+   *  Records that the connection has failed a pretest validity check.
+   **/
+   void setFailedPretest()
+   {
+     properties_.setFailedPretest();
+   }
 
 
   /**
