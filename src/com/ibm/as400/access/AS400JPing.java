@@ -126,7 +126,8 @@ public class AS400JPing
 
     /**
      Ping the system.
-     @return  true if all of the services can be pinged successfully, and false otherwise.
+     @return  true if all of the services (or, if a service was specified on the constructor, the specified service) can be pinged successfully; false otherwise.
+     @see #pingAllServices
      **/
     public boolean ping()
     {
@@ -299,6 +300,22 @@ public class AS400JPing
             catch (Throwable e) { Trace.log(Trace.ERROR, e); }
           }
         }
+    }
+
+    /**
+     Ping all services.
+     This method differs from {@link #ping ping()} in that it doesn't immediately return when a failed ping is encountered, but rather continues until all services have been pinged.
+     @return  true if all of the services can be pinged successfully; false if at least one service cannot be pinged.
+     **/
+    public boolean pingAllServices()
+    {
+      boolean rtn = true;
+      for (int i = AS400.FILE; i <= AS400.SIGNON; ++i)
+      {
+        rtn = ping(i) && rtn;
+      }
+
+      return rtn;
     }
 
     /**
