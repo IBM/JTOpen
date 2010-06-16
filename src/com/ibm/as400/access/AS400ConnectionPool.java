@@ -407,13 +407,13 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
 
   /**
-   * Get the number of active connections to a system. 
-   * Note: The value returned is based on systemName and userID and does not
+   * Get the number of active (in-use) connections to a system.
+   * Note: The value returned is based only on systemName and userID, and does not
    * reflect the authentication scheme (e.g. password, profile token).
    *
    * @param   systemName  The name of the system where the connections exist.
    * @param   userID  The name of the user.
-   * @return    The number of active connections to a system.
+   * @return  The number of connections that are currently in use.
    **/
   public int getActiveConnectionCount(String systemName, String userID)
   {
@@ -439,12 +439,12 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
   /**
    * Get the number of available connections to a system. 
-   * Note: The value returned is based on systemName and userID and does not
+   * Note: The value returned is based only on systemName and userID, and does not
    * reflect the authentication scheme (e.g. password, profile token).
    *
    * @param   systemName  The name of the system where the connections exist.
    * @param   userID  The name of the user.
-   * @return    The number of available connections to a system.
+   * @return  The number of connections that are not currently in use.
    **/
   public int getAvailableConnectionCount(String systemName, String userID)
   {
