@@ -256,7 +256,7 @@ public abstract class ConnectionPool implements Serializable
    *  Pretesting verifies that the connection is still valid.
    *  By default, connections are not pretested.
    *  <p>Note: The <tt>pretestConnections</tt> property is not fully effective until IBM i 7.1.
-   *  @param pretest If connections are pretested before being allocated.
+   *  @return true if connections are pretested before being allocated; false otherwise.
    *  @see AS400#isConnectionAlive
    **/
   public boolean isPretestConnections()
