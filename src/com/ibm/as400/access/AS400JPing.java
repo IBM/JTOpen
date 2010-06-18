@@ -173,7 +173,7 @@ public class AS400JPing
         OutputStream outStream = null;
         try
         {
-            if (Trace.isTraceOn())
+            if (Trace.traceOn_)
             {
                 Trace.log(Trace.INFORMATION, "Ping System:   " + systemName_);
                 Trace.log(Trace.INFORMATION, "Ping Service:  " + AS400.getServerName(service));
@@ -199,14 +199,14 @@ public class AS400JPing
                 {
                     try
                     {
-                        if (Trace.isTraceOn())
+                        if (Trace.traceOn_)
                             Trace.log(Trace.INFORMATION, "Ping Timeout:  " + time_ + "(ms)" );
 
                         wait(time_);
                     }
                     catch (InterruptedException ie)
                     {
-                        if (Trace.isTraceOn())
+                        if (Trace.traceOn_)
                             Trace.log(Trace.ERROR, "Unexpected exception.", ie);
                     }
                 }
@@ -269,7 +269,7 @@ public class AS400JPing
                 writer_.println(loader_.substitute(loader_.getText("PROP_NAME_AJP_FAILED"),
                                                    new String[] { AS400.getServerName(service), ((useSSL_ != null) ? "-s" : "") } ) );
 
-            if (Trace.isTraceOn())
+            if (Trace.traceOn_)
                 Trace.log(Trace.ERROR, sse);
 
             return false;
@@ -279,7 +279,7 @@ public class AS400JPing
             if (writer_ != null)
                 writer_.println(loader_.substitute(loader_.getText("PROP_NAME_AJP_FAILED"),  new String[] { AS400.getServerName(service), ((useSSL_ != null) ? "-s" : "") } ) );
 
-            if (Trace.isTraceOn())
+            if (Trace.traceOn_)
                 Trace.log(Trace.ERROR, e);
 
             return false;
@@ -362,14 +362,14 @@ public class AS400JPing
             {
                 try
                 {
-                    if (Trace.isTraceOn())
+                    if (Trace.traceOn_)
                         Trace.log(Trace.INFORMATION, "Ping Timeout:  " + time_ + "(ms)");
 
                     wait(time_);
                 }
                 catch (InterruptedException ie)
                 {
-                    if (Trace.isTraceOn())
+                    if (Trace.traceOn_)
                         Trace.log(Trace.ERROR, "Unexpected exception.", ie);
                 }
             }
@@ -383,6 +383,22 @@ public class AS400JPing
             }
             else  // The Thread has returned within the timeout period.
             {
+                // Copied from PortMapper.setSocketProperties():
+                if (Trace.traceOn_)
+                {
+                  Trace.log(Trace.DIAGNOSTIC, "Socket properties:");
+                  try { Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + ddmSocket_.getInetAddress()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    Remote port:", ddmSocket_.getPort()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    Local address: " + ddmSocket_.getLocalAddress()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    Local port:", ddmSocket_.getLocalPort()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", ddmSocket_.getKeepAlive()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", ddmSocket_.getReceiveBufferSize()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", ddmSocket_.getSendBufferSize()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    So linger:", ddmSocket_.getSoLinger()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    So timeout:", ddmSocket_.getSoTimeout()); } catch (Throwable t) {}
+                  try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", ddmSocket_.getTcpNoDelay()); } catch (Throwable t) {}
+                }
+
                 os = ddmSocket_.getOutputStream();
                 os.write(excsatReq);
                 os.flush();
@@ -392,8 +408,8 @@ public class AS400JPing
                 int numBytesRead = is.read(excsatRep);
                 if (numBytesRead < excsatRep.length)
                 {
-                  Trace.log(Trace.ERROR, "Unexpected ddm server response.", excsatRep);
-                  throw new Exception("Unexpected ddm server response.");
+                  Trace.log(Trace.ERROR, "Unexpected DDM server response.", excsatRep);
+                  throw new Exception("Unexpected DDM server response.");
                 }
 
                 for (int i=0; i<113; ++i)
@@ -401,8 +417,8 @@ public class AS400JPing
                     // If the reply matched our expected reply, continue.  Otherwise throw an exception, which will bubble up to the ping(int) method and get handled properly.
                     if (excsatRep[i] != expectedRep[i])
                     {
-                        Trace.log(Trace.ERROR, "Unexpected ddm server response.", excsatRep);
-                        throw new Exception("Unexpected ddm server response.");
+                        Trace.log(Trace.ERROR, "Unexpected DDM server response.", excsatRep);
+                        throw new Exception("Unexpected DDM server response.");
                     }
                 }
             }
@@ -503,7 +519,7 @@ public class AS400JPing
             }
             catch (Exception e)
             {
-                if (Trace.isTraceOn())
+                if (Trace.traceOn_)
                     Trace.log(Trace.ERROR, "Unexpected exception.", e);
                 // Note: Calling interrupt() on this JPingThread object, won't cause the JPingThread object to incur an InterruptedException.
             }
