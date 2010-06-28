@@ -17,6 +17,7 @@ package com.ibm.as400.access;
 public class NativeMethods
 {
     static boolean paseLibLoaded = false;
+    static String nativeLibraryQyjspart = "/QSYS.LIB/QYJSPART.SRVPGM"; 
     static
     {
         // Check to see which version of native code to use                 //@pase1
@@ -47,16 +48,35 @@ public class NativeMethods
             }                                                                   //@pase1
 
         }
-
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native non-PASE methods ");  //@pase1
+
+        String alternateLibrary = System.getProperty("com.ibm.as400.access.native.library"); 
+        if (alternateLibrary != null) { 
+        	nativeLibraryQyjspart = "/QSYS.LIB/"+alternateLibrary+".LIB/QYJSPART.SRVPGM"; 
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QYJSPART as "+nativeLibraryQyjspart);  
+        }
         try{
-            System.load("/QSYS.LIB/QYJSPART.SRVPGM");  //if j9, then socket functions in this lib are overridden
+            System.load(nativeLibraryQyjspart );  //if j9, then socket functions in this lib are overridden
         } catch(Throwable e)
         {
                 Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
         }
     }
 
+    // Assure that the native library is loaded. 
+    static void loadNativeLibraryQyjspart() {
+        try{
+            System.load(nativeLibraryQyjspart );  //if j9, then socket functions in this lib are overridden
+        } catch(Throwable e)
+        {
+                Trace.log(Trace.ERROR, "Error loading QYJSPART service program from "+nativeLibraryQyjspart+":", e); //may be that it is already loaded in multiple .war classloader
+        }
+    }
+    // Assure that the native library is loaded. 
+    static void loadNativeLibraryQyjspartThrowsException() throws SecurityException, UnsatisfiedLinkError {
+        System.load(nativeLibraryQyjspart );  
+    }
+    
     static void load()
     {
     }

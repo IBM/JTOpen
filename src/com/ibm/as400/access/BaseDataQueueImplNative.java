@@ -26,12 +26,7 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
 
     static
     {
-        try{
-            System.load("/QSYS.LIB/QYJSPART.SRVPGM");
-        } catch(Throwable e)
-        {
-            Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
-        }
+ 	   NativeMethods.loadNativeLibraryQyjspart(); 
     }
 
     private String name_;
