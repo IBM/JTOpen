@@ -247,7 +247,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 Trace.log(Trace.ERROR, "Send end job data stream failed:", e);
             }
         }
-
+        Trace.log(Trace.INFORMATION , "forceDisconnect calling readDaemon_.interrupt"); 
         readDaemon_.interrupt();
 
         try
