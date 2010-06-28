@@ -441,6 +441,12 @@ implements Statement
             {
                 setHoldStatement(true);
                 closed_ = true;     // Want the statement to only be available for use internally, user should not be able to use the statement.
+                
+                if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; } 
+                if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }     
+                if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }  
+                if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; } 
+                if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }  
                 return;             // Mark the statement as closed, but don't notify the connection it has been closed or delete the RPB and ORS.
             }
 
@@ -518,11 +524,11 @@ implements Statement
             // the message text anyway (because the ORS is gone.)
 
             // free the pooled commonExecuteReply 
-            if (commonExecuteReply != null) commonExecuteReply.returnToPool();
-            if (connectReply != null) connectReply.returnToPool();    
-            if (execImmediateReply != null) execImmediateReply.returnToPool(); 
-            if (normalPrepareReply != null) normalPrepareReply.returnToPool(); 
-            if (getMoreResultsReply != null) getMoreResultsReply.returnToPool(); 
+            if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; } 
+            if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }     
+            if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }  
+            if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; } 
+            if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }  
             closed_ = true;
             connection_.notifyClose (this, id_);
 
@@ -885,6 +891,7 @@ implements Statement
                     if (commonExecuteReply != null) commonExecuteReply.returnToPool();
                     
                     commonExecuteReply = connection_.sendAndReceive(request, id_);    //@P0C
+
 
                     // Gather information from the reply.
                     cursor_.processConcurrencyOverride(openAttributes, commonExecuteReply);    // @E1A @EAC
@@ -1312,6 +1319,14 @@ implements Statement
                     commonPrepareBefore (sqlStatement, request);
                     commonExecuteBefore (sqlStatement, request);
 
+                    if (execImmediateReply != null) { 
+                    	execImmediateReply.returnToPool();
+                    	execImmediateReply = null; 
+                    }
+                    if (normalPrepareReply != null) { 
+                    	normalPrepareReply.returnToPool();
+                    	normalPrepareReply = null; 
+                    }
                     if (connectReply != null) connectReply.returnToPool(); 
                     connectReply = connection_.sendAndReceive (request, id_);    //@P0C
 
@@ -1431,6 +1446,15 @@ implements Statement
 
                     commonPrepareBefore (sqlStatement, request);
                     commonExecuteBefore (sqlStatement, request);
+
+                    if (connectReply != null) { 
+                    	connectReply.returnToPool();
+                    	connectReply = null; 
+                    }
+                    if (normalPrepareReply != null) { 
+                    	normalPrepareReply.returnToPool();
+                    	normalPrepareReply = null; 
+                    }
 
                     if (execImmediateReply != null) execImmediateReply.returnToPool(); 
                     execImmediateReply = connection_.sendAndReceive (request, id_);    //@P0C
@@ -1562,7 +1586,7 @@ implements Statement
                 syncRPB ();
 
                 DBSQLRequestDS request = null;    //@P0A
-                DBReplyRequestedDS normalPrepareReply = null;    //@P0A
+                normalPrepareReply = null;    //@P0A
                 try
                 {
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A @F10C
@@ -1613,6 +1637,15 @@ implements Statement
                     }    //@F5A
 
                     commonPrepareBefore (sqlStatement, request);
+                    if (execImmediateReply != null) { 
+                    	execImmediateReply.returnToPool();
+                    	execImmediateReply = null; 
+                    }
+                    if (connectReply != null) { 
+                    	connectReply.returnToPool();
+                    	connectReply = null; 
+                    }
+
                     if (normalPrepareReply != null) normalPrepareReply.returnToPool(); 
                     normalPrepareReply = connection_.sendAndReceive (request, id_);    //@P0C
 

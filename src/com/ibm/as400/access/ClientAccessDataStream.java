@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 
+
 // Base class for client access server data streams.  Provides methods to access common client access data stream header.
 class ClientAccessDataStream extends DataStream
 {
@@ -29,7 +30,8 @@ class ClientAccessDataStream extends DataStream
 
   private static final CADSPool basePool_ = new CADSPool(); //@P0A - base datastream pool
 
-  private boolean inUse_; //@P0A
+  private Object  inUseLock_ = new Object(); 
+  boolean inUse_; //@P0A
 
   // Note: The following method is called by AS400ThreadedServer and AS400NoThreadServer.
 
@@ -327,16 +329,22 @@ class ClientAccessDataStream extends DataStream
   // just set inUse_=false to return to the pool.  This is provided so that the request buffer can be resized
   // by inheriting classes 
   //  
-  synchronized void returnToPool() throws InternalErrorException {  // @A7C  
+  void returnToPool() throws InternalErrorException {  // @A7C  
+	  synchronized(inUseLock_) { 
 	  if (inUse_) { 
 	    // Use this to find places where the object is used after it is returned to the pool  
 	    // if (data_ != null) {
 		//    Arrays.fill(data_, (byte) 0xeb); 
 	    // }
+		  
 	    inUse_ = false;
+	    // if (DBDSPool.monitor && this instanceof DBReplyRequestedDS) {
+	    // 	System.out.println("Freeing "+((DBReplyRequestedDS) this).poolIndex); 
+	    // }
 	  } else {
 		  // This is an error case.   You cannot double free a buffer
 		  throw new InternalErrorException(InternalErrorException.UNKNOWN);		  
+	  }
 	  }
   }
   
@@ -345,13 +353,15 @@ class ClientAccessDataStream extends DataStream
    * If it can be used, then inUse_ is set to return and true is returned
    * @return
    */
-  public synchronized boolean canUse() {
+  public boolean canUse() {
+	 synchronized (inUseLock_) {  
      if (inUse_) {
   	   return false; 
      } else {
   	   inUse_ = true; 
   	   return true; 
      }
+	 }
   }
 
   

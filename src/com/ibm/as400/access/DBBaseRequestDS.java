@@ -1049,7 +1049,7 @@ Overrides the superclass to write the datastream.
       for (int i = 0 ; i < SEND_HISTORY_SIZE; i++ ) {
     	  if (sendHistory[i] > length) length = sendHistory[i];  
       }
-            
+      // System.out.println("Reclaiming when returning to pool");       
 	  storage_.reclaim(length); 
 	  
 	  data_ = null;   //Safe, this is assigned during initialize.
@@ -1063,11 +1063,13 @@ Overrides the superclass to write the datastream.
   // reclaim the storage
   //
   void reclaim() {
+	  // System.out.println("Start resetting history"); 
 	  int defaultSize = DBStorage.DEFAULT_SIZE; 
       for (int i = 0 ; i < SEND_HISTORY_SIZE; i++ ) {
     	  sendHistory[i] = defaultSize;  
       }
 	  storage_.reclaim(defaultSize); 
+	  // System.out.println("Done resetting history"); 
 	  
 	  data_ = null;   //Safe, this is assigned during initialize.
 	  

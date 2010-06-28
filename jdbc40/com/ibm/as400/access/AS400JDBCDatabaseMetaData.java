@@ -941,6 +941,7 @@ implements DatabaseMetaData
                     rowCache = new JDSimpleRowCache(formatRow);
             } catch (DBDataStreamException e)
             {
+            	if (reply != null) reply.returnToPool(); 
                 JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             }
             finally
@@ -1398,6 +1399,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -1683,6 +1685,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
+                    	if (reply != null) reply.returnToPool(); 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -1740,6 +1743,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -2145,6 +2149,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
+                    	if (reply != null) reply.returnToPool(); 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2197,6 +2202,7 @@ implements DatabaseMetaData
         }
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -2425,6 +2431,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
+                    	if (reply != null) reply.returnToPool(); 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2706,6 +2713,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
+                    	if (reply != null) reply.returnToPool(); 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2764,6 +2772,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -3297,6 +3306,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
+                    	if (reply != null) reply.returnToPool(); 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -3341,6 +3351,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -4263,6 +4274,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
+                    	if (reply != null) reply.returnToPool(); 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -4307,6 +4319,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -4740,6 +4753,7 @@ implements DatabaseMetaData
                         if (errorClass != 0)
                         {
                             int returnCode = reply.getReturnCode();
+                        	if (reply != null) reply.returnToPool(); 
                             JDError.throwSQLException (this, connection_, id_,
                                                        errorClass, returnCode);
                         }
@@ -4836,6 +4850,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -5719,6 +5734,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
+                    	if (reply != null) reply.returnToPool(); 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -5765,6 +5781,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
+        	if (reply != null) reply.returnToPool(); 
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 

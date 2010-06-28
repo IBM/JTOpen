@@ -13,6 +13,10 @@
 
 package com.ibm.as400.access;
 
+import java.io.PrintWriter;
+import java.io.StringBufferInputStream;
+import java.io.StringWriter;
+
 
 
 /**
@@ -22,6 +26,10 @@ final class DBReplyRequestedDS extends DBBaseReplyDS
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
+  // Exception allocatedLocation = null; 
+  // int       poolIndex = 0; 
+  
+  
   public DBReplyRequestedDS()
   {
     super();
@@ -42,6 +50,32 @@ final class DBReplyRequestedDS extends DBBaseReplyDS
     //@P0D return new DBReplyRequestedDS ();
     return DBDSPool.getDBReplyRequestedDS(); //@P0A
   }
+  
+  // void setAllocatedLocation() {
+  //	  allocatedLocation = new Exception("location"); 
+  // }
+  //String getAllocatedLocation() { 
+//	  if (allocatedLocation == null) { 
+//		return "NONE";   
+//	  } else { 
+//	  StringWriter sw = new StringWriter(); 
+//	  PrintWriter pw = new PrintWriter(sw); 
+//	  allocatedLocation.printStackTrace(pw); 
+//	  String result = sw.toString(); 
+//	  result.replace('\n', ' '); 
+//	  return result; 
+//	  }	
+//	  
+ // }
+  
+//  void setPoolIndex(int poolIndex) {
+//	  if (DBDSPool.monitor) { 
+//		  System.out.println("Using pool at index "+poolIndex); 
+//	  }
+//	  this.poolIndex = poolIndex; 
+//	  allocatedLocation = null; 
+//  }
+
 }
 
 

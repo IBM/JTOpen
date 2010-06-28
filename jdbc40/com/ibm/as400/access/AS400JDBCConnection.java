@@ -2920,6 +2920,10 @@ implements Connection
             //@P0D request.freeCommunicationsBuffer();                              // @EMa
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
+        
+        // if (DBDSPool.monitor) {
+        //	reply.setAllocatedLocation(); 
+        // }
 
         return(DBReplyRequestedDS) reply;
     }
@@ -3267,9 +3271,17 @@ implements Connection
         transactionManager_ = new JDTransactionManager (this, id_,
                                                         properties_.getString (JDProperties.TRANSACTION_ISOLATION),
                                                         properties_.getBoolean (JDProperties.AUTO_COMMIT));  //@AC1
-
+        
         transactionManager_.setHoldIndicator(properties_.getString(JDProperties.CURSOR_HOLD));       // @D9
-
+        
+        // If the hold properties are specified, make sure they are set locally
+        if (properties_.getString(JDProperties.CURSOR_HOLD) != null) { 
+          if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_TRUE)
+            holdability_ = AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
+          else if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE)
+            holdability_ = AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
+        }
+        
         // Initialize the read-only mode to true if the access
         // property says read only.
         readOnly_ = (properties_.equals (JDProperties.ACCESS,

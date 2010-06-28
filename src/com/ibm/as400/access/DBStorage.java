@@ -78,7 +78,10 @@ Checks the size of the array and resizes the storage if needed.
       // Double the size each time, until the size is greater then 4 meg.  
       // Then just go up 4 meg at a time to avoid excessive storage consumption @A8A
       int increment = data_.length; 
-      if (increment > 4096 * 1024 ) increment = 4096 * 1024; 
+      // 
+      // Limiting the increment to 4 meg caused performance problems with applications
+      // creating huge batches. 
+      // if (increment > 4096 * 1024 ) increment = 4096 * 1024; 
       byte[] newdata = new byte[Math.max(data_.length + increment, size)]; // @C1C
       System.arraycopy(data_, 0, newdata, 0, data_.length);
       data_ = newdata;
@@ -92,6 +95,7 @@ Checks the size of the array and resizes the storage if needed.
  */
 public synchronized void reclaim(int length) {
 	  if(data_.length>length && length >= DEFAULT_SIZE ) {
+		  // System.out.println("Reclaiming to "+length+" from "+data_.length); 
 		  byte[] oldData = data_; 
 		  data_ = new byte[length];
 		  // The two byte client server ID is only set in the constructor, NOT in initialize.
