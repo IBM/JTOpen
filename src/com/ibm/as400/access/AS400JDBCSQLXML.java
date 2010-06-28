@@ -579,14 +579,14 @@ endif */
                         // for
                         // code pages 905 and 1026 (turkey) where it is found at
                         // 0xfc
-                        if ((bytes[i] == 0x7f || bytes[i] == 0xfc)
+                        if ((bytes[i] == 0x7f || ((0xff & bytes[i]) == 0xfc))
                                 && (i < length))
                         {
                             i++;
                             // Find the ending quote
                             int endingQuote = i;
                             while (bytes[endingQuote] != 0x7f
-                                    && bytes[endingQuote] != 0xfc
+                                    && (( 0xFF &  bytes[endingQuote]) != 0xfc)
                                     && endingQuote < length)
                             {
                                 endingQuote++;
