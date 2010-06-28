@@ -18,15 +18,27 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
+import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 /**
  Represents a user space object in the IBM i operating system.
- <p>Usage note: By default, the UserSpace class will make use of two different host servers.  For performance reasons, the File Server will be used for read() and write() requests, and the Remote Command Host Server will be used for create() and other requests.  This behavior can be changed with the {@link #setMustUseProgramCall setMustUseProgramCall()} method.
- <p>Similarly, when running directly on IBM i, by default the UserSpace class will call internal API's and commands on-thread when possible, bypassing the Remote Command Host Server.  This behavior can be changed with the {@link #setMustUseSockets setMustUseSockets()} method.
- <p>For applications that access user spaces located in <tt>QTEMP</tt>, users are strongly advised to keep everything in the same job, by calling <tt>setMustUseProgramCall(true)</tt> and <tt>setMustUseSockets(true)</tt>, since different jobs have different QTEMP libraries. 
+ <p>Usage note: By default, the UserSpace class will make use of two different host servers.  
+    For performance reasons, the File Server will be used for read() and write() requests, and
+    the Remote Command Host Server will be used for create() and other requests.  
+    This behavior can be changed with the {@link #setMustUseProgramCall setMustUseProgramCall()} method.
+ <p>Similarly, when running directly on IBM i, by default the UserSpace class will call internal 
+    API's and commands on-thread when possible, bypassing the Remote Command Host Server.  
+    This behavior can be changed with the {@link #setMustUseSockets setMustUseSockets()} method.
+ <p>As a performance optimization, when running directly on IBM i, it is possible to use native
+    methods to access the user space from the current job.  To enable this support, use the 
+    {@link #setMustUseNativeMethods setMustUseNativeMethods()} method. 
+ <p>For applications that access user spaces located in <tt>QTEMP</tt>, users are strongly advised 
+    to keep everything in the same job, by calling <tt>setMustUseProgramCall(true)</tt> and 
+    <tt>setMustUseSockets(true)</tt>, since different jobs have different QTEMP libraries. 
  **/
 public class UserSpace implements Serializable
 {
@@ -83,6 +95,8 @@ public class UserSpace implements Serializable
     private boolean mustUseProgramCall_ = false;
     // Use sockets instead of native methods when running natively.
     private boolean mustUseSockets_ = false;
+    // Use native methods when running natively; 
+    private boolean mustUseNativeMethods_ = false; 
 
     // Data converter for reads and writes with string objects.
     private transient Converter dataConverter_ = null;
@@ -90,6 +104,7 @@ public class UserSpace implements Serializable
     // Implementation object interacts with system or native methods.
     private transient UserSpaceImpl impl_ = null;
 
+    private transient UserSpaceNativeReadWriteImpl nativeReadWriteImpl_ = null; 
     // List of user space event bean listeners.
     private transient Vector userSpaceListeners_ = null;  // Set on first add.
     // List of property change event bean listeners.
@@ -528,6 +543,20 @@ public class UserSpace implements Serializable
     }
 
     /**
+    Indicates if the native methods will be used internally to perform user space read and write requests.  
+    If false, either ProgramCall or Toolbox Integrated File System classes will be used to perform 
+    user space read and write requests.
+    @return  true if user space read and write requests will be performed via native methods; false otherwise.
+    @see #setMustUseNativeMethods
+    **/
+    
+    public boolean isMustUseNativeMethods()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if user space must use native methods:", mustUseNativeMethods_);
+        return mustUseNativeMethods_;
+    }
+
+    /**
      Reads up to <i>dataBuffer.length</i> bytes from the user space beginning at <i>userSpaceOffset</i> into <i>dataBuffer</i>.
      @param  dataBuffer  The buffer to fill with data.  Buffer.length() bytes will be read from the user space.
      @param  userSpaceOffset  The offset in the user space from which to start reading.
@@ -592,9 +621,13 @@ public class UserSpace implements Serializable
         if (length == 0) return 0;
 
         // Do the read.
-        chooseImpl();
-        int bytesRead = impl_.read(dataBuffer, userSpaceOffset, dataOffset, length);
-
+        int bytesRead;
+        if (nativeReadWriteImpl_ != null) { 
+            bytesRead = nativeReadWriteImpl_.read(dataBuffer, userSpaceOffset, dataOffset, length);
+        } else { 
+            chooseImpl();
+            bytesRead = impl_.read(dataBuffer, userSpaceOffset, dataOffset, length);
+        }
         // Fire the READ event.
         if (userSpaceListeners_ != null) fireUserSpaceEvent(UserSpaceEvent.US_READ);
 
@@ -772,6 +805,61 @@ public class UserSpace implements Serializable
         }
     }
 
+    
+    /**
+    Specifies whether native methods are used by the current to perform user space read and write operations.
+    This option can only be set to true when the application is running on the System i.  
+    This method may only be called after the path to the user space is set. 
+    <p>It is not advised to use native methods to access user spaces in QTEMP because toolbox does not
+    provide a method to create a user space in QTEMP of the current job.  
+    <p>The programmer must be aware that no locking occurs when native methods are used to read and write from the 
+    user space.   If a user space is being used by multiple threads or processes, the values read may reflect a partial
+    operation performed by another thread or process. 
+    @param  useNativeMethods  Internally use ProgramCall to perform read and write requests.
+     * @throws CharConversionException 
+     * @throws UnsupportedEncodingException 
+     * @throws SecurityException
+     * @throws UnsatisfiedLinkError 
+    @see #isMustUseNativeMethods
+    **/
+   public void setMustUseNativeMethods(boolean useNativeMethods) throws 
+   UnsupportedEncodingException, 
+   CharConversionException, 
+   UnsatisfiedLinkError,
+   SecurityException
+   {
+
+       if (propertyChangeListeners_ == null)
+       {
+           mustUseNativeMethods_ = useNativeMethods;
+       }
+       else
+       {
+           Boolean oldValue = new Boolean(mustUseNativeMethods_);
+           Boolean newValue = new Boolean(useNativeMethods);
+
+           mustUseNativeMethods_ = useNativeMethods;
+
+           // Fire the property change event.
+           propertyChangeListeners_.firePropertyChange("mustUseNativeMethods", oldValue, newValue);
+       }
+       if (useNativeMethods) {
+    	   // Only open it not already set. 
+    	   if (nativeReadWriteImpl_ == null) {
+    		   // For now assume ILE methods, in the future we may need to choose PASE methods  
+    		   nativeReadWriteImpl_ = new UserSpaceNativeReadWriteImplILE(system_);
+    		   nativeReadWriteImpl_.open(library_, name_); 
+    	   }
+       } else {
+    	   if (nativeReadWriteImpl_ != null) { 
+    		   nativeReadWriteImpl_.close(); 
+    		   nativeReadWriteImpl_ = null; 
+    	   }
+       }
+   }
+
+
+    
     /**
      Sets the path for the user space.  The path can only be set before a connection has been established.
      @param  path  The fully qualified integrated file system path name to the user space.
@@ -949,8 +1037,12 @@ public class UserSpace implements Serializable
             throw new ExtendedIllegalArgumentException("forceAuxiliary (" + forceAuxiliary + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        chooseImpl();
-        impl_.write(dataBuffer, userSpaceOffset, dataOffset, length, forceAuxiliary);
+        if    (nativeReadWriteImpl_ != null) { 
+	        nativeReadWriteImpl_.write(dataBuffer, userSpaceOffset, dataOffset, length, forceAuxiliary);
+        } else { 
+            chooseImpl();
+	        impl_.write(dataBuffer, userSpaceOffset, dataOffset, length, forceAuxiliary);
+        }
 
         // Fire the WRITTEN event.
         if (userSpaceListeners_ != null) fireUserSpaceEvent(UserSpaceEvent.US_WRITTEN);
@@ -993,10 +1085,18 @@ public class UserSpace implements Serializable
 
     /**
      * Sets this object to using sockets.
-     * This method is useful when running directly on IBM i, using ProgramCall or CommandCall objects in conjunction with user spaces.
-     * When your Java program runs on the IBM i system, some Toolbox classes access data via a direct API call instead of making a socket call to the system (for example, to the Remote Command Host Server).
-     * There are minor differences in the behavior of the classes when they use direct API calls instead of socket calls.  If your program is affected by these differences you can use this method to force the Toolbox classes to use socket calls instead of direct API calls.  The default is false. 
-     * <p>Note: This method has no effect if the Java application is running remotely, that is, not running directly on an IBM i system.  When running remotely, the Toolbox submits <i>all</i> program and command calls via sockets, regardless of the setting of this property.
+     * This method is useful when running directly on IBM i, using ProgramCall or CommandCall objects 
+     * in conjunction with user spaces.
+     * When your Java program runs on the IBM i system, some Toolbox classes access data via a 
+     * direct API call instead of making a socket call to the system (for example, to the Remote 
+     * Command Host Server).
+     * There are minor differences in the behavior of the classes when they use direct API calls 
+     * instead of socket calls.  If your program is affected by these differences you can use this 
+     * method to force the Toolbox classes to use socket calls instead of direct API calls.  
+     * The default is false. 
+     * <p>Note: This method has no effect if the Java application is running remotely, that is, not 
+     * running directly on an IBM i system.  When running remotely, the Toolbox submits <i>all</i> 
+     * program and command calls via sockets, regardless of the setting of this property.
      * <p>This property cannot be reset once a connection has been established.
      * @param  mustUseSockets  true to use sockets; false otherwise.
      * @see #isMustUseSockets
