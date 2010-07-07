@@ -23,8 +23,7 @@ import java.util.Vector;                                        // @A2A
 
 
 /**
-* <p>
-*   Represents a license for a product. To request
+*   Represents a license for a product on the IBM i system. To request
 *   a license, construct a ProductLicense object then invoke the request() method.
 *   The caller must keep a reference to the ProductLicense object until the
 *   license is no longer needed since the ProductLicense object will release
@@ -89,6 +88,10 @@ import java.util.Vector;                                        // @A2A
 *                    // issue message but allow to proceed
 *                    sendMessage("Usage limit exceeded and grace period expired but not strictly enforced");
 *                    break;
+*                default:
+*                    // Some other condition.
+*                    // This should never happen, but if it does, display value.
+*                    sendMessage("Unrecognized condition: " + license.getCondition());
 *            }
 *            ..
 *            ..
@@ -292,7 +295,7 @@ public class ProductLicense implements java.io.Serializable
             if(server_ != null)
             {
 
-                if(Trace.isTraceOn())
+                if(Trace.traceOn_)
                 {
                     Trace.log(Trace.DIAGNOSTIC, "Disconnecting from server");
                 }
@@ -303,7 +306,7 @@ public class ProductLicense implements java.io.Serializable
                 }
                 catch(Exception e)
                 {
-                    if(Trace.isTraceOn())
+                    if(Trace.traceOn_)
                     {
                         Trace.log(Trace.ERROR, "Exception encountered while disconnecting", e);
                     }
@@ -317,7 +320,7 @@ public class ProductLicense implements java.io.Serializable
     **/
     protected void finalize()
     {
-        if(Trace.isTraceOn())
+        if(Trace.traceOn_)
         {
             Trace.log(Trace.DIAGNOSTIC, "finalize() - ProductLicense");
         }
@@ -328,7 +331,7 @@ public class ProductLicense implements java.io.Serializable
         }
         catch(Exception e)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "release license failed", e);
             }
@@ -352,6 +355,9 @@ public class ProductLicense implements java.io.Serializable
             case ProductLicenseEvent.PRODUCT_LICENSE_REQUESTED:
                 target.licenseRequested(event);
                 break;
+            default:
+                // This should never happen, but if it does, trace it.
+                Trace.log(Trace.ERROR, "Event status:", status);
             }
         }
     }
@@ -508,7 +514,7 @@ public class ProductLicense implements java.io.Serializable
         sys_ = null;
         sysImpl_ = null;
 
-        condition_ = 0;
+        condition_ = CONDITION_OK;
         released_ = true;
 
         usageLimit_ = 0;
@@ -535,7 +541,7 @@ public class ProductLicense implements java.io.Serializable
         // Verify that the bean properties are set prior to attempting the release.
         if (sys_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "System not set yet.");
             }
@@ -544,7 +550,7 @@ public class ProductLicense implements java.io.Serializable
 
         if (productID_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "Product ID not set yet.");
             }
@@ -553,7 +559,7 @@ public class ProductLicense implements java.io.Serializable
 
         if (featureID_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "Feature ID not set yet.");
             }
@@ -562,7 +568,7 @@ public class ProductLicense implements java.io.Serializable
 
         if (releaseLevel_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "Release not set yet.");
             }
@@ -574,7 +580,7 @@ public class ProductLicense implements java.io.Serializable
             if(released_)  return;
 
 
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 // release license from server
                 Trace.log(Trace.DIAGNOSTIC, "Releasing license from server");
@@ -594,7 +600,7 @@ public class ProductLicense implements java.io.Serializable
                     disconnect();
                     if(releaseReply.getPrimaryRC() != 0)
                     {
-                        if(Trace.isTraceOn())
+                        if(Trace.traceOn_)
                         {
                             Trace.log(Trace.DIAGNOSTIC, "Release license failed, primary return code = ", releaseReply.getPrimaryRC());
                             Trace.log(Trace.DIAGNOSTIC, "Release license failed, secondary return code = ", releaseReply.getSecondaryRC());
@@ -613,6 +619,9 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Request a license.
+    *   @return The condition of the license.  Possible values are CONDITION_OK,
+    *   CONDITION_EXCEEDED_OK, CONDITION_EXCEEDED_GRACE_PERIOD,
+    *   and CONDITION_GRACE_EXPIRED.
     *   @exception  IOException  If an error occurs while communicating with the system.
     *   @exception  AS400SecurityException Unable to connect due to some problem with the user ID or password used to authenticate.
     *   @exception  InterruptedException  If this thread is interrupted.
@@ -625,7 +634,7 @@ public class ProductLicense implements java.io.Serializable
         // Verify that the bean properties are set prior to attempting the release.
         if (sys_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "System not set yet.");
             }
@@ -634,7 +643,7 @@ public class ProductLicense implements java.io.Serializable
 
         if (productID_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "Product ID not set yet.");
             }
@@ -643,7 +652,7 @@ public class ProductLicense implements java.io.Serializable
 
         if (featureID_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "Feature ID not set yet.");
             }
@@ -652,7 +661,7 @@ public class ProductLicense implements java.io.Serializable
 
         if (releaseLevel_ == null)
         {
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 Trace.log(Trace.ERROR, "Release not set yet.");
             }
@@ -665,7 +674,7 @@ public class ProductLicense implements java.io.Serializable
             if(!released_)
                 throw new ExtendedIllegalStateException(("Object= "+ sys_.getSystemName()),
                                                         ExtendedIllegalStateException.LICENSE_CAN_NOT_BE_REQUESTED);
-            if(Trace.isTraceOn())
+            if(Trace.traceOn_)
             {
                 // request license from server
                 Trace.log(Trace.DIAGNOSTIC, "retrieving license from server");
@@ -684,7 +693,7 @@ public class ProductLicense implements java.io.Serializable
             }
             catch(IOException e)
             {
-                if(Trace.isTraceOn())
+                if(Trace.traceOn_)
                 {
                     Trace.log(Trace.ERROR, "IOException After Exchange Attribute Request", e);
                 }
@@ -699,7 +708,7 @@ public class ProductLicense implements java.io.Serializable
                 NLSExchangeAttrReply NLSReply = (NLSExchangeAttrReply)baseReply;
                 if(NLSReply.primaryRC_ != 0)
                 {
-                    if(Trace.isTraceOn())
+                    if(Trace.traceOn_)
                     {
                         Trace.log(Trace.DIAGNOSTIC, ("Exchange attribute failed, primary return code =" +
                                                      NLSReply.primaryRC_ +
@@ -712,7 +721,7 @@ public class ProductLicense implements java.io.Serializable
             }
             else
             { // unknown data stream
-                if(Trace.isTraceOn())
+                if(Trace.traceOn_)
                 {
                     Trace.log(Trace.ERROR, "Unknown instance returned from Exchange Attribute Reply");
                 }
@@ -733,7 +742,7 @@ public class ProductLicense implements java.io.Serializable
             }
             catch(IOException e)
             {
-                if(Trace.isTraceOn())
+                if(Trace.traceOn_)
                 {
                     Trace.log(Trace.ERROR, "IOException occured - Request license", e);
                 }
@@ -758,6 +767,16 @@ public class ProductLicense implements java.io.Serializable
                     releaseLevel_ = getReply.getReleaseLevel();
 
                     condition_ = getReply.getSecondaryRC();
+                    switch (condition_)  // verify that it's a recognized value
+                    {
+                      case CONDITION_OK:
+                      case CONDITION_EXCEEDED_OK:
+                      case CONDITION_EXCEEDED_GRACE_PERIOD:
+                      case CONDITION_GRACE_PERIOD_EXPIRED:
+                        break;
+                      default:  // This should never happen; but if it does, trace it.
+                        Trace.log(Trace.ERROR, "LicenseGetReply.getSecondaryRC():", condition_);
+                    }
                     released_ = false;
 
                     // Fire the license released event.
@@ -766,7 +785,7 @@ public class ProductLicense implements java.io.Serializable
                 }
                 else
                 {
-                    if(Trace.isTraceOn())
+                    if(Trace.traceOn_)
                     {
                         Trace.log(Trace.DIAGNOSTIC, ("Request license failed, primary return code =" +
                                                      getReply.getPrimaryRC() +
@@ -778,7 +797,7 @@ public class ProductLicense implements java.io.Serializable
             }
             else
             {
-                if(Trace.isTraceOn())
+                if(Trace.traceOn_)
                 {
                     Trace.log(Trace.ERROR, "Unknown instance returned from Get License Reply");
                 }
