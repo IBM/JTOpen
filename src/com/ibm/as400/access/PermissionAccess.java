@@ -630,7 +630,14 @@ abstract class PermissionAccess
       if (objName == null) throw new NullPointerException("objName");
       if (owner == null) throw new NullPointerException("owner");
 
-      objName = toUpperCasePath(objName);
+      String upperCasePath = toUpperCasePath(objName).trim();
+      // If this begins with /QOPENSYS, do use the uppercase version because 
+      // QOPENSYS is case sensitive
+      if (upperCasePath.indexOf("/QOPENSYS/") == 0) {
+    	  // Don't uppercase the object name 
+      } else { 
+          objName = toUpperCasePath(objName);
+      }
       CommandCall cmd = new CommandCall(as400_);
       String revokeOldAut;
       if (revokeOldAuthority) revokeOldAut = "*YES";
@@ -690,7 +697,13 @@ abstract class PermissionAccess
       if (objName == null) throw new NullPointerException("objName");
       if (primaryGroup == null) throw new NullPointerException("primaryGroup");
 
-      objName = toUpperCasePath(objName);
+      String upperCasePath = toUpperCasePath(objName).trim();
+      // If this begins with /QOPENSYS, do use the uppercase version because QOPENSYS is case sensitive
+      if (upperCasePath.indexOf("/QOPENSYS/") == 0) {
+    	  // Don't uppercase the object name 
+      } else { 
+    	  objName = toUpperCasePath(objName);
+      }
       CommandCall cmd = new CommandCall(as400_);
       String revokeOldAut;
       if (revokeOldAuthority) revokeOldAut = "*YES";
