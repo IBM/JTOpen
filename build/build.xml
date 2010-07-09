@@ -723,11 +723,11 @@ Available Ant targets for the JTOpen build script include:
   
   <target name="zip-source">
     <zip zipfile="${dist}/src.zip" update="false">
-      <zipfileset dir="${source}"/>
-      <zipfileset dir="${source-contrib}"/>
-      <zipfileset dir="${source-micro}"/>
-      <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar"/>
-      <zipfileset dir="${build}/build" excludes="**/mypasswd"/>
+      <zipfileset dir="${source}"  excludes=".project"/>
+      <zipfileset dir="${source-contrib}"  excludes=".project"/>
+      <zipfileset dir="${source-micro}"  excludes=".project"/>
+      <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar,.project"/>
+      <zipfileset dir="${build}/build" excludes="**/mypasswd,.project"/>
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
       <zipfileset dir="${build}" includes="changes.html"/>
