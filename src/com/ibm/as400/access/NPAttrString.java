@@ -51,40 +51,30 @@ class NPAttrString extends NPAttribute implements Cloneable,
                    byte[] hostDataStream,
                    int offset,
                    int length,
-                   ConverterImpl hostConverter)                                                 // @B1C
+                   ConverterImpl hostConverter)                                                 
     {
        super(ID, STRING, hostDataStream, offset, length, hostConverter);
-       buildStringFromHostData(hostConverter);                                                  // @B1C
+       buildStringFromHostData(hostConverter);                                                  
     }
 
-    private void buildHostString(ConverterImpl converter)                                       // @B1C
+    private void buildHostString(ConverterImpl converter)                                       
     {
        byte[] hostValue;
        hostValue = new byte[attrValue_.length() + 1];   // EBCDIC string must be null-terminated
-       // @B1D // ??? what should we do if we get a character conversion exception here?
-       // @B1D try
-       // @B1D {
-       byte[] temp = converter.stringToByteArray(attrValue_);   // move string into byte array // @B1C
-       System.arraycopy(temp, 0, hostValue, 0, hostValue.length-1);                            // @B1C
-       // @B1D }
-       // @B1D catch (java.io.CharConversionException e)
-       // @B1D {
-       // @B1D     Trace.log(Trace.ERROR,
-       // @B1D                " CharConversionException translating " + attrValue_ +
-       // @B1D                ".  Exception text = " + e);
-       // @B1D }
+       byte[] temp = converter.stringToByteArray(attrValue_);   // move string into byte array 
+       System.arraycopy(temp, 0, hostValue, 0, hostValue.length-1);                            
        hostValue[hostValue.length-1] = 0;              // null terminate
        super.setHostData(hostValue, converter);
     }
 
-    private void buildStringFromHostData(ConverterImpl converter)                               // @B1C
+    private void buildStringFromHostData(ConverterImpl converter)                               
     {
-       byte[] hostValue = super.getHostData(converter);                                         // @B1C
+       byte[] hostValue = super.getHostData(converter);                                         
        if ((hostValue == null) || (hostValue.length == 0))
        {
           attrValue_ = "";
        } else {
-          attrValue_ = converter.byteArrayToString(hostValue, 0, hostValue.length-1);           // @B1C
+          attrValue_ = converter.byteArrayToString(hostValue, 0, hostValue.length-1);           
           attrValue_ = attrValue_.trim();
        }
 
@@ -104,65 +94,79 @@ class NPAttrString extends NPAttribute implements Cloneable,
 
 
     
-    byte[] getHostData(ConverterImpl converter)                                             // @B1C
+    byte[] getHostData(ConverterImpl converter)                                             
     {
-       buildHostString(converter);                // update host data with our string       // @B1C
-       return super.getHostData(converter);                                                 // @B1C
+       buildHostString(converter);                // update host data with our string       
+       return super.getHostData(converter);                                                 
     }
 
-    int getHostLength(ConverterImpl converter)                                              // @B1C
+    int getHostLength(ConverterImpl converter)                                              
     {
-       buildHostString(converter);                // update host data with our string       // @B1C
-       return super.getHostLength(converter);                                               // @B1C
+       buildHostString(converter);                // update host data with our string       
+       return super.getHostLength(converter);                                               
     }
 
     void set(String value)
     {
-       attrValue_ = value;
-       // don't set host value in super yet - wait until we need to
-       // so that it will be built with the correct conversion object
+      attrValue_ = value;
 
        /////////////////////////////////////////////////
        // We must upper case object names, but we can't
-       //  uppercase everything (USERCMT, for example,
-       //   shouldn't be uppercased).
-       // upper case any names that don't start with a "
-       // If the string has any length to it at all
-       //   and if the first character isn't a "
-       //   THEN
-       //     uppercase it
+       //  uppercase everything. The specified attrs 
+       //  below shoudn't be uppercased 
        /////////////////////////////////////////////////
        if ( (getID() != PrintObject.ATTR_USERCMT)   &&
             (getID() != PrintObject.ATTR_USERDATA)  &&
             (getID() != PrintObject.ATTR_RMTPRTQ)   &&
-            (getID() != PrintObject.ATTR_IPP_ATTR_NL)   &&       //@A1A
-            (getID() != PrintObject.ATTR_IPP_PRINTER_NAME)   &&  //@A1A
-            (getID() != PrintObject.ATTR_IPP_JOB_NAME)   &&      //@A1A
-            (getID() != PrintObject.ATTR_IPP_JOB_NAME_NL)   &&   //@A1A
-            (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER)   &&  //@A1A
-            (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER_NL)  &&//@A1A
-            (getID() != PrintObject.ATTR_RMTSYSTEM)  &&          //@A2C
-            (getID() != PrintObject.ATTR_FORMTYPE)   &&          //@A2A
-            (getID() != PrintObject.ATTR_USRDEFDATA) &&          //@A2A@A3C
-            (getID() != PrintObject.ATTR_USRDEFOPT)  &&          //@A3C
+            (getID() != PrintObject.ATTR_IPP_ATTR_NL)   &&       
+            (getID() != PrintObject.ATTR_IPP_PRINTER_NAME)   &&  
+            (getID() != PrintObject.ATTR_IPP_JOB_NAME)   &&      
+            (getID() != PrintObject.ATTR_IPP_JOB_NAME_NL)   &&   
+            (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER)   &&  
+            (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER_NL)  &&
+            (getID() != PrintObject.ATTR_RMTSYSTEM)  &&          
+            (getID() != PrintObject.ATTR_FORMTYPE)   &&          
+            (getID() != PrintObject.ATTR_USRDEFDATA) &&          
+            (getID() != PrintObject.ATTR_USRDEFOPT)  &&          
             (getID() != PrintObject.ATTR_DESCRIPTION)
             )
+       {
+         /////////////////////////////////////////////////
+         // If the string is not zero length,
+         // upper case names that don't start with a
+         // quotation mark
+         /////////////////////////////////////////////////
+         if (value.length() != 0)
+         {
+           if (!value.startsWith("\""))
            {
-           if (attrValue_.length() != 0)
+             // only uppercase characters which are lower case alphabetic characters
+             String sAlphabet = "abcdefghijklmnopqrstuvwxyz";
+             StringBuffer sbOutput = new StringBuffer();
+             
+             for(int i = 0;i<value.length();i++)
+             {
+               if (sAlphabet.lastIndexOf(value.substring(i,i+1))== -1)
                {
-               if (!attrValue_.startsWith("\""))
-                   {
-                   attrValue_ = value.toUpperCase();
-
-                   }
+                 // not found, don't uppercase it
+                 // just add it to the buffer
+                 sbOutput.append(value.charAt(i));
                }
+               else
+               {
+                 sbOutput.append(Character.toUpperCase(value.charAt(i)));
+               }
+             }
+             attrValue_ = sbOutput.toString();
            }
+         }
+       }
     }
 
-    void setHostData(byte[] data, ConverterImpl converter)                          // @B1C
+    void setHostData(byte[] data, ConverterImpl converter)                          
     {
-       super.setHostData(data, converter);                                          // @B1C
-       buildStringFromHostData(converter);                                          // @B1C
+       super.setHostData(data, converter);                                          
+       buildStringFromHostData(converter);                                          
     }
 
 
