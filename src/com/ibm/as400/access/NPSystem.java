@@ -20,11 +20,11 @@ import java.io.IOException;
 
 /**
   *NPSystem class - this class is used to represent systems from a network
-  * print perspective.  There is ONE instance of this class for each system_ that
+  * print perspective.  There is ONE instance of this class for each system that
   * you are interested in.  There is a static method to get at the one instance
-  * of this class based on the system_ name.
+  * of this class based on the system name.
   * Use this instance to get AS400Server objects (these are the conversations to
-  * this system_).
+  * this system).
   **/
 
 class NPSystem extends Object implements Runnable
@@ -66,20 +66,20 @@ class NPSystem extends Object implements Runnable
     static NPSystem getSystem(AS400ImplRemote aSystem)
     {
         NPSystem npSystem = null;
-        // look for this NPSystem in the static hash table using the system_
+        // look for this NPSystem in the static hash table using the system
         // object as a hash key
-        // We used to hash by system_ name string(using getSystemName()) but
+        // We used to hash by system name string(using getSystemName()) but
         // that doesn't work quite right for 2 reasons:
-        //   1. The system_ name might be null (user gets to fill in when we
+        //   1. The system name might be null (user gets to fill in when we
         //       connect for the first time
-        //   2. The user can create 2 AS400 objects to the same system_ name
-        //       as a way to create more conversations to that system_.
-        // So, we now use the base hashCode() for the AS400 system_ as the key...
+        //   2. The user can create 2 AS400 objects to the same system name
+        //       as a way to create more conversations to that system.
+        // So, we now use the base hashCode() for the AS400 system as the key...
         // npSystem = (NPSystem)NPSystemTable.get(aSystem.getSystemName());
         npSystem = (NPSystem)NPSystemTable_.get(aSystem);
         if (npSystem == null)
         {
-            // first time we've used this system_ - create it
+            // first time we've used this system - create it
             npSystem = new NPSystem(aSystem);
             NPSystemTable_.put(aSystem, npSystem);
         }
@@ -88,7 +88,7 @@ class NPSystem extends Object implements Runnable
 
 
     /**
-     * Method to get an NPConversation (wrapper for AS400Server) for this system_.
+     * Method to get an NPConversation (wrapper for AS400Server) for this system.
      * If you use this method you must be sure to return the conversation when you
      * are done with it by using returnConversation().  If you just want to make a
      * simple request (1 datastream up and 1 for the reply) then use the makeRequest()
@@ -145,7 +145,7 @@ class NPSystem extends Object implements Runnable
 
                         // Only start the cleanup thread if more than       
                         // one conversation has been started, -AND-          
-                        // the system_ object is configured to start            
+                        // the system object is configured to start            
                         // threads.                                         
 
                         if( as400System_.isThreadUsed() )
