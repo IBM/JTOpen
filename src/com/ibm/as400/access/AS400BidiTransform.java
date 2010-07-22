@@ -427,12 +427,22 @@ public class AS400BidiTransform
     		return getStringType(ccsid);
     }
     
-    private static int getStringTypeX(int ccsid, AS400 as400){
+    //Bidi-HCG3
+    static int getStringTypeX(int ccsid, AS400 as400){
     	if(as400 == null)
     		return getStringType(ccsid);   
     	
-    	if(ccsid == 13488 || ccsid == 1200){    		    	
-    		if(isBidiCcsid(as400.getCcsid()))
+    	if(ccsid == 13488 || ccsid == 1200){    	
+    		boolean v5r1 = false;
+			try {
+				v5r1 = (as400.getVersion()==5) && (as400.getRelease()==1);
+			} catch (AS400SecurityException e) {
+				//do nothing
+			} catch (java.io.IOException e) {
+				//do nothing
+			}
+    		
+    		if(isBidiCcsid(as400.getCcsid()) && (!v5r1))
     			return ST10;
     			else    		
     			return ST5;
@@ -643,19 +653,19 @@ public class AS400BidiTransform
     		host_bidi_format = 4;    	  		
 
 		package_ccsid = connection.getProperties().getInt(JDProperties.PACKAGE_CCSID);
-		package_bidi_format = getStringTypeM(package_ccsid);
+		package_bidi_format = getStringTypeX(package_ccsid, connection.getSystem()); //Bidi-HCG3
     	
-    	if(bidi_format != 0 && host_bidi_format != 0){
+		if(bidi_format != BidiStringType.NONE && host_bidi_format != BidiStringType.NONE){//Bidi-HCG3
     		if(prop.getString(JDProperties.BIDI_IMPLICIT_REORDERING).equalsIgnoreCase("true"))				       			
     			value_ = meta_data_reordering(value_, bidi_format, host_bidi_format);
     		
     		value_ = SQL_statement_reordering(value_, bidi_format, package_bidi_format);
-    	}	
+    	}			
     	return value_;
 	}
-
+	
 //Bidi-HCG2: Remove this method, and re-implement ConvTableBidiMap.stringToByteArray() instead.
-//	static String convertDataToHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
+//	static String convertDataToHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{		
 //	    if(connection == null || value_ == null) //@pdc
 //            return value_;
 //    	JDProperties prop = connection.getProperties();        	       	        		
@@ -663,10 +673,10 @@ public class AS400BidiTransform
 //		int host_bidi_format = getStringTypeX(host_ccsid, connection.getSystem());				
 //    	if(bidi_format != 0 && host_bidi_format != 0){    		    		
 //    		value_ = bidiTransform(value_, bidi_format, host_bidi_format);
-//    	}	
+//    	}
 //    	return value_;
 //	}
-
+	
 	static String convertDataFromHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
 	
 		if(connection == null || value_ == null) //@pdc
