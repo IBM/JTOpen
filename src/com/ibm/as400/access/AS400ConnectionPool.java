@@ -1606,11 +1606,12 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       }
       //@A6A New code ends
 
-      // If the object was not found in either pool, it does not belong to the pool
-      // and trace a warning message.
-      if (poolItem == null && Trace.traceOn_)
+      // If the object was not found in either list, it does not belong to this pool.
+      // Disconnect the connection.
+      if (poolItem == null)
       {
-        log(Trace.WARNING, "The returned connection does not belong to this pool.");
+        log(Trace.ERROR, "Disconnecting pooled connection because it was returned, and the connection did not originate from the pool to which it was returned.");
+        system.disconnectAllServices();
       }
     }
 
