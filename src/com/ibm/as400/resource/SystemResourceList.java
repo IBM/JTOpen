@@ -14,6 +14,7 @@
 package com.ibm.as400.resource;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.data.PcmlException;
 import com.ibm.as400.data.ProgramCallDocument;
@@ -24,9 +25,7 @@ import java.util.Hashtable;
 
 
 /**
-The SystemResourceList class represents a subclass of
-of the {@link com.ibm.as400.resource.BufferedResourceList BufferedResourceList}
-class which retrieves list items using i5/OS "Open List"
+Retrieves list items using IBM i "Open List"
 Application Programming Interfaces (APIs).  This class is intended
 to be extended and customized by subclasses.
 @deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
@@ -34,14 +33,7 @@ to be extended and customized by subclasses.
 public class SystemResourceList
 extends BufferedResourceList
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
-
     static final long serialVersionUID = 4L;
-
-
 
     // Private data.
     private static final String closeProgramName_                       = "qgyclst";
@@ -128,14 +120,25 @@ This method fires a listClosed() ResourceListEvent.
                 if (document_.callProgram(closeProgramName_) == false)
                     throw new ResourceException(document_.getMessageList(closeProgramName_));
             }
+        }
+        catch (ResourceException e) {
+          AS400Message[] msgList = e.getMessageList();
+          if (msgList != null && msgList.length > 0 &&
+              msgList[0].getID().equals("GUI0001")) // "Invalid handle specified"
+          {
+            // Tolerate the error, and continue.
+            // Note that it's already been traced by the exception ctor.
+          }
+          else throw e;  // rethrow it
 
-            // Done with the request handle.
-            requestHandle_ = null;
         }
         catch(PcmlException e) {
             throw new ResourceException(e);
         }
         finally {
+            // Done with the request handle.
+            requestHandle_ = null;  // Ensure we don't try to keep using this handle.
+
             fireIdle();
         }
     }
