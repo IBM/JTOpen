@@ -335,6 +335,16 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
 
   /**
+  *  Determine whether the connection is still alive.
+  *  @return true if the connection is alive; false otherwise.
+  **/
+  boolean isConnectionAlive() throws SQLException
+  {
+    return connection_.getAS400().isConnectionAlive(AS400.DATABASE);
+  }
+
+
+  /**
   *  Indicates if the pooled connection is in use.
   *  @return true if the pooled connection is in use; false otherwise.
   **/

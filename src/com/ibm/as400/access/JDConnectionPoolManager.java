@@ -176,6 +176,7 @@ implements ConnectionEventListener
 
   private boolean poolSizeLimited_;   // Total pool size (number of open connections) is limited.
   private boolean connectionLifetimeLimited_; // Connections have maximum lifetime; i.e. they can expire.
+  private boolean pretestConnections_;      // Pretest connections before allocating them to requesters.
   private boolean reuseConnections_;        // Re-use connections that have been returned to pool.
   private int minDefaultStackSize_;         // Desired minimum size of 'available' stack for the default key.
 
@@ -264,6 +265,7 @@ implements ConnectionEventListener
     initialPoolSize_  = cpds.getInitialPoolSize();
     minPoolSize_      = cpds.getMinPoolSize();
     maxPoolSize_      = cpds.getMaxPoolSize();
+    pretestConnections_ = cpds.isPretestConnections();
     reuseConnections_ = cpds.isReuseConnections();
     maxIdleTime_      = cpds.getMaxIdleTime()*1000;    // convert to milliseconds
     maxLifetime_      = cpds.getMaxLifetime()*1000;    // convert to milliseconds
@@ -273,6 +275,7 @@ implements ConnectionEventListener
       logInformation("initialPoolSize_:  " + initialPoolSize_);
       logInformation("minPoolSize_:  " + minPoolSize_);
       logInformation("maxPoolSize_:  " + maxPoolSize_);
+      logInformation("pretestConnections_:  " + pretestConnections_);
       logInformation("reuseConnections_:  " + reuseConnections_);
       logInformation("maxIdleTime_:  " + maxIdleTime_ + " msecs");
       logInformation("maxLifetime_:  " + maxLifetime_ + " msecs");
@@ -285,6 +288,7 @@ implements ConnectionEventListener
       System.out.println("initialPoolSize_:  " + initialPoolSize_);
       System.out.println("minPoolSize_:  " + minPoolSize_);
       System.out.println("maxPoolSize_:  " + maxPoolSize_);
+      System.out.println("pretestConnections_:  " + pretestConnections_);
       System.out.println("reuseConnections_:  " + reuseConnections_);
       System.out.println("maxIdleTime_:  " + maxIdleTime_ + " msecs");
       System.out.println("maxLifetime_:  " + maxLifetime_ + " msecs");
@@ -1263,50 +1267,84 @@ implements ConnectionEventListener
     AS400JDBCPooledConnection conn = null;
     boolean needMoreDefaultConnections = false;
 
-    // Make at most 3 tries to get a connection.
-    // If we're lucky there's a connection available and we'll only need 1 pass to get a connection.
-    // If not, the 2nd pass is after swap attempt.
-    // If still no luck, then the third pass is after we've attempted to add a new physical connection to the pool.
-    synchronized (availableConnections_[FOREGROUND])
+    boolean done = false;
+    for (int ii=0; ii<5 && !done; ii++)
     {
-      if (poolClosed_) {
-        if (DEBUG || GATHER_STATS) numGetConnectionCalls_whileClosing_++;
-        return null;
-      }
-      for (int i=0; conn == null && i<3; i++)
+      synchronized (availableConnections_[FOREGROUND])
       {
-        // See if there's an available connection.
-        Stack connStack = (Stack)availableConnections_[FOREGROUND].get(poolKey);
-        if (connStack != null && !connStack.empty())
-        {
-          // Retrieve the most recently used connection.
-          conn = (AS400JDBCPooledConnection)connStack.pop();
-          // Also remove the connection from the associated 'idled sequence' list.
-          // For performance, search the idled sequence from the end (most-recently inserted).
-          availableConnectionsIdledSequence_[FOREGROUND].remove(conn);  // connection is no longer idle
-
-          // While we've got the list locked, see if we've taken the last available connection.
-          if (keyIsDefault && connStack.empty()) needMoreDefaultConnections = true;
+        if (poolClosed_) {
+          if (DEBUG || GATHER_STATS) numGetConnectionCalls_whileClosing_++;
+          return null;
         }
-
-        if (conn == null)
+        // Make at most 3 tries to get a connection.
+        // If we're lucky there's a connection available and we'll only need 1 pass to get a connection.
+        // If not, the 2nd pass is after swap attempt.
+        // If still no luck, then the third pass is after we've attempted to add a new physical connection to the pool.
+        for (int jj=0; conn == null && jj<3; jj++)
         {
-          if (!triedToSwap)  // We haven't tried swapping lists yet.
+          // See if there's an available connection.
+          Stack connStack = (Stack)availableConnections_[FOREGROUND].get(poolKey);
+          if (connStack != null && !connStack.empty())
           {
-            // Try swapping the foreground and background 'available' lists.
-            // Note that the swap may fail if maintainer daemon is running, or if background list is not longer than foreground list.
-            if (DEBUG) logInformation("getConnection() is requesting a swap");
-            swapConnectionLists(FOREGROUND, poolKey);
-            triedToSwap = true;
+            // Retrieve the most recently used connection.
+            conn = (AS400JDBCPooledConnection)connStack.pop();
+            // Also remove the connection from the associated 'idled sequence' list.
+            // For performance, search the idled sequence from the end (most-recently inserted).
+            availableConnectionsIdledSequence_[FOREGROUND].remove(conn);  // connection is no longer idle
+
+            // While we've got the list locked, see if we've taken the last available connection.
+            if (keyIsDefault && connStack.empty()) needMoreDefaultConnections = true;
           }
-          else if (!triedToCreateNewConnection && !isPoolFull()) // The swap attempt didn't help.  Go ahead a try creating a new connection now.
+
+          if (conn == null)
           {
-            createNewConnection(poolKey, keyIsDefault, password);  // create new physical connection and add it to pool
-            triedToCreateNewConnection = true;
+            if (!triedToSwap)  // We haven't tried swapping lists yet.
+            {
+              // Try swapping the foreground and background 'available' lists.
+              // Note that the swap may fail if maintainer daemon is running, or if background list is not longer than foreground list.
+              if (DEBUG) logInformation("getConnection() is requesting a swap");
+              swapConnectionLists(FOREGROUND, poolKey);
+              triedToSwap = true;
+            }
+            else if (!triedToCreateNewConnection && !isPoolFull()) // The swap attempt didn't help.  Go ahead a try creating a new connection now.
+            {
+              createNewConnection(poolKey, keyIsDefault, password);  // create new physical connection and add it to pool
+              triedToCreateNewConnection = true;
+            }
           }
+        }  // for jj
+      }  // synchronized block
+
+
+      if (!pretestConnections_ || conn == null)
+      {
+        done = true;  // we're done with loop
+      }
+      else
+      {
+        // The "pretest" flag is on, so pretest the connection before returning it to caller.
+        // Note that we don't do pretesting inside the synchronized block, so as to avoid tying up the availableConnections_ list while we ping the server job.
+        AS400Impl system = null;
+        SQLException exc = null;
+        try {
+          system = conn.getInternalConnection().getAS400();
         }
-      }  // 'for' loop
-    }
+        catch (SQLException e) {
+          logException(ResourceBundleLoader.getText("AS400CP_FILLEXC"), e);
+        }
+        if (system == null || !system.isConnectionAlive(AS400.DATABASE))
+        {
+          // This pooled connection is bad.  Add it to the 'condemned' list.
+          if (JDTrace.isTraceOn()) logDiagnostic("JDConnectionPoolManager.getConnection() is condemning a connection that has failed a validity pretest: " + conn.toString());
+          synchronized (condemnedConnections_)
+          {  // Mark the failed connection for removal from the pool.
+            condemnedConnections_.add(conn);
+          }
+          conn = null;
+          done = false;  // loop again, to try another connection
+        }
+      }
+    }  // for ii
     
     AS400JDBCConnectionHandle handle = null;
     if (conn != null)

@@ -377,6 +377,7 @@ public class MRI2 extends ListResourceBundle
       { "PROP_NAME_CPP_MAX_LIFETIME", "maxLifetime" },
       { "PROP_NAME_CPP_MAX_USE_COUNT", "maxUseCount" },
       { "PROP_NAME_CPP_MAX_USE_TIME", "maxUseTime" },
+      { "PROP_NAME_CPP_PRETEST_CONNECTIONS", "pretestConnections" },
 
       { "PROP_DESC_CPP_CLEANUP_INTERVAL", "The cleanup time interval for the connection pool." },
       { "PROP_DESC_CPP_MAX_CONNECTIONS", "The maximum number of connections a pool can have." },
@@ -384,6 +385,7 @@ public class MRI2 extends ListResourceBundle
       { "PROP_DESC_CPP_MAX_LIFETIME", "The maximum amount of time a connection can exist." },
       { "PROP_DESC_CPP_MAX_USE_COUNT", "The maximum number of times a connection can be used." },
       { "PROP_DESC_CPP_MAX_USE_TIME", "The maximum amount of time a connection can be used." },
+      { "PROP_DESC_CPP_PRETEST_CONNECTIONS", "Specifies whether connections are pretested." },
 
          // #TRANNOTE #####################################################
          // #TRANNOTE MRI For ConnectionPool
@@ -396,7 +398,7 @@ public class MRI2 extends ListResourceBundle
       { "PROP_DESC_CP_DATA_SOURCE", "The data source used to make JDBC connections."},
       { "PROP_DESC_CP_PROPERTIES", "The connection pool properties."},
       { "PROP_DESC_CP_RUN_MAINTENANCE", "Specifies whether the maintenance daemon is used."},
-      { "PROP_DESC_CP_THREAD_USED", "Specifies whether threads is used."},       // @E5
+      { "PROP_DESC_CP_THREAD_USED", "Specifies whether threads are used."},       // @E5
 
       // #TRANNOTE The properties for ConnectionPoolDataSource. @B0A
       { "PROP_NAME_CPDS_INIT_POOL_SIZE", "initialPoolSize"},

@@ -23,7 +23,6 @@ import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
 
 
-// TBD - Add link from AS400JDBCConnectionPoolDataSource to this class.
 /**
  This implementation of <tt>javax.sql.ConnectionPoolDataSource</tt> can be used in conjunction with {@link AS400JDBCManagedDataSource AS400JDBCManagedDataSource} to produce PooledConnection objects ({@link AS400JDBCPooledConnection AS400JDBCPooledConnection}) that are managed by the Toolbox's built-in connection pooling manager.
  <p>
@@ -43,8 +42,6 @@ import javax.sql.PooledConnection;
 public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDataSource implements ConnectionPoolDataSource, Referenceable, Serializable
 {
   static final long serialVersionUID = 1L;
-
-static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
 
   // Note to developer: If you add a new property (that's not also in the superclass), remember to add a clause for the property to both the getReference() method and the constructor that takes a Reference argument.
 
@@ -99,7 +96,10 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
                                    // connection is considered "expired".
                                    // 0 (zero) indicates no time limit.
                                    // Default is 24 hours.
+
   private boolean reuseConnections_ = true; // Re-use connections that have been returned to pool.
+
+  private boolean pretestConnections_ = false; // Pretest connections before allocating them to requesters.
 
 
 
@@ -181,6 +181,10 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
     if (refAddr != null)
       setMaxIdleTime(Integer.parseInt((String)refAddr.getContent()));
 
+    refAddr = reference.get("pretestConnections");
+    if (refAddr != null)
+      setPretestConnections(Boolean.valueOf((String)refAddr.getContent()).booleanValue());
+
     refAddr = reference.get("propertyCycle");
     if (refAddr != null)
       setPropertyCycle(Integer.parseInt((String)refAddr.getContent()));
@@ -198,7 +202,7 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
    Users are discouraged from calling this method.
    @param logStatistics If true, additional information is logged.
    @return true if connection pool exists and appears healthy; false otherwise.
-   @deprecated Use {@link AS400JDBCManagedDataSource#checkPoolHealth(boolean) checkPoolHealth()} instead.
+   @deprecated Use {@link AS400JDBCManagedDataSource#checkPoolHealth(boolean) checkPoolHealth()} instead.  Refer to the class overview for a discussion of the intended role of this class, and the relationship between this class and its superclass.
    **/
   public boolean checkPoolHealth(boolean logStatistics)
   {
@@ -210,7 +214,7 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
   /**
    Prints a warning and calls the superclass's method.
    Users are discouraged from calling this method.
-   @deprecated Use {@link AS400JDBCManagedDataSource#closePool() closePool()} instead.
+   @deprecated Use {@link AS400JDBCManagedDataSource#closePool() closePool()} instead.  Refer to the class overview for a discussion of the intended role of this class, and the relationship between this class and its superclass.
    **/
   public void closePool()
   {
@@ -224,7 +228,7 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
    Users are discouraged from calling this method.
    @return The connection.
    @throws SQLException If a database error occurs.
-   @deprecated Use {@link AS400JDBCManagedDataSource#getConnection() getConnection()} instead.
+   @deprecated Use {@link AS400JDBCManagedDataSource#getConnection() getConnection()} instead.  Refer to the class overview for a discussion of the intended role of this class, and the relationship between this class and its superclass.
    **/
   public Connection getConnection() throws SQLException
   {
@@ -239,7 +243,7 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
    @param password The database password.
    @return The connection
    @throws SQLException If a database error occurs.
-   @deprecated Use {@link AS400JDBCManagedDataSource#getConnection(String,String) getConnection()} instead.
+   @deprecated Use {@link AS400JDBCManagedDataSource#getConnection(String,String) getConnection()} instead.  Refer to the class overview for a discussion of the intended role of this class, and the relationship between this class and its superclass.
    **/
   public Connection getConnection(String user, String password) throws SQLException
   {
@@ -384,6 +388,7 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
     ref.add(new StringRefAddr("minPoolSize", String.valueOf(getMinPoolSize())));
     ref.add(new StringRefAddr("maxPoolSize", String.valueOf(getMaxPoolSize())));
     ref.add(new StringRefAddr("maxIdleTime", String.valueOf(getMaxIdleTime())));
+    ref.add(new StringRefAddr("pretestConnections", String.valueOf(isPretestConnections())));
     ref.add(new StringRefAddr("propertyCycle", String.valueOf(getPropertyCycle())));
     ref.add(new StringRefAddr("reuseConnections", String.valueOf(isReuseConnections())));
     // Note: This class does not support the 'maxStatements' property.
@@ -406,12 +411,23 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
             prop.equals("minPoolSize") ||
             prop.equals("maxPoolSize") ||
             prop.equals("maxIdleTime") ||
+            prop.equals("pretestConnections") ||
             prop.equals("propertyCycle") ||
             prop.equals("reuseConnections"));
   }
 
   /**
-   Returns whether connections are re-used after being returned to the connection pool.
+  Indicates whether connections are pretested before being allocated to a requester.
+  The default value is false.
+  @return true if connections are pretested; false otherwise.
+  **/
+  public boolean isPretestConnections()
+  {
+   	return pretestConnections_;
+  }
+
+  /**
+   Indicates whether connections are re-used after being returned to the connection pool.
    @return true if connections may be reused; false if connections are closed after they are returned to the pool.  The default value is <tt>true</tt>.
    **/
   public boolean isReuseConnections()
@@ -525,6 +541,17 @@ static final String copyright = "Copyright (C) 2005-2006 International Business 
     }
     minPoolSize_ = minPoolSize;
     logProperty(property, Integer.toString(minPoolSize_));
+  }
+
+
+  /**
+   Sets whether connections are pretested before being allocated to requesters.
+   @param pretest If true, then connections are pretested; if false, then connections are not pretested.  The default value is <tt>false</tt>.
+   **/
+  public void setPretestConnections(boolean pretest)
+  {
+    pretestConnections_ = pretest;
+    logProperty("pretestConnections", String.valueOf(pretestConnections_));
   }
 
 

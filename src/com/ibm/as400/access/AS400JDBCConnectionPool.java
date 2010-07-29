@@ -23,7 +23,7 @@ import java.util.Iterator;                            // Java2
 import java.util.Vector;                              // Java2
 
 /**
-*  The AS400JDBCConnectionPool class represents a pool of JDBC connections
+*  Represents a pool of JDBC connections
 *  that are available for use by a Java program.
 *  <p>
 *  Note: AS400JDBCConnectionPool objects are threadsafe.
@@ -56,10 +56,6 @@ import java.util.Vector;                              // Java2
 **/
 public class AS400JDBCConnectionPool extends ConnectionPool implements Serializable
 {
-  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
-
   static final long serialVersionUID = 4L;
 
 
@@ -69,6 +65,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   transient long lastSingleThreadRun_;                   // Last time maintenance was run (single-thread mode).
   transient Vector activePool_;                          // Active connections.
   transient Vector availablePool_;                       // Available connections.
+  transient Vector deadPool_;                            // Connections staged for removal and disconnection.
   transient private PoolConnectionEventListener eventListener_;  // Listener for events on pooled connections.
 
   /**
@@ -105,8 +102,6 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   **/
   void cleanupConnections()
   {
-    AS400JDBCPooledConnection poolConnection;
-
     boolean trace = JDTrace.isTraceOn();                                              // @B5C
     if (trace)
     {
@@ -114,9 +109,11 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       JDTrace.logInformation (this, "   MaxLifeTime: " + getMaxLifetime());         // @B5C
       JDTrace.logInformation (this, "   MaxUseTime: " + getMaxUseTime());           // @B5C
       JDTrace.logInformation (this, "   MaxInactivity: " + getMaxInactivity());     // @B5C
+      JDTrace.logInformation (this, "   PretestConnections: " + isPretestConnections());
 
       JDTrace.logInformation (this, "Idle Connections: " + availablePool_.size());  // @B5C
       JDTrace.logInformation (this, "Active Connections: " + activePool_.size());   // @B5C
+      JDTrace.logInformation (this, "Dead Connections: " + deadPool_.size());
     }
 
     synchronized (availablePool_)
@@ -128,7 +125,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
         {
           while (connections[i].hasNext())
           {
-            poolConnection = (AS400JDBCPooledConnection)connections[i].next();
+            AS400JDBCPooledConnection poolConnection = (AS400JDBCPooledConnection)connections[i].next();
 
             if (trace)
               JDTrace.logInformation (this, poolConnection.toString());     // @B5C
@@ -139,8 +136,13 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
               if (trace)
                 JDTrace.logInformation (this, "Removing expired connection from the pool.");  // @B5C
 
-              closePooledConnection(poolConnection);
               connections[i].remove();
+
+              // Stage the connection for closing.
+              synchronized (deadPool_)
+              {
+                deadPool_.addElement(poolConnection);
+              }
 
               // Notify listeners that the connection expired
               if (poolListeners_ != null)
@@ -155,7 +157,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
               if (trace)
                 JDTrace.logInformation (this, "Returning active connection to the pool.");  // @B5C
 
-              poolConnection.returned();
+              poolConnection.returned(); // invalidate the connection handle
               availablePool_.add(poolConnection);
               connections[i].remove();                  
 
@@ -166,22 +168,47 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
                 poolListeners_.fireConnectionExpiredEvent(poolEvent);
               }
             }
-          }
+          }   // 'while' loop
+        }  // 'for' loop
+      } // synchronized (activePool_)
+    } // synchronized (availablePool_)
+
+    // Close the removed connections.
+    synchronized (deadPool_)
+    {
+      Iterator connections = deadPool_.iterator();
+      while (connections.hasNext())
+      {
+        AS400JDBCPooledConnection poolConnection = (AS400JDBCPooledConnection)connections.next();
+
+        if (trace)
+          JDTrace.logInformation (this, poolConnection.toString());
+
+        if (trace)
+          JDTrace.logInformation (this, "Removing dead connection from the pool.");
+
+        closePooledConnection(poolConnection);
+        connections.remove();
+      }
+    }
+
+    // Notify listeners that the maintenance thread was run.
+    if (poolListeners_ != null)
+    {
+      ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.MAINTENANCE_THREAD_RUN);
+      poolListeners_.fireMaintenanceThreadRun(poolEvent);
+    }
+
+    // Check if maintenance should keep running.
+    synchronized (availablePool_)
+    {
+      synchronized (activePool_)
+      {
+        if (activePool_.isEmpty() && availablePool_.isEmpty())
+        {
+          if (maintenance_ != null) maintenance_.setRunning(false);
+          setInUse(false);          // data source CAN be changed.
         }
-      }
-
-      // Notify listeners that the maintenance thread was run.
-      if (poolListeners_ != null)
-      {
-        ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.MAINTENANCE_THREAD_RUN);
-        poolListeners_.fireMaintenanceThreadRun(poolEvent);
-      }
-
-      // Check if maintenance should keep running.
-      if (activePool_.isEmpty() && availablePool_.isEmpty())
-      {
-        if (maintenance_ != null) maintenance_.setRunning(false);
-        setInUse(false);          // data source CAN be changed.
       }
     }
 
@@ -193,11 +220,12 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       JDTrace.logInformation (this, "ConnectionPool cleanup finished.");  // @B5C
       JDTrace.logInformation (this, "   Idle Connections: " + availablePool_.size());  // @B5C
       JDTrace.logInformation (this, "   Active Connections: " + activePool_.size());  // @B5C
+      JDTrace.logInformation (this, "   Dead Connections: " + deadPool_.size());
     }
   }
 
   /**
-  *  Closes all the unused database connections in the pool.
+  *  Closes all the database connections in the pool.
   **/
   public void close()
   {
@@ -208,19 +236,23 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       JDTrace.logInformation (this, "Active: " + activePool_.size());        // @B5C
     }
 
+    // Close all connections in the pool.
     synchronized (availablePool_)
     {
       synchronized (activePool_)
       {
-        Iterator[] connections = { availablePool_.iterator(), activePool_.iterator()};
-
-        for (int i=0; i< connections.length; i++)
+        synchronized (deadPool_)
         {
-          while (connections[i].hasNext())
+          Iterator[] connections = { availablePool_.iterator(), activePool_.iterator(), deadPool_.iterator()};
+
+          for (int i=0; i< connections.length; i++)
           {
-            AS400JDBCPooledConnection pooledConnection = (AS400JDBCPooledConnection)connections[i].next();
-            closePooledConnection(pooledConnection);
-            connections[i].remove();
+            while (connections[i].hasNext())
+            {
+              AS400JDBCPooledConnection pooledConnection = (AS400JDBCPooledConnection)connections[i].next();
+              closePooledConnection(pooledConnection);
+              connections[i].remove();
+            }
           }
         }
       }
@@ -421,24 +453,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   **/
   public Connection getConnection() throws ConnectionPoolException
   {
-    AS400JDBCPooledConnection pooledConnection = null;
-
-    synchronized (availablePool_)
-    {
-      //@B2M Moved following two lines into the synchronization block.
-      if (availablePool_.isEmpty())                                    //@B2M
-        fill(1);                         // Add a new connection.    //@B2M
-
-      //@CRS pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
-      pooledConnection = (AS400JDBCPooledConnection)availablePool_.lastElement(); //@CRS -- Most recently used.
-
-      // Remove the pooled connection from the available list.
-      availablePool_.removeElement(pooledConnection);    
-    }
-    synchronized (activePool_)
-    {
-      activePool_.addElement(pooledConnection);      
-    }
+    AS400JDBCPooledConnection pooledConnection = getPooledConnection();
 
     Connection connection = null;
     try
@@ -448,12 +463,6 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
     catch (SQLException sql)
     {
       throw new ConnectionPoolException(sql);
-    }
-    // Notify the listeners that a connection was released.
-    if (poolListeners_ != null)
-    {
-      ConnectionPoolEvent event = new ConnectionPoolEvent(pooledConnection, ConnectionPoolEvent.CONNECTION_RELEASED);  //@A5C
-      poolListeners_.fireConnectionReleasedEvent(event);
     }
 
     return connection;
@@ -480,21 +489,57 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   {
     AS400JDBCPooledConnection pooledConnection = null;
 
-    synchronized (availablePool_)
+    final int maxTries = Math.max(getMaxConnections(), 1+availablePool_.size());
+    int numTries = 0;
+    while (pooledConnection == null &&
+           ++numTries <= maxTries)  // eliminate any possibility of an infinite loop
     {
-      //@B2M Moved following two lines into the synchronization block.
-      if (availablePool_.isEmpty())                                    //@B2M
-        fill(1);                         // Add a new connection.    //@B2M
+      synchronized (availablePool_)
+      {
+        //@B2M Moved following two lines into the synchronization block.
+        if (availablePool_.isEmpty())                                    //@B2M
+          fill(1);                         // Add a new connection.    //@B2M
 
-      //@CRS pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
-      pooledConnection = (AS400JDBCPooledConnection)availablePool_.lastElement(); //@CRS -- Most recently used.
+        //@CRS pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
+        pooledConnection = (AS400JDBCPooledConnection)availablePool_.lastElement(); //@CRS -- Most recently used.
 
-      // Remove the pooled connection from the available list.
-      availablePool_.removeElement(pooledConnection);    
+        // Remove the pooled connection from the available list.
+        availablePool_.removeElement(pooledConnection);    
+      }
+
+      // Pre-test the connection, if the property is set.
+      try
+      {
+        if (isPretestConnections() && !pooledConnection.isConnectionAlive())
+        {
+          if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, "Connection failed a pretest.");
+
+          synchronized (deadPool_)
+          {
+            deadPool_.addElement(pooledConnection);      
+          }
+          pooledConnection = null;
+        }
+      }
+      catch (SQLException sql)
+      {
+        throw new ConnectionPoolException(sql);
+      }
+
+      if (pooledConnection != null)
+      {
+        synchronized (activePool_)
+        {
+          activePool_.addElement(pooledConnection);      
+        }
+      }
     }
-    synchronized (activePool_)
+
+    if (pooledConnection == null)
     {
-      activePool_.addElement(pooledConnection);      
+      JDTrace.logInformation (this, "Exceeded maximum attempts to get a valid connection: " + numTries);
+      throw new ConnectionPoolException(ConnectionPoolException.UNKNOWN_ERROR);
     }
 
     // Notify the listeners that a connection was released.
@@ -516,6 +561,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
 
     activePool_ = new Vector();
     availablePool_ = new Vector();  
+    deadPool_ = new Vector();  
     closed_ = true;
 
     //@A1D Moved property change listener to parent; moved runMaintenance method below.
@@ -566,11 +612,28 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
           {
             AS400JDBCPooledConnection poolConnection = (AS400JDBCPooledConnection)availablePool_.remove(0);
             removed++;
-            closePooledConnection(poolConnection);
+            synchronized (deadPool_)
+            {
+              // Stage the connection for closing.
+              deadPool_.addElement(poolConnection);
+            }
           }
         }
       }
     }
+
+    // Close the removed connections.
+    synchronized (deadPool_)
+    {
+      Iterator deadConnections = deadPool_.iterator();
+      while (deadConnections.hasNext())
+      {
+        AS400JDBCPooledConnection poolConnection = (AS400JDBCPooledConnection)deadConnections.next();
+        closePooledConnection(poolConnection);
+        deadConnections.remove();
+      }
+    }
+
   }
 
   //@A1A

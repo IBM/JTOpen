@@ -23,14 +23,10 @@ import java.beans.SimpleBeanInfo;
 
 
 /**
-*  The ConnectionPoolBeanInfo class provides bean information
-*  for the ConnectionPool class.
+*  Provides bean information for the ConnectionPool class.
 **/
 public class ConnectionPoolBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
    // Class this bean info represents.
    private final static Class beanClass = ConnectionPool.class;
 
@@ -112,9 +108,19 @@ public class ConnectionPoolBeanInfo extends SimpleBeanInfo
        maxUseTime.setDisplayName(loader_.getText("PROP_NAME_CPP_MAX_USE_TIME"));
        maxUseTime.setShortDescription(loader_.getText("PROP_DESC_CPP_MAX_USE_TIME"));
 
+       PropertyDescriptor pretestConnections = new PropertyDescriptor("pretestConnections", beanClass,
+                                           "isPretestConnections", "setPretestConnections");
+       pretestConnections.setBound(true);
+       pretestConnections.setConstrained(false);
+       pretestConnections.setDisplayName(loader_.getText("PROP_NAME_CPP_PRETEST_CONNECTIONS"));
+       pretestConnections.setShortDescription(loader_.getText("PROP_DESC_CPP_PRETEST_CONNECTIONS"));
+
+
+
        properties_ = new PropertyDescriptor[] { runMaintenance, threadUsed, 
 	   cleanupInterval, maxConnections, maxInactivity, maxLifetime, maxUseCount,
-	   maxUseTime };
+	   maxUseTime, pretestConnections };
+
      }
      catch (Exception e)
      {
