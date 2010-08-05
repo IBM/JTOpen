@@ -9,11 +9,11 @@ Copyright (C) 1997-2010 International Business Machines Corporation and
 others. All rights reserved.
 
 File: README
-Last updated: January 19, 2010
+Last updated: August 5, 2010
 
 The term "JTOpen" refers to the open source software product "IBM Toolbox for Java"
 plus any additional Enhancements provided by the open source community.
-JTOpen, which is governed by the IBM Public License, as well as its Java source code,
+JTOpen, which is governed by the <A HREF="http://www.opensource.org/licenses/ibmpl.php">IBM Public License</A>, as well as its Java source code,
 is contained in the open source repository located off of:
 <A HREF="http://jt400.sourceforge.net/">http://jt400.sourceforge.net/</A>
 
@@ -74,10 +74,13 @@ JTOpen 6.1+     5761JC1 V6R1M0  V5R3 and up     V5R3 and up
 (*)  Note: Toolbox release V5R3 is equivalent to JTOpen 4.3.
 (**) Note: Toolbox release V5R4 is equivalent to JTOpen 4.8.
 
+     Note: As of IBM i 7.1 (V7R1), the "JC1" product is no longer shipped.
+           The Toolbox LPP is available under product 5770SS1 Option 3.
+
 Newer versions of the Toolbox are backwards-compatible with earlier
 versions. Upgrading to a newer version is usually recommended, with the one
 main exception being that the Toolbox is only supported for connection
-to servers running either of the two prior releases of i5/OS or OS/400.
+to servers running an in-service release of i5/OS or OS/400.
 
 
 <HR><A NAME="why"><H3>Why Open Source?</H3></A>
@@ -120,7 +123,7 @@ We have chosen to make the Toolbox code open source for the following reasons:
    and contributes, specifically through developer email, the JTOpen
    mailing list, and the <A HREF="http://www-912.ibm.com/j_dir/JTOpen.nsf/($All)?OpenView">JTOpen Web forum</A>
 
-5. Pursuant to the IBM Public License, programmers are free to alter the
+5. Pursuant to the <A HREF="http://www.opensource.org/licenses/ibmpl.php">IBM Public License</A>, programmers are free to alter the
    JTOpen source code and to distribute it with their own applications.
 
 <HR><A NAME="down"><H3>Download and installation of JTOpen</H3></A>
@@ -208,14 +211,7 @@ jtopen_x_x_jdbc40_jdk6.zip  This zip file contains versions of jt400.jar and
 
 (*) Files contained in file jtopen_x_x.zip.
 
-<!--
-The first three files are available through the JTOpen web site
-located at <A HREF="http://jt400.sourceforge.net/">http://jt400.sourceforge.net/</A>.
-Due to export regulations, the other jar files can only be downloaded from
-the official Toolbox web site downloads page:
-<A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox/downloads.htm">http://www.ibm.com/servers/eserver/iseries/toolbox/downloads.htm</A>.
--->
-There are other jar files shipped in the download for JTOpen off of the Toolbox
+There are additional jar files shipped in the download for JTOpen off of the Toolbox
 downloads page. Those jar files do not (yet) contain JTOpen code. They are
 provided as a convenience to the developer and to mirror the objects that ship
 with the Toolbox LPP.
@@ -244,50 +240,6 @@ Instructions for building all or part of the JTOpen source code:
       CLASSPATH=C:\jt400\MyApp;C:\jt400\jt400.jar;...
 4. Compile your source.
 5. Run your application.
-<!--
-<A NAME="toolbox"><H4><U>Using the Toolbox LPP</U></H4></A>
-For those interested in the Toolbox LPP version of this software:
-
-The V6R1 Toolbox LPP ships the following files, which are available
-for download off of the official Toolbox web site at
-<A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox">http://www.ibm.com/servers/eserver/iseries/toolbox</A>.
-
-Jar file           Contents
---------           --------
-
-jt400.jar          Contains the access, data (PCML), resource, vaccess,
-                   and security packages.
-
-jt400Proxy.jar     Contains proxy classes for the access package. Useful for
-                   applets or environments where a small jar file is needed. A middle
-                   tier machine running the Toolbox ProxyServer is required to forward
-                   proxy client requests to the backend server.
-
-jt400Servlet.jar   Contains the HTML and servlet packages.
-
-jui400.jar         Contains the PDML runtime packages as provided by
-                   the Graphical Toolbox.
-
-uitools.jar        Contains the GUI Builder packages as provided by the
-                   Graphical Toolbox.
-
-util400.jar        Contains various utilities.
-
-composer.jar       Contains XSL stylesheet composer classes.
-
-reportwriter.jar   Contains XSL report processor classes.
-
-outputwriters.jar  Contains PDF, PCL, and font classes.
-
-tes.jar            Contains the iSeries Graphical Debugger.
-
-
-Instructions for using the Toolbox LPP:
-1. Download the Toolbox and extract the jar file(s) you wish to use. This
-   will be jt400.jar in most cases.
-2. Add it to your CLASSPATH.
-3. Run your application.
--->
 
 <HR><A NAME="info"><H3>Support information</H3></A>
 
@@ -299,8 +251,8 @@ The <A HREF="http://www-912.ibm.com/j_dir/JTOpen.nsf/($All)?OpenView">JTOpen Web
 
 To subscribe/unsubscribe or view information about the JTOpen mailing list,
 see <A HREF="https://lists.sourceforge.net/lists/listinfo/jt400-news">https://lists.sourceforge.net/lists/listinfo/jt400-news</A>
-Please do not send queries to the mailing list; instead, post them to
-the <A HREF="http://www-912.ibm.com/j_dir/JTOpen.nsf/($All)?OpenView">JTOpen Web forum</A>
+Please do not send messages to the JTOpen mailing list, as they will be bounced.
+Instead, post your comments and questions to the <A HREF="http://www-912.ibm.com/j_dir/JTOpen.nsf/($All)?OpenView">JTOpen Web forum</A>.
 
 For bug reports, please use the JTOpen bug database located at
 <A HREF="http://sourceforge.net/tracker/?group_id=128806&atid=712772">http://sourceforge.net/tracker/?group_id=128806&atid=712772</A>
@@ -316,7 +268,6 @@ can be sent to any of the JTOpen Core Team members:
   Steve Johnson-Evers  severs@everbrite.com         <A HREF="http://www.everbrite.com">Everbrite, Inc.</A>
   Jeff Lee             jlee@us.ibm.com              <A HREF="http://www.ibm.com">IBM Corporation</A>
   Joe Pluta            joepluta@plutabrothers.com   <A HREF="http://www.plutabrothers.com">Pluta Brothers Design</A>
-  Cheryl Renner        cjpflug@us.ibm.com           <A HREF="http://www.ibm.com">IBM Corporation</A>
   Dennis Martin        drmartin@us.ibm.com          <A HREF="http://www.ibm.com">IBM Corporation</A>
 -->
 
