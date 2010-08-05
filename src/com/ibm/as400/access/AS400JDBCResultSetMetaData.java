@@ -358,12 +358,23 @@ implements ResultSetMetaData
     @param  columnIndex     The column index (1-based).
     @return                 True if column is autoincrement, false otherwise.
     @exception  SQLException    If the column index is not valid.
-    Note:  connection property "extended metadata" must be true for this method to be used.
+    Note:  connection property "extended metadata" must be true for this method to be return accurate information. 
+    If the "extended metadata" connection property is not set to true, then this method will always return false.
     **/
     public boolean isAutoIncrement(int columnIndex)
     throws SQLException
     {
         checkIndex(columnIndex);
+        
+        // Only run the query to get the information if the table name can be found.  The table name
+        // can only be found if "extended metadata" == true
+        // @A9A
+        
+        String tableName = this.getTableName(columnIndex); 
+        if ((tableName == null) || (tableName.length() == 0) ) {
+         	return false; 
+        }
+        
         //return false; //@in1 add implementation instead of always returning false
 
         PreparedStatement ps = null;
@@ -377,7 +388,7 @@ implements ResultSetMetaData
                     " AND table_name = ?" +
                     " AND table_schema = ?");
             ps.setString(1, this.getColumnName(columnIndex));
-            ps.setString(2, this.getTableName(columnIndex));
+            ps.setString(2, tableName);
             ps.setString(3, this.getSchemaName(columnIndex));
 
             rs = ps.executeQuery();
