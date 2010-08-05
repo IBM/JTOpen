@@ -1828,9 +1828,17 @@ implements Statement
 
             // Validate that no parameters are set, since parameters
             // imply the need for a PreparedStatement.
-            if(sqlStatement.countParameters () > 0)
-                JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-
+            // 
+            // Note:  This code causes problems with some statements with a syntax error.  
+            // For example
+            // select * from sysibm.sysdummy1 where 'a = '?'
+            // 
+            // Removing this code to allow database engine errors to be returned.
+            // 
+            // if(sqlStatement.countParameters () > 0)
+            //     JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+            // @AAD 
+            
             // Prepare and execute.
             JDServerRow resultRow = commonPrepare (sqlStatement);
             commonExecute (sqlStatement, resultRow);
@@ -1902,8 +1910,15 @@ implements Statement
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                if(sqlStatement.countParameters () > 0)
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // Note:  This code causes problems with some statements with a syntax error.  
+                // For example
+                // select * from sysibm.sysdummy1 where 'a = '?'
+                // 
+                // Removing this code to allow database engine errors to be returned.
+                // 
+                //if(sqlStatement.countParameters () > 0)
+                //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // @AAD 
 
                 if(sqlStatement.isInsert_)
                 {
@@ -1978,9 +1993,16 @@ implements Statement
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                if(sqlStatement.countParameters () > 0)
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-
+                // Note:  This code causes problems with some statements with a syntax error.  
+                // For example
+                // select * from sysibm.sysdummy1 where 'a = '?'
+                // 
+                // Removing this code to allow database engine errors to be returned.
+                // 
+                // if(sqlStatement.countParameters () > 0)
+                //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // @AAD 
+                
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
                 {
@@ -2058,8 +2080,15 @@ implements Statement
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                if(sqlStatement.countParameters () > 0)
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // Note:  This code causes problems with some statements with a syntax error.  
+                // For example
+                // select * from sysibm.sysdummy1 where 'a = '?'
+                // 
+                // Removing this code to allow database engine errors to be returned.
+                // 
+                // if(sqlStatement.countParameters () > 0)
+                //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // @AAD 
 
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
@@ -2214,8 +2243,15 @@ implements Statement
 
             // Validate that no parameters are set, since parameters
             // imply the need for a PreparedStatement.
-            if(sqlStatement.countParameters () > 0)
-                JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+            // Note:  This code causes problems with some statements with a syntax error.  
+            // For example
+            // select * from sysibm.sysdummy1 where 'a = '?'
+            // 
+            // Removing this code to allow database engine errors to be returned.
+            // 
+            // if(sqlStatement.countParameters () > 0)
+            //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+            // @AAD 
 
             // Prepare and execute.
             JDServerRow resultRow = commonPrepare (sqlStatement);
@@ -2267,8 +2303,15 @@ implements Statement
 
             // Validate that no parameters are set, since parameters
             // imply the need for a PreparedStatement.
-            if(sqlStatement.countParameters () > 0)
-                JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+            // Note:  This code causes problems with some statements with a syntax error.  
+            // For example
+            // select * from sysibm.sysdummy1 where 'a = '?'
+            // 
+            // Removing this code to allow database engine errors to be returned.
+            // 
+            // if(sqlStatement.countParameters () > 0)
+            //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+            // @AAD 
 
             // Prepare and execute.  Check for a result set in both
             // places.  It is best to catch it after the prepare (so
@@ -2342,8 +2385,15 @@ implements Statement
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                if(sqlStatement.countParameters () > 0)
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // Note:  This code causes problems with some statements with a syntax error.  
+                // For example
+                // select * from sysibm.sysdummy1 where 'a = '?'
+                // 
+                // Removed this code let engine return error
+                // 
+                //if(sqlStatement.countParameters () > 0)
+                //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // @AAD 
 
                 if(sqlStatement.isInsert_)
                 {
@@ -2425,8 +2475,16 @@ implements Statement
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                if(sqlStatement.countParameters () > 0)
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // Note:  This code causes problems with some statements with a syntax error.  
+                // For example
+                // select * from sysibm.sysdummy1 where 'a = '?'
+                // 
+                // Removing this code to allow database engine errors to be returned.
+                // 
+
+                //if(sqlStatement.countParameters () > 0)
+                //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // @AAD 
 
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
@@ -2515,8 +2573,16 @@ implements Statement
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                if(sqlStatement.countParameters () > 0)
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // Note:  This code causes problems with some statements with a syntax error.  
+                // For example
+                // select * from sysibm.sysdummy1 where 'a = '?'
+                // 
+                // Removing this code to allow database engine errors to be returned.
+                // 
+
+                //if(sqlStatement.countParameters () > 0)
+                //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                // @AAD 
 
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
