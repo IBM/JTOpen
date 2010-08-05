@@ -30,6 +30,7 @@ import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
@@ -46,7 +47,6 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
  *    ...
  *    system.connectService(AS400.FILE);        // This does not cause a prompt.
  </pre>
- @see DateTimeConverter#timeZoneForSystem
  **/
 public class AS400 implements Serializable
 {
@@ -414,7 +414,7 @@ public class AS400 implements Serializable
      Constructs an AS400 object.  It uses the specified system name.
      <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
      <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
-     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      **/
     public AS400(String systemName)
     {
@@ -435,7 +435,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
-     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
@@ -466,7 +466,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name and profile token.
-     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      @param  profileToken  The profile token to use to authenticate to the system.
      **/
     public AS400(String systemName, ProfileTokenCredential profileToken)
@@ -548,7 +548,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      **/
@@ -625,7 +625,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
@@ -771,7 +771,7 @@ public class AS400 implements Serializable
 
     /**
      Validates the user ID and password, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the system.
+     @param  systemName  The name of the IBM i system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -785,7 +785,7 @@ public class AS400 implements Serializable
 
     /**
      Validates the user ID and password, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the system.
+     @param  systemName  The name of the IBM i system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
@@ -1081,7 +1081,7 @@ public class AS400 implements Serializable
 
     /**
      Clears all the passwords that are cached for the given system name within this Java virtual machine.
-     @param  systemName  The name of the system.
+     @param  systemName  The name of the IBM i system.
      **/
     public static void clearPasswordCache(String systemName)
     {
@@ -1402,7 +1402,7 @@ public class AS400 implements Serializable
 
     /**
      Returns the default user ID for this system name.  This user ID is used to connect if a user ID was not used to construct the object.
-     @param  systemName  The name of the system.
+     @param  systemName  The name of the IBM i system.
      @return  The default user ID for this system.  A null is returned if there is not a default user.
      **/
     public static String getDefaultUser(String systemName)
@@ -1530,7 +1530,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the modification level of the system.
+     Returns the modification level of the IBM i system.
      <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the information.
      @return  The modification level.  For example, version 5, release 1, modification level 0 returns 0.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -1818,9 +1818,9 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the release of the system.
+     Returns the release of the IBM i system.
      <p>A connection is required to the system in order to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
-     @return  The release of the system.  For example, version 5, release 1, modification level 0, returns 1.
+     @return  The release of the IBM i system.  For example, version 5, release 1, modification level 0, returns 1.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
@@ -1944,13 +1944,40 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the name of the system.  The system name is provided on the constructor or may have been provided by the user at the sign-on prompt.
-     @return  The name of the system, or an empty string ("") if not set.
+     Returns the name of the IBM i system.  The system name is provided on the constructor or may have been provided by the user at the sign-on prompt.
+     @return  The name of the IBM i system, or an empty string ("") if not set.
      **/
     public String getSystemName()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system name: " + systemName_ + ", is local:", systemNameLocal_);
         return (systemNameLocal_) ? "localhost" : systemName_;
+    }
+
+    /**
+     Returns the time zone of the IBM i system.
+     The TimeZone object will have the correct UTC offset for the system.
+     @return A TimeZone object representing the time zone for the system.
+     @exception AS400SecurityException If a security or authority error
+     occurs.
+     @exception ErrorCompletingRequestException If an error occurs before
+     the request is completed.
+     @exception InterruptedException If this thread is interrupted.
+     @exception IOException If an error occurs while communicating with
+     the system.
+     @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
+     @see DateTimeConverter#timeZoneForSystem
+     **/
+    public TimeZone getSystemTimeZone()
+      throws AS400SecurityException,
+             ErrorCompletingRequestException,
+             InterruptedException,
+             IOException,
+             ObjectDoesNotExistException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting time zone");
+        TimeZone zone = DateTimeConverter.timeZoneForSystem(this);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Time zone:", zone.getDisplayName());
+        return zone;
     }
 
     /**
@@ -1996,9 +2023,9 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the version of the system.
+     Returns the version of the IBM i system.
      <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
-     @return  The version of the system.  For example, version 5, release 1, modification level 0, returns 5.
+     @return  The version of the IBM i system.  For example, version 5, release 1, modification level 0, returns 5.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
@@ -2641,7 +2668,7 @@ public class AS400 implements Serializable
 
     /**
      Removes the default user for the given system name.
-     @param  systemName  The name of the system.
+     @param  systemName  The name of the IBM i system.
      **/
     public static void removeDefaultUser(String systemName)
     {
@@ -2655,7 +2682,7 @@ public class AS400 implements Serializable
 
     /**
      Removes the password cache entry associated with this system name and user ID.  Only applies within this Java virtual machine.
-     @param  systemName  The name of the system.
+     @param  systemName  The name of the IBM i system.
      @param  userId  The user profile name.
      **/
     public static void removePasswordCacheEntry(String systemName, String userId)
@@ -3019,7 +3046,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the default user for a given system name.  The default user is the user ID that is used to connect if a user ID is not provided for that system name.  There can be only one default user per system name.  Once the default user is set, it cannot be overridden.  To change the default user, the caller should remove the default user and then set it.
-     @param  systemName  The name of the system.
+     @param  systemName  The name of the IBM i system.
      @param  userId  The user profile name.
      @return  true if default user has been set; false otherwise.
      **/
@@ -3505,7 +3532,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the system name for this object.  The system name cannot be changed once a connection to the system has been established.
-     @param  systemName  The name of the system.  Use <code>localhost</code> to access data locally.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystemName(String systemName) throws PropertyVetoException
