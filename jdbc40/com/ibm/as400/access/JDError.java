@@ -27,10 +27,10 @@ import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.SQLTimeoutException;
 import java.sql.SQLTransactionRollbackException;
+import java.util.Map;
 /* endif */ 
 
 import java.sql.SQLWarning;
-import java.util.Map;
 
 
 
@@ -101,7 +101,17 @@ final class JDError
 
   static String       lastServerSQLState_             = null;
 
+  static boolean jdk14 = false; 
+  static {
+		String javaVersion = System.getProperty("java.version");
+		javaVersion=javaVersion.substring(0,3);
+		if ("1.0".equals(javaVersion) || "1.1".equals(javaVersion) || "1.2".equals(javaVersion) || "1.3".equals(javaVersion)) {
+		    jdk14=false; 
+		} else {
+		    jdk14=true; 
+		}
 
+  }
 
 /**
 Private constructor to prevent instantiation.  All methods in
@@ -566,6 +576,12 @@ trace for debugging purposes.
       JDTrace.logException(thrower, m2, e2);                            // @J3a
     }                                                                   // @J3a
 
+    //
+    // Set the cause for JDK 1.4 and later
+    //
+    if (jdk14) {
+    	e2.initCause(e); 
+    }
     throw e2;
   }
 
