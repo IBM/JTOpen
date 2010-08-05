@@ -20,11 +20,11 @@ import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 /* ifdef JDBC40 
 import java.sql.SQLXML;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 endif */ 
 import java.sql.SQLException;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
 
 
 
@@ -43,7 +43,7 @@ endif */
     
     
     // Copied from JDError:
-    private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
+    static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
     
     public Reader getCharacterStream ()
     throws SQLException

@@ -13,9 +13,9 @@
 
 package com.ibm.as400.access;
 
-import java.beans.SimpleBeanInfo;
+
 import java.beans.PropertyDescriptor;
-import java.beans.EventSetDescriptor;
+
 import java.beans.BeanDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.BeanInfo;
@@ -26,7 +26,7 @@ The AFPResourceBeanInfo class provides bean information for the AFPResource clas
 **/
 public class AFPResourceBeanInfo extends PrintObjectBeanInfo
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Additional properties defined for AFPResources
     private static PropertyDescriptor[] AFPRProperties_;
@@ -35,7 +35,7 @@ public class AFPResourceBeanInfo extends PrintObjectBeanInfo
     private final static Class beanClass = AFPResource.class;
 
     // Handles loading the appropriate resource bundle
-    private static ResourceBundleLoader rbl_;
+    // private static ResourceBundleLoader rbl_;
 
     static
     {
@@ -50,8 +50,8 @@ public class AFPResourceBeanInfo extends PrintObjectBeanInfo
               new PropertyDescriptor("path", beanClass);
             path.setBound(true);
             path.setConstrained(true);
-            path.setDisplayName(rbl_.getText("PROP_NAME_PATH"));
-            path.setShortDescription(rbl_.getText("PROP_DESC_PATH"));
+            path.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_PATH"));
+            path.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_PATH"));
 
             PropertyDescriptor[] properties = {name, path};
             AFPRProperties_ = properties;

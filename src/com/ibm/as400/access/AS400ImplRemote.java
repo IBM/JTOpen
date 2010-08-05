@@ -712,7 +712,7 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Get either the user's CCSID, the signon server CCSID, or our best guess.
-    int getCcsid()
+    public int getCcsid()
     {
         if (ccsid_ != 0) return ccsid_;
         if (signonInfo_ != null) ccsid_ = signonInfo_.serverCCSID;
