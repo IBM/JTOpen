@@ -41,7 +41,7 @@ import java.util.StringTokenizer;            //@D4A
 
 /**
   * Represents an object in the IBM i integrated file system.
-  * As in java.io.File, IFSFile is designed to work
+  * As in {@link java.io.File java.io.File}, IFSFile is designed to work
   * with the object as a whole.  For example, use IFSFile
   * to delete or rename a file, to access the
   * file's attributes (is the object a file or a directory,
@@ -1621,6 +1621,7 @@ public class IFSFile
   /**
    Returns the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
    @return Either {@link #PATTERN_POSIX PATTERN_POSIX}, {@link #PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link #PATTERN_OS2 PATTERN_OS2}
+   @see #setPatternMatching(int)
    **/
   public int getPatternMatching()
     throws IOException
@@ -2170,6 +2171,7 @@ public class IFSFile
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles()
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -2198,6 +2200,7 @@ public class IFSFile
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles(IFSFileFilter)
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -2318,6 +2321,7 @@ public class IFSFile
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles(IFSFileFilter,String)
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -2359,6 +2363,7 @@ public class IFSFile
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles(String)
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -2384,6 +2389,7 @@ public class IFSFile
    an empty directory, an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -2411,6 +2417,7 @@ public class IFSFile
    object represents an empty directory, an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -2444,6 +2451,7 @@ public class IFSFile
    chances that their file attribute information will not be valid.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -2487,6 +2495,7 @@ public class IFSFile
    an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
+   @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
@@ -3241,6 +3250,7 @@ public class IFSFile
    Sets the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
    @param patternMatching Either {@link #PATTERN_POSIX PATTERN_POSIX}, {@link #PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link #PATTERN_OS2 PATTERN_OS2}
 
+   @see #getPatternMatching()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
