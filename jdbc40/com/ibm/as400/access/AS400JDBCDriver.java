@@ -110,6 +110,8 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @A6   20100503  maximum blocked input rows property / Free storage used by blocked updates. 
 // @A7   20100506  buffer synchronization / remove Class.forName() contention / gc tracing
 // @A8   20100507  minimize buffer usage for blocked insert
+// @A9   20100720  Fix AS400JDBCResultSetMetaData.isAutoIncrement() when extended metadata is off
+// @AA   20100805  Fix AS400JDBCStatement.execute to return syntax error from database engine.
 //--------------------------------------------------------------------
 
 
