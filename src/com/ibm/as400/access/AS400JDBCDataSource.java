@@ -455,6 +455,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         try
         {
+            Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.close()"); 
             AS400JDBCDataSource clone = (AS400JDBCDataSource) super.clone();
             clone.properties_ = (JDProperties) this.properties_.clone();
             return clone;
@@ -1092,6 +1093,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public Reference getReference() throws NamingException
     {
+    	
+    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.getReference"); 
+
         Reference ref = new Reference(this.getClass().getName(),
                                       "com.ibm.as400.access.AS400JDBCObjectFactory",
                                       null);
@@ -1459,6 +1463,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     private void initializeTransient()
     {
+    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.initializeTransient"); 
+
         changes_ = new PropertyChangeSupport(this);
 
         if (isSecure_)            //@B4A  
@@ -4658,7 +4664,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         Integer oldValue = new Integer(getMaximumBlockedInputRows());
         Integer newValue = new Integer(maximumBlockedInputRows);
 
-        validateProperty(property, newValue.toString(), JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);
+        if (maximumBlockedInputRows < 0 || maximumBlockedInputRows > 32000) {
+        	throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (maximumBlockedInputRows == 0) {
+        	maximumBlockedInputRows = 32000; 
+        }
 
         properties_.setString(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS, newValue.toString());
 
@@ -5073,6 +5084,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     private void writeObject(ObjectOutputStream out) throws IOException
     {
+    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.writeObject"); 
         // @F0D String server = getServerName();
         // @F0D if (!server.equals(""))
         // @F0D     serialServerName_ = server;

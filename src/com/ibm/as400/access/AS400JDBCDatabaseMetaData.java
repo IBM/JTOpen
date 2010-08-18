@@ -136,6 +136,7 @@ implements DatabaseMetaData
     private static final String FAKE_VALUE    = "QCUJOFAKE";     //@mdsp
     private static final int  SQL_ALL_TYPES   = 0;               //@mdsp
     
+    // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
     static final int MAX_LOB_LENGTH           = 2147483646;      //@xml3
 
 
