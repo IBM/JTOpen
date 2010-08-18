@@ -1970,9 +1970,11 @@ class AS400ImplRemote implements AS400Impl
     static AS400Message parseMessage(byte[] data, int offset, ConverterImplRemote converter) throws IOException
     {
         AS400Message message = new AS400Message();
-        //int textCcsid = BinaryConverter.byteArrayToInt(data, offset);  // not used
+        int textCcsid = BinaryConverter.byteArrayToInt(data, offset);
+        message.setTextCcsid(textCcsid);
         offset += 4;
-        //int substitutionCcsid = BinaryConverter.byteArrayToInt(data, offset);  // not used
+        int substitutionCcsid = BinaryConverter.byteArrayToInt(data, offset);
+        message.setSubstitutionDataCcsid(substitutionCcsid);
         offset += 4;
         message.setSeverity(BinaryConverter.byteArrayToUnsignedShort(data, offset));
         offset += 2;

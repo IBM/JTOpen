@@ -813,8 +813,10 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 byte[] substitutionData = new byte[substitutionDataLength];
                 System.arraycopy(data, offset + 41, substitutionData, 0, substitutionDataLength);
                 messageList[i].setSubstitutionData(substitutionData);
+                messageList[i].setSubstitutionDataCcsid(converter.getCcsid());
 
                 messageList[i].setText(converter.byteArrayToString(data, offset + 41 + substitutionDataLength, textLength));
+                messageList[i].setTextCcsid(converter.getCcsid());
             }
             offset += BinaryConverter.byteArrayToInt(data, offset);
         }
