@@ -9,7 +9,7 @@ Copyright (C) 1997-2010 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: May 12, 2010
+Last updated: August 25, 2010
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
@@ -23,6 +23,7 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 IBM Toolbox for Java web site:
 <A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
+<!-- On 2010-08-25: cvs log -rJTOpen_7_0:JTOpen_7_1 -N -d>2010-05-12 -->
 <!-- On 2010-05-12: cvs log -rJTOpen_6_7:JTOpen_7_0 -N -d>2010-01-27 -->
 <!-- On 2010-01-19: cvs log -rJTOpen_6_6:JTOpen_6_7 -N -d>2009-08-27 -->
 <!-- On 2009-08-25: cvs log -rJTOpen_6_5_1:JTOpen_6_6 -N -d>2009-05-05 -->
@@ -43,11 +44,19 @@ fails on Sun's 1.4.2 JVM and on IBM's "Classic" i5/OS 1.4.2 JVM,
 with the following error:
     org.xml.sax.SAXNotRecognizedException
     Feature: http://apache.org/xml/features/continue-after-fatal-error
+
+Several classes in deprecated package com.ibm.as400.vaccess are known to
+fail to serialize when running in Java 6 JVMs.  These classes include:
+    AS400DetailsPane
+    AS400ExplorerPane
+    AS400ListPane
+    VActionAdapter
 </PRE>
 
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#71">Fixes and enhancements in JTOpen 7.1</A><BR>
 <A HREF="#70">Fixes and enhancements in JTOpen 7.0</A><BR>
 <A HREF="#67">Fixes and enhancements in JTOpen 6.7</A><BR>
 <A HREF="#66">Fixes and enhancements in JTOpen 6.6</A><BR>
@@ -77,6 +86,46 @@ with the following error:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="71">Fixes and enhancements in JTOpen 7.1</A> <i>(released 2010-08-27)</i></H3>
+<PRE>
+- <i>Various:</i> Added or improved error messages and trace messages.
+- <i>Various:</i> Javadoc enhancements.  Improved code comments.
+- <i>Various:</i> Code cleanup.
+- <i>Various:</i> Removed unused variables.
+- Connection pool: Added support for connection pool pretesting.
+- Connection pool: If the returned connection didn't originate in this pool, disconnect it.
+- Connection pool: Remove connection from list before disconnecting services.
+- Connection: AS400ThreadedServer: Trace use of thread.interrupt.
+- Connection: AS400: Added method getSystemTimeZone().
+- Connection: Added new property: fallbackCCSID. (Contributed by Tim Hurman.)
+- Connection: Cleanup native method loading.
+- Data conversion: AS400BidiTransform: Eliminated method convertDataToHostCCSID().
+- Data conversion: Added data converters for IBM i data types: date, time, timestamp, signed bin1, unsigned bin1, unsigned bin8.
+- Data conversion: Bidi: When deciding ST5 versus ST10, consider user profile CCSID and whether system is V5R1.
+- FTP: FTPThread: Put the wait() into a loop.
+- IFS: FileAttributes: Deprecated misspelled method getJounalingStartTime(); replaced it with getJournalingStartTime().
+- JDBC: AS400JDBCSQLXML: Fixed "unsigned byte" problem.
+- JDBC: AS400JDBCStatement: Correct interrupted thread statement leak.
+- JDBC: Correct setting of JDBC cursor hold properties.
+- JDBC: AS400JDBCResultSetMetaData: Fix isAutoIncrement() when extended metadata is off.
+- JDBC: AS400JDBCStatement: Fix execute() to return syntax error from database engine.
+- JDBC: Fix XML type info for pre JDBC 4.0.
+- JDBC: Fix buffer pooling.
+- JDBC: Fix missing method exception in JDError.
+- JDBC: Handle comma as decimal float separator.
+- Message: AS400Message.getText() and .load(): If returned text is blank, but substitution data is non-blank, copy substitution data to text.
+- Permission: PermissionAccess: Don't uppercase file name for /QOpenSys file system.
+- Ping: AS400JPing: Added pingAllServices(). Call Thread.interrupt() instead of Thread.stop(). Trace socket properties when pinging DDM server.
+- Print: Fixed bug uppercasing special character '@'.
+- Product license: Added trace statements.
+- RLA: Added constants to class DDMTerm.
+- RLA: Added trace message when parsing DDM reply data stream.
+- Save file: SaveFileEntry: Added hashCode() method.
+- Trace: Correct NPE when changing tracing.
+- User space: Added new UserSpace native methods.
+</PRE>
 
 <HR>
 <H3><A NAME="70">Fixes and enhancements in JTOpen 7.0</A> <i>(released 2010-05-14)</i></H3>
