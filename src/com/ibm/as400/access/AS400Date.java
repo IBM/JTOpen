@@ -153,9 +153,6 @@ public class AS400Date extends AS400AbstractTime
    **/
   public AS400Date(int format)
   {
-    if (!isValidFormat(format)) {
-      throw new ExtendedIllegalArgumentException("format ("+format+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
     setFormat(format, defaultSeparatorFor(format));
   }
 
@@ -525,6 +522,9 @@ public class AS400Date extends AS400AbstractTime
   // Implements abstract method of superclass.
   char defaultSeparatorFor(int format)
   {
+    if (!isValidFormat(format)) {
+      throw new ExtendedIllegalArgumentException("format ("+format+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
     switch (format)
     {
       case FORMAT_MDY:

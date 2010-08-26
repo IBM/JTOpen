@@ -76,6 +76,7 @@ public class AS400Time extends AS400AbstractTime
    **/
   public AS400Time()
   {
+    // Note: According to the spec, the default internal format for time variables is *ISO.
     this(FORMAT_ISO);
   }
 
@@ -95,7 +96,6 @@ public class AS400Time extends AS400AbstractTime
    **/
   public AS400Time(int format)
   {
-    // Note: According to the spec, the default internal format for time variables is *ISO.
     setFormat(format, defaultSeparatorFor(format));
   }
 
@@ -289,6 +289,9 @@ public class AS400Time extends AS400AbstractTime
   // Implements abstract method of superclass.
   char defaultSeparatorFor(int format)
   {
+    if (!isValidFormat(format)) {
+      throw new ExtendedIllegalArgumentException("format ("+format+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
     switch (format)
     {
       case FORMAT_HMS:
