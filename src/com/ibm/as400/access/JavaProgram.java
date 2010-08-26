@@ -21,7 +21,7 @@ import java.util.Date;
 
 /**
 Represents an IBM i Java program.   This class is supported
-only when connecting to systems running IBM i V5R1 or higher.
+only when connecting to systems running IBM i V5R1 or higher, and is not supported beyond IBM i 7.1.
 <p>
 In the context of this discussion, a "Java program" is the IBM i executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 <br>
@@ -144,6 +144,26 @@ public class JavaProgram implements Serializable
     {
         setSystem(system);
         setPath(path);
+    }
+
+
+    private void checkVRM()
+      throws UnsupportedOperationException
+    {
+      try
+      {
+        // See if the system VRM is higher than IBM i 7.1.
+        if (getSystem() != null && getSystem().getVRM() > 0x00070100) {
+          Trace.log(Trace.ERROR, "JavaProgram is not supported beyond IBM i 7.1.");
+          throw new UnsupportedOperationException("JavaProgram");
+        }
+      }
+      catch (UnsupportedOperationException e) { throw e; }
+      catch (Exception e) {
+        if (Trace.isTraceOn())
+          Trace.log(Trace.ERROR, "Error when checking system VRM.", e);
+        throw new UnsupportedOperationException(e.getMessage());
+      }
     }
 
     /**
@@ -502,6 +522,8 @@ public class JavaProgram implements Serializable
            IOException,
            UnsupportedEncodingException
     {
+        checkVRM();
+
         int ccsid = system_.getCcsid();
         ConvTable conv = ConvTable.getTable(ccsid, null);
         int len=4096;

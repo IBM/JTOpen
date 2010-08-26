@@ -26,10 +26,10 @@ import java.util.Date;
 
 
 /**
-The RJavaProgram class represents a Java program on the system.   This is supported
-only when connecting to systems running OS/400 V5R1 or later.
-
-In the context of this discussion, a "Java program" is the i5/OS executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
+Represents a Java program on the system.   This is supported
+only when connecting to systems running OS/400 V5R1, and is not supported beyond IBM i 7.1.
+<p>
+In the context of this discussion, a "Java program" is the IBM i executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
@@ -77,13 +77,7 @@ javaProgram.commitAttributeChanges();
 public class RJavaProgram
 extends ChangeableResource
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-
-
     static final long serialVersionUID = 4L;
-
 
 
 
@@ -732,6 +726,25 @@ Constructs an RJavaProgram object.
     }
 
 
+    private void checkVRM()
+      throws ResourceException
+    {
+      try
+      {
+        // See if the system VRM is higher than IBM i 7.1.
+        if (getSystem() != null && getSystem().getVRM() > 0x00070100) {
+          Trace.log(Trace.ERROR, "RJavaProgram is not supported beyond IBM i 7.1.");
+          throw new ResourceException(ResourceException.OPERATION_NOT_SUPPORTED);
+        }
+      }
+      catch (ResourceException e) { throw e; }
+      catch (Exception e) {
+        if (Trace.isTraceOn())
+          Trace.log(Trace.ERROR, "Error when checking system VRM.", e);
+        throw new ResourceException(e);
+      }
+    }
+
 
 /**
 Commits the specified attribute changes.
@@ -741,6 +754,8 @@ Commits the specified attribute changes.
     protected void commitAttributeChanges(Object[] attributeIDs, Object[] values)
     throws ResourceException
     {
+        checkVRM();
+
         super.commitAttributeChanges(attributeIDs, values);
 
         // Establish the connection if needed.
@@ -781,6 +796,8 @@ Deletes the Java program.  This does not delete the class, jar, or zip file.
     public void delete()
         throws ResourceException
     {
+        checkVRM();
+
         // Establish the connection if needed.
         if (!isConnectionEstablished())
             establishConnection();
@@ -898,6 +915,8 @@ returns the same value as <b>getAttributeValue()</b>.
     public Object getAttributeUnchangedValue(Object attributeID)
     throws ResourceException
     {
+        checkVRM();
+
         Object value = super.getAttributeUnchangedValue(attributeID);
         if (value == null) {
 
@@ -947,6 +966,8 @@ ResourceEvent.
     public void refreshAttributeValues()
     throws ResourceException
     {
+        checkVRM();
+
         super.refreshAttributeValues();
 
         if (attributeGetter_ != null)
