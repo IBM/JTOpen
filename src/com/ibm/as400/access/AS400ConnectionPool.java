@@ -1476,12 +1476,21 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   /**
    * Remove the specified connection from the pool, and disconnect it.
    * Call this function if a specific connection has been discovered to
-   * no longer be valid.  This method should only be called by the process
-   * or thread to which the connection is currently allocated; that is,
+   * no longer be valid.
+   * <p>
+   * This method should only be called by the process or thread to which
+   * the connection is currently allocated; that is,
    * the process or thread that most recently obtained the connection
    * via <tt>getConnection()</tt> or <tt>getSecureConnection()</tt>.
-   * The process or thread holding the connection should call this method
-   * rather than {@link #returnConnectionToPool returnConnectionToPool()}.
+   * To remove the connection from the pool, the process or thread
+   * holding the connection should call this method <i>rather than</i>
+   * {@link #returnConnectionToPool returnConnectionToPool()}.
+   * <p>
+   * Caution: The pool does not verify that the process or thread removing
+   * the connection, is the same as the process or thread to which
+   * the connection is currently allocated.
+   * This may cause unpredictable results if the connection is in use
+   * by another process or thread.
    *
    * @param   system  The system to remove from the pool.
    **/
@@ -1499,6 +1508,17 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
   /**
    * Return the AS400 object to the connection pool.
+   * <p>
+   * This method should only be called by the process or thread to which
+   * the connection is currently allocated; that is,
+   * the process or thread that most recently obtained the connection
+   * via <tt>getConnection()</tt> or <tt>getSecureConnection()</tt>.
+   * <p>
+   * Caution: The pool does not verify that the process or thread returning
+   * the connection, is the same as the process or thread to which
+   * the connection is currently allocated.
+   * This may cause unpredictable results if the connection is in use
+   * by another process or thread.
    *
    * @param   system  The system to return to the pool.
    * @see #removeFromPool(AS400)
@@ -1667,11 +1687,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         if (discardConnection) // the caller wants the connection disconnected
         {
           if (Trace.traceOn_) {
-            log(Trace.WARNING, "Disconnecting pooled connection because removeFromPool() was invoked for that connection. The connection did not originate from this pool.");
+            log(Trace.WARNING, "Disconnecting pooled connection because removeFromPool(AS400) was called. The connection is not currently a member of this pool.");
           }
         }
         else {
-          log(Trace.ERROR, "Disconnecting pooled connection because it was returned, and the connection did not originate from this pool.");
+          log(Trace.ERROR, "Disconnecting pooled connection because it was returned, and the connection is not currently a member of this pool.");
         }
         system.disconnectAllServices();
       }
