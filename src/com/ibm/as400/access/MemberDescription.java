@@ -671,6 +671,8 @@ public class MemberDescription
                    transformBoolean(charConverter.byteArrayToString(entryBytes, offsetOf(REMOTE_FILE), 1)));
       setAttribute(LOGICAL_FILE,
                    transformBoolean(charConverter.byteArrayToString(entryBytes, offsetOf(LOGICAL_FILE), 1)));
+      setAttribute(CURRENT_NUMBER_OF_RECORDS,
+                   new Integer(intConverter_.toInt(entryBytes, offsetOf(CURRENT_NUMBER_OF_RECORDS))));
       setAttribute(ODP_SHARING,
                    transformBoolean(charConverter.byteArrayToString(entryBytes, offsetOf(ODP_SHARING), 1)));
       setAttribute(DATA_SPACE_SIZE,
