@@ -100,6 +100,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
   private boolean reuseConnections_ = true; // Re-use connections that have been returned to pool.
 
   private boolean pretestConnections_ = false; // Pretest connections before allocating them to requesters.
+  private boolean enforceMaxPoolSize_ = false; // Strictly enforce the pool size limit (maxPoolSize_).
 
 
 
@@ -160,6 +161,10 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
     super(reference);
 
     RefAddr refAddr;
+
+    refAddr = reference.get("enforceMaxPoolSize");
+    if (refAddr != null)
+      setEnforceMaxPoolSize(Boolean.valueOf((String)refAddr.getContent()).booleanValue());
 
     refAddr = reference.get("initialPoolSize");
     if (refAddr != null)
@@ -254,7 +259,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
 
   /**
    Returns the number of physical connections the connection pool should contain when it is created.
-   @return The initial number of pooled connections. The default value is 0.
+   @return The initial number of pooled connections. The default value is 5.
    **/
   public int getInitialPoolSize()
   {
@@ -383,6 +388,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
                                   "com.ibm.as400.access.AS400JDBCObjectFactory",
                                   null);
 
+    ref.add(new StringRefAddr("enforceMaxPoolSize", String.valueOf(isEnforceMaxPoolSize())));
     ref.add(new StringRefAddr("initialPoolSize", String.valueOf(getInitialPoolSize())));
     ref.add(new StringRefAddr("maxLifetime", String.valueOf(getMaxLifetime())));
     ref.add(new StringRefAddr("minPoolSize", String.valueOf(getMinPoolSize())));
@@ -407,6 +413,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
   static final boolean isConnectionPoolProperty(String prop)
   {
     return (prop.equals("initialPoolSize") ||
+            prop.equals("enforceMaxPoolSize") ||
             prop.equals("maxLifetime") ||
             prop.equals("minPoolSize") ||
             prop.equals("maxPoolSize") ||
@@ -417,9 +424,23 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
   }
 
   /**
-  Indicates whether connections are pretested before being allocated to a requester.
+  Indicates whether pool size restriction should be strictly enforced.
+  If set to true, and a connection is requested from the pool when the pool is at its maximum size limit
+  and no connections are available, then an exception will be thrown.
+  If set to false, then a warning will be traced, and a new (unpooled) physical connection will be returned.
+  @return true if the pool size restriction should be strictly enforced; false otherwise.
   The default value is false.
+  @see #setMaxPoolSize
+  **/
+  public boolean isEnforceMaxPoolSize()
+  {
+   	return enforceMaxPoolSize_;
+  }
+
+  /**
+  Indicates whether connections are pretested before being allocated to a requester.
   @return true if connections are pretested; false otherwise.
+  The default value is <tt>false</tt>.
   **/
   public boolean isPretestConnections()
   {
@@ -428,7 +449,8 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
 
   /**
    Indicates whether connections are re-used after being returned to the connection pool.
-   @return true if connections may be reused; false if connections are closed after they are returned to the pool.  The default value is <tt>true</tt>.
+   @return true if connections may be reused; false if connections are closed after they are returned to the pool.
+   The default value is <tt>true</tt>.
    **/
   public boolean isReuseConnections()
   {
@@ -444,12 +466,27 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
     in.defaultReadObject();
   }
 
+  /**
+   Sets whether pool size restriction should be strictly enforced.
+   If set to true, and a connection is requested from a full pool with no available connections,
+   then an exception will be thrown.
+   If set to false, then a warning will be traced, and a new (unpooled) physical connection will be returned.
+   @param enforce If true, then the pool size restriction should be strictly enforced.
+   The default value is <tt>false</tt>.
+   @see #setMaxPoolSize
+   **/
+  public void setEnforceMaxPoolSize(boolean enforce)
+  {
+    enforceMaxPoolSize_ = enforce;
+    logProperty("enforceMaxPoolSize", String.valueOf(enforceMaxPoolSize_));
+  }
+
 
   /**
    Sets the number of connections that the connection pool contains when it is created.
    If the pool has already been created, this method has no effect.
    @param initialPoolSize The number of pooled connections. Valid values
-   are 0 or greater.
+   are 0 or greater.  The default value is 5.
    **/
   public void setInitialPoolSize(int initialPoolSize)
   {
@@ -469,6 +506,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    are never automatically closed.
    @param maxIdleTime The maximum idle time for a pooled connection, in seconds.
    Valid values are 0 or greater.
+   The default value is 1 hour.
    **/
   public void setMaxIdleTime(int maxIdleTime)
   {
@@ -491,6 +529,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    A value of 0 indicates in-use connections are never automatically closed.
    @param maxLifetime The maximum lifetime for an in-use connection, in seconds.
    Valid values are 0 or greater.
+   The default value is 24 hours.
    **/
   public void setMaxLifetime(int maxLifetime)
   {
@@ -511,7 +550,8 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    Sets the maximum number of connections that the connection pool
    contains. A value of 0 indicates there is no maximum.
    @param maxPoolSize The maximum number of connections in this pool.
-   Valid values are 0 or greater.
+   Valid values are 0 or greater. The default value is 0 (no maximum).
+   @see #setEnforceMaxPoolSize
    **/
   public void setMaxPoolSize(int maxPoolSize)
   {
@@ -530,7 +570,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    contains. A value of 0 indicates there is no minimum and connections
    are created as they are needed.
    @param minPoolSize The minimum number of available connections in the pool.
-   Valid values are 0 or greater.
+   Valid values are 0 or greater. The default value is 0.
    **/
   public void setMinPoolSize(int minPoolSize)
   {
@@ -546,7 +586,8 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
 
   /**
    Sets whether connections are pretested before being allocated to requesters.
-   @param pretest If true, then connections are pretested; if false, then connections are not pretested.  The default value is <tt>false</tt>.
+   @param pretest If true, then connections are pretested; if false, then connections are not pretested.
+   The default value is <tt>false</tt>.
    **/
   public void setPretestConnections(boolean pretest)
   {
@@ -563,7 +604,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    open statements. A value of 0 indicates that a maintenance thread
    should not be created.
    @param propertyCycle The number of seconds that this pool should wait before enforcing
-   its properties. Valid values are 0 or greater.
+   its properties. Valid values are 0 or greater. The default value is 5 minutes.
    **/
   public void setPropertyCycle(int propertyCycle)
   {

@@ -711,7 +711,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       // this point.
       if (connection == null)
       {
-        // Future enhancement: Add a property to indicate whether we should return a non-pooled connection, or throw an exception.
         connection = createPhysicalConnection();
       }
     }
@@ -786,7 +785,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       // this point.
       if (connection == null)
       {
-        // Future enhancement: Add a property to indicate whether we should return a non-pooled connection, or throw an exception.
         connection = createPhysicalConnection(user, password);
       }
     }
@@ -847,6 +845,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     {
       if (JDTrace.isTraceOn() || log_ != null)
         logWarning("Connection pool is at or near capacity, so returning a non-pooled connection");
+      // Note: If the 'enforceMaxPoolSize' property were set to true, then JDConnectionPoolManager.getConnection() would have thrown an exception if the pool is full and no connection is available.  Since no exception was thrown, we can assume that the property is not set.
     }
 
     return connection;

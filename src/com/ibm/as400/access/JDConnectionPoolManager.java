@@ -175,6 +175,7 @@ implements ConnectionEventListener
 
 
   private boolean poolSizeLimited_;   // Total pool size (number of open connections) is limited.
+  private boolean enforceMaxPoolSize_;      // Pool size limitation is enforced.
   private boolean connectionLifetimeLimited_; // Connections have maximum lifetime; i.e. they can expire.
   private boolean pretestConnections_;      // Pretest connections before allocating them to requesters.
   private boolean reuseConnections_;        // Re-use connections that have been returned to pool.
@@ -262,19 +263,21 @@ implements ConnectionEventListener
     logger_ = logger;
     cpds_ = cpds;
 
-    initialPoolSize_  = cpds.getInitialPoolSize();
-    minPoolSize_      = cpds.getMinPoolSize();
-    maxPoolSize_      = cpds.getMaxPoolSize();
-    pretestConnections_ = cpds.isPretestConnections();
-    reuseConnections_ = cpds.isReuseConnections();
-    maxIdleTime_      = cpds.getMaxIdleTime()*1000;    // convert to milliseconds
-    maxLifetime_      = cpds.getMaxLifetime()*1000;    // convert to milliseconds
-    propertyCycle_    = cpds.getPropertyCycle()*1000;  // convert to milliseconds
+    initialPoolSize_  = cpds_.getInitialPoolSize();
+    minPoolSize_      = cpds_.getMinPoolSize();
+    maxPoolSize_      = cpds_.getMaxPoolSize();
+    enforceMaxPoolSize_ = cpds_.isEnforceMaxPoolSize();
+    pretestConnections_ = cpds_.isPretestConnections();
+    reuseConnections_ = cpds_.isReuseConnections();
+    maxIdleTime_      = cpds_.getMaxIdleTime()*1000;    // convert to milliseconds
+    maxLifetime_      = cpds_.getMaxLifetime()*1000;    // convert to milliseconds
+    propertyCycle_    = cpds_.getPropertyCycle()*1000;  // convert to milliseconds
     if (DEBUG)
     {
       logInformation("initialPoolSize_:  " + initialPoolSize_);
       logInformation("minPoolSize_:  " + minPoolSize_);
       logInformation("maxPoolSize_:  " + maxPoolSize_);
+      logInformation("enforceMaxPoolSize_:  " + enforceMaxPoolSize_);
       logInformation("pretestConnections_:  " + pretestConnections_);
       logInformation("reuseConnections_:  " + reuseConnections_);
       logInformation("maxIdleTime_:  " + maxIdleTime_ + " msecs");
@@ -288,6 +291,7 @@ implements ConnectionEventListener
       System.out.println("initialPoolSize_:  " + initialPoolSize_);
       System.out.println("minPoolSize_:  " + minPoolSize_);
       System.out.println("maxPoolSize_:  " + maxPoolSize_);
+      System.out.println("enforceMaxPoolSize_:  " + enforceMaxPoolSize_);
       System.out.println("pretestConnections_:  " + pretestConnections_);
       System.out.println("reuseConnections_:  " + reuseConnections_);
       System.out.println("maxIdleTime_:  " + maxIdleTime_ + " msecs");
@@ -1239,14 +1243,17 @@ implements ConnectionEventListener
    @param poolKey The connection pool key.  'null' indicates that the default key is to be used.
    @param password The password.  Ignored if poolKey is null.
    @return The connection, or null if the pool is at or near capacity.
+   @throws SQLException if the pool is closed; or if no connection is available from the full pool and the pool size limit is being strictly enforced.
    **/
-  final AS400JDBCConnectionHandle getConnection(JDConnectionPoolKey poolKey, String password)
+  final AS400JDBCConnectionHandle getConnection(JDConnectionPoolKey poolKey, String password) throws SQLException
   {
     if (DEBUG || GATHER_STATS) numGetConnectionCalls_received_++;
 
     if (poolClosed_) {
       if (DEBUG || GATHER_STATS) numGetConnectionCalls_whileClosing_++;
-      return null;
+      String msg = ResourceBundleLoader.getText("EXC_CONN_POOL_CLOSED");
+      Trace.log(Trace.ERROR, msg);
+      throw new SQLException(msg);
     }
     pauseIfPoolPaused(0);  // if pool is paused, wait until unpause() is called
 
@@ -1264,7 +1271,7 @@ implements ConnectionEventListener
     }
     else keyIsDefault = false;
 
-    AS400JDBCPooledConnection conn = null;
+    AS400JDBCPooledConnection conn1 = null;
     boolean needMoreDefaultConnections = false;
 
     boolean done = false;
@@ -1274,29 +1281,31 @@ implements ConnectionEventListener
       {
         if (poolClosed_) {
           if (DEBUG || GATHER_STATS) numGetConnectionCalls_whileClosing_++;
-          return null;
+          String msg = ResourceBundleLoader.getText("EXC_CONN_POOL_CLOSED");
+          Trace.log(Trace.ERROR, msg);
+          throw new SQLException(msg);
         }
         // Make at most 3 tries to get a connection.
         // If we're lucky there's a connection available and we'll only need 1 pass to get a connection.
         // If not, the 2nd pass is after swap attempt.
         // If still no luck, then the third pass is after we've attempted to add a new physical connection to the pool.
-        for (int jj=0; conn == null && jj<3; jj++)
+        for (int jj=0; conn1 == null && jj<3; jj++)
         {
           // See if there's an available connection.
           Stack connStack = (Stack)availableConnections_[FOREGROUND].get(poolKey);
           if (connStack != null && !connStack.empty())
           {
             // Retrieve the most recently used connection.
-            conn = (AS400JDBCPooledConnection)connStack.pop();
+            conn1 = (AS400JDBCPooledConnection)connStack.pop();
             // Also remove the connection from the associated 'idled sequence' list.
             // For performance, search the idled sequence from the end (most-recently inserted).
-            availableConnectionsIdledSequence_[FOREGROUND].remove(conn);  // connection is no longer idle
+            availableConnectionsIdledSequence_[FOREGROUND].remove(conn1);  // connection is no longer idle
 
             // While we've got the list locked, see if we've taken the last available connection.
             if (keyIsDefault && connStack.empty()) needMoreDefaultConnections = true;
           }
 
-          if (conn == null)
+          if (conn1 == null)
           {
             if (!triedToSwap)  // We haven't tried swapping lists yet.
             {
@@ -1316,18 +1325,19 @@ implements ConnectionEventListener
       }  // synchronized block
 
 
-      if (!pretestConnections_ || conn == null)
+      // If appropriate, pre-test the connection.
+      if (!pretestConnections_ || conn1 == null)
       {
         done = true;  // we're done with loop
       }
       else
       {
-        // The "pretest" flag is on, so pretest the connection before returning it to caller.
+        // Pre-test the connection before handing it to caller.
         // Note that we don't do pretesting inside the synchronized block, so as to avoid tying up the availableConnections_ list while we ping the server job.
         AS400Impl system = null;
         SQLException exc = null;
         try {
-          system = conn.getInternalConnection().getAS400();
+          system = conn1.getInternalConnection().getAS400();
         }
         catch (SQLException e) {
           logException(ResourceBundleLoader.getText("AS400CP_FILLEXC"), e);
@@ -1335,22 +1345,22 @@ implements ConnectionEventListener
         if (system == null || !system.isConnectionAlive(AS400.DATABASE))
         {
           // This pooled connection is bad.  Add it to the 'condemned' list.
-          if (JDTrace.isTraceOn()) logDiagnostic("JDConnectionPoolManager.getConnection() is condemning a connection that has failed a validity pretest: " + conn.toString());
+          if (JDTrace.isTraceOn()) logDiagnostic("JDConnectionPoolManager.getConnection() is condemning a connection that has failed a validity pretest: " + conn1.toString());
           synchronized (condemnedConnections_)
           {  // Mark the failed connection for removal from the pool.
-            condemnedConnections_.add(conn);
+            condemnedConnections_.add(conn1);
           }
-          conn = null;
+          conn1 = null;
           done = false;  // loop again, to try another connection
         }
       }
     }  // for ii
     
-    AS400JDBCConnectionHandle handle = null;
-    if (conn != null)
+    AS400JDBCConnectionHandle handle1 = null;
+    if (conn1 != null)
     {
       try {
-        handle = conn.getConnectionHandle();  // returns an instance of AS400JDBCConnectionHandle
+        handle1 = conn1.getConnectionHandle();  // creates an instance of AS400JDBCConnectionHandle
       }
       catch (SQLException e)
       {
@@ -1358,24 +1368,25 @@ implements ConnectionEventListener
         // This pooled connection is bad.  Add it to the 'condemned' list.
         synchronized (condemnedConnections_)
         {
-          condemnedConnections_.add(conn);
+          condemnedConnections_.add(conn1);
         }
-        conn = null;
+        conn1 = null;
+        handle1 = null;
       }
     }
 
-    if (conn != null)
+    if (conn1 != null)
     {
       if (DEBUG || GATHER_STATS) numGetConnectionCalls_succeeded_++;
       // Add the connection to the 'active' list.
       synchronized (activeConnections_)
       {  // Don't pause while connection is in limbo.
-        activeConnections_.add(conn);
-        conn.timeWhenPoolStatusLastModified_ = System.currentTimeMillis();
+        activeConnections_.add(conn1);
+        conn1.timeWhenPoolStatusLastModified_ = System.currentTimeMillis();
       }
     }
 
-    if (conn == null)
+    if (conn1 == null)
     {
       if (keyIsDefault) needMoreDefaultConnections = true;
       if (GATHER_STATS) System.out.print("(("+poolKey.getUser() + "/" +password+"))");
@@ -1398,7 +1409,15 @@ implements ConnectionEventListener
       wakeMaintainerDaemon();
     }
 
-    return handle;
+    // If appropriate, throw an exception indicating that pool is full and no connection is available.
+    if (handle1 == null && enforceMaxPoolSize_)
+    {
+      String msg = ResourceBundleLoader.getText("AS400CP_MAXSIZE_FAILED");
+      Trace.log(Trace.ERROR, msg);
+      throw new SQLException(msg);
+    }
+
+    return handle1;
   }
 
 

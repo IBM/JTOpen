@@ -253,10 +253,10 @@ public class MRI2 extends ListResourceBundle
       { "PROP_NAME_SP_MSGLOGGING", "messageLogging" },
       { "PROP_DESC_SP_MSGLOGGING", "Messages are written to the job log for the current job and to the QHST message log." },
 
-      { "PROP_NAME_SP_MINFAULTS", "minimunFaults" },
+      { "PROP_NAME_SP_MINFAULTS", "minimumFaults" },
       { "PROP_DESC_SP_MINFAULTS", "Minimum faults to use for the storage pool." },
 
-      { "PROP_NAME_SP_MINPOOLSIZE", "minimunPoolSize" },
+      { "PROP_NAME_SP_MINPOOLSIZE", "minimumPoolSize" },
       { "PROP_DESC_SP_MINPOOLSIZE", "Minimum amount of storage to allocate to a storage pool." },
 
       { "PROP_NAME_SP_PERTHRDFLTS", "perThreadFaults" },
@@ -413,7 +413,7 @@ public class MRI2 extends ListResourceBundle
       //      { "PROP_NAME_CPDS_MAX_STATEMENTS", "maxStatements"},
       //      { "PROP_DESC_CPDS_MAX_STATEMENTS", "The maximum number of statements any one pooled connection can have."},
       { "PROP_NAME_CPDS_MIN_POOL_SIZE", "minPoolSize"},
-      { "PROP_DESC_CPDS_MIN_POOL_SIZE", "The minium number of available connections in the pool."},
+      { "PROP_DESC_CPDS_MIN_POOL_SIZE", "The minimum number of available connections in the pool."},
       { "PROP_NAME_CPDS_PROP_CYCLE", "propertyCycle"},
       { "PROP_DESC_CPDS_PROP_CYCLE", "The cleanup time interval for the connection pool."},
 
@@ -504,6 +504,8 @@ public class MRI2 extends ListResourceBundle
       { "AS400CP_FILLING", "filling &0 connections to &1/&2" },                  // @E8A
 
       { "AS400CP_FILLEXC", "filling of connections failed with an exception" },  // @E8A
+
+      { "AS400CP_MAXSIZE_FAILED", "Unable to allocate connection, because pool is full and no connection is available." },
 
          // #TRANNOTE #####################################################
          // #TRANNOTE MRI For AS400JPing
