@@ -28,8 +28,6 @@ import java.util.ResourceBundle;
 **/
 class JavaApplicationCallThread extends Thread
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     Socket errorSocket_ = null;
     Socket readSocket_  = null;
     Socket writeSocket_ = null;
@@ -65,8 +63,8 @@ class JavaApplicationCallThread extends Thread
     void closeSockets()
     {
         // The following will wait until all data is out of the
-        // standard error and standard out pipe before closing
-        // them.  The standard error/out code will increment the
+        // stderr and stdout pipe before closing
+        // them.  The sterr/stdout code will increment the
         // counter every time they get data from the socket.
         // This code will keeping looping until all data
         // is out of the sockets.  This code will not wait
@@ -153,7 +151,7 @@ class JavaApplicationCallThread extends Thread
     }
 
     /**
-        Returns the standard error come from the application running on the server.
+        Returns the stderr come from the application running on the server.
     **/
     String getStandardErrorString()
     {
@@ -178,7 +176,7 @@ class JavaApplicationCallThread extends Thread
     }
 
     /**
-        Returns the standard output come from the application running on the server.
+        Returns the stdout come from the application running on the server.
     **/
     String getStandardOutString()
     {
@@ -213,7 +211,7 @@ class JavaApplicationCallThread extends Thread
            }
            catch (Exception e)
            {
-               Trace.log(Trace.ERROR, e.toString(), e);
+               Trace.log(Trace.ERROR, e.toString() + " (Suggestion: Verify that a firewall is not blocking communication from the IBM i server to the client.)", e);
            }
            try
            {
@@ -237,7 +235,7 @@ class JavaApplicationCallThread extends Thread
 
 
     /**
-        Sends the standard input to the application running on the server.
+        Sends the stdin to the application running on the server.
     **/
     void sendStandardInString(String s)
     {
