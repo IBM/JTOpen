@@ -336,8 +336,8 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
           }
           catch (IOException e)
           {
-            system_.disconnectServer(server_);
-            Trace.log(Trace.ERROR, "IOException during exchange attributes:", e);
+            Trace.log(Trace.ERROR, "IOException during exchange attributes, :", e);
+            disconnectServer();
             throw e;
           }
 
@@ -345,7 +345,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
           {
             // Unknown data stream.
             Trace.log(Trace.ERROR, "Unknown exchange attributes reply datastream:", baseReply.data_);
-            system_.disconnectServer(server_);
+            disconnectServer();
             throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
           }
 
@@ -449,7 +449,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             if (!(baseReply instanceof RCRunCommandReplyDataStream))
             {
                 Trace.log(Trace.ERROR, "Unknown run command reply datastream:", baseReply.data_);
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
 
@@ -464,8 +464,8 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to remote command server:", e);
+            disconnectServer();
             throw e;
         }
     }
@@ -525,7 +525,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             if (!(baseReply instanceof RCCallProgramReplyDataStream))
             {
                 Trace.log(Trace.ERROR, "Unknown run program reply datastream ", baseReply.data_);
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
 
@@ -563,8 +563,8 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to remote command server:", e);
+            disconnectServer();
             throw e;
         }
     }
@@ -701,15 +701,15 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 return;
             case 0x0101:  // Invalid exchange attributes request.
                 Trace.log(Trace.ERROR, "Exchange attributes request not valid.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR);
             case 0x0102:  // Invalid datastream level.
                 Trace.log(Trace.ERROR, "Datastream level not valid.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.DATA_STREAM_LEVEL_NOT_VALID);
             case 0x0103:  // Invalid version.
                 Trace.log(Trace.ERROR, "Version not valid.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.VRM_NOT_VALID);
 
             case 0x0104:  // Invalid CCSID.
@@ -735,33 +735,33 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             case 0x0203:  // Incomplete data.
             case 0x0205:  // Invalid request ID.
                 Trace.log(Trace.ERROR, "Datastream not valid.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR);
             case 0x0204:  // Host resource error.
                 Trace.log(Trace.ERROR, "Host Resource error.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
 
             // Return codes common to RMTCMD & RMTPGMCALL requests:
             case 0x0300:  // Process exit point error.  Error occurred when trying to retrieve the exit point for user exit program processing.  This can occur when the user exit program cannot be resolved.
                 Trace.log(Trace.ERROR, "Process exit point error.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_POINT_PROCESSING_ERROR);
             case 0x0301:  // Invalid request.  The request data stream did not match what was required for the specified request.
             case 0x0302:  // Invalid parameter.
                 Trace.log(Trace.ERROR, "Request not valid.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR);
             case 0x0303:  // Maximum exceeded.  For RMTCMD, the maximum command length was exceeded and for RMTPGMCALL, the maximum number of parameters was exceeded.
                 Trace.log(Trace.ERROR, "Maximum exceeded.");
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.LENGTH_NOT_VALID);
             case 0x0304:  // An error occured when calling the user exit program.
                 Trace.log(Trace.ERROR, "Error calling exit program.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_CALL_ERROR);
             case 0x0305:  // User exit program denied the request.
                 Trace.log(Trace.ERROR, "Exit program denied request.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_DENIED_REQUEST);
 
             // RMTCMD specific return codes:
@@ -782,11 +782,21 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
             default:
                 Trace.log(Trace.ERROR, "Return code unknown.");
-                system_.disconnectServer(server_);
+                disconnectServer();
                 throw new InternalErrorException(InternalErrorException.UNEXPECTED_RETURN_CODE);
         }
     }
 
+    // Disconnects the server, and swallows any exceptions.
+    private void disconnectServer()
+    {
+      try { system_.disconnectServer(server_); }
+      catch (Throwable e) {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception while attempting to disconnect the server:", e);
+      }
+    }
+
+    // Parses the messages returned from the command call or program call.
     static AS400Message[] parseMessages(byte[] data, ConverterImplRemote converter) throws IOException
     {
         int messageNumber = BinaryConverter.byteArrayToUnsignedShort(data, 22);
