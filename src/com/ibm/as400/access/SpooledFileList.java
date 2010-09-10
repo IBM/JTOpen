@@ -16,8 +16,8 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * The SpooledFileList class is used to build a list of objects of type
- * SpooledFile.  The list can be filtered by formtype, output queue, user, ending date,
+ * Builds a list of objects of type SpooledFile.
+ * The list can be filtered by formtype, output queue, user, ending date,
  * ending time, or user data.
  *
  *@see SpooledFile
@@ -27,8 +27,6 @@ import java.beans.PropertyVetoException;
 public class SpooledFileList extends PrintObjectList
 implements java.io.Serializable 
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     private static final String FORM_TYPE_FILTER = "formTypeFilter";
@@ -167,7 +165,7 @@ implements java.io.Serializable
    }
 
    /**
-     * Returns the end create date filter.
+     * Returns the create end date filter.
      *
      **/
    public String getEndDateFilter()
@@ -179,7 +177,7 @@ implements java.io.Serializable
    }
    
    /**
-     * Returns the end create date filter.
+     * Returns the create end time filter.
      *
      **/
    public String getEndTimeFilter()
@@ -210,7 +208,7 @@ implements java.io.Serializable
    }
 
    /**
-     * Returns the create date filter.
+     * Returns the create start time filter.
      *
      **/
    public String getStartTimeFilter()
@@ -218,7 +216,7 @@ implements java.io.Serializable
     // If empty, getStartTime will return an blank string.
     
        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
-       return( selectionCP.getEndTime() );
+       return( selectionCP.getStartTime() );
    }
    
    
