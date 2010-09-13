@@ -17,8 +17,7 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- * The FieldDescription class is an
- *abstract base class that allows the user to describe the data in a field
+ *An abstract base class that allows the user to describe the data in a field
  *with an AS400DataType object and a name.  Optionally, the user can specify a
  *data definition specification (DDS) field name and DDS keywords if the field will
  *be used with the record level access classes to define a RecordFormat object
@@ -40,11 +39,11 @@ abstract public class FieldDescription implements Serializable
 
 
   // Public constants. 
-  /** Constant indicating left alignment of data within the field layout.  **/// @C1A
-  /** This is only used for record level writing.                          **/// @C1A
+  /** Constant indicating left alignment of data within the field layout.  **/
+  /** This is only used for record level writing.                          **/
   public static final int ALIGN_LEFT    = 1;    // @C1A
-  /** Constant indicating right alignment of data within the field layout. **/// @C1A
-  /** This is only used for record level writing.                          **/// @C1A
+  /** Constant indicating right alignment of data within the field layout. **/
+  /** This is only used for record level writing.                          **/
   public static final int ALIGN_RIGHT   = 2;    // @C1A
   
   // ALIAS keyword
@@ -70,8 +69,14 @@ abstract public class FieldDescription implements Serializable
   int length_;
   // The name of the field.
   String name_ = "";
+  // REFFIL keyword
+  String refFil_ = "";
   // REFFLD keyword
   String refFld_ = "";
+  // REFFMT keyword
+  String refFmt_ = "";
+  // REFLIB keyword
+  String refLib_ = "";
   // TEXT keyword - must be less than or equal to 50 characters
   String text_ = "";
   //@B0A
@@ -171,7 +176,7 @@ abstract public class FieldDescription implements Serializable
 
   /**
    *Returns the value specified for the ALWNULL keyword for this field.
-   *@return The value specified for the ALWNULL keyword. If ALWNULL was not
+   *@return The value specified for the ALWNULL (allow null value) keyword. If ALWNULL was not
    *specified for this field, false is returned.
   **/
   public boolean getALWNULL()
@@ -181,9 +186,11 @@ abstract public class FieldDescription implements Serializable
 
   /**
    *Returns the value specified for the COLHDG keyword for this field.
-   *@return The value specified for the COLHDG
+   *@return The value specified for the COLHDG (column heading)
    *        keyword for this field.  If COLHDG was not specified for this field,
    *        an empty string is returned.
+   *        For a description of the format of the 3-part column heading string,
+   *        refer to {@link #setCOLHDG setCOLHDG()}.
   **/
   public String getCOLHDG()
   {
@@ -202,7 +209,7 @@ abstract public class FieldDescription implements Serializable
 
   /**
    *Returns the value specified for the DFT keyword for this field.
-   *@return The value specified for the DFT keyword for this field.
+   *@return The value specified for the DFT (default) keyword for this field.
    *If DFT was not specified for this field, null is returned.
   **/
   public Object getDFT()
@@ -247,7 +254,7 @@ abstract public class FieldDescription implements Serializable
 
   /**
    *Returns the common field level key words for the field.
-   *This method returns a string containing an keywords common to all fields
+   *This method returns a string containing any keywords common to all fields
    *that have been specified for the field, formatted for entry in a DDS source
    *file.
    *@return The common field level keywords specified for this field, properly
@@ -271,6 +278,18 @@ abstract public class FieldDescription implements Serializable
     if (!refFld_.equals(""))
     {
       v.addElement("REFFLD(" + refFld_ + ") ");
+    }
+    if (!refFil_.equals("")) 
+    {
+      v.addElement("REFFIL(" + refFil_ + ") ");
+    }
+    if (!refFmt_.equals("")) 
+    {
+      v.addElement("REFFMT(" + refFmt_ + ") ");
+    }
+    if (!refLib_.equals("")) 
+    {
+      v.addElement("REFLIB(" + refLib_ + ") ");
     }
     if (!text_.equals(""))
     {
@@ -359,14 +378,47 @@ abstract public class FieldDescription implements Serializable
   }
 
   /**
+   *Returns the value specified for the REFFIL keyword for this field.
+   *@return The value specified for the REFFIL (reference file) keyword
+   *        for this field.  If REFFIL was not specified for this field,
+   *        an empty string is returned.
+  **/
+  public String getREFFIL()
+  {
+    return refFil_;
+  }
+
+  /**
    *Returns the value specified for the REFFLD keyword for this field.
-   *@return The value specified for the REFFLD keyword
+   *@return The value specified for the REFFLD (reference field) keyword
    *        for this field.  If REFFLD was not specified for this field,
    *        an empty string is returned.
   **/
   public String getREFFLD()
   {
     return refFld_;
+  }
+
+  /**
+   *Returns the value specified for the REFFMT keyword for this field.
+   *@return The value specified for the REFFMT (reference record format) keyword
+   *        for this field.  If REFFMT was not specified for this field,
+   *        an empty string is returned.
+  **/
+  public String getREFFMT()
+  {
+    return refFmt_;
+  }
+
+  /**
+   *Returns the value specified for the REFLIB keyword for this field.
+   *@return The value specified for the REFLIB (reference library) keyword
+   *        for this field.  If REFLIB was not specified for this field,
+   *        an empty string is returned.
+  **/
+  public String getREFLIB()
+  {
+    return refLib_;
   }
 
   /**
@@ -406,7 +458,7 @@ abstract public class FieldDescription implements Serializable
 
   /**
    *Sets the value for the ALWNULL keyword for this field.
-   *@param allowNull true if null is allowed; false otherwise.
+   *@param allowNull true if a null value is allowed; false otherwise.
   **/
   public void setALWNULL(boolean allowNull)
   {
@@ -415,7 +467,7 @@ abstract public class FieldDescription implements Serializable
 
   /**
    *Sets the value for the COLHDG keyword for this field.
-   *@param colHdg The value for the COLHDG keyword
+   *@param colHdg The value for the COLHDG (column heading) keyword
    *              for this field.<br>
    *                     Format: "'Col heading 1' 'Col heading 2' 'Col heading 3'"<br>
    *                     Examples:
@@ -592,11 +644,26 @@ abstract public class FieldDescription implements Serializable
         layoutLength_ = layoutLength;
   }
   
-  
-  
+
+
+  /**
+   *Sets the value to be specified for the REFFIL keyword for this field.
+   *@param refFil The value for the REFFIL (reference file) keyword
+   *               for this field.
+  **/
+  public void setREFFIL(String refFil)
+  {
+    if (refFil == null)
+    {
+      throw new NullPointerException("refFil");
+    }
+    refFil_ = refFil;
+  }
+
+
   /**
    *Sets the value to be specified for the REFFLD keyword for this field.
-   *@param refFld The value for the REFFLD keyword
+   *@param refFld The value for the REFFLD (reference field) keyword
    *               for this field.
   **/
   public void setREFFLD(String refFld)
@@ -606,6 +673,36 @@ abstract public class FieldDescription implements Serializable
       throw new NullPointerException("refFld");
     }
     refFld_ = refFld;
+  }
+
+
+  /**
+   *Sets the value to be specified for the REFFMT keyword for this field.
+   *@param refFmt The value for the REFFMT (reference record format) keyword
+   *               for this field.
+  **/
+  public void setREFFMT(String refFmt)
+  {
+    if (refFmt == null)
+    {
+      throw new NullPointerException("refFmt");
+    }
+    refFmt_ = refFmt;
+  }
+
+
+  /**
+   *Sets the value to be specified for the REFLIB keyword for this field.
+   *@param refLib The value for the REFLIB (reference library) keyword
+   *               for this field.
+  **/
+  public void setREFLIB(String refLib)
+  {
+    if (refLib == null)
+    {
+      throw new NullPointerException("refLib");
+    }
+    refLib_ = refLib;
   }
 
   /**
