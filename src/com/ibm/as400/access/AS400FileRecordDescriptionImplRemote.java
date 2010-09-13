@@ -734,13 +734,68 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         Trace.log(Trace.ERROR, "Unrecognized field type: " + fieldType);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
+
     // Set if null values are allowed
     if(((String)record.getField("WHNULL")).equals("Y"))
     {
       fd.setALWNULL(true);
     }
+
     // Set the field text
     fd.setTEXT(((String)record.getField("WHFTXT")).trim());
+
+    String value;
+
+    // Set the ALIAS
+    value = ((String)record.getField("WHALIS")).trim();
+    if(value.length() != 0) fd.setALIAS(value);
+
+    // Set the REFFIL (reference file)
+    value = ((String)record.getField("WHRFIL")).trim();
+    if(value.length() != 0) fd.setREFFIL(value); 
+
+    // Set the REFFLD (reference field)
+    value = ((String)record.getField("WHRFLD")).trim();
+    if(value.length() != 0) fd.setREFFLD(value);
+
+    // Set the REFFMT (reference record format)
+    value = ((String)record.getField("WHRFMT")).trim();
+    if(value.length() != 0) fd.setREFFMT(value);
+
+    // Set the REFLIB (reference library)
+    value = ((String)record.getField("WHRLIB")).trim();
+    if(value.length() != 0) fd.setREFLIB(value); 
+
+    // Set the COLHDG (column heading)
+    String colHdg1 = ((String)record.getField("WHCHD1")).trim();
+    String colHdg2 = ((String)record.getField("WHCHD2")).trim();
+    String colHdg3 = ((String)record.getField("WHCHD3")).trim();
+    if (colHdg1.length() == 0 &&
+        colHdg2.length() == 0 &&
+        colHdg3.length() == 0)
+    {}  // nothing to set
+    else
+    {
+      // Concatenate the 3 "column heading" fields into a single string.
+      // Delimit each part by single-quotes.
+      // For example: "'FIRST PART' 'SECOND PART' 'THIRD PART'"
+      StringBuffer sb = new StringBuffer();
+
+      if (colHdg1.length() == 0) sb.append("''");
+      else sb.append("'" + colHdg1 + "'");
+
+      if (colHdg2.length() == 0) {
+        if (colHdg3.length() == 0) {}
+        else sb.append(" ''");
+      }
+      else sb.append(" '" + colHdg2 + "'");
+
+      if (colHdg3.length() == 0) {}
+      else sb.append(" '" + colHdg3 + "'");
+
+      fd.setCOLHDG(sb.toString()); 
+    }
+
     // Add the field description
     rf.addFieldDescription(fd);
   }
@@ -809,9 +864,9 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
 
       // Read all the records from the file so we can extract the field information locally
       //@B5D SequentialFile dspffd = new SequentialFile(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE");
-      AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A
+      AS400FileImplBase tempFile = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A
                                                                      "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
-      dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE",             //@B5A
+      tempFile.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE",             //@B5A
                     new QWHDRFFDFormat(system_.getCcsid()), false, false, false);  //@B5A
       //@B5D try
       //@B5D {
@@ -820,8 +875,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       //@B5D catch(PropertyVetoException e)
       //@B5D { // Quiet the compiler
       //@B5D }
-      records = dspffd.readAll("seq", 100); //@B5C @D1C @E0C
-      dspffd.delete(); //@E0A
+      records = tempFile.readAll("seq", 100); //@B5C @D1C @E0C
+      tempFile.delete(); //@E0A
     }                  //@E0A
 
     // ------------------------------------------------------------ 
@@ -848,9 +903,9 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
 
       // Read all the records from the file so we can extract the key field information locally
       //@B5D dspffd = new SequentialFile(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE");
-      AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A @E0C
+      AS400FileImplBase tempFile = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A @E0C
                                                                      "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
-      dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",             //@B5A
+      tempFile.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",             //@B5A
                     new QWHFDACPFormat(system_.getCcsid()), false, false, false); //@B5A
       //@B5D try
       //@B5D {
@@ -859,8 +914,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       //@B5D catch(PropertyVetoException e)
       //@B5D { // Quiet the compiler
       //@B5D }
-      keyRecords = dspffd.readAll("key", 100); //@B5C @D1C @E0C
-      dspffd.delete(); //@E0A
+      keyRecords = tempFile.readAll("key", 100); //@B5C @D1C @E0C
+      tempFile.delete(); //@E0A
     }                  //@E0A
 
     // Determine the number of record formats contained in the file
@@ -1039,23 +1094,23 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        Trace.log(Trace.ERROR, "DSPFFD failed to return success message", cmd);
+        Trace.log(Trace.ERROR, "DSPFD failed to return success message", cmd);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
       // Read all the records from the file so we can extract the key field information locally
-      AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",
+      AS400FileImplBase tempFile = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",
                                              "com.ibm.as400.access.AS400FileImplRemote");
-      dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",
+      tempFile.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",
                     new SaveFileAttrFormat(system_.getCcsid()), false, false, false);
-      attrRecords = dspffd.readAll("seq", 100);
+      attrRecords = tempFile.readAll("seq", 100);
       if (attrRecords.length == 0) {
         Trace.log(Trace.ERROR, "No records were returned from command " + cmd);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
       // Implementation note: I tried using read() and read(0) instead of readAll(), but some needed logic is missing along those paths; so we'll just use what works.
 
-      dspffd.delete();
+      tempFile.delete();
     }
 
     return attrRecords[0];
@@ -1217,7 +1272,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         else
         { // Unexpected reply
-          Trace.log(Trace.ERROR, "DSPFFD failed to return success message", cmd);
+          Trace.log(Trace.ERROR, "DSPFD failed to return success message", cmd);
           throw new InternalErrorException(InternalErrorException.UNKNOWN);
         }
 
@@ -1239,7 +1294,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         //@B5D }
         keyRecords = tempFile.readAll("key", 100); //@B5C @D1C @E0C
 
-        // If we needed to reset the CCSID of the DSPFFD temp file, we probably also need to reset the CCSID of the DSPFD temp file.
+        // If we needed to reset the CCSID of the DSPFD temp file, we probably also need to reset the CCSID of the DSPFD temp file.
         if (keyRecords.length == 0 && neededToResetCcsid)
         {
           // We got no records back. Assume that it's because the default CCSID for the outfile was incompatible with the CCSID for the file's format.
