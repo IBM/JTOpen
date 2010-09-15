@@ -1276,10 +1276,12 @@ public class Trace implements Runnable
 
   // Note: If this method is called with a non-null argument, we will disregard any existing Logger.
   /**
-    Sets the trace file name.  If the file exists, output is appended to
+    Sets the trace file name.  All further trace output is sent to the file.
+    If the file exists, output is appended to
     it.  If the file does not exist, it is created.
     @param  fileName  The log file name.  If this is null, output goes to System.out.
     @exception  IOException  If an error occurs while accessing the file.
+    @see #setPrintWriter(PrintWriter)
    **/
   public static synchronized void setFileName(String fileName) throws IOException
   {
@@ -1310,11 +1312,13 @@ public class Trace implements Runnable
 
   /**
     Sets the trace file name for the specified component.
+    All further trace output for the specified component is sent to the file.
     If the file exists, output is appended to
     it.  If the file does not exist, it is created.
     @param  fileName  The log file name.  If this is null, output goes to System.out.
-    @param  component Trace data for this component goes to file <code>fileName</code>.
+    @param  component The component to trace to the file.
     @exception  IOException  If an error occurs while accessing the file.
+    @see #setPrintWriter(Object,PrintWriter)
    **/
   public static synchronized void setFileName(Object component, String fileName)
   throws IOException
@@ -1353,9 +1357,12 @@ public class Trace implements Runnable
 
   // Note: If this method is called with a non-null argument, we will disregard any existing Logger.
   /**
-    Sets the PrintWriter object.  All further trace output is sent to it.
+    Sets the PrintWriter object.
+    All further trace output is sent to the writer.
     @param  obj  The PrintWriter object.  If this is null, output goes to System.out.
+    Note: The PrintWriter class has no relationship with IBM i "printer devices".
     @exception  IOException  If an error occurs while accessing the file.
+    @see #setFileName(String)
    **/
   public static synchronized void setPrintWriter(PrintWriter obj) throws IOException
   {
@@ -1381,10 +1388,12 @@ public class Trace implements Runnable
 
   /**
     Sets the PrintWriter object for the specified component.
-    All further trace output for this component is sent to the writer.
-    @param  component Trace data for this component goes to writer <code>obj</code>.
+    All further trace output for the specified component is sent to the writer.
+    @param  component The component to trace to the writer.
     @param  obj  The PrintWriter object.  If this is null, output goes to System.out.
+    Note: The PrintWriter class has no relationship with IBM i "printer devices".
     @exception  IOException  If an error occurs while accessing the file.
+    @see #setFileName(Object,String)
    **/
   public static synchronized void setPrintWriter(Object component, PrintWriter obj)
   throws IOException

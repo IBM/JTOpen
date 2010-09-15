@@ -29,8 +29,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 
 /**
- *The AS400File class represents a physical or logical file on the system.
- *It allows the user to do the following:
+ *Represents a physical or logical file on the system.
+ *This class allows the user to do the following:
  *<ul>
  *<li>Create a physical file on the system by:
  *<ul>
@@ -612,11 +612,11 @@ abstract public class AS400File implements Serializable
      *</ul>
      *</ul>
      *</ul>
-     *<b>Note:</b> The file is created using the default values for
+     *<b>Note:</b> The file is created using the default values for the
      * Create Physical File (CRTPF) command.
-     * Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
-     * command  to change the file after it
-     *has been created.<br>
+     * To change the file after it has been created, use the
+     * <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
+     * command.<br>
      *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
@@ -706,10 +706,11 @@ abstract public class AS400File implements Serializable
 
     /**
      *Creates a physical file using the specified DDS source file.
-     *<b>Note:</b> The file is created using the default values for
+     *<b>Note:</b> The file is created using the default values for the
      * Create Physical File (CRTPF) command.
-     *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
-     *has been created.<br>
+     * To change the file after it has been created, use the
+     * <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
+     * command.<br>
      *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
@@ -758,10 +759,11 @@ abstract public class AS400File implements Serializable
     /**
      *Creates a physical file using the specified record format.  The record format
      *for this object will be set by this method.
-     *<b>Note:</b> The file is created using the default values for
+     *<b>Note:</b> The file is created using the default values for the
      * Create Physical File (CRTPF) command.
-     *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
-     *has been created.<br>
+     * To change the file after it has been created, use the
+     * <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
+     * command.<br>
      *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
@@ -792,10 +794,11 @@ abstract public class AS400File implements Serializable
     /**
      *Creates a physical file using the specified record format and any specified
      *keywords.  The record format for this object will be set by this method.
-     *<b>Note:</b> The file is created using the default values for
+     *<b>Note:</b> The file is created using the default values for the
      * Create Physical File (CRTPF) command.
-     *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
-     *has been created.<br>
+     * To change the file after it has been created, use the
+     * <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
+     * command.<br>
      *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
