@@ -109,11 +109,6 @@ public class JPing
    public static void main(String args[])
    {
       PrintWriter writer = new PrintWriter(System.out, true);    //The PrintWriter used when running via the command line.
-      
-      if (args.length == 0) {
-         usage(writer);
-         return;
-      }
        
       try 
       {
@@ -164,13 +159,13 @@ public class JPing
     **/
    private static boolean parseParms(String args[], PrintWriter writer) throws Exception
    {
-      String s,t;
+      if (args.length == 0) return false;
 
-      Vector v = new Vector();
-      v.addElement("-service");
-      v.addElement("-ssl");
-      v.addElement("-timeout");
-      v.addElement("-verbose");
+      Vector options = new Vector();
+      options.addElement("-service");
+      options.addElement("-ssl");
+      options.addElement("-timeout");
+      options.addElement("-verbose");
 
       Hashtable shortcuts = new Hashtable();
       shortcuts.put("-h", "-help");
@@ -179,10 +174,10 @@ public class JPing
       shortcuts.put("-t", "-timeout");
       shortcuts.put("-v", "-verbose");
       
-      CommandLineArguments arguments = new CommandLineArguments(args, v, shortcuts);
+      CommandLineArguments arguments = new CommandLineArguments(args, options, shortcuts);
 
       // If this flag is specified by the user, just display the help text.
-      if(arguments.getOptionValue("-help") != null) {
+      if (arguments.isOptionSpecified("-help")) {
         return false;
       }
 
@@ -193,7 +188,7 @@ public class JPing
       }
 
       // Get the specific IBM i service the user wants to ping.
-      s = arguments.getOptionValue("-service");
+      String s = arguments.getOptionValue("-service");
       if (s != null && s.length() != 0)
       {
         srv_ = toServiceNumber(s);
@@ -204,17 +199,15 @@ public class JPing
       }
          
       // The user wants to use SSL if they specify this flag.
-      if (arguments.getOptionValue("-ssl") != null)
-         ssl_ = true;
+      ssl_ = (arguments.isOptionSpecified("-ssl"));
 
       // Get the JPing timeout value.
-      t = arguments.getOptionValue("-timeout");
+      String t = arguments.getOptionValue("-timeout");
       if (t != null)
          time_ = (new Integer(t)).intValue();
          
       // The user wants verbose output if they specify this flag.
-      if (arguments.getOptionValue("-verbose") != null)
-         verbose_ = true;
+      verbose_ = (arguments.isOptionSpecified("-verbose"));
 
       return true;
    }
