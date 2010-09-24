@@ -20,7 +20,7 @@ import java.util.Vector;
 
 
 /**
- *  The CommandLineArguments class will parse command line arguments into
+ *  A utility that parses command line arguments into
  *  options specified in the format "-optionName optionValue".
  *  <p>
  *  Here is an example of calling a program from the command line with arguments:
@@ -30,10 +30,10 @@ import java.util.Vector;
  *  <p>
  *  The Java code to parse the command:
  *  <br>
- *  // Create a vector to hold all the possible command line arguments.
- *  Vector v = new Vector();
- *  v.addElement("-userID");
- *  v.addElement("-password");
+ *  // Create a vector to hold all the defined/expected command line arguments.
+ *  Vector options = new Vector();
+ *  options.addElement("-userID");
+ *  options.addElement("-password");
  *  <p>
  *  // Create a Hashtable to map shortcuts to the command line arguments. 
  *  Hashtable shortcuts = new Hashtable();
@@ -42,9 +42,9 @@ import java.util.Vector;
  *  <p>
  *  // Create a CommandLineArguments object with the args array passed into main(String args[])
  *  // along with the vector and hashtable just created.
- *  CommandLineArguments arguments = new CommandLineArguments(args, v, shortcuts);
+ *  CommandLineArguments arguments = new CommandLineArguments(args, options, shortcuts);
  *  <p>
- *  // Get the AS400 system that the user wants to run to.
+ *  // Get the name of the IBM i system that the user wants to run to.
  *  String system = arguments.getOptionValue("");
  *  <p>
  *  // Get the user ID that the user wants to log in with.
@@ -58,14 +58,9 @@ import java.util.Vector;
 **/
 public class CommandLineArguments                               //$B1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     // Private data.    
     private Vector      extraOptions_   = new Vector ();
     private Hashtable   map_            = new Hashtable ();
-
 
 
 /**
@@ -106,7 +101,10 @@ Creates a CommandLineArguments object.
         }
 
         // Parse through the args.
-        String currentOptionName = "-";                                         // @A1C
+
+        // Note: Any leading arguments that aren't preceded by an option name,
+        // are associated as values to the special "unnamed" option, "-".
+        String currentOptionName = "-";
         StringBuffer currentOptionValue = new StringBuffer ();
         for (int i = 0; i < args.length; ++i) {
             String arg = args[i];
@@ -143,6 +141,7 @@ These are options that the application was not expecting.
 
 @return The list of extra options.  This is an Enumeration
         which contains a String for each extra option.
+        If there were no extra options, an empty Enumeration is returned.
 **/
     public Enumeration getExtraOptions ()
     {
@@ -156,6 +155,8 @@ Returns the list of option names that were specified.
 
 @return The list of option names.  This is an Enumeration
         which contains a String for each option name.
+        Note: The list may include the special "unnamed" option, "-",
+        which is aliased as "".
 **/
     public Enumeration getOptionNames ()
     {
@@ -173,6 +174,7 @@ Returns the value of an option.
 **/
     public String getOptionValue (String optionName)
     {
+        // Note: We map "" to the special (unnamed) option "-".
         String key;
         if (! optionName.startsWith ("-"))
             key = "-" + optionName.toLowerCase ();
@@ -187,12 +189,26 @@ Returns the value of an option.
 
 
 
+/**
+Indicates whether the option was specified.
+
+@param optionName   The option name.
+@return             <tt>true</tt> if the option was specified; <tt>false</tt> otherwise.
+**/
+    public boolean isOptionSpecified (String optionName)
+    {
+        return ( getOptionValue(optionName) != null );
+    }
+
+
+
     private boolean isOptionName(String arg)                                        // @A2A
     {                                                                               // @A2A
         if (! arg.startsWith("-"))                                                  // @A2A
             return false;                                                           // @A2A
                                                                                     // @A2A
-        // Allow numeric option values, i.e., dissallow numeric option names.       // @A2A
+        // Allow numeric option values, but disallow numeric option names.          // @A2A
+        // This is to avoid mistaking a negative number for an option indicator.
         try {                                                                       // @A2A
             Double.valueOf(arg.substring(1));                                       // @A2A
             return false;                                                           // @A2A
