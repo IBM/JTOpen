@@ -13,6 +13,7 @@
 
 package utilities;
 
+import com.ibm.as400.access.CommandLineArguments;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -194,7 +195,7 @@ The default is non-verbose.
 <dd>
 Displays the help text.
 The -help option may be abbreviated to -h.
-The default is non-verbose.
+The default is no help text.
 
 </dl>
 
@@ -907,7 +908,7 @@ public class JarMaker
       throw new FileNotFoundException(sourceJarFile.getAbsolutePath());
     if (verbose_ || DEBUG) {
       System.out.println("Source file is " + sourceJarFile.getAbsolutePath());
-      System.out.println("Output directory is " + outputDirectory.getAbsolutePath());
+      System.out.println("Extraction output directory is " + outputDirectory.getAbsolutePath());
     }
 
     BufferedOutputStream destinationFile = null;
@@ -1605,6 +1606,25 @@ public class JarMaker
   boolean isVerbose() { return verbose_; }
 
 
+  /** Internal utility that prints out the command-line options, when in verbose mode. **/
+  static String listCommandOptions(CommandLineArguments arguments, boolean listAll)
+  {
+    StringBuffer sb = new StringBuffer();
+    Enumeration opts;
+    if (listAll) opts = arguments.getOptionNames();
+    else         opts = arguments.getExtraOptions();
+
+    while (opts.hasMoreElements()) {
+      String name = (String)opts.nextElement();
+      sb.append(" [" + name);
+      String val = arguments.getOptionValue(name);
+      if (val != null && val.length() != 0) sb.append(" " + val);
+      sb.append("]");
+    }
+    return sb.toString().trim();
+  }
+
+
   /**
    Generates a smaller JAR or ZIP file, containing only the desired entries
    and their dependencies.
@@ -1914,6 +1934,7 @@ public class JarMaker
 
   }
 
+
   /**
    Parses and validates the arguments specified on the command line.
 
@@ -1930,6 +1951,10 @@ public class JarMaker
       succeeded = true;
     return succeeded;
   }
+
+
+  static final boolean OPTIONS_ALL = true;  // list all options
+  static final boolean OPTIONS_UNRECOGNIZED = false;  // list only the 'extra' options
 
 
   /**
@@ -3175,18 +3200,6 @@ public class JarMaker
     private Vector unrecognizedArgs_ = new Vector();
     private boolean optionsAreSufficient_;
 
-    private boolean expectingSource_;
-    private boolean expectingDestination_;
-    private boolean expectingFileRequired_;
-    private boolean expectingFileExcluded_;
-    private boolean expectingAdditionalFile_;
-    private boolean expectingFilesDir_;
-    private boolean expectingPackage_;
-    private boolean expectingPackageExcluded_;
-    private boolean expectingExtractionDir_;
-    private boolean expectingSplitSize_;
-
-
     String [] getUnrecognized()
     {
       String [] stringArray = new String [unrecognizedArgs_.size()];
@@ -3213,6 +3226,58 @@ public class JarMaker
     boolean parse(String[] args, JarMaker jmaker,
                    boolean tolerateUnrecognizedArgs)
     {
+      if (args.length == 0)
+      {
+        System.err.println("Error: No options were specified.");
+        // Don't print usage info yet if a subclass will complete the parse.
+        if (!tolerateUnrecognizedArgs) printUsage(System.err);
+        return false;
+      }
+
+      Vector options = new Vector();
+      options.addElement("-source");
+      options.addElement("-destination");
+      options.addElement("-fileRequired");
+      options.addElement("-fileExcluded");
+      options.addElement("-additionalFile");
+      options.addElement("-additionalFilesDirectory");
+      options.addElement("-package");
+      options.addElement("-packageExcluded");
+      options.addElement("-extract");
+      options.addElement("-split");
+      options.addElement("-verbose");
+      options.addElement("-help");
+
+      Hashtable shortcuts = new Hashtable();
+      shortcuts.put("-s",                  "-source");
+      shortcuts.put("-src",                "-source");
+      shortcuts.put("-so",                 "-source");
+      shortcuts.put("-d",                  "-destination");
+      shortcuts.put("-dest",               "-destination");
+      shortcuts.put("-fr",                 "-fileRequired");
+      shortcuts.put("-file",               "-fileRequired");
+      shortcuts.put("-rf",                 "-fileRequired");
+      shortcuts.put("-req",                "-fileRequired");
+      shortcuts.put("-required",           "-fileRequired");
+      shortcuts.put("-requiredfile",       "-fileRequired");
+      shortcuts.put("-fx",                 "-fileExcluded");
+      shortcuts.put("-fileex",             "-fileExcluded");
+      shortcuts.put("-filesex",            "-fileExcluded");
+      shortcuts.put("-af",                 "-additionalFile");
+      shortcuts.put("-additional",         "-additionalFile");
+      shortcuts.put("-afd",                "-additionalFilesDirectory");
+      shortcuts.put("-additionalfilesdir", "-additionalFilesDirectory");
+      shortcuts.put("-p",                  "-package");
+      shortcuts.put("-px",                 "-packageExcluded");
+      shortcuts.put("-packageex",          "-packageExcluded");
+      shortcuts.put("-packagesex",         "-packageExcluded");
+      shortcuts.put("-x",                  "-extract");
+      shortcuts.put("-sp",                 "-split");
+      shortcuts.put("-v",                  "-verbose");
+      shortcuts.put("-h",                  "-help");
+
+      CommandLineArguments arguments = new CommandLineArguments(args, options, shortcuts);
+
       boolean destinationWasSpecified = false;
       Vector filesRequired = null; // Strings
       Vector filesExcluded = null; // Strings
@@ -3225,268 +3290,214 @@ public class JarMaker
 
       unrecognizedArgs_ = new Vector();
 
-      if (args.length == 0)
-      {
-        System.err.println("Error: No options were specified.");
-        // Don't print usage info yet if a subclass will complete the parse.
-        if (!tolerateUnrecognizedArgs) printUsage(System.err);
-        return false;
+      // Examine the arguments.
+
+      String val;
+
+      if (arguments.isOptionSpecified("-verbose")) {
+
+        jmaker.setVerbose(true);
+
+        System.out.print("Arguments parsed by JarMaker:");
+        String opts = JarMaker.listCommandOptions(arguments, JarMaker.OPTIONS_ALL);
+        System.out.println(opts);
+
+        opts = JarMaker.listCommandOptions(arguments, JarMaker.OPTIONS_UNRECOGNIZED);
+        if (opts.length() != 0) {
+          System.out.print("Arguments unrecognized by JarMaker: ");
+          System.out.println(opts);
+        }
       }
 
-      boolean priorTokenWasUnrecognized = false;
-      boolean thisIsFirstToken = true;
+      requestedUsageInfo_ = arguments.isOptionSpecified("-help");
 
-      // Parse the arguments.
-      for (int i = 0; i < args.length; ++i)
-      {
-        // Check for option tag.
-        if (args[i].charAt(0) == '-')
+      // See if any args were specified preceding the options.
+      val = arguments.getOptionValue("");
+      if (val != null && val.length() != 0) {
+        // See if more than 1 token was specified.
+        val = val.trim();
+        StringTokenizer st = new StringTokenizer(val, " ");
+        if (st.countTokens() > 1)
         {
-          String arg = args[i].toLowerCase();
-          resetExpectations();
-          priorTokenWasUnrecognized = false;
-
-          // sourceFile tag
-          if (arg.equals("-s") ||
-              arg.startsWith("-src") ||
-              arg.startsWith("-so")) {
-            expectingSource_ = true;
-            // expect the next token to be source
+          val = st.nextToken();
+          StringBuffer sb = new StringBuffer();
+          while (st.hasMoreTokens()) {
+            sb.append(st.nextToken() + " ");
           }
+          System.err.println("Warning: Ignoring extra arguments: " + sb.toString());
+        }
+        setSourceJar(new File(val));
+      }
 
-          // destinationFile tag
-          else if (arg.equals("-d") ||
-                   arg.startsWith("-dest")) {
-            expectingDestination_ = true;
-            // expect the next token to be destination
-          }
+      val = arguments.getOptionValue("-source");
+      if (val != null) {
+        if (val.length() != 0) {
+          setSourceJar(new File(val));
+        }
+        else {
+          System.err.println("Warning: No file specified after -source.");
+        }
+      }
 
-          // fileExcluded tag
-          else if (arg.equals("-fx") ||
-                   arg.startsWith("-fileex") ||
-                   arg.startsWith("-filesex")) {
-            expectingFileExcluded_ = true;
-            // expect the next token(s) to be file(s)
-          }
+      val = arguments.getOptionValue("-destination");
+      if (val != null) {
+        if (val.length() != 0) {
+          setDestinationJar(new File(val));
+          destinationWasSpecified = true; // remember not to take the default
+        }
+        else {
+          System.err.println("Warning: No file specified after -destination.");
+        }
+      }
 
-          // fileRequired tag
-          else if (arg.equals("-fr") ||
-                   arg.startsWith("-file") ||
-                   arg.equals("-rf") ||
-                   arg.startsWith("-req")) {
-            expectingFileRequired_ = true;
-            // expect the next token(s) to be file(s)
-          }
-
-          // additionalFilesDirectory tag
-          else if (arg.equals("-afd") ||
-                   arg.startsWith("-additionalfilesdir")) {
-            expectingFilesDir_ = true;
-            // expect the next token to be directory
-          }
-
-          // additionalFile tag
-          else if (arg.equals("-af") ||
-                   arg.startsWith("-additional")) {
-            expectingAdditionalFile_ = true;
-            // expect the next token(s) to be file(s)
-          }
-
-          // packageExcluded tag
-          else if (arg.equals("-px") ||
-                   arg.startsWith("-packageex") ||
-                   arg.startsWith("-packagesex")) {
-            expectingPackageExcluded_ = true;
-            // expect the next token(s) to be package(s)
-          }
-
-          // package tag
-          else if (arg.equals("-p") ||
-                   arg.startsWith("-package")) {
-            expectingPackage_ = true;
-            // expect the next token(s) to be package(s)
-          }
-
-          // extract tag
-          else if (arg.equals("-x") ||
-                   arg.startsWith("-extract")) {
-            jmaker.setExtract(true);
-            expectingExtractionDir_ = true;
-            // the next token, if not a tag, is base dir
-          }
-
-          // split tag
-          else if (arg.startsWith("-sp")) {
-            jmaker.setSplit(true);
-            expectingSplitSize_ = true;
-            // the next token, if not a tag, is split size
-          }
-
-          // verbose tag
-          else if (arg.startsWith("-v")) {
-            jmaker.setVerbose(true);
-          }
-
-          // help tag
-          else if (arg.startsWith("-h")) {
-            requestedUsageInfo_ = true;
-          }
-
-          else
+      val = arguments.getOptionValue("-fileRequired");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of ZIP entries, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
           {
-            unrecognizedArgs_.addElement(args[i]);
-            if (!tolerateUnrecognizedArgs) {
-              System.err.println("Error: Unrecognized option: " + args[i]);
-              priorTokenWasUnrecognized = true;
-              succeeded = false;
+            if (filesRequired == null)
+              filesRequired = new Vector(st.countTokens());
+            while (st.hasMoreTokens())
+              filesRequired.addElement(st.nextToken());
+          }
+        }
+        else {
+          System.err.println("Warning: No file specified after -fileRequired.");
+        }
+      }
+
+      val = arguments.getOptionValue("-fileExcluded");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of ZIP entries, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
+          {
+            if (filesExcluded == null)
+              filesExcluded = new Vector(st.countTokens());
+            while (st.hasMoreTokens())
+              filesExcluded.addElement(st.nextToken());
+          }
+        }
+        else {
+          System.err.println("Warning: No package specified after -fileExcluded.");
+        }
+      }
+
+      val = arguments.getOptionValue("-package");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of packages, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
+          {
+            if (packages == null) {
+              packages = new Vector(st.countTokens());
+            }
+            while (st.hasMoreTokens())
+              packages.addElement(st.nextToken());
+          }
+        }
+        else {
+          System.err.println("Warning: No package specified after -package.");
+        }
+      }
+
+      val = arguments.getOptionValue("-packageExcluded");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of packages, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
+          {
+            if (packagesExcluded == null)
+              packagesExcluded = new Vector(st.countTokens());
+            while (st.hasMoreTokens())
+              packagesExcluded.addElement(st.nextToken());
+          }
+        }
+        else {
+          System.err.println("Warning: No package specified after -packageExcluded.");
+        }
+      }
+
+      val = arguments.getOptionValue("-additionalFile");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of files, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
+          {
+            if (additionalFiles == null)
+              additionalFiles = new Vector(st.countTokens());
+            while (st.hasMoreTokens()) {
+              additionalFiles.addElement(new File(st.nextToken()));
             }
           }
         }
-
-        // Handle non-option-tag entry.
-        else
-        {
-          if (priorTokenWasUnrecognized)
-          {
-            unrecognizedArgs_.addElement(args[i]);
-            if (!tolerateUnrecognizedArgs) {
-              System.err.println("Error: Argument after unrecognized option: " +
-                                 args[i]);
-              succeeded = false;
-            }
-          }
-
-          else if (thisIsFirstToken || expectingSource_)
-          {
-            expectingSource_ = false;
-            setSourceJar(new File(args[i]));
-          }
-
-          else if (expectingDestination_)
-          {
-            expectingDestination_ = false;
-            setDestinationJar(new File(args[i]));
-            destinationWasSpecified = true; // remember not to take the default
-          }
-
-          else if (expectingFileRequired_)
-          {
-            // Parse the list of ZIP entries, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingFileRequired_ = false;
-              if (filesRequired == null)
-                filesRequired = new Vector(st.countTokens());
-              while (st.hasMoreTokens())
-                filesRequired.addElement(st.nextToken());
-            }
-          }
-
-          else if (expectingFileExcluded_)
-          {
-            // Parse the list of ZIP entries, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingFileExcluded_ = false;
-              if (filesExcluded == null)
-                filesExcluded = new Vector(st.countTokens());
-              while (st.hasMoreTokens())
-                filesExcluded.addElement(st.nextToken());
-            }
-          }
-
-          else if (expectingPackage_)
-          {
-            // Parse the list of packages, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingPackage_ = false;
-              if (packages == null) {
-                packages = new Vector(st.countTokens());
-              }
-              while (st.hasMoreTokens())
-                packages.addElement(st.nextToken());
-            }
-          }
-
-          else if (expectingPackageExcluded_)
-          {
-            // Parse the list of packages, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingPackageExcluded_ = false;
-              if (packagesExcluded == null)
-                packagesExcluded = new Vector(st.countTokens());
-              while (st.hasMoreTokens())
-                packagesExcluded.addElement(st.nextToken());
-            }
-          }
-
-          else if (expectingAdditionalFile_)
-          {
-            // Parse the list of files, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingAdditionalFile_ = false;
-              if (additionalFiles == null)
-                additionalFiles = new Vector(st.countTokens());
-              while (st.hasMoreTokens()) {
-                additionalFiles.addElement(new File(st.nextToken()));
-              }
-            }
-          }
-
-          else if (expectingFilesDir_)
-          {
-            expectingFilesDir_ = false;
-            additionalFilesDir = new File(args[i]);
-          }
-
-          else if (expectingExtractionDir_)
-          {
-            expectingExtractionDir_ = false;
-            jmaker.setExtractionDirectory(new File(args[i]));
-          }
-
-          else if (expectingSplitSize_)
-          {
-            expectingSplitSize_ = false;
-            int size = 0;
-            boolean badValue = false;
-            try { size = Integer.parseInt(args[i]); }
-            catch (NumberFormatException e) {
-              System.err.println("Error: Non-integer split size: " + args[i]);
-              succeeded = false;
-              badValue = true;
-            }
-            if (!badValue)
-              jmaker.setSplitSize(size);
-          }
-
-          else  // None of the above.
-          {
-            unrecognizedArgs_.addElement(args[i]);
-            if (!tolerateUnrecognizedArgs) {
-              System.err.println("Error: Unrecognized argument: " + args[i]);
-              succeeded = false;
-            }
-          }
-
-          priorTokenWasUnrecognized = false;
-          resetExpectations(); // We expect the next token to be an option
+        else {
+          System.err.println("Warning: No file specified after -additionalFile.");
         }
+      }
 
-        thisIsFirstToken = false;
-      }  // end of 'for' loop
+      val = arguments.getOptionValue("-additionalFilesDirectory");
+      if (val != null) {
+        if (val.length() != 0) {
+          additionalFilesDir = new File(val);
+        }
+        else {
+          System.err.println("Warning: No directory specified after -additionalFilesDirectory.");
+        }
+      }
 
-      resetExpectations();  // clean up
+      val = arguments.getOptionValue("-extract");
+      if (val != null) {
+        jmaker.setExtract(true);
+        if (val.length() != 0) {
+          jmaker.setExtractionDirectory(new File(val));
+        }
+      }
 
-      if (requestedUsageInfo_)
+      val = arguments.getOptionValue("-split");
+      if (val != null) {
+        jmaker.setSplit(true);
+        if (val.length() != 0) {
+          int size = 0;
+          boolean badValue = false;
+          try { size = Integer.parseInt(val); }
+          catch (NumberFormatException e) {
+            System.err.println("Error: Non-integer split size: " + val);
+            succeeded = false;
+            badValue = true;
+          }
+          if (size < 0) {
+            System.err.println("Error: Negative split size: " + val);
+            succeeded = false;
+            badValue = true;
+          }
+          if (!badValue)
+            jmaker.setSplitSize(size);
+        }
+      }
+
+
+      // Check for any extra arguments.
+      Enumeration enum1 = arguments.getExtraOptions();
+      while (enum1.hasMoreElements()) {
+        String optionName = (String)enum1.nextElement();
+        String optionVal = arguments.getOptionValue(optionName);
+        unrecognizedArgs_.addElement(optionName);
+        if (optionVal != null) unrecognizedArgs_.addElement(optionVal);
+        if (!tolerateUnrecognizedArgs) {
+          String optionWithVal = ( optionVal == null ? optionName : optionName + " " + optionVal );
+          System.err.println("Error: Unrecognized option: " + optionWithVal);
+          succeeded = false;
+        }
+      }
+
+      if (requestedUsageInfo_)  // the -help option was specified
       {
         if (tolerateUnrecognizedArgs)
           return succeeded;  // let the subclass print the usage info
@@ -3619,36 +3630,6 @@ public class JarMaker
       output.println("-fileRequired, -fileExcluded, -additionalFile, -package, -packageExcluded, -extract, -split");
     }
 
-    private void resetExpectations()
-    {
-      if (expectingSource_)
-        System.err.println("Warning: No file specified after -source.");
-      if (expectingDestination_)
-        System.err.println("Warning: No file specified after -destination.");
-      if (expectingFileRequired_)
-        System.err.println("Warning: No file specified after -fileRequired.");
-      if (expectingAdditionalFile_)
-        System.err.println("Warning: No file specified after -additionalFile.");
-      if (expectingFilesDir_)
-        System.err.println("Warning: No directory specified after -additionalFilesDirectory.");
-      if (expectingPackage_)
-        System.err.println("Warning: No package specified after -package.");
-      if (expectingPackageExcluded_)
-        System.err.println("Warning: No package specified after -packageExcluded.");
-
-      // Don't warn about missing extraction directory, assume user wants default.
-      // Don't warn about missing split size, assume user wants default.
-
-      expectingSource_ = false;
-      expectingDestination_ = false;
-      expectingFileRequired_ = false;
-      expectingAdditionalFile_ = false;
-      expectingFilesDir_ = false;
-      expectingPackage_ = false;
-      expectingPackageExcluded_ = false;
-      expectingExtractionDir_ = false;
-      expectingSplitSize_ = false;
-    }
   }
 
 

@@ -13,10 +13,12 @@
 
 package utilities;
 
+import com.ibm.as400.access.CommandLineArguments;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Arrays;
@@ -2387,11 +2389,6 @@ public class ToolboxJarMaker extends JarMaker
 
   class Arguments
   {
-    private boolean expectingComponent_;
-    private boolean expectingLanguage_;
-    private boolean expectingLanguageDir_;
-    private boolean expectingCcsid_;
-    private boolean expectingCcsidExcluded_;
 
     /**
      Parses and validates the arguments specified on the command line.
@@ -2400,7 +2397,7 @@ public class ToolboxJarMaker extends JarMaker
      @param jmaker The object to apply the arguments to.
      @return An indication of whether the parse succeeded.
      **/
-    boolean parse(String[] arguments, ToolboxJarMaker jmaker)
+    boolean parse(String[] argList, ToolboxJarMaker jmaker)
     {
       Vector components = null; // Strings
       Vector languages = null; // Strings
@@ -2411,7 +2408,7 @@ public class ToolboxJarMaker extends JarMaker
       boolean succeeded = true;
 
       // Submit the arguments to the superclass first.
-      if (!jmaker.parseArgs(arguments, true)) // 2nd arg tells superclass
+      if (!jmaker.parseArgs(argList, true)) // 2nd arg tells superclass
       {                                 // to tolerate unrecognized options.
         printUsage(System.err);
         return false;
@@ -2421,7 +2418,7 @@ public class ToolboxJarMaker extends JarMaker
       String[] args = jmaker.getUnrecognizedArgs();
       if (DEBUG)
       {
-        System.out.print("ToolboxJarMaker.parse(): Arguments: ");
+        System.out.print("ToolboxJarMaker.parse(): Arguments leftover from JarMaker parse: ");
         for (int i=0; i<args.length; i++)
           System.out.print(args[i] + " ");
         System.out.println();
@@ -2436,202 +2433,194 @@ public class ToolboxJarMaker extends JarMaker
           return succeeded;  // the superclass handled all the arguments
       }
 
-      boolean priorTokenWasUnrecognized = false;
+      Vector options = new Vector();
+      options.addElement("-component");
+      options.addElement("-beans");
+      options.addElement("-language");
+      options.addElement("-languageDirectory");
+      options.addElement("-ccsid");
+      options.addElement("-ccsidExcluded");
+      options.addElement("-noProxy");
+      options.addElement("-excludeSomeDependencies");
 
-      // Parse the arguments.
-      for (int i = 0; i < args.length; ++i)
-      {
-        // Check for option tag.
-        if (args[i].charAt(0) == '-')
-        {
-          String arg = args[i].toLowerCase();
-          resetExpectations();
-          priorTokenWasUnrecognized = false;
+      Hashtable shortcuts = new Hashtable();
+      shortcuts.put("-c",                  "-component");
+      shortcuts.put("-comp",               "-component");
+      shortcuts.put("-b",                  "-beans");
+      shortcuts.put("-l",                  "-language");
+      shortcuts.put("-lang",               "-language");
+      shortcuts.put("-ld",                 "-languageDirectory");
+      shortcuts.put("-langdir",            "-languageDirectory");
+      shortcuts.put("-languagedir",        "-languageDirectory");
+      shortcuts.put("-cc",                 "-ccsid");
+      shortcuts.put("-cx",                 "-ccsidExcluded");
+      shortcuts.put("-ccx",                "-ccsidExcluded");
+      shortcuts.put("-ccsidex",            "-ccsidExcluded");
+      shortcuts.put("-ccsidsex",           "-ccsidExcluded");
+      shortcuts.put("-np",                 "-noProxy");
+      shortcuts.put("-npprox",             "-noProxy");
+      shortcuts.put("-xd",                 "-excludeSomeDependencies");
+      shortcuts.put("-xsd",                "-excludeSomeDependencies");
+      shortcuts.put("-excludesome",        "-excludeSomeDependencies");
 
-          // component tag
-          if (arg.equals("-c") ||
-              arg.startsWith("-comp"))
-            expectingComponent_ = true;
-          // expect the next token(s) to be component(s)
+      CommandLineArguments arguments = new CommandLineArguments(args, options, shortcuts);
 
-          // languageDirectory tag
-          else if (arg.equals("-ld") ||
-                   arg.startsWith("-langdir") ||
-                   arg.startsWith("-languagedir"))
-            expectingLanguageDir_ = true;
-          // expect the next token to be directory
+      // Examine the arguments.
 
-          // language tag
-          else if (arg.equals("-l") ||
-                   arg.startsWith("-lang"))
-            expectingLanguage_ = true;
-          // expect the next token(s) to be language(s)
+      String val;
 
-          // ccsidExcluded tag
-          else if (arg.equals("-cx") ||
-                   arg.equals("-ccx") ||
-                   arg.startsWith("-ccsidex") ||
-                   arg.startsWith("-ccsidsex"))
-            expectingCcsidExcluded_ = true;
-          // expect the next token(s) to be CCSID(s)
+      if (verbose_) {
+        System.out.print("Arguments parsed by ToolboxJarMaker: ");
+        String opts = JarMaker.listCommandOptions(arguments, JarMaker.OPTIONS_ALL);
+        System.out.println(opts);
 
-          // ccsid tag
-          else if (arg.equals("-cc") ||
-                   arg.startsWith("-ccsid"))
-            expectingCcsid_ = true;
-          // expect the next token(s) to be CCSID(s)
+        opts = JarMaker.listCommandOptions(arguments, JarMaker.OPTIONS_UNRECOGNIZED);
+        if (opts.length() != 0) {
+          System.out.print("Arguments unrecognized by ToolboxJarMaker: ");
+          System.out.println(opts);
+        }
+      }
 
-          // beans tag
-          else if (arg.equals("-b") ||
-                   arg.startsWith("-bean"))
-            includeBeans = true;
-
-          // noProxy tag
-          else if (arg.equals("-np") ||
-                   arg.startsWith("-noprox"))
+      val = arguments.getOptionValue("-component");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of components, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
           {
-            noProxy_ = true;
-            noProxySpecified = true;
-          }
-
-          // excludeSomeDependencies tag                                @A4a
-          else if (arg.equals("-xd") ||
-                   arg.equals("-xsd") ||
-                   arg.startsWith("-excludesome"))
-          {
-            excludeSomeDependencies_ = true;
-          }
-
-          else
-          {
-            System.err.println("Error: Unrecognized option: " + args[i]);
-            priorTokenWasUnrecognized = true;
-            succeeded = false;
+            if (components == null)
+              components = new Vector(st.countTokens());
+            boolean badComponent = false;
+            while (st.hasMoreTokens()) {
+              String token = st.nextToken();
+              Integer component = getComponentID(token);
+              if (component == null)
+              {
+                System.err.println("Error: Unrecognized component name: " + token);
+                badComponent = true;
+                succeeded = false;
+              }
+              else
+                addElement(components, component);
+            }
+            if (badComponent && jmaker.isVerbose())
+            {
+              System.err.println("The recognized components are:");
+              int j;
+              for (j=0; j<VALID_COMPONENTS.length-1; ++j)
+                System.err.print(VALID_COMPONENTS[j] + ", ");
+              System.err.println(VALID_COMPONENTS[j]);
+            }
           }
         }
-
-        // Handle non-option-tag entry.
-        else
-        {
-          if (priorTokenWasUnrecognized)
-          {
-            System.err.println("Error: Argument after unrecognized option: " +
-                               args[i]);
-          }
-
-          else if (expectingComponent_)
-          {
-            // Parse the list of components, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingComponent_ = false;
-              if (components == null)
-                components = new Vector(st.countTokens());
-              boolean badComponent = false;
-              while (st.hasMoreTokens()) {
-                String token = st.nextToken();
-                Integer component = getComponentID(token);
-                if (component == null)
-                {
-                  System.err.println("Error: Unrecognized component name: " + token);
-                  badComponent = true;
-                  succeeded = false;
-                }
-                else
-                  addElement(components, component);
-              }
-              if (badComponent && jmaker.isVerbose())
-              {
-                System.err.println("The recognized components are:");
-                int j;
-                for (j=0; j<VALID_COMPONENTS.length-1; ++j)
-                  System.err.print(VALID_COMPONENTS[j] + ", ");
-                System.err.println(VALID_COMPONENTS[j]);
-              }
-            }
-          }
-
-          else if (expectingLanguage_)
-          {
-            // Parse the list of languages, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingLanguage_ = false;
-              if (languages == null)
-                languages = new Vector(st.countTokens());
-              while (st.hasMoreTokens())
-                addElement(languages, st.nextToken());
-            }
-          }
-
-          else if (expectingLanguageDir_)
-          {
-            expectingLanguageDir_ = false;
-            jmaker.setLanguageDirectory(new File(args[i]));
-          }
-
-          else if (expectingCcsid_)
-          {
-            // Parse the list of CCSIDs, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingCcsid_ = false;
-              if (ccsids == null)
-                ccsids = new Vector(st.countTokens());
-              while (st.hasMoreTokens())
-              {
-                String token = st.nextToken();
-                Integer ccsid = null;
-                try { ccsid = new Integer(token); }
-                catch (NumberFormatException e) {
-                  System.err.println("Error: Non-integer CCSID value: " + token);
-                  succeeded = false;
-                  continue; // skip to next token in list
-                }
-                addElement(ccsids, ccsid);
-              }
-            }
-          }
-
-          else if (expectingCcsidExcluded_)
-          {
-            // Parse the list of CCSIDs, separated by commas.
-            StringTokenizer st = new StringTokenizer(args[i], ",");
-            if (st.countTokens() != 0)
-            {
-              expectingCcsidExcluded_ = false;
-              if (ccsidsExcluded == null)
-                ccsidsExcluded = new Vector(st.countTokens());
-              while (st.hasMoreTokens())
-              {
-                String token = st.nextToken();
-                Integer ccsid = null;
-                try {ccsid = new Integer(token);}
-                catch (NumberFormatException e) {
-                  System.err.println("Error: Non-integer CCSID value: " + token);
-                  succeeded = false;
-                  continue; // skip to next token in list
-                }
-                addElement(ccsidsExcluded, ccsid);
-              }
-            }
-          }
-
-          else  // None of the above.
-          {
-            System.err.println("Error: Unrecognized argument: " + args[i]);
-            succeeded = false;
-          }
-
-          priorTokenWasUnrecognized = false;
-          resetExpectations(); // We expect the next token to be an option
+        else {
+          System.err.println("Warning: No component specified after -component.");
         }
-      }  // end of 'for' loop
+      }
 
-      resetExpectations();  // clean up
+      includeBeans = (arguments.isOptionSpecified("-beans"));
+
+      val = arguments.getOptionValue("-language");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of languages, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
+          {
+            if (languages == null)
+              languages = new Vector(st.countTokens());
+            while (st.hasMoreTokens())
+              addElement(languages, st.nextToken());
+          }
+        }
+        else {
+          System.err.println("Warning: No language specified after -language.");
+        }
+      }
+
+      val = arguments.getOptionValue("-languageDirectory");
+      if (val != null) {
+        if (val.length() != 0) {
+          jmaker.setLanguageDirectory(new File(val));
+        }
+        else {
+          System.err.println("Warning: No directory specified after -languageDirectory.");
+        }
+      }
+
+      val = arguments.getOptionValue("-ccsid");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of CCSIDs, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
+          {
+            if (ccsids == null)
+              ccsids = new Vector(st.countTokens());
+            while (st.hasMoreTokens())
+            {
+              String token = st.nextToken();
+              Integer ccsid = null;
+              try { ccsid = new Integer(token); }
+              catch (NumberFormatException e) {
+                System.err.println("Error: Non-integer CCSID value: " + token);
+                succeeded = false;
+                continue; // skip to next token in list
+              }
+              addElement(ccsids, ccsid);
+            }
+          }
+        }
+        else {
+          System.err.println("Warning: No CCSID specified after -ccsid.");
+        }
+      }
+
+      val = arguments.getOptionValue("-ccsidExcluded");
+      if (val != null) {
+        if (val.length() != 0) {
+          // Parse the list of CCSIDs, separated by commas.
+          StringTokenizer st = new StringTokenizer(val, ",");
+          if (st.countTokens() != 0)
+          {
+            if (ccsidsExcluded == null)
+              ccsidsExcluded = new Vector(st.countTokens());
+            while (st.hasMoreTokens())
+            {
+              String token = st.nextToken();
+              Integer ccsid = null;
+              try {ccsid = new Integer(token);}
+              catch (NumberFormatException e) {
+                System.err.println("Error: Non-integer CCSID value: " + token);
+                succeeded = false;
+                continue; // skip to next token in list
+              }
+              addElement(ccsidsExcluded, ccsid);
+            }
+          }
+        }
+        else {
+          System.err.println("Warning: No CCSID specified after -ccsidExcluded.");
+        }
+      }
+
+      if (arguments.isOptionSpecified("-noproxy")) {
+        noProxy_ = true;
+        noProxySpecified = true;
+      }
+
+      excludeSomeDependencies_ = (arguments.isOptionSpecified("-excludeSomeDependencies"));
+
+
+      // Check for any extra arguments.
+      Enumeration enum1 = arguments.getExtraOptions();
+      while (enum1.hasMoreElements()) {
+        String optionName = (String)enum1.nextElement();
+        String optionVal = arguments.getOptionValue(optionName);
+        String optionWithVal = ( optionVal == null ? optionName : optionName + " " + optionVal );
+        System.err.println("Error: Unrecognized option: " + optionWithVal);
+        succeeded = false;
+      }
 
       if (jmaker.isSplit())
       {
@@ -2720,26 +2709,6 @@ public class ToolboxJarMaker extends JarMaker
       output.println();
       output.println("The -excludeSomeDependencies option is not recommended " +
                       "for pre-V5R2 Toolbox JAR files.");
-    }
-
-    private void resetExpectations()
-    {
-      if (expectingComponent_)
-        System.err.println("Warning: No component specified after -component.");
-      if (expectingLanguage_)
-        System.err.println("Warning: No language specified after -language.");
-      if (expectingLanguageDir_)
-        System.err.println("Warning: No directory specified after -languageDirectory.");
-      if (expectingCcsid_)
-        System.err.println("Warning: No CCSID specified after -ccsid.");
-      if (expectingCcsidExcluded_)
-        System.err.println("Warning: No CCSID specified after -ccsidExcluded.");
-
-      expectingComponent_ = false;
-      expectingLanguage_ = false;
-      expectingLanguageDir_ = false;
-      expectingCcsid_ = false;
-      expectingCcsidExcluded_ = false;
     }
 
   }
