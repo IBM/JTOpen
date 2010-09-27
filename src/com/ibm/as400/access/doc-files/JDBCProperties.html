@@ -514,6 +514,17 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat4t5">&quot;32768&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;maximum blocked input rows&quot;</TD>
+    <TD HEADERS="cat4t2">Specifies the maximum number of rows to be sent to the database
+      engine when using a blocked insert or update operation.  The database engine has a 
+      limit of 32000 rows with a total of 16MB of data.  This property may be used to 
+      reduce the size of buffers in the JVM when using batched insert operations. 
+    </TD>
+    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat4t4">&quot;1&quot; - &quot;32000&quot;</TD>
+    <TD HEADERS="cat4t5">&quot;32000&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;package&quot;</TD>
     <TD HEADERS="cat4t2">Specifies the base name of the SQL package. Note 
       that only the first seven characters are used to generate the name of the 
