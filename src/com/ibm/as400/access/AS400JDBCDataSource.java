@@ -1026,7 +1026,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Returns the base name of the SQL package.  Note that only the
-    *  first seven characters are used to generate the name of the SQL package on the system.  
+    *  first six characters are used to generate the name of the SQL package on the system.  
     *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
@@ -3148,7 +3148,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the base name of the SQL package.  Note that only the
-    *  first seven characters are used to generate the name of the SQL package on the IBM i system.  
+    *  first six characters are used to generate the name of the SQL package on the IBM i system.  
     *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.

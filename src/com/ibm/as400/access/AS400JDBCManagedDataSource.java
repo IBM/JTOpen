@@ -43,13 +43,22 @@ import javax.naming.Context;
  This implementation of <tt>javax.sql.DataSource</tt> can be used to produce Connection objects that will automatically participate in connection pooling, and are managed by the Toolbox's built-in connection pooling manager.
 
  <p>
- A DataSource is a factory for connections to the physical data source that this DataSource object represents. An alternative to the DriverManager facility, a DataSource object is the preferred means of getting a connection. An object that implements the DataSource interface will typically be registered with a naming service based on the Java Naming and Directory (JNDI) API.
+ A DataSource is a factory for connections to the physical data source that this DataSource object represents. 
+ An alternative to the DriverManager facility, a DataSource object is the preferred means of getting a connection. 
+ An object that implements the DataSource interface will typically be registered with a naming service based on the 
+ Java Naming and Directory (JNDI) API.
  <p>
- A DataSource object has properties that can be modified when necessary. For example, if the data source is moved to a different system, the property for the system can be changed. The benefit is that because the data source's properties can be changed, any code accessing that data source does not need to be changed.
+ A DataSource object has properties that can be modified when necessary. For example, if the data source is moved to a 
+ different system, the property for the system can be changed. The benefit is that because the data source's properties 
+ can be changed, any code accessing that data source does not need to be changed.
  <p>
- A driver that is accessed via a DataSource object does not register itself with the DriverManager. Rather, a DataSource object is retrieved though a lookup operation and then used to create a Connection object. With a basic implementation, the connection obtained through a DataSource object is identical to a connection obtained through the DriverManager facility.
+ A driver that is accessed via a DataSource object does not register itself with the DriverManager. Rather, a DataSource o
+ bject is retrieved though a lookup operation and then used to create a Connection object. With a basic implementation, 
+ the connection obtained through a DataSource object is identical to a connection obtained through the DriverManager facility.
  <p>
- <em>Caution:</em> To avoid the pitfalls of "double-managed" pools, do not use this class in conjunction with a separate connection pool manager, such as that available in WebSphere.  When a separate pool manager is provided, use {@link AS400JDBCDataSource AS400JDBCDataSource} instead.
+ <em>Caution:</em> To avoid the pitfalls of "double-managed" pools, do not use this class in conjunction with a separate 
+ connection pool manager, such as that available in WebSphere.  When a separate pool manager is provided, 
+ use {@link AS400JDBCDataSource AS400JDBCDataSource} instead.
 
  @see AS400JDBCManagedConnectionPoolDataSource
  @see AS400JDBCDataSource
@@ -1144,7 +1153,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Returns the base name of the SQL package.  Note that only the
-   first seven characters are used to generate the name of the SQL package on the IBM i system.
+   first six characters are used to generate the name of the SQL package on the IBM i system.
    This property has no effect unless
    the extended dynamic property is set to true.  In addition, this property
    must be set if the extended dynamic property is set to true.
@@ -3048,7 +3057,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets the base name of the SQL package.  Note that only the
-   first seven characters are used to generate the name of the SQL package on the IBM i system.
+   first six characters are used to generate the name of the SQL package on the IBM i system.
    This property has no effect unless
    the extended dynamic property is set to true.  In addition, this property
    must be set if the extended dynamic property is set to true.
