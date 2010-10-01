@@ -14,10 +14,11 @@
 package com.ibm.as400.access;
 
 import java.text.ParseException;
+import java.util.Hashtable;
 
 /**
  Provides a converter between a {@link java.sql.Time java.sql.Time} object and an IBM i <i>time</i> value such as "23:59:59" or "11:59 PM".
- In the IBM i programming reference, this type is referred to as the "<b>Time</b> Data Type".
+ In the IBM i programming reference, this type is referred to as the "<b>Time</b> Data Type", or DDS data type <tt>T</tt>.
  <p>
  An IBM i <i>time</i> value simply indicates an hour/minute/second within some (unspecified) 24-hour period, and does not indicate a contextual day, month, year, or time zone.  Internally, this class interprets all date- and time-related strings as relative to the GMT time zone.
  <p>
@@ -31,6 +32,8 @@ public class AS400Time extends AS400AbstractTime
 {
   static final long serialVersionUID = 4L;
 
+  private java.sql.Time defaultValue_;
+  private static Hashtable formatsTable_;
 
   private static final int  SIZE = 8; // IBM i "time" values are 8 bytes long
 
@@ -45,29 +48,26 @@ public class AS400Time extends AS400AbstractTime
    **/
   public  static final java.sql.Time MAX_VALUE = new java.sql.Time(MILLISECONDS_IN_A_DAY - 1);
 
-  /** Format *HMS: <i>hh:mm:ss</i>
+  /** Format HMS: <i>hh:mm:ss</i>
    <br>Default separator: ':' **/
   public static final int FORMAT_HMS = 100;  // valid separators: { : . , & }
 
-  /** Format *ISO: <i>hh.mm.ss</i>
+  /** Format ISO: <i>hh.mm.ss</i>
    <br>Default separator: '.' **/
   public static final int FORMAT_ISO = 101;  // valid separators: { . }
 
-  /** Format *USA: <i>hh:mm AM</i> or <i>hh:mm PM</i>
+  /** Format USA: <i>hh:mm AM</i> or <i>hh:mm PM</i>
    <br>Default separator: ':'
    <br>Note: Unlike the other formats, this format has a granularity of minutes rather than seconds. **/
   public static final int FORMAT_USA = 102;  // valid separators: { : }
 
-  /** Format *EUR: <i>hh.mm.ss</i>
+  /** Format EUR: <i>hh.mm.ss</i>
    <br>Default separator: '.' **/
   public static final int FORMAT_EUR = 103;  // valid separators: { . }
 
-  /** Format *JIS: <i>hh:mm:ss</i>
+  /** Format JIS: <i>hh:mm:ss</i>
    <br>Default separator: ':' **/
   public static final int FORMAT_JIS = 104;  // valid separators: { : }
-
-
-  private java.sql.Time defaultValue_;
 
 
   /**
@@ -97,6 +97,46 @@ public class AS400Time extends AS400AbstractTime
   public AS400Time(int format)
   {
     setFormat(format, defaultSeparatorFor(format));
+  }
+
+
+  /**
+   Constructs an AS400Time object.
+   The specified format's default separator is used.
+   @param format  The format for this object.
+   Valid values are:
+   <ul>
+    <li><tt>HMS</tt>
+    <li><tt>ISO</tt>
+    <li><tt>USA</tt>
+    <li><tt>EUR</tt>
+    <li><tt>JIS</tt>
+   </ul>
+   **/
+  public AS400Time(String format)
+  {
+    int formatInt = toFormat(format);
+    setFormat(formatInt, defaultSeparatorFor(formatInt));
+  }
+
+
+  /**
+   Constructs an AS400Time object.
+   @param format  The format for this object.
+   Valid values are:
+   <ul>
+    <li><tt>HMS</tt>
+    <li><tt>ISO</tt>
+    <li><tt>USA</tt>
+    <li><tt>EUR</tt>
+    <li><tt>JIS</tt>
+   </ul>
+   @param separator  The separator character.
+   **/
+  public AS400Time(String format, char separator)
+  {
+    int formatInt = toFormat(format);
+    setFormat(formatInt, separator);
   }
 
 
@@ -156,6 +196,36 @@ public class AS400Time extends AS400AbstractTime
   }
 
 
+  // Method used by TimeFieldDescription.
+  /**
+   Sets the format of this AS400Time object.
+   The specified format's default separator character is used.
+   @param format  The format for this object, expressed as a string.
+   Valid values are:
+    HMS
+    ISO
+    USA
+    EUR
+    JIS
+   **/
+  void setFormat(String format)
+  {
+    int formatInt = toFormat(format);
+    super.setFormat(formatInt);
+  }
+
+
+  // Method used by TimeFieldDescription.
+  /**
+   Sets the separator of this AS400Date object.
+   @param separator  The separator character.
+   **/
+  void setSeparator(char separator)
+  {
+    super.setSeparator(separator);
+  }
+
+
   // Overrides non-public method of superclass, making it public.
   /**
    Sets the format of this AS400Time object.
@@ -183,16 +253,44 @@ public class AS400Time extends AS400AbstractTime
     super.setFormat(format, separator);
   }
 
+  private static synchronized Hashtable getFormatsTable()
+  {
+    if (formatsTable_ == null)
+    {
+      formatsTable_ = new Hashtable(12);
+      formatsTable_.put("HMS",     new Integer(FORMAT_HMS));
+      formatsTable_.put("ISO",     new Integer(FORMAT_ISO));
+      formatsTable_.put("USA",     new Integer(FORMAT_USA));
+      formatsTable_.put("EUR",     new Integer(FORMAT_EUR));
+      formatsTable_.put("JIS",     new Integer(FORMAT_JIS));
+    }
+    return formatsTable_;
+  }
+
+  // Returns the corresponding integer format value for the string representation of a format.
+  static int toFormat(String format)
+  {
+    // Assume the caller has verified that the argument is non-null.
+
+    Integer formatInt = (Integer)getFormatsTable().get(format.trim().toUpperCase());
+
+    if (formatInt == null) {
+      throw new ExtendedIllegalArgumentException("format ("+format+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+
+    return formatInt.intValue();
+  }
+
 
   // Overrides method of superclass.
   /**
    Returns a Java object representing the default value of the data type.
-   @return A {@link java.sql.Time java.sql.Time} object representing time 00:00:00.
+   @return A {@link java.sql.Time java.sql.Time} object representing time 00:00:00 GMT (on January 1, 1970).
    **/
   public Object getDefaultValue()
   {
     if (defaultValue_ == null) {
-      defaultValue_ = new java.sql.Time(0L); // 00:00:00
+      defaultValue_ = new java.sql.Time(0L); // 00:00:00 GMT
     }
 
     return defaultValue_;
@@ -200,12 +298,12 @@ public class AS400Time extends AS400AbstractTime
 
   // Implements abstract method of superclass.
   /**
-   Returns {@link AS400DataType#TYPE_TIME_OF_DAY TYPE_TIME_OF_DAY}.
-   @return <tt>AS400DataType.TYPE_TIME_OF_DAY</tt>.
+   Returns {@link AS400DataType#TYPE_TIME TYPE_TIME}.
+   @return <tt>AS400DataType.TYPE_TIME</tt>.
    **/
   public int getInstanceType()
   {
-    return AS400DataType.TYPE_TIME_OF_DAY;
+    return AS400DataType.TYPE_TIME;
   }
 
   // Implements abstract method of superclass.
@@ -270,7 +368,15 @@ public class AS400Time extends AS400AbstractTime
    **/
   public String toString(Object javaValue)
   {
-    return getDateFormatter().format((java.sql.Time)javaValue);
+    if (javaValue == null) throw new NullPointerException("javaValue");
+    java.sql.Time timeObj;
+    try { timeObj = (java.sql.Time)javaValue; }
+    catch (ClassCastException e) {
+      Trace.log(Trace.ERROR, "javaValue is of type " + javaValue.getClass().getName());
+      throw e;
+    }
+
+    return getDateFormatter().format(timeObj);
   }
 
   // Implements abstract method of superclass.

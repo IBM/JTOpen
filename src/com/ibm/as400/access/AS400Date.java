@@ -14,11 +14,12 @@
 package com.ibm.as400.access;
 
 import java.util.Calendar;
+import java.util.Hashtable;
 import java.text.ParseException;
 
 /**
  Provides a converter between a {@link java.sql.Date java.sql.Date} object and an IBM i <i>date</i> value such as "12/31/97".
- In the IBM i programming reference, this type is referred to as the "<b>Date</b> Data Type".
+ In the IBM i programming reference, this type is referred to as the "<b>Date</b> Data Type", or DDS data type <tt>L</tt>.
  <p>
  An IBM i <i>date</i> value simply indicates a year/month/day, and does not indicate a contextual time zone.  Internally, this class interprets all date- and time-related strings as relative to the GMT time zone.
  <p>
@@ -35,57 +36,58 @@ import java.text.ParseException;
 public class AS400Date extends AS400AbstractTime
 {
   private java.sql.Date defaultValue_;
+  private static Hashtable formatsTable_;
 
-  /** Date format *MDY (Month/Day/Year).
+  /** Date format MDY (Month/Day/Year).
    <br>Example: 04/25/97
    <br>Range of years: 1940-2039
    <br>Default separator: '/'
    <br>Length: 8 bytes **/
   public static final int FORMAT_MDY = 0;
 
-  /** Date format *DMY (Day/Month/Year).
+  /** Date format DMY (Day/Month/Year).
    <br>Example: 25/04/97
    <br>Range of years: 1940-2039
    <br>Default separator: '/'
    <br>Length: 8 bytes **/
   public static final int FORMAT_DMY = 1;
 
-  /** Date format *YMD (Year/Month/Day).
+  /** Date format YMD (Year/Month/Day).
    <br>Example: 97/04/25
    <br>Range of years: 1940-2039
    <br>Default separator: '/'
    <br>Length: 8 bytes **/
   public static final int FORMAT_YMD = 2;
 
-  /** Date format *JUL (Julian).
+  /** Date format JUL (Julian).
    <br>Example: 97/115
    <br>Range of years: 1940-2039
    <br>Default separator: '/'
    <br>Length: 6 bytes **/
   public static final int FORMAT_JUL = 3;
 
-  /** Date format *ISO (International Standards Organization).
+  /** Date format ISO (International Standards Organization).
    <br>Example: 1997-04-25
    <br>Range of years: 0001-9999
    <br>Default separator: '-'
    <br>Length: 10 bytes **/
   public static final int FORMAT_ISO = 4;
 
-  /** Date format *USA (IBM USA Standard).
+  /** Date format USA (IBM USA Standard).
    <br>Example: 04/25/1997
    <br>Range of years: 0001-9999
    <br>Default separator: '/'
    <br>Length: 10 bytes **/
   public static final int FORMAT_USA = 5;
 
-  /** Date format *EUR (IBM European Standard).
+  /** Date format EUR (IBM European Standard).
    <br>Example: 25.04.1997
    <br>Range of years: 0001-9999
    <br>Default separator: '.'
    <br>Length: 10 bytes **/
   public static final int FORMAT_EUR = 6;
 
-  /** Date format *JIS (Japan Industrial Standard).
+  /** Date format JIS (Japan Industrial Standard).
    <br>Example: 1997-04-25
    <br>Range of years: 0001-9999
    <br>Default separator: '-'
@@ -94,28 +96,28 @@ public class AS400Date extends AS400AbstractTime
 
   // Externally defined date formats:
 
-  /** Date format *CYMD (Century Year/Month/Day).
+  /** Date format CYMD (Century Year/Month/Day).
    <br>Example: 097/04/25
    <br>Range of years: 1900-2899
    <br>Default separator: '/'
    <br>Length: 9 bytes **/
   public static final int FORMAT_CYMD = 8;
 
-  /** Date format *CMDY (Century Month/Day/Year).
+  /** Date format CMDY (Century Month/Day/Year).
    <br>Example: 004/25/97
    <br>Range of years: 1900-2899
    <br>Default separator: '/'
    <br>Length: 9 bytes **/
   public static final int FORMAT_CMDY = 9;
 
-  /** Date format *CDMY (Century Day/Month/Year).
+  /** Date format CDMY (Century Day/Month/Year).
    <br>Example: 025/04/97
    <br>Range of years: 1900-2899
    <br>Default separator: '/'
    <br>Length: 9 bytes **/
   public static final int FORMAT_CDMY = 10;
 
-  /** Date format *LONGJUL (Long Julian).
+  /** Date format LONGJUL (Long Julian).
    <br>Example: 1997/115
    <br>Range of years: 0001-9999
    <br>Default separator: '/'
@@ -150,21 +152,74 @@ public class AS400Date extends AS400AbstractTime
    <li>{@link #FORMAT_CMDY FORMAT_CMDY}
    <li>{@link #FORMAT_CDMY FORMAT_CDMY}
    <li>{@link #FORMAT_LONGJUL FORMAT_LONGJUL}
+   </ul>
    **/
   public AS400Date(int format)
   {
     setFormat(format, defaultSeparatorFor(format));
   }
 
+  /**
+   Constructs an AS400Date object.
+   The specified format's default separator is used.
+   @param format The date format.
+   <br>Valid values are:
+   <ul>
+   <li><tt>MDY</tt>
+   <li><tt>DMY</tt>
+   <li><tt>YMD</tt>
+   <li><tt>JUL</tt>
+   <li><tt>ISO</tt>
+   <li><tt>USA</tt>
+   <li><tt>EUR</tt>
+   <li><tt>JIS</tt>
+   <li><tt>CYMD</tt>
+   <li><tt>CMDY</tt>
+   <li><tt>CDMY</tt>
+   <li><tt>LONGJUL</tt>
+   </ul>
+   **/
+  public AS400Date(String format)
+  {
+    int formatInt = toFormat(format);
+    setFormat(formatInt, defaultSeparatorFor(formatInt));
+  }
+
+  /**
+   Constructs an AS400Date object.
+   @param format The date format.
+   <br>Valid values are:
+   <ul>
+   <li><tt>MDY</tt>
+   <li><tt>DMY</tt>
+   <li><tt>YMD</tt>
+   <li><tt>JUL</tt>
+   <li><tt>ISO</tt>
+   <li><tt>USA</tt>
+   <li><tt>EUR</tt>
+   <li><tt>JIS</tt>
+   <li><tt>CYMD</tt>
+   <li><tt>CMDY</tt>
+   <li><tt>CDMY</tt>
+   <li><tt>LONGJUL</tt>
+   </ul>
+   @param separator  The separator character.
+   **/
+  public AS400Date(String format, char separator)
+  {
+    int formatInt = toFormat(format);
+    setFormat(formatInt, separator);
+  }
+
   // Overrides method of superclass.
   /**
    Returns a Java object representing the default value of the data type.
-   @return A <tt>java.sql.Date</tt> object with a value of January 1, 1970 GMT.
+   @return A <tt>java.sql.Date</tt> object with a value of January 1, 1970, 00:00:00 GMT.
    **/
   public Object getDefaultValue()
   {
     if (defaultValue_ == null) {
-      defaultValue_ = new java.sql.Date(0L); // January 1, 1970
+      defaultValue_ = new java.sql.Date(0L); // January 1, 1970 GMT
     }
 
     return defaultValue_;
@@ -262,6 +317,42 @@ public class AS400Date extends AS400AbstractTime
   }
 
 
+  // Method used by DateFieldDescription.
+  /**
+   Sets the format of this AS400Date object.
+   @param format  The format for this object, expressed as a string.
+   <br>Valid values are:
+    MDY
+    DMY
+    YMD
+    JUL
+    ISO
+    USA
+    EUR
+    JIS
+    CYMD
+    CMDY
+    CDMY
+    LONGJUL
+   **/
+  void setFormat(String format)
+  {
+    int formatInt = toFormat(format);
+    super.setFormat(formatInt);
+  }
+
+
+  // Method used by DateFieldDescription.
+  /**
+   Sets the separator of this AS400Date object.
+   @param separator  The separator character.
+   **/
+  void setSeparator(char separator)
+  {
+    super.setSeparator(separator);
+  }
+
+
   // Overrides non-public method of superclass, making it public.
   /**
    Sets the format of this AS400Date object.
@@ -295,6 +386,42 @@ public class AS400Date extends AS400AbstractTime
   public void setFormat(int format, char separator)
   {
     super.setFormat(format, separator);
+  }
+
+  private static synchronized Hashtable getFormatsTable()
+  {
+    if (formatsTable_ == null)
+    {
+      formatsTable_ = new Hashtable(12);
+      formatsTable_.put("MDY",     new Integer(FORMAT_MDY));
+      formatsTable_.put("DMY",     new Integer(FORMAT_DMY));
+      formatsTable_.put("YMD",     new Integer(FORMAT_YMD));
+      formatsTable_.put("JUL",     new Integer(FORMAT_JUL));
+      formatsTable_.put("ISO",     new Integer(FORMAT_ISO));
+      formatsTable_.put("USA",     new Integer(FORMAT_USA));
+      formatsTable_.put("EUR",     new Integer(FORMAT_EUR));
+      formatsTable_.put("JIS",     new Integer(FORMAT_JIS));
+      formatsTable_.put("CYMD",    new Integer(FORMAT_CYMD));
+      formatsTable_.put("CMDY",    new Integer(FORMAT_CMDY));
+      formatsTable_.put("CDMY",    new Integer(FORMAT_CDMY));
+      formatsTable_.put("LONGJUL", new Integer(FORMAT_LONGJUL));
+    }
+    return formatsTable_;
+  }
+
+
+  // Returns the corresponding integer format value for the string representation of a format.
+  static int toFormat(String format)
+  {
+    // Assume the caller has verified that the argument is non-null.
+
+    Integer formatInt = (Integer)getFormatsTable().get(format.trim().toUpperCase());
+
+    if (formatInt == null) {
+      throw new ExtendedIllegalArgumentException("format ("+format+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+
+    return formatInt.intValue();
   }
 
   static boolean isYearWithinRange(int year, int format)
@@ -400,7 +527,13 @@ public class AS400Date extends AS400AbstractTime
    **/
   public String toString(Object javaValue)
   {
-    java.sql.Date dateObj = (java.sql.Date)javaValue;  // allow this line to throw ClassCastException and NullPointerException
+    if (javaValue == null) throw new NullPointerException("javaValue");
+    java.sql.Date dateObj;
+    try { dateObj = (java.sql.Date)javaValue; }
+    catch (ClassCastException e) {
+      Trace.log(Trace.ERROR, "javaValue is of type " + javaValue.getClass().getName());
+      throw e;
+    }
 
     // Verify that the 'year' value from the date is within the range of our format.
     int year, era;
