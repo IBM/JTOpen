@@ -13,12 +13,17 @@
 
 package com.ibm.as400.access;
 
-import java.util.Calendar;
+import java.math.BigInteger;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  Provides a converter between a {@link java.sql.Timestamp java.sql.Timestamp} object and an IBM i <i>timestamp</i> value such as "1997-12-31-23.59.59.999999".
- In the IBM i programming reference, this type is referred to as the "<b>Timestamp</b> Data Type".
+ In the IBM i programming reference, this type is referred to as the "<b>Timestamp</b> Data Type", or DDS data type <tt>Z</tt>.
  <p>
  The minimum value for an IBM i timestamp is <tt>0001-01-01-00.00.00.000000</tt>, and the maximum value is <tt>9999-12-31-24.00.00.000000</tt>.
  <p>
@@ -32,11 +37,63 @@ import java.text.ParseException;
  **/
 public class AS400Timestamp extends AS400AbstractTime
 {
-  private java.sql.Timestamp defaultValue_;
+  // Constants used when processing *DTS timestamp values.
+  private static final BigInteger ONE_THOUSAND = new BigInteger("1000");
+  private static final BigInteger ONE_MILLION  = new BigInteger("1000000");
 
-  // Timestamp format.  (This is the only standard format for IBM i "timestamp" fields.)
-  // Example: 1997-04-25-23.59.59.999999
-  // Length: 26 bytes
+  // Conversion factor: Microseconds elapsed from [1970-01-01 00:00:00] to [2000-01-01 00:00:00].  We've calculated this value previously.
+  private static final BigInteger DTS_CONVERSION_FACTOR = new BigInteger("946684800000000");
+  private static final String PARSING_PATTERN = "yyyy-MM-dd-HH.mm.ss";
+
+  private java.sql.Timestamp defaultValue_;
+  private transient SimpleDateFormat dateFormatterWithMillis_;
+
+
+
+  /** The default Timestamp format.
+   <ul>
+   <li>Example: 1997-04-25-23.59.59.999999
+   <li>Range of years: 0001-9999
+   <li>Default separator: '-' and '.'
+   <li>Length: 26 bytes
+   <li>Note: The time zone context is not specified. It is typically assumed to match that of the IBM i system.
+   </ul>
+   **/
+  public static final int FORMAT_DEFAULT = 0;
+
+
+  /** Timestamp format *DTS ("Standard Time Format").
+   <ul>
+   <li>Example: The timestamp value 0x8000000000000000 represents 2000-01-01 00:00:00.000000, in the time zone context of the IBM i system.
+   <li>Range of years: 1928-2071
+   <br>(Date range: 1928-07-25 00:00:00.000000 to 2071-05-09 00:00:00.000000)
+   <li>Default separator: not applicable (none)
+   <li>Length: 8 bytes
+   <li>Note: The time zone context is the time zone of the IBM i system, rather than GMT.
+   <br>The base date and time for the TOD clock, or the date and time represented by hex value 0x0000000000000000, is August 23, 1928 12:03:06.314752 (in the time zone of the IBM i system).
+   </ul>
+   **/
+  static final int FORMAT_DTS = 1;  // for internal Toolbox use only
+
+  // From the spec for the QWCCVTDT API:
+  // "the supported date range [for format *DTS is] from August 25, 1928, 00:00:00.000000 to May 09, 2071, 00:00:00.000000".
+
+  // From the MI instructions spec:
+  //
+  // The Standard Time Format [*DTS] is defined as a 64-bit (8-byte) unsigned binary value as follows:
+  //
+  // Offset 	
+  // Dec  Hex   Field Name             Data Type and Length
+  // ___  ___   ____________________   ____________________
+  // 0    0     Standard Time Format   UBin(8)
+  // 0    0     Time                   Bits 0-51  (52 bits)
+  // 0    0     Uniqueness bits        Bits 52-63 (12 bits)
+  // 8    8     --- End --- 	
+  //
+  //
+  // The time field is a binary number which can be interpreted as a time value in units of 1 microsecond. A binary 1 in bit 51 is equal to 1 microsecond.
+  //
+  // The "uniqueness bits" field may contain any combination of binary 1s and 0s. These bits do not provide additional granularity for a time value; they merely allow unique 64-bit values to be returned, such as when the value of the time-of-day (TOD) clock is materialized. When the uniqueness bits all contain binary 0s, then the 64-bit value returned is not unique. Unless explicitly stated otherwise, MI instructions which materialize the TOD clock return a unique 64-bit value.
 
 
   // Design note: According to the IBM i datatype spec:
@@ -56,7 +113,7 @@ public class AS400Timestamp extends AS400AbstractTime
   // Overrides method of superclass.
   /**
    Returns a Java object representing the default value of the data type.
-   @return a <tt>java.sql.Timestamp</tt> object with a value of January 1, 1970, 00:00:00.000000 GMT
+   @return a <tt>java.sql.Timestamp</tt> object with a value of January 1, 1970, 00:00:00 GMT
    **/
   public Object getDefaultValue()
   {
@@ -93,6 +150,23 @@ public class AS400Timestamp extends AS400AbstractTime
   }
 
 
+  // Used by class 'User'.
+  /**
+   Sets the format of this AS400Timestamp object.
+   The specified format's default separator is used.
+   @param format  The format for this object.
+   Valid values are:
+   <ul>
+   <li>{@link #FORMAT_DEFAULT FORMAT_DEFAULT}</li>
+   <li>{@link #FORMAT_DTS FORMAT_DTS}</li>
+   </ul>
+   **/
+  void setFormat(int format)
+  {
+    super.setFormat(format);
+  }
+
+
   // Overrides method of superclass.  This allows us to be more specific in the javadoc.
   /**
    Converts the specified Java object into IBM i format in the specified byte array.
@@ -106,6 +180,7 @@ public class AS400Timestamp extends AS400AbstractTime
     return super.toBytes(javaValue, as400Value, offset);
   }
 
+
   // Implements abstract method of superclass.
   /**
    Converts the specified IBM i data type to a Java object.
@@ -116,32 +191,159 @@ public class AS400Timestamp extends AS400AbstractTime
    **/
   public Object toObject(byte[] as400Value, int offset)
   {
-    try
+    java.sql.Timestamp dateObj = null;
+
+    switch (getFormat())
     {
-      String dateString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
-      if (DEBUG) System.out.println("AS400Timestamp.toObject(): Date string: |" + dateString + "|");
+      case FORMAT_DEFAULT:
+        {
+          try
+          {
+            String timestampString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
+            if (DEBUG) System.out.println("AS400Timestamp.toObject(): Timestamp string from byte array: |" + timestampString + "|");
+            // Our SimpleDateFormat formatter doesn't handle microseconds.
+            // Strip out the fractional seconds before parsing.
+            // The default IBM i "timestamp" format is:  yyyy-mm-dd-hh.mm.ss.mmmmmm
+            java.util.Date dateObjWithoutMicros = getDateFormatter().parse(timestampString.substring(0,19)); // disregard fractional seconds for now
 
-      // Our SimpleDateFormat formatter doesn't handle microseconds.
-      // Strip out the fractional seconds before parsing.
-      // The IBM i "timestamp" format is:  yyyy-mm-dd-hh.mm.ss.mmmmmm
-      java.util.Date truncatedDateObj = getDateFormatter().parse(dateString.substring(0,19)); // ignore microseconds
+            // Now add the fractional seconds back in.
+            int microsIntoSecond = Integer.parseInt(timestampString.substring(20));
+            dateObj = new java.sql.Timestamp(dateObjWithoutMicros.getTime());
+            ((java.sql.Timestamp)dateObj).setNanos(1000*microsIntoSecond); // 1 microsec == 1000 nanosecs
+          }
+          catch (NumberFormatException e) {
+            // Assume that the exception is because we got bad input.
+            Trace.log(Trace.ERROR, e.getMessage(), as400Value);
+            throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+          }
+          catch (ParseException e) {
+            // Assume that the exception is because we got bad input.
+            Trace.log(Trace.ERROR, e.getMessage(), as400Value);
+            throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+          }
+          break;
+        }
 
-      // Now add the microseconds back in.
-      int micros = Integer.parseInt(dateString.substring(20));  // microseconds
-      java.sql.Timestamp dateObj = new java.sql.Timestamp(truncatedDateObj.getTime());
-      dateObj.setNanos(1000*micros); // nanoseconds == 1000*microseconds
-      if (DEBUG) System.out.println("DEBUG AS400Timestamp.toObject(): dateString == |" + dateString + "|; nanoseconds == " + 1000*micros);
-      return dateObj;
+
+      // This case is only used internally by Toolbox classes such as 'User'.
+      case FORMAT_DTS:
+        {
+          // Determine the "elapsed microseconds" value represented by the *DTS value.
+          // Note that *DTS values, in theory, specify microseconds elapsed since August 23, 1928 12:03:06.314752.
+          // However, the real reference point is January 1, 2000, 00:00:00.000000,
+          // which is represented by *DTS value 0x8000000000000000.
+
+          // In the returned *DTS value, only the first 8 bytes are meaningful.
+          // Of those 8 bytes, only bits 0-51 are used to represent "elapsed microseconds".
+
+          // To prevent sign-extension when we right-shift the bits:
+          // Copy the first 8 bytes into a 9-byte array, preceded by 0x00.
+          byte[] bytes9 = new byte[9];
+          System.arraycopy(as400Value, offset, bytes9, 1, 8); // right-justify
+          BigInteger bits0to63 = new BigInteger(bytes9); // bits 0-63
+
+          // Convert base of date from August 23, 1928 12:03:06.314752 to January 1, 2000, 00:00:00.000000.
+          byte[] dts2000 = { 0, (byte)0x80, 0,0,0,0,0,0,0 };  // 0x8000000000000000
+          BigInteger basedOn2000 = bits0to63.subtract(new BigInteger(dts2000));
+
+          // Eliminate the "uniqueness bits" (bits 52-63).
+          // Right-shift 12 bits, without sign-extension, leaving bits 0-51.
+          BigInteger microsElapsedSince2000 = basedOn2000.shiftRight(12);
+
+          // Convert the above value to "microseconds elapsed since January 1, 1970, 00:00:00".  That gets us closer to a value we can use to create a Java timestamp object.
+          BigInteger microsElapsedSince1970 = microsElapsedSince2000.add(DTS_CONVERSION_FACTOR);
+
+          // Milliseconds elapsed since January 1, 1970, 00:00:00
+          long millisSince1970 = microsElapsedSince1970.divide(ONE_THOUSAND).longValue(); // 1 millisec == 1000 microsecs
+
+          dateObj = new java.sql.Timestamp(millisSince1970); // GMT time zone
+
+          // Set the "nanoseconds into the second".
+          int microsIntoSecond = microsElapsedSince1970.mod(ONE_MILLION).intValue();
+          dateObj.setNanos(1000*microsIntoSecond); // 1 microsec == 1000 nanosecs
+          break;
+        }
+      default:  // this will never happen
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + getFormat());
+
+    } // switch
+
+    return dateObj;
+  }
+
+
+  /**
+   Converts the specified IBM i data type to a Java object.
+   This method is simply a convenience front-end to the {@link #toObject(byte[]) toObject(byte[])} method.
+   @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
+   @return a {@link java.sql.Timestamp java.sql.Timestamp} object corresponding to the data type.
+   The reference time zone for the object is GMT.
+   **/
+  public java.sql.Timestamp toTimestamp(byte[] as400Value)
+  {
+    return (java.sql.Timestamp)toObject(as400Value, 0);
+  }
+
+
+  /**
+   Converts the specified IBM i data type to a Java object.
+   This method is simply a convenience front-end to the {@link #toObject(byte[],int) toObject(byte[],int)} method.
+   @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
+   @param offset The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
+   @return a {@link java.sql.Timestamp java.sql.Timestamp} object corresponding to the data type.
+   The reference time zone for the object is GMT.
+   **/
+  public java.sql.Timestamp toTimestamp(byte[] as400Value, int offset)
+  {
+    return (java.sql.Timestamp)toObject(as400Value, offset);
+  }
+
+
+  /**
+   Creates a new Date object representing the specified Timestamp object's nominal value, in the context of the specified time zone.
+   That is, the timestamp is re-interpreted as if its reference context is the specified time zone.
+   <p>For example, if this Timestamp object represents timestamp value "2000-01-01-00.00.00.000000 <b>GMT</b>", and the <tt>timezone</tt> parameter specifies CST, then this method will return a java.util.Date object representing timestamp value "2000-01-01-00.00.00.000000 <b>CST</b>".
+   <p>Note that Date has precision of milliseconds, whereas Timestamp has nanosecond precision. When converting from Timestamp to Date, nanoseconds are rounded to the nearest millisecond.
+   @param timezone The desired reference time zone for the returned Date object.
+   @return A Date object representing the same nominal timestamp value as specified by <tt>timestamp</tt>, with time zone context <tt>timezone</tt>.
+   **/
+  public Date toDate(java.sql.Timestamp timestamp, TimeZone timezone)
+  {
+    if (timestamp == null) throw new NullPointerException("timestamp");
+    if (timezone == null)  throw new NullPointerException("timezone");
+
+    // We assume that the default/implied contextual timezone of all Timestamp objects is GMT.
+    // This is certainly the case for all Timestamp objects created by this class.
+    if (timezone.equals(TIMEZONE_GMT)) return (Date)timestamp;
+
+    long millisSince1970 = timestamp.getTime();
+    int nanosIntoSecond  = timestamp.getNanos();
+
+    // For consistency with the QWCCVTDT API (used by the DateTimeConverter class), round up/down if fractional milliseconds are 500 microseconds or greater.
+    int nanosIntoMillisecond = nanosIntoSecond % 1000000; // 1 millisec == 1,000,000 nanosecs
+    if (nanosIntoMillisecond >= 500000) {  // half a million
+      millisSince1970 += 1;  // round up to the next millisecond
     }
-    catch (NumberFormatException e) {
-      // Assume that the exception is because we got bad input.
-      Trace.log(Trace.ERROR, e.getMessage(), as400Value);
-      throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    else {} // truncate the partial milliseconds
+
+
+    Date dateObj;
+    synchronized (this) {
+      getCalendar().setTimeInMillis(millisSince1970);
+      dateObj = getCalendar().getTime();  // this object is based in GMT time zone
     }
-    catch (ParseException e) {
-      // Assume that the exception is because we got bad input.
-      Trace.log(Trace.ERROR, e.getMessage(), as400Value);
-      throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+    String dateAsString = getDateFormatterWithMillis(TIMEZONE_GMT).format(dateObj);
+
+    // Create a new Date object in the desired timezone, representing the same timestamp string expression as above.
+
+    // Note: In the US, depending on the year, Daylight Saving Time begins between March 8-14, and ends between November 1-7. Different JVMs may have different understandings of exactly when Daylight Saving Time starts and ends. This may lead to inconsistent setting of the time zone of the returned Date object, on dates that fall in those DST transition periods.
+    try {
+      return getDateFormatterWithMillis(timezone).parse(dateAsString);
+    }
+    catch (java.text.ParseException e) { // should never happen
+      Trace.log(Trace.ERROR, e);
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
     }
   }
 
@@ -155,7 +357,13 @@ public class AS400Timestamp extends AS400AbstractTime
    **/
   public String toString(Object javaValue)
   {
-    java.sql.Timestamp timeObj = (java.sql.Timestamp)javaValue;  // allow this line to throw ClassCastException and NullPointerException
+    if (javaValue == null) throw new NullPointerException("javaValue");
+    java.sql.Timestamp timeObj;
+    try { timeObj = (java.sql.Timestamp)javaValue; }
+    catch (ClassCastException e) {
+      Trace.log(Trace.ERROR, "javaValue is of type " + javaValue.getClass().getName());
+      throw e;
+    }
 
     // Verify that the 'year' value from the date is within the range of our format.
 
@@ -180,14 +388,28 @@ public class AS400Timestamp extends AS400AbstractTime
   String patternFor(int format, char sep)
   {
     // SimpleDateFormat has a "milliseconds" pattern, but no "microseconds" or "nanoseconds" pattern.
-    // So to generate a pattern consumable by SimpleDateFormat, we omit the fractional seconds entirely here.  We re-append them elsewhere in the code.
-    return "yyyy-MM-dd-HH.mm.ss";
+    // Therefore, to generate a pattern consumable by SimpleDateFormat, we omit the fractional seconds entirely here.  We re-append the fractional seconds elsewhere in the code.
+    return PARSING_PATTERN;
   }
 
   // Implements abstract method of superclass.
   char defaultSeparatorFor(int format)
   {
     return '-';
+  }
+
+
+  // Utility method used internally.
+  private synchronized SimpleDateFormat getDateFormatterWithMillis(TimeZone timezone)
+  {
+    if (dateFormatterWithMillis_ == null) {
+      dateFormatterWithMillis_ = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SSS");
+      dateFormatterWithMillis_.setTimeZone(timezone);
+    }
+    else if (!dateFormatterWithMillis_.getTimeZone().equals(timezone)) {
+      dateFormatterWithMillis_.setTimeZone(timezone);
+    }
+    return dateFormatterWithMillis_;
   }
 
   // Implements abstract method of superclass.
@@ -207,7 +429,14 @@ public class AS400Timestamp extends AS400AbstractTime
   // Implements abstract method of superclass.
   int lengthFor(int format)
   {
-    return 26;  // all IBM i "timestamp" values occupy exactly 26 bytes
+    switch (format)
+    {
+      case FORMAT_DTS:
+        return 8;   // field length is 8 bytes
+
+      default:  // FORMAT_DEFAULT
+        return 26;   // field length is 26 bytes
+    }
   }
 
 
