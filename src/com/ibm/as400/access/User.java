@@ -269,9 +269,10 @@ public class User implements Serializable
     // (Note: No setter for this attribute)
     private String userExpirationAction_;          // @710
 
-    private transient TimeZone systemTimeZone_;
     private transient DateTimeConverter dateConverter_;
     private String jobDateFormat_;
+
+    private transient AS400Timestamp timestampConverter_;
 
     /**
      Constructs a User object.
@@ -1071,7 +1072,8 @@ public class User implements Serializable
                 // First see if a blank value was returned.
                 if (isNullOrBlanks(passwordExpireDateBytes_)) return null;
 
-                passwordExpireDate_ = getDateTimeConverter().convert(passwordExpireDateBytes_, "*DTS");
+                AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
+                passwordExpireDate_ = conv.toDate(conv.toTimestamp(passwordExpireDateBytes_), system_.getTimeZone());
             }
             catch (Exception e)
             {
@@ -1081,6 +1083,21 @@ public class User implements Serializable
         }
         return passwordExpireDate_;
     }
+
+
+    private static final int FORMAT_DTS = AS400Timestamp.FORMAT_DTS; // *DTS format
+    private synchronized AS400Timestamp getTimestampConverter(int format)
+    {
+      if (timestampConverter_ == null) {
+        timestampConverter_ = new AS400Timestamp();
+        timestampConverter_.setFormat(format);
+      }
+      else if (format != timestampConverter_.getFormat()) {
+        timestampConverter_.setFormat(format);
+      }
+      return timestampConverter_;
+    }
+
 
     // @610
     /**
@@ -1130,7 +1147,11 @@ public class User implements Serializable
         {
             try
             {
-                passwordLastChangedDate_ = getDateTimeConverter().convert(passwordLastChangedDateBytes_, "*DTS");
+                // First see if a blank value was returned.  If so, return null.
+                if (isNullOrBlanks(passwordLastChangedDateBytes_)) return null;
+
+                AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
+                passwordLastChangedDate_ = conv.toDate(conv.toTimestamp(passwordLastChangedDateBytes_), system_.getTimeZone());
             }
             catch (Exception e)
             {
@@ -1297,6 +1318,7 @@ public class User implements Serializable
         return system_;
     }
 
+
     /**
      Retrieves a list of action audit levels for the user.
      @return  A list of action audit levels for the user.  Possible values for the elements of this array are:
@@ -1394,7 +1416,8 @@ public class User implements Serializable
           // First see if a blank value was returned.  If so, return null.
           if (isNullOrBlanks(userExpirationDateBytes_)) return null;
 
-          userExpirationDate_ = getDateTimeConverter().convert(userExpirationDateBytes_, "*DTS");
+          AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
+          userExpirationDate_ = conv.toDate(conv.toTimestamp(userExpirationDateBytes_), system_.getTimeZone());
         }
         catch (Exception e)
         {
@@ -1742,15 +1765,7 @@ public class User implements Serializable
             cal.set(Calendar.MINUTE, Integer.parseInt(previousSignon.substring(9, 11)));
             cal.set(Calendar.SECOND, Integer.parseInt(previousSignon.substring(11, 13)));
             // Set the correct time zone (in case client is in a different zone than server).
-            if (systemTimeZone_ == null) {
-              try {
-                systemTimeZone_ = getDateTimeConverter().getSystemTimeZone();
-              }
-              catch (Throwable t) {
-                if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unable to determine time zone of system. Assuming server is in the same time zone as client application.", t);
-              }
-            }
-            if (systemTimeZone_ != null) cal.setTimeZone(systemTimeZone_);
+            cal.setTimeZone(system_.getTimeZone());
             previousSignedOnDate_ = cal.getTime();
         }
         else

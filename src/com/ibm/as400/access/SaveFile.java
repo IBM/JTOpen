@@ -89,6 +89,7 @@ implements Serializable
   private transient String            savefileNameAndLib_;
 
   private transient int existence_ = EXISTENCE_UNKNOWN;  // cached value from most recent existence check
+  private transient AS400Timestamp timestampConverter_;
 
   // Note: If it's ever required, we'll make this class into a Bean later.
   // Until then, we don't provide a default (zero-argument) constructor.
@@ -530,6 +531,20 @@ implements Serializable
   {
     return targetRelease_;
   }
+
+
+    private static final int FORMAT_DTS = AS400Timestamp.FORMAT_DTS;  // *DTS format
+    private synchronized AS400Timestamp getTimestampConverter(int format)
+    {
+      if (timestampConverter_ == null) {
+        timestampConverter_ = new AS400Timestamp();
+        timestampConverter_.setFormat(format);
+      }
+      else if (format != timestampConverter_.getFormat()) {
+        timestampConverter_.setFormat(format);
+      }
+      return timestampConverter_;
+    }
 
 
   /**
@@ -1454,7 +1469,8 @@ implements Serializable
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {
-    return new DateTimeConverter(system_).convert(data, "*DTS");
+    AS400Timestamp conv = getTimestampConverter(FORMAT_DTS);  // field is in *DTS format
+    return conv.toDate(conv.toTimestamp(data), system_.getTimeZone());
   }
 
 

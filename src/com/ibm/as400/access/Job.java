@@ -86,6 +86,7 @@ public class Job implements Serializable
     private transient ProgramCall pgmCall_onThread_;
     private transient ProgramCall pgmCall_offThread_;
     private transient Object remoteCommandLock_ = new Object();
+    private transient AS400Timestamp timestampConverter_;
 
     /**
      Job attribute representing an identifier assigned to the job by the system to collect resource use information for the job when job accounting is active.  The user who is changing this field must have authority to the CHGACGCDE CL command.  If the user does not have the proper authority, this field is ignored and processing continues.  Possible values are:
@@ -3640,8 +3641,8 @@ public class Job implements Serializable
     // Helper method.  Used to convert a system timestamp value into a Date object.
     private Date getAsSystemDate(int key) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        // This is in the system timestamp format which requires an extra API call.
-        return new DateTimeConverter(system_).convert((byte[])getValue(key), "*DTS");
+        AS400Timestamp conv = getTimestampConverter(FORMAT_DTS);  // field is in *DTS format
+        return conv.toDate(conv.toTimestamp((byte[])getValue(key)), system_.getTimeZone());
     }
 
     /**
@@ -5116,6 +5117,20 @@ public class Job implements Serializable
     public int getTimeSlice() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         return getAsInt(TIME_SLICE);
+    }
+
+
+    private static final int FORMAT_DTS = AS400Timestamp.FORMAT_DTS;  // *DTS format
+    private synchronized AS400Timestamp getTimestampConverter(int format)
+    {
+      if (timestampConverter_ == null) {
+        timestampConverter_ = new AS400Timestamp();
+        timestampConverter_.setFormat(format);
+      }
+      else if (format != timestampConverter_.getFormat()) {
+        timestampConverter_.setFormat(format);
+      }
+      return timestampConverter_;
     }
 
     /**

@@ -52,6 +52,8 @@ public class SystemStatus implements Serializable
     // List of vetoable change event bean listeners, set on first add.
     private transient VetoableChangeSupport vetoableChangeListeners_ = null;
 
+    private transient AS400Timestamp timestampConverter_;
+
     /**
      Constructs a SystemStatus object.
      **/
@@ -339,8 +341,8 @@ public class SystemStatus implements Serializable
         loadInformation(0);
         byte[] currentDateAndTime = new byte[8];
         System.arraycopy(receiverVariables_[0], 8, currentDateAndTime, 0, 8);
-        DateTimeConverter converter = new DateTimeConverter(system_);
-        return converter.convert(currentDateAndTime, "*DTS");
+        AS400Timestamp conv = getTimestampConverter(FORMAT_DTS);  // field is in *DTS format
+        return conv.toDate(conv.toTimestamp(currentDateAndTime), system_.getTimeZone());
     }
 
     /**
@@ -516,7 +518,7 @@ public class SystemStatus implements Serializable
     }
 
     /**
-     Returns the percentage of processor database capability that was used during the elapsed time.  Database capability is the maximum CPU utilization available for database processing on this system.  -1 is returned if this system does not report the amount of CPU used for database processing.
+     Returns the percentage of processor database capability that was used during the elapsed time.  Database capability is the maximum CPU utilization available for database processing on this system.  <tt>-1</tt> is returned if this system does not report the amount of CPU used for database processing.
      @return  The percentage of processor database capability that was used during the elapsed time.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -592,7 +594,7 @@ public class SystemStatus implements Serializable
     }
 
     /**
-     Returns the percentage of the total shared processor pool capacity used by all partitions using the pool during the elapsed time. -1 is returned if this partition does not share processors.
+     Returns the percentage of the total shared processor pool capacity used by all partitions using the pool during the elapsed time.  <tt>-1</tt> is returned if this partition does not share processors.
      @return  The percentage of the total shared processor pool capacity used by all partitions using the pool during the elapsed time.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -668,7 +670,7 @@ public class SystemStatus implements Serializable
     }
 
     /**
-     Returns the percentage of the uncapped shared processing capacity for the partition that was used during the elapsed time.  -1 is returned if this partition can not use more than its configured processing capacity.
+     Returns the percentage of the uncapped shared processing capacity for the partition that was used during the elapsed time.  <tt>-1</tt> is returned if this partition can not use more than its configured processing capacity.
      @return  The percentage of the uncapped shared processing capacity for the partition that was used during the elapsed time.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -815,6 +817,21 @@ public class SystemStatus implements Serializable
         }
         return poolsVector_.elements();
     }
+
+
+    private static final int FORMAT_DTS = AS400Timestamp.FORMAT_DTS;  // *DTS format
+    private synchronized AS400Timestamp getTimestampConverter(int format)
+    {
+      if (timestampConverter_ == null) {
+        timestampConverter_ = new AS400Timestamp();
+        timestampConverter_.setFormat(format);
+      }
+      else if (format != timestampConverter_.getFormat()) {
+        timestampConverter_.setFormat(format);
+      }
+      return timestampConverter_;
+    }
+
 
     /**
      Returns the total auxiliary storage (in millions of bytes) on the system.

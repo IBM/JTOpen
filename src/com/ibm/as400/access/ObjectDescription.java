@@ -941,6 +941,7 @@ public class ObjectDescription
   private QSYSObjectPathName path_;
   private String aspSearchType_ = ASP_SEARCH_TYPE_ASP;	// @550A
   private byte status_;
+  private transient AS400Timestamp timestampConverter_;
 
   private final JobHashtable values_ = new JobHashtable();
 
@@ -1153,7 +1154,8 @@ public class ObjectDescription
     else if (o instanceof byte[])
     {
       byte[] b = (byte[])o; // system timestamp
-      return new DateTimeConverter(system_).convert(b, "*DTS");
+      AS400Timestamp conv = getTimestampConverter(FORMAT_DTS);  // field is in *DTS format
+      return conv.toDate(conv.toTimestamp(b), system_.getTimeZone());
     }
     return null;
   }
@@ -1253,6 +1255,20 @@ public class ObjectDescription
   {
     return system_;
   }
+
+
+    private static final int FORMAT_DTS = AS400Timestamp.FORMAT_DTS;  // *DTS format
+    private synchronized AS400Timestamp getTimestampConverter(int format)
+    {
+      if (timestampConverter_ == null) {
+        timestampConverter_ = new AS400Timestamp();
+        timestampConverter_.setFormat(format);
+      }
+      else if (format != timestampConverter_.getFormat()) {
+        timestampConverter_.setFormat(format);
+      }
+      return timestampConverter_;
+    }
 
 
   /**
