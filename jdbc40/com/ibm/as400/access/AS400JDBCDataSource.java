@@ -34,7 +34,7 @@ import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
 
 /**
-*  The AS400JDBCDataSource class represents a factory for IBM i database connections.
+*  The AS400JDBCDataSource class represents a factory for IBM iJDProperties.SORT database connections.
 *
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a
 *  connection to the database.
@@ -455,6 +455,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         try
         {
+            Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.close()"); 
             AS400JDBCDataSource clone = (AS400JDBCDataSource) super.clone();
             clone.properties_ = (JDProperties) this.properties_.clone();
             return clone;
@@ -1025,7 +1026,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Returns the base name of the SQL package.  Note that only the
-    *  first seven characters are used to generate the name of the SQL package on the system.  
+    *  first six characters are used to generate the name of the SQL package on the system.  
     *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
@@ -1092,6 +1093,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public Reference getReference() throws NamingException
     {
+    	
+    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.getReference"); 
+
         Reference ref = new Reference(this.getClass().getName(),
                                       "com.ibm.as400.access.AS400JDBCObjectFactory",
                                       null);
@@ -1459,6 +1463,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     private void initializeTransient()
     {
+    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.initializeTransient"); 
+
         changes_ = new PropertyChangeSupport(this);
 
         if (isSecure_)            //@B4A  
@@ -3142,7 +3148,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the base name of the SQL package.  Note that only the
-    *  first seven characters are used to generate the name of the SQL package on the IBM i system.  
+    *  first six characters are used to generate the name of the SQL package on the IBM i system.  
     *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
@@ -4658,7 +4664,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         Integer oldValue = new Integer(getMaximumBlockedInputRows());
         Integer newValue = new Integer(maximumBlockedInputRows);
 
-        validateProperty(property, newValue.toString(), JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);
+        if (maximumBlockedInputRows < 0 || maximumBlockedInputRows > 32000) {
+        	throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (maximumBlockedInputRows == 0) {
+        	maximumBlockedInputRows = 32000; 
+        }
 
         properties_.setString(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS, newValue.toString());
 
@@ -5073,6 +5084,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     private void writeObject(ObjectOutputStream out) throws IOException
     {
+    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.writeObject"); 
         // @F0D String server = getServerName();
         // @F0D if (!server.equals(""))
         // @F0D     serialServerName_ = server;

@@ -175,7 +175,14 @@ final class SQLDecFloat16 implements SQLData {
             try {
                 if ( (specialValue_ = getSpecialValue( (String)object)) == null ) {
                     //not one of the special values, just store as BigDecimal
-                    bigDecimal = new BigDecimal((String)object);
+                	
+                    // Because the string may be using a comma for the decimal separator and we are going to
+                    // store the object as a Java Bigdec, we much check and change to the default '.' notation.
+                    if (((String)object).indexOf(',')!=-1) { 
+                      bigDecimal = new BigDecimal (((String)object).replace(',', '.'));
+                    } else { 
+                      bigDecimal = new BigDecimal((String)object);
+                    }
                 }
             } catch (NumberFormatException e) {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);

@@ -19,6 +19,7 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+import java.sql.Types;
 /* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
@@ -763,7 +764,7 @@ final class SQLXMLLocator implements SQLLocator
 
     public String getLocalName()
     {
-        return "SQLXML"; 
+        return "XML"; 
     }
 
     public int getMaximumPrecision()
@@ -808,12 +809,18 @@ final class SQLXMLLocator implements SQLLocator
 
     public int getType()
     {
-        return 2009; // java.sql.Types.SQLXML
+/* ifdef JDBC40 */
+        return Types.SQLXML;   
+/* endif */ 
+/* ifndef JDBC40 
+        return Types.CLOB;
+ endif */ 
     }
 
     public String getTypeName()
     {
-        return "SQLXML"; 
+        return "XML";
+         
     }
 
     public boolean isSigned()
