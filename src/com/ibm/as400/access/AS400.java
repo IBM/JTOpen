@@ -356,6 +356,8 @@ public class AS400 implements Serializable
     private Locale locale_ = Locale.getDefault();
     // The NLV set or determined from the locale.
     private String nlv_ = ExecutionEnvironment.getNlv(Locale.getDefault());
+    // The system's default time zone.
+    private transient TimeZone timezone_;
     // Set of socket options to use when creating connections.
     private SocketProperties socketProperties_ = new SocketProperties();
 
@@ -1966,6 +1968,7 @@ public class AS400 implements Serializable
      the system.
      @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
      @see DateTimeConverter#timeZoneForSystem
+     @deprecated Use {@link #getTimeZone() getTimeZone()} instead.
      **/
     public TimeZone getSystemTimeZone()
       throws AS400SecurityException,
@@ -1974,10 +1977,36 @@ public class AS400 implements Serializable
              IOException,
              ObjectDoesNotExistException
     {
+        return getTimeZone();
+    }
+
+    /**
+     Returns the time zone of the IBM i system.
+     The TimeZone object will have the correct UTC offset for the system.
+     @return A TimeZone object representing the time zone for the system.
+     @exception AS400SecurityException If a security or authority error
+     occurs.
+     @exception ErrorCompletingRequestException If an error occurs before
+     the request is completed.
+     @exception InterruptedException If this thread is interrupted.
+     @exception IOException If an error occurs while communicating with
+     the system.
+     @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
+     @see DateTimeConverter#timeZoneForSystem
+     **/
+    public TimeZone getTimeZone()
+      throws AS400SecurityException,
+             ErrorCompletingRequestException,
+             InterruptedException,
+             IOException,
+             ObjectDoesNotExistException
+    {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting time zone");
-        TimeZone zone = DateTimeConverter.timeZoneForSystem(this);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Time zone:", zone.getDisplayName());
-        return zone;
+        if (timezone_ == null) {
+          timezone_ = DateTimeConverter.timeZoneForSystem(this);
+        }
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Time zone:", timezone_.getDisplayName());
+        return timezone_;
     }
 
     /**
