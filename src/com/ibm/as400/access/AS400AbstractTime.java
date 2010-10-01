@@ -15,10 +15,10 @@ package com.ibm.as400.access;
 
 import java.io.CharConversionException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.text.SimpleDateFormat;
 
 /**
  An abstract base class for converters between IBM i date/time values and corresponding Java objects.
@@ -29,7 +29,7 @@ public abstract class AS400AbstractTime implements AS400DataType
   static final boolean DEBUG = false;
 
   static final Locale LOCALE_DEFAULT = Locale.US;  // keep things simple
-  final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone("GMT-0"); // nonstatic, so that we don't create this TimeZone object unless we need it.
+  static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone("GMT-0");
 
   private int length_;  // number of bytes occupied by the IBM i value
   private transient GregorianCalendar calendar_;
@@ -42,6 +42,7 @@ public abstract class AS400AbstractTime implements AS400DataType
 
   private int format_;
   private char separator_;
+  private boolean separatorHasBeenSet_ = false;  // indicates whether separator was explicitly set by the application
 
   /**
    Constructs an AS400AbstractTime object.  Hide this constructor from applications.
@@ -107,13 +108,13 @@ public abstract class AS400AbstractTime implements AS400DataType
   public abstract Class getJavaType();
 
 
-  // Utility method.
-  private synchronized GregorianCalendar getCalendar()
+  // Utility method used by AS400Timestamp.
+  synchronized GregorianCalendar getCalendar()
   {
     if (calendar_ == null)
     {
       if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "AS400AbstractTime.getCalendar(): Setting internal timezone to " + TIMEZONE_GMT.getID());
+        Trace.log(Trace.DIAGNOSTIC, "AS400AbstractTime.getCalendar(): Setting internal timezone to " + TIMEZONE_GMT);
       }
 
       calendar_ = new GregorianCalendar(TIMEZONE_GMT, LOCALE_DEFAULT);
@@ -122,7 +123,7 @@ public abstract class AS400AbstractTime implements AS400DataType
   }
 
 
-  // Utility method used by AS400Timestamp.
+  // Utility method used by AS400Date and AS400Timestamp.
   synchronized GregorianCalendar getCalendar(java.util.Date date)
   {
     getCalendar().setTime(date);  // set the specified date into the Calendar object
@@ -171,6 +172,30 @@ public abstract class AS400AbstractTime implements AS400DataType
   }
 
 
+  // Method needed by DateFieldDescription and TimeFieldDescription.
+  synchronized void setSeparator(char separator)
+  {
+    separator_ = separator;
+    separatorHasBeenSet_ = true;
+  }
+
+
+  // Method needed by DateFieldDescription and TimeFieldDescription.
+  /**
+   Sets the format of this AS400AbstractTime object.
+   Note: We don't make this method public here, since not all subclasses surface it to the user.
+
+   @param format The format for this object.
+   **/
+  synchronized void setFormat(int format)
+  {
+    char separator;
+    if (!separatorHasBeenSet_) separator = defaultSeparatorFor(format);
+    else separator = separator_;
+    setFormat(format, separator);
+  }
+
+
   /**
    Sets the format of this AS400AbstractTime object.
    Note: We don't make this method public here, since not all subclasses surface it to the user.
@@ -195,6 +220,7 @@ public abstract class AS400AbstractTime implements AS400DataType
     dateFormatter_ = null;
     // Don't create formatter until we actually need it.
   }
+
 
   // Implements method of interface AS400DataType.
   /**
@@ -295,6 +321,7 @@ public abstract class AS400AbstractTime implements AS400DataType
     }
   }
 
+
   // Utility method used by subclasses.
   synchronized SimpleDateFormat getDateFormatter()
   {
@@ -307,6 +334,7 @@ public abstract class AS400AbstractTime implements AS400DataType
     }
     return dateFormatter_;
   }
+
 
   // Utility method used by AS400Date.
   synchronized SimpleDateFormat getDateFormatter(Integer centuryDigit)
