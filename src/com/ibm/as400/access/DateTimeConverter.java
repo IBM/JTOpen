@@ -26,8 +26,12 @@ import java.util.TimeZone; //@A1A
 
 /**
  A utility for converting date/time values.
- The system API QWCCVTDT is used to convert a date and time value
+ The system API <tt>QWCCVTDT</tt> is used to convert a date and time value
  from one format to another format.
+
+ @see AS400Date
+ @see AS400Time
+ @see AS400Timestamp
 **/
 public class DateTimeConverter
 {
@@ -36,6 +40,7 @@ public class DateTimeConverter
   private AS400Text text10_;
 
   private Calendar calendar_;
+  //private Calendar calendarGMT_;
   private DateTime17Format format17_;
   //private DateTime16Format format16_;
   private TimeZone systemTimeZone_;  // the time zone for the IBM i server
@@ -51,13 +56,15 @@ public class DateTimeConverter
     system_ = system;
     program_ = new ProgramCall(system_);
     text10_ = new AS400Text(10, system_.getCcsid(), system_);
-    format17_ = new DateTime17Format(system_);
+    ///format17_ = new DateTime17Format(system_);
     //format16_ = new DateTime16Format(system_);
   }
 
+
   /**
    * Converts date and time values from the input format to the requested output format.
-   * <p>This method effectively re-arranges the time format and returns it.
+   * The system API <tt>QWCCVTDT</tt> (Convert Date and Time Format) is called to perform the conversion.
+   * <p>This method effectively just re-arranges the time format and returns it.
    * The input and output values are relative to the same time zone.
    * Therefore, no adjustments are made based on time-zone.  
    *
@@ -94,7 +101,10 @@ public class DateTimeConverter
      <LI>*LONGJUL
      <LI>*DOS
      </UL>
-   * @return The converted date and time value.
+   * @return The converted date and time value, left-justified in the array.
+   * Refer to the specification for the QWCCVTDT API to determine how many of the
+   * returned bytes are meaningful.
+   * 
    * @exception AS400SecurityException If a security or authority error
    *            occurs.
    * @exception ErrorCompletingRequestException If an error occurs before
@@ -111,29 +121,37 @@ public class DateTimeConverter
              IOException,
              ObjectDoesNotExistException
   {
+    return convert(data, inFormat, outFormat, null);
+  }
+
+  private byte[] convert(byte[] data, String inFormat, String outFormat, String timezone)
+      throws AS400SecurityException,
+             ErrorCompletingRequestException,
+             InterruptedException,
+             IOException,
+             ObjectDoesNotExistException
+  {
     if (data == null) throw new NullPointerException("data");
     if (inFormat == null) throw new NullPointerException("inFormat");
     if (outFormat == null) throw new NullPointerException("outFormat");
         
-    // Setup the parameters
+    // Set up the parameters.
     // Design note: We don't need to use the optional parms, since we're not converting between different time zones.
-    ProgramParameter[] parmlist = new ProgramParameter[5];
-    // First parameter is the input format.
-    parmlist[0] = new ProgramParameter(text10_.toBytes(inFormat));
-    // Second parameter is the input variable.
-    parmlist[1] = new ProgramParameter(data);
-    // Third parameter is the output format.
-    parmlist[2] = new ProgramParameter(text10_.toBytes(outFormat));
-    // Fourth parameter is the output variable.
-    parmlist[3] = new ProgramParameter(17);
-    // Fifth parameter is the error format.
-    byte[] errorCode = new byte[70];
-    parmlist[4] = new ProgramParameter(errorCode);
+    ProgramParameter[] parmList;
+    if (timezone == null) {
+      parmList = new ProgramParameter[5];
+      setRequiredParameters(parmList, data, inFormat, outFormat);
+    }
+    else {
+      parmList = new ProgramParameter[10];
+      setRequiredParameters(parmList, data, inFormat, outFormat);
+      setOptionalParameters(parmList, timezone);
+    }
 
     // Set the program name and parameter list
     try
     {
-      program_.setProgram("/QSYS.LIB/QWCCVTDT.PGM", parmlist);
+      program_.setProgram("/QSYS.LIB/QWCCVTDT.PGM", parmList);
     }
     catch(PropertyVetoException pve) {} // Quiet the compiler
 
@@ -153,21 +171,62 @@ public class DateTimeConverter
       }
       throw new AS400Exception(messageList);
     }
-    byte[] received = parmlist[3].getOutputData();
-    // Leave it up to the user to decide which portion of the byte
-    // array they should use.
+    byte[] received = parmList[3].getOutputData();
+
     // Note:
-    //  *DTS uses 0-7
-    //  *DOS uses 0-11
-    //  *YYMD, *MDYY, *DMYY, *LONGJUL use 0-16 (the whole thing)
-    //  anything else uses 0-15
+    // We leave it up to the user to decide which portion of the byte array to use.
+    // Different formats use different numbers of bytes:
+    //  *DTS uses bytes 0-7.
+    //  *DOS uses bytes 0-11.
+    //  *YYMD, *MDYY, *DMYY, *LONGJUL use 0-16 (the whole thing).
+    //  Anything else uses bytes 0-15.
+
     return received;
+  }
+
+
+  // Sets the required parameters for the QWCCVTDT API.
+  private void setRequiredParameters(ProgramParameter[] parmList, byte[] data, String inFormat, String outFormat)
+  {
+    // First parameter is the input format.
+    parmList[0] = new ProgramParameter(text10_.toBytes(inFormat));
+    // Second parameter is the input variable.
+    parmList[1] = new ProgramParameter(data);
+    // Third parameter is the output format.
+    parmList[2] = new ProgramParameter(text10_.toBytes(outFormat));
+    // Fourth parameter is the output variable.
+    parmList[3] = new ProgramParameter(17);
+    // Fifth parameter is the error format.
+    parmList[4] = new ErrorCodeParameter(); // Note: Original implementation allocated 70 bytes for this parameter.
+  }
+
+
+  // Sets the optional parameters for the QWCCVTDT API.
+  private void setOptionalParameters(ProgramParameter[] parmList, String timezone)
+  {
+    // Note: QWCCVTDT optional parameter groups 1 and 2 were added in V5R3.
+
+    // Sixth parameter is the input time zone.
+    byte[] timezoneBytes = text10_.toBytes(timezone);
+    parmList[5] = new ProgramParameter(timezoneBytes);
+    // Seventh parameter is the output time zone.
+    parmList[6] = new ProgramParameter(timezoneBytes);
+    // Eighth parameter is the time zone information (output).
+    parmList[7] = new ProgramParameter(0);  // a zero-length array
+    // Ninth parameter is the length of time zone information.
+    parmList[8] = new ProgramParameter(BinaryConverter.intToByteArray(0)); // 0
+    // Tenth parameter is the precision indicator.
+    parmList[9] = new ProgramParameter(new byte[] { (byte) 0xF0 }); // milliseconds
+
+    // Design note:  When the "precision indicator" parameter is set to "milliseconds" (which is the default), and the time value being converted has greater precision (e.g. microseconds), then QWCCVTDT will round up or down to the nearest millisecond.
+
+    // Note: We don't use the "input time indicator" parameter.
   }
 
 
   /**
    * Returns a converted Date object.
-   * <p><b>Note:</b> When <tt>*CURRENT</tt> is specified, the <tt>data</tt> parameter will not be used.
+   * The system API <tt>QWCCVTDT</tt> (Convert Date and Time Format) is called to perform the conversion.
    * @param data The date and time value to be converted.
    * The value is assumed to be relative to the IBM i system's time zone.
    * @param inFormat The format of the date and time value being provided.
@@ -186,6 +245,7 @@ public class DateTimeConverter
        <LI>*JUL
        <LI>*LONGJUL
        </UL>
+   * <b>Note:</b> When <tt>*CURRENT</tt> is specified, the <tt>data</tt> parameter is disregarded.
    * @return The converted date and time.
    * @exception AS400SecurityException If a security or authority error
    *            occurs.
@@ -207,8 +267,8 @@ public class DateTimeConverter
     if (inFormat == null) throw new NullPointerException("inFormat");
 
     // Use output format *YYMD which gives us a full Date: YYYYMMDD.
-    byte[] converted = convert(data, inFormat, "*YYMD");
-    Record rec = format17_.getNewRecord(converted);
+    byte[] converted = convert(data, inFormat, "*YYMD", null); // call QWCCVTDT
+    Record rec = getFormat17().getNewRecord(converted);
 
     if (Trace.traceOn_)
     {
@@ -226,6 +286,71 @@ public class DateTimeConverter
 
     return calendar.getTime();
   }
+
+
+// For testing and/or future enhancement:
+//  /**
+//   * Returns a converted Date object, relative to the GMT time zone.
+//   * The system API <tt>QWCCVTDT</tt> (Convert Date and Time Format) is called to perform the conversion.
+//   * @param data The date and time value to be converted.
+//   * The value is assumed to be relative to the IBM i system's time zone.
+//   * @param inFormat The format of the date and time value being provided.
+//   * Possible values are:
+//       <UL>
+//       <LI>*CURRENT
+//       <LI>*DTS
+//       <LI>*JOB
+//       <LI>*SYSVAL
+//       <LI>*YMD
+//       <LI>*YYMD
+//       <LI>*MDY
+//       <LI>*MDYY
+//       <LI>*DMY
+//       <LI>*DMYY
+//       <LI>*JUL
+//       <LI>*LONGJUL
+//       </UL>
+//   * <b>Note:</b> When <tt>*CURRENT</tt> is specified, the <tt>data</tt> parameter is disregarded.
+//   * @return The converted date and time.
+//   * @exception AS400SecurityException If a security or authority error
+//   *            occurs.
+//   * @exception ErrorCompletingRequestException If an error occurs before
+//   *            the request is completed.
+//   * @exception InterruptedException If this thread is interrupted.
+//   * @exception IOException If an error occurs while communicating with
+//   *            the system.
+//   * @exception ObjectDoesNotExistException If the object does not exist on the system.
+//  **/
+//  public Date convertGMT(byte[] data, String inFormat)
+//      throws AS400SecurityException,
+//             ErrorCompletingRequestException,
+//             InterruptedException,
+//             IOException,
+//             ObjectDoesNotExistException
+//  {
+//    if (data == null) throw new NullPointerException("data");
+//    if (inFormat == null) throw new NullPointerException("inFormat");
+//
+//    // Use output format *YYMD which gives us a full Date: YYYYMMDD.
+//    byte[] converted = convert(data, inFormat, "*YYMD", "*UTC"); // call QWCCVTDT
+//    Record rec = getFormat17().getNewRecord(converted);
+//
+//    if (Trace.traceOn_)
+//    {
+//      Trace.log(Trace.DIAGNOSTIC, "DateTimeConverter record parsed from bytes: "+rec.toString());
+//    }
+//
+//    Calendar calendar = getCalendarGMT();
+//    calendar.set(Integer.parseInt(((String)rec.getField("year")).trim()),
+//                 Integer.parseInt(((String)rec.getField("month")).trim())-1,
+//                 Integer.parseInt(((String)rec.getField("day")).trim()),
+//                 Integer.parseInt(((String)rec.getField("hour")).trim()),
+//                 Integer.parseInt(((String)rec.getField("minute")).trim()),
+//                 Integer.parseInt(((String)rec.getField("second")).trim()));
+//    calendar.set(Calendar.MILLISECOND, Integer.parseInt(((String)rec.getField("millisecond")).trim()));
+//
+//    return calendar.getTime();
+//  }
 
   /**
    * Returns the converted date and time in a byte array.
@@ -245,8 +370,11 @@ public class DateTimeConverter
        <LI>*JUL
        <LI>*LONGJUL
        </UL>
-   * @return The converted date and time.
-   * The value is relative to the IBM i system's time zone.
+   * @return The converted date and time value, left-justified in the array.
+   * The context of the value is the IBM i system's time zone.
+   * Refer to the specification for the QWCCVTDT API to determine how many of the
+   * returned bytes are meaningful.
+   * 
    * @exception AS400SecurityException If a security or authority error
    *            occurs.
    * @exception ErrorCompletingRequestException If an error occurs before
@@ -266,11 +394,73 @@ public class DateTimeConverter
     if (date == null) throw new NullPointerException("date");
     if (outFormat == null) throw new NullPointerException("outFormat");
 
+    byte[] data = dateToBytes(date);
+
+    return convert(data, "*YYMD", outFormat, null);
+  }
+
+
+// For testing and/or future enhancement:
+//  /**
+//   * Returns the converted date and time in a byte array, relative to the GMT time zone.
+//   * @param date The Date object to be converted.
+//   * @param outFormat The format of the returned date and time value.
+//   * Possible values are:
+//       <UL>
+//       <LI>*DTS
+//       <LI>*JOB
+//       <LI>*SYSVAL
+//       <LI>*YMD
+//       <LI>*YYMD
+//       <LI>*MDY
+//       <LI>*MDYY
+//       <LI>*DMY
+//       <LI>*DMYY
+//       <LI>*JUL
+//       <LI>*LONGJUL
+//       </UL>
+//   * @return The converted date and time value, left-justified in the array.
+//   * The context of the value is the GMT time zone.
+//   * Refer to the specification for the QWCCVTDT API to determine how many of the
+//   * returned bytes are meaningful.
+//   * 
+//   * @exception AS400SecurityException If a security or authority error
+//   *            occurs.
+//   * @exception ErrorCompletingRequestException If an error occurs before
+//   *            the request is completed.
+//   * @exception InterruptedException If this thread is interrupted.
+//   * @exception IOException If an error occurs while communicating with
+//   *            the system.
+//   * @exception ObjectDoesNotExistException If the object does not exist on the system.
+//  **/
+//  public byte[] convertGMT(Date date, String outFormat)
+//      throws AS400SecurityException,
+//             ErrorCompletingRequestException,
+//             InterruptedException,
+//             IOException,
+//             ObjectDoesNotExistException
+//  {
+//    if (date == null) throw new NullPointerException("date");
+//    if (outFormat == null) throw new NullPointerException("outFormat");
+//
+//    byte[] data = dateToBytes(date);
+//    return convert(data, "*YYMD", outFormat, "*UTC");  // "*UTC" == GMT timezone
+//  }
+
+
+  // Converts a Date value to an IBM i byte sequence in *YYMD format.
+  private byte[] dateToBytes(Date date)
+      throws AS400SecurityException,
+             ErrorCompletingRequestException,
+             InterruptedException,
+             IOException,
+             ObjectDoesNotExistException
+  {
     Calendar calendar = getCalendar();
     calendar.setTime(date);
 
     // Start with *YYMD for conversion. Seems like a good format to use.
-    Record rec = format17_.getNewRecord();
+    Record rec = getFormat17().getNewRecord();
     rec.setField("year", Integer.toString(calendar.get(Calendar.YEAR)));
 
     // Need to pad each number with 0s if necessary, so it will fill the format
@@ -298,9 +488,7 @@ public class DateTimeConverter
       Trace.log(Trace.DIAGNOSTIC, "DateTimeConverter record parsed from Date: "+rec.toString());
     }
 
-    byte[] data = rec.getContents();
-
-    return convert(data, "*YYMD", outFormat);
+    return rec.getContents();
   }
 
 
@@ -319,6 +507,30 @@ public class DateTimeConverter
     }
     else calendar_.clear();
     return calendar_;
+  }
+
+
+// For testing and/or future enhancement:
+//  // Utility method.
+//  // Returns a Calendar object set to the GMT time zone.
+//  private final Calendar getCalendarGMT()
+//  {
+//    if (calendarGMT_ == null) {
+//      // Create a Calendar object, based in the GMT time zone.
+//      calendarGMT_ = Calendar.getInstance(TimeZone.getTimeZone("GMT-0"));
+//    }
+//    else calendarGMT_.clear();
+//    return calendarGMT_;
+//  }
+
+
+  // Utility method.
+  private synchronized DateTime17Format getFormat17()
+  {
+    if (format17_ == null) {
+      format17_ = new DateTime17Format(system_);
+    }
+    return format17_;
   }
 
 
@@ -362,6 +574,7 @@ public class DateTimeConverter
    * @exception IOException If an error occurs while communicating with
    *            the system.
    * @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
+   * @see AS400#getTimeZone()
   **/
   public static TimeZone timeZoneForSystem(AS400 system)
       throws AS400SecurityException,
