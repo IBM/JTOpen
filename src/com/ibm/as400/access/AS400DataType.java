@@ -123,7 +123,12 @@ public interface AS400DataType extends Cloneable, Serializable
    * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Time AS400Time} object.
    * @see #getInstanceType
    **/
-  public static final int TYPE_TIME_OF_DAY = 18;
+  public static final int TYPE_TIME = 18;
+
+  /**
+   * @deprecated Use {@link #TYPE_TIME TYPE_TIME} instead.
+   **/
+  public static final int TYPE_TIME_OF_DAY = TYPE_TIME;
 
   /**
    * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Timestamp AS400Timestamp} object.
