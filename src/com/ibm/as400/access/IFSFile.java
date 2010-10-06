@@ -62,8 +62,8 @@ import java.util.StringTokenizer;            //@D4A
   * The following example demonstrates the use of IFSFile:
   *
   * <pre>
-  * // Work with /Dir/File.txt on the system myAS400.
-  * AS400 as400 = new AS400("myAS400");
+  * // Work with /Dir/File.txt on the system named MYSYSTEM.
+  * AS400 as400 = new AS400("MYSYSTEM");
   * IFSFile file = new IFSFile(as400, "/Dir/File.txt");
   *
   * // Determine the parent directory of the file.
@@ -88,19 +88,38 @@ import java.util.StringTokenizer;            //@D4A
   *
   * <P>Note: Because of a host server restriction, you cannot use this class to
   * access files in <tt>QTEMP.LIB</tt>.
-
+  *
   * <p>Note: Support for <b>"large files"</b> (files larger than 2 gigabytes) was added
   * to the File Server in IBM i V6R1, and was not PTF'd back to prior IBM i versions.
   * The Toolbox's IFS classes rely on the File Server to access and
   * manipulate files in the integrated file system.
   *
+  * <p>
+  * <i>Note on the use of IFS classes when accessing QSYS files:</i>
+  * <br>The IFS classes are of limited usefulness when accessing formatted
+  * file objects under QSYS, such as physical files and save files.
+  * The IFS classes perform their work via datastream
+  * requests that are sent to the "File Server" job on the IBM i system.
+  * The File Server has its own idea of what is a "file" versus a "directory".
+  * In the case of a QSYS file object that contains records and/or members,
+  * the File Server tends to view such an object as a composite "directory"
+  * rather than a flat data "file" (since the File Server wouldn't be free to just
+  * start reading/writing bytes of data from/to the file at whatever offset,
+  * without ending up with meaningless or corrupted data).
+  * The File Server has no awareness of, or respect for, file record structure.
+  * When accessing QSYS file objects, consider the use of other classes such as
+  * {@link SequentialFile SequentialFile}, {@link KeyedFile KeyedFile}, and
+  * {@link SaveFile SaveFile}.
+  *
+  * @see FileEvent
+  * @see #addFileListener(FileListener)
+  * @see #removeFileListener(FileListener)
   * @see IFSJavaFile
-  * @see com.ibm.as400.access.FileEvent
-  * @see #addFileListener(com.ibm.as400.access.FileListener)
-  * @see #removeFileListener(com.ibm.as400.access.FileListener)
-  * @see com.ibm.as400.access.IFSFileInputStream
-  * @see com.ibm.as400.access.IFSFileOutputStream
-  * @see com.ibm.as400.access.IFSRandomAccessFile
+  * @see IFSRandomAccessFile
+  * @see IFSFileInputStream
+  * @see IFSFileOutputStream
+  * @see IFSFileReader
+  * @see IFSFileWriter
  **/
 
 public class IFSFile
