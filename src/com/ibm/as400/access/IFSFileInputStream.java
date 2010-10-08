@@ -48,6 +48,18 @@ import java.util.Vector;
  // Close the file.
  file.close();
  </pre>
+
+ <p>
+ <i>Note on the use of IFS classes when accessing QSYS files:</i>
+ <br>The IFS classes are of limited usefulness when accessing formatted
+ file objects under QSYS, such as physical files and save files.
+ The IFS classes perform their work via datastream
+ requests that are sent to the "File Server" job on the IBM i system.
+ The File Server has no awareness of, or respect for, file record structure.
+ When accessing QSYS file objects, consider the use of other classes such as
+ {@link SequentialFile SequentialFile}, {@link KeyedFile KeyedFile}, and
+ {@link SaveFile SaveFile}.
+
 @see com.ibm.as400.access.FileEvent
 @see #addFileListener
 @see #removeFileListener
