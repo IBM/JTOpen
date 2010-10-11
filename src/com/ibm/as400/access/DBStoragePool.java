@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.lang.ref.SoftReference;
+
 //@P0D import java.util.BitSet;
 //@P0D import java.util.Vector;
 
@@ -26,7 +28,7 @@ involved in sending request datastreams.
 **/
 class DBStoragePool
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -35,7 +37,10 @@ class DBStoragePool
   //@P0D private BitSet  lockState_;
   //@P0D private Vector  pool_;
 
-  private DBStorage[] pool_ = new DBStorage[16]; //@P0A
+  // 
+  // Use soft references to avoid running the JVM out of memory
+  // 
+  private SoftReference[] pool_ = new SoftReference[16]; //@P0A
 
 /**
 Constructs a DBStoragePool object.
@@ -95,12 +100,18 @@ are available, a brand new one will be allocated.
         }
       *///@P0D
 
-      DBStorage storage = pool_[i]; //@P0A  Local variables are faster. 
+      	
+      DBStorage storage;  //@P0A  Local variables are faster.
+      if (pool_[i] == null) {
+    	  storage=null; 
+      } else {
+    	  storage= (DBStorage) pool_[i].get(); 
+      }
       if (storage == null) //@P0A
       {
         storage = new DBStorage(); //@P0A
         storage.canUse(); //@P0A
-        pool_[i] = storage; //@P0A
+        pool_[i] = new SoftReference(storage); //@P0A
         return storage; //@P0A
       }
       else {
@@ -115,7 +126,7 @@ are available, a brand new one will be allocated.
     if (JDTrace.isTraceOn())                                                     // @B2C
       JDTrace.logInformation(this, "Creating new DBStoragePool of size "+max*2); // @P0A @B2C
 
-    DBStorage[] tempPool = new DBStorage[max*2]; //@P0A
+    SoftReference[] tempPool = new SoftReference[max*2]; //@P0A
 
     for (int i=0; i<max; ++i) //@P0A
     {
@@ -123,7 +134,7 @@ are available, a brand new one will be allocated.
     }
     DBStorage storage = new DBStorage(); //@P0A
     storage.canUse(); //@P0A
-    tempPool[max] = storage; //@P0A
+    tempPool[max] = new SoftReference(storage); //@P0A
     pool_ = tempPool; //@P0A
     
     /*@P0D

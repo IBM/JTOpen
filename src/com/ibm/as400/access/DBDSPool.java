@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.lang.ref.SoftReference;
+
 // This handles all of the datastream pooling for JDBC.
 final class DBDSPool
 {
@@ -49,7 +51,8 @@ final class DBDSPool
   private static final Object dbxarequestdsPoolLock_ = new Object(); //@P1A
 
   // Reply streams.
-  /* private  */ static DBReplyRequestedDS[] dbreplyrequesteddsPool_ = new DBReplyRequestedDS[4];
+  /* private  */ 
+  static SoftReference[] dbreplyrequesteddsPool_ = new SoftReference[4];
   private static final Object dbreplyrequesteddsPoolLock_ = new Object(); //@P1A
 
   static final DBStoragePool storagePool_ = new DBStoragePool();
@@ -80,23 +83,37 @@ final class DBDSPool
 	} else { 
     synchronized(dbreplyrequesteddsPoolLock_) //@P1C
     {
-      DBReplyRequestedDS[] pool = dbreplyrequesteddsPool_; //@P1M
+      // This pools is maintained as weak references to 
+      // all the garbage collector to free up as needed.
+      // DBReplyRequestedDS[] pool = dbreplyrequesteddsPool_; //@P1M
+      SoftReference[] pool = dbreplyrequesteddsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<pool.length; ++i)
       {
-        if (pool[i] == null)
+        if (pool[i] == null )
         {
-          pool[i] = new DBReplyRequestedDS();
-          pool[i].canUse();
+          DBReplyRequestedDS ds =  new DBReplyRequestedDS();
+          ds.canUse(); 
+          pool[i] = new SoftReference(ds);
    		  // pool[i].setPoolIndex(i); 
-          return pool[i];
-        } else { 
-        	   if (( pool[i].inUse_ == false) && (pool[i].canUse())) {
-        		pool[i].initialize();
+          return ds;
+        
+        } else {
+          DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get(); 
+          if (ds == null) { 
+              ds =  new DBReplyRequestedDS();
+              ds.canUse(); 
+              pool[i] = new SoftReference(ds);
+       		  // pool[i].setPoolIndex(i); 
+              return ds;
+        	  
+          } else { 
+        	   if ((ds.inUse_ == false) && (ds.canUse())) {
+        		ds.initialize();
         		// pool[i].setPoolIndex(i); 
-        		
-        		return pool[i];
-        	  }
+        		return ds;
+        	   }
+          }
         }
       }
       // All are in use, so expand the pool but keep the pool less than 16384
@@ -107,14 +124,15 @@ final class DBDSPool
     	//		System.out.println("Entry "+i+" : "+pool[i].getAllocatedLocation());
     	//	}
     	//}
-        DBReplyRequestedDS[] temp = new DBReplyRequestedDS[max*2];
+        SoftReference[] temp = new SoftReference[max*2];
         System.arraycopy(pool, 0, temp, 0, max);
-        temp[max] = new DBReplyRequestedDS();
-        temp[max].canUse();
+        DBReplyRequestedDS ds = new DBReplyRequestedDS(); 
+        temp[max] = new SoftReference(ds); 
+        ds.canUse();
 		// temp[max].setPoolIndex(max); 
 
         dbreplyrequesteddsPool_ = temp;
-        return temp[max];
+        return ds;
       } else {
   		DBReplyRequestedDS newDS = new DBReplyRequestedDS();
 		newDS.canUse(); 
