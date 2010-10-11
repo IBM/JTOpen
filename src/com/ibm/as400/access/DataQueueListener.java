@@ -16,7 +16,9 @@ package com.ibm.as400.access;
 import java.util.EventListener;
 
 /**
- The DataQueueListener interface provides an interface for receiving DataQueue events.
+ Provides an interface for receiving DataQueue events.
+ <p>Note: Only actions performed <i>via the Java object that implements this interface</i> will fire events to listeners.
+ Data queue accesses performed by other means (such as by calling system APIs or CL commands) do not fire events to listeners.
  **/
 public interface DataQueueListener extends EventListener
 {

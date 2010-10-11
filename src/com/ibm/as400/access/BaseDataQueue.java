@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 /**
- The BaseDataQueue class represents an IBM i data queue object.
+ Represents an IBM i data queue object.
  **/
 public abstract class BaseDataQueue implements Serializable
 {
@@ -118,6 +118,8 @@ public abstract class BaseDataQueue implements Serializable
 
     /**
      Adds a listener to be notified when a data queue event occurs.
+     <p>Note: Only actions performed <i>via this BaseDataQueue object</i> will fire events to listeners.
+     Data queue accesses performed by other means (such as by calling system APIs or CL commands) do not fire events to listeners.
      @param  listener  The listener object.
      **/
     public void addDataQueueListener(DataQueueListener listener)
@@ -141,6 +143,8 @@ public abstract class BaseDataQueue implements Serializable
 
     /**
      Adds a listener to be notified when an object event occurs.
+     <p>Note: Only actions performed <i>via this BaseDataQueue object</i> will fire events to listeners.
+     Data queue accesses performed by other means (such as by calling system APIs or CL commands) do not fire events to listeners.
      @param  listener  The listener object.
      **/
     public void addObjectListener(ObjectListener listener)
@@ -164,6 +168,8 @@ public abstract class BaseDataQueue implements Serializable
 
     /**
      Adds a listener to be notified when the value of any bound property changes.
+     <p>Note: Only actions performed <i>via this BaseDataQueue object</i> will fire events to listeners.
+     Data queue accesses performed by other means (such as by calling system APIs or CL commands) do not fire events to listeners.
      @param  listener  The listener object.
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
@@ -187,6 +193,8 @@ public abstract class BaseDataQueue implements Serializable
 
     /**
      Adds a listener to be notified when the value of any constrained property changes.
+     <p>Note: Only actions performed <i>via this BaseDataQueue object</i> will fire events to listeners.
+     Data queue accesses performed by other means (such as by calling system APIs or CL commands) do not fire events to listeners.
      @param  listener  The listener object.
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
