@@ -1181,6 +1181,22 @@ public class Trace implements Runnable
   }
 
 
+  /**
+   Returns a string representation of the byte-array argument, as a sequence of hexadecimal digits.
+   @param bytes A byte array to be converted to a string.
+   @return The hexadecimal string representation of the byte array argument.
+   **/
+  public static final String toHexString(byte[] bytes)
+  {
+    if (bytes == null) throw new NullPointerException("bytes");
+    StringBuffer buf = new StringBuffer();
+    for (int i=0; i<bytes.length; i++) {
+      buf.append(HEX_BYTE_ARRAY[0x00FF & bytes[i]]);
+    }
+    return buf.toString();
+  }
+
+
   //@D2A
   /**
     Sets tracing for all categories on or off.  The actual tracing does
