@@ -176,7 +176,7 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
         throw new ExtendedIOException(path_, rc);
       }
     }
@@ -268,9 +268,9 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         String path = (rc == IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME ? destinationPath : path_);
+        throwSecurityExceptionIfAccessDenied(path,rc); // check for "access denied"
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
         throw new ExtendedIOException(path, rc);
       }
       return true;
@@ -321,7 +321,7 @@ implements IFSFileDescriptorImpl
       else if (ds instanceof IFSReturnCodeRep)
       {
         returnCode = ((IFSReturnCodeRep) ds).getReturnCode();
-        throwSecurityExceptionIfAccessDenied(returnCode); // check for "access denied"
+        throwSecurityExceptionIfAccessDenied(path_,returnCode); // check for "access denied"
       }
       else
       {
@@ -348,7 +348,7 @@ implements IFSFileDescriptorImpl
       if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
       {
         Trace.log(Trace.DIAGNOSTIC, "Unable to open file " + path_ + ": " +
-                  "IFSReturnCodeRep return code", returnCode);
+                  "IFSReturnCodeRep return code", descriptionForReturnCode(returnCode));
       }
       errorRC_ = returnCode;
       return UNINITIALIZED;
@@ -374,9 +374,8 @@ implements IFSFileDescriptorImpl
             if (ds instanceof IFSReturnCodeRep)
             {
               int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-              throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-              Trace.log(Trace.ERROR, "IFSReturnCodeRep return code",
-                        rc);
+              throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+              Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
               throw new ExtendedIOException(path_, rc);
             }
             else {
@@ -455,9 +454,8 @@ implements IFSFileDescriptorImpl
                 if (ds instanceof IFSReturnCodeRep)
                 {
                   int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-                  throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code",
-                            rc);
+                  throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
                   throw new ExtendedIOException(path_, rc);
                 }
                 else {
@@ -503,6 +501,38 @@ implements IFSFileDescriptorImpl
               }
           }
       }
+  }
+
+  private static String descriptionForReturnCode(int rc)
+  {
+    switch (rc)
+    {
+      case 4636: // 0x121C
+        return rc+": Not authorized to command. (Check for user exit program.)";
+        // Occurs mainly when user is not authorized to the user exit program.
+      case 4692: // 0x1254
+        return rc+": Command check. (Check for user exit program.)";
+        // Occurs mainly when the user exit program is either not found, deleted, or deleted and recreated but the QSERVER subsystem has not been ended and restarted.
+      case 4702: // 0x125E
+        return rc+": Closed with damage.";
+        // File was closed but had an error in the file server close function.
+      case 3391: // 0x0D3F
+        return rc+": File is temporarily unavailable.";
+      case 3392: // 0x0D40
+        return rc+": Directory is temporarily unavailable.";
+      case 3393: // 0x0D41
+        return rc+": Working directory handle is not valid.";
+        // May get return code 6 (handle invalid) instead of 3393.
+      case 3394: // 0x0D42
+        return rc+": File handle is not valid.";
+        // May get return code 6 (handle invalid) instead.
+      case 3395: // 0x0D43
+        return rc+": User handle is not valid.";
+        // May get return code 6 (handle invalid) instead.
+      case 3396: // 0x0D44
+        return rc+": User is temporarily unavailable.";
+      default: return Integer.toString(rc);
+    }
   }
 
 
@@ -574,8 +604,8 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+        throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
         throw new ExtendedIOException(path_, rc);
       }
     }
@@ -761,9 +791,9 @@ implements IFSFileDescriptorImpl
             rc != IFSReturnCodeRep.FILE_NOT_FOUND &&
             rc != IFSReturnCodeRep.PATH_NOT_FOUND)
         {
-          throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
+          throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
           Trace.log(Trace.ERROR, "Error getting file attributes for file " + path_ + ": " +
-                    "IFSReturnCodeRep return code", rc);  // @A9C
+                    "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
           throw new ExtendedIOException(path_, rc);
         }
 
@@ -962,8 +992,8 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+        throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
         throw new ExtendedIOException(path_, rc);
       }
     }
@@ -1075,8 +1105,8 @@ implements IFSFileDescriptorImpl
           }
           else  // none of the above
           {
-            throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-            Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+            throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+            Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
             throw new ExtendedIOException(path_, rc);
           }
         }
@@ -1196,8 +1226,8 @@ implements IFSFileDescriptorImpl
         success = true;
       else
       {
-        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+        throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+        Trace.log(Trace.ERROR, path_ + ": IFSReturnCodeRep return code", descriptionForReturnCode(rc));
       }
     }
     else
@@ -1278,15 +1308,15 @@ implements IFSFileDescriptorImpl
     }
   }
 
-  private final void throwSecurityExceptionIfAccessDenied(int returnCode)
+  private static final void throwSecurityExceptionIfAccessDenied(String path, int returnCode)
     throws AS400SecurityException
   {
     if (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY ||
         returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
     {
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Access denied to file " + path_ + ". " +
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Access denied to file " + path + ". " +
                 "IFSReturnCodeRep return code", returnCode);
-      throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
+      throw new AS400SecurityException(path, AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
     }
   }
 
@@ -1340,8 +1370,8 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+        throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
         throw new ExtendedIOException(path_, rc);
       }
     }
@@ -1454,8 +1484,8 @@ implements IFSFileDescriptorImpl
         int rc = ((IFSReturnCodeRep) ds).getReturnCode();
         if (rc != IFSReturnCodeRep.SUCCESS)
         {
-          throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+          throwSecurityExceptionIfAccessDenied(path_,rc); // check for "access denied"
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", descriptionForReturnCode(rc));
           throw new ExtendedIOException(path_, rc);
         }
       }
