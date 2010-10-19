@@ -35,6 +35,7 @@ import java.io.Serializable;
  <li>Substitute formatting characters - the MessageFile class replaces system formatting characters with newline and space characters.
  </ol>
  The difference between options 2 and 3 are with line wrapping.  If the formatting characters remain the application can handle line wrapping and indentation.  If the MessageFile class inserts newline and space characters, Java components will handle line wrapping.
+ <p>Note: To return formatting characters, you must call {@link #setHelpTextFormatting setHelpTextFormatting} <i>prior to</i> calling any of the <tt>getMessage()</tt> methods.
  <p>For example, to retrieve and print a message:
  <pre>
  AS400 system = new AS400("mysystem.mycompany.com");
@@ -305,11 +306,12 @@ public class MessageFile implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #setHelpTextFormatting
      **/
     public AS400Message getMessage(String ID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving message from message file, ID: " + ID);
-        return getMessage(ID, (byte[])null);
+        return getMessage(ID, (byte[])null, BidiStringType.DEFAULT, CCSID_OF_JOB, CCSID_OF_JOB);
     }
 
     /**
@@ -323,11 +325,12 @@ public class MessageFile implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #setHelpTextFormatting
      **/
     public AS400Message getMessage(String ID, int type) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving message from message file, ID: " + ID + ", type:", type);
-        return getMessage(ID, (byte[])null, type);
+        return getMessage(ID, (byte[])null, type, CCSID_OF_JOB, CCSID_OF_JOB);
     }
 
     /**
@@ -342,6 +345,7 @@ public class MessageFile implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #setHelpTextFormatting
      **/
     public AS400Message getMessage(String ID, String substitutionText) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
@@ -372,6 +376,7 @@ public class MessageFile implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #setHelpTextFormatting
      **/
     public AS400Message getMessage(String ID, String substitutionText, int type) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
@@ -382,7 +387,7 @@ public class MessageFile implements Serializable
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        return getMessage(ID, substitutionText != null ? new Converter(system_.getCcsid(), system_).stringToByteArray(substitutionText, type) : null, type);
+        return getMessage(ID, substitutionText != null ? new Converter(system_.getCcsid(), system_).stringToByteArray(substitutionText, type) : null, type, CCSID_OF_JOB, CCSID_OF_JOB);
     }
 
     /**
@@ -396,6 +401,7 @@ public class MessageFile implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #setHelpTextFormatting
      **/
     public AS400Message getMessage(String ID, byte[] substitutionText) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
@@ -410,7 +416,7 @@ public class MessageFile implements Serializable
         {
             return getMessage(ID, substitutionText, AS400BidiTransform.getStringType(system_.getCcsid()));
         }
-        return getMessage(ID, substitutionText, BidiStringType.DEFAULT);
+        return getMessage(ID, substitutionText, BidiStringType.DEFAULT, CCSID_OF_JOB, CCSID_OF_JOB);
     }
 
     /**
@@ -425,6 +431,7 @@ public class MessageFile implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #setHelpTextFormatting
      **/
     public AS400Message getMessage(String ID, byte[] substitutionText, int type) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
@@ -447,6 +454,7 @@ public class MessageFile implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #setHelpTextFormatting
      **/
     public AS400Message getMessage(String ID, byte[] substitutionText, int type, int ccsidOfSubstitutionText, int ccsidToConvertTo) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
@@ -507,11 +515,8 @@ public class MessageFile implements Serializable
 
         if (substitutionText == null) substitutionText = new byte[0];
 
-        byte[] starNoBytes = new byte[] { 0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*NO       " (in EBCDIC)
-        byte[] starYesBytes = new byte[] { 0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*YES      " (in EBCDIC)
-
-        byte[] replace = (substitutionText.length == 0) ? starNoBytes : starYesBytes;
-        byte[] format = (helpTextFormatting_ == 0) ? starNoBytes : starYesBytes;
+        final byte[] NO = new byte[] { (byte)0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*NO" in EBCDIC
+        final byte[] YES = new byte[] { (byte)0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // *YES in EBCDIC
 
         // Setup program parameters.
         ProgramParameter[] parameters = new ProgramParameter[]
@@ -531,9 +536,9 @@ public class MessageFile implements Serializable
             // Length of replacement data, input, binary(4).
             new ProgramParameter(BinaryConverter.intToByteArray(substitutionText.length)),
             // Replace substitution values, input, char(10).
-            new ProgramParameter(replace),
+            new ProgramParameter((substitutionText.length == 0) ? NO : YES),
             // Return format control characters, input, char(10).
-            new ProgramParameter(format),
+            new ProgramParameter((helpTextFormatting_ == NO_FORMATTING) ? NO : YES),
             // Error code, I/0, char(*).
             new ProgramParameter(new byte[8]),
             // Retrieve option, input, char(10)
@@ -675,18 +680,20 @@ public class MessageFile implements Serializable
     }
 
     /**
-     Sets the help text formatting value.  Possible values are:
+     Sets the help text formatting value.
+     <p>Note: To return formatting characters, call this method <i>prior to</i> calling any of the <tt>getMessage()</tt> methods.
+     @param  helpTextFormatting  The help text formatting value.
+     Possible values are:
      <ul>
-     <li>NO_FORMATTING - the help text is returned as a string of characters.  This is the default.
-     <li>RETURN_FORMATTING_CHARACTERS - the help text contains formatting characters.  The formatting characters are:
+     <li>NO_FORMATTING - The help text is returned as a string of characters.  This is the default.
+     <li>RETURN_FORMATTING_CHARACTERS - The help text contains formatting characters.  The formatting characters are:
      <ul>
      <li>&N -- Force a new line.
      <li>&P -- Force a new line and indent the new line six characters.
      <li>&B -- Force a new line and indent the new line four characters.
      </ul>
-     <li>SUBSTITUTE_FORMATTING_CHARACTERS - the MessageFile class replaces formatting characters with new line and space characters.
+     <li>SUBSTITUTE_FORMATTING_CHARACTERS - The MessageFile class replaces formatting characters with new line and space characters.
      </ul>
-     @param  helpTextFormatting  The help text formatting value.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setHelpTextFormatting(int helpTextFormatting) throws PropertyVetoException
