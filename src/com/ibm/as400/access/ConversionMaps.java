@@ -23,7 +23,7 @@ abstract class ConversionMaps
     // If we ever pre-req Java 2, we should use HashMaps for these instead of Hashtables.  Hashtables are synchronized which makes the table lookup slow, especially if multiple threads bottleneck on these static tables.  HashMaps are not synchronized yet provide the same function.
     final static Hashtable ccsidEncoding_ = new Hashtable(175); // 127 actual entries.
     final static Hashtable encodingCcsid_ = new Hashtable(175); // 127 actual entries.
-    final static Hashtable localeCcsidMap_ = new Hashtable(85); // 63 actual entries.
+    final static Hashtable localeCcsidMap_ = new Hashtable(120); // 87 actual entries.
     final static Hashtable localeNlvMap_ = new Hashtable(100); // 74 actual entries.
 
     // Convenience function to get corresponding ccsid number as String.
@@ -236,8 +236,9 @@ abstract class ConversionMaps
     // localeNlvMap.
     static
     {
-        // 63 entries.
+        // 74 entries.
         localeNlvMap_.put("ar", "2954");
+        localeNlvMap_.put("ar_SA", "2954");
         localeNlvMap_.put("be", "2979");
         localeNlvMap_.put("bg", "2974");
         localeNlvMap_.put("ca", "2931");
@@ -245,6 +246,7 @@ abstract class ConversionMaps
         localeNlvMap_.put("da", "2926");
         localeNlvMap_.put("de", "2929");
         localeNlvMap_.put("de_CH", "2939");
+        localeNlvMap_.put("de_DE", "2929");
         localeNlvMap_.put("el", "2957");
         localeNlvMap_.put("en", "2924");
         localeNlvMap_.put("en_BE", "2909");
@@ -254,6 +256,7 @@ abstract class ConversionMaps
         localeNlvMap_.put("en_SG", "2984");
         localeNlvMap_.put("en_TW", "2984");
         localeNlvMap_.put("es", "2931");
+        localeNlvMap_.put("es_ES", "2931");
         localeNlvMap_.put("et", "2902");
         localeNlvMap_.put("fa", "2998");
         localeNlvMap_.put("fi", "2925");
@@ -261,6 +264,7 @@ abstract class ConversionMaps
         localeNlvMap_.put("fr_BE", "2966");
         localeNlvMap_.put("fr_CA", "2981");
         localeNlvMap_.put("fr_CH", "2940");
+        localeNlvMap_.put("fr_FR", "2928");
         localeNlvMap_.put("hr", "2912");
         localeNlvMap_.put("hu", "2976");
         localeNlvMap_.put("is", "2958");
@@ -272,12 +276,14 @@ abstract class ConversionMaps
         localeNlvMap_.put("ka", "2979");
         localeNlvMap_.put("kk", "2979");
         localeNlvMap_.put("ko", "2986");
+        localeNlvMap_.put("ko_KR", "2986");
         localeNlvMap_.put("lo", "2906");
         localeNlvMap_.put("lt", "2903");
         localeNlvMap_.put("lv", "2904");
         localeNlvMap_.put("mk", "2913");
         localeNlvMap_.put("nl", "2923");
         localeNlvMap_.put("nl_BE", "2963");
+        localeNlvMap_.put("nl_NL", "2923");
         localeNlvMap_.put("no", "2933");
         localeNlvMap_.put("pl", "2978");
         localeNlvMap_.put("pt", "2996");
@@ -291,7 +297,9 @@ abstract class ConversionMaps
         localeNlvMap_.put("sq", "2995");
         localeNlvMap_.put("sr", "2914");
         localeNlvMap_.put("sv", "2937");
+        localeNlvMap_.put("sv_SE", "2937");
         localeNlvMap_.put("th", "2972");
+        localeNlvMap_.put("th_TH", "2972");
         localeNlvMap_.put("tr", "2956");
         localeNlvMap_.put("uk", "2979");
         localeNlvMap_.put("uz", "2979");
@@ -301,14 +309,17 @@ abstract class ConversionMaps
         localeNlvMap_.put("zh_HK", "2987");
         localeNlvMap_.put("zh_SG", "2989");
         localeNlvMap_.put("zh_TW", "2987");
+        localeNlvMap_.put("cht", "2987");  // Chinese/Taiwan
+        localeNlvMap_.put("cht_CN", "2987");  // Chinese/Taiwan
     }
 
     // localeCcsidMap.
     // Make sure that we have a hardcoded ConvTable for each of the ccsids in this map.
     static
     {
-        // 74 entries.
+        // 87 entries.
         localeCcsidMap_.put("ar", "420");
+        localeCcsidMap_.put("ar_SA", "420");
         localeCcsidMap_.put("be", "1025");
         localeCcsidMap_.put("bg", "1025");
         localeCcsidMap_.put("ca", "284");
@@ -316,6 +327,7 @@ abstract class ConversionMaps
         localeCcsidMap_.put("da", "277");
         localeCcsidMap_.put("de", "273");
         localeCcsidMap_.put("de_CH", "500");
+        localeCcsidMap_.put("de_DE", "273");
         localeCcsidMap_.put("de_AT_EURO", "1141");
         localeCcsidMap_.put("de_DE_EURO", "1141");
         localeCcsidMap_.put("de_LU_EURO", "1141");
@@ -330,6 +342,7 @@ abstract class ConversionMaps
         localeCcsidMap_.put("en_SG", "1388"); // Was 935.
         localeCcsidMap_.put("en_TW", "937");
         localeCcsidMap_.put("es", "284");
+        localeCcsidMap_.put("es_ES", "284");
         localeCcsidMap_.put("es_ES_EURO", "1145");
         localeCcsidMap_.put("et", "1122");
         localeCcsidMap_.put("fi", "278");
@@ -339,6 +352,7 @@ abstract class ConversionMaps
         localeCcsidMap_.put("fr_BE_EURO", "1148");
         localeCcsidMap_.put("fr_CA", "37");
         localeCcsidMap_.put("fr_CH", "500");
+        localeCcsidMap_.put("fr_FR", "297");
         localeCcsidMap_.put("fr_FR_EURO", "1147");
         localeCcsidMap_.put("fr_LU_EURO", "1147");
         localeCcsidMap_.put("hr", "870");
@@ -353,12 +367,14 @@ abstract class ConversionMaps
         localeCcsidMap_.put("ka", "1025");
         localeCcsidMap_.put("kk", "1025");
         localeCcsidMap_.put("ko", "1364"); // Was 933.
+        localeCcsidMap_.put("ko_KR", "1364");
         localeCcsidMap_.put("lo", "1132"); // Was 1133.
         localeCcsidMap_.put("lt", "1112");
         localeCcsidMap_.put("lv", "1112");
         localeCcsidMap_.put("mk", "1025");
         localeCcsidMap_.put("nl", "37");
         localeCcsidMap_.put("nl_BE", "500");
+        localeCcsidMap_.put("nl_NL", "37");
         localeCcsidMap_.put("nl_BE_EURO", "1148");
         localeCcsidMap_.put("nl_NL_EURO", "1140");
         localeCcsidMap_.put("no", "277");
@@ -375,7 +391,9 @@ abstract class ConversionMaps
         localeCcsidMap_.put("sq", "500");
         localeCcsidMap_.put("sr", "1025");
         localeCcsidMap_.put("sv", "278");
+        localeCcsidMap_.put("sv_SE", "278");
         localeCcsidMap_.put("th", "838");
+        localeCcsidMap_.put("th_TH", "838");
         localeCcsidMap_.put("tr", "1026");
         localeCcsidMap_.put("uk", "1123"); // Was 1025.
         localeCcsidMap_.put("uz", "1025");
@@ -385,5 +403,7 @@ abstract class ConversionMaps
         localeCcsidMap_.put("zh_HK", "937");
         localeCcsidMap_.put("zh_SG", "1388"); // Was 935.
         localeCcsidMap_.put("zh_TW", "937");
+        localeCcsidMap_.put("cht", "937"); // Chinese/Taiwan
+        localeCcsidMap_.put("cht_CN", "937"); // Chinese/Taiwan
     }
 }
