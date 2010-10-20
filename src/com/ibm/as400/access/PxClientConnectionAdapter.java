@@ -18,6 +18,7 @@ import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 
@@ -37,7 +38,7 @@ to a proxy server.
 **/
 abstract class PxClientConnectionAdapter
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyrixght (C) 1997-2000 International Business Machines Corporation and others.";
 
 
 
@@ -190,9 +191,20 @@ Closes the connection to the proxy server.
     {
         // Open the socket and streams.
         try {
-            if (secure)
-                socket_ = new PxSecureSocketContainer (name, port, sslOptions_);
-            else
+            if (secure) {
+            	// Call view reflection to remove dependency on sslight.zip
+            	Class classPxSecureSocketContainer = Class.forName("com.ibm.as400.access.PxSecureSocketContainer");
+            	Class[] parameterTypes = new Class[3]; 
+            	parameterTypes[0] = "".getClass(); 
+            	parameterTypes[1] = Integer.TYPE; 
+            	parameterTypes[2] = Class.forName("com.ibm.as400.access.SSLOptions"); 
+            	Constructor constructor = classPxSecureSocketContainer.getConstructor(parameterTypes);
+            	Object[] initargs = new Object[3]; 
+            	initargs[0] = name; 
+            	initargs[1] = new Integer(port); 
+            	initargs[2] = sslOptions_; 
+                socket_ = (PxSocketContainerAdapter) constructor.newInstance(initargs);
+            } else
                 socket_ = new PxSocketContainer (name, port);
             output_     = new BufferedOutputStream (socket_.getOutputStream());
             input_      = new BufferedInputStream(new RetryInputStream(socket_.getInputStream())); // @A2C
@@ -203,11 +215,38 @@ Closes the connection to the proxy server.
             if (Trace.isTraceProxyOn ())
                 Trace.log (Trace.PROXY, "Connection established.");
         }
+        catch (ClassNotFoundException e) { 
+            if (Trace.isTraceErrorOn ())
+                Trace.log (Trace.ERROR, "Error when opening connection to proxy server (ClassNotFound", e);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+        }
+        catch (NoSuchMethodException e) { 
+            if (Trace.isTraceErrorOn ())
+                Trace.log (Trace.ERROR, "Error when opening connection to proxy server (NoSuchMethodException", e);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+        }
+        catch (IllegalAccessException e) {
+            if (Trace.isTraceErrorOn ())
+                Trace.log (Trace.ERROR, "Error when opening connection to proxy server (IllegalAccessException", e);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+        }
         catch (IOException e) {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (openio", e);
             throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
-        }
+        } catch (IllegalArgumentException e) {
+            if (Trace.isTraceErrorOn ())
+                Trace.log (Trace.ERROR, "Error when opening connection to proxy server (IllegalArgumentException", e);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+		} catch (InstantiationException e) {
+            if (Trace.isTraceErrorOn ())
+                Trace.log (Trace.ERROR, "Error when opening connection to proxy server (InstantiationException", e);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+		} catch (InvocationTargetException e) {
+            if (Trace.isTraceErrorOn ())
+                Trace.log (Trace.ERROR, "Error when opening connection to proxy server (InvocationTargetException", e);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+		}
     }
 
 

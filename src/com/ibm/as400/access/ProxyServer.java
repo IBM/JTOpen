@@ -14,6 +14,9 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -738,19 +741,32 @@ for this proxy server.
             // will not do SSL, but will continue to handle regular Proxy communications.
             if (keyringName_ != null && keyringPwd_ != null)                                                       //$B1A
             {
-               PSServerSocketContainerAdapter serverSocket = new PSSecureServerSocketContainer (securePort_,       //$B1C
-                                                                                                keyringName_,      //$B1C
-                                                                                                keyringPwd_);      //$B1C
-
+               // Since SSLight is no longer support, access this class (in include tree) via reflection
+               // int/String/String
+               Class classPSSecureServerSocketContainer = Class.forName("com.ibm.as400.access.PSSecureServerSocketContainer");
+               Class[] parameterTypes = new Class[3]; 
+               parameterTypes[0] = Integer.TYPE; 
+               parameterTypes[1] = "".getClass();  
+               parameterTypes[2] = "".getClass();  
+               Constructor constructor = classPSSecureServerSocketContainer.getConstructor(parameterTypes);
+               Object[] args = new Object[3]; 
+               args[0] = new Integer(securePort_); 
+               args[1] = keyringName_;
+               args[2] = keyringPwd_; 
+         
+               Object serverSocket = constructor.newInstance(args); 
                try                                                                                                 //$B1A
                {
-                  securePort_ = serverSocket.getLocalPort ();
+            	  parameterTypes = new Class[0]; 
+            	  Method getLocalPortMethod = classPSSecureServerSocketContainer.getMethod("getLocalPort", parameterTypes);
+            	  args = new Object[0]; 
+                  securePort_ = ((Integer)getLocalPortMethod.invoke(serverSocket, args)).intValue(); 
                   PSController controller = new PSController (threadGroup_,
                                                               this,
                                                               load_,
                                                               loadBalancer_,
                                                               configuration_,
-                                                              serverSocket);
+                                                              (PSServerSocketContainerAdapter) serverSocket);
 
                   controller.start ();
                   threadGroup_.addElement (controller);
@@ -767,17 +783,40 @@ for this proxy server.
                }
             }
         }
+        catch (NoSuchMethodException e) {
+            if (Trace.isTraceDiagnosticOn ())
+                Trace.log (Trace.DIAGNOSTIC, "NoSuchMethodException using SSLight classes SSL support is not enabled.");
+            errors_.println (e.getMessage ());
+        	
+        }
+        catch (InvocationTargetException e ) {
+            if (Trace.isTraceDiagnosticOn ())
+            Trace.log (Trace.DIAGNOSTIC, "InvocationTargetException using SSLight classes SSL support is not enabled.");
+            errors_.println (e.getMessage ());
+            Throwable e2 = e.getCause();
+            if (e2 != null) { 
+               errors_.println (e2.getMessage ());
+            }
+        }
+        catch (InstantiationException e) {
+            if (Trace.isTraceDiagnosticOn ())
+                Trace.log (Trace.DIAGNOSTIC, "InstantiationException using SSLight classes SSL support is not enabled.");
+            errors_.println (e.getMessage ());
+       	
+        }
         catch (ClassNotFoundException e)
         {
             if (Trace.isTraceDiagnosticOn ())
                 Trace.log (Trace.DIAGNOSTIC, "SSLight classes are not in the classpath, SSL support is not enabled.");
-        }
-        catch (IOException e)
-        {
-            if (Trace.isTraceErrorOn ())
-                Trace.log (Trace.ERROR, "Error opening server secure socket.", e);
+        } catch (IllegalArgumentException e) {
+            if (Trace.isTraceDiagnosticOn ())
+                Trace.log (Trace.DIAGNOSTIC, "IllegalArgumentException using SSLight classes SSL support is not enabled.");
             errors_.println (e.getMessage ());
-        }
+		} catch (IllegalAccessException e) {
+            if (Trace.isTraceDiagnosticOn ())
+                Trace.log (Trace.DIAGNOSTIC, "IllegalAccessException using SSLight classes SSL support is not enabled.");
+            errors_.println (e.getMessage ());
+		}
 
     }
 
