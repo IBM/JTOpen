@@ -314,6 +314,7 @@
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
+      	<pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
         <pathelement location="${stubs}"/>
       </classpath>
     </javac>
