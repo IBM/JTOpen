@@ -313,10 +313,13 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Length of parameter 'name' is not valid: '" + name + "'");
             throw new ExtendedIllegalArgumentException("name (" + name + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        if (name.equalsIgnoreCase(NONE))
+        // Perform simple validation of the user profile name.
+        // According to the help text for the CRTUSRPRF command:
+        // "A simple name starts with an alphabetic character followed by any of these characters: 0-9, A-Z, @, $, # and underscore (_)."
+        if (name.length() == 0 || !Character.isLetter(name.charAt(0)))
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'name' is not valid: '" + name + "'");
-            throw new ExtendedIllegalArgumentException("name (" + name + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            if (Trace.traceOn_) Trace.log(Trace.WARNING, "Value of parameter 'name' is not a valid user profile name: '" + name + "'");
+            // Note: The Domino plugin function of Web Navigator, in some situations, creates a User object with name "*NONE", which they subsequently validate.  So we just trace a warning message and continue.
         }
         system_ = system;
         name_ = name.toUpperCase();
@@ -1359,7 +1362,7 @@ public class User implements Serializable
         "*SERVICE",
         "*SPLFDTA",
         "*SYSMGT",
-        "*OPTICAL" // The API shows optical in the middle of the list, but experimental data proves otherwise (at least on V4R3).
+        "*OPTICAL" // The API shows optical in the middle of the list, but observed behavior is otherwise (at least on V4R3).
     };
 
     /**
