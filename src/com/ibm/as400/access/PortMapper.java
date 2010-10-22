@@ -247,7 +247,7 @@ class PortMapper
                 loginTimeout = socketProperties.getLoginTimeout();  //@timeout //@STIMEOUT //@st3
             }                                               //@timeout
             
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.4 or higher.  Connect to port mapper with timeout of " + loginTimeout + "ms"); //@timeout //@STIMEOUT
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", login timeout " + loginTimeout + " ms."); //@timeout //@STIMEOUT
             
 
             InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, port) :  //@timeout
@@ -264,10 +264,12 @@ class PortMapper
 
                 method.invoke(pmSocket, args);                //@timeout
             } catch (InvocationTargetException e) {           //@timeout
+                Trace.log(Trace.ERROR, e);
                 Throwable e2 = e.getTargetException();        //@timeout
+                if (e2 != null) Trace.log(Trace.ERROR, e2);
                 if(e2 instanceof IOException)                 //@timeout
                 {                                             //@timeout
-                    //Here is the actual timeout or network exceptions that we throw back to caller 
+                    //Here is the actual timeout or network exceptions that we throw back to caller
                     throw (IOException) e2;                   //@timeout
                 }else                                         //@timeout
                 {                                             //@timeout
@@ -285,7 +287,7 @@ class PortMapper
         }catch(ClassNotFoundException e){                            //@timeout 
             //Here we catch any exception related to running in jdk 1.3 or reflection exceptions
             //Just create socket the way we did before without a timeout.
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.3 or lower.  Connect to port mapper without login timeout");//@timeout
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", no login timeout (JVM 1.3 or lower).");//@timeout
             pmSocket = new Socket(systemName, port); //for pre jdk1.4  //@timeout 
         }                                                             //@timeout
         return pmSocket;
