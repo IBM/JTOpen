@@ -54,7 +54,7 @@ public class GridLayoutFormPanelBeanInfo extends SimpleBeanInfo
          changed.setShortDescription(loader_.getText("EVT_DESC_PROPERTY_CHANGE"));
  
          EventSetDescriptor veto = new EventSetDescriptor(beanClass,
-                          "vetoableChange",
+        		 "propertyChange",
                           java.beans.VetoableChangeListener.class,
                           "vetoableChange");
          veto.setDisplayName(loader_.getText("EVT_NAME_PROPERTY_VETO"));

@@ -63,7 +63,7 @@ public class PrintObjectBeanInfo extends SimpleBeanInfo
 
             EventSetDescriptor veto =
               new EventSetDescriptor( beanClass,
-                                      "vetoableChange",
+                                      "propertyChange",
                                       java.beans.VetoableChangeListener.class,
                                       "vetoableChange" );
             veto.setDisplayName(rbl_.getText("EVT_NAME_PROPERTY_VETO"));

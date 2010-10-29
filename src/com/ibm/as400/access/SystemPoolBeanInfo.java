@@ -54,7 +54,7 @@ public class SystemPoolBeanInfo extends SimpleBeanInfo
            
             // Vetoable change events
             EventSetDescriptor veto = new EventSetDescriptor(beanClass_, 
-                                                            "vetoableChange",
+                                                            "propertyChange",
                                                             java.beans.VetoableChangeListener.class,
                                                             "vetoableChange");
 

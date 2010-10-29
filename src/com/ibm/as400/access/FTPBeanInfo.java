@@ -125,7 +125,7 @@ public class FTPBeanInfo extends SimpleBeanInfo
 
 
       EventSetDescriptor event3 =
-        new EventSetDescriptor(beanClass, "vetoableChange",
+        new EventSetDescriptor(beanClass, "propertyChange",
                                VetoableChangeListener.class,
                                "vetoableChange");
       event3.setDisplayName("vetoableChange");

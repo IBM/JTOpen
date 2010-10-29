@@ -62,7 +62,7 @@ Static initializer.
             propertyChange.setShortDescription (ResourceLoader.getText ("EVT_DESC_PROPERTY_CHANGE"));
 
             EventSetDescriptor vetoableChange = new EventSetDescriptor (beanClass_,
-                                                                        "vetoableChange",
+            		"propertyChange",
                                                                         VetoableChangeListener.class,
                                                                         "vetoableChange");
             vetoableChange.setDisplayName (ResourceLoader.getText ("EVT_NAME_PROPERTY_VETO"));

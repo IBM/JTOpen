@@ -65,7 +65,7 @@ public class SQLStatementMenuItemBeanInfo extends SimpleBeanInfo
             changed.setShortDescription(ResourceLoader.getText("EVT_DESC_PROPERTY_CHANGE"));
 
             EventSetDescriptor veto = new EventSetDescriptor(beanClass,
-                         "vetoableChange",
+            		"propertyChange",
                          java.beans.VetoableChangeListener.class,
                          "vetoableChange");
             veto.setDisplayName(ResourceLoader.getText("EVT_NAME_PROPERTY_VETO"));

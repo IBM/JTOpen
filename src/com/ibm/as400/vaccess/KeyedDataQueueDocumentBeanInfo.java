@@ -87,7 +87,7 @@ Static initializer.
             undoableEdit.setShortDescription (ResourceLoader.getText ("EVT_DESC_UNDOABLE_EDIT"));
 
             EventSetDescriptor vetoableChange = new EventSetDescriptor (beanClass_,
-                "vetoableChange", VetoableChangeListener.class, "vetoableChange");
+            		"propertyChange", VetoableChangeListener.class, "vetoableChange");
             vetoableChange.setDisplayName (ResourceLoader.getText ("EVT_NAME_PROPERTY_VETO"));
             vetoableChange.setShortDescription (ResourceLoader.getText ("EVT_DESC_PROPERTY_VETO"));
 

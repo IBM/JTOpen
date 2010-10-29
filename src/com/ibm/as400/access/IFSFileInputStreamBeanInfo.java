@@ -55,7 +55,7 @@ public class IFSFileInputStreamBeanInfo extends SimpleBeanInfo
       event2.setDisplayName(rbl_.getText("EVT_NAME_FILE_EVENT"));
       event2.setShortDescription(rbl_.getText("EVT_DESC_FILE_EVENT"));
       EventSetDescriptor event3 =
-        new EventSetDescriptor(beanClass, "vetoableChange",
+        new EventSetDescriptor(beanClass, "propertyChange",
                                VetoableChangeListener.class,
                                "vetoableChange");
       event3.setDisplayName(rbl_.getText("EVT_NAME_PROPERTY_VETO"));

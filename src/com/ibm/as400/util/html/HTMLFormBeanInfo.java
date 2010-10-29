@@ -22,6 +22,8 @@ import java.beans.BeanDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.BeanInfo;
 
+import com.ibm.as400.access.Trace;
+
 /**
 The HTMLFormBeanInfo class provides
 bean information for the HTMLForm class.
@@ -54,7 +56,7 @@ public class HTMLFormBeanInfo extends SimpleBeanInfo
         changed.setShortDescription(loader_.getText("EVT_DESC_PROPERTY_CHANGE"));
 
         EventSetDescriptor veto = new EventSetDescriptor(beanClass,
-                         "vetoableChange",
+                         "propertyChange",                         /* parameter to VetoableChangeListener.vetoableChange */ 
                          java.beans.VetoableChangeListener.class,
                          "vetoableChange");
         veto.setDisplayName(loader_.getText("EVT_NAME_PROPERTY_VETO"));
@@ -106,6 +108,13 @@ public class HTMLFormBeanInfo extends SimpleBeanInfo
       }
       catch (Exception e)
       {
+    	// 
+    	// Trace the original exception
+    	// 
+    	if (Trace.isTraceAllOn()) {
+    		
+    		Trace.log(Trace.DIAGNOSTIC, e);
+    	}
         throw new Error(e.toString());
       }
     }
