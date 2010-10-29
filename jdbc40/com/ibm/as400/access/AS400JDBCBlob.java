@@ -150,7 +150,7 @@ Returns the position at which a pattern is found in the BLOB.
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-    }
+    } else { 
 
     int end = data_.length - pattern.length;
 
@@ -160,7 +160,7 @@ Returns the position at which a pattern is found in the BLOB.
       while (j < pattern.length && data_[i+j] == pattern[j]) ++j;
       if (j == pattern.length) return i+1;
     }
-
+    }
     return -1;
   }
 
@@ -188,7 +188,7 @@ Returns the position at which a pattern is found in the BLOB.
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-    }
+    } else { 
 
     int patternLength = (int)pattern.length();
     if (patternLength > data_.length || patternLength < 0) return -1;
@@ -203,7 +203,7 @@ Returns the position at which a pattern is found in the BLOB.
       while (j < patternLength && data_[i+j] == bytePattern[j]) ++j;
       if (j == patternLength) return i+1;
     }
-
+    }
     return -1;
   }
 

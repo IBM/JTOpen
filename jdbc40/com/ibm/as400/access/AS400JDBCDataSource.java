@@ -34,7 +34,7 @@ import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
 
 /**
-*  The AS400JDBCDataSource class represents a factory for IBM iJDProperties.SORT database connections.
+*  The AS400JDBCDataSource class represents a factory for IBM i database connections.
 *
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a
 *  connection to the database.
