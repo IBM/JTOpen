@@ -17,25 +17,41 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 /**
- Allows a user to call an IBM i service program.  Input data is passed via input parameters, and output data is accessed via output parameters.  ProgramParameter objects are used to pass data between the Java program and the service program.
+ Allows a user to call an IBM i service program.  Input data is passed via input parameters, 
+ and output data is accessed via output parameters.  ProgramParameter objects are used to pass data 
+ between the Java program and the service program.
  <p>Limitations of this class:
  <ul>
  <li>The service program must be on an IBM i system running V4R4 or later.
  <li>Up to seven parameters can be passed to the service program.
- <li>The return value must be void or numeric.  This class does not support calling service programs that return a pointer.
+ <li>The return value must be void or numeric.  This class does not support calling service programs 
+ that return a pointer.
  <li>Parameters can be "pass by reference" or "pass by value".
  <ul>
- <li>When pass by reference, the data is copied from Java storage to system storage, then a pointer to the system storage is passed to the service program.
- <li>Up to four bytes can be passed by value.  Parameters longer than four bytes must be passed by reference which may require a change to the service program.
+ <li>When pass by reference, the data is copied from Java storage to system storage, then a pointer to 
+ the system storage is passed to the service program.
+ <li>Up to four bytes can be passed by value.  Parameters longer than four bytes must be passed by 
+ reference which may require a change to the service program.
+ <li>Procedures defined using "#pragma argopt" are not supported. 
  </ul>
  </ul>
- <p>The name of the service program to call is the fully qualified name in the integrated file system.  The extension is ".SRVPGM".  For example, to call MySrvPgm in MyLib, the program name is /QSYS.LIB/MYLIB.LIB/MYSRVPGM.SRVPGM.
+ <p>The name of the service program to call is the fully qualified name in the integrated file system.  
+ The extension is ".SRVPGM".  For example, to call MySrvPgm in MyLib, 
+ the program name is /QSYS.LIB/MYLIB.LIB/MYSRVPGM.SRVPGM.
  <p>Service program entry point notes:
  <ul>
- <li>The service program entry point to call is supplied by the Java program.  The entry point name is <b>case sensitive</b>.  If the run() method fails with the message "CPF226E - Value for a parameter was not valid.", there is a good chance the entry point name is incorrect.
- <li>The service program entry point name is converted from a Java String to an array of EBCDIC bytes before being sent to the system.  <b>By default this conversion is performed using CCSID 37</b>, not the job CCSID which Toolbox classes usually use for conversion.  This is because the entry point name is set when the service program is built.  CCSID 37 is the default because most IBM supplied service programs set the entry point name based on CCSID 37.  A setProcedureName() method exists which lets you override the default.
+ <li>The service program entry point to call is supplied by the Java program.  
+ The entry point name is <b>case sensitive</b>.  If the run() method fails with the message 
+ "CPF226E - Value for a parameter was not valid.", there is a good chance the entry point name is incorrect.
+ <li>The service program entry point name is converted from a Java String to an array of EBCDIC bytes before 
+ being sent to the system.  <b>By default this conversion is performed using CCSID 37</b>, 
+ not the job CCSID which Toolbox classes usually use for conversion.  This is because the entry point 
+ name is set when the service program is built.  CCSID 37 is the default because most IBM supplied service 
+ programs set the entry point name based on CCSID 37.  A setProcedureName() method exists which lets you 
+ override the default.
  </ul>
- <p>The following example calls procedure int_int in service program ENTRYPTS in library MYPGM.  The procedure takes one input parameter, an integer, and returns an integer.
+ <p>The following example calls procedure int_int in service program ENTRYPTS in library MYPGM.  
+ The procedure takes one input parameter, an integer, and returns an integer.
  <pre>
  *    // Create a single parameter parameter list.
  *    ProgramParameter[] parameterList = new ProgramParameter[1];

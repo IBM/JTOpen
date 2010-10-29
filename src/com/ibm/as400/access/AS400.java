@@ -937,7 +937,9 @@ public class AS400 implements Serializable
             }
             int credType = credVault_.getType();
             if (credType != AUTHENTICATION_SCHEME_PASSWORD) {
-              // Design note: For various reasons (such as lack of requirement, and potential complications when swapping during a token-based session), the Toolbox has never supported staying on-thread when using profile tokens or other non-password based authentication schemes.
+              // Design note: For various reasons (such as lack of requirement, and potential complications 
+              // when swapping during a token-based session), the Toolbox has never supported staying 
+              //on-thread when using profile tokens or other non-password based authentication schemes.
               Trace.log(Trace.DIAGNOSTIC, "  authenticationScheme:", credType +
                         " ("+credTypeToString(credType)+")");
             }
