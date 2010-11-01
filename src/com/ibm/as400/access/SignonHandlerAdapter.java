@@ -16,15 +16,15 @@ package com.ibm.as400.access;
 import java.net.UnknownHostException;
 
 /**
- An abstract adapter class for receiving Toolbox sign-on events. The methods in this class perform bare-minimum default processing.  This class exists as a convenience for creating sign-on handler objects.
+ An abstract adapter class for receiving Toolbox sign-on events. The methods in this class perform bare-minimum default processing.  This class exists as a convenience for application writers when creating customized sign-on handler objects.
 
- <p>Extend this class to create a SignonHandler implementation and override the methods for the events of interest. (If you implement the SignonHandler interface, you have to define all of the methods in it.  This abstract class defines default methods for them all, so you only have to define methods for events you care about.)
+ <p>Extend this class to create a SignonHandler implementation and override the methods for the events of interest. (If you directly implement the SignonHandler interface, you must provide implementations for all of the SignonHandler methods.  The SignonHandlerAdapter class provides default implementations for all SignonHandler methods, so you only have to implement methods for events you care about.)
 
- <p>Create a SignonHandler object using the extended class and then register it with the system object using {@link AS400#setSignonHandler setSignonHandler()}.  When a sign-on related event occurs on the system object, the relevant method in the handler object is invoked.
+ <p>Create a SignonHandler object using your extended class, and then register it with the system object using {@link AS400#setSignonHandler setSignonHandler()}.  When a sign-on related event occurs on the AS400 system object, the relevant method in your handler object is invoked.
 
  <p>For all methods that return a boolean, returning <tt>true</tt> indicates that the sign-on should proceed; <tt>false</tt> indicates that the sign-on should be terminated.
 
- <p>In order to avoid <b>hang conditions</b>, the SignonHandler should not attempt to display a GUI if {@link AS400#isGuiAvailable isGuiAvailable()} indicates <tt>false</tt>.
+ <p>In order to avoid <b>hang conditions</b>, the SignonHandler object must not attempt to display a GUI if {@link AS400#isGuiAvailable isGuiAvailable()} indicates <tt>false</tt>.
 
  <p>In order to avoid <b>infinite loops</b>, a SignonHandler must not call the following AS400 methods:
  <ul>
