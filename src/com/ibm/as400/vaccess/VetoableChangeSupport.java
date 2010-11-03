@@ -49,11 +49,12 @@ Constructs an VetoableChangeSupport object.
 Adds a listener.
 
 @param  listener    The listener.
+
+If listener is null, no exception is thrown and no action is taken. 
+(See JDK 1.6 doc for java.beans.VetoableChangeSupport)
 **/
     public void addVetoableChangeListener (VetoableChangeListener listener)
     {
-        if (listener == null)
-            throw new NullPointerException ("listener");
 
         super.addVetoableChangeListener (listener);
     }
