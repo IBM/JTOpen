@@ -409,7 +409,7 @@ public class MemberList
       memberDescriptions_.put(memberName, memberDescription);
     }
 
-    if (format == QUSLMBR_FORMAT_200)
+    if (QUSLMBR_FORMAT_200.equals(format) )
     {
       memberDescription.setAttribute(MemberDescription.SOURCE_TYPE,
                                      charConverter.byteArrayToString(entryBuf, OFFSET_SOURCE_TYPE, 10).trim());

@@ -706,7 +706,7 @@ public class MemberDescription
     }
 
     // Fields returned only in format 300:
-    if (format == QUSRMBRD_FORMAT_300)
+    if (QUSRMBRD_FORMAT_300.equals(format))
     {
       setAttribute(JOIN_MEMBER,
                    transformBoolean(charConverter.byteArrayToString(entryBytes, offsetOf(JOIN_MEMBER), 1)));

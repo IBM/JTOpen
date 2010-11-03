@@ -1077,7 +1077,7 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
         break;
   }
    
-  double lobThresholdInKBLittleD = dataSource.getLobThreshold() / 1024;
+  double lobThresholdInKBLittleD = dataSource.getLobThreshold() / 1024.0;
   Double lobThresholdInKBBigD = new Double(lobThresholdInKBLittleD);
   m_dataBean.setLOBThreshold(lobThresholdInKBBigD);                                         //@A2C
   //m_dataBean.setLOBThreshold(lobThresholdInKBBigD.toString());            <----- ORIGINALLY

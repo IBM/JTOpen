@@ -1443,7 +1443,7 @@ public class AS400 implements Serializable
      Returns the GSS name string.  This method will only return the information provided on the setGSSName() method.
      @return  The GSS name string, or an empty string ("") if not set.
      **/
-    public String getGSSName()
+    public synchronized String getGSSName()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS name:", gssName_);
         return gssName_;
