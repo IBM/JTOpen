@@ -1089,19 +1089,37 @@ public class AS400 implements Serializable
      **/
     public static void clearPasswordCache(String systemName)
     {
+    	String longName = null; 
+    	boolean isLocalHost = false; 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache, system name:", systemName);
         if (systemName == null)
         {
             throw new NullPointerException("systemName");
         }
         systemName = resolveSystem(systemName);
-
+        boolean localHost = systemName.equals("localhost");
+        if (localHost) {
+        	isLocalHost = true; 
+        	try { 
+        	systemName = InetAddress.getLocalHost().getHostName();
+        	} catch (Exception e) { /* ignore */ } 
+        }
+        int dotIndex = systemName.indexOf("."); 
+        if (dotIndex > 0) {
+        	longName = systemName; 
+        	systemName = systemName.substring(0,dotIndex); 
+        }
         synchronized (AS400.systemList)
         {
             for (int i = AS400.systemList.size() - 1; i >= 0; i--)
             {
-                if (systemName.equalsIgnoreCase((String)((Object[])AS400.systemList.elementAt(i))[0]))
+            	String elementName = (String)((Object[])AS400.systemList.elementAt(i))[0]; 
+                if (systemName.equalsIgnoreCase(elementName))
                 {
+                    AS400.systemList.removeElementAt(i);
+                } else if (isLocalHost && "localhost".equalsIgnoreCase(elementName)) {
+                    AS400.systemList.removeElementAt(i);
+                } else if ((longName != null) && longName.equalsIgnoreCase(elementName)) {
                     AS400.systemList.removeElementAt(i);
                 }
             }
@@ -2718,6 +2736,8 @@ public class AS400 implements Serializable
      **/
     public static void removePasswordCacheEntry(String systemName, String userId)
     {
+    	boolean isLocalHost = false; 
+    	String longName = null; 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing password cache entry, system name: " + systemName + " user ID: " + userId);
         if (systemName == null)
         {
@@ -2732,6 +2752,20 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         systemName = resolveSystem(systemName);
+        
+        boolean localHost = systemName.equals("localhost");
+        if (localHost) {
+        	isLocalHost = true; 
+        	try { 
+        	systemName = InetAddress.getLocalHost().getHostName();
+        	} catch (Exception e) { /* ignore */ } 
+        }
+        int dotIndex = systemName.indexOf("."); 
+        if (dotIndex > 0) {
+        	longName = systemName; 
+        	systemName = systemName.substring(0,dotIndex); 
+        }
+
         userId = resolveUserId(userId.toUpperCase());
 
         synchronized (AS400.systemList)
@@ -2741,6 +2775,10 @@ public class AS400 implements Serializable
                 Object[] secobj = (Object[])AS400.systemList.elementAt(i);
                 if (systemName.equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1]))
                 {
+                    AS400.systemList.removeElementAt(i);
+                } else if (isLocalHost && "localhost".equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1])) {
+                    AS400.systemList.removeElementAt(i);
+                } else if (longName != null  && longName.equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1])) {
                     AS400.systemList.removeElementAt(i);
                 }
             }
