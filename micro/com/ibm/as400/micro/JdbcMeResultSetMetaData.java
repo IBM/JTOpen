@@ -80,4 +80,99 @@ public class JdbcMeResultSetMetaData implements ResultSetMetaData
 
         return columnTypes_[column-1];
     }
+
+
+	public String getCatalogName(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public String getColumnClassName(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public int getColumnDisplaySize(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public String getColumnLabel(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public String getColumnName(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public String getColumnTypeName(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public int getPrecision(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public int getScale(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public String getSchemaName(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public String getTableName(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isAutoIncrement(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isCaseSensitive(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isCurrency(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isDefinitelyWritable(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public int isNullable(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isReadOnly(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isSearchable(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isSigned(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
+
+
+	public boolean isWritable(int column) throws SQLException {
+		throw new java.sql.SQLException("NOT AVAILABLE IN MICROEDITION"); 
+	}
 }
