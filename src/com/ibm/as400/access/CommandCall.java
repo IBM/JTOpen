@@ -295,7 +295,7 @@ public class CommandCall implements Serializable
               threadSafetyValue_ = THREADSAFE_FALSE; // treat *COND the same as *NO
             }
           }
-          threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
+          threadSafety_ = (THREADSAFE_TRUE.equals(threadSafetyValue_ ));
         }
     }
 
@@ -479,7 +479,7 @@ public class CommandCall implements Serializable
         else {
           if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized value for CommandCall.threadSafe property: " + property + ". Defaulting to 'false'.");
         }
-        threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
+        threadSafety_ =  THREADSAFE_TRUE.equals(threadSafetyValue_);
       }
     }
 
@@ -525,7 +525,7 @@ public class CommandCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if command will actually get run on the current thread.");
         chooseImpl();
-        boolean isStayOnThread = ((threadSafetyValue_ == THREADSAFE_TRUE) &&
+        boolean isStayOnThread = ((THREADSAFE_TRUE.equals(threadSafetyValue_)) &&
                                   impl_.isNative());
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Will command actually get run on the current thread:", isStayOnThread);
         return isStayOnThread;

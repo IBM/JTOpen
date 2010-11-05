@@ -92,7 +92,7 @@ class JDSQLTokenizer implements Enumeration
   **/
   public JDSQLTokenizer(String statement, String delimiters, boolean returnDelimiters, boolean returnComments)
   {
-    final char[] delims = (delimiters == DEFAULT_DELIMITERS ? INTERNAL_DELIMITERS : delimiters.toCharArray());
+    final char[] delims = (DEFAULT_DELIMITERS.equals(delimiters) ? INTERNAL_DELIMITERS : delimiters.toCharArray());
     tokens_ = scanForTokens(statement, delims, returnComments, returnDelimiters);
     numberOfParameters_ = 0;
     for (int i=0; i<tokens_.length; ++i)
@@ -246,7 +246,9 @@ class JDSQLTokenizer implements Enumeration
         // Scan for newline that ends the single-line comment.
         int start = offset;
         offset = p+1;
-        while (offset < bufferLen && buffer[offset++] != '\n');
+        while (offset < bufferLen && buffer[offset++] != '\n'){
+        	//loop
+        }
         if (returnComments) token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_COMMENT);
       }
       else if (buffer[offset] == '\'')
@@ -254,7 +256,7 @@ class JDSQLTokenizer implements Enumeration
         // entering single quote
         int start = offset;
         ++offset;
-        while (offset < bufferLen && buffer[offset++] != '\'');
+        while (offset < bufferLen && buffer[offset++] != '\'') {}
         token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_LITERAL);
       }
       else if (buffer[offset] == '"')
@@ -262,7 +264,7 @@ class JDSQLTokenizer implements Enumeration
         // entering double quote
         int start = offset;
         ++offset;
-        while (offset < bufferLen && buffer[offset++] != '\"');
+        while (offset < bufferLen && buffer[offset++] != '\"') {}
         token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_LITERAL);
       }
       else if (buffer[offset] == '(')

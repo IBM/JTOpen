@@ -37,7 +37,7 @@ implements JDFieldMap
     {
         String typeName = row.getSQLData(typeIndex_).getString().trim();    //@A1A
         if(typeName.equals("DISTINCT"))                                     //@A1A  We do not have a SQLData class for Distincts
-            return new String("DISTINCT");                                  //@A1A
+            return "DISTINCT";                                  //@A1A
         return((SQLData)super.getValue(row)).getLocalName();
     }
 

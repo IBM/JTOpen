@@ -469,7 +469,7 @@ public class ProgramCall implements Serializable
         else
         {
           threadSafetyValue_ = (property.equals("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
-          threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
+          threadSafety_ = (THREADSAFE_TRUE.equals(threadSafetyValue_));
           threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " +  property);
         }
@@ -488,7 +488,7 @@ public class ProgramCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will actually get run on the current thread.");
         chooseImpl();
-        boolean isStayOnThread = ((threadSafetyValue_ == THREADSAFE_TRUE) &&
+        boolean isStayOnThread = ((THREADSAFE_TRUE.equals(threadSafetyValue_)) &&
                                   impl_.isNative());
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Will program actually get run on the current thread:", isStayOnThread);
         return isStayOnThread;
@@ -538,7 +538,7 @@ public class ProgramCall implements Serializable
                 threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " + property);
             }
-            threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
+            threadSafety_ = (THREADSAFE_TRUE.equals(threadSafetyValue_));
         }
     }
 

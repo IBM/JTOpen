@@ -360,13 +360,18 @@ class ArabicOptionSet
  *  @param  other       The ArabicOptionSet to compare to this.
  *  @return true if the ArabicOptionSets are equal, false otherwise.
  */
-    public boolean equals(ArabicOptionSet other)
+    public boolean equals(Object obj)
     {
-        if (other == null)  return false;
+        if (obj == null)  return false;
+        if (obj instanceof ArabicOptionSet) {
+        ArabicOptionSet other = (ArabicOptionSet) obj;    
         return ((this.getLamAlefMode()  == other.getLamAlefMode()) &&
                 (this.getSeenMode()     == other.getSeenMode()) &&
                 (this.getYehHamzaMode() == other.getYehHamzaMode()) &&
                 (this.getTashkeelMode() == other.getTashkeelMode()));
+        } else {
+        	return false; 
+        }
 
     }
 

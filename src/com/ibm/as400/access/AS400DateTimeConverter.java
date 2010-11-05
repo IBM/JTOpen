@@ -169,7 +169,7 @@ public class AS400DateTimeConverter
 
     {
         Trace.log(Trace.INFORMATION,"getDate");
-        String outFormat = new String("*YYMD");
+        String outFormat = "*YYMD";
         byte[] out = convert(as400_, in, format, outFormat);
 
         RecordFormat recordFormat=new RecordFormat();
@@ -251,7 +251,7 @@ public class AS400DateTimeConverter
         {
             Trace.log(Trace.ERROR,"Error constructing program parameters");
         }
-        String inFormat = new String("*YYMD");
+        String inFormat = "*YYMD";
         return convert(as400_, in,inFormat, format);
 
     }

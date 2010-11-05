@@ -483,8 +483,9 @@ public class Subsystem
    **/
   public boolean equals(Object obj)
   {
+	  
     if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
-
+    if (obj == null) return false; 
     try
     {
       Subsystem other = (Subsystem)obj;

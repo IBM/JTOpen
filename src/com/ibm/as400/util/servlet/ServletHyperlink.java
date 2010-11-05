@@ -301,17 +301,19 @@ public class ServletHyperlink extends HTMLHyperlink
             // if the link ends with a "/", the path does not need a leading "/"
             if (getLink().endsWith("/"))
             {
-                if (pathInfo_.startsWith("/"))
+                if (pathInfo_.startsWith("/")) {
                     pathInfo_ = pathInfo_.substring(1);
-                else
-                    pathInfo_ = pathInfo_;
+                } else {
+                    // pathInfo_ = pathInfo_;
+                }
             }
             else   //link does not end with a "/", so the path needs to start with "/"
             {
-                if (pathInfo_.startsWith("/"))
-                    pathInfo_ = pathInfo_;
-                else
+                if (pathInfo_.startsWith("/")) {
+                    // pathInfo_ = pathInfo_;
+                } else {
                     pathInfo_ = "/" + pathInfo_;
+                }
             }
 
             // place holder for real implementation...

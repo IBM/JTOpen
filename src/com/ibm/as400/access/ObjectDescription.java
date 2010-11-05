@@ -1063,6 +1063,7 @@ public class ObjectDescription
   {
     try
     {
+    	if (obj == null) return false; 
       ObjectDescription otherObj = (ObjectDescription)obj;
       if (!otherObj.getSystem().getSystemName().equals(system_.getSystemName())) return false;
       if (!otherObj.getLibrary().equals(getLibrary())) return false;

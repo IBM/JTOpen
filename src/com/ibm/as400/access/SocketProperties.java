@@ -64,6 +64,7 @@ public class SocketProperties implements Serializable
      **/
     public boolean equals(Object other)
     {
+    	if (other == null) return false; 
        try {
          SocketProperties props = (SocketProperties)other;
          if (keepAliveSet_         == props.keepAliveSet_ &&

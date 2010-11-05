@@ -44,7 +44,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // @param threadSafety  The assumed thread safety of the command/program.
     protected void open(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      if (threadSafety == LOOKUP_THREADSAFETY || threadSafety == OFF_THREAD) {
+      if (LOOKUP_THREADSAFETY.equals(threadSafety) || OFF_THREAD.equals(threadSafety)) {
         openOffThread();
       }
       else {
@@ -239,10 +239,10 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     {
       boolean runOnThread;
 
-      if (threadSafety == ON_THREAD) {
+      if (ON_THREAD.equals(threadSafety)) {
         runOnThread = true;
       }
-      else if (threadSafety == OFF_THREAD) {
+      else if (OFF_THREAD.equals(threadSafety)) {
         runOnThread = false;
       }
       else // threadSafety == LOOKUP_THREADSAFETY
@@ -300,7 +300,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         byte[] swapToPH = new byte[12];
         byte[] swapFromPH = new byte[12];
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
-        if (priorCallWasOnThread_ == OFF_THREAD)
+        if (OFF_THREAD.equals(priorCallWasOnThread_))
         {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
         }
@@ -370,7 +370,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
       // Note: We don't have a way to look up the thread safety of programs.
-      if (threadSafety == ON_THREAD) {
+      if (ON_THREAD.equals(threadSafety)) {
         return runProgramOnThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT, false);
       }
       else {
@@ -381,7 +381,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
       // Note: We don't have a way to look up the thread safety of programs.
-      if (threadSafety == ON_THREAD) {
+      if (ON_THREAD.equals(threadSafety)) {
         return runProgramOnThread(library, name, parameterList, messageOption, false);
       }
       else {
@@ -397,7 +397,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
           Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
           Trace.log(Trace.DIAGNOSTIC, "Running program ON-THREAD: " + library + "/" + name);
         }
-        if (priorCallWasOnThread_ == OFF_THREAD)
+        if (OFF_THREAD.equals(priorCallWasOnThread_))
         {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
         }

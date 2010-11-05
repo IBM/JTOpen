@@ -254,7 +254,7 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         {
             colorBuffer.append(" color=\"#");
             String rgb = Integer.toHexString(color_.getRGB());
-            colorBuffer.append(new String(rgb.substring(2)));  // don't want 0xff at beginning of RGB string.
+            colorBuffer.append(rgb.substring(2));  // don't want 0xff at beginning of RGB string.
             colorBuffer.append("\"");      
         }
         return new String(colorBuffer);

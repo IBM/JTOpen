@@ -104,8 +104,8 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     private static String collapsedGif_ = null;
     private static String docGif_       = null;
 
-    private static final String std = new String("<td>\n");     // The start table definition tag.              // @B2C
-    private static final String etd = new String("</td>\n");    // The end table definition tag.              // @B2C
+    private static final String std = "<td>\n";     // The start table definition tag.              // @B2C
+    private static final String etd = "</td>\n";    // The end table definition tag.              // @B2C
 
     transient PropertyChangeSupport changes_; //@P2C
     transient private Vector elementListeners_; // The list of element listeners @P2C

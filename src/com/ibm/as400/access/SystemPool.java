@@ -583,6 +583,7 @@ public class SystemPool
    **/
   public boolean equals(Object obj)
   {
+	  if (obj == null) return false; 
     try
     {
       SystemPool other = (SystemPool)obj;

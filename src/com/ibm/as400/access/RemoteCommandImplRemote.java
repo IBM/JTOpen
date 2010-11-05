@@ -112,7 +112,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         try
         {
             boolean succeeded;
-            if (threadSafety == ON_THREAD) {
+            if (ON_THREAD.equals(threadSafety)) {
               succeeded = runProgramOnThread("QSYS", "QWCRTVCA", parameterList, MESSAGE_OPTION_DEFAULT, false);
             }
             else {
@@ -431,7 +431,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
     protected boolean runCommandOffThread(byte[] command, int messageOption, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (priorCallWasOnThread_ == ON_THREAD)
+        if (ON_THREAD.equals(priorCallWasOnThread_))
         {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was on-thread, but this call is off-thread, so different job.");
         }
@@ -506,7 +506,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         Trace.log(Trace.DIAGNOSTIC, "Running program OFF-THREAD: " + library + "/" + name);
       }
 
-        if (priorCallWasOnThread_ == ON_THREAD)
+        if (ON_THREAD.equals(priorCallWasOnThread_))
         {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was on-thread, but this call is off-thread, so different job.");
         }

@@ -263,7 +263,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     // cut down on the number of String allocations.
     //
     private static final String COMMA_                  = ",";
-    static final String EMPTY_                          = new String(""); //@pw1 provide way to know if property was set here or by application via (Str == JDProperties.EMPTY)
+    static final String EMPTY_                          = ""; //@pw1 provide way to know if property was set here or by application via (Str == JDProperties.EMPTY)
     private static final String EUR_                    = "eur";
     private static final String FALSE_                  = "false";
     private static final String ISO_                    = "iso";

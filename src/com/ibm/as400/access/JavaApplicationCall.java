@@ -414,19 +414,19 @@ public class JavaApplicationCall implements Serializable
         {
             try
             {
-                read_.close();
+                if (read_ != null) read_.close();
                 read_ = null;
             }
             catch(Exception e){}
             try
             {
-                write_.close();
+                if (write_ != null) write_.close();
                 write_ = null;
             }
             catch(Exception e){}
             try
             {
-                error_.close();
+                if (error_ != null) error_.close();
                 error_ = null;
             }
             catch(Exception e){}

@@ -404,10 +404,16 @@ class BidiFlagSet
  *  @param  other       The BidiFlagSet to compare to this.
  *  @return true if the BidiFlagSets are equal, false otherwise.
  */
-    public boolean equals(BidiFlagSet other)
+    public boolean equals(Object obj)
     {
-        if (other == null)  return false;
+        if (obj == null)  return false;
+        if (obj instanceof BidiFlagSet) {
+        BidiFlagSet other = (BidiFlagSet) obj; 
         return this.value == other.value;
+        } else {
+        	return false; 
+        }
+   
     }
 
 /**

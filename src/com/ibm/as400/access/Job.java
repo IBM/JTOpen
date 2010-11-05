@@ -3568,7 +3568,7 @@ public class Job implements Serializable
 
     private final ProgramCall getProgramCall(String pgm, ProgramParameter[] parms, Boolean callOnThread)
     {
-      if (callOnThread == ON_THREAD)
+      if (ON_THREAD.equals(callOnThread))
       {
         if (pgmCall_onThread_ == null) {
           synchronized (remoteCommandLock_) {
@@ -3581,7 +3581,7 @@ public class Job implements Serializable
         try { pgmCall_onThread_.setProgram(pgm, parms); } catch (PropertyVetoException e) {}
         return pgmCall_onThread_;
       }
-      else if (callOnThread == OFF_THREAD)
+      else if (OFF_THREAD.equals(callOnThread))
       {
         if (pgmCall_offThread_ == null) {
           synchronized (remoteCommandLock_) {
@@ -4991,7 +4991,7 @@ public class Job implements Serializable
     {
         Object obj = getValue(attribute);
 
-        if (obj == null) return (String)obj;
+        if (obj == null) return null;
         else if (obj instanceof String) {
           return ((String)obj).trim();
         }

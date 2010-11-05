@@ -134,8 +134,8 @@ class NPConversation extends Object
                     NPCPAttribute cpCPFMessage = (NPCPAttribute)reply.getCodePoint(NPCodePoint.ATTRIBUTE_VALUE);
                     if (cpCPFMessage != null)
                     {
-                        String msgFileName = new String();
-                        String msgLibraryName = new String();
+                        String msgFileName = "";
+                        String msgLibraryName = "";
                         String msgDate = cpCPFMessage.getStringValue(PrintObject.ATTR_DATE);
                         String msgTime = cpCPFMessage.getStringValue(PrintObject.ATTR_TIME);
                         String strCPFMessageID = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGID);

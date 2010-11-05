@@ -50,7 +50,7 @@ Constructor.
 
     // Initialize.
     defaultSchema_ = null;
-    if (!defaultSchema.equals("") || defaultSchema != null)
+    if (!"".equals(defaultSchema) || defaultSchema != null)
     {
         if(defaultSchema.length() > 0)
         {

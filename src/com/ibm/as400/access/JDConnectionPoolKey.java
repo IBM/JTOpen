@@ -39,6 +39,7 @@ final class JDConnectionPoolKey
   {
     try
     {
+      if (obj == null) return false; 
       JDConnectionPoolKey key = (JDConnectionPoolKey)obj;
       return (user_.equals(key.user_) && pwHashcode_ == key.pwHashcode_);
     }
