@@ -14,14 +14,11 @@
 package com.ibm.as400.vaccess;
 
 import com.ibm.as400.access.Printer;
-import com.ibm.as400.access.WriterJob;
 import com.ibm.as400.access.CommandCall;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.Trace;
-import com.ibm.as400.access.WriterJobList;
 import com.ibm.as400.access.PrintObject;
 
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
@@ -41,7 +38,7 @@ printer.
 class PrinterStopAction
 extends DialogAction
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
     // Private data.
@@ -53,7 +50,7 @@ extends DialogAction
     private static String copyEndText_            = ResourceLoader.getPrintText("AT_COPY_END");
 
     private static boolean stringsLoaded_               = false; // Load MRI only once when needed
-    private Integer             stringsLock_            = new Integer (0);
+    private Object         stringsLock_            = new Object(); 
 
     private Printer printer_                            = null; // the printer
     private JRadioButton immedButton_                   = null; // end immediately
@@ -82,7 +79,7 @@ Returns the component for the dialog box.
     {
         JPanel panel = new JPanel();
         GridBagLayout layout = new GridBagLayout ();
-        GridBagConstraints constraints;
+        // GridBagConstraints constraints;
         panel.setLayout (layout);
         panel.setBorder (new EmptyBorder (10, 10, 10, 10));
 
@@ -172,7 +169,7 @@ Performs the action.
 
             // If the writer name is null then there is no writer and we
             // shouldn't even be here.
-            if((status_ == null) || (status_ == ""))
+            if((status_ == null) || (status_.equals("")))
             {
                 // Trace the error
                 if (Trace.isTraceOn())
@@ -186,7 +183,7 @@ Performs the action.
             {
                 // The writer exists so issue the call
                 CommandCall cmd = new CommandCall( printer_.getSystem());
-                String cmdString = new String("ENDWTR WTR("+ printer_.getName() + ") OPTION(");
+                String cmdString = "ENDWTR WTR("+ printer_.getName() + ") OPTION(";
                 try
                 {
                     // Finish the command string

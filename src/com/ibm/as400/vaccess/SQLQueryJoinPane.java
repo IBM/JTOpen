@@ -121,7 +121,7 @@ private void buildTableList()
     // make sure the vectors contain enough elements
     while (clauses_.size() < numTables)
     {
-        clauses_.addElement(new String());
+        clauses_.addElement("");
         locationInClause_.addElement(new Integer(1));
     }
 }

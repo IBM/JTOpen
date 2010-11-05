@@ -220,7 +220,7 @@ Returns the handle to this CLOB locator in the database.
     	  }
     	  finally{
     	      try{
-    	          r.close();
+    	          if (r != null ) r.close();
     	      }catch(Exception ee){}
     	  }
       }

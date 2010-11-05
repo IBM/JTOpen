@@ -70,7 +70,7 @@ Performs the action.
 
             // issue the call
             CommandCall cmd = new CommandCall( printer_.getSystem());
-            String cmdString = new String("VRYCFG CFGOBJ("+ printer_.getName() + ") ");
+            String cmdString = "VRYCFG CFGOBJ("+ printer_.getName() + ") ";
             cmdString += "CFGTYPE(*DEV) STATUS(*OFF) RANGE(*OBJ)";
             try
             {

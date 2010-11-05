@@ -953,8 +953,8 @@ ResultSet.CONCUR_READ_ONLY.
     public PreparedStatement prepareStatement (String sql, int[] columnIndexes)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-        return null;
+    	validateConnection(); 
+    	return connection_.prepareStatement(sql, columnIndexes); 
     }
 
 
@@ -1053,8 +1053,11 @@ ResultSet.CONCUR_READ_ONLY.
     public PreparedStatement prepareStatement (String sql, String[] columnNames)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-        return null;
+    	// Auto generated keys now supported for some releases.. Let the connection
+    	// handle the exception.
+    	
+    	validateConnection(); 
+    	return connection_.prepareStatement(sql, columnNames); 
     }
 
 

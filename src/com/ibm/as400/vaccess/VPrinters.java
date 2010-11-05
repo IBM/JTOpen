@@ -84,7 +84,7 @@ implements VNode, Serializable
     private static String statusColumnHeader_         = ResourceLoader.getPrintText ("STATUS");
 
     private static TableColumnModel detailsColumnModel_     = null;
-    private static Integer          detailsColumnModelLock_ = new Integer (0);
+    private static Object           detailsColumnModelLock_ = new Object();
 
     // Default column widths
     private static final int    dfltPrinterColWidth = 15;

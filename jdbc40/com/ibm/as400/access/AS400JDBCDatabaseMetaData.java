@@ -5289,21 +5289,20 @@ implements DatabaseMetaData
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schemaPattern));
             cs.setString(3, normalize(typeNamePattern));
-            String typesString = null;
+            StringBuffer typesStringBuffer = new StringBuffer();
             int stringsInList = 0;
 
             if (types != null) {
-                typesString = "";
                 for (int i = 0; i < types.length; i++) {
                     if (stringsInList > 0) {
-                        typesString += ",";
+                        typesStringBuffer.append(",");
                     }
-                    typesString = typesString + types[i];
+                    typesStringBuffer.append(types[i]);
                     stringsInList++;
                 }
             }
 
-            cs.setString(4, typesString);
+            cs.setString(4, typesStringBuffer.toString());
 /* ifdef JDBC40 */
             cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
 /* endif */ 

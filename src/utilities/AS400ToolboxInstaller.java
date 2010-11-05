@@ -1307,13 +1307,15 @@ public static void main(String[] args)
 
             if(!unExpandFileV.isEmpty())
             {
-                String unExpandFileStr="";
+                StringBuffer unExpandFileStr= new StringBuffer();
                 for(Enumeration e=unExpandFileV.elements(); e.hasMoreElements();)
                 {
-                    unExpandFileStr +="    "+(String)e.nextElement()+"\n";
+                    unExpandFileStr.append("    "); 
+                    unExpandFileStr.append((String)e.nextElement()); 
+                    unExpandFileStr.append("\n");
                 }
                 System.out.println(getMRIResource().getString("RESULT_UNEXPANDED_FILES").trim()
-                                +"\n "+unExpandFileStr);
+                                +"\n "+unExpandFileStr.toString());
             }
 
 
@@ -1322,13 +1324,15 @@ public static void main(String[] args)
 
             if(!classpathAddV.isEmpty())
             {
-                String classpathAddStr="";
+                StringBuffer classpathAddStr= new StringBuffer();
                 for(Enumeration e=classpathAddV.elements(); e.hasMoreElements();)
                 {
-                    classpathAddStr +="    "+(String)e.nextElement()+"\n";
+                    classpathAddStr.append("    "); 
+                    classpathAddStr.append((String)e.nextElement()); 
+                    classpathAddStr.append("\n");
                 }
                 System.out.println(getMRIResource().getString("RESULT_ADD_CLASSPATHS")
-                                  +"\n"+classpathAddStr);
+                                  +"\n"+classpathAddStr.toString());
             }
 
 
@@ -1906,15 +1910,15 @@ private static String readFile(URL url)
     throws IOException
 {
     InputStream in = url.openStream();
-    String s = "";
+    StringBuffer s = new StringBuffer();
     int n = in.read(data_);
     while ( n!= -1)
     {
-        s += new String(data_, 0, n);
+        s.append(new String(data_, 0, n));
         n = in.read(data_);
     }
     in.close();
-    return s;
+    return s.toString();
 }
 
 

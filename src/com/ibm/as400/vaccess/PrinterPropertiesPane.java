@@ -1114,7 +1114,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_ONJOBQSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                      attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(waitingOnJobQueueQSPLText_);

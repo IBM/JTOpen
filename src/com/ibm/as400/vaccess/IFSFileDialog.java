@@ -272,7 +272,7 @@ Constructs an IFSFileDialog object.
         }
         else
         {
-            return new String("");
+            return "";
         }
     }
 
@@ -299,7 +299,7 @@ Constructs an IFSFileDialog object.
         }
         else
         {
-            return new String("");
+            return "";
         }
     }
 
@@ -340,7 +340,7 @@ Constructs an IFSFileDialog object.
         }
         else
         {
-            return new String("");
+            return "";
         }
     }
 

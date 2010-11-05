@@ -14,7 +14,6 @@
 package com.ibm.as400.vaccess;
 
 import com.ibm.as400.access.Printer;
-import com.ibm.as400.access.WriterJobList;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.CommandCall;
 import com.ibm.as400.access.Trace;
@@ -28,7 +27,7 @@ printer**/
 class PrinterReleaseAction
 extends AbstractVAction
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
     // Private data.
@@ -75,7 +74,7 @@ Performs the action.
 
             // If the writer name is null then there is no writer and we
             // shouldn't even be here.
-            if((status_ == null) || (status_ == ""))
+            if((status_ == null) || (status_.equals("")))
             {
                 // Trace the error
                 if (Trace.isTraceOn())
@@ -88,7 +87,7 @@ Performs the action.
             {
                 // The writer exists so issue the call
                 CommandCall cmd = new CommandCall( printer_.getSystem());
-                String cmdString = new String("RLSWTR WTR("+ printer_.getName() + ")");
+                String cmdString = "RLSWTR WTR("+ printer_.getName() + ")";
                 try
                 {
                     if (cmd.run(cmdString)!=true)

@@ -18,14 +18,12 @@ import com.ibm.as400.access.CommandCall;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.PrintObject;
 import com.ibm.as400.access.Trace;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.border.EmptyBorder;
 import javax.swing.SwingConstants;
@@ -38,7 +36,7 @@ printer.
 class PrinterHoldAction
 extends DialogAction
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
     // Private data.
@@ -76,7 +74,7 @@ Returns the component for the dialog box.
     {
         JPanel panel = new JPanel();
         GridBagLayout layout = new GridBagLayout ();
-        GridBagConstraints constraints;
+        // GridBagConstraints constraints;
         panel.setLayout (layout);
         panel.setBorder (new EmptyBorder (10, 10, 10, 10));
 
@@ -146,7 +144,7 @@ Performs the action.
 
             // If the writer name is null then there is no writer and we
             // shouldn't even be here.
-            if((status_ == null) || (status_ == ""))
+            if((status_ == null) || ("".equals(status_)))
             {
                 // Trace the error
                 if (Trace.isTraceOn())
@@ -159,7 +157,7 @@ Performs the action.
             {
                 // The writer exists so issue the call
                 CommandCall cmd = new CommandCall( printer_.getSystem());
-                String cmdString = new String("HLDWTR WTR("+ printer_.getName() + ") OPTION(");
+                String cmdString = "HLDWTR WTR("+ printer_.getName() + ") OPTION(";
                 try
                 {
                     // Finish the command string

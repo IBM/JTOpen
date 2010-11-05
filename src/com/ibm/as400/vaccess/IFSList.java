@@ -327,7 +327,7 @@ class IFSList extends java.awt.List
 
         if (filter.compareTo("*.*") == 0)
         {
-            filter_ = new String("*");
+            filter_ = "*";
         }
         else
         {

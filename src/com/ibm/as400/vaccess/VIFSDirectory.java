@@ -1151,7 +1151,7 @@ list of details children.
         Integer newValue = new Integer (include);
         vetoableChangeSupport_.fireVetoableChange ("includeFiles", oldValue, newValue);
 
-        if (oldValue != newValue)
+        if (!oldValue.equals(newValue))
             actualFilter_.setInclude (include);
 
         propertyChangeSupport_.firePropertyChange ("includeFiles", oldValue, newValue);

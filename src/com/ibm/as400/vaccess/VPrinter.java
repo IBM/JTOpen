@@ -295,7 +295,9 @@ Constructs a VPrinter object.
             }
         }
         catch (Exception e) {
-            errorEventSupport_.fireError (e);
+        	if (errorEventSupport_ != null) { 
+               errorEventSupport_.fireError (e);
+        	}
         }
 
         // initialize transient data
@@ -331,7 +333,9 @@ Constructs a VPrinter object.
             }
         }
         catch (Exception e) {
-            errorEventSupport_.fireError (e);
+        	if (errorEventSupport_ != null) { 
+                errorEventSupport_.fireError (e);
+        	}
         }
 
         // initialize transient data
@@ -962,7 +966,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                    attrString = attrString.trim();
                     if (attrString.compareTo(ENDString_) == 0)
                     {
                         return endedText_;
@@ -1552,7 +1556,7 @@ Reloads the actions.
                 }
                 else
                 {
-                    statusStr.trim(); // @A4A
+                    statusStr = statusStr.trim(); // @A4A
                     if (statusStr.equals("END")) // @A4A
                     {
                         // The writer is not started so only START is enabled

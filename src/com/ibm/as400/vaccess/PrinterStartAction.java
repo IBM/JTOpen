@@ -91,7 +91,7 @@ extends DialogAction
     private static String fileLastAvailText_ ;
     private static String defStartPageText_ ;
     private static boolean stringsLoaded_               = false; // Load MRI only once when needed
-    private Integer             stringsLock_            = new Integer (0);
+    private Object         stringsLock_            = new Object();
 
 /* RDS- NOTE: Add "browse" buttons later */
 
@@ -146,7 +146,7 @@ Constructs an PrinterStartAction object.
         try
         {
             // build components to display the start writer options
-            String tempStr = new String(prtStartWtrText_);
+            String tempStr = prtStartWtrText_;
             VUtilities.constrain( new JLabel(tempStr), panel, layout, 0,0,1,1);
 
             // get the printer name

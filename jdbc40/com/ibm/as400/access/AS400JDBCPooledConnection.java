@@ -177,6 +177,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
   // JDConnectionPoolManager needs this when identifying returned connections.
   public boolean equals(Object obj)
   {
+	if (obj == null) return false; 
     try
     {
       AS400JDBCPooledConnection pc = (AS400JDBCPooledConnection)obj;
