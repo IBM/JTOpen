@@ -79,7 +79,7 @@ public interface BidiStringType
     /**
      The default string type for Bidi data (Logical LTR). This value maps to ST5.
      **/
-    final static int DEFAULT = 0;
+    public final static int DEFAULT = 0;
 
     /**
      String type used when an EBCDIC/Unicode conversion is desired, but without swapping, shaping, or transformation.
