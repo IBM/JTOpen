@@ -140,7 +140,8 @@ public class SystemProperties
      <li>Overridden by: Various <tt>setTrace...</tt> methods in the <code>Trace</code> class.
      </ul>
      **/
-    public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";
+    public static final String TRACE_CATEGORY   = ACCESS_PREFIX + "Trace.category";
+           static final String TRACE_CATEGORIES = ACCESS_PREFIX + "Trace.categories"; // tolerate misspelled property name
 
     /**
      Specifies the file to which the {@link Trace Trace} class writes output.
