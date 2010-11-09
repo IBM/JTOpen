@@ -16,7 +16,7 @@
 
 <!ELEMENT pcml (struct | program)+>
 <!ATTLIST pcml
-          version  (1.0 | 2.0 | 3.0 | 4.0) #REQUIRED
+          version  (1.0 | 2.0 | 3.0 | 4.0 | 6.0) #REQUIRED
 >
 
 <!ELEMENT struct (data | struct)+>
@@ -57,7 +57,7 @@
           offsetfrom CDATA #IMPLIED
           outputsize  CDATA #IMPLIED
 
-          type   (char | int | packed | zoned | float | byte | struct) #REQUIRED
+	  type   (char | int | packed | zoned | float | byte | struct | date | time | timestamp) #REQUIRED
           length CDATA #IMPLIED
           precision CDATA #IMPLIED
           ccsid  CDATA #IMPLIED
@@ -65,10 +65,16 @@
           struct CDATA #IMPLIED
 
           passby (reference | value) #IMPLIED
-          bidistringtype (ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT) #IMPLIED
+          bidistringtype (ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT | NONE) #IMPLIED
 
           trim (none | right | left | both) #IMPLIED
           chartype (onebyte | twobyte) #IMPLIED
+
+          dateformat (CDMY | CMDY | CYMD | DMY | EUR | ISO | JIS | JUL | LONGJUL | MDY | USA | YMD) #IMPLIED
+          timeformat (EUR | HMS | ISO | JIS | USA) #IMPLIED
+
+          dateseparator (ampersand | comma | hyphen | period | slash | none) #IMPLIED
+          timeseparator (ampersand | colon | comma | period | none) #IMPLIED
 >
 
 ]>

@@ -15,11 +15,15 @@ package com.ibm.as400.data;
 
 import com.ibm.as400.access.AS400DataType;
 import com.ibm.as400.access.AS400Text;
+import com.ibm.as400.access.AS400Date;
+import com.ibm.as400.access.AS400Time;
+import com.ibm.as400.access.AS400Timestamp;
 import com.ibm.as400.access.BidiStringType;
 import com.ibm.as400.access.BinaryConverter;
 import com.ibm.as400.access.Trace;                                  // @D3A
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import java.io.IOException;                                         // @C1A
 import java.io.ObjectInputStream;                                   // @C1A
@@ -187,7 +191,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             m_value = v;
         }
         }
-        // New value does not match the Java typ for this element.
+        // New value does not match the Java type for this element.
         // Convert to the Java type needed -- errors may occur.
         else 
         {
@@ -333,6 +337,36 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         return m_owner.getPrecision();
     }
 
+
+    // Returns the dateformat= attribute
+    // The dateformat is only meaningful when type=date
+    String getDateFormat()
+    {
+        return m_owner.getDateFormat();
+    }
+
+    // Returns the dateseparator= attribute
+    // The dateseparator is only meaningful when type=date
+    String getDateSeparator()
+    {
+        return m_owner.getDateSeparator();
+    }
+
+
+    // Returns the timeformat= attribute
+    // The timeformat is only meaningful when type=time
+    String getTimeFormat()
+    {
+        return m_owner.getTimeFormat();
+    }
+
+    // Returns the timeseparator= attribute
+    // The timeseparator is only meaningful when type=time
+    String getTimeSeparator()
+    {
+        return m_owner.getTimeSeparator();
+    }
+
     String getTrim()                                                // @D1A
     {                                                               // @D1A
         return m_owner.getTrim();                                   // @D1A
@@ -353,21 +387,40 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         switch (getDataType()) 
         {
             case PcmlData.CHAR:
-                return length;
-
             case PcmlData.INT:
+            case PcmlData.FLOAT:
+            case PcmlData.BYTE:
                 return length;
 
             case PcmlData.PACKED:
-                return length / 2 + 1; // Packed contains 2 digits per byte plust sign
+                return length / 2 + 1; // Packed contains 2 digits per byte plus sign
 
             case PcmlData.ZONED:
-                return length;        // Zoned contains 1 digits per byte, sign is in low order digit
-                
-            case PcmlData.FLOAT:
+                return length;        // Zoned contains 1 digit per byte, sign is in low order digit
+
+            case PcmlData.DATE:
+                if (length == 0) {
+                  String format = getDateFormat();
+                  if (format != null) {
+                    length = AS400Date.getByteLength(AS400Date.toFormat(format), PcmlNode.separatorAsChar(getDateSeparator()));
+                  }
+                }
                 return length;
 
-            case PcmlData.BYTE:
+            case PcmlData.TIME:
+                if (length == 0) {
+                  String format = getTimeFormat();
+                  if (format != null) {
+                    length = AS400Time.getByteLength(AS400Time.toFormat(format), PcmlNode.separatorAsChar(getTimeSeparator()));
+                  }
+                }
+                return length;
+
+            case PcmlData.TIMESTAMP:
+                if (length == 0) {
+                  //length = AS400Timestamp.getByteLength(null);
+                  length = 26;  // we publicly support only the 26-byte timestamp format
+                }
                 return length;
 
             default:
@@ -378,7 +431,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     // Converts an object to the correct type (class) for
     // the defined data tpe.
-    // The SetValue method allows most data types to be set using 
+    // The setValue method allows most data types to be set using 
     // either the Java class associaed with the data type or using
     // a String. This method converts the value to the Java class 
     // defined for the data type. Exceptions such as 
@@ -444,8 +497,17 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     
                 case PcmlData.BYTE:
                     return (new byte[0]).getClass();
-    
-    
+
+                case PcmlData.DATE:
+                    return Class.forName("java.sql.Date");
+
+                case PcmlData.TIME:
+                    return Class.forName("java.sql.Time");
+
+                case PcmlData.TIMESTAMP:
+                    return Class.forName("java.sql.Timestamp");
+
+
                 default:
                     throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(getDataType()) , getNameForException()} );
     
@@ -464,7 +526,6 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         Object value = null;
         int dataType = getDataType();
         int dataLength = getLength();
-        int dataPrecision = getPrecision();
         int bytesConverted = 0;                                     // @B2A
 
         // Get the Java object and make sure it has been set.
@@ -477,7 +538,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         // Get a converter from the PcmlDocument node
         // PcmlDocument will either create a converter or return 
         // and existing one.
-        AS400DataType converter = m_owner.getDoc().getConverter(dataType, dataLength, dataPrecision, getCcsid());
+        AS400DataType converter = m_owner.getDoc().getConverter(dataType, dataLength, getPrecision(), getCcsid(), getDateFormat(), getDateSeparator(), getTimeFormat(), getTimeSeparator());
         byte[] byteArray = new byte[dataLength];
         if (dataType != PcmlData.CHAR)                              // @C6A
         {
@@ -523,13 +584,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     {
         Object newVal = null;
         int dataType = getDataType();
-        int dataLength = getLength();
-        int dataPrecision = getPrecision();
         
         // Get a converter from the PcmlDocument node
         // PcmlDocument will either create a converter or return 
         // and existing one.
-        AS400DataType converter = m_owner.getDoc().getConverter(dataType, dataLength, dataPrecision, getCcsid());
+        AS400DataType converter = m_owner.getDoc().getConverter(dataType, getLength(), getPrecision(), getCcsid(), getDateFormat(), getDateSeparator(), getTimeFormat(), getTimeSeparator());
         if (dataType != PcmlData.CHAR)                              // @C6A
         {
             synchronized(converter)                                 // @B1A
@@ -709,8 +768,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     // Converts an object to the correct type (class) for
     // the defined data type.
-    // The SetValue method allows most data types to be set using 
-    // either the Java class associtaed with the data type or using
+    // The setValue method allows most data types to be set using 
+    // either the Java class associated with the data type or using
     // a String. This method converts the value to the Java class 
     // defined for the data type. Exceptions such as 
     // NumberFormatException may result.
@@ -739,6 +798,54 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 break;
 
             case PcmlData.INT:
+                if (dataLength == 1)
+                {
+                    if (dataPrecision == 8) 
+                    {
+                        if (newVal instanceof String) 
+                        {
+                            convertedVal = new Short((String) newVal);
+                        }
+                        else 
+                        {
+                            if (newVal instanceof Short) 
+                            {
+                                convertedVal = newVal;
+                            }
+                            else if (newVal instanceof Number) 
+                            {
+                                convertedVal = new Short( ((Number) newVal).shortValue() );
+                            }
+                            else 
+                            {
+                                throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
+                            }
+                        }
+                    }
+                    else 
+                    { // dataPrecision == 7 or defaulted
+                        if (newVal instanceof String) 
+                        {
+                            convertedVal = new Byte( ((String) newVal) );
+                        }
+                        else 
+                        {
+                            if (newVal instanceof Byte) 
+                            {
+                                convertedVal = newVal;
+                            }
+                            else if (newVal instanceof Number) 
+                            {
+                                convertedVal = new Byte( ((Number) newVal).byteValue() );
+                            }
+                            else 
+                            {
+                                throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
+                            }
+                        }
+                    }
+                }
+                else
                 if (dataLength == 2) 
                 {
                     if (dataPrecision == 16) 
@@ -749,7 +856,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         }
                         else 
                         {
-                            if (newVal instanceof Number) 
+                            if (newVal instanceof Integer) 
+                            {
+                                convertedVal = newVal;
+                            }
+                            else if (newVal instanceof Number) 
                             {
                                 convertedVal = new Integer( ((Number) newVal).intValue() );
                             }
@@ -767,7 +878,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         }
                         else 
                         {
-                            if (newVal instanceof Number) 
+                            if (newVal instanceof Short) 
+                            {
+                                convertedVal = newVal;
+                            }
+                            else if (newVal instanceof Number) 
                             {
                                 convertedVal = new Short( ((Number) newVal).shortValue() );
                             }
@@ -789,7 +904,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         }
                         else 
                         {
-                            if (newVal instanceof Number) 
+                            if (newVal instanceof Long) 
+                            {
+                                convertedVal = newVal;
+                            }
+                            else if (newVal instanceof Number) 
                             {
                                 convertedVal = new Long( ((Number) newVal).longValue() );
                             }
@@ -807,7 +926,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         }
                         else 
                         {
-                            if (newVal instanceof Number) 
+                            if (newVal instanceof Integer) 
+                            {
+                                convertedVal = newVal;
+                            }
+                            else if (newVal instanceof Number) 
                             {
                                 convertedVal = new Integer( ((Number) newVal).intValue() );
                             }
@@ -820,22 +943,51 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 }
                 else                                                // @C3A
                 { // dataLength == 8                                // @C3A
-                  // dataPrecision == 63
-                    if (newVal instanceof String)                   // @C3A
-                    {                                               // @C3A
-                        convertedVal = new Long((String) newVal);   // @C3A
-                    }                                               // @C3A
-                    else                                            // @C3A
-                    {                                               // @C3A
-                        if (newVal instanceof Number)               // @C3A
-                        {                                           // @C3A
+                    if (dataPrecision == 64) 
+                    {
+                        if (newVal instanceof String) 
+                        {
+                            convertedVal = new BigInteger((String) newVal);
+                        }
+                        else 
+                        {
+                            if (newVal instanceof BigInteger)
+                            {
+                                convertedVal = newVal;
+                            }
+                            else if (newVal instanceof Number) 
+                            {
+                                long longVal = ((Number) newVal).longValue();
+                                convertedVal = new BigInteger(Long.toString(longVal));
+                            }
+                            else 
+                            {
+                                throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
+                            }
+                        }
+                    }
+                    else 
+                    { // dataPrecision == 63 or defaulted
+                      if (newVal instanceof String)                   // @C3A
+                      {                                               // @C3A
+                          convertedVal = new Long((String) newVal);   // @C3A
+                      }                                               // @C3A
+                      else                                            // @C3A
+                      {                                               // @C3A
+                          if (newVal instanceof Long)
+                          {
+                            convertedVal = newVal;
+                          }
+                          else if (newVal instanceof Number)          // @C3A
+                          {                                           // @C3A
                             convertedVal = new Long( ((Number) newVal).longValue() ); // @C3A
-                        }                                           // @C3A
-                        else                                        // @C3A
-                        {                                           // @C3A
+                          }                                           // @C3A
+                          else                                        // @C3A
+                          {                                           // @C3A
                             throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} ); // @C3A
-                        }                                           // @C3A
-                    }                                               // @C3A
+                          }                                           // @C3A
+                      }                                               // @C3A
+                    }
                 }                                                   // @C3A
                 break;
 
@@ -879,7 +1031,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     }
                     else 
                     {
-                        if (newVal instanceof Number) 
+                        if (newVal instanceof Float) 
+                        {
+                            convertedVal = newVal;
+                        }
+                        else if (newVal instanceof Number) 
                         {
                             convertedVal = new Float( ((Number) newVal).floatValue() );
                         }
@@ -897,7 +1053,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     }
                     else 
                     {
-                        if (newVal instanceof Number) 
+                        if (newVal instanceof Double) 
+                        {
+                            convertedVal = newVal;
+                        }
+                        else if (newVal instanceof Number) 
                         {
                             convertedVal = new Double( ((Number) newVal).doubleValue() );
                         }
@@ -960,7 +1120,64 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                             throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
                         }
                 break;
-    
+
+            case PcmlData.DATE:
+              if (newVal instanceof String) 
+              {
+                // Parse XML Schema-style date value: yyyy-mm-dd
+                convertedVal = AS400Date.parseXsdString((String)newVal);
+              }
+              else 
+              {
+                if (newVal instanceof java.sql.Date) 
+                {
+                  convertedVal = (java.sql.Date)newVal;
+                }
+                else 
+                {
+                  throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
+                }
+              }
+              break;
+
+            case PcmlData.TIME:
+              if (newVal instanceof String) 
+              {
+                // Parse XML Schema-style time value: hh:mm:ss
+                convertedVal = AS400Time.parseXsdString((String)newVal);
+              }
+              else 
+              {
+                if (newVal instanceof java.sql.Time) 
+                {
+                  convertedVal = (java.sql.Time)newVal;
+                }
+                else 
+                {
+                  throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
+                }
+              }
+              break;
+
+            case PcmlData.TIMESTAMP:
+              if (newVal instanceof String) 
+              {
+                // Parse XML Schema-style timestamp value: yyyy-MM-ddTHH:mm:ss.SSSSSSSSS
+                convertedVal = AS400Timestamp.parseXsdString((String)newVal);
+              }
+              else 
+              {
+                if (newVal instanceof java.sql.Timestamp) 
+                {
+                  convertedVal = (java.sql.Timestamp)newVal;
+                }
+                else 
+                {
+                  throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
+                }
+              }
+              break;
+
 
             default:
                 throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , nodeNameForException} );

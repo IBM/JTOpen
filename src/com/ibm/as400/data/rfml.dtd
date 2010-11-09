@@ -26,14 +26,14 @@ RFML is an XML language.  Typical usage:
 <!ENTITY % nonNegativeInteger "CDATA">    <!-- a non-negative integer -->
 <!ENTITY % binary2            "CDATA">    <!-- an integer in range 0-65535 -->
 <!ENTITY % boolean            "(true|false)">
-<!ENTITY % datatype  "(char | int | packed | zoned | float | byte | struct)">
-<!ENTITY % biditype  "(ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT)">
+<!ENTITY % datatype  "(char | int | packed | zoned | float | byte | struct | date | time | timestamp)">
+<!ENTITY % biditype  "(ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT | NONE)">
 
 
 <!-- The document root element -->
 <!ELEMENT rfml (struct | recordformat)+>
 <!ATTLIST rfml
-          version       (4.0 | 5.0) #REQUIRED
+          version       (4.0 | 5.0 | 6.0) #REQUIRED
           ccsid         %binary2;   #IMPLIED
 >
 <!-- Note: The ccsid is the default value that will be used for any contained <data type="char"> elements that do not specify a ccsid. -->
@@ -69,6 +69,12 @@ RFML is an XML language.  Typical usage:
 
           bidistringtype %biditype;           #IMPLIED
           keyfield      %boolean;             #IMPLIED
+
+          dateformat (CDMY | CMDY | CYMD | DMY | EUR | ISO | JIS | JUL | LONGJUL | MDY | USA | YMD) #IMPLIED
+          timeformat (EUR | HMS | ISO | JIS | USA) #IMPLIED
+
+          dateseparator (ampersand | comma | hyphen | period | slash) #IMPLIED
+          timeseparator (ampersand | colon | comma | period) #IMPLIED
 >
 <!-- Note: The 'name' attribute must be unique within a given recordformat. -->
 <!-- Note: On the server, the length of Record field names is limited to 10 bytes. -->
@@ -87,6 +93,6 @@ RFML is an XML language.  Typical usage:
 <!ENTITY gt    "&#62;">     <!-- greater than -->
 <!ENTITY nbsp  "&#160;">    <!-- non-breaking space -->
 <!ENTITY shy   "&#173;">    <!-- soft hyphen (discretionary hyphen) -->
-<!ENTITY mdash "&#38;#x2014;">
-<!ENTITY ldquo "&#38;#x201C;">
-<!ENTITY rdquo "&#38;#x201D;">
+<!ENTITY mdash "&#38;#x2014;">  <!-- em dash (long hyphen) -->
+<!ENTITY ldquo "&#38;#x201C;">  <!-- left double quotation mark -->
+<!ENTITY rdquo "&#38;#x201D;">  <!-- right double quotation mark -->

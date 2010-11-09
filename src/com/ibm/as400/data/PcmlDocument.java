@@ -16,22 +16,29 @@ package com.ibm.as400.data;
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400DataType;
 import com.ibm.as400.access.AS400Text;
+import com.ibm.as400.access.AS400Bin1;
+import com.ibm.as400.access.AS400UnsignedBin1;
 import com.ibm.as400.access.AS400Bin2;
 import com.ibm.as400.access.AS400UnsignedBin2;
 import com.ibm.as400.access.AS400Bin4;
 import com.ibm.as400.access.AS400UnsignedBin4;
 import com.ibm.as400.access.AS400Bin8;                              // @C4A
+import com.ibm.as400.access.AS400UnsignedBin8;
 import com.ibm.as400.access.AS400PackedDecimal;
 import com.ibm.as400.access.AS400ZonedDecimal;
 import com.ibm.as400.access.AS400Float4;
 import com.ibm.as400.access.AS400Float8;
 import com.ibm.as400.access.AS400ByteArray;
+import com.ibm.as400.access.AS400Date;
+import com.ibm.as400.access.AS400Time;
+import com.ibm.as400.access.AS400Timestamp;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ProgramCall;
+
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -43,6 +50,10 @@ import java.io.OutputStream;                                        //@E1A
 import com.ibm.as400.access.Trace;                                  //@E1A
 
 import java.net.UnknownHostException;
+
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -71,6 +82,9 @@ class PcmlDocument extends PcmlDocRoot
 
     private static final int VERSION_1_ATTRIBUTE_COUNT = 1;
 
+    private static final String DEFAULT_DATE_SEPARATOR = "hyphen"; // default separator for 'date'
+    private static final String DEFAULT_TIME_SEPARATOR = "period"; // default separator for 'time'
+
     private String m_docName;
     private String m_XsdName;     //@E1A
 
@@ -78,15 +92,21 @@ class PcmlDocument extends PcmlDocRoot
     // The following attributes added for PCML v2.0
     private String m_Version;     // version=, string literal          @B1A
 
+    private static AS400Bin1          m_Bin1   = new AS400Bin1();
+    private static AS400UnsignedBin1  m_UBin1  = new AS400UnsignedBin1();
     private static AS400Bin2          m_Bin2   = new AS400Bin2();
     private static AS400UnsignedBin2  m_UBin2  = new AS400UnsignedBin2();
     private static AS400Bin4          m_Bin4   = new AS400Bin4();
     private static AS400UnsignedBin4  m_UBin4  = new AS400UnsignedBin4();
     private static AS400Bin8          m_Bin8   = new AS400Bin8();   // @C4A
+    private static AS400UnsignedBin8  m_UBin8  = new AS400UnsignedBin8();
     private static AS400Float4        m_Float4 = new AS400Float4();
     private static AS400Float8        m_Float8 = new AS400Float8();
     private static AS400PackedDecimal m_Packed_15_5 = new AS400PackedDecimal(15, 5);
     private static AS400ZonedDecimal  m_Zoned_15_5 = new AS400ZonedDecimal(15, 5);
+    private static AS400Date          m_Date       = new AS400Date();
+    private static AS400Time          m_Time       = new AS400Time();
+    private static AS400Timestamp     m_Timestamp  = new AS400Timestamp();
 
     private long   correlationID_ = 0;                       // @C8A
 
@@ -269,9 +289,11 @@ class PcmlDocument extends PcmlDocRoot
         m_Text_10 = null;                                           // @C1A
     }
 
+
     /*
+     Called by PcmlDataValues, PcmlDocument, and RfmlDocument.
     */
-    protected AS400DataType getConverter(int dataType , int dataLength, int dataPrecision, int ccsid )
+    protected AS400DataType getConverter(int dataType , int dataLength, int dataPrecision, int ccsid, String dateFormat, String dateSeparator, String timeFormat, String timeSeparator)
                                          throws PcmlException
     {
         switch (dataType)
@@ -307,15 +329,21 @@ class PcmlDocument extends PcmlDocRoot
                 }
 
             case PcmlData.INT:
-                if (dataLength == 2)
+                if (dataLength == 1)
+                {
+                    if (dataPrecision == 8)
+                        return m_UBin1;
+                    else // must be dataPrecision == 7
+                        return m_Bin1;
+                }
+                else if (dataLength == 2)
                 {
                     if (dataPrecision == 16)
                         return m_UBin2;
                     else // must be dataPrecision == 15
                         return m_Bin2;
                 }
-                else
-                if (dataLength == 4)
+                else if (dataLength == 4)
                 {
                     if (dataPrecision == 32)
                         return m_UBin4;
@@ -324,7 +352,10 @@ class PcmlDocument extends PcmlDocRoot
                 }
                 else                                                // @C4A
                 { // must be datalength == 8                        // @C4A
-                    return m_Bin8;                                  // @C4A
+                    if (dataPrecision == 64)
+                        return m_UBin8;
+                    else // must be dataPrecision == 63
+                        return m_Bin8;
                 }                                                   // @C4A
 
             case PcmlData.PACKED:
@@ -381,11 +412,55 @@ class PcmlDocument extends PcmlDocRoot
 
                 }
 
+            case PcmlData.DATE:
+              if (dateFormat == null ||
+                  (dateFormat.equals("ISO") &&  // default date format
+                   (dateSeparator == null || dateSeparator.equals(DEFAULT_DATE_SEPARATOR))))
+              {
+                return m_Date;
+              }
+              else  // create a date converter
+              {
+                int format = AS400Date.toFormat(dateFormat);
+                // Note: The format value is validated in PcmlData.checkAttributes().
+                if (dateSeparator == null) {
+                  return new AS400Date(format); // assume the default separator
+                }
+                else
+                {  // Convert the separator name ('comma', 'hyphen', etc) to a character.
+                  return new AS400Date(format,separatorAsChar(dateSeparator));
+                }
+              }
+
+            case PcmlData.TIME:
+              if (timeFormat == null ||
+                  (timeFormat.equals("ISO") &&  // default time format
+                   (timeSeparator == null || timeSeparator.equals(DEFAULT_TIME_SEPARATOR))))
+              {
+                return m_Time;
+              }
+              else  // create a time converter
+              {
+                int format = AS400Time.toFormat(timeFormat);
+                // Note: The format value is validated in PcmlData.checkAttributes().
+                if (timeSeparator == null) {
+                  return new AS400Time(format); // assume the default separator
+                }
+                else
+                {  // Convert the separator name ('comma', 'hyphen', etc) to a character.
+                  return new AS400Time(format,separatorAsChar(timeSeparator));
+                }
+              }
+
+            case PcmlData.TIMESTAMP:
+              return m_Timestamp;
+
             default:
                 throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , "*"} );
 
         } // END: switch (getDataType())
     }
+
 
     /**
     */
@@ -692,7 +767,7 @@ class PcmlDocument extends PcmlDocRoot
         }
     }
 
-    // Add a Pcml specification error to the list of errors.
+    // Returns the Pcml specification error (if any).
     PcmlSpecificationException getPcmlSpecificationException()
     {
         return m_PcmlSpecificationException;
@@ -739,7 +814,7 @@ class PcmlDocument extends PcmlDocRoot
         // Start XPCML stream by writing out xpcml tag
  //       xmlFile.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");         // @A1c
         xmlFile.println("<?xml version=\"1.0\" ?>");
-        xmlFile.print("<xpcml version=" + "\"" + "4.0" +  "\"" );
+        xmlFile.print("<xpcml version=" + "\"" + "6.0" +  "\"" );
         xmlFile.print(XMLNS_STRING);
         // Add .xsd file to end of <xpcml tag
         if (getXsdName() != "")
@@ -1305,10 +1380,126 @@ class PcmlDocument extends PcmlDocRoot
                     }
                   }
                   break;
+
+               case PcmlData.DATE:
+                  if (  ((PcmlData) node).getXPCMLCount(dim) > 0 )
+                  {
+                    if (dimensions.at(current_dimension)== 0)
+                    {
+                        // Check if this is a user defined element
+                        if (node.getCondensedName() != "")
+                        {
+                            writer.print(indent);
+                            writer.print("<"+ node.getCondensedName());
+                            lastTag="arrayOfDateParm";
+                        }
+                        else
+                        {
+                            writer.print(indent);
+                            writer.print("<arrayOfDateParm");
+                            lastTag="arrayOfDateParm";
+                        }
+                    }
+                  }
+                  else
+                  {
+                     // Check if this is a user defined element
+                     if (node.getCondensedName() != "")
+                     {
+                         writer.print(indent);
+                         writer.print("<"+ node.getCondensedName());
+                         lastTag=node.getCondensedName();
+                     }
+                     else
+                     {
+                         writer.print(indent);
+                         writer.print("<dateParm");
+                         lastTag="dateParm";
+                     }
+                  }
+                  break;
+
+               case PcmlData.TIME:
+                  if (  ((PcmlData) node).getXPCMLCount(dim) > 0 )
+                  {
+                    if (dimensions.at(current_dimension)== 0)
+                    {
+                        // Check if this is a user defined element
+                        if (node.getCondensedName() != "")
+                        {
+                            writer.print(indent);
+                            writer.print("<"+ node.getCondensedName());
+                            lastTag="arrayOfTimeParm";
+                        }
+                        else
+                        {
+                            writer.print(indent);
+                            writer.print("<arrayOfTimeParm");
+                            lastTag="arrayOfTimeParm";
+                        }
+                    }
+                  }
+                  else
+                  {
+                     // Check if this is a user defined element
+                     if (node.getCondensedName() != "")
+                     {
+                         writer.print(indent);
+                         writer.print("<"+ node.getCondensedName());
+                         lastTag=node.getCondensedName();
+                     }
+                     else
+                     {
+                         writer.print(indent);
+                         writer.print("<timeParm");
+                         lastTag="timeParm";
+                     }
+                  }
+                  break;
+
+               case PcmlData.TIMESTAMP:
+                  if (  ((PcmlData) node).getXPCMLCount(dim) > 0 )
+                  {
+                    if (dimensions.at(current_dimension)== 0)
+                    {
+                        // Check if this is a user defined element
+                        if (node.getCondensedName() != "")
+                        {
+                            writer.print(indent);
+                            writer.print("<"+ node.getCondensedName());
+                            lastTag="arrayOfTimestampParm";
+                        }
+                        else
+                        {
+                            writer.print(indent);
+                            writer.print("<arrayOfTimestampParm");
+                            lastTag="arrayOfTimestampParm";
+                        }
+                    }
+                  }
+                  else
+                  {
+                     // Check if this is a user defined element
+                     if (node.getCondensedName() != "")
+                     {
+                         writer.print(indent);
+                         writer.print("<"+ node.getCondensedName());
+                         lastTag=node.getCondensedName();
+                     }
+                     else
+                     {
+                         writer.print(indent);
+                         writer.print("<timestampParm");
+                         lastTag="timestampParm";
+                     }
+                  }
+                  break;
+
                default:
                   throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , "*"} );
-            }
-        } else if (node.getNodeType()== PcmlNodeType.STRUCT)
+            } // switch(dataType)
+        }  // PcmlNodeType.DATA
+        else if (node.getNodeType()== PcmlNodeType.STRUCT)
           {
             if (  ((PcmlStruct) node).getXPCMLCount(dim) > 0 )
             {
@@ -1470,6 +1661,30 @@ class PcmlDocument extends PcmlDocRoot
                    {
                         // copy returnvalue to returnValue
                         writer.print(" " + "returnValue"  + "=\"" + node.getAttributeValue(attrs[i]) + "\"");
+                   }
+                   else if (attrs[i].equals("dateformat") && node.getAttributeValue("type") != null
+                        && node.getAttributeValue("type").equals("date"))
+                   {
+                        // copy dateformat to dateFormat
+                        writer.print(" " + "dateFormat"  + "=\"" + node.getAttributeValue(attrs[i]) + "\"");
+                   }
+                   else if (attrs[i].equals("dateseparator") && node.getAttributeValue("type") != null
+                        && node.getAttributeValue("type").equals("date"))
+                   {
+                        // copy dateseparator to dateSeparator
+                        writer.print(" " + "dateSeparator"  + "=\"" + node.getAttributeValue(attrs[i]) + "\"");
+                   }
+                   else if (attrs[i].equals("timeformat") && node.getAttributeValue("type") != null
+                        && node.getAttributeValue("type").equals("time"))
+                   {
+                        // copy timeformat to timeFormat
+                        writer.print(" " + "timeFormat"  + "=\"" + node.getAttributeValue(attrs[i]) + "\"");
+                   }
+                   else if (attrs[i].equals("timeseparator") && node.getAttributeValue("type") != null
+                        && node.getAttributeValue("type").equals("time"))
+                   {
+                        // copy timeseparator to timeSeparator
+                        writer.print(" " + "timeSeparator"  + "=\"" + node.getAttributeValue(attrs[i]) + "\"");
                    }
                    else
                    {
@@ -1883,10 +2098,83 @@ class PcmlDocument extends PcmlDocRoot
                      }
                   }
                   break;
+               case PcmlData.DATE:
+                  if (  ((PcmlData) node).getXPCMLCount(dim) <= 0 )
+                  {
+                     if (node.getCondensedName() != "")
+                        writer.print("</" + node.getCondensedName() + ">");
+                     else
+                        writer.print("</dateParm>");
+                  }
+                  else
+                  {
+                     // Processing multiples of the node.  Should end with </i
+                     writer.println( "  </i>");
+                     if (node.getCountReps() == 0)
+                     {
+                        if (node.getCondensedName() != "")
+                            writer.print("</" + node.getCondensedName() + ">");
+                        else
+                        {
+                           // All done with elements. Add end array tag
+                           writer.println( "</arrayOfDateParm>");
+                        }
+                     }
+                  }
+                  break;
+               case PcmlData.TIME:
+                  if (  ((PcmlData) node).getXPCMLCount(dim) <= 0 )
+                  {
+                     if (node.getCondensedName() != "")
+                        writer.print("</" + node.getCondensedName() + ">");
+                     else
+                        writer.print("</timeParm>");
+                  }
+                  else
+                  {
+                     // Processing multiples of the node.  Should end with </i
+                     writer.println( "  </i>");
+                     if (node.getCountReps() == 0)
+                     {
+                        if (node.getCondensedName() != "")
+                            writer.print("</" + node.getCondensedName() + ">");
+                        else
+                        {
+                           // All done with elements. Add end array tag
+                           writer.println( "</arrayOfTimeParm>");
+                        }
+                     }
+                  }
+                  break;
+               case PcmlData.TIMESTAMP:
+                  if (  ((PcmlData) node).getXPCMLCount(dim) <= 0 )
+                  {
+                     if (node.getCondensedName() != "")
+                        writer.print("</" + node.getCondensedName() + ">");
+                     else
+                        writer.print("</timestampParm>");
+                  }
+                  else
+                  {
+                     // Processing multiples of the node.  Should end with </i
+                     writer.println( "  </i>");
+                     if (node.getCountReps() == 0)
+                     {
+                        if (node.getCondensedName() != "")
+                            writer.print("</" + node.getCondensedName() + ">");
+                        else
+                        {
+                           // All done with elements. Add end array tag
+                           writer.println( "</arrayOfTimestampParm>");
+                        }
+                     }
+                  }
+                  break;
                default:
                   throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , "*"} );
-            }
-        } else if (node.getNodeType() == PcmlNodeType.STRUCT)
+            } // switch(dataType)
+        } // PcmlNodeType.DATA
+        else if (node.getNodeType() == PcmlNodeType.STRUCT)
         {
             writer.print(indent);
             if (  ((PcmlStruct) node).getXPCMLCount(dim) <= 0 )
@@ -1991,7 +2279,20 @@ class PcmlDocument extends PcmlDocRoot
                      strVal ="";
                      objVal = pcmlDocNode.getValue(node.getQualifiedName(), dimensions);
                      if (objVal != null)
-                       strVal = objVal.toString();
+                     {
+                       if (objVal instanceof java.sql.Date) {
+                         strVal = AS400Date.toXsdString(objVal);
+                       }
+                       else if (objVal instanceof java.sql.Time) {
+                         strVal = AS400Time.toXsdString(objVal);
+                       }
+                       else if (objVal instanceof java.sql.Timestamp) {
+                         strVal = AS400Timestamp.toXsdString(objVal);
+                       }
+                       else {
+                         strVal = objVal.toString();
+                       }
+                     }
                   }
                }
                catch (PcmlException e)
@@ -2008,11 +2309,14 @@ class PcmlDocument extends PcmlDocRoot
             {
                // Outputting an array element.  Check which type first
               if (lastTag.equals("arrayOfStringParm") || lastTag.equals("arrayOfIntParm") ||
-                  lastTag.equals("arrayOfLongParm") || lastTag.equals("arrayOfUnsignedIntParm") ||
+                  lastTag.equals("arrayOfLongParm") ||
+                  lastTag.equals("arrayOfUnsignedLongParm") || lastTag.equals("arrayOfUnsignedIntParm") ||
                   lastTag.equals("arrayOfShortParm") || lastTag.equals("arrayOfUnsignedShortParm") ||
                   lastTag.equals("arrayOfFloatParm") || lastTag.equals("arrayOfDoubleParm") ||
                   lastTag.equals("arrayOfZonedDecimalParm") || lastTag.equals("arrayOfPackedDecimalParm") ||
-                  lastTag.equals("arrayOfHexBinaryParm"))
+                  lastTag.equals("arrayOfHexBinaryParm") ||
+                  lastTag.equals("arrayOfDateParm") || lastTag.equals("arrayOfTimeParm") || lastTag.equals("arrayOfTimestampParm")
+                  )
                      writer.println(">");
               if (dimensions.at(current_dimension) > 0)
               {
@@ -2141,6 +2445,24 @@ class PcmlDocument extends PcmlDocRoot
                            writer.println("</" + node.getCondensedName() + ">");
                         else
                            writer.println("</arrayOfHexBinaryParm>");
+                        break;
+                 case PcmlData.DATE:
+                        if (node.getCondensedName() != "")
+                           writer.println("</" + node.getCondensedName() + ">");
+                        else
+                           writer.println("</arrayOfDateParm>");
+                        break;
+                 case PcmlData.TIME:
+                        if (node.getCondensedName() != "")
+                           writer.println("</" + node.getCondensedName() + ">");
+                        else
+                           writer.println("</arrayOfTimeParm>");
+                        break;
+                 case PcmlData.TIMESTAMP:
+                        if (node.getCondensedName() != "")
+                           writer.println("</" + node.getCondensedName() + ">");
+                        else
+                           writer.println("</arrayOfTimestampParm>");
                         break;
                  default: break;
                }

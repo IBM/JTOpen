@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -146,6 +147,20 @@ class RfmlRecordFormat extends PcmlDocNode
             {
               switch (fieldLength)
               {
+                case 1:
+                  if (precision == 8) { // Unsigned.
+                    fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin1(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(Short.valueOf(initValue));
+                    }
+                  }
+                  else { // Signed.
+                    fieldDesc = new BinaryFieldDescription(new AS400Bin1(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(Byte.valueOf(initValue));
+                    }
+                  }
+                  break;
                 case 2:
                   if (precision == 16) { // Unsigned.     @A1c - Swapped the if/else.
                     fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin2(), fieldName);
@@ -175,9 +190,17 @@ class RfmlRecordFormat extends PcmlDocNode
                   }
                   break;
                 case 8:
-                  fieldDesc = new BinaryFieldDescription(new AS400Bin8(), fieldName);
-                  if (initValue != null) {
-                    ((BinaryFieldDescription)fieldDesc).setDFT(Long.valueOf(initValue));
+                  if (precision == 64) { // Unsigned.
+                    fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin8(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(new BigInteger(initValue));
+                    }
+                  }
+                  else { // Signed.
+                    fieldDesc = new BinaryFieldDescription(new AS400Bin8(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(Long.valueOf(initValue));
+                    }
                   }
                   break;
                 default:
@@ -259,6 +282,49 @@ class RfmlRecordFormat extends PcmlDocNode
               break;
             }
 
+            // Node is <data type="date">.
+          case (PcmlData.DATE) :
+            {
+              String separatorName = dNode.getDateSeparator();
+              int format = AS400Date.toFormat(dNode.getDateFormat());
+              AS400Date convDate;
+              if (separatorName == null) convDate = new AS400Date(format);
+              else convDate = new AS400Date(format, separatorAsChar(separatorName));
+              fieldDesc = new DateFieldDescription(convDate, fieldName);
+              if (initValue != null) {
+                ((DateFieldDescription)fieldDesc).setDFT(initValue); ///TBD convert to format expected by DDS?
+              }
+              ///TBD: Also call setDATFMT(), setDATSEP() ???   --> toUpperCase()
+              break;
+            }
+
+            // Node is <data type="time">.
+          case (PcmlData.TIME) :
+            {
+              String separatorName = dNode.getTimeSeparator();
+              int format = AS400Time.toFormat(dNode.getTimeFormat());
+              AS400Time convTime;
+              if (separatorName == null) convTime = new AS400Time(format);
+              else convTime = new AS400Time(format, separatorAsChar(separatorName));
+              fieldDesc = new TimeFieldDescription(convTime, fieldName);
+              if (initValue != null) {
+                ((TimeFieldDescription)fieldDesc).setDFT(initValue); ///TBD convert to format expected by DDS?
+              }
+              ///TBD: Also call setTIMFMT(), setTIMSEP() ???   --> toUpperCase()
+              break;
+            }
+
+            // Node is <data type="timestamp">.
+          case (PcmlData.TIMESTAMP) :
+            {
+              AS400Timestamp convTimestamp = new AS400Timestamp();
+              fieldDesc = new TimestampFieldDescription(convTimestamp, fieldName);
+              if (initValue != null) {
+                ((TimestampFieldDescription)fieldDesc).setDFT(initValue); ///TBD convert to format expected by DDS?
+              }
+              break;
+            }
+
           default:
             Trace.log(Trace.ERROR, "Invalid data field type: " + dNode.getDataType());
             throw new InternalErrorException(InternalErrorException.UNKNOWN);
@@ -286,7 +352,7 @@ class RfmlRecordFormat extends PcmlDocNode
           // Print a warning if a count was specified.
           try {
             int count = dNode.getCount(noDimensions);
-            if (count != 1) {
+            if (count != 1 && count != 0) {
               Trace.log(Trace.WARNING, "Ignoring attribute 'count' ("+count+") for field " + qualifiedName);
             }
           }

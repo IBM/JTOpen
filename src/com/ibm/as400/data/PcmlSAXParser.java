@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2010 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@ import java.io.LineNumberReader;
 
 import java.util.Enumeration;
 import java.util.MissingResourceException;
+import java.util.HashSet;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -53,6 +54,8 @@ class PcmlSAXParser extends DefaultHandler
   private transient PcmlDocument m_rootNode;
   private transient PcmlDocNode  m_currentNode;
   private transient String       m_docName;
+  private transient XMLErrorHandler m_xh;
+  private transient boolean exceptionIfParseError_;
 
   // @E1A - New variables for XPCML.
   // @E1A - Hold current value of attributes
@@ -67,13 +70,13 @@ class PcmlSAXParser extends DefaultHandler
   // @E1A - initValue is used to keep track of XML data value for an element
   private String initValue="";               //@E1A
 
-  // @E1A -- isXPCML - is the document an XPCML doc vs a PCML doc?
-  private boolean isXPCML = false;                 //@E1A
+  // @E1A -- docIsXPCML - is the document an XPCML doc vs a PCML doc?
+  private boolean docIsXPCML = false;                 //@E1A
   //private String xsdStreamName;                    //@E1A     // Used to determine if this is first instance of this node or if its an array
   private boolean firstInstance=true;              //@E1A 
   /** xsd transformed as a byte array input and output stream **/
   ByteArrayOutputStream xmlOut = new ByteArrayOutputStream();
-  ByteArrayInputStream stream;
+  ByteArrayInputStream xmlIn;
 
   /** xsd file **/
   private InputStream xsdFileStream;
@@ -99,240 +102,29 @@ class PcmlSAXParser extends DefaultHandler
   private static final String DYNAMIC_VALIDATION_FEATURE_ID = "http://apache.org/xml/features/validation/dynamic";  //@E1A
 
 
-  /**
-  */
-  PcmlSAXParser(String docName, ClassLoader loader, InputStream xsdStream)             // @C2C @E0C @E1C
-  throws MissingResourceException, IOException, ParseException, PcmlSpecificationException,
-  FactoryConfigurationError, ParserConfigurationException, SAXException
-  {
-    m_rootNode = null;
-    m_currentNode = null;
-
-    String qualDocName;    // Potentially package qualified document name   @A2A
-
-    xsdFileStream = xsdStream;  // xsd stream holder @E1A
-
-    //xsdStreamName="";
+  private static HashSet knownTypes_ = null;
+  private static HashSet knownArrayTypes_ = null;
 
 
-    // initialize parsing vectors
-    curAttrs.add(0,new AttributesImpl());
-    curQName.add(0,"");
-
-    // Save the document name
-    if (docName.endsWith(".pcml") || docName.endsWith(".pcmlsrc") ||
-        docName.endsWith(".xpcml") || docName.endsWith(".xpcmlsrc"))      //@E1C
-    {
-      qualDocName = docName.substring(0, docName.lastIndexOf('.') );   // @A2C
-    }
-    else
-    {
-      qualDocName = docName;                                           // @A2C
-    }
-
-    m_docName = qualDocName.substring(qualDocName.lastIndexOf('.') + 1); // @A2A
-
-    // @E1A -- Changes for XPCML.  First find out if document is XPCML.  Then setup SequenceInputStream
-    // for PCML doc and BufferedInputStream for XPCML docs.
-    isXPCML = SystemResourceFinder.isXPCML(docName,loader);     //@E1A
-    InputStream isHeader=null, isPCML=null;                     //@E1A
-    SequenceInputStream sis=null;                               //@E1A
-    BufferedInputStream bis=null;                               //@E1A
-
-    try
-    {
-      // First check if xsd stream is valid if this is XPCML
-      if (isXPCML)
-      {
-        // Transform the xsd stream to a byte stream we can more easily read
-        if (xsdFileStream != null)
-        {
-          try
-          {
-            XPCMLHelper.doSimplifyXSDTransform(xsdFileStream, xmlOut);
-          }
-          catch (IOException e)
-          {
-            throw e;
-          }
-          catch (SAXException e)
-          {
-            throw e;
-          }
-
-          stream = new ByteArrayInputStream(xmlOut.toByteArray());
-          if (stream == null)
-            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
-        }
-      }
-
-      if (!isXPCML)                                               //@E1A
-      {
-        // Doc is a PCML document.  Do old processing...
-        // Open the PCML header document that contains the DTD
-        isHeader = SystemResourceFinder.getPCMLHeader();
-
-        // Now try to open the PCML file
-        isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
-        // Concatenate the two input streams
-        sis = new SequenceInputStream(isHeader, isPCML);
-
-      }
-      else                                                       //@E1A
-      {
-        // Doc is an XPCML document
-        // Now try to open the XPCML file
-        isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
-        // Concatenate the two input streams
-        bis = new BufferedInputStream(isPCML);                          //@E1A
-      }
-
-      // Instantiate our error listener
-      XMLErrorHandler xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
-
-      SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
-      factory.setValidating(true); //@E0A
-      factory.setNamespaceAware(false); //@E0A
-
-      // @E1A -- Set new features for XPCML
-      // set parser features
-      if (isXPCML)
-        setFeatures(factory);
-
-      SAXParser parser = factory.newSAXParser(); //@E0A
-      //@E0D        SAXParser parser = new SAXParser();                                         // @C2C
-      //@E0D        try {                                                                       // @C2A
-      //@E0D            parser.setFeature("http://xml.org/sax/features/validation", true);      // @C2A
-      //@E0D            parser.setFeature( "http://xml.org/sax/features/namespaces", false );   // @C2A
-      //@E0D        } catch (org.xml.sax.SAXException se) {                                     // @C2A
-      //@E0D        }
-      //@E0D        parser.setErrorHandler(xh);
-      //@E0D        parser.setDocumentHandler(this);                                            // @C3C
-
-      // Create an InputSource for passing to the parser.
-      // Wrap any SAXExceptions as ParseExceptions.
-      try
-      {
-        XMLReader reader = parser.getXMLReader(); //@E0A
-        reader.setErrorHandler(xh); //@E0A
-
-        //@E1A -- New for XPCML.  Need to do slightly different processing for XPCML vs PCML docs
-        // Create the proper input source depending on the doc type and then parse the document
-        if (!isXPCML)      // @E1A -- PCML document
-        {
-          parser.parse(new InputSource(sis), this); //@E0C
-          // Close the input stream
-          sis.close();
-          sis = null;
-        }
-        else
-        {
-          parser.parse(new InputSource(bis),this); //@E0C
-          // Close the input stream
-          bis.close();
-          bis = null;
-        }
-      }
-      catch (SAXException e)
-      {
-        Trace.log(Trace.PCML, e);
-        ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
-        pe.addMessage(e.getMessage());
-        throw pe;
-      }
-
-      // Close the input stream -- @E1C - moved to above
-      //@E1D        sis.close();
-      //@E1D        sis = null;
-      if (isPCML != null) {
-        isPCML.close();
-        isPCML = null;
-      }
-
-      // Check for errors
-      ParseException exc = xh.getException();
-      if (exc != null)
-      {
-        exc.reportErrors();
-        throw exc;
-      }
-
-      // Recursively walk the document tree and augment the tree with
-      // cloned subtrees for <data type="struct"> nodes.
-      augmentTree(m_rootNode, new Stack());
-
-      // Perform post-parsing attribute checking.
-      // Recursively walk the document tree and ask each node
-      // to verify all attributes.
-      // Note that this phase must be performed after the document is completely
-      // parsed because some attributes (length=, count=, etc.) make reference
-      // to named document elements occuring later in the document.
-
-      checkAttributes(m_rootNode);
-
-      // Copy in values from augmented nodes
-      try
-      {
-        if (isXPCML)
-          m_rootNode.copyValues(m_rootNode, m_rootNode);
-      }
-      catch (XmlException e)
-      {
-        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs.", e);
-        throw new SAXException(e);
-      }
-
-      if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
-      {
-        PcmlSpecificationException e = m_rootNode.getPcmlSpecificationException();
-        e.printStackTrace();
-        throw m_rootNode.getPcmlSpecificationException();
-      }
-    }
-    finally
-    {
-      if (isHeader != null) {
-        try { isHeader.close(); }
-        catch (Exception e) { Trace.log(Trace.WARNING, e); }
-      }
-      if (isPCML != null) {
-        try { isPCML.close(); }
-        catch (Exception e) { Trace.log(Trace.WARNING, e); }
-      }
-      if (sis != null) {
-        try { sis.close(); }
-        catch (Exception e) { Trace.log(Trace.WARNING, e); }
-      }
-      if (bis != null) {
-        try { bis.close(); }
-        catch (Exception e) { Trace.log(Trace.WARNING, e); }
-      }
-    }
-  }
-
-
-  PcmlSAXParser(String docName, InputStream docStream, ClassLoader loader, InputStream xsdStream, boolean isXPCML)
+  PcmlSAXParser(String docName, InputStream docStream, InputStream xsdStream, boolean docIsXPCML, boolean exceptionIfParseError)
       throws MissingResourceException, IOException, ParseException, PcmlSpecificationException,
       FactoryConfigurationError, ParserConfigurationException, SAXException
   {
     m_rootNode = null;
     m_currentNode = null;
+    exceptionIfParseError_ = exceptionIfParseError;
 
     String qualDocName;    // Potentially package qualified document name   @A2A
 
     xsdFileStream = xsdStream;  // xsd stream holder @E1A
 
-    //xsdStreamName="";
-
-    this.isXPCML = isXPCML;         // Fix for JTOpen Bug 1778759 - set the global isXPCML variable
+    this.docIsXPCML = docIsXPCML;         // Fix for JTOpen Bug 1778759 - set the global docIsXPCML variable
 
     // initialize parsing vectors
     curAttrs.add(0,new AttributesImpl());
     curQName.add(0,"");
 
-    // Save the document name
+    // Save the document name (strip the suffix if present)
     if (docName.endsWith(".pcml") || docName.endsWith(".pcmlsrc") ||
         docName.endsWith(".xpcml") || docName.endsWith(".xpcmlsrc"))      //@E1C
     {
@@ -346,16 +138,13 @@ class PcmlSAXParser extends DefaultHandler
     m_docName = qualDocName.substring(qualDocName.lastIndexOf('.') + 1); // @A2A
 
     // @E1A -- Changes for XPCML.  First find out if document is XPCML.  Then setup SequenceInputStream
-    // for PCML doc and BufferedInputStream for XPCML docs.
-    //    isXPCML = SystemResourceFinder.isXPCML(docName,loader);     //@E1A
     InputStream isHeader=null;                       //@E1A
-    SequenceInputStream sis=null;                               //@E1A
-    BufferedInputStream bis=null;                               //@E1A
+    InputStream instream = null;
 
     try
     {
       // First check if xsd stream is valid if this is XPCML
-      if (isXPCML)
+      if (docIsXPCML)
       {
         // Transform the xsd stream to a byte stream we can more easily read
         if (xsdFileStream != null)
@@ -373,39 +162,29 @@ class PcmlSAXParser extends DefaultHandler
             throw e;
           }
 
-          stream = new ByteArrayInputStream(xmlOut.toByteArray());
-          if (stream == null)
+          xmlIn = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (xmlIn == null)
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
         }
+
+        // Doc is an XPCML document
+        // Now try to open the XPCML file
+        instream = new BufferedInputStream(docStream);
       }
 
-      if (!isXPCML)                                               //@E1A
+      else  // doc is PCML                                              //@E1A
       {
         // Doc is a PCML document.  Do old processing...
         // Open the PCML header document that contains the DTD
         isHeader = SystemResourceFinder.getPCMLHeader();
 
-        // Now try to open the PCML file
-//      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
         // Concatenate the two input streams
-//      sis = new SequenceInputStream(isHeader, isPCML);
-        sis = new SequenceInputStream(isHeader, docStream);
+        instream = new SequenceInputStream(isHeader, docStream);
 
-      }
-      else                                                       //@E1A
-      {
-        // Doc is an XPCML document
-        // Now try to open the XPCML file
-//      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
-        // Concatenate the two input streams
-//      bis = new BufferedInputStream(isPCML);                          //@E1A
-        bis = new BufferedInputStream(docStream);
       }
 
       // Instantiate our error listener
-      XMLErrorHandler xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
+      m_xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
 
       SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
       factory.setValidating(true); //@E0A
@@ -413,7 +192,7 @@ class PcmlSAXParser extends DefaultHandler
 
       // @E1A -- Set new features for XPCML
       // set parser features
-      if (isXPCML)
+      if (docIsXPCML)
         setFeatures(factory);
 
       SAXParser parser = factory.newSAXParser(); //@E0A
@@ -431,24 +210,13 @@ class PcmlSAXParser extends DefaultHandler
       try
       {
         XMLReader reader = parser.getXMLReader(); //@E0A
-        reader.setErrorHandler(xh); //@E0A
+        reader.setErrorHandler(m_xh); //@E0A
 
-        //@E1A -- New for XPCML.  Need to do slightly different processing for XPCML vs PCML docs
-        // Create the proper input source depending on the doc type and then parse the document
-        if (!isXPCML)      // @E1A -- PCML document
-        {
-          parser.parse(new InputSource(sis), this); //@E0C
-          // Close the input stream
-          sis.close();
-          sis = null;
-        }
-        else
-        {
-          parser.parse(new InputSource(bis),this); //@E0C
-          // Close the input stream
-          bis.close();
-          bis = null;
-        }
+        parser.parse(new InputSource(instream), this); //@E0C
+        // Close the input stream
+        instream.close();
+        instream = null;
+
       }
       catch (SAXException e)
       {
@@ -458,16 +226,8 @@ class PcmlSAXParser extends DefaultHandler
         throw pe;
       }
 
-      // Close the input stream -- @E1C - moved to above
-      //@E1D        sis.close();
-      //@E1D        sis = null;
-      //if (isPCML != null) {
-      //  isPCML.close();
-      //  isPCML = null;
-      //}
-
       // Check for errors
-      ParseException exc = xh.getException();
+      ParseException exc = m_xh.getException();
       if (exc != null)
       {
         exc.reportErrors();
@@ -490,38 +250,27 @@ class PcmlSAXParser extends DefaultHandler
       // Copy in values from augmented nodes
       try
       {
-        if (isXPCML)
+        if (docIsXPCML)
           m_rootNode.copyValues(m_rootNode, m_rootNode);
       }
       catch (XmlException e)
       {
-        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs.", e);
+        Trace.log(Trace.PCML, "All data values may not have been copied to struct parm refs.", e);
         throw new SAXException(e);
       }
 
       if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
       {
-        PcmlSpecificationException e = m_rootNode.getPcmlSpecificationException();
-        e.printStackTrace();
         throw m_rootNode.getPcmlSpecificationException();
       }
     }
     finally
     {
       if (isHeader != null) {
-        try { isHeader.close(); }
-        catch (Exception e) { Trace.log(Trace.WARNING, e); }
+        try { isHeader.close(); } catch (Exception e) {};
       }
-      //if (isPCML != null) {
-      //  try { isPCML.close(); } catch (Exception e) {};
-      //}
-      if (sis != null) {
-        try { sis.close(); }
-        catch (Exception e) { Trace.log(Trace.WARNING, e); }
-      }
-      if (bis != null) {
-        try { bis.close(); }
-        catch (Exception e) { Trace.log(Trace.WARNING, e); }
+      if (instream != null) {
+        try { instream.close(); } catch (Exception e) {};
       }
     }
   }
@@ -710,7 +459,7 @@ class PcmlSAXParser extends DefaultHandler
     initValue="";
 
 
-    if (!isXPCML)    // Copy old PCML code exactly - do not change!!!
+    if (!docIsXPCML)    // Copy old PCML code exactly - do not change
     {
       // Create a PcmlAttributeList to hold all the
       // attributes for this node.
@@ -741,8 +490,19 @@ class PcmlSAXParser extends DefaultHandler
       }
       else
       {
-        newNode = null; // Unrecognized tag name chould never happen
-        // if the tags parse successfully
+        newNode = null;
+        // Unrecognized tag name should never happen, if the tags parse successfully.
+        if (m_rootNode != null)
+        {
+          m_rootNode.addPcmlSpecificationError(DAMRI.BAD_TAG, new Object[] {tagName, getBracketedTagName(tagName)} );
+        }
+        else  // we haven't established a root node yet
+        {
+          // This method has no 'throws' clause in its signature.
+          // Therefore, to report the error and terminate processing, we have no choice but to throw a RuntimeException.
+          PcmlSpecificationException pse = new PcmlSpecificationException(SystemResourceFinder.format(DAMRI.BAD_TAG, new Object[] {tagName, getBracketedTagName(tagName)}));
+          throw new RuntimeException(pse);
+        }
       }
 
       if (newNode != null)
@@ -760,31 +520,22 @@ class PcmlSAXParser extends DefaultHandler
       }
     }
 
-    if (isXPCML)
+    if (docIsXPCML)
     {
       if (xsdFileStream != null)
       {
 
         // Check if this is a user defined element. If so, convert to equivalent XPCML element
-        if (!qName.equals("xpcml") && !qName.equals("program")  && !qName.equals("parameterList") && !qName.equals("struct") &&
-            !qName.equals("stringParm") && !qName.equals("intParm") && !qName.equals("shortParm") &&
-            !qName.equals("longParm") && !qName.equals("zonedDecimalParm") && !qName.equals("floatParm") &&
-            !qName.equals("packedDecimalParm") && !qName.equals("doubleParm") && !qName.equals("structParm") &&
-            !qName.equals("hexBinaryParm" ) && !qName.equals("unsignedIntParm") && !qName.equals("unsignedShortParm") &&
-            !qName.equals("arrayOfStringParm") && !qName.equals("arrayOfIntParm") && !qName.equals("arrayOfShortParm") &&
-            !qName.equals("arrayOfLongParm") && !qName.equals("arrayOfZonedDecimalParm") && !qName.equals("arrayOfFloatParm") &&
-            !qName.equals("arrayOfPackedDecimalParm") && !qName.equals("arrayOfDoubleParm") && !qName.equals("arrayOfStructParm") &&
-            !qName.equals("arrayOfHexBinaryParm" ) && !qName.equals("arrayOfUnsignedIntParm") &&
-            !qName.equals("arrayOfUnsignedShortParm") && !qName.equals("arrayOfStruct"))
+        if (!getKnownTypes().contains(qName))
         {
           // User defined parameter.  Need to find it in XSD stream.
           uDefinedQName=true;
-          ByteArrayInputStream stream = new ByteArrayInputStream(xmlOut.toByteArray());
-          if (stream == null)
+          ByteArrayInputStream xmlIn = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (xmlIn == null)
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
 
           // Cache the line count of the header
-          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
+          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(xmlIn));
           try
           {
             String line;
@@ -796,151 +547,211 @@ class PcmlSAXParser extends DefaultHandler
               {
                 if (line.indexOf("parm type=string") != -1)
                 {
-                  // String parm found!!!
+                  // String parm found
                   equivQName = "stringParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=int") != -1)
                 {
-                  // Int parm found!!!
+                  // Int parm found
                   equivQName="intParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=uint") != -1)
                 {
-                  // Unsigned Int parm found!!!
+                  // Unsigned Int parm found
                   equivQName="unsignedIntParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=hexBinary") != -1)
                 {
-                  // hexBinary parm found!!!
+                  // hexBinary parm found
                   equivQName="hexBinaryParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=byte") != -1)
+                {
+                  // Byte parm found
+                  equivQName="byteParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=ubyte") != -1)
+                {
+                  // Unsigned Byte parm found
+                  equivQName="unsignedByteParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=short") != -1)
                 {
-                  // Short parm found!!!
+                  // Short parm found
                   equivQName="shortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=ushort") != -1)
                 {
-                  // Unsigned Short parm found!!!
+                  // Unsigned Short parm found
                   equivQName="unsignedShortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=long") != -1)
                 {
-                  // Long parm found!!!
+                  // Long parm found
                   equivQName="longParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=ulong") != -1)
+                {
+                  // Unsigned Long parm found
+                  equivQName="unsignedLongParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=float") != -1)
                 {
-                  // Float parm found!!!
+                  // Float parm found
                   equivQName="floatParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=double") != -1)
                 {
-                  // Double parm found!!!
+                  // Double parm found
                   equivQName="doubleParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=packed") != -1)
                 {
-                  // Packed parm found!!!
+                  // Packed parm found
                   equivQName="packedDecimalParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=zoned") != -1)
                 {
-                  // Zoned parm found!!!
+                  // Zoned parm found
                   equivQName="zonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=date") != -1)
+                {
+                  // Date parm found
+                  equivQName="dateParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=time") != -1)
+                {
+                  // Time parm found
+                  equivQName="timeParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=timestamp") != -1)
+                {
+                  // Timestamp parm found
+                  equivQName="timestampParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=structParm") != -1)
                 {
-                  // Struct parm found!!!
+                  // Struct parm found
                   equivQName="structParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfString") != -1)
                 {
-                  // String parm found!!!
+                  // String parm found
                   equivQName = "arrayOfStringParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfInt") != -1)
                 {
-                  // Int parm found!!!
+                  // Int parm found
                   equivQName="arrayOfIntParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfUInt") != -1)
                 {
-                  // Unsigned Int parm found!!!
+                  // Unsigned Int parm found
                   equivQName="arrayOfUnsignedIntParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfHexBinary") != -1)
                 {
-                  // hexBinary parm found!!!
+                  // hexBinary parm found
                   equivQName="arrayOfHexBinaryParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfShort") != -1)
                 {
-                  // Short parm found!!!
+                  // Short parm found
                   equivQName="arrayOfShortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfUShort") != -1)
                 {
-                  // Unsigned Short parm found!!!
+                  // Unsigned Short parm found
                   equivQName="arrayOfUnsignedShortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfLong") != -1)
                 {
-                  // Long parm found!!!
+                  // Long parm found
                   equivQName="arrayOfLongParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfULong") != -1)
+                {
+                  // Unsigned Long parm found
+                  equivQName="arrayOfUnsignedLongParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfFloat") != -1)
                 {
-                  // Float parm found!!!
+                  // Float parm found
                   equivQName="arrayOfFloatParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfDouble") != -1)
                 {
-                  // Double parm found!!!
+                  // Double parm found
                   equivQName="arrayOfDoubleParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfPacked") != -1)
                 {
-                  // Packed parm found!!!
+                  // Packed parm found
                   equivQName="arrayOfPackedDecimalParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfZoned") != -1)
                 {
-                  // Zoned parm found!!!
+                  // Zoned parm found
                   equivQName="arrayOfZonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfDate") != -1)
+                {
+                  // Date parm found
+                  equivQName="arrayOfDateParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfTime") != -1)
+                {
+                  // Time parm found
+                  equivQName="arrayOfTimeParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfTimestamp") != -1)
+                {
+                  // Timestamp parm found
+                  equivQName="arrayOfTimestampParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfStructParm") != -1)
                 {
-                  // Struct parm found!!!
+                  // Struct parm found
                   equivQName="arrayOfStructParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=structArray") != -1)
                 {
-                  // Struct found!!!
+                  // Struct found
                   equivQName="arrayOfStruct";
                   found=true;
                 }
@@ -988,13 +799,7 @@ class PcmlSAXParser extends DefaultHandler
         }
       }  // end if xsdStream not null
 
-      if (equivQName.equals("arrayOfStringParm") || equivQName.equals("arrayOfStructParm") ||
-          equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfShortParm") ||
-          equivQName.equals("arrayOfUnsignedIntParm") || equivQName.equals("arrayOfUnsignedShortParm") ||
-          equivQName.equals("arrayOfLongParm") || equivQName.equals("arrayOfFloatParm") ||
-          equivQName.equals("arrayOfDoubleParm") || equivQName.equals("arrayOfZonedDecimalParm") ||
-          equivQName.equals("arrayOfPackedDecimalParm") || equivQName.equals("arrayOfHexBinaryParm") ||
-          equivQName.equals("arrayOfStruct"))
+      if (!getKnownArrayTypes().contains(equivQName))
       {
         curDim++;
 
@@ -1201,11 +1006,40 @@ class PcmlSAXParser extends DefaultHandler
                                                   "",
                                                   (true | false)) );
           }
+          else if (curList.getQName(attr).equals("dateFormat"))
+          {
+            attrs.addAttribute( new PcmlAttribute("dateformat",
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("dateSeparator"))
+          {
+            attrs.addAttribute( new PcmlAttribute("dateseparator",
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("timeFormat"))
+          {
+            attrs.addAttribute( new PcmlAttribute("timeformat",
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("timeSeparator"))
+          {
+            attrs.addAttribute( new PcmlAttribute("timeseparator",
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          // Note: This 'else if' clause needs to be the last one in the sequence.
           else if (!qName.equals("xpcml") || (qName.equals("xpcml") && curList.getQName(attr).equals("version")))
           {
             attrs.addAttribute( new PcmlAttribute(curList.getQName(attr),   // @C3C @E0C
                                                   curList.getValue(attr),
                                                   (true | false)) );
+          }
+          else
+          {
+            //System.out.println("Unrecognized attr: |" + curList.getQName(attr) + "|");
           }
         } // end for loop
 
@@ -1301,6 +1135,39 @@ class PcmlSAXParser extends DefaultHandler
           if (uDefinedQName)
             newNode.setCondensedName(qName);
         }
+        else if (equivQName.equals("byteParm") || equivQName.equals("arrayOfByteParm"))
+        {
+          attrs.addAttribute( new PcmlAttribute("type",
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",
+                                                "1",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("unsignedByteParm") || equivQName.equals("arrayOfUnsignedByteParm"))
+        {
+          attrs.addAttribute( new PcmlAttribute("type",
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",
+                                                "1",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("precision",
+                                                "8",
+                                                (true | false)) );
+
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
         else if (equivQName.equals("shortParm") || equivQName.equals("arrayOfShortParm"))                   //@E1A
         {
           attrs.addAttribute( new PcmlAttribute("type",   // @E1A
@@ -1343,6 +1210,25 @@ class PcmlSAXParser extends DefaultHandler
           attrs.addAttribute( new PcmlAttribute("length",   // @E1A
                                                 "8",
                                                 (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("unsignedLongParm") || equivQName.equals("arrayOfUnsignedLongParm"))
+        {
+          attrs.addAttribute( new PcmlAttribute("type",
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",
+                                                "8",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("precision",
+                                                "64",
+                                                (true | false)) );
+
           newNode = new PcmlData(attrs);
           // Check if this is a user-defined element. Update field in docNode if so
           if (uDefinedQName)
@@ -1398,6 +1284,36 @@ class PcmlSAXParser extends DefaultHandler
           if (uDefinedQName)
             newNode.setCondensedName(qName);
         }
+        else if (equivQName.equals("dateParm") || equivQName.equals("arrayOfDateParm"))
+        {
+          attrs.addAttribute( new PcmlAttribute("type",
+                                                "date",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("timeParm") || equivQName.equals("arrayOfTimeParm"))
+        {
+          attrs.addAttribute( new PcmlAttribute("type",
+                                                "time",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("timestampParm") || equivQName.equals("arrayOfTimestampParm"))
+        {
+          attrs.addAttribute( new PcmlAttribute("type",
+                                                "timestamp",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
         else if (equivQName.equals("structParm"))    //@E1A
         {
           attrs.addAttribute( new PcmlAttribute("type",   // @E1A
@@ -1410,8 +1326,8 @@ class PcmlSAXParser extends DefaultHandler
         }
         else
         {
-          newNode = null;   // Unrecognized tag name chould never happen
-                            // if the tags parse successfully
+          // Unrecognized tag name should never happen, if the tags parse successfully
+          newNode = null;
         }
 
         if (newNode != null)
@@ -1464,7 +1380,7 @@ class PcmlSAXParser extends DefaultHandler
           m_currentNode = (PcmlDocNode) child;
         }
       }
-    } // end isXPCML
+    } // end docIsXPCML
 
   }
 
@@ -1475,17 +1391,16 @@ class PcmlSAXParser extends DefaultHandler
   /** passed in on input.                                  */
   public void characters(char ch[], int start, int length) throws SAXException {
 
-    if (m_currentNode.getNodeType() == PcmlNodeType.DATA && !m_currentNode.getAttributeValue("type").equals("struct"))    //@E1A
+    if (m_currentNode != null &&
+        m_currentNode.getNodeType() == PcmlNodeType.DATA &&
+        (m_currentNode.getAttributeValue("type") == null ||
+         !m_currentNode.getAttributeValue("type").equals("struct")))    //@E1A
     {
       //@E1A
       String str = new String(ch,start,length);                                 //@E1A
 
       // Set the value based on the dimensions
-      if (!lastQName.equals("arrayOfStringParm") && !lastQName.equals("arrayOfIntParm") && !lastQName.equals("arrayOfShortParm") &&
-          !lastQName.equals("arrayOfLongParm") && !lastQName.equals("arrayOfZonedDecimalParm") && !lastQName.equals("arrayOfFloatParm") &&
-          !lastQName.equals("arrayOfPackedDecimalParm") && !lastQName.equals("arrayOfDoubleParm") && !lastQName.equals("arrayOfStructParm") &&
-          !lastQName.equals("arrayOfHexBinaryParm" ) && !lastQName.equals("arrayOfUnsignedIntParm") &&
-          !lastQName.equals("arrayOfUnsignedShortParm") && !lastQName.equals("arrayOfStruct"))
+      if (!getKnownArrayTypes().contains(lastQName))
       {
         // Concatenate to current value of init
         //             if (str.trim().length() > 0)
@@ -1539,7 +1454,7 @@ class PcmlSAXParser extends DefaultHandler
         }
         catch (Exception e)
         {
-          Trace.log(Trace.PCML,"Exception when doing setValue", e);
+          Trace.log(Trace.PCML,"Exception when doing setValue.", e);
           Trace.log(Trace.PCML,"current node=" + m_currentNode.getQualifiedName());
           Trace.log(Trace.PCML,"initial value=" + initValue + "..");
           try
@@ -1548,8 +1463,8 @@ class PcmlSAXParser extends DefaultHandler
           }
           catch (Exception e1)
           {
-            Trace.log(Trace.PCML,"Exception due to length not being set when doing setValue", e1);
-            Trace.log(Trace.PCML,"setValue not done but init attribute set");
+            Trace.log(Trace.PCML,"Exception due to length not being set when doing setValue.", e);
+            Trace.log(Trace.PCML,"setValue not done but init attribute set.");
             return;
           }
           throw new SAXException(e);
@@ -1565,33 +1480,24 @@ class PcmlSAXParser extends DefaultHandler
     String equivQName=qName;
     boolean uDefinedQName=false;
 
-    if (!isXPCML)
+    if (!docIsXPCML)
       m_currentNode = (PcmlDocNode) m_currentNode.getParent();
 
-    if (isXPCML)
+    if (docIsXPCML)
     {
       if (xsdFileStream != null)
       {
         // Check if this is a user defined element. If so, convert to equivalent XPCML element
-        if (!qName.equals("program")  && !qName.equals("parameterList") && !qName.equals("struct") &&
-            !qName.equals("stringParm") && !qName.equals("intParm") && !qName.equals("shortParm") &&
-            !qName.equals("longParm") && !qName.equals("zonedDecimalParm") && !qName.equals("floatParm") &&
-            !qName.equals("packedDecimalParm") && !qName.equals("doubleParm") && !qName.equals("structParm") &&
-            !qName.equals("hexBinaryParm" ) && !qName.equals("unsignedIntParm") && !qName.equals("unsignedShortParm") &&
-            !qName.equals("arrayOfStringParm") && !qName.equals("arrayOfIntParm") && !qName.equals("arrayOfShortParm") &&
-            !qName.equals("arrayOfLongParm") && !qName.equals("arrayOfZonedDecimalParm") && !qName.equals("arrayOfFloatParm") &&
-            !qName.equals("arrayOfPackedDecimalParm") && !qName.equals("arrayOfDoubleParm") && !qName.equals("arrayOfStructParm") &&
-            !qName.equals("arrayOfHexBinaryParm" ) && !qName.equals("arrayOfUnsignedIntParm") &&
-            !qName.equals("arrayOfUnsignedShortParm") && !qName.equals("arrayOfStruct"))
+        if (!getKnownTypes().contains(qName))
         {
           // User defined parameter.  Need to find it in XSD stream.
           uDefinedQName=true;
-          ByteArrayInputStream stream = new ByteArrayInputStream(xmlOut.toByteArray());
-          if (stream == null)
+          ByteArrayInputStream xmlIn = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (xmlIn == null)
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
 
           // Cache the line count of the header
-          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
+          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(xmlIn));
           try
           {
             String line = lnr.readLine();
@@ -1602,157 +1508,230 @@ class PcmlSAXParser extends DefaultHandler
               {
                 if (line.indexOf("parm type=string") != -1)
                 {
-                  // String parm found!!!
+                  // String parm found
                   equivQName = "stringParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=int") != -1)
                 {
-                  // Int parm found!!!
+                  // Int parm found
                   equivQName="intParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=uint") != -1)
                 {
-                  // Unsigned Int parm found!!!
+                  // Unsigned Int parm found
                   equivQName="unsignedIntParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=hexBinary") != -1)
                 {
-                  // hexBinary parm found!!!
+                  // hexBinary parm found
                   equivQName="hexBinaryParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=byte") != -1)
+                {
+                  // byte parm found
+                  equivQName="byteParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=ubyte") != -1)
+                {
+                  // Unsigned Byte parm found
+                  equivQName="unsignedByteParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=short") != -1)
                 {
-                  // Short parm found!!!
+                  // Short parm found
                   equivQName="shortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=ushort") != -1)
                 {
-                  // Unsigned Short parm found!!!
+                  // Unsigned Short parm found
                   equivQName="unsignedShortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=long") != -1)
                 {
-                  // Long parm found!!!
+                  // Long parm found
                   equivQName="longParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=ulong") != -1)
+                {
+                  // Unsigned Long parm found
+                  equivQName="unsignedLongParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=float") != -1)
                 {
-                  // Float parm found!!!
+                  // Float parm found
                   equivQName="floatParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=double") != -1)
                 {
-                  // Double parm found!!!
+                  // Double parm found
                   equivQName="doubleParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=packed") != -1)
                 {
-                  // Packed parm found!!!
+                  // Packed parm found
                   equivQName="packedDecimalParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=zoned") != -1)
                 {
-                  // Zoned parm found!!!
+                  // Zoned parm found
                   equivQName="zonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=date") != -1)
+                {
+                  // Date parm found
+                  equivQName="dateParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=time") != -1)
+                {
+                  // Time parm found
+                  equivQName="timeParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=timestamp") != -1)
+                {
+                  // Timestamp parm found
+                  equivQName="timestampParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=structParm") != -1)
                 {
-                  // Struct parm found!!!
+                  // Struct parm found
                   equivQName="structParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfString") != -1)
                 {
-                  // String parm found!!!
+                  // String parm found
                   equivQName = "arrayOfStringParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfInt") != -1)
                 {
-                  // Int parm found!!!
+                  // Int parm found
                   equivQName="arrayOfIntParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfUInt") != -1)
                 {
-                  // Unsigned Int parm found!!!
+                  // Unsigned Int parm found
                   equivQName="arrayOfUnsignedIntParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfHexBinary") != -1)
                 {
-                  // hexBinary parm found!!!
+                  // hexBinary parm found
                   equivQName="arrayOfHexBinaryParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfByte") != -1)
+                {
+                  // Byte parm found
+                  equivQName="arrayOfByteParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfUByte") != -1)
+                {
+                  // Unsigned Byte parm found
+                  equivQName="arrayOfUnsignedByteParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfShort") != -1)
                 {
-                  // Short parm found!!!
+                  // Short parm found
                   equivQName="arrayOfShortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfUShort") != -1)
                 {
-                  // Unsigned Short parm found!!!
+                  // Unsigned Short parm found
                   equivQName="arrayOfUnsignedShortParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfLong") != -1)
                 {
-                  // Long parm found!!!
+                  // Long parm found
                   equivQName="arrayOfLongParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfULong") != -1)
+                {
+                  // Unsigned Long parm found
+                  equivQName="arrayOfUnsignedLongParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfFloat") != -1)
                 {
-                  // Float parm found!!!
+                  // Float parm found
                   equivQName="arrayOfFloatParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfDouble") != -1)
                 {
-                  // Double parm found!!!
+                  // Double parm found
                   equivQName="arrayOfDoubleParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfPacked") != -1)
                 {
-                  // Packed parm found!!!
+                  // Packed parm found
                   equivQName="arrayOfPackedDecimalParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfZoned") != -1)
                 {
-                  // Zoned parm found!!!
+                  // Zoned parm found
                   equivQName="arrayOfZonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfDate") != -1)
+                {
+                  // Date parm found
+                  equivQName="arrayOfDateParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfTime") != -1)
+                {
+                  // Time parm found
+                  equivQName="arrayOfTimeParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfTimestamp") != -1)
+                {
+                  // Timestamp parm found
+                  equivQName="arrayOfTimestampParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=arrayOfStructParm") != -1)
                 {
-                  // Struct parm found!!!
+                  // Struct parm found
                   equivQName="arrayOfStructParm";
                   found=true;
                 }
                 else if (line.indexOf("parm type=structArray") != -1)
                 {
-                  // Struct parm found!!!
+                  // Struct parm found
                   equivQName="arrayOfStruct";
                   found=true;
                 }
                 {
                   // Should never reach here.  Should get parse error if invalid type passed in
                   // What should I do here?
+                  Trace.log(Trace.PCML,"Error parsing xsd stream in endElement:", line);
                 }
               }
               line=lnr.readLine();
@@ -1760,7 +1739,7 @@ class PcmlSAXParser extends DefaultHandler
           }
           catch (IOException e)
           {
-            Trace.log(Trace.PCML,"Error reading xsd stream in endElement", e);
+            Trace.log(Trace.PCML,"Error reading xsd stream in endElement.", e);
           }
         }
       }
@@ -1770,18 +1749,19 @@ class PcmlSAXParser extends DefaultHandler
         m_currentNode = (PcmlDocNode) m_currentNode.getParent();
 
       // Backing up tree.  Reset dimensions and current dimension
-      if (equivQName.equals("arrayOfStructParm") || equivQName.equals("arrayOfStringParm")  ||
-          equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfUnsignedIntParm") ||
-          equivQName.equals("arrayOfShortParm") || equivQName.equals("arrayOfUnsignedShortParm") ||
-          equivQName.equals("arrayOfLongParm") || equivQName.equals("arrayOfFloatParm")   ||
-          equivQName.equals("arrayOfDoubleParm") || equivQName.equals("arrayOfHexBinaryParm") ||
-          equivQName.equals("arrayOfZonedDecimalParm") || equivQName.equals("arrayOfPackedDecimalParm") ||
-          equivQName.equals("arrayOfStruct"))
+      if (!getKnownArrayTypes().contains(equivQName))
       {
         dimensions.set(curDim, 0); //reset
         curDim--;
       }
-    }  // end if isXPCML
+    }  // end if docIsXPCML
+  }
+
+
+  // Returns a string containing the tag name enclosed in brackets.
+  private final static String getBracketedTagName(String tagName)
+  {
+    return "<" + tagName + ">";
   }
 
 
@@ -1813,16 +1793,138 @@ class PcmlSAXParser extends DefaultHandler
     return found;
   }
 
-  /** Warning. */
-  public void warning(SAXParseException ex) throws SAXException {
-    Trace.log(Trace.PCML, "[Warning]: "+  ex.getMessage());
-  } // warning(SAXParseException)
 
-  /** Error. */
-  public void error(SAXParseException ex) throws SAXException {
-    Trace.log(Trace.PCML, "[Error]: "+  ex.getMessage(), ex);
-  } // error(SAXParseException)
+  // See Java Bug ID 4806878, http://developer.java.sun.com/developer/bugParade/bugs/4806878.html:
+  // "[The] W3C XML Spec says that validation errors are not fatalerrors. And DefaultHandler implementation doesn't print out any errors for the validation errors. If user is interested in seeing the validation errors, then they need to extend the DefaultHandler [by re-implementing error() and fatalerror().]"
 
+  public void warning(SAXParseException spe)
+  throws SAXException
+  {
+    if (exceptionIfParseError_)
+    {
+      // new behavior (consistent with RfmlSAXParser)
+      if (m_xh == null) throw spe;
+      else m_xh.warning(spe);
+    }
+    else
+    {
+      // old behavior
+      Trace.log(Trace.PCML, "[Warning]: "+  spe.getMessage());
+    }
+  }
+  public void error(SAXParseException spe)
+  throws SAXException
+  {
+    if (exceptionIfParseError_)
+    {
+      // new behavior (consistent with RfmlSAXParser)
+      if (m_xh == null) throw spe;
+      else m_xh.error(spe);
+    }
+    else
+    {
+      // old behavior
+      Trace.log(Trace.PCML, "[Error]: "+  spe.getMessage());
+    }
+  }
+  public void fatalError(SAXParseException spe)
+  throws SAXException
+  {
+    if (m_xh == null) throw spe;
+    else m_xh.error(spe);
+  }
+
+
+  // Note: After the HashSet is initially built, it is never modified.
+  // Therefore we don't need to synchronize accesses after it is built.
+  private static HashSet getKnownTypes()
+  {
+    if (knownTypes_ == null)
+    {
+      synchronized (PcmlSAXParser.class)
+      {
+        if (knownTypes_ == null)
+        {
+          knownTypes_ = new HashSet(50);
+          knownTypes_.addAll(getKnownArrayTypes());
+          String[] types =
+          {
+            "byteParm",
+            "dateParm",
+            "doubleParm",
+            "floatParm",
+            "hexBinaryParm",
+            "intParm",
+            "longParm",
+            "packedDecimalParm",
+            "parameterList",          // no corresponding 'array' type
+            "program",                // no corresponding 'array' type
+            "shortParm",
+            "stringParm",
+            "struct",
+            "structParm",
+            "timeParm",
+            "timestampParm",
+            "unsignedByteParm",
+            "unsignedIntParm",
+            "unsignedLongParm",
+            "unsignedShortParm",
+            "xpcml",                  // no corresponding 'array' type
+            "zonedDecimalParm"
+            // 41 types (including 19 array types): 12 new, plus 29 old
+          };
+          for (int i=0; i<types.length; i++) {
+            knownTypes_.add(types[i]);
+          }
+        }
+      }
+    }
+    return knownTypes_;
+  }
+
+
+  // Note: After the HashSet is initially built, it is never modified.
+  // Therefore we don't need to synchronize accesses after it is built.
+  private static HashSet getKnownArrayTypes()
+  {
+    if (knownArrayTypes_ == null)
+    {
+      synchronized (PcmlSAXParser.class)
+      {
+        if (knownArrayTypes_ == null)
+        {
+          knownArrayTypes_ = new HashSet(25);
+          String[] types =
+          {
+            "arrayOfByteParm",
+            "arrayOfDateParm",
+            "arrayOfDoubleParm",
+            "arrayOfFloatParm",
+            "arrayOfHexBinaryParm",
+            "arrayOfIntParm",
+            "arrayOfLongParm",
+            "arrayOfPackedDecimalParm",
+            "arrayOfShortParm",
+            "arrayOfStringParm",
+            "arrayOfStruct",
+            "arrayOfStructParm",
+            "arrayOfTimeParm",
+            "arrayOfTimestampParm",
+            "arrayOfUnsignedByteParm",
+            "arrayOfUnsignedIntParm",
+            "arrayOfUnsignedLongParm",
+            "arrayOfUnsignedShortParm",
+            "arrayOfZonedDecimalParm",
+            // 19 types (13 old, plus 6 new)
+          };
+          for (int i=0; i<types.length; i++) {
+            knownArrayTypes_.add(types[i]);
+          }
+        }
+      }
+    }
+    return knownArrayTypes_;
+  }
 }
 
 

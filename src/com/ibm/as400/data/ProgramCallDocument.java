@@ -16,13 +16,16 @@ package com.ibm.as400.data;
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
+import com.ibm.as400.access.BidiStringType;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
+import com.ibm.as400.access.SystemProperties;
 import com.ibm.as400.access.Trace;                          // @C4A
 import com.ibm.as400.access.ProgramCall;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -102,6 +105,24 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     private AS400 m_as400;
     private PcmlDocument m_pcmlDoc;
+    static boolean exceptionIfParseError_;
+    static
+    {
+      String property = null;
+      try {
+        property = SystemProperties.getProperty(SystemProperties.THROW_SAX_EXCEPTION_IF_PARSE_ERROR);
+      }
+      catch (Throwable t) {}
+      if (property == null) { // Property not set.
+        exceptionIfParseError_ = false;
+      }
+      else if (property.trim().equalsIgnoreCase("true")) {
+        exceptionIfParseError_ = true;
+      }
+      else {
+        exceptionIfParseError_ = false;
+      }
+    }
 
     /**
      Constructs a ProgramCallDocument object.
@@ -295,6 +316,33 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
+     Constructs a ProgramCallDocument object.
+     {@link #setSystem setSystem()} must be called prior to using the object.
+     The PCML or XPCML document resource will be loaded from the classpath of the specified ClassLoader.
+     If the document is a PCML document, the classpath will first be searched for a serialized resource.
+     XPCML documents cannot be serialized.
+     If a serialized resource is not found, the classpath will be
+     searched for a PCML or XPCML source file.
+
+     @param docName The document resource name of the PCML document for the programs to be called.
+     @param loader The ClassLoader that will be used when loading the specified document resource.
+
+     @exception PcmlException when the specified PCML document cannot be found
+     */
+    public ProgramCallDocument(String docName, ClassLoader loader)
+    	throws XmlException
+    {
+      if (docName == null) {
+        throw new NullPointerException("docName");
+      }
+      if (loader == null) {
+        throw new NullPointerException("loader");
+      }
+
+      m_pcmlDoc = loadPcmlDocument(docName, loader, null);
+    }
+
+    /**
     Clones the ProgramCallDocument and the objects contained in it.
     {@link #setSystem setSystem()} and {@link #setDocument setDocument()} must be called prior to using the object.
     */
@@ -337,31 +385,47 @@ public class ProgramCallDocument implements Serializable, Cloneable
      */
     public static void main(String[] args)
     {
-      PcmlDocument pd = null;
-      System.setErr(System.out);
+		PcmlDocument pd = null;;
 
-      if (args.length != 2 ||
-          !args[0].equalsIgnoreCase("-SERIALIZE"))
-      {
-        String errMsg = SystemResourceFinder.format(DAMRI.PCD_ARGUMENTS);
-        System.out.println(errMsg);
-        System.exit(-1);
-      }
+        System.setErr(System.out);
+        final String errMsg = SystemResourceFinder.format(DAMRI.PCD_ARGUMENTS);
 
+		if (args.length == 2)
+        {
+        	if (!args[0].equalsIgnoreCase("-SERIALIZE"))
+        	{
+        		System.out.println(errMsg);
+        		System.exit(-1);
+        	}
 
-      try
-      {
-        // Load the document from source (previously serialized documents are ignored)
-        pd = loadSourcePcmlDocument(args[1], null,null);         // @C8C
+            // Load the document from source (previously serialized documents are ignored)
+            try
+            {
+				pd = loadSourcePcmlDocument(args[1], null,null);         // @C8C
+            }
+			catch (PcmlException e)
+			{
+				System.out.println(e.getLocalizedMessage());
+				System.exit(-1);
+			}
 
-        // Save the document as a serialized file
-        savePcmlDocument(pd);
-      }
-      catch (Throwable e)
-      {
-        System.out.println(e.getLocalizedMessage());
-        System.exit(-1);
-      }
+            // Save the document as a serialized file
+			try
+			{
+				savePcmlDocument(pd);
+			}
+			catch (Exception e)
+			{
+				System.out.println(e.getLocalizedMessage());
+				System.exit(-1);
+			}
+
+        }
+		else
+		{
+    		System.out.println(errMsg);
+    		System.exit(-1);
+		}
 
     }
 
@@ -613,6 +677,23 @@ public class ProgramCallDocument implements Serializable, Cloneable
       return ( m_pcmlDoc == null ? null : m_pcmlDoc.getProgramCall() );
     }
 
+
+    /**
+    Returns a String value for the named element.
+    <p>
+    If the named element is String or a Number output value of a program, the value will
+    be converted to a String.
+    The default bidi string type is assumed ({@link com.ibm.as400.access.BidiStringType#DEFAULT BidiStringType.DEFAULT}).
+
+    @param name The name of the &lt;data&gt; element in the PCML document.
+    @exception PcmlException If an error occurs.
+    */
+    public String getStringValue(String name)
+        throws PcmlException
+    {
+        return m_pcmlDoc.getStringValue(name, BidiStringType.DEFAULT);
+    }
+
     /**
     Returns a String value for the named element.
     <p>
@@ -626,7 +707,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param type The bidi string type, as defined by the CDRA (Character
-                Data Representataion Architecture).
+                Data Representation Architecture).
     @exception PcmlException
                If an error occurs.
     @see com.ibm.as400.access.BidiStringType
@@ -635,6 +716,27 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException                                            // @C9A
     {
         return m_pcmlDoc.getStringValue(name, type);                    // @C9A
+    }
+
+
+    /**
+    Returns a String value for the named element given indices to the data element.
+    If the data element is an array or is an element in a structure array, an index
+    must be specified for each dimension of the data.
+    The default bidi string type is assumed ({@link com.ibm.as400.access.BidiStringType#DEFAULT BidiStringType.DEFAULT}).
+    <p>
+    If the named element is String or a Number output value of a program, the value will
+    be converted to a String.
+
+    @param name The name of the &lt;data&gt; element in the PCML document.
+    @param indices An array of indices for setting the value of an element in an array.
+    @exception PcmlException
+               If an error occurs.
+    */
+    public String getStringValue(String name, int[] indices)
+        throws PcmlException
+    {
+        return m_pcmlDoc.getStringValue(name, new PcmlDimensions(indices), BidiStringType.DEFAULT);
     }
 
     /**
@@ -653,7 +755,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param indices An array of indices for setting the value of an element in an array.
     @param type The bidi string type, as defined by the CDRA (Character
-                Data Representataion Architecture).
+                Data Representation Architecture).
     @exception PcmlException
                If an error occurs.
     @see com.ibm.as400.access.BidiStringType
@@ -720,6 +822,12 @@ public class ProgramCallDocument implements Serializable, Cloneable
     <tr valign=top><td><code>type=char</td><td><code>String</code></td></tr>
     <tr valign=top><td><code>type=byte</td><td><code>byte[]</code></td></tr>
     <tr valign=top><td><code>type=int<br>
+                             length=1<br>
+                             precision=7</td><td><code>Byte</code></td></tr>
+    <tr valign=top><td><code>type=int<br>
+                             length=1<br>
+                             precision=8</td><td><code>Short</code></td></tr>
+    <tr valign=top><td><code>type=int<br>
                              length=2<br>
                              precision=15</td><td><code>Short</code></td></tr>
     <tr valign=top><td><code>type=int<br>
@@ -734,12 +842,18 @@ public class ProgramCallDocument implements Serializable, Cloneable
     <tr valign=top><td><code>type=int<br>
                              length=8<br>
                              precision=63</td><td><code>Long</code></td></tr>
+    <tr valign=top><td><code>type=int<br>
+                             length=8<br>
+                             precision=64</td><td><code>BigInteger</code></td></tr>
     <tr valign=top><td><code>type=packed</td><td><code>BigDecimal</code></td></tr>
     <tr valign=top><td><code>type=zoned</td><td><code>BigDecimal</code></td></tr>
     <tr valign=top><td><code>type=float<br>
                              length=4</td><td><code>Float</code></td></tr>
     <tr valign=top><td><code>type=float<br>
                              length=8</td><td><code>Double</code></td></tr>
+    <tr valign=top><td><code>type=date</td><td><code>java.sql.Date</code></td></tr>
+    <tr valign=top><td><code>type=time</td><td><code>java.sql.Time</code></td></tr>
+    <tr valign=top><td><code>type=timestamp</td><td><code>java.sql.Timestamp</code></td></tr>
     </table>
 
     @return The Java object value for the named &lt;data&gt; element in the PCML document.
@@ -774,6 +888,12 @@ public class ProgramCallDocument implements Serializable, Cloneable
     <tr valign=top><td><code>type=char</td><td><code>String</code></td></tr>
     <tr valign=top><td><code>type=byte</td><td><code>byte[]</code></td></tr>
     <tr valign=top><td><code>type=int<br>
+                             length=1<br>
+                             precision=7</td><td><code>Byte</code></td></tr>
+    <tr valign=top><td><code>type=int<br>
+                             length=1<br>
+                             precision=8</td><td><code>Short</code></td></tr>
+    <tr valign=top><td><code>type=int<br>
                              length=2<br>
                              precision=15</td><td><code>Short</code></td></tr>
     <tr valign=top><td><code>type=int<br>
@@ -788,12 +908,18 @@ public class ProgramCallDocument implements Serializable, Cloneable
     <tr valign=top><td><code>type=int<br>
                              length=8<br>
                              precision=63</td><td><code>Long</code></td></tr>
+    <tr valign=top><td><code>type=int<br>
+                             length=8<br>
+                             precision=64</td><td><code>BigInteger</code></td></tr>
     <tr valign=top><td><code>type=packed</td><td><code>BigDecimal</code></td></tr>
     <tr valign=top><td><code>type=zoned</td><td><code>BigDecimal</code></td></tr>
     <tr valign=top><td><code>type=float<br>
                              length=4</td><td><code>Float</code></td></tr>
     <tr valign=top><td><code>type=float<br>
                              length=8</td><td><code>Double</code></td></tr>
+    <tr valign=top><td><code>type=date</td><td><code>java.sql.Date</code></td></tr>
+    <tr valign=top><td><code>type=time</td><td><code>java.sql.Time</code></td></tr>
+    <tr valign=top><td><code>type=timestamp</td><td><code>java.sql.Timestamp</code></td></tr>
     </table>
 
     @return The Java object value for the named &lt;data&gt; element in the PCML document.
@@ -840,6 +966,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 	 construct this object.
 
      @exception PcmlException If an error occurs.
+     @deprecated Use {@link #serialize(File) serialize(File)} instead.
      */
     public void serialize()
         throws PcmlException
@@ -877,6 +1004,28 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
+     Serializes the ProgramCallDocument to a file.
+
+     @param file The file to which to serialize the object.
+     @exception IOException  If an error occurs while writing to the file.
+     @exception XmlException  If an error occurs while processing RFML.
+     **/
+    public void serialize(File file)
+      throws IOException, XmlException
+    {
+      FileOutputStream fos = null;
+      try
+      {
+        fos = new FileOutputStream(file);
+        serialize(fos);
+      }
+      finally
+      {
+        if (fos != null) fos.close();
+      }
+    }
+
+    /**
     Sets the Java object value for the named element using a int input.
     <p>
     The named element must be able to be set using a Integer object.
@@ -910,6 +1059,21 @@ public class ProgramCallDocument implements Serializable, Cloneable
         setValue(name, indices, new Integer(value));
     }
 
+
+    /**
+    Sets the Java object value for the named element using a String input.
+    The default bidi string type is assumed ({@link com.ibm.as400.access.BidiStringType#DEFAULT BidiStringType.DEFAULT}).
+
+    @param name The name of the &lt;data&gt; element in the PCML document.
+    @param value The string value for the named element.
+    @exception PcmlException If an error occurs.
+    */
+    public void setStringValue(String name, String value)
+        throws PcmlException
+    {
+        setStringValue(name, value, BidiStringType.DEFAULT);
+    }
+
     /**
     Sets the Java object value for the named element using a String input.
     <p>
@@ -919,9 +1083,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
     string type of the input value.
 
     @param name The name of the &lt;data&gt; element in the PCML document.
-    @param value The int value for the named element.
+    @param value The string value for the named element.
     @param type The bidi string type, as defined by the CDRA (Character
-                Data Representataion Architecture).
+                Data Representation Architecture).
     @exception PcmlException
                If an error occurs.
     @see com.ibm.as400.access.BidiStringType
@@ -943,9 +1107,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param indices An array of indices for setting the value of an element in an array.
-    @param value The int value for the named element.
+    @param value The string value for the named element.
     @param type The bidi string type, as defined by the CDRA (Character
-                Data Representataion Architecture).
+                Data Representation Architecture).
     @exception PcmlException
                If an error occurs.
     @see com.ibm.as400.access.BidiStringType
@@ -1273,7 +1437,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
       // Construct the PCML document from a source file
       try
       {
-          PcmlSAXParser psp = new PcmlSAXParser(docName, docStream, loader, xsdStream, isXPCML);
+          PcmlSAXParser psp = new PcmlSAXParser(docName, docStream, xsdStream, isXPCML, exceptionIfParseError_);
           pd = psp.getPcmlDocument();
       }
       catch (ParseException pe)
@@ -1285,6 +1449,22 @@ public class ProgramCallDocument implements Serializable, Cloneable
       {
           pse.reportErrors();
           throw new PcmlException(pse);
+      }
+      catch (RuntimeException e)
+      {
+        Throwable cause = e.getCause();
+        if (cause instanceof PcmlSpecificationException)
+        {
+          PcmlSpecificationException pse = (PcmlSpecificationException)cause;
+          pse.reportErrors();
+          throw new PcmlException(pse);
+        }
+        else
+        {
+          if (Trace.isTraceErrorOn()) //@E0A
+            e.printStackTrace(Trace.getPrintWriter()); //@E0A
+          throw new PcmlException(e);
+        }
       }
       catch (Exception e)
       {
@@ -1403,7 +1583,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
         // Construct the PCML document from a source file
         try
         {
-            PcmlSAXParser psp = new PcmlSAXParser(docName, loader, xsdStream);         // @C2A @C8C
+            InputStream docStream = SystemResourceFinder.getPCMLDocument(docName, loader);
+            boolean isXPCML = SystemResourceFinder.isXPCML(docName,loader);
+            PcmlSAXParser psp = new PcmlSAXParser(docName, docStream, xsdStream, isXPCML, exceptionIfParseError_);         // @C2A @C8C
             pd = psp.getPcmlDocument();                             // @C2A
         }
         catch (ParseException pe)
@@ -1415,6 +1597,22 @@ public class ProgramCallDocument implements Serializable, Cloneable
         {
             pse.reportErrors();
             throw new PcmlException(pse);
+        }
+        catch (RuntimeException e)
+        {
+          Throwable cause = e.getCause();
+          if (cause instanceof PcmlSpecificationException)
+          {
+            PcmlSpecificationException pse = (PcmlSpecificationException)cause;
+            pse.reportErrors();
+            throw new PcmlException(pse);
+          }
+          else
+          {
+            if (Trace.isTraceErrorOn()) //@E0A
+              e.printStackTrace(Trace.getPrintWriter()); //@E0A
+            throw new PcmlException(e);
+          }
         }
         catch (Exception e) //@E0A
         {
@@ -1429,14 +1627,14 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     // @E1A -- ALL NEW XPCML methods....
     /**
-     Generates XPCML representing the data associated with the passed in program name.
+     Generates XPCML representing the data associated with the passed-in program name.
      XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
      to PCML but allows for better validation of parameters and allows parameter
      data to be input and output within an XML document.  PCML is data-less in
      that only parameter formats are input via PCML.  In PCML, data values are set using
-     the setValue methods of the ProgramCallDocument class and data values are
+     the setValue methods of the ProgramCallDocument class, and data values are
      gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
-     can be input directly within the XPCML document on construction and data values can be output
+     can be specified directly within the XPCML source document, and data values can be output
      as XML using the generateXPCML method.
      Throws an XmlException if this object contains no data.
      @param pgmName The program to generate XPCML for
@@ -1466,7 +1664,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
      that only parameter formats are input via PCML.  In PCML, data values are set using
      the setValue methods of the ProgramCallDocument class and data values are
      gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
-     can be input directly within the XPCML document on construction and data values can be output
+     can be specified directly within the XPCML document, and data values can be output
      as XML using the generateXPCML method.
 
      Throws an XmlException if this object contains no data.
@@ -1496,7 +1694,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
      that only parameter formats are input via PCML.  In PCML, data values are set using
      the setValue methods of the ProgramCallDocument class and data values are
      gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
-     can be input directly within the XPCML document on construction and data values can be output
+     can be specified directly within the XPCML document, and data values can be output
      as XML using the generateXPCML method.
      Throws an XmlException if this object contains no data.
 
@@ -1522,14 +1720,14 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-     Generates XPCM representing the data contained for the passed in program name.
+     Generates XPCML representing the data contained for the passed in program name.
      XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
      to PCML but allows for better validation of parameters and allows parameter
      data to be input and output within an XML document.  PCML is data-less in
      that only parameter formats are input via PCML.  In PCML, data values are set using
      the setValue methods of the ProgramCallDocument class and data values are
      gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
-     can be input directly within the XPCML document on construction and data values can be output
+     can be specified directly within the XPCML document, and data values can be output
      as XML using the generateXPCML method.
      Throws an XmlException if this object contains no data.
 

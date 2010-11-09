@@ -79,16 +79,16 @@ class RfmlDocument extends PcmlDocument {
     }
 
     /**
-     Overrides the superclass's implementation.
+     Overrides the implementation of the superclass (PcmlDocument).
      **/
-    protected AS400DataType getConverter(int dataType, int dataLength, int dataPrecision, int ccsid)
+    protected AS400DataType getConverter(int dataType, int dataLength, int dataPrecision, int ccsid, String dateFormat, String dateSeparator, String timeFormat, String timeSeparator)
       throws PcmlException
     {
       if (dataType == PcmlData.CHAR)
       {
         // If the requested CCSID is not the same as
         // the system's default host CCSID, always create
-        // a new converter. I.E. We only cach converters
+        // a new converter.  We only cache converters
         // with CCSIDs that match the system object.
         if (ccsid != m_CcsidInt)
         {
@@ -115,7 +115,7 @@ class RfmlDocument extends PcmlDocument {
         }
       }
       else {
-        return super.getConverter(dataType, dataLength, dataPrecision, ccsid);
+        return super.getConverter(dataType, dataLength, dataPrecision, ccsid, dateFormat, dateSeparator, timeFormat, timeSeparator);
       }
     }
 
