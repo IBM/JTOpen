@@ -25,7 +25,11 @@ class RfmlData extends PcmlData {
         "init",
         "struct",
         "bidistringtype",
-        "keyfield"
+        "keyfield",
+        "dateformat",
+        "dateseparator",
+        "timeformat",
+        "timeseparator"
     };
     // Note: The following PcmlData attributes are irrelevant to this class:
     // usage, minvrm, maxvrm, offset, offsetfrom, outputsize, passby, trim, chartype.

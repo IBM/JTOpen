@@ -114,7 +114,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
     /**
     Constructs a RecordFormatDocument.
-    The RFML document resource will be loaded from the classpath.
+    The RFML document resource will be loaded from the classpath of the specified ClassLoader.
     The classpath will first be searched for a serialized resource.
     If a serialized resource is not found, the classpath will be
     searched for an RFML source file.
@@ -219,9 +219,8 @@ public class RecordFormatDocument implements Serializable, Cloneable
       int count = 1;
 
       // Note: Classes that implement interface AS400DataType:
-      // AS400Array, AS400Bin2, AS400Bin4, AS400Bin8, AS400ByteArray, AS400Float4, AS400Float8, AS400PackedDecimal, AS400Structure, AS400Text, AS400UnsignedBin2, AS400UnsignedBin4, AS400ZonedDecimal.
+      // AS400Array, AS400Bin1, AS400Bin2, AS400Bin4, AS400Bin8, AS400ByteArray, AS400Date, AS400Time, AS400Timestamp, AS400Float4, AS400Float8, AS400PackedDecimal, AS400Structure, AS400Text, AS400UnsignedBin1, AS400UnsignedBin2, AS400UnsignedBin4, AS400UnsignedBin8, AS400ZonedDecimal.
 
-//      if (dataType instanceof AS400Array)
       int dtType = dataType.getInstanceType();
 
       if (dtType == AS400DataType.TYPE_ARRAY)
@@ -236,7 +235,6 @@ public class RecordFormatDocument implements Serializable, Cloneable
         // Set the data type to the contained type, so we can then set the attributes appropriately.
         dataType = ((AS400Array)dataType).getType();
         dtType = dataType.getInstanceType();
-//        if (dataType instanceof AS400Array) {
         if (dataType.getInstanceType() == AS400DataType.TYPE_ARRAY)
         {
           // We don't yet support AS400Array-within-AS400Array.
@@ -263,11 +261,14 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       // Set the 'length' attribute.
       // Note: At this point we know we don't have an AS400Structure.  All RFML datatypes except "struct" require the 'length' attribute.
-      if (dtType == AS400DataType.TYPE_BIN2 ||
+      if (dtType == AS400DataType.TYPE_BIN1 ||
+          dtType == AS400DataType.TYPE_UBIN1 ||
+          dtType == AS400DataType.TYPE_BIN2 ||
           dtType == AS400DataType.TYPE_UBIN2 ||
           dtType == AS400DataType.TYPE_BIN4 ||
           dtType == AS400DataType.TYPE_UBIN4 ||
           dtType == AS400DataType.TYPE_BIN8 ||
+          dtType == AS400DataType.TYPE_UBIN8 ||
           dtType == AS400DataType.TYPE_FLOAT4 ||
           dtType == AS400DataType.TYPE_FLOAT8 ||
           dtType == AS400DataType.TYPE_PACKED)
@@ -313,6 +314,10 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       switch (dtType)
       {
+        case AS400DataType.TYPE_BIN1:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length", "1");
+          break;
         case AS400DataType.TYPE_BIN2:
           addAttribute(attrList, "type", "int");
           addAttribute(attrList, "length", "2");
@@ -325,6 +330,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
           addAttribute(attrList, "type", "int");
           addAttribute(attrList, "length", "8");
           break;
+        case AS400DataType.TYPE_UBIN1:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length","1");
+          addAttribute(attrList, "precision", "8");
+          break;
         case AS400DataType.TYPE_UBIN2:
           addAttribute(attrList, "type", "int");
           addAttribute(attrList, "length","2");
@@ -334,6 +344,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
           addAttribute(attrList, "type", "int");
           addAttribute(attrList, "length","4");
           addAttribute(attrList, "precision", "32");
+          break;
+        case AS400DataType.TYPE_UBIN8:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length","8");
+          addAttribute(attrList, "precision", "64");
           break;
         case AS400DataType.TYPE_BYTE_ARRAY:
           addAttribute(attrList, "type", "byte");
@@ -391,6 +406,32 @@ public class RecordFormatDocument implements Serializable, Cloneable
           int precisionZ = ((AS400ZonedDecimal) dataType).getNumberOfDecimalPositions(); // $A2
           addAttribute(attrList, "precision", Integer.toString(precisionZ));
           break;
+
+
+        case AS400DataType.TYPE_DATE:
+          addAttribute(attrList, "type", "date");
+          addAttribute(attrList, "length",Integer.toString(fieldDesc.getLength()));
+          String dateFormat = ((DateFieldDescription)dataType).getDATFMT();
+          addAttribute(attrList, "dateformat", dateFormat);
+          String dateSeparator = ((DateFieldDescription)dataType).getDATSEP();
+          addAttribute(attrList, "dateseparator", dateSeparator);
+          break;
+
+        case AS400DataType.TYPE_TIME:
+          addAttribute(attrList, "type", "time");
+          addAttribute(attrList, "length",Integer.toString(fieldDesc.getLength()));
+          String timeFormat = ((TimeFieldDescription)dataType).getTIMFMT();
+          addAttribute(attrList, "timeformat", timeFormat);
+          String timeSeparator = ((TimeFieldDescription)dataType).getTIMSEP();
+          addAttribute(attrList, "timeseparator", timeSeparator);
+          break;
+
+        case AS400DataType.TYPE_TIMESTAMP:
+          addAttribute(attrList, "type", "timestamp");
+          addAttribute(attrList, "length",Integer.toString(fieldDesc.getLength()));
+          break;
+
+
         default:
          // None of the above.
           Trace.log(Trace.ERROR, "Unrecognized data type: dtType=="+dtType);
@@ -563,6 +604,20 @@ public class RecordFormatDocument implements Serializable, Cloneable
       return m_rfmlDoc_.getIntValue(name, new PcmlDimensions(indices));
     }
 
+
+    /**
+    Returns a <code>String</code> value for the named &lt;data type="char"&gt; element.
+    The default bidi string type is assumed ({@link com.ibm.as400.access.BidiStringType#DEFAULT BidiStringType.DEFAULT}).
+
+    @param name The name of the <code>&lt;data&gt;</code> element in the RFML document.
+    @exception XmlException  If an error occurs while processing RFML.
+    **/
+    public String getStringValue(String name)
+        throws XmlException
+    {
+      return getStringValue(name, BidiStringType.DEFAULT);
+    }
+
     /**
     Returns a <code>String</code> value for the named &lt;data type="char"&gt; element.
     <p>
@@ -624,6 +679,12 @@ public class RecordFormatDocument implements Serializable, Cloneable
     <tr valign=top><td>type=char</td><td>String</td></tr>
     <tr valign=top><td>type=byte</td><td>byte[]</td></tr>
     <tr valign=top><td>type=int<br>
+                             length=1<br>
+                             precision=7</td><td>Byte</td></tr>
+    <tr valign=top><td>type=int<br>
+                             length=1<br>
+                             precision=8</td><td>Short</td></tr>
+    <tr valign=top><td>type=int<br>
                              length=2<br>
                              precision=15</td><td>Short</td></tr>
     <tr valign=top><td>type=int<br>
@@ -638,6 +699,9 @@ public class RecordFormatDocument implements Serializable, Cloneable
     <tr valign=top><td>type=int<br>
                              length=8<br>
                              precision=63</td><td>Long</td></tr>
+    <tr valign=top><td>type=int<br>
+                             length=8<br>
+                             precision=64</td><td>Double</td></tr>
     <tr valign=top><td>type=packed</td><td>BigDecimal</td></tr>
     <tr valign=top><td>type=zoned</td><td>BigDecimal</td></tr>
     <tr valign=top><td>type=float<br>
@@ -1044,6 +1108,21 @@ public class RecordFormatDocument implements Serializable, Cloneable
       return contains;
     }
 
+
+    /**
+    Sets the Java object value for the named &lt;data type="char"&gt; element using a String input.
+    The default bidi string type is assumed ({@link com.ibm.as400.access.BidiStringType#DEFAULT BidiStringType.DEFAULT}).
+
+    @param name The name of the <code>&lt;data&gt;</code> element in the RFML document.
+    @param value The string value for the named element.
+    @exception XmlException  If an error occurs while processing RFML.
+    **/
+    public void setStringValue(String name, String value)
+        throws XmlException
+    {
+      setStringValue(name, value, BidiStringType.DEFAULT);
+    }
+
     /**
     Sets the Java object value for the named &lt;data type="char"&gt; element using a String input.
     <p>
@@ -1053,10 +1132,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
     string type of the input value.
 
     @param name The name of the <code>&lt;data&gt;</code> element in the RFML document.
-    @param value The int value for the named element.
+    @param value The string value for the named element.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representation Architecture).
     @exception XmlException  If an error occurs while processing RFML.
+    @see com.ibm.as400.access.BidiStringType
     **/
     public void setStringValue(String name, String value, int type)
         throws XmlException
@@ -1079,7 +1159,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
     @param name The name of the <code>&lt;data&gt;</code> element in the RFML document.
     @param indices An array of indices for setting the value of an element in an array.
-    @param value The int value for the named element.
+    @param value The string value for the named element.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representation Architecture).
     @exception XmlException  If an error occurs while processing RFML.

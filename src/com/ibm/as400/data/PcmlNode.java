@@ -13,12 +13,16 @@
 
 package com.ibm.as400.data;
 
+import com.ibm.as400.access.Trace;
 import java.io.Serializable;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.Hashtable;
+
 
 abstract class PcmlNode implements Serializable, Cloneable {        // @C2A
     static final long serialVersionUID = -2955209136470053178L;	    // @C1A
+    private static Hashtable separatorsMap_;
 
     private PcmlNode parent;
     private PcmlNode prevSibling;
@@ -208,4 +212,51 @@ abstract class PcmlNode implements Serializable, Cloneable {        // @C2A
             printTree(child, level+1);
         }
     }
+
+    // Separator characters.
+    static final Character AMPERSAND = new Character('&');
+    static final Character COLON = new Character(':');
+    static final Character COMMA = new Character(',');
+    static final Character HYPHEN = new Character('-');
+    static final Character PERIOD = new Character('.');
+    static final Character SLASH = new Character('/');
+
+
+    private static Hashtable getSeparatorsMap()
+    {
+      if (separatorsMap_ == null)
+      {
+        synchronized (PcmlNode.class)
+        {
+          if (separatorsMap_ == null)
+          {
+            separatorsMap_ = new Hashtable(12);
+            separatorsMap_.put("ampersand", AMPERSAND);
+            separatorsMap_.put("colon", COLON);
+            separatorsMap_.put("comma", COMMA);
+            separatorsMap_.put("hyphen", HYPHEN);
+            separatorsMap_.put("period", PERIOD);
+            separatorsMap_.put("slash", SLASH);
+          }
+        }
+      }
+      return separatorsMap_;
+    }
+
+    static boolean isValidSeparatorName(String separatorName)
+    {
+      boolean found = getSeparatorsMap().containsKey(separatorName);
+      if (found) return true;
+      else return (separatorName.equals("none"));  // special value indicating "no separator"
+    }
+
+
+    // Returns the char value associated with a given separator name.
+    // Returns null if separatorName is "none" or if the name is not recognized.
+    // For that reason, caller should first validate the separatorName by calling isValidSeparatorName().
+    static Character separatorAsChar(String separatorName)
+    {
+      return (Character)getSeparatorsMap().get(separatorName);
+    }
+
 }

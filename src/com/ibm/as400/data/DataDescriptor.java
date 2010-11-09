@@ -145,6 +145,12 @@ class DataDescriptor extends DocNodeDescriptor
                         return "byte";
                     case PcmlData.STRUCT:
                         return "struct";
+                    case PcmlData.DATE:
+                        return "date";
+                    case PcmlData.TIME:
+                        return "time";
+                    case PcmlData.TIMESTAMP:
+                        return "timestamp";
                 }
             }
             else if (attr.equals("length"))
@@ -205,6 +211,14 @@ class DataDescriptor extends DocNodeDescriptor
             {
                 return (((PcmlData)getDocNode()).getCharType());            // @D2A
             }
+            else if (attr.equals("dateformat"))
+                return ((PcmlData)getDocNode()).getDateFormat();
+            else if (attr.equals("timeformat"))
+                return ((PcmlData)getDocNode()).getTimeFormat();
+            else if (attr.equals("dateseparator"))
+                return ((PcmlData)getDocNode()).getDateSeparator();
+            else if (attr.equals("timeseparator"))
+                return ((PcmlData)getDocNode()).getTimeSeparator();
             else
                 return null;
         }
