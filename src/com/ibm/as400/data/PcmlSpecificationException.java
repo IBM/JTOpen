@@ -17,11 +17,13 @@ import com.ibm.as400.access.Trace;                  // @A1A
 import java.util.Vector;
 
 /**
- * Thrown when an errors are detected in the PCML source file.
+ * Thrown when syntax errors are detected in a PCML source file.
  *
  * @see ProgramCallDocument
+ * @see XmlException
+ * @see PcmlException
  */
-class PcmlSpecificationException extends Exception
+public class PcmlSpecificationException extends Exception
 {
 	Vector	m_messages = new Vector();
 	
@@ -41,12 +43,23 @@ class PcmlSpecificationException extends Exception
     }
     
     /**
+     * Returns the error messages that were logged to this object.
+     * @return A list of error messages associated with this exception.
+     * If no error messages, then an empty list is returned.
+     */
+    public String[] getMessages()
+    {
+        String[] msgs = (String[])m_messages.toArray(new String[m_messages.size()]);
+        return msgs;
+    }
+
+    /**
      * Logs the specfication errors to error logging stream
 	 * determined by <code>com.ibm.as400.access.Trace</code>.
      *
      * @see com.ibm.as400.access.Trace
      */
-    public void reportErrors()
+    void reportErrors()
     {
 		Trace.log(Trace.PCML, this);
 
