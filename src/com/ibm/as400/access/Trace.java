@@ -544,8 +544,14 @@ public class Trace implements Runnable
   static void loadTraceProperties ()
   {
     // Load and apply the trace categories system property.
+    // Warn if they specified "categories" (rather than "category") for the property name.
+    String categories0 = SystemProperties.getProperty(SystemProperties.TRACE_CATEGORIES);
+    if (categories0 != null) {
+      setTraceCategories(categories0);
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Incorrect tracing property name specified: " + SystemProperties.TRACE_CATEGORIES);
+    }
     String categories = SystemProperties.getProperty(SystemProperties.TRACE_CATEGORY);
-    setTraceCategories(categories);
+    if (categories0 == null || categories != null) setTraceCategories(categories);
 
     // Load and apply the trace file system property.
     String file = SystemProperties.getProperty (SystemProperties.TRACE_FILE);
@@ -1695,7 +1701,7 @@ public class Trace implements Runnable
 
     String property = command.substring(0,index);
     String value = command.substring(index+1);
-    if (value.length()==0) value = null; //com.ibm.as400.access.Trace.categories=	  
+    if (value.length()==0) value = null; //com.ibm.as400.access.Trace.category=	  
 
     if (property.equals(SystemProperties.TRACE_CATEGORY)) {
       setTraceCategories(value);
