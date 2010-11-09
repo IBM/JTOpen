@@ -800,7 +800,7 @@ class PcmlProgram extends PcmlDocNode
     }
 
     /**
-    Returns the CCSID for this program program element.
+    Returns the CCSID for this program element.
     <p>
     The CCSID is saved at the beginning of the callProgram() method.
     This value is used for subsequent character conversion.
@@ -808,7 +808,7 @@ class PcmlProgram extends PcmlDocNode
     serialized with data and transported around the management
     central network.
 
-    @return The integer CCSID for this program program element.
+    @return The integer CCSID for this program element.
 
     */
     int getProgramCCSID()                                           // @C2A
