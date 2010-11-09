@@ -19,6 +19,7 @@ import java.awt.Component;
  * Thrown when an error is encountered using a ProgramCallDocument.
  *
  * @see ProgramCallDocument
+ * @see PcmlSpecificationException
  */
 public class PcmlException extends XmlException            // @C3C
 {
