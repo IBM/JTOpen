@@ -14,11 +14,12 @@
 package com.ibm.as400.access;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Vector;
 
 /**
- *The BinaryFieldDescription class represents the description of the data in a binary (integer) field.
- *It allows:
+ *Represents the description of the data in a binary (integer) field.
+ *This class allows:
  *<ul>
  *<li>The user to describe a binary field to the <a href="RecordFormat.html">RecordFormat</a> object.
  *<li>The RecordFormat object to describe a binary field to the user.
@@ -31,8 +32,6 @@ import java.util.Vector;
  **/
 public class BinaryFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
   static final long serialVersionUID = -2040945751371810257L;
   /**
    *Constructs a BinaryFieldDescription object.
@@ -86,7 +85,51 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     length_ = length;
   }
 
-  //@C0A
+  /**
+   *Constructs a BinaryFieldDescription object. It uses the specified data type and name
+   *of the field.
+   *The length of this field is represented by the number of digits it can contain.
+   *This constructor defaults the length (as returned by getLength()) to 9.
+   *The length is used by the Record Level Access classes when creating a file from
+   *a RecordFormat object. The maximum number of digits allowed for a binary field by DDS is 18.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+  **/
+  public BinaryFieldDescription(AS400UnsignedBin4 dataType, String name)
+  {
+    // When no length is specified, we pass length of 9 in case field will be
+    // used for DDS.  If this is the case, the length represents the number of
+    // digits in the field, not the byte length of the field.
+    super(dataType, name);
+    length_ = 9;
+
+  }
+
+  /**
+   *Constructs a BinaryFieldDescription object. It uses the specified data type, name,
+   *DDS name, and length of the field.  This constructor is used when the field description will
+   *be used with the record level access classes.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   *@param ddsName The DDS name of this field. This is the
+   *               name of the field as it would appear in a DDS description of the
+   *               field.  The length of <i>ddsName</i> must be 10 characters or less.
+   *@param length The number of digits that the field will hold.  This is the length of
+   *              the field as it would appear in a DDS description.  The <i>length</i>
+   *              must be greater than 0.
+  **/
+  public BinaryFieldDescription(AS400UnsignedBin4 dataType, String name, String ddsName, int length)
+  {
+    super(dataType, name, ddsName);
+    if (length < 1)
+    {
+      throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    length_ = length;
+  }
+
   /**
    *Constructs a BinaryFieldDescription object. It uses the specified data type and name
    *of the field.
@@ -108,7 +151,6 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
 
   }
 
-  //@C0A
   /**
    *Constructs a BinaryFieldDescription object. It uses the specified data type, name,
    *DDS name, and length of the field.  This constructor is used when the field description will
@@ -133,29 +175,27 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     length_ = length;
   }
 
-  //@C0A
   /**
    *Constructs a BinaryFieldDescription object. It uses the specified data type and name
    *of the field.
    *The length of this field is represented by the number of digits it can contain.
-   *This constructor defaults the length (as returned by getLength()) to 9.
+   *This constructor defaults the length (as returned by getLength()) to 18.
    *The length is used by the Record Level Access classes when creating a file from
    *a RecordFormat object. The maximum number of digits allowed for a binary field by DDS is 18.
    *@param dataType Describes the field and provides
    *                the conversion capability for the contents of the field.
    *@param name The name of the field.
   **/
-  public BinaryFieldDescription(AS400UnsignedBin4 dataType, String name)
+  public BinaryFieldDescription(AS400UnsignedBin8 dataType, String name)
   {
-    // When no length is specified, we pass length of 9 in case field will be
+    // When no length is specified, we pass length of 18 in case field will be
     // used for DDS.  If this is the case, the length represents the number of
     // digits in the field, not the byte length of the field.
     super(dataType, name);
-    length_ = 9;
+    length_ = 18;
 
   }
 
-  //@C0A
   /**
    *Constructs a BinaryFieldDescription object. It uses the specified data type, name,
    *DDS name, and length of the field.  This constructor is used when the field description will
@@ -170,7 +210,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
    *              the field as it would appear in a DDS description.  The <i>length</i>
    *              must be greater than 0.
   **/
-  public BinaryFieldDescription(AS400UnsignedBin4 dataType, String name, String ddsName, int length)
+  public BinaryFieldDescription(AS400UnsignedBin8 dataType, String name, String ddsName, int length)
   {
     super(dataType, name, ddsName);
     if (length < 1)
@@ -226,7 +266,6 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
   }
 
 
-  //@C0A
   /**
    *Constructs a BinaryFieldDescription object. It uses the specified data type and name of the field.
    *The length of this field is represented by the number of digits it can contain.
@@ -247,7 +286,6 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     length_ = 4;
   }
 
-  //@C0A
   /**
    *Constructs a BinaryFieldDescription object. It uses the specified data type, name,
    *DDS name, and length of the field.  This constructor is used when the field description will
@@ -263,6 +301,95 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
    *              must be greater than 0.
   **/
   public BinaryFieldDescription(AS400UnsignedBin2 dataType, String name, String ddsName, int length)
+  {
+    super(dataType, name, ddsName);
+    if (length < 1)
+    {
+      throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    length_ = length;
+  }
+
+  /**
+   *Constructs a BinaryFieldDescription object. It uses the specified data type and name of the field.
+   *The length of this field is represented by the number of digits it can contain.
+   *This constructor defaults the length (as returned by getLength()) to 3.
+   *The length is used by the Record Level Access classes when creating a file from
+   *a RecordFormat object. Three (3) is the maximum number of digits allowed for a binary field
+   *(when represented by a bin1) by DDS.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+  **/
+  public BinaryFieldDescription(AS400Bin1 dataType, String name)
+  {
+    // When no length is specified, we pass length of 4 in case field will be
+    // used for DDS.  If this is the case, the length represents the number of
+    // digits in the field, not the byte length of the field.
+    super(dataType, name);
+    length_ = 3;
+  }
+
+  /**
+   *Constructs a BinaryFieldDescription object. It uses the specified data type, name,
+   *DDS name, and length of the field.  This constructor is used when the field description will
+   *be used with the record level access classes.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   *@param ddsName The DDS name of this field. This is the
+   *               name of the field as it would appear in a DDS description of the
+   *               field.  The length of <i>ddsName</i> must be 10 characters or less.
+   *@param length The number of digits that the field will hold.  This is the length of
+   *              the field as it would appear in a DDS description.  The <i>length</i>
+   *              must be greater than 0.
+  **/
+  public BinaryFieldDescription(AS400Bin1 dataType, String name, String ddsName, int length)
+  {
+    super(dataType, name, ddsName);
+    if (length < 1)
+    {
+      throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    length_ = length;
+  }
+
+
+  /**
+   *Constructs a BinaryFieldDescription object. It uses the specified data type and name of the field.
+   *The length of this field is represented by the number of digits it can contain.
+   *This constructor defaults the length (as returned by getLength()) to 3.
+   *The length is used by the Record Level Access classes when creating a file from
+   *a RecordFormat object. Three (3) is the maximum number of digits allowed for a binary field
+   *(when represented by a bin1) by DDS.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+  **/
+  public BinaryFieldDescription(AS400UnsignedBin1 dataType, String name)
+  {
+    // When no length is specified, we pass length of 4 in case field will be
+    // used for DDS.  If this is the case, the length represents the number of
+    // digits in the field, not the byte length of the field.
+    super(dataType, name);
+    length_ = 3;
+  }
+
+  /**
+   *Constructs a BinaryFieldDescription object. It uses the specified data type, name,
+   *DDS name, and length of the field.  This constructor is used when the field description will
+   *be used with the record level access classes.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   *@param ddsName The DDS name of this field. This is the
+   *               name of the field as it would appear in a DDS description of the
+   *               field.  The length of <i>ddsName</i> must be 10 characters or less.
+   *@param length The number of digits that the field will hold.  This is the length of
+   *              the field as it would appear in a DDS description.  The <i>length</i>
+   *              must be greater than 0.
+  **/
+  public BinaryFieldDescription(AS400UnsignedBin1 dataType, String name, String ddsName, int length)
   {
     super(dataType, name, ddsName);
     if (length < 1)
@@ -355,6 +482,46 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
    *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
    *cannot be null.
   **/
+  public void setDataType(AS400Bin1 dataType)
+  {
+    // Verify parameters
+    if (dataType == null)
+    {
+      throw new NullPointerException("dataType");
+    }
+    dataType_ = dataType;
+    // Set the length to the default value if it has not already been set via setLength
+    if (length_ == 0)
+    {
+      length_ = 3; // 3 is the maximum length allowed for DDS for a binary field of 1 byte.
+    }
+  }
+
+  /**
+   *Sets the AS400DataType object describing this field.
+   *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
+   *cannot be null.
+  **/
+  public void setDataType(AS400UnsignedBin1 dataType)
+  {
+    // Verify parameters
+    if (dataType == null)
+    {
+      throw new NullPointerException("dataType");
+    }
+    dataType_ = dataType;
+    // Set the length to the default value if it has not already been set via setLength
+    if (length_ == 0)
+    {
+      length_ = 3; // 3 is the maximum length allowed for DDS for a binary field of 1 byte.
+    }
+  }
+
+  /**
+   *Sets the AS400DataType object describing this field.
+   *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
+   *cannot be null.
+  **/
   public void setDataType(AS400Bin2 dataType)
   {
     // Verify parameters
@@ -370,7 +537,6 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     }
   }
 
-  //@C0A
   /**
    *Sets the AS400DataType object describing this field.
    *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
@@ -411,7 +577,6 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     }
   }
 
-  //@C0A
   /**
    *Sets the AS400DataType object describing this field.
    *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
@@ -432,7 +597,6 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     }
   }
 
-  //@C0A
   /**
    *Sets the AS400DataType object describing this field.
    *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
@@ -453,7 +617,26 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     }
   }
 
-  //@B0C - javadoc
+  /**
+   *Sets the AS400DataType object describing this field.
+   *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
+   *cannot be null.
+  **/
+  public void setDataType(AS400UnsignedBin8 dataType)
+  {
+    // Verify parameters
+    if (dataType == null)
+    {
+      throw new NullPointerException("dataType");
+    }
+    dataType_ = dataType;
+    // Set the length to the default value if it has not already been set via setLength
+    if (length_ == 0)
+    {
+      length_ = 18; // 18 is the maximum length allowed for DDS for a binary field of 8 bytes.
+    }
+  }
+
   /**
    *Sets the value for the DFT keyword for this field.  Use this
    *version of setDFT() when an AS400Bin4 or AS400UnsignedBin2 object was used to
@@ -474,7 +657,26 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     DFTCurrentValue_ = null; //@B0A
   }
 
-  //@C0A
+  /**
+   *Sets the value for the DFT keyword for this field.  Use this
+   *version of setDFT() when an UnsignedAS400Bin8 object was used to
+   *construct the object.
+   *@param defaultValue The default value for this
+   *                   field.  The <i>defaultValue</i>cannot be null.
+   *To set a default value of *NULL, use the setDFTNull() method.
+  **/
+  public void setDFT(BigInteger defaultValue)
+  {
+    if (defaultValue == null)
+    {
+      throw new NullPointerException("defaultValue");
+    }
+    defaultValue_ = defaultValue;
+    isDFTNull_ = false;
+    isDFTCurrent_ = false;
+    DFTCurrentValue_ = null;
+  }
+
   /**
    *Sets the value for the DFT keyword for this field.  Use this
    *version of setDFT() when an AS400UnsignedBin4 or AS400Bin8 object was used to
@@ -495,10 +697,9 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     DFTCurrentValue_ = null;
   }
 
-  //@B0C - javadoc
   /**
    *Sets the value for the DFT keyword for this field.  Use this
-   *version of setDFT() when an AS400Bin2 object was used to
+   *version of setDFT() when an AS400UnsignedBin1 or AS400Bin2 object was used to
    *construct the object.
    *@param defaultValue The default value for this
    *                   field.  The <i>defaultValue</i>cannot be null.
@@ -516,7 +717,26 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     DFTCurrentValue_ = null; //@B0A
   }
 
-  //@B0A
+  /**
+   *Sets the value for the DFT keyword for this field.  Use this
+   *version of setDFT() when an AS400Bin1 object was used to
+   *construct the object.
+   *@param defaultValue The default value for this
+   *                   field.  The <i>defaultValue</i>cannot be null.
+   *To set a default value of *NULL, use the setDFTNull() method.
+  **/
+  public void setDFT(Byte defaultValue)
+  {
+    if (defaultValue == null)
+    {
+      throw new NullPointerException("defaultValue");
+    }
+    defaultValue_ = defaultValue;
+    isDFTNull_ = false;
+    isDFTCurrent_ = false;
+    DFTCurrentValue_ = null;
+  }
+
   /**
    *Sets the value for the DFT keyword to be *NULL for this field.
    *Calling this method will replace the DFT keyword that was previously
