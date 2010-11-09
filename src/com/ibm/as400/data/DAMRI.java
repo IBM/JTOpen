@@ -65,6 +65,7 @@ public class DAMRI extends ListResourceBundle
     public final static String    ATTR_REF_WRONG_NODETYPE   = "ATTR_REF_WRONG_NODETYPE";
     public final static String    ATTR_REF_WRONG_DATATYPE   = "ATTR_REF_WRONG_DATATYPE";
     public final static String    BAD_DATA_LENGTH           = "BAD_DATA_LENGTH";
+    public final static String    DATA_LENGTH_OUT_OF_RANGE  = "DATA_LENGTH_OUT_OF_RANGE"; // after 7.1
     public final static String    BAD_OFFSET_VALUE          = "BAD_OFFSET_VALUE";
     public final static String    BAD_TOTAL_OFFSET          = "BAD_TOTAL_OFFSET";
     public final static String    NOT_ENOUGH_DATA           = "NOT_ENOUGH_DATA";
@@ -139,15 +140,15 @@ public class DAMRI extends ListResourceBundle
     { PCML_NOT_FOUND,              "PCML document source ''{0}'' cannot be found." },
     { PCML_DTD_NOT_FOUND,          "PCML document type definition (DTD) ''{0}'' cannot be found" },
     { PCML_SERIALIZED,             "PCML document ''{0}'' saved." },
-    { EXCEPTION_RECEIVED,          "Exception received: ''{0}''." },      // @C4C
+    { EXCEPTION_RECEIVED,          "Exception received: {0}" },      // @C4C
     { OFFSETFROM_NOT_FOUND,        "Element ''{0}'' for offsetfrom= attribute is not a parent of this element. Processing <data> element ''{1}''." },
     { CIRCULAR_REFERENCE,          "Structure referenced, ''{0}'', is a circular reference. Processing {1} element ''{2}''." },
     { REF_NOT_FOUND,               "{1} element named ''{0}'' not found in document. Processing {2} element ''{3}''." },
     { REF_WRONG_TYPE,              "Element named ''{0}'' in document is not a {1} element. Processing {2} element ''{3}''." },
     { MULTIPLE_DEFINE,             "More than one element named ''{0}'' in document." },
-    { BAD_ATTRIBUTE_SYNTAX,        "Syntax of attribute {0} is not correct. Processing {1} element ''{2}''." },
-    { BAD_ATTRIBUTE_VALUE,         "Value of attribute {0} is not correct. Processing {1} element ''{2}''." },
-    { ATTRIBUTE_NOT_ALLOWED,       "Attribute {0} is not allowed when {1} is specified. Processing {2} element ''{3}''." },
+    { BAD_ATTRIBUTE_SYNTAX,        "Syntax of attribute, {0}, is not correct. Processing {1} element ''{2}''." },
+    { BAD_ATTRIBUTE_VALUE,         "Value of attribute, {0}, is not correct. Processing {1} element ''{2}''." },
+    { ATTRIBUTE_NOT_ALLOWED,       "Attribute, {0}, is not allowed when {1} is specified. Processing {2} element ''{3}''." },
     { INITIAL_VALUE_ERROR,         "Initial value {0} is not correct for the data type specified. Processing {1} element ''{2}''." },
     { PARSEORDER_NOT_FOUND,        "{0} specified but ''{1}'' cannot be found in document. Processing {2} element ''{3}''." },
     { PARSEORDER_NOT_CHILD,        "{0} specified but ''{1}'' is not a child of this element. Processing {2} element ''{3}''." },
@@ -156,6 +157,7 @@ public class DAMRI extends ListResourceBundle
     { ATTR_REF_WRONG_NODETYPE,     "Element specified by ''{0}'' found in document as ''{1}'' but is not a {2} element. Processing element ''{3}''." },
     { ATTR_REF_WRONG_DATATYPE,     "Element specified by ''{0}'' found in document as ''{1}'' but is not a defined as {2}. Processing element ''{3}''." },
     { BAD_DATA_LENGTH,             "Data length, {0}, is either negative or exceeds maximum supported length of {1}. Processing {2} element \"{3}\"." },
+    { DATA_LENGTH_OUT_OF_RANGE,    "Data length, {0}, is out of the supported range of {1} to {2}. Processing {3} element \"{4}\"." },
     { BAD_OFFSET_VALUE,            "Offset to data, {0}, is either negative or exceeds number of bytes available, {1}. Processing {2} element \"{3}\"." },
     { BAD_TOTAL_OFFSET,            "Offset to data, {0}, is either negative or exceeds number of bytes available, {1}. Offest is calculated as {2} bytes from document element {3}. Processing {4} element \"{5}\"." },
     { NOT_ENOUGH_DATA,             "Not enough output data available for this document element. Processing {0} element \"{1}\"." },
