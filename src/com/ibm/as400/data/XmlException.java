@@ -61,7 +61,7 @@ public class XmlException extends Exception
      */
     XmlException(Exception e)
 	{
-	    super();
+	    super(e);
 
         // Try to load a string using the exception's Class name as the key
         m_localizedMessage = SystemResourceFinder.getString(e.getClass().getName());
@@ -96,8 +96,10 @@ public class XmlException extends Exception
 
     /**
      * Returns the original exception that caused this <code>XmlException</code>.
+     * This method returns the same object as Exception.getCause().
      *
-     * @return The exception that causes this instance of <code>XmlException</code>.
+     * @return The exception that caused this instance of <code>XmlException</code>.
+     * Note: This may be an instance of {@link PcmlSpecificationException PcmlSpecificationException}.
      * If this exception was not caused by another exception, null is returned.
      */
 	public Exception getException()
