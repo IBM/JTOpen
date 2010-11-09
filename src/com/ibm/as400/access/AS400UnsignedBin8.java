@@ -169,8 +169,16 @@ public class AS400UnsignedBin8 implements AS400DataType
     // Allow this line to throw ArrayIndexOutOfBoundsException.
     Arrays.fill(as400Value, offset, offset+SIZE, (byte)0);  // initialize 8 bytes to zeros
     byte[] val = bigIntValue.toByteArray();
-    int startPos = (offset+SIZE) - val.length;
+
+    // Handle case where BigInteger.toByteArray() returns an extra leading '0' byte.
+    if (val.length == SIZE+1 && val[0] == 0) {
+      byte[] truncated = new byte[SIZE];
+      System.arraycopy(val, 1, truncated, 0, SIZE);
+      val = truncated;
+    }
+
     // Right-justify in 8 bytes starting at specified offset.
+    int startPos = (offset+SIZE) - val.length;
     System.arraycopy(val, 0, as400Value, startPos, val.length);
     return SIZE;
   }
@@ -235,6 +243,7 @@ public class AS400UnsignedBin8 implements AS400DataType
   {
     // Prevent the leading bit being interpreted as a sign bit.
     byte nineBytes[] = new byte[SIZE+1];
+    nineBytes[0] = 0;
     System.arraycopy(as400Value, offset, nineBytes, 1, SIZE);
     return new BigInteger(nineBytes);
   }
