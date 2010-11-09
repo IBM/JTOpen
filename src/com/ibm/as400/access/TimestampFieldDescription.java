@@ -20,7 +20,7 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 
 /**
- *The TimestampFieldDescription class represents the description of the data in a Timestamp field.
+ *Represents the description of the data in a Timestamp field.
  *The TimestampFieldDescription class allows:
  *<ul>
  *<li>The user to describe a Timestamp field to the RecordFormat object.
@@ -30,8 +30,6 @@ import java.text.SimpleDateFormat;
 **/
 public class TimestampFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
   /**
    *Constructs a TimestampFieldDescription object.
@@ -63,6 +61,33 @@ public class TimestampFieldDescription extends FieldDescription implements Seria
    *               field.  The length of <i>ddsName</i> must be 10 characters or less.
    **/
   public TimestampFieldDescription(AS400Text dataType, String name, String ddsName)
+  {
+    super(dataType, name, ddsName);
+  }
+
+  /**
+   *Constructs a TimestampFieldDescription object. It uses the data type
+   *and name of the field specified.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   **/
+  public TimestampFieldDescription(AS400Timestamp dataType, String name)
+  {
+    super(dataType, name);
+  }
+
+  /**
+   *Constructs a TimestampFieldDescription object. It uses the data type,
+   *name, and DDS name of the field specified.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   *@param ddsName The DDS name of this field. This is the
+   *               name of the field as it would appear in a DDS description of the
+   *               field.  The length of <i>ddsName</i> must be 10 characters or less.
+   **/
+  public TimestampFieldDescription(AS400Timestamp dataType, String name, String ddsName)
   {
     super(dataType, name, ddsName);
   }

@@ -20,7 +20,7 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 
 /**
- *The TimeFieldDescription class represents the description of the data in a time field.
+ *Represents the description of the data in a time field.
  *The TimeFieldDescription class allows:
  *<ul>
  *<li>The user to describe a time field to the RecordFormat object.
@@ -30,13 +30,11 @@ import java.text.SimpleDateFormat;
 **/
 public class TimeFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
   // The time format for this field
-  private String timeFormat_ = "";
+  private String timeFormat_ = null;
   // The time separator for this field
-  private String timeSeparator_ = "";
+  private String timeSeparator_ = null;
 
   /**
    *Constructs a TimeFieldDescription object.
@@ -68,6 +66,33 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
    *               field.  The length of <i>ddsName</i> must be 10 characters or less.
    **/
   public TimeFieldDescription(AS400Text dataType, String name, String ddsName)
+  {
+    super(dataType, name, ddsName);
+  }
+
+  /**
+   *Constructs a TimeFieldDescription object. It uses the data type
+   *and name of the field specified.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   **/
+  public TimeFieldDescription(AS400Time dataType, String name)
+  {
+    super(dataType, name);
+  }
+
+  /**
+   *Constructs a TimeFieldDescription object.  It uses the data type,
+   *name, and DDS name of the field specified.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   *@param ddsName The DDS name of this field. This is the
+   *               name of the field as it would appear in a DDS description of the
+   *               field.  The length of <i>ddsName</i> must be 10 characters or less.
+   **/
+  public TimeFieldDescription(AS400Time dataType, String name, String ddsName)
   {
     super(dataType, name, ddsName);
   }
@@ -121,11 +146,11 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
         v.addElement(keywords[i]);
       }
     }
-    if (!timeFormat_.equals(""))
+    if (timeFormat_ != null)
     {
       v.addElement("TIMFMT(" + timeFormat_ + ") ");
     }
-    if (!timeSeparator_.equals(""))
+    if (timeSeparator_ != null)
     {
       v.addElement("TIMSEP('" + timeSeparator_ + "') ");
     }
@@ -151,7 +176,7 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
   **/
   public String getTIMFMT()
   {
-    return timeFormat_;
+    return (timeFormat_ == null ? "" : timeFormat_);
   }
 
   /**
@@ -162,7 +187,7 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
   **/
   public String getTIMSEP()
   {
-    return timeSeparator_;
+    return (timeSeparator_ == null ? "" : timeSeparator_);
   }
 
   /**
@@ -242,19 +267,29 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
       throw new NullPointerException("timeFormat");
     }
     timeFormat_ = timeFormat;
+
+    // Inform the AS400Time object of the format.
+    if (dataType_ instanceof AS400Time) {
+      ((AS400Time)dataType_).setFormat(timeFormat);
+    }
   }
 
   /**
    *Sets the value to specify for the TIMSEP keyword for this field.
-   *@param timeSeparator The value to specify for TIMSEP for
-   *        this field.  The <i>timeSeparator</i> cannot be null.
+   *@param separator The value to specify for TIMSEP for this field.
+   *A null value indicates "no separator".
   **/
-  public void setTIMSEP(String timeSeparator)
+  public void setTIMSEP(String separator)
   {
-    if (timeSeparator == null)
+    // Inform the AS400Time object of the separator.
+    if (dataType_ instanceof AS400Time)
     {
-      throw new NullPointerException("timeSeparator");
+      if (separator != null && separator.length() > 1) {
+        throw new ExtendedIllegalArgumentException("separator (" + separator + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      }
+      Character sep = ( separator == null ? null : new Character(separator.charAt(0)));
+      ((AS400Time)dataType_).setSeparator(sep);
     }
-    timeSeparator_ = timeSeparator;
+    timeSeparator_ = separator;
   }
 }

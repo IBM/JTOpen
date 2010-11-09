@@ -20,8 +20,7 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 
 /**
- *The DateFieldDescription class 
- *represents the description of the data in a date field.
+ *Represents the description of the data in a date field.
  *It allows:
  *<ul>
  *<li>The user to describe a date field to the RecordFormat object.
@@ -31,14 +30,12 @@ import java.text.SimpleDateFormat;
 **/
 public class DateFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
   // The date format for this field
-  private String dateFormat_ = "";
+  private String dateFormat_ = null;
   // The date separator for this field
-  private String dateSeparator_ = "";
+  private String dateSeparator_ = null;
 
   /**
    *Constructs a DateFieldDescription object.
@@ -75,6 +72,34 @@ public class DateFieldDescription extends FieldDescription implements Serializab
     super(dataType, name, ddsName);
   }
 
+  /**
+   *Constructs a DateFieldDescription object. It uses the specified data type and name
+   *of the field.
+   *The length of the field will be the length reported by the AS400Date object.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+  **/
+  public DateFieldDescription(AS400Date dataType, String name)
+  {
+    super(dataType, name);
+  }
+
+  /**
+   *Constructs a DateFieldDescription object. It uses the specified data type, name, and
+   *DDS name of the field.
+   *@param dataType Describes the field and provides
+   *                the conversion capability for the contents of the field.
+   *@param name The name of the field.
+   *@param ddsName The DDS name of this field. This is the
+   *               name of the field as it would appear in a DDS description of the
+   *               field.  The length of <i>ddsName</i> must be 10 characters or less.
+  **/
+  public DateFieldDescription(AS400Date dataType, String name, String ddsName)
+  {
+    super(dataType, name, ddsName);
+  }
+
   
   /**
    *Returns the value specified for the DATFMT keyword for this field.
@@ -84,7 +109,7 @@ public class DateFieldDescription extends FieldDescription implements Serializab
   **/
   public String getDATFMT()
   {
-    return dateFormat_;
+    return (dateFormat_ == null ? "" : dateFormat_);
   }
 
   /**
@@ -95,7 +120,7 @@ public class DateFieldDescription extends FieldDescription implements Serializab
   **/
   public String getDATSEP()
   {
-    return dateSeparator_;
+    return dateSeparator_ == null ? "" : dateSeparator_;
   }
 
   /**
@@ -146,11 +171,11 @@ public class DateFieldDescription extends FieldDescription implements Serializab
         v.addElement(keywords[i]);
       }
     }
-    if (!dateFormat_.equals(""))
+    if (dateFormat_ != null)
     {
       v.addElement("DATFMT(" + dateFormat_ + ") ");
     }
-    if (!dateSeparator_.equals(""))
+    if (dateSeparator_ != null)
     {
       v.addElement("DATSEP('" + dateSeparator_ + "') ");
     }
@@ -197,20 +222,30 @@ public class DateFieldDescription extends FieldDescription implements Serializab
       throw new NullPointerException("dateFormat");
     }
     dateFormat_ = dateFormat;
+
+    // Inform the AS400Date object of the format.
+    if (dataType_ instanceof AS400Date) {
+      ((AS400Date)dataType_).setFormat(dateFormat);
+    }
   }
 
   /**
    *Sets the value to specify for the DATSEP keyword for this field.
-   *@param dateSeparator The value to specify for DATSEP for
-   *        this field.  The <i>dateSeparator</i> cannot be null.
+   *@param separator The value to specify for DATSEP for this field.
+   *A null value indicates "no separator".
   **/
-  public void setDATSEP(String dateSeparator)
+  public void setDATSEP(String separator)
   {
-    if (dateSeparator == null)
+    // Inform the AS400Date object of the separator.
+    if (dataType_ instanceof AS400Date)
     {
-      throw new NullPointerException("dateSeparator");
+      if (separator != null && separator.length() > 1) {
+        throw new ExtendedIllegalArgumentException("separator (" + separator + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      }
+      Character sep = ( separator == null ? null : new Character(separator.charAt(0)));
+      ((AS400Date)dataType_).setSeparator(sep);
     }
-    dateSeparator_ = dateSeparator;
+    dateSeparator_ = separator;
   }
 
   //@B0C - javadoc
