@@ -23,7 +23,7 @@ public class AS400Bin1 implements AS400DataType
   static final long serialVersionUID = 4L;
 
   private static final int  SIZE = 1;
-  private static final byte MIN_VALUE = (byte)-128; // 0xFF
+  private static final byte MIN_VALUE = (byte)-128; // 0x80 (two's complement)
   private static final byte MAX_VALUE = (byte)127;  // 0x7F
   private static final byte DEFAULT_VALUE = (byte)0;
 
