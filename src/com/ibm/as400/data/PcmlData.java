@@ -14,6 +14,9 @@
 package com.ibm.as400.data;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Date;
+import com.ibm.as400.access.AS400Time;
+import com.ibm.as400.access.AS400Timestamp;
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.ProgramParameter;                       // @B1A
 import com.ibm.as400.access.BidiStringType;                         // @C9A
@@ -42,6 +45,10 @@ class PcmlData extends PcmlDocNode
     public static final int BYTE   = 6;
     public static final int STRUCT = 7;
 
+    public static final int DATE        =  8; // PCML version 6.0
+    public static final int TIME        =  9; // PCML version 6.0
+    public static final int TIMESTAMP   = 10; // PCML version 6.0
+
     // Largest length= supported for type="char" and type="byte"
     public static final int MAX_STRING_LENGTH = 1024*1024;          // @C6C
 
@@ -67,13 +74,20 @@ class PcmlData extends PcmlDocNode
         "passby",                       // PCML Ver. 2.0
         "bidistringtype",               // PCML Ver. 3.0               @C9A
         "trim",                         // PCML Ver. 4.0               @D1A
-        "chartype"                      // PCML Ver. 4.0               @D2A
-        // Note: "keyfield" is unique to RFML, so is not listed here.
+        "chartype",                     // PCML Ver. 4.0               @D2A
+        // Note: "keyfield" is unique to RFML (Ver. 5.0), so is not listed here.
+        "dateformat",                   // PCML Ver. 6.0
+        "dateseparator",                // PCML Ver. 6.0
+        "timeformat",                   // PCML Ver. 6.0
+        "timeseparator"                 // PCML Ver. 6.0
     };
     private static final int VERSION_1_ATTRIBUTE_COUNT = 14;
     private static final int VERSION_2_ATTRIBUTE_COUNT = 15;
     private static final int VERSION_3_ATTRIBUTE_COUNT = 16;        // @C9A
     private static final int VERSION_4_ATTRIBUTE_COUNT = 18;        // @D1A @D2C
+    private static final int VERSION_5_ATTRIBUTE_COUNT = 20;
+
+    private static Hashtable bidiTypeMap_;
 
     /***********************************************************
      Instance Members
@@ -127,6 +141,15 @@ class PcmlData extends PcmlDocNode
     // The following attributes added for RFML v5.0 (not relevant to PCML)
     private String  m_KeyFieldStr;   // keyfield=, string literal
     private boolean m_KeyField;      // keyfield=, boolean representing value
+
+    // The following attributes added for PCML v6.0
+    private String m_DateFormat;    // dateformat=, string literal
+    private String m_DateSeparator; // dateseparator=, string literal (single character)
+    private String m_TimeFormat;    // timeformat=, string literal
+    private String m_TimeSeparator; // timeseparator=, string literal (single character)
+
+                                     // We store 'separator' values as String rather than char,
+                                     // in order to use 'null' to indicate 'not set'.
 
     /***********************************************************
      Semi-Transient Members --
@@ -218,6 +241,18 @@ class PcmlData extends PcmlDocNode
 
         // Set keyfield= attribute value  (relevant only to RFML)
         setKeyField(getAttributeValue("keyfield"));
+
+        // Set dateformat= attribute value
+        setDateFormat(getAttributeValue("dateformat"));
+
+        // Set dateseparator= attribute value
+        setDateSeparator(getAttributeValue("dateseparator"));
+
+        // Set timeformat= attribute value
+        setTimeFormat(getAttributeValue("timeformat"));
+
+        // Set timeseparator= attribute value
+        setTimeSeparator(getAttributeValue("timeseparator"));
 
         m_scalarValue = null; // Transient data created as needed
         m_vectorValue = null; // Transient data created as needed
@@ -522,7 +557,9 @@ class PcmlData extends PcmlDocNode
             returnCount = VERSION_2_ATTRIBUTE_COUNT;            // @C9A
         else if ( getDoc().getVersion().compareTo("4.0") < 0 )  // @D1A
             returnCount = VERSION_3_ATTRIBUTE_COUNT;            // @D1A
-        else                            // Anything else return the entire array
+        else if ( getDoc().getVersion().compareTo("6.0") < 0 )
+            returnCount = VERSION_4_ATTRIBUTE_COUNT;
+        else                            // Anything else: Return the entire array
             return DATAATTRIBUTES;                              // @C7A
 
         returnArray = new String[returnCount];                  // @C7A
@@ -1360,6 +1397,30 @@ class PcmlData extends PcmlDocNode
         return m_StructId;
     }
 
+    // Get the dateformat= value, if any
+    public final String getDateFormat()
+    {
+        return m_DateFormat;
+    }
+
+    // Get the dateseparator= value, if any
+    public final String getDateSeparator()
+    {
+        return m_DateSeparator;
+    }
+
+    // Get the timeformat= value, if any
+    public final String getTimeFormat()
+    {
+        return m_TimeFormat;
+    }
+
+    // Get the timeseparator= value, if any
+    public final String getTimeSeparator()
+    {
+        return m_TimeSeparator;
+    }
+
     // Get the keyfield= value, if any
     public boolean isKeyField()
     {
@@ -1384,7 +1445,7 @@ class PcmlData extends PcmlDocNode
             m_CountId = null;
         }
         // If value is not an integer, it must be an element name
-        // checkAttributes() will be caled later to verify the element name
+        // checkAttributes() will be called later to verify the element name
         catch (NumberFormatException e)
         {
             m_Count = 0;
@@ -1453,7 +1514,7 @@ class PcmlData extends PcmlDocNode
             m_LengthId = null;
         }
         // If value is not an integer, it must be an element name
-        // checkAttributes() will be caled later to verify the element name
+        // checkAttributes() will be called later to verify the element name
         catch (NumberFormatException e)
         {
             m_Length = 0;
@@ -1506,7 +1567,7 @@ class PcmlData extends PcmlDocNode
             m_OffsetId = null;
         }
         // If value is not an integer, it must be an element name
-        // checkAttributes() will be caled later to verify the element name
+        // checkAttributes() will be called later to verify the element name
         catch (NumberFormatException e)
         {
             m_Offset = 0;
@@ -1556,7 +1617,7 @@ class PcmlData extends PcmlDocNode
             m_OutputsizeId = null;
         }
         // If value is not an integer, it must be an element name
-        // checkAttributes() will be caled later to verify the element name
+        // checkAttributes() will be called later to verify the element name
         catch (NumberFormatException e)
         {
             m_Outputsize = 0;
@@ -1590,8 +1651,8 @@ class PcmlData extends PcmlDocNode
 
     private void setBidiStringType(String type)                     // @C9A
     {
-        // Handle null or empty string
-        if (type == null || type.equals(""))                        // @C9A
+        // Handle null, empty string, or DEFAULT.
+        if (type == null || type.equals("") || type.equals("DEFAULT"))
         {
             m_BidistringtypeStr = null;                             // @C9A
             m_Bidistringtype = BidiStringType.DEFAULT;              // @C9A
@@ -1600,42 +1661,41 @@ class PcmlData extends PcmlDocNode
 
         // Save the attribute value
         m_BidistringtypeStr = type;                                 // @C9A
-        if ( m_BidistringtypeStr.equals("ST4") )                    // @C9A
-        {
-            m_Bidistringtype = BidiStringType.ST4;                  // @C9A
+        Integer bidistringtypeInt = (Integer)getBidiTypeMap().get(m_BidistringtypeStr);
+
+        if (bidistringtypeInt == null) {
+          m_Bidistringtype = BidiStringType.DEFAULT;
+          if (Trace.isTraceOn()) {
+            Trace.log(Trace.PCML, "[Warning]: Value of 'bidistringtype' attribute is not recognized: "+ m_BidistringtypeStr);
+          }
         }
-        else if ( m_BidistringtypeStr.equals("ST5") )               // @C9A
+        else m_Bidistringtype = bidistringtypeInt.intValue();
+    }
+
+    private static Hashtable getBidiTypeMap()
+    {
+      if (bidiTypeMap_ == null)
+      {
+        synchronized (PcmlData.class)
         {
-            m_Bidistringtype = BidiStringType.ST5;                  // @C9A
+          if (bidiTypeMap_ == null)
+          {
+            bidiTypeMap_ = new Hashtable(10);
+
+            bidiTypeMap_.put("DEFAULT", new Integer(BidiStringType.DEFAULT));
+            bidiTypeMap_.put("NONE",    new Integer(BidiStringType.NONE));
+            bidiTypeMap_.put("ST4",     new Integer(BidiStringType.ST4));
+            bidiTypeMap_.put("ST5",     new Integer(BidiStringType.ST5));
+            bidiTypeMap_.put("ST6",     new Integer(BidiStringType.ST6));
+            bidiTypeMap_.put("ST7",     new Integer(BidiStringType.ST7));
+            bidiTypeMap_.put("ST8",     new Integer(BidiStringType.ST8));
+            bidiTypeMap_.put("ST9",     new Integer(BidiStringType.ST9));
+            bidiTypeMap_.put("ST10",    new Integer(BidiStringType.ST10));
+            bidiTypeMap_.put("ST11",    new Integer(BidiStringType.ST11));
+          }
         }
-        else if ( m_BidistringtypeStr.equals("ST6") )               // @C9A
-        {
-            m_Bidistringtype = BidiStringType.ST6;                  // @C9A
-        }
-        else if ( m_BidistringtypeStr.equals("ST7") )               // @C9A
-        {
-            m_Bidistringtype = BidiStringType.ST7;                  // @C9A
-        }
-        else if ( m_BidistringtypeStr.equals("ST8") )               // @C9A
-        {
-            m_Bidistringtype = BidiStringType.ST8;                  // @C9A
-        }
-        else if ( m_BidistringtypeStr.equals("ST9") )               // @C9A
-        {
-            m_Bidistringtype = BidiStringType.ST9;                  // @C9A
-        }
-        else if ( m_BidistringtypeStr.equals("ST10") )              // @C9A
-        {
-            m_Bidistringtype = BidiStringType.ST10;                 // @C9A
-        }
-        else if ( m_BidistringtypeStr.equals("ST11") )              // @C9A
-        {
-            m_Bidistringtype = BidiStringType.ST11;                 // @C9A
-        }
-        else                                                        // @C9A
-        {
-            m_Bidistringtype = BidiStringType.DEFAULT;              // @C9A
-        }
+      }
+      return bidiTypeMap_;
     }
 
     private void setPrecision(String precision)
@@ -1680,27 +1740,30 @@ class PcmlData extends PcmlDocNode
         m_TypeStr = type;
 
         // char | int | packed | zoned | float | byte | struct
+        //      | date | time | timestamp
         if (type.equals("char"))
             m_Type = CHAR;
-        else
-        if (type.equals("int"))
+        else if (type.equals("int"))
             m_Type = INT;
-        else
-        if (type.equals("packed"))
+        else if (type.equals("packed"))
             m_Type = PACKED;
-        else
-        if (type.equals("zoned"))
+        else if (type.equals("zoned"))
             m_Type = ZONED;
-        else
-        if (type.equals("float"))
+        else if (type.equals("float"))
             m_Type = FLOAT;
-        else
-        if (type.equals("byte"))
+        else if (type.equals("byte"))
             m_Type = BYTE;
-        else
-        if (type.equals("struct"))
+        else if (type.equals("struct"))
             m_Type = STRUCT;
-        else
+        else if (type.equals("date"))
+            m_Type = DATE;
+        else if (type.equals("time"))
+            m_Type = TIME;
+        else if (type.equals("timestamp"))
+            m_Type = TIMESTAMP;
+
+
+        else  // none of the above
             // checkattributes() will add a pcml specification error.
             m_Type = UNSUPPORTED;
     }
@@ -1746,10 +1809,62 @@ class PcmlData extends PcmlDocNode
         else m_KeyField = false;
     }
 
+    private void setDateFormat(String format)
+    {
+        // Handle null or empty string
+        if (format == null || format.equals(""))
+        {
+            m_DateFormat = null;
+            return;
+        }
+
+        // Save the attribute value
+        m_DateFormat = format;
+    }
+
+    private void setDateSeparator(String separator)
+    {
+        // Handle null or empty string
+        if (separator == null || separator.equals(""))
+        {
+            m_DateSeparator = null;
+            return;
+        }
+
+        // Save the attribute value
+        m_DateSeparator = separator;
+    }
+
+    private void setTimeFormat(String format)
+    {
+        // Handle null or empty string
+        if (format == null || format.equals(""))
+        {
+            m_TimeFormat = null;
+            return;
+        }
+
+        // Save the attribute value
+        m_TimeFormat = format;
+    }
+
+    private void setTimeSeparator(String separator)
+    {
+        // Handle null or empty string
+        if (separator == null || separator.equals(""))
+        {
+            m_TimeSeparator = null;
+            return;
+        }
+
+        // Save the attribute value
+        m_TimeSeparator = separator;
+    }
+
     protected void checkAttributes()
     {
         //String resolvedName = null;
-        PcmlDocNode resolvedNode;
+        PcmlDocNode resolvedNode = null;
 
         super.checkAttributes();
 
@@ -1821,21 +1936,26 @@ class PcmlData extends PcmlDocNode
         // Do not allow ccsid= to be a literal value that is negative or greater than 65535.   @D0C
         if (m_Ccsid < 0 || m_Ccsid > 65535)  // @D0C - added check for >65535.
         {
-            getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("ccsid", m_Ccsid), getBracketedTagName(), getNameForException()} ); // @A1C
+            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {new Integer(m_Ccsid), new Integer(0), new Integer(65535), getBracketedTagName(), getNameForException()} );
         }
 
 
         // Verify the init= attribute
         if (getInit() != null)
         {
-            try
-            {
+          switch (getDataType())
+          {
+            default:
+              try
+              {
                 PcmlDataValues.convertValue((Object) getInit(), getDataType(), getLength(), getPrecision(), getNameForException());
-            }
-            catch (Exception e)
-            {
+              }
+              catch (Exception e)
+              {
                 getDoc().addPcmlSpecificationError(DAMRI.INITIAL_VALUE_ERROR, new Object[] {getInit(), getBracketedTagName(), getNameForException()} );
-            }
+              }
+              break;
+          }
 
         }
 
@@ -1877,10 +1997,10 @@ class PcmlData extends PcmlDocNode
                 }
             }
         }
-        else
+        else  // an integer literal was specified for the 'length' attribute
         {
             // Verify the integer literal specified for length.
-            if (m_Length == -1)
+            if (m_Length < 0)
             {
                 getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_SYNTAX, new Object[] {makeQuotedAttr("length", getAttributeValue("length")), "type=\"int\"", getBracketedTagName(), getNameForException()} );
             }
@@ -1892,42 +2012,67 @@ class PcmlData extends PcmlDocNode
                     case BYTE:
                         if ( m_Length < 0 || m_Length > (MAX_STRING_LENGTH) )
                         {
-                            getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("length",  getAttributeValue("length")), "type=\"int\"", getBracketedTagName(), getNameForException()} );
-                        }
-                        break;
-                    case INT:
-                        if (m_Length != 2 && m_Length != 4 && m_Length != 8)    // @C4C
-                        {
-                            getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("length",  getAttributeValue("length")), "type=\"int\"", getBracketedTagName(), getNameForException()} );
-                        }
-                        break;
-                    case PACKED:
-                        if (m_Length < 1 || m_Length > 31)
-                        {
-                            getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("length",  getAttributeValue("length")), "type=\"int\"packed", getBracketedTagName(), getNameForException()} );
-                        }
-                        break;
-                    case ZONED:
-                        if (m_Length < 1 || m_Length > 31)
-                        {
-                            getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("length",  getAttributeValue("length")), "type=\"int\"zoned", getBracketedTagName(), getNameForException()} );
-                        }
-                        break;
-                    case FLOAT:
-                        if (m_Length != 4 && m_Length != 8)
-                        {
-                            getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("length",  getAttributeValue("length")), "type=\"float\"", getBracketedTagName(), getNameForException()} );
-                        }
-                        break;
-                    case STRUCT:
-                        if ( getAttributeValue("length") != null
-                         && !getAttributeValue("length").equals("") ) // @++C
-                        {
-                            getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("length",  getAttributeValue("length")), "type=\"struct\"", getBracketedTagName(), getNameForException()} );
+                            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {new Integer(m_Length), new Integer(0), new Integer(PcmlData.MAX_STRING_LENGTH), getBracketedTagName(), getNameForException()} );
+
                         }
                         break;
 
+                    case INT:
+                        if (m_Length != 1 && m_Length != 2 && m_Length != 4 && m_Length != 8)    // @C4C
+                        {
+                            getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("length", m_Length), getBracketedTagName(), getNameForException()} );
+                        }
+                        break;
+
+                    case PACKED:
+                    case ZONED:
+                        if (m_Length < 1 || m_Length > 31)
+                        {
+                            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {new Integer(m_Length), new Integer(1), new Integer(31), getBracketedTagName(), getNameForException()} );
+                        }
+                        break;
+
+                    case FLOAT:
+                        if (m_Length != 4 && m_Length != 8)
+                        {
+                            getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("length", m_Length), getBracketedTagName(), getNameForException()} );
+                        }
+                        break;
+
+                    case STRUCT:
+                    case DATE:
+                    case TIME:
+                    case TIMESTAMP:
+                        if ( getAttributeValue("length") != null
+                         && !getAttributeValue("length").equals("") )
+                        {
+                            getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("length",  getAttributeValue("length")), makeQuotedAttr("type",  getAttributeValue("type")), getBracketedTagName(), getNameForException()} );
+                        }
+                        break;
+
+                    default:  // none of the above
+                      getDoc().addPcmlSpecificationError(DAMRI.BAD_DATA_TYPE, new Object[] {makeQuotedAttr("type",  getAttributeValue("type")), getBracketedTagName(), getNameForException()} );
+
                 }
+
+                // Check for presence of 'length' attribute.
+                if (!m_LengthWasSpecified &&
+                    getDataType() != STRUCT &&
+                    getDataType() != DATE &&
+                    getDataType() != TIME &&
+                    getDataType() != TIMESTAMP )
+                {
+                  if (m_IsRfml || ProgramCallDocument.exceptionIfParseError_) {
+                    getDoc().addPcmlSpecificationError(DAMRI.NO_LENGTH, new Object[] {makeQuotedAttr("length", null), getBracketedTagName(), getNameForException()} );
+                  }
+                  else
+                  {
+                    if (Trace.isTraceOn()) {
+                      Trace.log(Trace.PCML, "[Warning]: 'length' attribute was not specified in "+ getBracketedTagName() +" element: "+ getNameForException());
+                    }
+                  }
+                }
+
                 // Extra logic for RFML.                                      @D0A
                 if (m_IsRfml)
                 {
@@ -1940,6 +2085,12 @@ class PcmlData extends PcmlDocNode
                       getDoc().addPcmlSpecificationError(DAMRI.NO_STRUCT, new Object[] {makeQuotedAttr("struct", null), getBracketedTagName(), getNameForException()} );
                     }
                   }
+
+                  // If type="struct", the 'struct' attribute is required.
+                  else if (getDataType() == DATE || getDataType() == TIME ||
+                           getDataType() == TIMESTAMP)
+                  {} // 'length' is not required
+
                   // Otherwise, the 'length' attribute is required.
                   else if (!m_LengthWasSpecified)
                   {
@@ -2058,11 +2209,21 @@ class PcmlData extends PcmlDocNode
                 case BYTE:
                 case FLOAT:
                 case STRUCT:
+                case DATE:
+                case TIME:
+                case TIMESTAMP:
                        getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("precision",  getAttributeValue("precision")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
                     break;
 
-                // For type=int, precision= must be 15 or 16 or 21 or 32 depending on length=
+                // For type=int, precision= must be 15 or 16, or 31 or 32, or 63 or 64, depending on length=
                 case INT:
+                    if (m_Length == 1)
+                    {
+                        if (m_Precision != 7 && m_Precision != 8)
+                        {
+                            getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("precision",  getAttributeValue("precision")), getBracketedTagName(), getNameForException()} );
+                        }
+                    }
                     if (m_Length == 2)
                     {
                         if (m_Precision != 15 && m_Precision != 16)
@@ -2079,7 +2240,7 @@ class PcmlData extends PcmlDocNode
                     }
                     if (m_Length == 8)                              // @C4A
                     {                                               // @C4A
-                        if (m_Precision != 63)                      // @C4A
+                        if (m_Precision != 63 && m_Precision != 64) // @C4A
                         {                                           // @C4A
                             getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("precision",  getAttributeValue("precision")), getBracketedTagName(), getNameForException()} ); // @C4A
                         }                                           // @C4A
@@ -2197,6 +2358,108 @@ class PcmlData extends PcmlDocNode
             if ( getDoc().getVersion().compareTo("5.0") < 0 )
             {
                 getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("keyfield", m_KeyFieldStr), "5.0", getBracketedTagName(), getNameForException()} );
+            }
+        }
+
+        // Verify the dateformat= attribute
+        if (m_DateFormat != null)
+        {
+            // Only allow this attribute when the pcml version is 6.0 or higher (e.g. <pcml version="6.0">), and only for type "date".
+            if ( getDoc().getVersion().compareTo("6.0") < 0 )
+            {
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("dateformat", m_DateFormat), "6.0", getBracketedTagName(), getNameForException()} );
+            }
+
+            switch (getDataType())
+            {
+              case DATE:
+                // Check that it's a recognized format. Note: This is NOT already checked by the parser.
+                if (!AS400Date.validateFormat(AS400Date.toFormat(m_DateFormat))) {
+                  getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("dateformat",  getAttributeValue("dateformat")), getBracketedTagName(), getNameForException()} );
+                }
+                break;
+
+              default:  // type is not DATE
+                // dateformat= is not allowed for any other data type
+                getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("dateformat",  getAttributeValue("dateformat")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
+                break;
+            }
+        }
+
+        // Verify the dateseparator= attribute
+        if (m_DateSeparator != null)
+        {
+            // Only allow this attribute when the pcml version is 6.0 or higher (e.g. <pcml version="6.0">), and only for type "date".
+            if ( getDoc().getVersion().compareTo("6.0") < 0 )
+            {
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("dateseparator", m_DateSeparator), "6.0", getBracketedTagName(), getNameForException()} );
+            }
+
+            switch (getDataType())
+            {
+              case DATE:
+                // Check that it's a recognized separator name.
+                if (!isValidSeparatorName(m_DateSeparator)) {
+                  Trace.log(Trace.PCML, "Separator name '" + m_DateSeparator + "' is not recognized.");
+                  getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("dateseparator",  getAttributeValue("dateseparator")), getBracketedTagName(), getNameForException()} );
+                }
+                break;
+
+              default:  // type is not DATE
+                // dateseparator= is not allowed for any other data type
+                getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("dateseparator",  getAttributeValue("dateseparator")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
+                break;
+            }
+        }
+
+        // Verify the timeformat= attribute
+        if (m_TimeFormat != null)
+        {
+            // Only allow this attribute when the pcml version is 6.0 or higher (e.g. <pcml version="6.0">), and only for type "time".
+            if ( getDoc().getVersion().compareTo("6.0") < 0 )
+            {
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("timeformat", m_TimeFormat), "6.0", getBracketedTagName(), getNameForException()} );
+            }
+
+            switch (getDataType())
+            {
+              case TIME:
+                // Check that it's a recognized format. Note: This is NOT already checked by the parser.
+                if (!AS400Time.validateFormat(AS400Time.toFormat(m_TimeFormat))) {
+                  getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("timeformat",  getAttributeValue("timeformat")), getBracketedTagName(), getNameForException()} );
+                }
+                break;
+
+              default:  // type is not TIME
+                // timeformat= is not allowed for any other data type
+                getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("timeformat",  getAttributeValue("timeformat")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
+                break;
+            }
+        }
+
+        // Verify the timeseparator= attribute
+        if (m_TimeSeparator != null)
+        {
+            // Only allow this attribute when the pcml version is 6.0 or higher (e.g. <pcml version="6.0">), and only for type "time".
+            if ( getDoc().getVersion().compareTo("6.0") < 0 )
+            {
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("timeseparator", m_TimeSeparator), "6.0", getBracketedTagName(), getNameForException()} );
+            }
+
+            switch (getDataType())
+            {
+              case TIME:
+                // Check that it's a recognized separator name.
+                if (!isValidSeparatorName(m_TimeSeparator)) {
+                  Trace.log(Trace.PCML, "Separator name '" + m_TimeSeparator + "' is not recognized.");
+                  getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("timeseparator",  getAttributeValue("timeseparator")), getBracketedTagName(), getNameForException()} );
+                }
+                break;
+
+              default:  // type is not TIME
+                // timeseparator= is not allowed for any other data type
+                getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("timeseparator",  getAttributeValue("timeseparator")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
+                break;
             }
         }
 
