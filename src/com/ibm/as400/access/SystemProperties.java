@@ -26,6 +26,7 @@ public class SystemProperties
 {
     // System property constants.
     private static final String ACCESS_PREFIX = "com.ibm.as400.access.";
+    private static final String DATA_PREFIX   = "com.ibm.as400.data.";
     private static final String PROPERTIES_CLASS_NAME = ACCESS_PREFIX + "Properties";
     private static final String PROPERTIES_FILE_NAME = ACCESS_PREFIX + "jt400.properties";
     private static final String PROPERTIES_FILE_NAME_WITH_SLASHES = "com/ibm/as400/access/jt400.properties";
@@ -141,7 +142,7 @@ public class SystemProperties
      </ul>
      **/
     public static final String TRACE_CATEGORY   = ACCESS_PREFIX + "Trace.category";
-           static final String TRACE_CATEGORIES = ACCESS_PREFIX + "Trace.categories"; // tolerate misspelled property name
+           static final String TRACE_CATEGORIES = ACCESS_PREFIX + "Trace.categories"; // catch misspellings
 
     /**
      Specifies the file to which the {@link Trace Trace} class writes output.
@@ -268,6 +269,18 @@ public class SystemProperties
      </ul>
      **/
     public static final String CONNECTIONPOOL_PRETEST = ACCESS_PREFIX + "ConnectionPool.pretest";
+
+    /**
+     Specifies the behavior of the {@link com.ibm.as400.data.ProgramCallDocument ProgramCallDocument} in the event that XML parsing errors occur.
+     By default, the ProgramCallDocument object simply traces any parse errors.  The trace category is {@link Trace#PCML PCML}.  Setting this property to <tt>true</tt> directs the Toolbox to also throw a SAXException in the event of a parsing error.
+     <ul>
+     <li>Property name: com.ibm.as400.data.ProgramCallDocument.throwSAXExceptionIfParseError
+     <li>Values/syntax: <tt>true</tt> or <tt>false</tt>
+     <li>Default: <tt>false</tt>
+     <li>Overridden by: (none)
+     </ul>
+     **/
+    public static final String THROW_SAX_EXCEPTION_IF_PARSE_ERROR = DATA_PREFIX + "ProgramCallDocument.throwSAXExceptionIfParseError";
 
 
 
