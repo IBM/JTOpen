@@ -662,11 +662,20 @@ implements IFSFileImpl
 
     returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     // Attempt to list the attributes of the specified file.
-    IFSListAttrsRep attrs = getAttributeSetFromServer(name);
-    if (attrs != null)
+    try
     {
-      returnCode = IFSReturnCodeRep.SUCCESS;
-      attributesReply_ = attrs;
+      IFSListAttrsRep attrs = getAttributeSetFromServer(name);
+      if (attrs != null)
+      {
+        returnCode = IFSReturnCodeRep.SUCCESS;
+        attributesReply_ = attrs;
+      }
+    }
+    catch (AS400SecurityException e)
+    {
+      returnCode = IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY;
+      // Note: This is consistent with the behavior of java.io.File on IBM JVMs.
+      // On IBM i, java.io.File.exists() returns false if the profile is denied access to the file being queried.
     }
 
     return (returnCode);
