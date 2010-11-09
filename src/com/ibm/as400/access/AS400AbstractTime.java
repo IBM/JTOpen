@@ -31,17 +31,29 @@ public abstract class AS400AbstractTime implements AS400DataType
   static final Locale LOCALE_DEFAULT = Locale.US;  // keep things simple
   static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone("GMT-0");
 
+  // Separator characters.  Used by AS400Date and AS400Time.
+  static final Character AMPERSAND = new Character('&');
+  static final Character COLON = new Character(':');
+  static final Character COMMA = new Character(',');
+  static final Character HYPHEN = new Character('-');
+  static final Character PERIOD = new Character('.');
+  static final Character SLASH = new Character('/');
+
   private int length_;  // number of bytes occupied by the IBM i value
   private transient GregorianCalendar calendar_;
   private transient SimpleDateFormat dateFormatter_;
   private transient CharConverter charConverter_;
+
+  private static SimpleDateFormat dateFormatterXSD_;       // used by AS400Date
+  private static SimpleDateFormat timeFormatterXSD_;       // used by AS400Time
+  private static SimpleDateFormat timestampFormatterXSD_;  // used by AS400Timestamp
 
   // Map of 'century' digit values to Date objects that specify that start of each century.
   private transient java.util.Date[] centuryMap_;
   // Note: In our code for this class and its subclasses, we will fully qualify references to class java.util.Date and java.sql.Date, in order to eliminate any possible confusion between the two classes.
 
   private int format_;
-  private char separator_;
+  private Character separator_;
   private boolean separatorHasBeenSet_ = false;  // indicates whether separator was explicitly set by the application
 
   /**
@@ -166,14 +178,14 @@ public abstract class AS400AbstractTime implements AS400DataType
 
 
   // Utility method used by subclasses.
-  char getSeparator()
+  Character getSeparator()
   {
     return separator_;
   }
 
 
   // Method needed by DateFieldDescription and TimeFieldDescription.
-  synchronized void setSeparator(char separator)
+  synchronized void setSeparator(Character separator)
   {
     separator_ = separator;
     separatorHasBeenSet_ = true;
@@ -189,10 +201,8 @@ public abstract class AS400AbstractTime implements AS400DataType
    **/
   synchronized void setFormat(int format)
   {
-    char separator;
-    if (!separatorHasBeenSet_) separator = defaultSeparatorFor(format);
-    else separator = separator_;
-    setFormat(format, separator);
+    Character sep = ( separatorHasBeenSet_ ? separator_ : defaultSeparatorFor(format) );
+    setFormat(format, sep);
   }
 
 
@@ -204,13 +214,10 @@ public abstract class AS400AbstractTime implements AS400DataType
    @param separator  The separator.
    Refer to the IBM i programming reference to determine which separators are valid with each format.
    **/
-  synchronized void setFormat(int format, char separator)
+  synchronized void setFormat(int format, Character separator)
   {
     if (!isValidFormat(format)) {
       throw new ExtendedIllegalArgumentException("format (" + format + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-    if (!isValidSeparator(separator, format)) {
-      throw new ExtendedIllegalArgumentException("separator (" + separator + ") not valid for format " + format, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     format_ = format;
     separator_ = separator;
@@ -349,6 +356,55 @@ public abstract class AS400AbstractTime implements AS400DataType
   }
 
 
+  // Utility method used by AS400Date.
+  static SimpleDateFormat getDateFormatterXSD()
+  {
+    if (dateFormatterXSD_ == null) {
+      synchronized (AS400Date.class)
+      {
+        if (dateFormatterXSD_ == null) {
+          dateFormatterXSD_ = new SimpleDateFormat("yyyy-MM-dd");
+          dateFormatterXSD_.setTimeZone(TIMEZONE_GMT);
+        }
+      }
+    }
+    return dateFormatterXSD_;
+  }
+
+
+  // Utility method used by AS400Time.
+  static SimpleDateFormat getTimeFormatterXSD()
+  {
+    if (timeFormatterXSD_ == null) {
+      synchronized (AS400Time.class)
+      {
+        if (timeFormatterXSD_ == null) {
+          timeFormatterXSD_ = new SimpleDateFormat("HH:mm:ss");
+          timeFormatterXSD_.setTimeZone(TIMEZONE_GMT);
+        }
+      }
+    }
+    return timeFormatterXSD_;
+  }
+
+
+  // Utility method used by AS400Timestamp.
+  static SimpleDateFormat getTimestampFormatterXSD()
+  {
+    if (timestampFormatterXSD_ == null) {
+      synchronized (AS400Timestamp.class)
+      {
+        if (timestampFormatterXSD_ == null) {
+          timestampFormatterXSD_ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+          // Note: We deal with "nanoseconds" elsewhere, in the AS400Timestamp class.
+          timestampFormatterXSD_.setTimeZone(TIMEZONE_GMT);
+        }
+      }
+    }
+    return timestampFormatterXSD_;
+  }
+
+
   // Returns a Date object representing, in the contextual time zone, 00:00:00 on January 1 of the first year in the specified century.
   // Note:  The century-numbering convention of IBM i "date" formats is as follows:
   //     Century '0' indicates years 1900-1999.
@@ -374,10 +430,9 @@ public abstract class AS400AbstractTime implements AS400DataType
     return centuryMap_[century];
   }
 
-  abstract String patternFor(int format, char separator);
-  abstract char defaultSeparatorFor(int format);
+  abstract String patternFor(int format, Character separator);
+  abstract Character defaultSeparatorFor(int format);
   abstract boolean isValidFormat(int format);
-  abstract boolean isValidSeparator(char separator, int format);
   abstract int lengthFor(int format);
 
 }
