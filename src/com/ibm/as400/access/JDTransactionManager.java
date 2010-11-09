@@ -93,7 +93,7 @@ class JDTransactionManager
   private boolean             localTransaction_   = true;  // @C4A
   // @C5D private boolean             newAutoCommitSupport_ = false;                             // @C5A
   private int                 serverCommitMode_;          // Commit mode on the system. Always base off of JDBC transaction isolation level (currentCommitMode_)
-
+  private int                currentLocatorPersistence=-1;  /*@ABA*/ 
 
 
 /**
@@ -535,6 +535,8 @@ Set the auto-commit mode.
                 serverCommitMode_ = COMMIT_MODE_NONE_;
               else
                 serverCommitMode_ = currentCommitMode_;
+              
+              setRequestLocatorPersistence(request, getIsolationLevel()); /*@ABA*/
               reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
@@ -554,7 +556,28 @@ Set the auto-commit mode.
     }                                                                       // @C4A
   }
 
-
+  /* 
+   * Sets the locator persistence for a request.  The persistence is typically set to 
+   * 1 (Scoped to transaction) but must be set to 0 (scoped to cursor) if Auto commit is off 
+   * and transaction isolation level is *NONE.
+   * 
+   *  Should be called whenever autocommit level or isolation level is changed.
+   *  @ABA
+   */
+  private void setRequestLocatorPersistence(DBSQLAttributesDS request, int commitMode) throws DBDataStreamException {
+      // transaction isolation is none, make sure locator persistence is scoped to the cursor 
+      if (commitMode == COMMIT_MODE_NONE_) {
+      	 if ( currentLocatorPersistence != 0) { 
+    	    request.setLocatorPersistence(0); 
+    	    currentLocatorPersistence = 0; 
+    	  }
+      } else { 
+         if (currentLocatorPersistence != 1) { 
+    	  request.setLocatorPersistence(1); 
+    	  currentLocatorPersistence = 1; 
+    	  }
+      }
+  }
 
 /**
 Set the commit mode on the system.
@@ -688,6 +711,8 @@ java.sql.Connection.TRANSACTION_* values.
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
                   request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA
+                  setRequestLocatorPersistence(request, getIsolationLevel()); /*@ABA*/
+
                   reply = connection_.sendAndReceive(request);                 //@KBA
                   int errorClass = reply.getErrorClass();                                         //@KBA
                   int returnCode = reply.getReturnCode();                                         //@KBA
@@ -745,7 +770,9 @@ can not be called directly on this object.
              
               if(connection_.newAutoCommitSupport_ == 1 && autoCommit_ == true)  //@PDC
               {           
-                  request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);             
+                  request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);     
+                  setRequestLocatorPersistence(request, COMMIT_MODE_NONE_); /*@ABA*/
+
                   serverCommitMode_ = COMMIT_MODE_NONE_;
               }
 
@@ -786,6 +813,8 @@ can not be called directly on this object.
               request.setAutoCommit(0xD5);                                                    //@KBA turn off auto commit
               if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
                   request.setCommitmentControlLevelParserOption(getIsolationLevel());         //@KBA
+              setRequestLocatorPersistence(request, getIsolationLevel());  /*@ABA*/
+
               reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
