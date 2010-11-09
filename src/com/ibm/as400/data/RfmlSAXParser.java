@@ -268,6 +268,14 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
       catch (SAXException e)
       {
         if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
+
+        // See if the error handler cached an exception.
+        ParseException exc = m_xh.getException();
+        if (exc != null)
+        {
+          //exc.reportErrors();   // Note - This is redundant with a call in loadSourceXxxDocument() in RecordFormatDocument and ProgramCallDocument.
+          throw exc;
+        }
         ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
         pe.addMessage(e.getMessage());
         throw pe;
