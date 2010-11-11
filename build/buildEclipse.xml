@@ -187,7 +187,18 @@
        directory. --> 
   <property name="build" value="/jtopen_build"/>
 
-  
+  <property name="userid" value="eberhard"/>
+  <property name="password" value="XXXXX"/>
+  <property name="v7r2server"  value="minibld2.rchland.ibm.com"/>
+  <property name="v7r1server"  value="lp08ut23.rchland.ibm.com"/>
+  <property name="v6r1server1" value="fowgai2.rchland.ibm.com"/>          
+  <property name="v6r1server2" value="rchaptf2.rchland.ibm.com"/>       
+  <property name="v5r4server"  value="lp03ut5.rchland.ibm.com"/>
+  <property name="linuxserver" value="lena6.rchland.ibm.com"/>
+  <property name="linuxuserid"   value="jeber"/>
+  <property name="linuxpassword" value="XXXXX"/>
+
+	
   <property name="jdk14home" value="C:/jdk1.4"/>
 	
   <property name="bin" value="${build}/bin"/>  
@@ -202,7 +213,7 @@
   <property name="include" value="${build}/include"/>
   <property name="stubs" value="${build}/stubs"/> <!-- stubs are classes we need for compiling, but we don't ship. -->
   <property name="javadoc" value="${build}/javadoc"/>
-  <property name="javadoc6" value="${build}/javadoc"/>
+  <property name="javadoc6" value="${build}/javadoc6"/>
   <property name="output" value="${build}/output14"/>
   <property name="output6" value="${build}/output6"/>
   <property name="output-micro" value="${build}/output-micro"/>
@@ -305,7 +316,8 @@
 	      <classpath>
 	        <pathelement path="${include}"/>
 	        <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
-	        <pathelement location="${stubs}"/>
+	      	<pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
+	      	<pathelement location="${stubs}"/>
 	      </classpath>
 	      
 	    </javac>
@@ -341,6 +353,7 @@
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
+      	<pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
         <pathelement location="${stubs}"/>
       </classpath>
     </javac>
@@ -393,6 +406,7 @@
     <mkdir dir="${build}"/>
     <mkdir dir="${dist}"/>
     <mkdir dir="${javadoc}"/>
+    <mkdir dir="${javadoc6}"/>
     <!-- mkdir dir="${include}"/ -->
     <mkdir dir="${output}"/>
     <mkdir dir="${output-micro}"/>
@@ -463,13 +477,14 @@
     <checksum file="${dist}/jt400.jar"/>
   </target>
 
-	  <target name="jar-jt4006" depends="init,compile6,pcml6,copyright6">
+	  <target name="jar-jt4006" depends="init,jar-jt400,compile6,pcml6,copyright6">
 	    <jar jarfile="${dist6}/jt400.jar" manifest="jt400_manifest.txt">
 	      <fileset dir="${output6}">
 	        <patternset refid="exclude.native.optimizations"/>
 	        <patternset refid="exclude.local.socket.implementation"/>
 	        <patternset>
-	            <exclude name="com/ibm/as400/util/html/**"/>
+	        	<!-- These are shipped in jt400Servlet.jar --> 
+	        	<exclude name="com/ibm/as400/util/html/**"/> 
 	            <exclude name="com/ibm/as400/util/servlet/**"/>
 	        </patternset>
 	      </fileset>
@@ -612,12 +627,12 @@
     </echo>
   </target>
 
-	  <target name="javadoc6" depends="init,checkJavadocIncludes">
+	  <target name="javadoc6" depends="init,source6,checkJavadocIncludes">
         <fail message="Not using JDK 1.6 or higher." unless="jdk16Exists"/> <!-- Sanity. -->
 	    <javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
                  sourcepath="${source-jdbc40-combined}:${source-contrib}:${include}"
-	             destdir="${javadoc}"
+	             destdir="${javadoc6}"
 	             use="false"
 	             link="${doclink}"
 	             maxmemory="256m"
@@ -831,10 +846,10 @@ Available Ant targets for the JTOpen build script include:
   
   <target name="zip-source">
     <zip zipfile="${dist}/src.zip" update="false">
-      <zipfileset dir="${source}"/>
-      <zipfileset dir="${source-contrib}"/>
-      <zipfileset dir="${source-micro}"/>
-      <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar"/>
+      <zipfileset dir="${source}"  excludes=".project"/>
+      <zipfileset dir="${source-contrib}"  excludes=".project"/>
+      <zipfileset dir="${source-micro}"  excludes=".project"/>
+      <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar,.project"/>
       <zipfileset dir="${build}/build" excludes="**/mypasswd"/>
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
@@ -842,7 +857,221 @@ Available Ant targets for the JTOpen build script include:
     </zip>
     <checksum file="${dist}/src.zip"/>
   </target>  
+
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: ftpv7r2
+	    // 
+	    // Note:  depends="no" set because the dependency checking takes a 
+	    //        null pointer exception in some circumstances.
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="ftpv7r2" depends="jar">
+	  	<!-- V7R2 server --> 
+		  <ftp server="${v7r2server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v7r2server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+     </target>
+
 	
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: ftpvlinux
+	    // 
+	    // Note:  depends="no" set because the dependency checking takes a 
+	    //        null pointer exception in some circumstances.
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="ftplinux" depends="jar">
+	  	<!-- V7R1 server --> 
+		  <sftp server="${linuxserver}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       userid="${linuxuserid}"
+		       password="${linuxpassword}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </sftp>
+
+		  <sftp server="${linuxserver}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${linuxuserid}"
+		       password="${linuxpassword}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </sftp>
+     </target>
+
+
+	
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: ftpv7r1
+	    // 
+	    // Note:  depends="no" set because the dependency checking takes a 
+	    //        null pointer exception in some circumstances.
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="ftpv7r1" depends="jar">
+	  	<!-- V7R1 server --> 
+		  <ftp server="${v7r1server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v7r1server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+     </target>
+
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: ftpv6r1
+	    // 
+	    // Note:  depends="no" set because the dependency checking takes a 
+	    //        null pointer exception in some circumstances.
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="ftpv6r1" depends="jar">
+	  	<!-- V6R1 server --> 
+		  <ftp server="${v6r1server1}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v6r1server1}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+		  <ftp server="${v6r1server2}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v6r1server2}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+     </target>
+
+	
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: ftpv5r4
+	    // 
+	    // Note:  depends="no" set because the dependency checking takes a 
+	    //        null pointer exception in some circumstances.
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="ftpv5r4" depends="jar">
+		  <ftp server="${v5r4server}"
+		       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		      <include name="jt400Servlet.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v5r4server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+	  	
+
+     </target>
+
+
+
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftp
 	    // 
@@ -878,6 +1107,89 @@ Available Ant targets for the JTOpen build script include:
 		    </fileset>
 		  </ftp>
 
+
+		  <ftp server="${v6r1server1}"
+		       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v6r1server1}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+	  	
+		  <ftp server="${v6r1server2}"
+		       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v6r1server2}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+	  	
+		  <ftp server="${v5r4server}"
+		       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
+		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v5r4server}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist6}">
+		      <include name="jt400.jar"/>
+		    </fileset>
+		  </ftp>
+	  	
+	  	
 	  	
 	  	
 	  </target>  
