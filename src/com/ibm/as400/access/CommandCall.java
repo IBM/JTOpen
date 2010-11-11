@@ -27,8 +27,11 @@ import java.util.Vector;
 import com.ibm.as400.resource.RJob;  // Remove when getJob() is removed.
 
 /**
- Represents an IBM i command object.  This class allows the user to call any non-interactive CL command.  Results of the command are returned in a message list.
- <P>Note: CommandCall is not designed to return interactive (screen-oriented) results, such as from "WRK..." and "DSP..." commands.  The recommended approach in such cases is to identify an equivalent IBM i API or program, and use {@link ProgramCall ProgramCall} instead.
+ Represents an IBM i command object.  This class allows the user to call any non-interactive CL command.  
+ Results of the command are returned in a message list.
+ <P>Note: CommandCall is not designed to return interactive (screen-oriented) results, such as from 
+    "WRK..." and "DSP..." commands.  The recommended approach in such cases is to identify an equivalent 
+    IBM i API or program, and use {@link ProgramCall ProgramCall} instead.
  <P>The following example demonstrates the use of CommandCall:
  <br>
  <pre>
@@ -59,7 +62,11 @@ import com.ibm.as400.resource.RJob;  // Remove when getJob() is removed.
  *    // Done with the system.
  *    system.disconnectService(AS400.COMMAND);
  </pre>
- <p>NOTE:  When getting the message list from commands, users no longer have to create a <a href="MessageFile.html">MessageFile</a> to obtain the message help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the <a href="AS400Message.html">AS400Message</a> object returned from getMessageList().  Here is an example:
+ <p>NOTE:  When getting the message list from commands, users no longer have to create a 
+    <a href="MessageFile.html">MessageFile</a> to obtain the message help text.  
+    The load() method can be used to retrieve additional message information. 
+    Then the getHelp() method can be called directly on the <a href="AS400Message.html">AS400Message</a> 
+    object returned from getMessageList().  Here is an example:
  <pre>
  *    if (command.run("myCmd") != true)
  *    {
@@ -108,7 +115,9 @@ public class CommandCall implements Serializable
 
     /**
      Indicates that the command's threadsafety should be looked-up at runtime.
-     This setting should be used with caution, especially if this CommandCall object will be used to call a sequence of different commands that need to use the same QTEMP library or the same modified LIBLIST.
+     This setting should be used with caution, especially if this CommandCall object will be used to 
+     call a sequence of different commands that need to use the same QTEMP library or the same modified 
+     LIBLIST.
      **/
     public static final Boolean THREADSAFE_LOOKUP = null;
 
@@ -122,7 +131,8 @@ public class CommandCall implements Serializable
     // The assumed thread safety of command.
     private transient Boolean threadSafetyValue_ = THREADSAFE_FALSE; // default: assume not threadsafe
 
-    // The following field is needed in order to preserve cross-release serializability between JTOpen 6.4 and later releases.
+    // The following field is needed in order to preserve cross-release serializability between 
+    // JTOpen 6.4 and later releases.
     // Thread safety of command.
     private boolean threadSafety_ = false; // must be kept in sync with threadSafetyValue_
 
@@ -145,7 +155,8 @@ public class CommandCall implements Serializable
     private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a CommandCall object.  The system and the command properties must be set before using any method requiring a connection to the system.
+     Constructs a CommandCall object.  The system and the command properties must be set before using 
+     any method requiring a connection to the system.
      **/
     public CommandCall()
     {
@@ -172,7 +183,8 @@ public class CommandCall implements Serializable
     /**
      Constructs a CommandCall object.  It uses the specified system and command.
      @param  system  The system on which to run the command.
-     @param  command  The command to run on the system.  If the command is not library qualified, the library list will be used to find the command.
+     @param  command  The command to run on the system.  If the command is not library qualified, 
+             the library list will be used to find the command.
      **/
     public CommandCall(AS400 system, String command)
     {
@@ -191,7 +203,10 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Adds an ActionCompletedListener.  The specified ActionCompletedListener's <b>actionCompleted</b> method will be called each time a command has run.  The ActionCompletedListener object is added to a list of ActionCompletedListeners managed by this CommandCall.  It can be removed with removeActionCompletedListener.
+     Adds an ActionCompletedListener.  The specified ActionCompletedListener's <b>actionCompleted</b> 
+     method will be called each time a command has run.  The ActionCompletedListener object is 
+     added to a list of ActionCompletedListeners managed by this CommandCall.  It can be removed 
+     with removeActionCompletedListener.
      @param  listener  The listener object.
      **/
     public void addActionCompletedListener(ActionCompletedListener listener)
@@ -212,7 +227,10 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyChangeListener object is added to a list of PropertyChangeListeners managed by this CommandCall.  It can be removed with removePropertyChangeListener.
+     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method 
+     will be called each time the value of any bound property is changed.  The PropertyChangeListener 
+     object is added to a list of PropertyChangeListeners managed by this CommandCall.  It can be removed 
+     with removePropertyChangeListener.
      @param  listener  The listener object.
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
@@ -233,7 +251,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Adds a VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> method will be called each time the value of any constrained property is changed.
+     Adds a VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+     method will be called each time the value of any constrained property is changed.
      @param  listener  The listener object.
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
@@ -254,7 +273,8 @@ public class CommandCall implements Serializable
     }
 
     // Chooses the appropriate implementation, synchronize to protect impl_ object.
-    private synchronized void chooseImpl() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private synchronized void chooseImpl() throws AS400SecurityException, ErrorCompletingRequestException, 
+          IOException, InterruptedException
     {
         if (system_ != null) system_.signon(false);
         if (impl_ == null)
@@ -271,7 +291,9 @@ public class CommandCall implements Serializable
                 throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
             }
 
-            impl_ = (RemoteCommandImpl)system_.loadImpl3("com.ibm.as400.access.RemoteCommandImplNative", "com.ibm.as400.access.RemoteCommandImplRemote", "com.ibm.as400.access.RemoteCommandImplProxy");
+            impl_ = (RemoteCommandImpl)system_.loadImpl3("com.ibm.as400.access.RemoteCommandImplNative", 
+            		"com.ibm.as400.access.RemoteCommandImplRemote", 
+            		"com.ibm.as400.access.RemoteCommandImplProxy");
             impl_.setSystem(system_.getImpl());
         }
 
@@ -312,7 +334,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns the command to run.  It will return an empty string ("") if the command has not been previously set.
+     Returns the command to run.  It will return an empty string ("") if the command has not been previously 
+     set.
      @return  The command to run.
      **/
     public String getCommand()
@@ -322,7 +345,8 @@ public class CommandCall implements Serializable
     }
 
 
-    // 2010-02-16: Temporarily reinstated the getJob() method, since it is used by V5R4 IPP Server, which is still in service.
+    // 2010-02-16: Temporarily reinstated the getJob() method, since it is used by V5R4 IPP Server, 
+    // which is still in service.
     // The getJob() method will be deleted, either:
     //  (1) when IBM i V5R4 goes out-of-service, or
     //  (2) when V5R4 IPP Server is PTF'd to not call this method,
@@ -372,7 +396,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns the list of messages returned from running the command.  It will return an empty list if the command has not been run yet or if there are no messages.
+     Returns the list of messages returned from running the command.  It will return an empty list if the 
+     command has not been run yet or if there are no messages.
      @return  The array of messages returned by the command.
      **/
     public AS400Message[] getMessageList()
@@ -383,7 +408,8 @@ public class CommandCall implements Serializable
 
     /**
      Returns a message returned from running the command.
-     @param  index  The index into the list of messages returned by the command.  It must be greater than or equal to zero and less than the number of messages in the list.
+     @param  index  The index into the list of messages returned by the command.  It must be greater than 
+     or equal to zero and less than the number of messages in the list.
      @return  The message at the requested index returned by the command.
      **/
     public AS400Message getMessageList(int index)
@@ -394,7 +420,8 @@ public class CommandCall implements Serializable
 
     /**
      Returns a Job object which represents the system job in which the command will be run.
-     The information contained in the Job object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
+     The information contained in the Job object is invalidated by <code>AS400.disconnectService()</code>
+      or <code>AS400.disconnectAllServices()</code>.
      <br>Typical uses include:
      <br>(1) before run() to identify the job before calling the command;
      <br>(2) after run() to see what job the command ran under (to identify the job log, for example).
@@ -405,13 +432,16 @@ public class CommandCall implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
-    public Job getServerJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public Job getServerJob() throws AS400SecurityException, ErrorCompletingRequestException, 
+    IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
         chooseImpl();
         String jobInfo = impl_.getJobInfo(threadSafetyValue_);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing Job for job: " + jobInfo);
-        // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
+        // Contents of the "job information" string:  The name of the user job that the thread is 
+        // associated with.  The format of the job name is a 10-character simple job name, 
+        // a 10-character user name, and a 6-character job number.
         return new Job(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
     }
 
