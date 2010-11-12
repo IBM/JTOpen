@@ -93,7 +93,9 @@ class JDTransactionManager
   private boolean             localTransaction_   = true;  // @C4A
   // @C5D private boolean             newAutoCommitSupport_ = false;                             // @C5A
   private int                 serverCommitMode_;          // Commit mode on the system. Always base off of JDBC transaction isolation level (currentCommitMode_)
-  private int                currentLocatorPersistence=-1;  /*@ABA*/ 
+  private int                currentLocatorPersistence_=-1;  /*@ABA*/
+  private int                requestedLocatorPersistence_ = -1; /*@ABA*/
+  private boolean            serverAllowsLocatorPersistenceChange_ = true; 
 
 
 /**
@@ -536,12 +538,35 @@ Set the auto-commit mode.
               else
                 serverCommitMode_ = currentCommitMode_;
               
-              setRequestLocatorPersistence(request, getIsolationLevel()); /*@ABA*/
+              boolean changed = setRequestLocatorPersistence(request, getIsolationLevel()); /*@ABA*/
               reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
-              if(errorClass != 0)                                                             //@KBA
-                  JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+              if(errorClass != 0 && changed) {
+            	  // Try again for the case where the server does not support the change
+            	  serverAllowsLocatorPersistenceChange_ = false; 
+            	  request.returnToPool(); 
+            	  reply.returnToPool(); 
+                  request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
+                  request.setAutoCommit(autoCommit ? 0xE8 : 0xD5);                                //@KBA  Set auto commit to on or off
+                  request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA  Set isolation level
+                  if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
+                	  serverCommitMode_ = COMMIT_MODE_NONE_;
+                  else
+                	  serverCommitMode_ = currentCommitMode_;
+                  reply = connection_.sendAndReceive(request);                 //@KBA
+                  errorClass = reply.getErrorClass();                                         //@KBA
+                  returnCode = reply.getReturnCode();                                         //@KBA
+                  
+              }                  
+            	  
+              if (errorClass != 0) // @KBA
+            	  JDError.throwSQLException(connection_, id_,
+            			  errorClass, returnCode); // @KBA
+              persistenceUpdated();
+              
           }                                                                                   //@KBA
           catch(DBDataStreamException e)                                                      //@KBA
           {                                                                                   //@KBA
@@ -556,27 +581,50 @@ Set the auto-commit mode.
     }                                                                       // @C4A
   }
 
-  /* 
-   * Sets the locator persistence for a request.  The persistence is typically set to 
-   * 1 (Scoped to transaction) but must be set to 0 (scoped to cursor) if Auto commit is off 
-   * and transaction isolation level is *NONE.
+	/*
+	 * Sets the locator persistence for a request. The persistence is typically
+	 * set to 1 (Scoped to transaction) but must be set to 0 (scoped to cursor)
+	 * if Auto commit is off and transaction isolation level isNONE.
+	 * 
+	 * Should be called whenever autocommit level or isolation level is changed.
+	 * 
+	 * @ABA
+	 * 
+	 * This should be followed by a call to persistenceUpdated() after the
+	 * request returns successfully. This returns true if the request was
+	 * changed
+	 */
+	private boolean setRequestLocatorPersistence(DBSQLAttributesDS request,
+			int commitMode) throws DBDataStreamException {
+		
+		// transaction isolation is none, make sure locator persistence is
+		// scoped to the cursor
+		requestedLocatorPersistence_ = -1;
+		if (serverAllowsLocatorPersistenceChange_) {
+			if (commitMode == COMMIT_MODE_NONE_) {
+				if (currentLocatorPersistence_ != 0) {
+					request.setLocatorPersistence(0);
+					requestedLocatorPersistence_ = 0;
+					return true;
+				}
+			} else {
+				if (currentLocatorPersistence_ != 1) {
+					request.setLocatorPersistence(1);
+					requestedLocatorPersistence_ = 1;
+					return true;
+				}
+			}
+		}
+		return false; 
+	}
+  
+  /* Indicate that the request to update the persistence was successful
    * 
-   *  Should be called whenever autocommit level or isolation level is changed.
-   *  @ABA
    */
-  private void setRequestLocatorPersistence(DBSQLAttributesDS request, int commitMode) throws DBDataStreamException {
-      // transaction isolation is none, make sure locator persistence is scoped to the cursor 
-      if (commitMode == COMMIT_MODE_NONE_) {
-      	 if ( currentLocatorPersistence != 0) { 
-    	    request.setLocatorPersistence(0); 
-    	    currentLocatorPersistence = 0; 
-    	  }
-      } else { 
-         if (currentLocatorPersistence != 1) { 
-    	  request.setLocatorPersistence(1); 
-    	  currentLocatorPersistence = 1; 
-    	  }
-      }
+  private void persistenceUpdated() {
+	  if (serverAllowsLocatorPersistenceChange_ && (requestedLocatorPersistence_ != -1)) { 
+	     currentLocatorPersistence_ = requestedLocatorPersistence_;
+	  }
   }
 
 /**
@@ -711,13 +759,28 @@ java.sql.Connection.TRANSACTION_* values.
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
                   request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA
-                  setRequestLocatorPersistence(request, getIsolationLevel()); /*@ABA*/
+                  boolean changed = setRequestLocatorPersistence(request, getIsolationLevel()); /*@ABA*/
 
                   reply = connection_.sendAndReceive(request);                 //@KBA
                   int errorClass = reply.getErrorClass();                                         //@KBA
                   int returnCode = reply.getReturnCode();                                         //@KBA
+                  if (errorClass != 0 && changed) {
+                	  // Retry request if this fails. 
+                	  serverAllowsLocatorPersistenceChange_ = false; 
+                	  request.returnToPool(); 
+                	  reply.returnToPool();
+                      request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                              id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                              + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
+                      request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA
+
+                      reply = connection_.sendAndReceive(request);                 //@KBA
+                      errorClass = reply.getErrorClass();                                         //@KBA
+                      returnCode = reply.getReturnCode();                                         //@KBA
+                  }
                   if(errorClass != 0)                                                             //@KBA
                       JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+                  persistenceUpdated(); 
               }                                                                               //@KBA
           }                                                                                   //@KBA
           catch(DBDataStreamException e)                                                      //@KBA
@@ -768,19 +831,42 @@ can not be called directly on this object.
               
               request.setAutoCommit( autoCommit_ ? 0xE8 : 0xD5);  //@PDC change autocommit setting to prior setting before XA_START  
              
+              boolean changed = false; 
               if(connection_.newAutoCommitSupport_ == 1 && autoCommit_ == true)  //@PDC
               {           
                   request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);     
-                  setRequestLocatorPersistence(request, COMMIT_MODE_NONE_); /*@ABA*/
+                  changed = setRequestLocatorPersistence(request, COMMIT_MODE_NONE_); /*@ABA*/
 
                   serverCommitMode_ = COMMIT_MODE_NONE_;
               }
 
               reply = connection_.sendAndReceive(request);                 
               int errorClass = reply.getErrorClass();                                         
-              int returnCode = reply.getReturnCode();                                         
+              int returnCode = reply.getReturnCode();
+              if (errorClass != 0 && changed) {
+            	  // Retry request if this fails. 
+            	  serverAllowsLocatorPersistenceChange_ = false; 
+            	  request.returnToPool(); 
+            	  reply.returnToPool(); 
+            	  
+                  request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);  
+
+                  request.setAutoCommit( autoCommit_ ? 0xE8 : 0xD5);  //@PDC change autocommit setting to prior setting before XA_START  
+
+                  if(connection_.newAutoCommitSupport_ == 1 && autoCommit_ == true)  //@PDC
+                  {           
+                	  request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);     
+                	  serverCommitMode_ = COMMIT_MODE_NONE_;
+                  }
+                  reply = connection_.sendAndReceive(request);                 
+                  errorClass = reply.getErrorClass();                                         
+                  returnCode = reply.getReturnCode();
+              }
               if(errorClass != 0)                                                             
-                  JDError.throwSQLException(connection_, id_, errorClass, returnCode);        
+                  JDError.throwSQLException(connection_, id_, errorClass, returnCode); 
+              persistenceUpdated();
           }                                                                                   
           catch(DBDataStreamException e)                                                      
           {                                                                                   
@@ -813,13 +899,30 @@ can not be called directly on this object.
               request.setAutoCommit(0xD5);                                                    //@KBA turn off auto commit
               if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
                   request.setCommitmentControlLevelParserOption(getIsolationLevel());         //@KBA
-              setRequestLocatorPersistence(request, getIsolationLevel());  /*@ABA*/
+              boolean changed = setRequestLocatorPersistence(request, getIsolationLevel());  /*@ABA*/
 
               reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
+              if (errorClass != 0 && changed) {
+            	  // Retry request if this fails. 
+            	  serverAllowsLocatorPersistenceChange_ = false; 
+            	  request.returnToPool(); 
+            	  reply.returnToPool(); 
+                  request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
+                  request.setAutoCommit(0xD5);                                                    //@KBA turn off auto commit
+                  if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
+                	  request.setCommitmentControlLevelParserOption(getIsolationLevel());         //@KBA
+
+                  reply = connection_.sendAndReceive(request);                 //@KBA
+                  errorClass = reply.getErrorClass();                                         //@KBA
+                  returnCode = reply.getReturnCode();                                         //@KBA
+              }            	  
               if(errorClass != 0)                                                             //@KBA
                   JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+              persistenceUpdated();
           }                                                                                   //@KBA
           catch(DBDataStreamException e)                                                      //@KBA
           {                                                                                   //@KBA
