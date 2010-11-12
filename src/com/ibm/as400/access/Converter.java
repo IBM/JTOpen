@@ -22,9 +22,8 @@ import java.io.UnsupportedEncodingException;
 // A character set converter between Java String objects and native code pages.
 class Converter implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
+    private static final String BUFFER_OVERFLOWED = "Converted field overflows destination array.";
 
     transient ConverterImpl impl;
     private String encoding_ = null;
@@ -224,6 +223,7 @@ class Converter implements Serializable
         {
             // Copy as much as will fit.
             System.arraycopy(convertedBytes, 0, destination, 0, destination.length);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
             throw new CharConversionException();
         }
         System.arraycopy(convertedBytes, 0, destination, 0, convertedBytes.length);
@@ -241,6 +241,7 @@ class Converter implements Serializable
         {
             // Copy as much as will fit.
             System.arraycopy(convertedBytes, 0, destination, offset, destination.length - offset);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
             throw new CharConversionException();
         }
         System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
@@ -259,6 +260,7 @@ class Converter implements Serializable
         {
             // Copy as much as will fit.
             System.arraycopy(convertedBytes, 0, destination, offset, length);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
             throw new CharConversionException();
         }
         System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
@@ -290,6 +292,7 @@ class Converter implements Serializable
         {
             // Copy as much as will fit.
             System.arraycopy(convertedBytes, 0, destination, offset, length);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
             throw new CharConversionException();
         }
         System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
