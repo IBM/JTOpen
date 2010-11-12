@@ -33,11 +33,18 @@ public abstract class AS400AbstractTime implements AS400DataType
 
   // Separator characters.  Used by AS400Date and AS400Time.
   static final Character AMPERSAND = new Character('&');
+  static final Character BLANK = new Character(' ');
   static final Character COLON = new Character(':');
   static final Character COMMA = new Character(',');
   static final Character HYPHEN = new Character('-');
   static final Character PERIOD = new Character('.');
   static final Character SLASH = new Character('/');
+
+  // Standard XML-Schema format patterns for parsing dates and times.
+  // For specifications, see http://www.w3.org/TR/xmlschema-2/
+  static final String DATE_PATTERN_XSD = "yyyy-MM-dd";
+  static final String TIME_PATTERN_XSD = "HH:mm:ss";
+  static final String TIMESTAMP_PATTERN_XSD = "yyyy-MM-dd'T'HH:mm:ss";
 
   private int length_;  // number of bytes occupied by the IBM i value
   private transient GregorianCalendar calendar_;
@@ -268,7 +275,6 @@ public abstract class AS400AbstractTime implements AS400DataType
   public int toBytes(Object javaValue, byte[] as400Value, int offset)
   {
     String dateString = toString(javaValue); // call the subclass-specific formatter
-    if (DEBUG) System.out.println("DEBUG: Formatted value == |" + dateString + "|");
 
     try {
       getCharConverter().stringToByteArray(dateString, as400Value, offset);
@@ -336,9 +342,6 @@ public abstract class AS400AbstractTime implements AS400DataType
       dateFormatter_ = new SimpleDateFormat(patternFor(format_, separator_));
       dateFormatter_.setTimeZone(TIMEZONE_GMT);
     }
-    if (DEBUG) {
-      System.out.println("--> getDateFormatter: timezone ID: " + dateFormatter_.getTimeZone().getID());
-    }
     return dateFormatter_;
   }
 
@@ -363,7 +366,7 @@ public abstract class AS400AbstractTime implements AS400DataType
       synchronized (AS400Date.class)
       {
         if (dateFormatterXSD_ == null) {
-          dateFormatterXSD_ = new SimpleDateFormat("yyyy-MM-dd");
+          dateFormatterXSD_ = new SimpleDateFormat(DATE_PATTERN_XSD);
           dateFormatterXSD_.setTimeZone(TIMEZONE_GMT);
         }
       }
@@ -379,7 +382,7 @@ public abstract class AS400AbstractTime implements AS400DataType
       synchronized (AS400Time.class)
       {
         if (timeFormatterXSD_ == null) {
-          timeFormatterXSD_ = new SimpleDateFormat("HH:mm:ss");
+          timeFormatterXSD_ = new SimpleDateFormat(TIME_PATTERN_XSD);
           timeFormatterXSD_.setTimeZone(TIMEZONE_GMT);
         }
       }
@@ -395,7 +398,7 @@ public abstract class AS400AbstractTime implements AS400DataType
       synchronized (AS400Timestamp.class)
       {
         if (timestampFormatterXSD_ == null) {
-          timestampFormatterXSD_ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+          timestampFormatterXSD_ = new SimpleDateFormat(TIMESTAMP_PATTERN_XSD);
           // Note: We deal with "nanoseconds" elsewhere, in the AS400Timestamp class.
           timestampFormatterXSD_.setTimeZone(TIMEZONE_GMT);
         }
