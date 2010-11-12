@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- The UDFS class represents a user-defined file system on the system.
+ Represents a user-defined file system on the IBM i system.
  **/
 public class UDFS
 {
@@ -24,6 +24,8 @@ public class UDFS
     private AS400 system_;
     // Path to the UDFS.
     private String path_;
+    // Preferred storage unit: Either *SSD or *ANY. null is interpreted as *ANY.
+    private String storageUnit_;
 
     /**
      Constructs a UDFS object.
@@ -64,11 +66,24 @@ public class UDFS
      <li>The user must have input/output (I/O) system configuration (*IOSYSCFG) special authority.
      <li>A maximum of approximately 4,000 user-defined file systems can be created on an independent auxiliary storage pool (ASP).
      </ol>
+     @see #setPreferredStorageUnit
      **/
     public void create() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating UDFS.");
-        runCommand("CRTUDFS UDFS('" + path_ + "')");
+        StringBuffer cmd = new StringBuffer("CRTUDFS UDFS('" + path_ + "')");
+        if (storageUnit_ != null && !storageUnit_.equalsIgnoreCase("*ANY"))
+        {
+          if (system_.getVRM() >= 0x00070100) {
+            cmd.append(" UNIT("+storageUnit_+")");
+          }
+          else {
+            if (Trace.traceOn_) {
+              Trace.log(Trace.WARNING, "setPreferredStorageUnit(*SSD) is not supported prior to IBM i 7.1.");
+            }
+          }
+        }
+        runCommand(cmd.toString());
     }
 
     /**
@@ -81,6 +96,7 @@ public class UDFS
      <li>The user must have all object (*ALLOBJ) and security administrator (*SECADM) special authorities to specify a value for the scanningOption parameter other than *PARENT.
      <li>A maximum of approximately 4,000 user-defined file systems can be created on an independent auxiliary storage pool (ASP).
      </ol>
+     To retrieve attribute values, use the 'get' methods of {@link FileAttributes FileAttributes}.
      @param  publicDataAuthority  Specifies the public data authority given to the user for the new user-defined file system (UDFS), or specifies that all authorities are inherited from the directory it is to be created in.  Possible values are:
      <ul>
      <li>"*INDIR" - The authority for the UDFS to be created is determined by the directory it is to be created in.  This means the new UDFS will inherit its primary group, authorization list, and its public, private and primary group authorities from the /dev/qaspXX or /dev/aspname directory.  If the value *INDIR is specified for either the publicObjectAuthority parameter or the publicDataAuthority parameter, then *INDIR must be specified for both parameters.
@@ -167,12 +183,41 @@ public class UDFS
      <li>"*BLANK" - Text is not specified.
      <li>description - Specify no more than 50 characters.
      </ul>
+     @see #setPreferredStorageUnit
      **/
     public void create(String publicDataAuthority, String[] publicObjectAuthority, String auditingValue, String scanningOption, boolean specialRestrictions, String defaultDiskStorageOption, String defaultMainStorageOption, String caseSensitivity, String defaultFileFormat, String description) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating UDFS.");
         int vrm = system_.getVRM();
-        runCommand("CRTUDFS UDFS('" + path_ + "') DTAAUT(" + publicDataAuthority + ") OBJAUT(" + setArrayToString(publicObjectAuthority) + ") CRTOBJAUD(" + auditingValue + ") " + (vrm < 0x00050300 ? "" : "CRTOBJSCAN(" + scanningOption + ") RSTDRNMUNL(" + (specialRestrictions ? "*YES" : "*NO") + ")") + (vrm < 0x00060100 ? "" : " DFTDISKSTG(" + defaultDiskStorageOption + ") DFTMAINSTG(" + defaultMainStorageOption + ")") + " CASE(" + caseSensitivity + ") DFTFILEFMT(" + defaultFileFormat + ") TEXT('" + description + "')");
+
+        StringBuffer cmd = new StringBuffer("CRTUDFS UDFS('" + path_ + "')");
+        cmd.append(" DTAAUT(" + publicDataAuthority + ")");
+        cmd.append(" OBJAUT(" + setArrayToString(publicObjectAuthority) + ")");
+        cmd.append(" CRTOBJAUD(" + auditingValue + ")");
+        if (vrm >= 0x00050300) {
+          cmd.append(" CRTOBJSCAN(" + scanningOption + ")");
+          cmd.append(" RSTDRNMUNL(" + (specialRestrictions ? "*YES" : "*NO") + ")");
+        }
+        if (vrm >= 0x00060100) {
+          cmd.append(" DFTDISKSTG(" + defaultDiskStorageOption + ")");
+          cmd.append(" DFTMAINSTG(" + defaultMainStorageOption + ")");
+          cmd.append(" CASE(" + caseSensitivity + ")");
+          cmd.append(" DFTFILEFMT(" + defaultFileFormat + ")");
+          cmd.append(" TEXT('" + description + "')");
+        }
+        if (storageUnit_ != null && !storageUnit_.equalsIgnoreCase("*ANY"))
+        {
+          if (vrm >= 0x00070100) {
+            cmd.append(" UNIT("+storageUnit_+")");
+          }
+          else {
+            if (Trace.traceOn_) {
+              Trace.log(Trace.WARNING, "setPreferredStorageUnit(*SSD) is not supported prior to IBM i 7.1.");
+            }
+          }
+        }
+
+        runCommand(cmd.toString());
     }
 
     /**
@@ -331,6 +376,34 @@ public class UDFS
         // Get info from reply.
         return new MountedFsInformationStructure(reply.getReplyData());
     }
+
+
+    /**
+     Specifies the preferred storage media of objects created in this user-defined file system.  In order to be effective, this method must be called prior to {@link #create create()}.
+     <p>Note: This method is supported only on IBM i version 7.1 and higher.  On IBM i version 7.1 it is supported only if IBM i 7.1 PTF SI39439 is installed.  If *SSD is specified for a system at IBM i 7.1, and PTF SI39439 is not installed, then the <tt>create()</tt> methods will throw an AS400Exception indicating "Keyword UNIT not valid for this command".
+     <p>To retrieve the in-effect value of the "preferred storage unit" attribute, call {@link FileAttributes#getUdfsPreferredStorageUnit FileAttributes.getUdfsPreferredStorageUnit()}.
+     @param  storageUnit  Preferred storage unit.
+     Possible values are:
+     <ul>
+     <li>"*ANY" - No storage media is preferred. Storage will be allocated from any available storage media.
+     <li>"*SSD" - Solid state drive disk storage media is preferred. Storage should be allocated from solid state drive storage media, if available.
+     </ul>
+     The default is "*ANY".  null is interpreted as "*ANY".
+     **/
+    public void setPreferredStorageUnit(String storageUnit)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting storage unit to " + storageUnit);
+      if (storageUnit == null || storageUnit.equalsIgnoreCase("*ANY")) {
+        storageUnit_ = null;  // internally interpreted as *ANY
+      }
+      else if (storageUnit.equalsIgnoreCase("*SSD")) {
+        storageUnit_ = "*SSD";
+      }
+      else {
+        throw new ExtendedIllegalArgumentException("storageUnit (" + storageUnit + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+    }
+
 
     /**
      Contains information about a UDFS.

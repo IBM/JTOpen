@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- Represents the set of file attributes that can be retrieved and set through the Qp0lGetAttr and Qp0lSetAttr API's.  The object must exist and the caller must have authority to it.  Only attributes supported by the specific file system, object type, and system operating release can be retrieved or set.
+ Represents the set of file attributes that can be retrieved and set through the <tt>Qp0lGetAttr()</tt> and <tt>Qp0lSetAttr()</tt> API's.  The object must exist and the caller must have authority to it.  Only attributes supported by the specific file system, object type, and operating system release can be retrieved or set.
  **/
 public class FileAttributes
 {
@@ -30,6 +30,17 @@ public class FileAttributes
 
     // Flag indicating if the attributes have been retrieved.
     private boolean attributesRetrieved_ = false;
+
+    /**
+     Constructs a FileAttributes object.
+     If the file specified by <tt>path</tt> is a symbolic link, the link is followed to its destination.
+     @param  system  The system object representing the system on which the file exists.
+     @param  path  The path name of the object for which attribute information is retrieved or set.
+     **/
+    public FileAttributes(AS400 system, String path)
+    {
+        this(system, path, true);
+    }
 
     /**
      Constructs a FileAttributes object.
@@ -727,7 +738,9 @@ public class FileAttributes
      **/
     public static final int UDFS_DEFAULT_TYPE2 = 0x01;
     // The default file format of stream files created in the user-defined file system.
-    int udfsDefaultFormat_;
+    int udfsDefaultFormat_ = UDFS_DEFAULT_TYPE1;
+
+
     /**
      Returns the default file format of stream files (*STMF) created in the user-defined file system.
      @return  The default file format of stream files (*STMF) created in the user-defined file system.  Possible values are:
@@ -746,6 +759,52 @@ public class FileAttributes
         getAttributes();
         return udfsDefaultFormat_;
     }
+
+
+/* ///
+45
+QP0L_ATTR_UDFS_PREFERRED_STORAGE_UNIT: (CHAR(1)) The preferred
+storage media for the objects in the UDFS. Possible values are:
+x'00' QP0L_UDFS_PREFERRED_STORAGE_UNIT_ANY: No storage media is
+preferred. Storage will be allocated from any available storage media.
+x'01' QP0L_UDFS_PREFERRED_STORAGE_UNIT_SSD: Solid state drive storage media is preferred. Storage should be allocated from solid state drive storage media, if available.
+
+*/
+    // Attribute added in the release after V7R1, and PTF'd back to V7R1.
+    /**
+     Constant indicating that no storage media is preferred. Storage will be allocated from any available storage media.
+     @see  #getUdfsPreferredStorageUnit
+     **/
+    public static final int UDFS_PREFERRED_STORAGE_UNIT_ANY = 0x00;
+    /**
+     Constant indicating that solid state drive storage media is preferred. Storage should be allocated from solid state drive storage media, if available.
+     @see  #getUdfsPreferredStorageUnit
+     **/
+    public static final int UDFS_PREFERRED_STORAGE_UNIT_SSD = 0x01;
+    // The preferred storage media for the objects in the UDFS.  Added in V7R1 (in a PTF).
+    private int udfsStorageUnit_ = UDFS_PREFERRED_STORAGE_UNIT_ANY; // default is "ANY"
+
+    /**
+     Returns the preferred storage media for the objects in the UDFS.
+     <p>Note: This method is supported only on IBM i version 7.1 and higher.  On IBM i version 7.1 it is supported only if IBM i 7.1 PTF SI39439 is installed.
+     When unsupported, this method simply returns {@link #UDFS_PREFERRED_STORAGE_UNIT_ANY UDFS_PREFERRED_STORAGE_UNIT_ANY}.
+     @return  The preferred storage media for the objects in the UDFS.  Possible values are:
+     <ul>
+     <li>{@link #UDFS_PREFERRED_STORAGE_UNIT_ANY UDFS_PREFERRED_STORAGE_UNIT_ANY} - No storage media is preferred. Storage will be allocated from any available storage media.
+     <li>{@link #UDFS_PREFERRED_STORAGE_UNIT_SSD UDFS_PREFERRED_STORAGE_UNIT_SSD} - Solid state drive storage media is preferred. Storage should be allocated from solid state drive storage media, if available.
+     </ul>
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     **/
+    public int getUdfsPreferredStorageUnit() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        getAttributes();
+        return udfsStorageUnit_;
+    }
+
 
     // Whether the stream file can be shared during checkpoint processing.
     boolean allowCheckpointWrite_;
@@ -1958,6 +2017,9 @@ public class FileAttributes
                         break;
                     case 44:
                         containsTemporaryObjects_ = buffer[offset + 16] == 0x01;
+                        break;
+                    case 45:
+                        udfsStorageUnit_ = buffer[offset + 16];
                         break;
                     case 300:
                         setEffectiveUserId_ = buffer[offset + 16] == 0x01;
