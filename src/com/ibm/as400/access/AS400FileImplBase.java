@@ -1703,7 +1703,12 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     cmd.append(") SRCMBR(");
     cmd.append(ifs.getMemberName());
     cmd.append(") MBR(");
-    cmd.append(member_);
+    if (member_.equals("*FIRST")) {
+      // *FIRST is not a valid value for CRTPF MBR().
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting MBR to *FILE.");
+      cmd.append("*FILE");
+    }
+    else cmd.append(member_);
     cmd.append(") TEXT(");
     // Determine correct text description
     if (textDescription == null)
