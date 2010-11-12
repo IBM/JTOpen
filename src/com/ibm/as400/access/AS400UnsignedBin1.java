@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 /**
  Provides a converter between a {@link java.lang.Short Short} object and an unsigned one-byte binary number.
  The range of values representable by this data type is 0 through 255 (0x00 through 0xFF).
+ <p>Note: According to the DDS specification, BINARY() fields occupy a minimum of 2 bytes of storage in IBM i records.  Therefore the behavior of this class is not consistent with the semantics of the IBM i BINARY(1) data type.  For that reason, this converter is not yet exploited in PCML, RFML, or XPCML.
  @see AS400Bin1
  **/
 public class AS400UnsignedBin1 implements AS400DataType
@@ -55,7 +56,7 @@ public class AS400UnsignedBin1 implements AS400DataType
   // Implements method of interface AS400DataType.
   /**
    * Returns the byte length of the data type.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int getByteLength()
   {
@@ -107,7 +108,7 @@ public class AS400UnsignedBin1 implements AS400DataType
 
   /**
    * Converts the specified short to IBM i format.
-   * @param shortValue The value to be converted to IBM i format.  The short must be greater than or equal to zero and representable in one byte.
+   * @param shortValue The value to be converted to IBM i format.  The short must be greater than or equal to zero and representable in one unsigned byte.
    * @return The IBM i representation of the data type.
    **/
   public byte[] toBytes(short shortValue)
@@ -122,7 +123,7 @@ public class AS400UnsignedBin1 implements AS400DataType
    * Converts the specified Java object into IBM i format in the specified byte array.
    * @param javaValue The object corresponding to the data type.  It must be an instance of Short, and the short must be in the range 0 through 255.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(Object javaValue, byte[] as400Value)
   {
@@ -131,9 +132,9 @@ public class AS400UnsignedBin1 implements AS400DataType
 
   /**
    * Converts the specified short shorto IBM i format in the specified byte array.
-   * @param shortValue The value to be converted to IBM i format.  The short must be greater than or equal to zero and representable in one byte.
+   * @param shortValue The value to be converted to IBM i format.  The short must be greater than or equal to zero and representable in one unsigned byte.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(short shortValue, byte[] as400Value)
   {
@@ -146,7 +147,7 @@ public class AS400UnsignedBin1 implements AS400DataType
    * @param javaValue The object corresponding to the data type.  It must be an instance of Short, and the short must be in the range 0 through 255.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
    * @param offset The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(Object javaValue, byte[] as400Value, int offset)
   {
@@ -157,10 +158,10 @@ public class AS400UnsignedBin1 implements AS400DataType
 
   /**
    * Converts the specified short into IBM i format in the specified byte array.
-   * @param shortValue The value to be converted to IBM i format.  The short must be greater than or equal to zero and representable in one byte.
+   * @param shortValue The value to be converted to IBM i format.  The short must be greater than or equal to zero and representable in one unsigned byte.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
    * @param offset The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(short shortValue, byte[] as400Value, int offset)
   {

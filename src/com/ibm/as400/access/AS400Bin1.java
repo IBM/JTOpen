@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 /**
  Provides a converter between a {@link java.lang.Byte Byte} object and a signed one-byte binary number.
  The range of values representable by this data type is -128 through 127 (<tt>Byte.MIN_VALUE</tt> through <tt>Byte.MAX_VALUE</tt>).
+ <p>Note: According to the DDS specification, BINARY() fields occupy a minimum of 2 bytes of storage in IBM i records.  Therefore the behavior of this class is not consistent with the semantics of the IBM i BINARY(1) data type.  For that reason, this converter is not yet exploited in PCML, RFML, or XPCML.
  @see AS400UnsignedBin1
  **/
 public class AS400Bin1 implements AS400DataType
@@ -55,7 +56,7 @@ public class AS400Bin1 implements AS400DataType
   // Implements method of interface AS400DataType.
   /**
    * Returns the byte length of the data type.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int getByteLength()
   {
@@ -124,7 +125,7 @@ public class AS400Bin1 implements AS400DataType
    * Converts the specified Java object into IBM i format in the specified byte array.
    * @param javaValue The object corresponding to the data type.  It must be an instance of Byte.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(Object javaValue, byte[] as400Value)
   {
@@ -137,7 +138,7 @@ public class AS400Bin1 implements AS400DataType
    * Converts the specified byte into IBM i format in the specified byte array.
    * @param byteValue The value to be converted to IBM i format.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(byte byteValue, byte[] as400Value)
   {
@@ -151,7 +152,7 @@ public class AS400Bin1 implements AS400DataType
    * @param javaValue The object corresponding to the data type.  It must be an instance of Byte.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
    * @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(Object javaValue, byte[] as400Value, int offset)
   {
@@ -165,7 +166,7 @@ public class AS400Bin1 implements AS400DataType
    * @param byteValue The value to be converted to IBM i format.
    * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
    * @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
-   * @return One (1), the number of bytes in the IBM i representation of the data type.
+   * @return The number of bytes in the IBM i representation of the data type.
    **/
   public int toBytes(byte byteValue, byte[] as400Value, int offset)
   {
