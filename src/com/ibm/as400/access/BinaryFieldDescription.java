@@ -493,7 +493,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 3; // 3 is the maximum length allowed for DDS for a binary field of 1 byte.
+      length_ = 3; // 3 is the maximum #digits allowed for DDS for a binary field of 1 byte.
     }
   }
 
@@ -513,7 +513,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 3; // 3 is the maximum length allowed for DDS for a binary field of 1 byte.
+      length_ = 3; // 3 is the maximum #digits allowed for DDS for a binary field of 1 byte.
     }
   }
 
@@ -533,7 +533,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 4; // 4 is the maximum length allowed for DDS for a binary field of 2 bytes. @C0C
+      length_ = 4; // 4 is the maximum #digits allowed for DDS for a binary field of 2 bytes. @C0C
     }
   }
 
@@ -553,7 +553,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 4; // 4 is the maximum length allowed for DDS for a binary field of 2 bytes. @C0C
+      length_ = 4; // 4 is the maximum #digits allowed for DDS for a binary field of 2 bytes. @C0C
     }
   }
 
@@ -573,7 +573,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 9; // 9 is the maximum length allowed for DDS for a binary field of 4 bytes.
+      length_ = 9; // 9 is the maximum #digits allowed for DDS for a binary field of 4 bytes.
     }
   }
 
@@ -593,7 +593,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 9; // 9 is the maximum length allowed for DDS for a binary field of 4 bytes.
+      length_ = 9; // 9 is the maximum #digits allowed for DDS for a binary field of 4 bytes.
     }
   }
 
@@ -613,7 +613,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 18; // 18 is the maximum length allowed for DDS for a binary field of 8 bytes.
+      length_ = 18; // 18 is the maximum #digits allowed for DDS for a binary field of 8 bytes.
     }
   }
 
@@ -633,7 +633,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     // Set the length to the default value if it has not already been set via setLength
     if (length_ == 0)
     {
-      length_ = 18; // 18 is the maximum length allowed for DDS for a binary field of 8 bytes.
+      length_ = 18; // 18 is the maximum #digits allowed for DDS for a binary field of 8 bytes.
     }
   }
 
