@@ -123,10 +123,11 @@ public class AS400Time extends AS400AbstractTime
    Valid values are:
    <tt>
    <ul>
-   <li>: <i>(colon)</i>
-   <li>. <i>(period)</i>
-   <li>, <i>(comma)</i>
-   <li>& <i>(ampersand)</i>
+   <li>' ' <i>(blank)</i>
+   <li>':' <i>(colon)</i>
+   <li>'.' <i>(period)</i>
+   <li>',' <i>(comma)</i>
+   <li>'&' <i>(ampersand)</i>
    <li>(null)
    </ul>
    </tt>
@@ -215,6 +216,19 @@ public class AS400Time extends AS400AbstractTime
      super.setFormat(format, separator);
   }
 
+
+  /**
+   Sets the format of this AS400Time object.
+   @param format The format for this object.
+   For a list of valid values, refer to {@link #AS400Time(int,Character) AS400Time(int,Character)}.
+   @param separator  The separator character.
+   @deprecated Use {@link #setFormat(int,Character) setFormat(int,Character)} instead.
+   **/
+  public void setFormat(int format, char separator)
+  {
+     super.setFormat(format, new Character(separator));
+  }
+
   private static Hashtable getFormatsMap()
   {
     if (formatsMap_ == null)
@@ -237,6 +251,7 @@ public class AS400Time extends AS400AbstractTime
 
   /**
    Returns the integer format value that corresponds to specified format name.
+   If null is specified, the default format (FORMAT_ISO) is returned.
    This method is provided for use by the PCML infrastructure.
    @param formatName  The format name.
    Valid values are:
@@ -253,7 +268,13 @@ public class AS400Time extends AS400AbstractTime
    **/
   public static int toFormat(String formatName)
   {
-    if (formatName == null) throw new NullPointerException("formatName");
+    if (formatName == null || formatName.length() == 0) {
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "AS400Time.toFormat("+formatName+"): Returning default time format.");
+      }
+      return FORMAT_ISO;
+    }
+
     Integer formatInt = (Integer)getFormatsMap().get(formatName.trim().toUpperCase());
 
     if (formatInt == null) {
@@ -322,23 +343,10 @@ public class AS400Time extends AS400AbstractTime
    **/
   public Object toObject(byte[] as400Value, int offset)
   {
-    java.sql.Time timeObj = null;
-    try
-    {
-      String timeString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
-      if (DEBUG) System.out.println("DEBUG AS400Time.toObject(): timeString == |" + timeString + "|");
-
-      // Compose the String representation into a Date object.
-      java.util.Date dateObj = getDateFormatter().parse(timeString);
-      timeObj = new java.sql.Time(dateObj.getTime()); // argument is "milliseconds into day"
-    }
-    catch (ParseException e) {
-      // Assume that the exception is because we got bad input.
-      Trace.log(Trace.ERROR, e.getMessage(), as400Value);
-      throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-
-    return timeObj;
+    if (as400Value == null) throw new NullPointerException("as400Value");
+    String timeString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
+    // Parse the string, and create a java.sql.Time object.
+    return parse(timeString);
   }
 
 
@@ -361,21 +369,40 @@ public class AS400Time extends AS400AbstractTime
     return getDateFormatter().format(timeObj);
   }
 
+  /**
+   Converts a string representation of a time, to a Java object.
+   @param source A time value expressed as a string in the format specified for this AS400Time object.
+   @return A {@link java.sql.Time java.sql.Time} object representing the specified time.
+   The reference time zone for the object is GMT.
+   **/
+  public java.sql.Time parse(String source)
+  {
+    if (source == null) throw new NullPointerException("source");
+    try
+    {
+      java.util.Date dateObj = getDateFormatter().parse(source);
+      return new java.sql.Time(dateObj.getTime()); // argument is "milliseconds into day"
+    }
+    catch (Exception e) {
+      // Assume that the exception is because we got bad input.
+      Trace.log(Trace.ERROR, e.getMessage(), source);
+      Trace.log(Trace.ERROR, "Time string is expected to be in format: " + patternFor(getFormat(), getSeparator()));
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+  }
+
 
   /**
    Converts the specified HMS representation of a time, to a Java object.
-   This method is provided for use by the PCML infrastructure.
+   This method is provided for use by the PCML infrastructure;
+   in particular, when parsing 'init=' values for 'time' data elements.
    @param source A time value expressed as a string in format <tt>HH:mm:ss</tt>.
    @return A {@link java.sql.Time java.sql.Time} object representing the specified time.
    The reference time zone for the object is GMT.
    **/
   public static java.sql.Time parseXsdString(String source)
   {
-    if (DEBUG) System.out.println("AS400Time.parseXsdString("+source+")");
     if (source == null) throw new NullPointerException("source");
-    if (source.length() < 8) {
-      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
     try
     {
       java.util.Date simpleDateObj = getTimeFormatterXSD().parse(source);
@@ -384,7 +411,8 @@ public class AS400Time extends AS400AbstractTime
     catch (ParseException e) {
       // Assume that the exception is because we got bad input.
       Trace.log(Trace.ERROR, e.getMessage(), source);
-      throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      Trace.log(Trace.ERROR, "Value is expected to be in standard XML Schema 'time' format: " + TIME_PATTERN_XSD);
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
   }
 
@@ -405,10 +433,7 @@ public class AS400Time extends AS400AbstractTime
       throw e;
     }
 
-    String timeString = getTimeFormatterXSD().format(timeObj);
-
-    if (DEBUG) System.out.println("DEBUG AS400Time.toXsdString(): " + timeString);
-    return timeString;
+    return getTimeFormatterXSD().format(timeObj);
   }
 
   // Implements abstract method of superclass.

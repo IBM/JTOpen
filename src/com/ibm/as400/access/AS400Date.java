@@ -200,11 +200,12 @@ public class AS400Date extends AS400AbstractTime
    Valid values are:
    <tt>
    <ul>
-   <li>& <i>(ampersand)</i>
-   <li>, <i>(comma)</i>
-   <li>- <i>(hyphen)</i>
-   <li>. <i>(period)</i>
-   <li>/ <i>(slash)</i>
+   <li>'&' <i>(ampersand)</i>
+   <li>' ' <i>(blank)</i>
+   <li>',' <i>(comma)</i>
+   <li>'-' <i>(hyphen)</i>
+   <li>'.' <i>(period)</i>
+   <li>'/' <i>(slash)</i>
    <li>(null)
    </ul>
    </tt>
@@ -242,7 +243,6 @@ public class AS400Date extends AS400AbstractTime
   {
     return super.getFormat();
   }
-
 
   /**
    Gets the separator character of this AS400Date object.
@@ -328,6 +328,19 @@ public class AS400Date extends AS400AbstractTime
     super.setFormat(format, separator);
   }
 
+
+  /**
+   Sets the format of this AS400Date object.
+   @param format The format for this object.
+   For a list of valid values, refer to {@link #AS400Date(int,Character) AS400Date(int,Character)}.
+   @param separator  The separator character.
+   @deprecated Use {@link #setFormat(int,Character) setFormat(int,Character)} instead.
+   **/
+  public void setFormat(int format, char separator)
+  {
+    super.setFormat(format, new Character(separator));
+  }
+
   private static Hashtable getFormatsMap()
   {
     if (formatsMap_ == null) {
@@ -360,6 +373,8 @@ public class AS400Date extends AS400AbstractTime
 
   /**
    Returns the integer format value that corresponds to specified format name.
+   If null is specified, the default format (FORMAT_ISO) is returned.
+   This method is provided for use by the PCML infrastructure.
    @param formatName  The date format name.
    <br>Valid values are:
    <tt>
@@ -386,7 +401,13 @@ public class AS400Date extends AS400AbstractTime
    **/
   public static int toFormat(String formatName)
   {
-    if (formatName == null) throw new NullPointerException("formatName");
+    if (formatName == null || formatName.length() == 0) {
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "AS400Date.toFormat("+formatName+"): Returning default date format.");
+      }
+      return FORMAT_ISO;
+    }
+
     Integer formatInt = (Integer)getFormatsMap().get(formatName.trim().toUpperCase());
 
     if (formatInt == null) {
@@ -457,42 +478,10 @@ public class AS400Date extends AS400AbstractTime
    **/
   public Object toObject(byte[] as400Value, int offset)
   {
-    try
-    {
-      if (as400Value == null) throw new NullPointerException("as400Value");
-      String dateString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
-      if (DEBUG) System.out.println("AS400Date.toObject(): Returned 'date' string: |" + dateString + "|");
-
-      // Some formats contain a century digit.
-      // Deal with the 'century' digit, if one was returned in as400Value.
-      Integer centuryDigit = parseCenturyDigit(dateString, getFormat());
-      if (centuryDigit != null)
-      {
-        if (DEBUG) System.out.println("Century digit: " + centuryDigit.toString());
-        dateString = dateString.substring(1);  // remove the century digit, so it won't confuse SimpleDateFormat
-        if (DEBUG) System.out.println("Stripped date string: |" + dateString + "|");
-      }
-      else
-      {
-        // The formats MDY, DMY, YMD, and JUL represent the year as 2 digits.
-        // For those formats, we need to deduce the century based on the 'yy' value.
-        centuryDigit = disambiguateCentury(dateString);
-      }
-
-
-      java.util.Date dateObj = getDateFormatter(centuryDigit).parse(dateString);
-      return new java.sql.Date(dateObj.getTime());
-    }
-    catch (NumberFormatException e) {
-      // Assume that the exception is because we got bad input.
-      Trace.log(Trace.ERROR, e.getMessage(), as400Value);
-      throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-    catch (ParseException e) {
-      // Assume that the exception is because we got bad input.
-      Trace.log(Trace.ERROR, e.getMessage(), as400Value);
-      throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
+    if (as400Value == null) throw new NullPointerException("as400Value");
+    String dateString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
+    // Parse the string, and create a java.sql.Date object.
+    return parse(dateString);
   }
 
 
@@ -530,25 +519,56 @@ public class AS400Date extends AS400AbstractTime
     String dateString = getDateFormatter().format(dateObj);
 
     // Depending on the format, prepend a "century" digit if needed.
-    dateString = addCenturyDigit(dateString, getFormat(), dateObj);
-    if (DEBUG) System.out.println("DEBUG AS400Date.toString() for format " + getFormat() + ": " + dateString);
+    dateString = addCenturyDigit(dateString, dateObj);
     return dateString;
   }
 
   /**
+   Converts a string representation of a date, to a Java object.
+   @param source A date value expressed as a string in the format specified for this AS400Date object.
+   @return A {@link java.sql.Date java.sql.Date} object representing the specified date.
+   The reference time zone for the object is GMT.
+   **/
+  public java.sql.Date parse(String source)
+  {
+    if (source == null) throw new NullPointerException("source");
+    try
+    {
+      // Some formats contain a century digit.
+      // Deal with the 'century' digit, if the pattern for this format includes one.
+      Integer centuryDigit = parseCenturyDigit(source, getFormat());
+      if (centuryDigit != null) {
+        // To avoid confusing SimpleDateFormat, remove the century digit. 
+        source = source.substring(1);
+      }
+      else {
+        // The formats MDY, DMY, YMD, and JUL represent the year as 2 digits.
+        // For those formats, we need to deduce the century based on the 'yy' value.
+        centuryDigit = disambiguateCentury(source);
+      }
+
+      java.util.Date dateObj = getDateFormatter(centuryDigit).parse(source);
+      return new java.sql.Date(dateObj.getTime());
+    }
+    catch (Exception e) {
+      // Assume that the exception is because we got bad input.
+      Trace.log(Trace.ERROR, e.getMessage(), source);
+      Trace.log(Trace.ERROR, "Date string is expected to be in format: " + prependCentury(patternFor(getFormat(), getSeparator())));  // Prepend 'century' indicator if needed.
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+  }
+
+  /**
    Converts the specified ISO representation of a date, to a Java object.
-   This method is provided for use by the PCML infrastructure.
+   This method is provided for use by the PCML infrastructure;
+   in particular, when parsing 'init=' values for 'date' data elements.
    @param source A date value expressed as a string in format <tt>yyyy-MM-dd</tt>.
    @return A {@link java.sql.Date java.sql.Date} object representing the specified date.
    The reference time zone for the object is GMT.
    **/
   public static java.sql.Date parseXsdString(String source)
   {
-    if (DEBUG) System.out.println("AS400Date.parseXsdString("+source+")");
     if (source == null) throw new NullPointerException("source");
-    if (source.length() < 10) {
-      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
     try
     {
       java.util.Date simpleDateObj = getDateFormatterXSD().parse(source);
@@ -557,7 +577,8 @@ public class AS400Date extends AS400AbstractTime
     catch (ParseException e) {
       // Assume that the exception is because we got bad input.
       Trace.log(Trace.ERROR, e.getMessage(), source);
-      throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      Trace.log(Trace.ERROR, "Value is expected to be in standard XML Schema 'date' format: " + DATE_PATTERN_XSD);
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
   }
 
@@ -578,30 +599,40 @@ public class AS400Date extends AS400AbstractTime
       throw e;
     }
 
-    String dateString = getDateFormatterXSD().format(dateObj);
+    return getDateFormatterXSD().format(dateObj);
+  }
 
-    if (DEBUG) System.out.println("DEBUG AS400Date.toXsdString(): " + dateString);
-    return dateString;
+
+  // If the format includes a "century" digit, prepend a 'C' to the pattern string.
+  private String prependCentury(String pattern)
+  {
+    switch (getFormat())
+    {
+      case FORMAT_CYMD:
+      case FORMAT_CMDY:
+      case FORMAT_CDMY:
+        return "C"+pattern;
+
+      default:
+        return pattern;
+    }
   }
 
 
   // If the format includes a "century" digit, prepend the appropriate century value.
-  String addCenturyDigit(String dateString, int format, java.sql.Date dateObj)
+  private String addCenturyDigit(String dateString, java.sql.Date dateObj)
   {
-    if (DEBUG) System.out.println("DEBUG AS400Date.addCenturyDigit() for format " + getFormat() + "; dateString: |" + dateString + "|");
-    switch (format)
+    switch (getFormat())
     {
       case FORMAT_CYMD:
       case FORMAT_CMDY:
       case FORMAT_CDMY:
         int year = getCalendar(dateObj).get(Calendar.YEAR);
-        if (DEBUG) System.out.println("DEBUG AS400Date.addCenturyDigit() for format " + getFormat() + ": year=" + year);
         int century = (year/100) - 19;  // IBM i convention: Years '19xx' are in century '0'
         // Assume that the caller has verified that date is within our year range, and that the era is not BCE.
-        if (DEBUG) System.out.println("DEBUG AS400Date.addCenturyDigit() for format " + getFormat() + ": century=" + century);
         return Integer.toString(century) + dateString;
 
-      default:  // none of the above formats
+      default:
         return dateString;  // nothing to prepend, so return string unaltered
     }
   }

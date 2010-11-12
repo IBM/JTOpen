@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.Vector;
 //@B0A
 import java.util.Date;
+import java.util.HashSet;
 import java.text.SimpleDateFormat;
 
 /**
@@ -31,6 +32,8 @@ import java.text.SimpleDateFormat;
 public class DateFieldDescription extends FieldDescription implements Serializable
 {
     static final long serialVersionUID = 4L;
+
+    static HashSet formatsWithFixedSeparators_;
 
   // The date format for this field
   private String dateFormat_ = null;
@@ -126,7 +129,8 @@ public class DateFieldDescription extends FieldDescription implements Serializab
   /**
    *Returns the DDS description for the field.  This is a string containing
    *the description of the field as it would be specified in a DDS source file.
-   *This method is used by AS400File.createDDSSourceFile to specify the field
+   *This method is used by AS400File.createDDSSourceFile (called by the AS400File.create methods)
+   *to specify the field
    *in the DDS source file which is used to create the file for the user who
    *has passed in a RecordFormat object.
    *@return The DDS description of this field properly formatted for entry
@@ -177,7 +181,12 @@ public class DateFieldDescription extends FieldDescription implements Serializab
     }
     if (dateSeparator_ != null)
     {
-      v.addElement("DATSEP('" + dateSeparator_ + "') ");
+      if (!formatHasFixedSeparator(dateFormat_)) {
+        v.addElement("DATSEP('" + dateSeparator_ + "') ");
+      }
+      else {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDS date format " + dateFormat_ + " has a fixed separator.");
+      }
     }
     if (defaultValue_ != null)
     {
@@ -191,6 +200,37 @@ public class DateFieldDescription extends FieldDescription implements Serializab
     String[] s = new String[v.size()];
     v.copyInto(s);
     return s;
+  }
+
+  static boolean formatHasFixedSeparator(String format)
+  {
+    // According to the DDS spec for DATSEP:
+    // "If you specify the *ISO, *USA, *EUR, or *JIS date format value on the DATFMT keyword, you cannot specify the DATSEP keyword. These formats have a fixed date separator."
+
+    // Similarly, according to the DDS spec for TIMTSEP:
+    // "If you specify *ISO, *USA, *EUR, or *JIS time format on the TIMFMT keyword, you cannot specify the TIMSEP keyword. These formats have a fixed separator."
+
+    if (getFormatsWithFixedSeparators().contains(format)) return true;
+    else return false;
+  }
+
+  private static HashSet getFormatsWithFixedSeparators()
+  {
+    if (formatsWithFixedSeparators_ == null)
+    {
+      synchronized (DateFieldDescription.class)
+      {
+        if (formatsWithFixedSeparators_ == null)
+        {
+          formatsWithFixedSeparators_ = new HashSet(6);
+          formatsWithFixedSeparators_.add("*ISO");
+          formatsWithFixedSeparators_.add("*USA");
+          formatsWithFixedSeparators_.add("*EUR");
+          formatsWithFixedSeparators_.add("*JIS");
+        }
+      }
+    }
+    return formatsWithFixedSeparators_;
   }
 
   /**
@@ -211,17 +251,32 @@ public class DateFieldDescription extends FieldDescription implements Serializab
   }
 
   /**
+   *Sets the AS400DataType object describing this field.
+   *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
+   *cannot be null.
+  **/
+  public void setDataType(AS400Date dataType)
+  {
+    // Verify parameters
+    if (dataType == null)
+    {
+      throw new NullPointerException("dataType");
+    }
+    dataType_ = dataType;
+    // Set the length of the field based on the data type
+    length_ = dataType.getByteLength();
+  }
+
+  /**
    *Sets the value to specify for the DATFMT keyword for this field.
    *@param dateFormat The value to specify for DATFMT for
    *        this field.  The <i>dateFormat</i> cannot be null.
   **/
   public void setDATFMT(String dateFormat)
   {
-    if (dateFormat == null)
-    {
-      throw new NullPointerException("dateFormat");
-    }
-    dateFormat_ = dateFormat;
+    if (dateFormat == null) throw new NullPointerException("dateFormat");
+
+    dateFormat_ = "*" + dateFormat.toUpperCase();
 
     // Inform the AS400Date object of the format.
     if (dataType_ instanceof AS400Date) {

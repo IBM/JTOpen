@@ -63,7 +63,7 @@ public class AS400Timestamp extends AS400AbstractTime
 
 
 
-  /** The default Timestamp format.
+  /** The standard IBM i timestamp format.
    <ul>
    <li>Example: 1997-04-25-23.59.59.999999
    <li>Range of years: 0001-9999
@@ -204,41 +204,21 @@ public class AS400Timestamp extends AS400AbstractTime
    **/
   public Object toObject(byte[] as400Value, int offset)
   {
+    if (as400Value == null) throw new NullPointerException("as400Value");
     java.sql.Timestamp dateObj = null;
 
     switch (getFormat())
     {
       case FORMAT_DEFAULT:
         {
-          try
-          {
-            String timestampString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
-            if (DEBUG) System.out.println("AS400Timestamp.toObject(): Timestamp string from byte array: |" + timestampString + "|");
-            // Our SimpleDateFormat formatter doesn't handle microseconds.
-            // Strip out the fractional seconds before parsing.
-            // The default IBM i "timestamp" format is:  yyyy-mm-dd-hh.mm.ss.mmmmmm
-            java.util.Date dateObjWithoutMicros = getDateFormatter().parse(timestampString.substring(0,19)); // disregard fractional seconds for now
-
-            // Now add the fractional seconds back in.
-            int microsIntoSecond = Integer.parseInt(timestampString.substring(20));
-            dateObj = new java.sql.Timestamp(dateObjWithoutMicros.getTime());
-            ((java.sql.Timestamp)dateObj).setNanos(1000*microsIntoSecond); // 1 microsec == 1000 nanosecs
-          }
-          catch (NumberFormatException e) {
-            // Assume that the exception is because we got bad input.
-            Trace.log(Trace.ERROR, e.getMessage(), as400Value);
-            throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-          }
-          catch (ParseException e) {
-            // Assume that the exception is because we got bad input.
-            Trace.log(Trace.ERROR, e.getMessage(), as400Value);
-            throw new ExtendedIllegalArgumentException("as400Value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-          }
+          String timestampString = getCharConverter().byteArrayToString(as400Value, offset, getLength());
+          // Parse the string, and create a java.sql.Timestamp object.
+          dateObj = parse(timestampString);
           break;
         }
 
 
-      // This case is only used internally by Toolbox classes such as 'User'.
+      // This format is only used internally by Toolbox classes such as 'User'.
       case FORMAT_DTS:
         {
           // Determine the "elapsed microseconds" value represented by the *DTS value.
@@ -317,6 +297,7 @@ public class AS400Timestamp extends AS400AbstractTime
    That is, the timestamp is re-interpreted as if its reference context were the specified time zone.
    <p>For example, if <tt>timestamp</tt> represents "2000-01-01-00.00.00.000000 <b>GMT</b>", and <tt>timezone</tt> specifies CST, then this method will return a java.util.Date object representing "2000-01-01-00.00.00.000000 <b>CST</b>".
    <p>Note that java.util.Date has <i>milliseconds</i> precision, whereas java.sql.Timestamp has <i>nanoseconds</i> precision. When converting from Timestamp to Date, nanoseconds are rounded to the nearest millisecond.
+   @param timestamp The timestamp object.
    @param timezone The desired reference time zone to assign to the returned Date object.
    @return A Date object representing the same nominal timestamp value as represented by <tt>timestamp</tt>, with time zone context <tt>timezone</tt>.
    **/
@@ -378,6 +359,24 @@ public class AS400Timestamp extends AS400AbstractTime
       throw e;
     }
 
+    // Round up to the next microsecond, if fractional microseconds are 500 nanoseconds or greater.
+    int nanosIntoSecond = timestampObj.getNanos();
+    int microsIntoSecond = nanosIntoSecond/1000; // 1 microsec == 1000 nanosecs
+    int nanosIntoMicrosecond = nanosIntoSecond % 1000; // remainder
+    if (nanosIntoMicrosecond >= 500) {  // half a microsecond
+      if (DEBUG) {
+        System.out.println("AS400Timestamp.toString: Rounding up to next microsecond.");
+        System.out.println("nanosIntoSecond="+nanosIntoSecond+"; microsIntoSecond="+microsIntoSecond+"; nanosIntoMicrosecond="+nanosIntoMicrosecond);
+      }
+      microsIntoSecond += 1;  // round up to the next microsecond
+      // See if the round-up moved us up into the next second.
+      if (microsIntoSecond > 999999) {
+        java.sql.Timestamp newObj = new java.sql.Timestamp(timestampObj.getTime() + 1000); // advance to next second up (1 sec == 1000 msecs).
+        timestampObj = newObj;
+        microsIntoSecond = 0;
+      }
+    }
+
     // Verify that the 'year' value from the date is within the range of our format.
 
     int year, era;
@@ -393,21 +392,50 @@ public class AS400Timestamp extends AS400AbstractTime
       throw new ExtendedIllegalArgumentException("javaValue (era=0)", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    // Round up if fractional microseconds are 500 nanoseconds or greater.
-    int nanosIntoSecond = timestampObj.getNanos();
-    int microsIntoSecond = nanosIntoSecond/1000; // 1 microsec == 1000 nanosecs
-    int nanosIntoMicrosecond = nanosIntoSecond % 1000; // remainder
-    if (nanosIntoMicrosecond >= 500) {  // half a microsecond
-      microsIntoSecond += 1;  // round up to the next microsecond
-    }
-
     String micros = to6Digits(microsIntoSecond); // prepend zeros as needed
     return ( getDateFormatter().format(timestampObj) + "." + micros );
   }
 
   /**
+   Converts a string representation of a timestamp, to a Java object.
+   @param source A timestamp value expressed as a string in standard IBM i {@link #FORMAT_DEFAULT timestamp} format.
+   @return A {@link java.sql.Timestamp java.sql.Timestamp} object representing the specified timestamp.
+   The reference time zone for the object is GMT.
+   **/
+  public java.sql.Timestamp parse(String source)
+  {
+    if (source == null) throw new NullPointerException("source");
+    if (source.length() < 26) {
+      Trace.log(Trace.ERROR, "Timestamp string is expected to be in format: " + patternFor(getFormat(), getSeparator()) + ".ssssss");
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    try
+    {
+      // Our SimpleDateFormat formatter doesn't handle microseconds.
+      // Strip out the fractional seconds before parsing; then re-append them later.
+      // The default IBM i "timestamp" format is:  yyyy-mm-dd-hh.mm.ss.mmmmmm
+
+      // Exclude the fractional seconds for now.
+      java.util.Date dateObjWithoutMicros = getDateFormatter().parse(source.substring(0,19));
+
+      // Now add the fractional seconds back in.
+      int microsIntoSecond = Integer.parseInt(source.substring(20)); // skip the period
+      java.sql.Timestamp timestampObj = new java.sql.Timestamp(dateObjWithoutMicros.getTime());
+      timestampObj.setNanos(1000*microsIntoSecond); // 1 microsec == 1000 nanosecs
+      return timestampObj;
+    }
+    catch (Exception e) {
+      // Assume that the exception is because we got bad input.
+      Trace.log(Trace.ERROR, e.getMessage(), source);
+      Trace.log(Trace.ERROR, "Timestamp string is expected to be in format: " + patternFor(getFormat(), getSeparator()) + ".ssssss");
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+  }
+
+  /**
    Converts the specified ISO representation of a timestamp, to a Java object.
    This method is provided for use by the PCML infrastructure.
+   in particular, when parsing 'init=' values for 'timestamp' data elements.
    @param source A timestamp value expressed as a string in format <tt>yyyy-MM-ddTHH:mm:ss.SSSSSSSSS</tt>.
    For example: <tt>2010-01-01T23:59:59.999999999</tt>
    @return A {@link java.sql.Timestamp java.sql.Timestamp} object representing the specified timestamp.
@@ -415,21 +443,17 @@ public class AS400Timestamp extends AS400AbstractTime
    **/
   public static java.sql.Timestamp parseXsdString(String source)
   {
-    if (DEBUG) System.out.println("AS400Timestamp.parseXsdString("+source+")");
     if (source == null) throw new NullPointerException("source");
-    if (source.length() < 19) {
-      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
     try
     {
-      // First strip off the "nanoseconds" part at the end of the string.
-
+      // First, separate-out the fractional seconds (nanoseconds) at the end of the string,
+      // leaving something that can be parsed by SimpleDateFormat.
       int nanos = 0;
       String withoutNanos = source.substring(0,19); // up to the '.' (exclusive)
       if (source.length() > 20)
       {
         StringBuffer fractionalSeconds = new StringBuffer(source.substring(20));
-        // Pad with trailing zeros, to 9 digits.
+        // Pad with trailing zeros, to 9 digits, so as to specify "number of nanoseconds".
         int numZerosToAdd = 9 - fractionalSeconds.length();
         for (int i=0; i<numZerosToAdd; i++) fractionalSeconds.append('0');
         nanos = Integer.parseInt(fractionalSeconds.toString());
@@ -443,7 +467,8 @@ public class AS400Timestamp extends AS400AbstractTime
     catch (ParseException e) {
       // Assume that the exception is because we got bad input.
       Trace.log(Trace.ERROR, e.getMessage(), source);
-      throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      Trace.log(Trace.ERROR, "Timestamp string is expected to be in standard XML Schema 'timestamp' format: " + TIMESTAMP_PATTERN_XSD+".sssssssss");
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
   }
 
@@ -470,7 +495,6 @@ public class AS400Timestamp extends AS400AbstractTime
     timestampString.append('.');
     timestampString.append(to9Digits(timestampObj.getNanos()));
 
-    if (DEBUG) System.out.println("DEBUG AS400Timestamp.toXsdString(): " + timestampString.toString());
     return timestampString.toString();
   }
 

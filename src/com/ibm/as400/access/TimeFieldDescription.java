@@ -101,7 +101,8 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
   /**
    *Returns the DDS description for the field.  This is a string containing
    *the description of the field as it would be specified in a DDS source file.
-   *This method is used by AS400File.createDDSSourceFile to specify the field
+   *This method is used by AS400File.createDDSSourceFile (called by the AS400File.create methods)
+   *to specify the field
    *in the DDS source file which is used to create the file for the user who
    *has passed in a RecordFormat object.
    *@return The DDS description of this field properly formatted for entry
@@ -152,7 +153,12 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
     }
     if (timeSeparator_ != null)
     {
-      v.addElement("TIMSEP('" + timeSeparator_ + "') ");
+      if (!formatHasFixedSeparator(timeFormat_)) {
+        v.addElement("TIMSEP('" + timeSeparator_ + "') ");
+      }
+      else {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDS time format " + timeFormat_ + " has a fixed separator.");
+      }
     }
     if (defaultValue_ != null)
     {
@@ -166,6 +172,12 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
     String[] s = new String[v.size()];
     v.copyInto(s);
     return s;
+  }
+
+  private static boolean formatHasFixedSeparator(String format)
+  {
+    // Both DATSEP and TIMSEP have the same lists of "fixed-separator" formats.
+    return DateFieldDescription.formatHasFixedSeparator(format);
   }
 
   /**
@@ -196,6 +208,23 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
    *cannot be null.
   **/
   public void setDataType(AS400Text dataType)
+  {
+    // Verify parameters
+    if (dataType == null)
+    {
+      throw new NullPointerException("dataType");
+    }
+    dataType_ = dataType;
+    // Set the length of the field based on the data type
+    length_ = dataType.getByteLength();
+  }
+
+  /**
+   *Sets the AS400DataType object describing this field.
+   *@param dataType The AS400DataType that describes this field.  The <i>dataType</i>
+   *cannot be null.
+  **/
+  public void setDataType(AS400Time dataType)
   {
     // Verify parameters
     if (dataType == null)
@@ -262,11 +291,9 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
   **/
   public void setTIMFMT(String timeFormat)
   {
-    if (timeFormat == null)
-    {
-      throw new NullPointerException("timeFormat");
-    }
-    timeFormat_ = timeFormat;
+    if (timeFormat == null) throw new NullPointerException("timeFormat");
+
+    timeFormat_ = "*" + timeFormat.toUpperCase();
 
     // Inform the AS400Time object of the format.
     if (dataType_ instanceof AS400Time) {
