@@ -147,21 +147,7 @@ class RfmlRecordFormat extends PcmlDocNode
             {
               switch (fieldLength)
               {
-                case 1:
-                  if (precision == 8) { // Unsigned.
-                    fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin1(), fieldName);
-                    if (initValue != null) {
-                      ((BinaryFieldDescription)fieldDesc).setDFT(Short.valueOf(initValue));
-                    }
-                  }
-                  else { // Signed.
-                    fieldDesc = new BinaryFieldDescription(new AS400Bin1(), fieldName);
-                    if (initValue != null) {
-                      ((BinaryFieldDescription)fieldDesc).setDFT(Byte.valueOf(initValue));
-                    }
-                  }
-                  break;
-                case 2:
+                case 2:   // Note: All DDS 'binary' fields occupy at least 2 bytes on server.
                   if (precision == 16) { // Unsigned.     @A1c - Swapped the if/else.
                     fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin2(), fieldName);
                     if (initValue != null) {
@@ -286,15 +272,27 @@ class RfmlRecordFormat extends PcmlDocNode
           case (PcmlData.DATE) :
             {
               String separatorName = dNode.getDateSeparator();
-              int format = AS400Date.toFormat(dNode.getDateFormat());
+              String format = dNode.getDateFormat();
               AS400Date convDate;
-              if (separatorName == null) convDate = new AS400Date(format);
-              else convDate = new AS400Date(format, separatorAsChar(separatorName));
+              if (format == null) convDate = new AS400Date();
+              else {
+                int formatInt = AS400Date.toFormat(format);
+                if (separatorName == null) convDate = new AS400Date(formatInt);
+                else convDate = new AS400Date(formatInt, separatorAsChar(separatorName));
+              }
               fieldDesc = new DateFieldDescription(convDate, fieldName);
               if (initValue != null) {
-                ((DateFieldDescription)fieldDesc).setDFT(initValue); ///TBD convert to format expected by DDS?
+                // We require the 'init=' value to be specified in standard XML Schema 'date' format.
+                // Normalize it to match the field's specified DDS format.
+                String initValueNormalized = convDate.toString(AS400Date.parseXsdString(initValue));
+                ((DateFieldDescription)fieldDesc).setDFT(initValueNormalized);
               }
-              ///TBD: Also call setDATFMT(), setDATSEP() ???   --> toUpperCase()
+              if (format != null) {
+                ((DateFieldDescription)fieldDesc).setDATFMT(format);
+              }
+              if (separatorName != null) {
+                ((DateFieldDescription)fieldDesc).setDATSEP(separatorAsChar(separatorName).toString());
+              }
               break;
             }
 
@@ -302,15 +300,27 @@ class RfmlRecordFormat extends PcmlDocNode
           case (PcmlData.TIME) :
             {
               String separatorName = dNode.getTimeSeparator();
-              int format = AS400Time.toFormat(dNode.getTimeFormat());
+              String format = dNode.getTimeFormat();
               AS400Time convTime;
-              if (separatorName == null) convTime = new AS400Time(format);
-              else convTime = new AS400Time(format, separatorAsChar(separatorName));
+              if (format == null) convTime = new AS400Time();
+              else {
+                int formatInt = AS400Time.toFormat(format);
+                if (separatorName == null) convTime = new AS400Time(formatInt);
+                else convTime = new AS400Time(formatInt, separatorAsChar(separatorName));
+              }
               fieldDesc = new TimeFieldDescription(convTime, fieldName);
               if (initValue != null) {
-                ((TimeFieldDescription)fieldDesc).setDFT(initValue); ///TBD convert to format expected by DDS?
+                // We require the 'init=' value to be specified in standard XML Schema 'time' format.
+                // Normalize it to match the field's specified DDS format.
+                String initValueNormalized = convTime.toString(AS400Time.parseXsdString(initValue));
+                ((TimeFieldDescription)fieldDesc).setDFT(initValueNormalized);
               }
-              ///TBD: Also call setTIMFMT(), setTIMSEP() ???   --> toUpperCase()
+              if (format != null) {
+                ((TimeFieldDescription)fieldDesc).setTIMFMT(format);
+              }
+              if (separatorName != null) {
+                ((TimeFieldDescription)fieldDesc).setTIMSEP(separatorAsChar(separatorName).toString());
+              }
               break;
             }
 
@@ -320,7 +330,10 @@ class RfmlRecordFormat extends PcmlDocNode
               AS400Timestamp convTimestamp = new AS400Timestamp();
               fieldDesc = new TimestampFieldDescription(convTimestamp, fieldName);
               if (initValue != null) {
-                ((TimestampFieldDescription)fieldDesc).setDFT(initValue); ///TBD convert to format expected by DDS?
+                // We require the 'init=' value to be specified in standard XML Schema 'timestamp' format.
+                // Normalize it to match the field's expected DDS format.
+                String initValueNormalized = convTimestamp.toString(AS400Timestamp.parseXsdString(initValue));
+                ((TimestampFieldDescription)fieldDesc).setDFT(initValueNormalized);
               }
               break;
             }

@@ -16,8 +16,6 @@ package com.ibm.as400.data;
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400DataType;
 import com.ibm.as400.access.AS400Text;
-import com.ibm.as400.access.AS400Bin1;
-import com.ibm.as400.access.AS400UnsignedBin1;
 import com.ibm.as400.access.AS400Bin2;
 import com.ibm.as400.access.AS400UnsignedBin2;
 import com.ibm.as400.access.AS400Bin4;
@@ -92,8 +90,6 @@ class PcmlDocument extends PcmlDocRoot
     // The following attributes added for PCML v2.0
     private String m_Version;     // version=, string literal          @B1A
 
-    private static AS400Bin1          m_Bin1   = new AS400Bin1();
-    private static AS400UnsignedBin1  m_UBin1  = new AS400UnsignedBin1();
     private static AS400Bin2          m_Bin2   = new AS400Bin2();
     private static AS400UnsignedBin2  m_UBin2  = new AS400UnsignedBin2();
     private static AS400Bin4          m_Bin4   = new AS400Bin4();
@@ -329,14 +325,7 @@ class PcmlDocument extends PcmlDocRoot
                 }
 
             case PcmlData.INT:
-                if (dataLength == 1)
-                {
-                    if (dataPrecision == 8)
-                        return m_UBin1;
-                    else // must be dataPrecision == 7
-                        return m_Bin1;
-                }
-                else if (dataLength == 2)
+                if (dataLength == 2)
                 {
                     if (dataPrecision == 16)
                         return m_UBin2;
@@ -1029,6 +1018,7 @@ class PcmlDocument extends PcmlDocRoot
                   }
 
                   break;
+
                case PcmlData.INT:
                   if (node.getAttributeValue("length").equals("4"))
                   {
@@ -1071,7 +1061,7 @@ class PcmlDocument extends PcmlDocRoot
                            }
                         }
                     }
-                    else
+                    else // precision == 31
                      {
                         if ( ((PcmlData) node).getXPCMLCount(dim) > 0 )
                         {
@@ -1109,7 +1099,7 @@ class PcmlDocument extends PcmlDocRoot
                            }
                         }
                     }
-                  }
+                  } // INT, length=4
                   else if (node.getAttributeValue("length").equals("2") )
                   {
                      if (node.getAttributeValue("precision") != null && node.getAttributeValue("precision").equals("16"))
@@ -1150,7 +1140,7 @@ class PcmlDocument extends PcmlDocRoot
                           }
                         }
                     }
-                    else
+                    else  // precision == 15
                      {
                         if (  ((PcmlData) node).getXPCMLCount(dim) > 0 )
                         {
@@ -1188,46 +1178,89 @@ class PcmlDocument extends PcmlDocRoot
                            }
                         }
                     }
-                  }
+                  } // INT, length=2
                   else if (node.getAttributeValue("length").equals("8"))
                   {
-                      if (  ((PcmlData) node).getXPCMLCount(dim) > 0 )
-                      {
-                        if (dimensions.at(current_dimension)== 0)
+                     if (node.getAttributeValue("precision") != null && node.getAttributeValue("precision").equals("64"))
+                     {
+                        if (  ((PcmlData) node).getXPCMLCount(dim) > 0 )
+  //                      if (node.getAttributeValue("count") != null )
                         {
-                            // Check if this is a user defined element
-                            if (node.getCondensedName() != "")
-                            {
-                                writer.print(indent);
-                                writer.print("<"+ node.getCondensedName());
-                                lastTag="arrayOfLongParm";
-                            }
-                            else
-                            {
-                                writer.print(indent);
-                                writer.print("<arrayOfLongParm");
-                                lastTag="arrayOfLongParm";
-                            }
-                        }
-                      }
-                      else
-                      {
-                        // Check if this is a user defined element
-                        if (node.getCondensedName() != "")
-                        {
-                            writer.print(indent);
-                            writer.print("<"+ node.getCondensedName());
-                            lastTag=node.getCondensedName();
+                           if (dimensions.at(current_dimension)== 0)
+                           {
+                               // Check if this is a user defined element
+                               if (node.getCondensedName() != "")
+                               {
+                                  writer.print(indent);
+                                  writer.print("<"+ node.getCondensedName());
+                                  lastTag="arrayOfUnsignedLongParm";
+                               }
+                               else
+                               {
+                                  writer.print(indent);
+                                  writer.print("<arrayOfUnsignedLongParm");
+                                  lastTag="arrayOfUnsignedLongParm";
+                               }
+                           }
                         }
                         else
                         {
-                            writer.print(indent);
-                            writer.print("<longParm");
-                            lastTag="longParm";
+                           // Check if this is a user defined element
+                           if (node.getCondensedName() != "")
+                           {
+                              writer.print(indent);
+                              writer.print("<"+ node.getCondensedName());
+                              lastTag=node.getCondensedName();
+                           }
+                           else
+                           {
+                              writer.print(indent);
+                              writer.print("<unsignedLongParm");
+                              lastTag="unsignedLongParm";
+                           }
                         }
-                      }
-                  }
+                    }
+                    else // precision == 63
+                     {
+                        if ( ((PcmlData) node).getXPCMLCount(dim) > 0 )
+                        {
+                           if (dimensions.at(current_dimension)== 0)
+                           {
+                              // Check if this is a user defined element
+                              if (node.getCondensedName() != "")
+                              {
+                                 writer.print(indent);
+                                 writer.print("<"+ node.getCondensedName());
+                                 lastTag="arrayOfLongParm";
+                              }
+                              else
+                              {
+                                  writer.print(indent);
+                                  writer.print("<arrayOfLongParm");
+                                  lastTag="arrayOfLongParm";
+                              }
+                           }
+                        }
+                        else
+                        {
+                           // Check if this is a user defined element
+                           if (node.getCondensedName() != "")
+                           {
+                              writer.print(indent);
+                              writer.print("<"+ node.getCondensedName());
+                              lastTag=node.getCondensedName();
+                           }
+                           else
+                           {
+                              writer.print(indent);
+                              writer.print("<longParm");
+                              lastTag="longParm";
+                           }
+                        }
+                    }
+                  } // INT, length=8
                   break;
+
                case PcmlData.FLOAT:
                   if (node.getAttributeValue("length").equals("4"))
                   {

@@ -263,7 +263,6 @@
     </xs:simpleContent>
   </xs:complexType>
 
-
 <!-- Short integer parameter (2 bytes on server) -->
     <xs:element name="shortParm" type="shortParmType" nillable="true" substitutionGroup="shortParmGroup"   />
       <xs:complexType name="shortParmType">
@@ -832,6 +831,7 @@
   <xs:simpleType name="dateSeparatorType">
     <xs:restriction base="xs:string">
        <xs:enumeration value="ampersand"/>
+       <xs:enumeration value="blank"/>
        <xs:enumeration value="comma"/>
        <xs:enumeration value="hyphen"/>
        <xs:enumeration value="period"/>
@@ -844,6 +844,7 @@
   <xs:simpleType name="timeSeparatorType"> 
     <xs:restriction base="xs:string">
        <xs:enumeration value="ampersand"/>
+       <xs:enumeration value="blank"/>
        <xs:enumeration value="colon"/>
        <xs:enumeration value="comma"/>
        <xs:enumeration value="period"/>
@@ -1127,7 +1128,7 @@
    </xs:complexType>
 
   <!-- unsigned short field -->
-  <!-- Maps to AS400Bin2. -->
+  <!-- Maps to AS400UnsignedBin2. -->
    <xs:complexType name="unsignedShortFieldType">
      <xs:simpleContent>
          <xs:extension base="xs:unsignedShort">

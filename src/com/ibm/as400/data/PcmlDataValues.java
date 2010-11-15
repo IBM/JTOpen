@@ -188,8 +188,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
               m_value = ((BigDecimal)v).setScale(getPrecision(), BigDecimal.ROUND_HALF_EVEN);       // @D0A
             }
             else {
-            m_value = v;
-        }
+              m_value = v;
+            }
         }
         // New value does not match the Java type for this element.
         // Convert to the Java type needed -- errors may occur.
@@ -526,6 +526,9 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         Object value = null;
         int dataType = getDataType();
         int dataLength = getLength();
+        if (dataLength == 0) { // this can happen with date, time, timestamp
+          dataLength = byteLength();
+        }
         int bytesConverted = 0;                                     // @B2A
 
         // Get the Java object and make sure it has been set.
@@ -535,9 +538,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             throw new PcmlException(DAMRI.INPUT_VALUE_NOT_SET, new Object[] {getNameForException()} );
         }
         
-        // Get a converter from the PcmlDocument node
-        // PcmlDocument will either create a converter or return 
-        // and existing one.
+        // Get a converter from the PcmlDocument node.
+        // PcmlDocument will either create a converter or return an existing one.
         AS400DataType converter = m_owner.getDoc().getConverter(dataType, dataLength, getPrecision(), getCcsid(), getDateFormat(), getDateSeparator(), getTimeFormat(), getTimeSeparator());
         byte[] byteArray = new byte[dataLength];
         if (dataType != PcmlData.CHAR)                              // @C6A
@@ -585,9 +587,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         Object newVal = null;
         int dataType = getDataType();
         
-        // Get a converter from the PcmlDocument node
-        // PcmlDocument will either create a converter or return 
-        // and existing one.
+        // Get a converter from the PcmlDocument node.
+        // PcmlDocument will either create a converter or return an existing one.
         AS400DataType converter = m_owner.getDoc().getConverter(dataType, getLength(), getPrecision(), getCcsid(), getDateFormat(), getDateSeparator(), getTimeFormat(), getTimeSeparator());
         if (dataType != PcmlData.CHAR)                              // @C6A
         {
@@ -798,55 +799,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 break;
 
             case PcmlData.INT:
-                if (dataLength == 1)
-                {
-                    if (dataPrecision == 8) 
-                    {
-                        if (newVal instanceof String) 
-                        {
-                            convertedVal = new Short((String) newVal);
-                        }
-                        else 
-                        {
-                            if (newVal instanceof Short) 
-                            {
-                                convertedVal = newVal;
-                            }
-                            else if (newVal instanceof Number) 
-                            {
-                                convertedVal = new Short( ((Number) newVal).shortValue() );
-                            }
-                            else 
-                            {
-                                throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
-                            }
-                        }
-                    }
-                    else 
-                    { // dataPrecision == 7 or defaulted
-                        if (newVal instanceof String) 
-                        {
-                            convertedVal = new Byte( ((String) newVal) );
-                        }
-                        else 
-                        {
-                            if (newVal instanceof Byte) 
-                            {
-                                convertedVal = newVal;
-                            }
-                            else if (newVal instanceof Number) 
-                            {
-                                convertedVal = new Byte( ((Number) newVal).byteValue() );
-                            }
-                            else 
-                            {
-                                throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {newVal.getClass().getName(), nodeNameForException} );
-                            }
-                        }
-                    }
-                }
-                else
-                if (dataLength == 2) 
+                if (dataLength == 2)
                 {
                     if (dataPrecision == 16) 
                     {
@@ -893,9 +846,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         }
                     }
                 }
-                else 
-                if (dataLength == 4)                                // @C3A
-                { // dataLength == 4
+                else if (dataLength == 4)                                // @C3A
+                {
                     if (dataPrecision == 32) 
                     {
                         if (newVal instanceof String) 

@@ -219,7 +219,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
       int count = 1;
 
       // Note: Classes that implement interface AS400DataType:
-      // AS400Array, AS400Bin1, AS400Bin2, AS400Bin4, AS400Bin8, AS400ByteArray, AS400Date, AS400Time, AS400Timestamp, AS400Float4, AS400Float8, AS400PackedDecimal, AS400Structure, AS400Text, AS400UnsignedBin1, AS400UnsignedBin2, AS400UnsignedBin4, AS400UnsignedBin8, AS400ZonedDecimal.
+      // AS400Array, AS400Bin2, AS400Bin4, AS400Bin8, AS400ByteArray, AS400Date, AS400Time, AS400Timestamp, AS400Float4, AS400Float8, AS400PackedDecimal, AS400Structure, AS400Text, AS400UnsignedBin2, AS400UnsignedBin4, AS400UnsignedBin8, AS400ZonedDecimal.
 
       int dtType = dataType.getInstanceType();
 
@@ -261,9 +261,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       // Set the 'length' attribute.
       // Note: At this point we know we don't have an AS400Structure.  All RFML datatypes except "struct" require the 'length' attribute.
-      if (dtType == AS400DataType.TYPE_BIN1 ||
-          dtType == AS400DataType.TYPE_UBIN1 ||
-          dtType == AS400DataType.TYPE_BIN2 ||
+      if (dtType == AS400DataType.TYPE_BIN2 ||
           dtType == AS400DataType.TYPE_UBIN2 ||
           dtType == AS400DataType.TYPE_BIN4 ||
           dtType == AS400DataType.TYPE_UBIN4 ||
@@ -314,10 +312,6 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       switch (dtType)
       {
-        case AS400DataType.TYPE_BIN1:
-          addAttribute(attrList, "type", "int");
-          addAttribute(attrList, "length", "1");
-          break;
         case AS400DataType.TYPE_BIN2:
           addAttribute(attrList, "type", "int");
           addAttribute(attrList, "length", "2");
@@ -329,11 +323,6 @@ public class RecordFormatDocument implements Serializable, Cloneable
         case AS400DataType.TYPE_BIN8:
           addAttribute(attrList, "type", "int");
           addAttribute(attrList, "length", "8");
-          break;
-        case AS400DataType.TYPE_UBIN1:
-          addAttribute(attrList, "type", "int");
-          addAttribute(attrList, "length","1");
-          addAttribute(attrList, "precision", "8");
           break;
         case AS400DataType.TYPE_UBIN2:
           addAttribute(attrList, "type", "int");
@@ -678,12 +667,6 @@ public class RecordFormatDocument implements Serializable, Cloneable
     <tr valign=top><th>RFML Description</th><th>Object Returned</th></tr>
     <tr valign=top><td>type=char</td><td>String</td></tr>
     <tr valign=top><td>type=byte</td><td>byte[]</td></tr>
-    <tr valign=top><td>type=int<br>
-                             length=1<br>
-                             precision=7</td><td>Byte</td></tr>
-    <tr valign=top><td>type=int<br>
-                             length=1<br>
-                             precision=8</td><td>Short</td></tr>
     <tr valign=top><td>type=int<br>
                              length=2<br>
                              precision=15</td><td>Short</td></tr>

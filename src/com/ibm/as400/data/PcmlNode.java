@@ -215,6 +215,7 @@ abstract class PcmlNode implements Serializable, Cloneable {        // @C2A
 
     // Separator characters.
     static final Character AMPERSAND = new Character('&');
+    static final Character BLANK = new Character(' ');
     static final Character COLON = new Character(':');
     static final Character COMMA = new Character(',');
     static final Character HYPHEN = new Character('-');
@@ -232,6 +233,7 @@ abstract class PcmlNode implements Serializable, Cloneable {        // @C2A
           {
             separatorsMap_ = new Hashtable(12);
             separatorsMap_.put("ampersand", AMPERSAND);
+            separatorsMap_.put("blank", BLANK);
             separatorsMap_.put("colon", COLON);
             separatorsMap_.put("comma", COMMA);
             separatorsMap_.put("hyphen", HYPHEN);

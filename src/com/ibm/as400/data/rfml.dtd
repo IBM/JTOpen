@@ -73,8 +73,8 @@ RFML is an XML language.  Typical usage:
           dateformat (CDMY | CMDY | CYMD | DMY | EUR | ISO | JIS | JUL | LONGJUL | MDY | USA | YMD) #IMPLIED
           timeformat (EUR | HMS | ISO | JIS | USA) #IMPLIED
 
-          dateseparator (ampersand | comma | hyphen | period | slash) #IMPLIED
-          timeseparator (ampersand | colon | comma | period) #IMPLIED
+          dateseparator (ampersand | blank | comma | hyphen | period | slash) #IMPLIED
+          timeseparator (ampersand | blank | colon | comma | period) #IMPLIED
 >
 <!-- Note: The 'name' attribute must be unique within a given recordformat. -->
 <!-- Note: On the server, the length of Record field names is limited to 10 bytes. -->
@@ -83,6 +83,12 @@ RFML is an XML language.  Typical usage:
 <!-- Note: The 'ccsid' and 'bidistringtype' attributes are valid only with type="char". -->
 <!-- Note: The 'precision' attribute is valid only for types "int", "packed", and "zoned". -->
 <!-- Note: The default value for 'keyfield' is false. (Added in version 5.0) -->
+
+<!-- Note: The required format for the 'init' attribute is: -->
+<!--       ... for 'date' fields:      yyyy-mm-dd -->
+<!--       ... for 'time' fields:      hh:mm:ss -->
+<!--       ... for 'timestamp' fields: yyyy-mm-ddThh:mm:ss.sssssssss -->
+<!--                  ... for example: 2010-01-01T23:59:59.999999999 -->
 
 
 <!-- The standard predefined character entities -->

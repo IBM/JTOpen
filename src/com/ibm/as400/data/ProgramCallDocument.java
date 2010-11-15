@@ -822,12 +822,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
     <tr valign=top><td><code>type=char</td><td><code>String</code></td></tr>
     <tr valign=top><td><code>type=byte</td><td><code>byte[]</code></td></tr>
     <tr valign=top><td><code>type=int<br>
-                             length=1<br>
-                             precision=7</td><td><code>Byte</code></td></tr>
-    <tr valign=top><td><code>type=int<br>
-                             length=1<br>
-                             precision=8</td><td><code>Short</code></td></tr>
-    <tr valign=top><td><code>type=int<br>
                              length=2<br>
                              precision=15</td><td><code>Short</code></td></tr>
     <tr valign=top><td><code>type=int<br>
@@ -887,12 +881,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
     <tr valign=top><th>PCML Description</th><th>Object Returned</th></tr>
     <tr valign=top><td><code>type=char</td><td><code>String</code></td></tr>
     <tr valign=top><td><code>type=byte</td><td><code>byte[]</code></td></tr>
-    <tr valign=top><td><code>type=int<br>
-                             length=1<br>
-                             precision=7</td><td><code>Byte</code></td></tr>
-    <tr valign=top><td><code>type=int<br>
-                             length=1<br>
-                             precision=8</td><td><code>Short</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=2<br>
                              precision=15</td><td><code>Short</code></td></tr>

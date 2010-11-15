@@ -2018,7 +2018,7 @@ class PcmlData extends PcmlDocNode
                         break;
 
                     case INT:
-                        if (m_Length != 1 && m_Length != 2 && m_Length != 4 && m_Length != 8)    // @C4C
+                        if (m_Length != 2 && m_Length != 4 && m_Length != 8)    // @C4C
                         {
                             getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("length", m_Length), getBracketedTagName(), getNameForException()} );
                         }
@@ -2217,13 +2217,6 @@ class PcmlData extends PcmlDocNode
 
                 // For type=int, precision= must be 15 or 16, or 31 or 32, or 63 or 64, depending on length=
                 case INT:
-                    if (m_Length == 1)
-                    {
-                        if (m_Precision != 7 && m_Precision != 8)
-                        {
-                            getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("precision",  getAttributeValue("precision")), getBracketedTagName(), getNameForException()} );
-                        }
-                    }
                     if (m_Length == 2)
                     {
                         if (m_Precision != 15 && m_Precision != 16)
