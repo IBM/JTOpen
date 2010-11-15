@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.net.NoRouteToHostException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -114,7 +115,7 @@ class PortMapper
 
     private static boolean canUseUnixSocket(String systemName, int service, boolean mustUseNetSockets)
     {
-        if (AS400.onAS400 && unixSocketAvailable && !mustUseNetSockets && service != AS400.FILE && systemName.equalsIgnoreCase("localhost"))
+        if (AS400.onAS400 && unixSocketAvailable && !mustUseNetSockets && service != AS400.FILE && (systemName.equalsIgnoreCase("localhost") || systemName.equalsIgnoreCase("ipv6-localhost")))
         {
             if (service == AS400.DATABASE && AS400.nativeVRM.vrm_ < 0x00060100) return false;
             return true;
@@ -229,121 +230,152 @@ class PortMapper
      */
     static Socket getSocketConnection(String systemName, int port, SocketProperties socketProperties) throws IOException
     {
-        //Code to make use of new method java.net.Socket.connect(host, timeout) in jdk 1.4
-        //only really needed on first socket connect so we do not hang when a system is down.  
-        //Socket pmSocket = new Socket(systemName, port); //@timeout
-        Socket pmSocket;                                 //@timeout
-        try{                                             //@timeout
-            /*  Due to various jvm and compile issues, there are many possible types of exceptions that could
-                be thrown, depending on jvm version and implementation etc.  Class.forName() seems to be the best
-                solution to finding the jvm version that does not degrade performance. */
-            Class.forName("java.net.InetSocketAddress"); //throws ClassNotFoundException (common to all jvm implementations) //@timeout 
-                     
-            pmSocket = new Socket();                        //@timeout 
+      //Code to make use of new method java.net.Socket.connect(host, timeout) in jdk 1.4
+      //only really needed on first socket connect so we do not hang when a system is down.  
+      //Socket pmSocket = new Socket(systemName, port);
+      Socket pmSocket = null;
+      try
+      {
+        /*  Due to various jvm and compile issues, there are many possible types of exceptions that could
+         be thrown, depending on jvm version and implementation etc.  Class.forName() seems to be the best
+         solution to finding the jvm version that does not degrade performance. */
+        Class.forName("java.net.InetSocketAddress"); //throws ClassNotFoundException (common to all jvm implementations)
 
-            int loginTimeout = 0;                                //@timeout //@STIMEOUT
-            if(socketProperties.isLoginTimeoutSet())           //@timeout //@STIMEOUT
-            {                                               //@timeout
-                loginTimeout = socketProperties.getLoginTimeout();  //@timeout //@STIMEOUT //@st3
-            }                                               //@timeout
-            
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", login timeout " + loginTimeout + " ms."); //@timeout //@STIMEOUT
-            
+        pmSocket = new Socket();
 
-            InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, port) :  //@timeout
-                new InetSocketAddress(InetAddress.getByName(null), port);   //@timeout
+        int loginTimeout = 0;
+        if(socketProperties.isLoginTimeoutSet())
+        {
+          loginTimeout = socketProperties.getLoginTimeout();
+        }
 
-            //pmSocket.connect(hostAddr, timeout); //fyi, PortMapper will not load and gets NoClassDefFoundError in jvm1.3 due to SocketAddress parameter type, must use reflection below  //@timeout
-            try {                                             //@timeout
-                Class thisClass = pmSocket.getClass();        //@timeout
-                Method method = thisClass.getMethod("connect", new Class[]{ SocketAddress.class, java.lang.Integer.TYPE}); //@timeout
-                //method.setAccessible(true);                   //@timeout //@CRS (applet gets exception when calling setAccessible())
-                Object[] args = new Object[2];                //@timeout
-                args[0] = hostAddr;                           //@timeout
-                args[1] = new Integer(loginTimeout);               //@timeout //@STIMEOUT
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", login timeout " + loginTimeout + " ms.");
 
-                method.invoke(pmSocket, args);                //@timeout
-            } catch (InvocationTargetException e) {           //@timeout
-                Trace.log(Trace.ERROR, e);
-                Throwable e2 = e.getTargetException();        //@timeout
-                if (e2 != null) Trace.log(Trace.ERROR, e2);
-                if(e2 instanceof IOException)                 //@timeout
-                {                                             //@timeout
-                    //Here is the actual timeout or network exceptions that we throw back to caller
-                    throw (IOException) e2;                   //@timeout
-                }else                                         //@timeout
-                {                                             //@timeout
-                    //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
-                    throw new ClassNotFoundException();       //@timeout
-                }                                             //@timeout
-            } catch (IllegalAccessException e) {              //@timeout
-                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
-                throw new ClassNotFoundException();           //@timeout
-            } catch (NoSuchMethodException e) {               //@timeout
-                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
-                throw new ClassNotFoundException();           //@timeout
-            }                                                 //@timeout
-            
-        }catch(ClassNotFoundException e){                            //@timeout 
-            //Here we catch any exception related to running in jdk 1.3 or reflection exceptions
-            //Just create socket the way we did before without a timeout.
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", no login timeout (JVM 1.3 or lower).");//@timeout
-            pmSocket = new Socket(systemName, port); //for pre jdk1.4  //@timeout 
-        }                                                             //@timeout
-        return pmSocket;
+        InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, port) :
+          new InetSocketAddress(InetAddress.getByName(null), port);
+
+        //pmSocket.connect(hostAddr, timeout); //fyi, PortMapper will not load and gets NoClassDefFoundError in jvm1.3 due to SocketAddress parameter type, must use reflection below
+        boolean done = false;
+        while (!done)  // up to two tries
+        {
+          try
+          {
+            Class thisClass = pmSocket.getClass();
+            Method method = thisClass.getMethod("connect", new Class[]{ SocketAddress.class, java.lang.Integer.TYPE});
+            //method.setAccessible(true);                   //@CRS (applet gets exception when calling setAccessible())
+            Object args[] = new Object[2];
+            args[0] = hostAddr;
+            args[1] = new Integer(loginTimeout);
+
+            method.invoke(pmSocket, args);
+            done = true;  // if no exception thrown, then no need to try again
+          }
+          catch (InvocationTargetException e) {
+            Trace.log(Trace.ERROR, e);
+            Throwable e2 = e.getTargetException();
+            if (e2 != null) Trace.log(Trace.ERROR, e2);
+            if(e2 instanceof IOException)
+            {
+              //Here is the actual timeout or network exceptions that we throw back to caller
+              throw (IOException) e2;
+            }
+            else
+            {
+              //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
+              throw new ClassNotFoundException();
+            }
+          }
+          catch (IllegalAccessException e) {
+            //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
+            Trace.log(Trace.ERROR, e);
+            throw new ClassNotFoundException();
+          }
+          catch (NoSuchMethodException e) {
+            //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
+            Trace.log(Trace.ERROR, e);
+            throw new ClassNotFoundException();
+          }
+          catch (Exception e) { // compiler won't let us catch "IOException"
+            if (e instanceof NoRouteToHostException)
+            {
+              // If we previously specified "localhost", retry with "ipv6-localhost".
+              if ("localhost".equalsIgnoreCase(hostAddr.getHostName()))
+              {
+                if (Trace.traceOn_) {
+                  Trace.log(Trace.DIAGNOSTIC, e.getMessage());
+                  Trace.log(Trace.DIAGNOSTIC, "Retrying with hostname 'ipv6-localhost' instead of 'localhost'.");
+                }
+                hostAddr = new InetSocketAddress("ipv6-localhost", port);
+                done = false;  // iterate the loop
+              }
+              else throw (NoRouteToHostException)e; // don't retry
+            }
+            else if (e instanceof IOException) throw (IOException)e;
+            else throw new RuntimeException(e);  // should never happen
+          }
+        } // while
+      } // outer try
+      catch(ClassNotFoundException e){
+        //Here we catch any exception related to running in jdk 1.3 or reflection exceptions
+        //Just create socket the way we did before without a timeout.
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", no login timeout (JVM 1.3 or lower).");
+        pmSocket = new Socket(systemName, port); //for pre jdk1.4
+      }
+      return pmSocket;
     }
-    static void setSocketProperties(Socket socket, SocketProperties socketProperties) throws SocketException
-    {
+
+      static void setSocketProperties(Socket socket, SocketProperties socketProperties) throws SocketException
+      {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket options...");
         if (socketProperties.keepAliveSet_)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting keep alive:", socketProperties.keepAlive_);
-            socket.setKeepAlive(socketProperties.keepAlive_);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting keep alive:", socketProperties.keepAlive_);
+          socket.setKeepAlive(socketProperties.keepAlive_);
         }
 
         if (socketProperties.receiveBufferSizeSet_)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting receive buffer size:", socketProperties.receiveBufferSize_);
-            socket.setReceiveBufferSize(socketProperties.receiveBufferSize_);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting receive buffer size:", socketProperties.receiveBufferSize_);
+          socket.setReceiveBufferSize(socketProperties.receiveBufferSize_);
         }
 
         if (socketProperties.sendBufferSizeSet_)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting send buffer size:", socketProperties.sendBufferSize_);
-            socket.setSendBufferSize(socketProperties.sendBufferSize_);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting send buffer size:", socketProperties.sendBufferSize_);
+          socket.setSendBufferSize(socketProperties.sendBufferSize_);
         }
 
         if (socketProperties.soLingerSet_)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting so linger:", socketProperties.soLinger_);
-            socket.setSoLinger(true, socketProperties.soLinger_);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting so linger:", socketProperties.soLinger_);
+          socket.setSoLinger(true, socketProperties.soLinger_);
         }
 
         if (socketProperties.soTimeoutSet_)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting so timeout:", socketProperties.soTimeout_);
-            socket.setSoTimeout(socketProperties.soTimeout_);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting so timeout:", socketProperties.soTimeout_);
+          socket.setSoTimeout(socketProperties.soTimeout_);
         }
 
         if (socketProperties.tcpNoDelaySet_)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting TCP no delay:", socketProperties.tcpNoDelay_);
-            socket.setTcpNoDelay(socketProperties.tcpNoDelay_);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting TCP no delay:", socketProperties.tcpNoDelay_);
+          socket.setTcpNoDelay(socketProperties.tcpNoDelay_);
         }
 
         if (Trace.traceOn_)
         {
-            Trace.log(Trace.DIAGNOSTIC, "Socket properties:");
-            try { Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + socket.getInetAddress()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Remote port:", socket.getPort()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Local address: " + socket.getLocalAddress()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Local port:", socket.getLocalPort()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", socket.getKeepAlive()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", socket.getReceiveBufferSize()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", socket.getSendBufferSize()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    So linger:", socket.getSoLinger()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    So timeout:", socket.getSoTimeout()); } catch (Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay()); } catch (Throwable t) {}
+          Trace.log(Trace.DIAGNOSTIC, "Socket properties:");
+          try { Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + socket.getInetAddress()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    Remote port:", socket.getPort()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    Local address: " + socket.getLocalAddress()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    Local port:", socket.getLocalPort()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", socket.getKeepAlive()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", socket.getReceiveBufferSize()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", socket.getSendBufferSize()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    So linger:", socket.getSoLinger()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    So timeout:", socket.getSoTimeout()); } catch (Throwable t) {}
+          try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay()); } catch (Throwable t) {}
         }
+      }
     }
-}
