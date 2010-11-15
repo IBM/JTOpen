@@ -20,13 +20,17 @@ import java.util.NoSuchElementException;
 class QueuedMessageEnumeration implements Enumeration
 {
     private QueuedMessage[] messageCache_;
+
+    // Exactly one of the following three variables will be non-null
+    // (depending on which constructor was used).
     private MessageQueue mq_;
     private JobLog jl_;
     private HistoryLog hl_;		//@HLA
-    private int counter_;
+
+    private int counter_; // number of objects returned so far by nextElement()
     private int numMessages_;
     private int listOffset_ = 0;
-    private int cachePos_ = 0;
+    private int cacheOffset_ = 0;
 
     QueuedMessageEnumeration(MessageQueue mq, int length)
     {
@@ -59,7 +63,7 @@ class QueuedMessageEnumeration implements Enumeration
             throw new NoSuchElementException();
         }
 
-        if (messageCache_ == null || cachePos_ >= messageCache_.length)
+        if (messageCache_ == null || cacheOffset_ >= messageCache_.length)
         {
             try
             {
@@ -75,17 +79,22 @@ class QueuedMessageEnumeration implements Enumeration
                 {
                     messageCache_ = jl_.getMessages(listOffset_, 1000);
                 }
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded next block in QueuedMessageEnumeration: " + messageCache_.length + " messages at offset " + listOffset_ + " out of " + numMessages_ + " total.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded next block in QueuedMessageEnumeration: " + messageCache_.length + " messages at list offset " + listOffset_ + " out of " + numMessages_ + " total.");
             }
             catch (Exception e)
             {
                 Trace.log(Trace.ERROR, "Exception while loading nextElement() in QueuedMessageEnumeration:", e);
                 throw new NoSuchElementException();
             }
-            cachePos_ = 0;
+
+            // We have a freshly loaded cache, so reset to the beginning of the cache.
+            cacheOffset_ = 0;
+
+            // Set starting offset for next call to getMessages(),
+            // in case another call is needed.
             listOffset_ += messageCache_.length;
         }
         ++counter_;
-        return messageCache_[cachePos_++];
+        return messageCache_[cacheOffset_++];
     }
 }

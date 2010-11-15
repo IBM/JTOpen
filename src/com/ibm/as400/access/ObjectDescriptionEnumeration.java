@@ -21,14 +21,12 @@ import java.util.*;
 **/
 class ObjectDescriptionEnumeration implements Enumeration
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   private ObjectDescription[] objectCache_;
   private ObjectList list_;
-  private int counter_;
+  private int counter_; // number of objects returned so far by nextElement()
   private int numObjects_;
   private int listOffset_ = 0;
-  private int cachePos_ = 0;
+  private int cacheOffset_ = 0;
 
   ObjectDescriptionEnumeration(ObjectList list, int length)
   {
@@ -48,14 +46,14 @@ class ObjectDescriptionEnumeration implements Enumeration
       throw new NoSuchElementException();
     }
 
-    if (objectCache_ == null || cachePos_ >= objectCache_.length)
+    if (objectCache_ == null || cacheOffset_ >= objectCache_.length)
     {
       try
       {
         objectCache_ = list_.getObjects(listOffset_, 1000);
         if (Trace.traceOn_)
         {
-          Trace.log(Trace.DIAGNOSTIC, "Loaded next block in ObjectDescriptionEnumeration: "+objectCache_.length+" messages at offset "+listOffset_+" out of "+numObjects_+" total.");
+          Trace.log(Trace.DIAGNOSTIC, "Loaded next block in ObjectDescriptionEnumeration: "+objectCache_.length+" messages at list offset "+listOffset_+" out of "+numObjects_+" total.");
         }
       }
       catch (Exception e)
@@ -66,11 +64,16 @@ class ObjectDescriptionEnumeration implements Enumeration
         }
         throw new NoSuchElementException();
       }
-      cachePos_ = 0;
+
+      // We have a freshly loaded cache, so reset to the beginning of the cache.
+      cacheOffset_ = 0;
+
+      // Set starting offset for next call to getObjects(),
+      // in case another call is needed.
       listOffset_ += objectCache_.length;
     }
     ++counter_;
-    return objectCache_[cachePos_++];
+    return objectCache_[cacheOffset_++];
   }
 }
 

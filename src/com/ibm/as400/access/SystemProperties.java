@@ -282,6 +282,18 @@ public class SystemProperties
      **/
     public static final String THROW_SAX_EXCEPTION_IF_PARSE_ERROR = DATA_PREFIX + "ProgramCallDocument.throwSAXExceptionIfParseError";
 
+    /**
+     Specifies the maximum number of seconds to wait for an object list to be built, before timing out.
+     Some Toolbox methods (such as {@link JobList#load() JobList.load()}) call list-building APIs (such as QGYOLJOB) that build object lists remotely on the IBM i system.  If the number of objects being listed is extremely large, the building of the list may take longer than anticipated.
+     <ul>
+     <li>Property name: com.ibm.as400.access.ListUtilities.listWaitTimeout
+     <li>Values/syntax: <tt>0 or greater</tt> (0 means "wait until complete")
+     <li>Default: 60 seconds
+     <li>Overridden by: (none)
+     </ul>
+     **/
+    public static final String LIST_WAIT_TIMEOUT = ACCESS_PREFIX + "ListUtilities.listWaitTimeout";
+
 
 
     //  *** Note: ***

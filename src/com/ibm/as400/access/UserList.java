@@ -62,9 +62,6 @@ public class UserList implements Serializable
      **/
     public static final String NOGROUP = "*NOGROUP";
 
-    // Shared error code parameter.
-    private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
-
     // The system where the users are located.
     private AS400 system_ = null;
     // The selection criteria for which users are returned.
@@ -276,18 +273,13 @@ public class UserList implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Closing user list, handle: ", handle_);
         if (handle_ == null) return;
 
-        ProgramParameter[] parameters = new ProgramParameter[]
-        {
-            new ProgramParameter(handle_),
-            ERROR_CODE
-        };
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters);
-        if (!pc.run())
-        {
-            throw new AS400Exception(pc.getMessageList());
+        try {
+          ListUtilities.closeList(system_, handle_);
         }
-        handle_ = null;
-        closeHandle_ = false;
+        finally {
+          handle_ = null;
+          closeHandle_ = false;
+        }
     }
 
     /**
@@ -389,8 +381,9 @@ public class UserList implements Serializable
     }
 
     /**
-     Returns a subset of the list of users.  This method allows the user to retrieve the user list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the users at a given offset will change, so a subsequent call to getUsers() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same Users as the previous call.
-     @param  listOffset  The offset into the list of users.  This value must be greater than 0 and less than the list length, or specify -1 to retrieve all of the users.
+     Returns a subset of the list of users.  This method allows the user to retrieve the user list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the users at a given list offset will change, so a subsequent call to getUsers() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same Users as the previous call.
+     @param  listOffset  The offset in the list of users (0-based).  This value must be greater than or equal to 0 and less than the list length; or specify -1 to retrieve all of the users.
+        <i>Note: Prior to JTOpen 7.2, this parameter was incorrectly described.</i>
      @param  number  The number of users to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
      @return  The array of retrieved {@link com.ibm.as400.access.User User} and/or {@link com.ibm.as400.access.UserGroup UserGroup} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -407,24 +400,31 @@ public class UserList implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving user list, list offset: " + listOffset + ", number:", number);
         if (listOffset < -1)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'listOffset' is not valid:", listOffset);
             throw new ExtendedIllegalArgumentException("listOffset (" + listOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
         if (number < 0 && listOffset != -1)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'number' is not valid:", number);
             throw new ExtendedIllegalArgumentException("number (" + number + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        if (handle_ == null || closeHandle_) load();
+        if (handle_ == null || closeHandle_) load();  // this sets the length_ variable
 
-        if (number == 0 && listOffset != -1) return new User[0];
+        if (length_ == 0 || (number == 0 && listOffset != -1)) {
+          return new User[0];
+        }
 
         if (listOffset == -1)
         {
-            number = length_;
-            listOffset = 0;
+            number = length_;  // request entire list
+            listOffset = 0;    // ... starting at beginning of list
+        }
+        else if (listOffset >= length_)
+        {
+            if (Trace.traceOn_)
+              Trace.log(Trace.WARNING, "Value of parameter 'listOffset' is beyond end of list:", listOffset + " (list length: " + length_ + ")");
+
+            return new User[0];
         }
         else if (listOffset + number > length_)
         {
@@ -434,31 +434,9 @@ public class UserList implements Serializable
         // AUTU0150 format has 62 bytes per user.
         int lengthOfReceiverVariable = number * 62;
 
-        ProgramParameter[] parameters = new ProgramParameter[]
-        {
-            // Receiver variable, output, char(*).
-            new ProgramParameter(lengthOfReceiverVariable),
-            // Length of receiver variable, input, binary(4).
-            new ProgramParameter(BinaryConverter.intToByteArray(lengthOfReceiverVariable)),
-            // Request handle, input, char(4).
-            new ProgramParameter(handle_),
-            // List information, output, char(80).
-            new ProgramParameter(80),
-            // Number of records to return, input, binary(4).
-            new ProgramParameter(BinaryConverter.intToByteArray(number)),
-            // Starting record, input, binary(4).
-            new ProgramParameter(BinaryConverter.intToByteArray(listOffset + 1)),
-            // Error code, I/0, char(*).
-            ERROR_CODE
-        };
+        // Retrieve the entries in the list that was built by the most recent load().
+        byte[] data = ListUtilities.retrieveListEntries(system_, handle_, lengthOfReceiverVariable, number, listOffset, null);
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters);
-        if (!pc.run())
-        {
-            throw new AS400Exception(pc.getMessageList());
-        }
-
-        byte[] data = parameters[0].getOutputData();
         Converter conv = new Converter(system_.getCcsid(), system_);
         User[] users = new User[number];
         for (int i = 0, offset = 0; i < users.length; ++i, offset += 62)
@@ -515,8 +493,9 @@ public class UserList implements Serializable
             // Length of receiver variable, input, binary(4).
             new ProgramParameter(new byte[] { 0x00, 0x00, 0x00, 0x00 } ),
             // List information, output, char(80).
-            new ProgramParameter(80),
+            new ProgramParameter(ListUtilities.LIST_INFO_LENGTH),
             // Number of records to return, input, binary(4).
+            // Special value '-1' indicates that "all records are built synchronously in the list".
             new ProgramParameter(new byte[] { (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF } ),
             // Format name, input, char(8), EBCDIC 'AUTU0150'.
             new ProgramParameter(new byte[] { (byte)0xC1, (byte)0xE4, (byte)0xE3, (byte)0xE4, (byte)0xF0, (byte)0xF1, (byte)0xF5, (byte)0xF0 } ),
@@ -525,7 +504,7 @@ public class UserList implements Serializable
             // Group profile name, input, char(10).
             new ProgramParameter(groupProfileName),
             // Error code, I/0, char(*).
-            ERROR_CODE,
+            new ErrorCodeParameter(),
             // Profile name, input, char(10).
             new ProgramParameter(profileName),
         };
@@ -537,16 +516,17 @@ public class UserList implements Serializable
             throw new AS400Exception(pc.getMessageList());
         }
 
-        // List information returned.
+        // List information returned
         byte[] listInformation = parameters[2].getOutputData();
-        // Check the list status indicator.
-        ListUtilities.checkListStatus(listInformation[30]);
-
         handle_ = new byte[4];
         System.arraycopy(listInformation, 8, handle_, 0, 4);
+
+        // Wait for the list-building to complete.
+        listInformation = ListUtilities.waitForListToComplete(system_, handle_, listInformation);
+
         length_ = BinaryConverter.byteArrayToInt(listInformation, 0);
 
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded user list, length: " + length_ + ", handle: ", handle_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded user list, length: " + length_ + ", handle: ", Trace.toHexString(handle_));
     }
 
     /**
@@ -761,4 +741,16 @@ public class UserList implements Serializable
             if (handle_ != null) closeHandle_ = true;
         }
     }
+
+
+    /**
+     Closes the list on the system when this object is garbage collected.
+     **/
+    protected void finalize() throws Throwable
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Finalize method for user list invoked.");
+      if (handle_ != null) try { close(); } catch (Throwable t) {}
+      super.finalize();
+    }
+
 }

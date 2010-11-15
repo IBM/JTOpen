@@ -24,7 +24,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 /**
  Represents a job log on the system.  This class is used to get a list of messages in a job log or to write messages to a job log.
- <p>QueuedMessage objects have many attributes.  Only some of theses attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values can be set on QueuedMessage objects returned in a list of job log messages:
+ <p>QueuedMessage objects have many attributes.  Only some of these attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values can be set on QueuedMessage objects returned in a list of job log messages:
  <ul>
  <li>0101 Alert option
  <li>0201 Replacement data or impromptu message text
@@ -68,9 +68,6 @@ public class JobLog implements Serializable
     // Header size for the api qgygtle 80 bytes for Message Selection
     // Information and 1 byte for the message queue name 
     private static final int qgygtleHeaderLength_ = 81;
-
-    // Shared error code parameter.
-    private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
 
     // The system where the job log is located.
     private AS400 system_;
@@ -389,18 +386,13 @@ public class JobLog implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Closing job log message list, handle: ", handle_);
         if (handle_ == null) return;
 
-        ProgramParameter[] parameters = new ProgramParameter[]
-        {
-            new ProgramParameter(handle_),
-            ERROR_CODE
-        };
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters);  // not a threadsafe API
-        if (!pc.run())
-        {
-            throw new AS400Exception(pc.getMessageList());
+        try {
+          ListUtilities.closeList(system_, handle_);
         }
-        handle_ = null;
-        closeHandle_ = false;
+        finally {
+          handle_ = null;
+          closeHandle_ = false;
+        }
     }
 
     /**
@@ -452,8 +444,9 @@ public class JobLog implements Serializable
     }
 
     /**
-     Returns a subset of the list of messages in the job log.  This method allows the user to retrieve the message list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the messages at a given offset will change, so a subsequent call to getMessages() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same QueuedMessages as the previous call.
-     @param  listOffset  The offset into the list of messages.  This value must be greater than 0 and less than the list length, or specify -1 to retrieve all of the messages.
+     Returns a subset of the list of messages in the job log.  This method allows the user to retrieve the message list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the messages at a given list offset will change, so a subsequent call to getMessages() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same QueuedMessages as the previous call.
+     @param  listOffset  The offset in the list of messages (0-based).  This value must be greater than or equal to 0 and less than the list length; or specify -1 to retrieve all of the messages.
+        <i>Note: Prior to JTOpen 7.2, this parameter was incorrectly described.</i>
      @param  number  The number of messages to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
      @return  The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -468,29 +461,31 @@ public class JobLog implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving job log message list, list offset: " + listOffset + ", number:", number);
         if (listOffset < -1)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'listOffset' is not valid:", listOffset);
             throw new ExtendedIllegalArgumentException("listOffset (" + listOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
         if (number < 0 && listOffset != -1)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'number' is not valid:", number);
             throw new ExtendedIllegalArgumentException("number (" + number + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        if (handle_ == null || closeHandle_) load();
+        if (handle_ == null || closeHandle_) load();  // this sets the length_ variable
 
-        if (number == 0 && listOffset != -1) return new QueuedMessage[0];
+        if (length_ == 0 || (number == 0 && listOffset != -1)) {
+          return new QueuedMessage[0];
+        }
 
         if (listOffset == -1)
         {
-            number = length_;
-            listOffset = 0;
+            number = length_;  // request entire list
+            listOffset = 0;    // ... starting at beginning of list
         }
-        else if (listOffset > length_)
+        else if (listOffset >= length_)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'listOffset' is not valid:", listOffset);
-            throw new ExtendedIllegalArgumentException("listOffset (" + listOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            if (Trace.traceOn_)
+              Trace.log(Trace.WARNING, "Value of parameter 'listOffset' is beyond end of list:", listOffset + " (list length: " + length_ + ")");
+
+            return new QueuedMessage[0];
         }
         else if (listOffset + number > length_)
         {
@@ -499,56 +494,9 @@ public class JobLog implements Serializable
 
         int lengthOfReceiverVariable = 1024 * number;
 
-        ProgramParameter[] parameters = new ProgramParameter[]
-        {
-            // Receiver variable, output, char(*).
-            new ProgramParameter(lengthOfReceiverVariable),
-            // Length of receiver variable, input, binary(4).
-            new ProgramParameter(BinaryConverter.intToByteArray(lengthOfReceiverVariable)),
-            // Request handle, input, char(4).
-            new ProgramParameter(handle_),
-            // List information, output, char(80).
-            new ProgramParameter(80),
-            // Number of records to return, input, binary(4).
-            new ProgramParameter(BinaryConverter.intToByteArray(number)),
-            // Starting record, input, binary(4).
-            new ProgramParameter(BinaryConverter.intToByteArray(listOffset + 1)),
-            // Error code, I/O, char(*).
-            ERROR_CODE
-        };
+        // Retrieve the entries in the list that was built by the most recent load().
+        byte[] data = ListUtilities.retrieveListEntries(system_, handle_, lengthOfReceiverVariable, number, listOffset, null);
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters);  // not a threadsafe API
-
-        int recordsReturned = 0;
-        do
-        {
-            if (pc.run())
-            {
-                byte[] listInformation = parameters[3].getOutputData();
-                recordsReturned = BinaryConverter.byteArrayToInt(listInformation, 4);
-            }
-            else
-            {
-                AS400Message[] messages = pc.getMessageList();
-                // GUI0002 means the receiver variable was too small.
-                if (!messages[0].getID().equals("GUI0002")) throw new AS400Exception(messages);
-            }
-            if (recordsReturned < number)
-            {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieved messages, records returned: " + recordsReturned + ", number:", number);
-                if (recordsReturned < 0)  // satisfy the static code analyzer
-                {
-                  Trace.log(Trace.ERROR, "Retrieved messages, records returned is negative: " + recordsReturned);
-                  recordsReturned = 0;
-                }
-                lengthOfReceiverVariable *= 1 + number / (recordsReturned + 1);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Updated length: ", lengthOfReceiverVariable);
-                parameters[0] = new ProgramParameter(lengthOfReceiverVariable);
-                parameters[1] = new ProgramParameter(BinaryConverter.intToByteArray(lengthOfReceiverVariable));
-            }
-        } while (recordsReturned < number);
-
-        byte[] data = parameters[0].getOutputData();
         Converter conv = new Converter(system_.getCcsid(), system_);
 
         QueuedMessage[] messages = new QueuedMessage[number];
@@ -722,15 +670,16 @@ public class JobLog implements Serializable
             // Length of receiver variable, input, binary(4).
             new ProgramParameter(new byte[] { 0x00, 0x00, 0x00, 0x00 } ),
             // List information, output, char(80).
-            new ProgramParameter(80),
+            new ProgramParameter(ListUtilities.LIST_INFO_LENGTH),
             // Number of records to return, input, binary(4).
+            // Special value '-1' indicates that "all records are built synchronously in the list".
             new ProgramParameter(new byte[] { (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF } ),
             // Message selection information, input, char(*).
             new ProgramParameter(messageSelectionInformation),
             // Size of message selection information, input, binary(4).
             new ProgramParameter(BinaryConverter.intToByteArray(messageSelectionInformation.length)),
             // Error code, I/O, char(*).
-            ERROR_CODE,
+            new ErrorCodeParameter(),
         };
 
         // Call the program. This API is not thread safe. 
@@ -742,11 +691,12 @@ public class JobLog implements Serializable
 
         // List information returned.
         byte[] listInformation = parameters[2].getOutputData();
-        // Check the list status indicator.
-        ListUtilities.checkListStatus(listInformation[30]);
-
         handle_ = new byte[4];
         System.arraycopy(listInformation, 8, handle_, 0, 4);
+
+        // Wait for the list-building to complete.
+        listInformation = ListUtilities.waitForListToComplete(system_, handle_, listInformation);
+
         length_ = BinaryConverter.byteArrayToInt(listInformation, 0);
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded job log message list, length: " + length_ + ", handle: ", handle_);
@@ -1366,7 +1316,7 @@ public class JobLog implements Serializable
             // Message key, output, char(4).
             new ProgramParameter(4),
             // Error code, I/O, char(*).
-            ERROR_CODE
+            new ErrorCodeParameter()
         };
 
         ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QMHSNDPM.PGM", parameters);
@@ -1389,4 +1339,16 @@ public class JobLog implements Serializable
             throw new AS400Exception(msgs);
         }
     }
+
+
+    /**
+     Closes the list on the system when this object is garbage collected.
+     **/
+    protected void finalize() throws Throwable
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Finalize method for job log invoked.");
+        if (handle_ != null) try { close(); } catch (Throwable t) {}
+        super.finalize();
+    }
+
 }

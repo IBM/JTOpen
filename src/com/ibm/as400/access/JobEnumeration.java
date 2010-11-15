@@ -22,10 +22,10 @@ class JobEnumeration implements Enumeration
 {
     private Job[] jobCache_;
     private JobList list_;
-    private int counter_;
+    private int counter_; // number of objects returned so far by nextElement()
     private int numJobs_;
     private int listOffset_ = 0;
-    private int cachePos_ = 0;
+    private int cacheOffset_ = 0;
 
     private Tracker tracker_;
 
@@ -66,22 +66,27 @@ class JobEnumeration implements Enumeration
             throw new NoSuchElementException();
         }
 
-        if (jobCache_ == null || cachePos_ >= jobCache_.length)
+        if (jobCache_ == null || cacheOffset_ >= jobCache_.length)
         {
             try
             {
                 jobCache_ = list_.getJobs(listOffset_, 1000);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded next block in JobEnumeration: " + jobCache_.length + " messages at offset " + listOffset_ + " out of " + numJobs_ + " total.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded next block in JobEnumeration: " + jobCache_.length + " messages at list offset " + listOffset_ + " out of " + numJobs_ + " total.");
             }
             catch (Exception e)
             {
                 Trace.log(Trace.ERROR, "Exception while loading nextElement() in JobEnumeration:", e);
                 throw new NoSuchElementException();
             }
-            cachePos_ = 0;
+
+            // We have a freshly loaded cache, so reset to the beginning of the cache.
+            cacheOffset_ = 0;
+
+            // Set starting offset for next call to getJobs(),
+            // in case another call is needed.
             listOffset_ += jobCache_.length;
         }
         ++counter_;
-        return jobCache_[cachePos_++];
+        return jobCache_[cacheOffset_++];
     }
 }

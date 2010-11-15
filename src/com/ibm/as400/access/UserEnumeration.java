@@ -20,20 +20,22 @@ import java.util.NoSuchElementException;
 // This class is used by UserList.
 class UserEnumeration implements Enumeration
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     // The user list object from which to get the users.
     private UserList list_ = null;
+
+    // The number of objects returned so far by nextElement()
+    private int counter_;
+
     // The number of users in the list.
     private int length_ = 0;
 
-    // Position in the user list.
-    private int listPosition_ = 0;
+    // Offset in the user list.
+    private int listOffset_ = 0;
 
     // Cache of user objects.
     private User[] userCache_ = null;
-    // Position in the cache.
-    private int cachePosition_ = 0;
+    // Offset in the cache.
+    private int cacheOffset_ = 0;
 
     UserEnumeration(UserList list, int length)
     {
@@ -43,32 +45,39 @@ class UserEnumeration implements Enumeration
 
     public final boolean hasMoreElements()
     {
-        return listPosition_ < length_;
+        return counter_ < length_;
     }
 
     public final Object nextElement()
     {
-        if (listPosition_ >= length_)
+        if (counter_ >= length_)
         {
             Trace.log(Trace.ERROR, "Next element not available in UserEnumeration.");
             throw new NoSuchElementException();
         }
 
-        if (userCache_ == null || cachePosition_ >= userCache_.length)
+        if (userCache_ == null || cacheOffset_ >= userCache_.length)
         {
             try
             {
-                userCache_ = list_.getUsers(listPosition_, 1000);
-                cachePosition_ = 0;
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded next block in UserEnumeration: " + userCache_.length + " messages at offset " + listPosition_ + " out of " + length_ + " total.");
+                userCache_ = list_.getUsers(listOffset_, 1000);
+                cacheOffset_ = 0;
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded next block in UserEnumeration: " + userCache_.length + " messages at list offset " + listOffset_ + " out of " + length_ + " total.");
             }
             catch (Exception e)
             {
                 Trace.log(Trace.ERROR, "Exception while loading nextElement() in UserEnumeration:", e);
                 throw new NoSuchElementException();
             }
+
+            // We have a freshly loaded cache, so reset to the beginning of the cache.
+            cacheOffset_ = 0;
+
+            // Set starting offset for next call to getUsers(),
+            // in case another call is needed.
+            listOffset_ += userCache_.length;
         }
-        ++listPosition_;
-        return userCache_[cachePosition_++];
+        ++counter_;
+        return userCache_[cacheOffset_++];
     }
 }

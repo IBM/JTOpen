@@ -211,8 +211,6 @@ public class ObjectList implements Serializable
   private byte[] handleToClose_; // used to close a previously opened list
   private boolean isConnected_;
 
-  private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
-
   // Library authority criteria
   private int currentLibAuthKey_ = 0;
   private String[] libAuthKeys_ = new String[10];
@@ -709,18 +707,16 @@ public class ObjectList implements Serializable
     {
       Trace.log(Trace.DIAGNOSTIC, "Closing object list with handle: ", handle_);
     }
-    ProgramParameter[] parms = new ProgramParameter[]
-    {
-      new ProgramParameter(handle_),
-      errorCode_
-    };
-    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parms);
-    if (!pc.run())
-    {
-      throw new AS400Exception(pc.getMessageList());
+
+    try {
+      ListUtilities.closeList(system_, handle_);
     }
-    isConnected_ = false;
-    handle_ = null;
+    finally {
+      isConnected_ = false;
+      handle_ = null;
+    }
+
+
     if (handleToClose_ != null) // Just in case.
     {
       handle_ = handleToClose_;
@@ -972,11 +968,11 @@ public class ObjectList implements Serializable
    * Returns a subset of the list of objects.
    * This method allows the user to retrieve the object list from the system
    * in pieces. If a call to {@link #load load()} is made (either implicitly or explicitly),
-   * then the objects at a given offset will change, so a subsequent call to
+   * then the objects at a given list offset will change, so a subsequent call to
    * getObjects() with the same <i>listOffset</i> and <i>number</i>
    * will most likely not return the same ObjectDescriptions as the previous call.
-   * @param listOffset The offset into the list of objects. This value must be greater than or equal to 0 and
-   * less than the list length, or specify -1 to retrieve all of the objects.
+   * @param listOffset The offset in the list of objects (0-based). This value must be greater than or equal to 0 and
+   * less than the list length; or specify -1 to retrieve all of the objects.
    * @param number The number of objects to retrieve out of the list, starting at the specified
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
    * to the list length. If the <i>listOffset</i> is -1, this parameter is ignored.
@@ -1005,47 +1001,47 @@ public class ObjectList implements Serializable
       throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    if (system_ == null)
-    {
-      throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-    }
+    if (handle_ == null) load();  // this sets the length_ variable
 
-    if (number == 0 && listOffset != -1)
-    {
+    if (length_ == 0 || (number == 0 && listOffset != -1)) {
       return new ObjectDescription[0];
     }
 
-    if (handle_ == null)
+    if (listOffset == -1)
     {
-      load();
+      number = length_;  // request entire list
+      listOffset = 0;    // ... starting at beginning of list
     }
+    else if (listOffset >= length_)
+    {
+      if (Trace.traceOn_)
+        Trace.log(Trace.WARNING, "Value of parameter 'listOffset' is beyond end of list:", listOffset + " (list length: " + length_ + ")");
 
-    if (listOffset == -1) number = length_;
+      return new ObjectDescription[0];
+    }
+    else if (listOffset + number > length_)
+    {
+      number = length_ - listOffset;
+    }
 
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
-
-    ProgramParameter[] parms2 = new ProgramParameter[7];
     
     // Use recLen_ from load()'s list information to calculate receiver length needed @A2A
     int len = number*recLen_; //@A2C
 
-    parms2[0] = new ProgramParameter(len); // receiver variable
-    parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
-    parms2[2] = new ProgramParameter(handle_);
-    parms2[3] = new ProgramParameter(80); // list information
-    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(number)); // number of records to return
-    parms2[5] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? -1 : listOffset+1)); // starting record
-    parms2[6] = errorCode_;
+    // The 'List information' structure from call to QGYGTLE.
+    // This value will be set by retrieveListEntries().
+    Object[] listInfoContainer = new Object[1];  // initialized to null
 
-    ProgramCall pc2 = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parms2);
-    if (!pc2.run())
-    {
-      throw new AS400Exception(pc2.getMessageList());
+    // Retrieve the entries in the list that was built by the most recent load().
+    byte[] data = ListUtilities.retrieveListEntries(system_, handle_, len, number, listOffset, listInfoContainer);
+
+    byte[] listInfo = (byte[])listInfoContainer[0];
+    if (listInfo == null || listInfo.length == 0) {
+      return new ObjectDescription[0];
+      // Shouldn't have to do this, but this API doesn't like certain empty libraries for some reason.
     }
-
-    byte[] listInfo = parms2[3].getOutputData();
-    if (listInfo.length == 0) return new ObjectDescription[0]; // Shouldn't have to do this, but this API doesn't like certain empty libraries for some reason.
     //int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
     int recordLength = BinaryConverter.byteArrayToInt(listInfo, 12);
@@ -1076,9 +1072,6 @@ public class ObjectList implements Serializable
     }
 
     End of deleted code which calls QGYGTLE a second time -----------------  @A2D */
-
-    ListUtilities.checkListStatus(listInfo[30]);  // check the list status indicator
-    byte[] data = parms2[0].getOutputData();
 
     ObjectDescription[] objects = new ObjectDescription[recordsReturned];
     int offset = 0;
@@ -1261,8 +1254,11 @@ public class ObjectList implements Serializable
     ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 12 : 15];	// @550C changed to allow asp control
     parms[0] = new ProgramParameter(1); // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(1)); // length of receiver variable
-    parms[2] = new ProgramParameter(80); // list information
-    parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(-1)); // number of records to return
+    parms[2] = new ProgramParameter(ListUtilities.LIST_INFO_LENGTH); // list information
+
+    // Number of records to return.
+    // Special value '-1' indicates that "all records are built synchronously in the list".
+    parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(-1));
     
     fixUpKeys();
 
@@ -1376,7 +1372,7 @@ public class ObjectList implements Serializable
       offset += 4;
     }
     parms[10] = new ProgramParameter(keyInfo); // key fields to return;
-    parms[11] = errorCode_;
+    parms[11] = new ErrorCodeParameter();
     
     if(parms.length == 15)	// @550A add job identification info, format of job identification info, and asp control
     {
@@ -1411,29 +1407,13 @@ public class ObjectList implements Serializable
     handle_ = new byte[4];
     System.arraycopy(listInformation, 8, handle_, 0, 4);
 
-    // This second program call is to retrieve the number of messages in the list.
-    // It will wait until the system has fully populated the list before it
-    // returns.
-    ProgramParameter[] parms2 = new ProgramParameter[7];
-    parms2[0] = new ProgramParameter(1); // receiver variable
-    parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(1)); // length of receiver variable
-    parms2[2] = new ProgramParameter(handle_); // request handle
-    parms2[3] = new ProgramParameter(80); // list information
-    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(0)); // number of records to return
-    parms2[5] = new ProgramParameter(BinaryConverter.intToByteArray(-1)); // starting record
-    parms2[6] = errorCode_;
+    // Wait for the list-building to complete.
+    listInformation = ListUtilities.waitForListToComplete(system_, handle_, listInformation);
 
-    ProgramCall pc2 = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parms2);
-    if (!pc2.run())
-    {
-      throw new AS400Exception(pc2.getMessageList());
-    }
-    byte[] listInfo2 = parms2[3].getOutputData();
-    ListUtilities.checkListStatus(listInfo2[30]);  // check the list status indicator
-    length_ = BinaryConverter.byteArrayToInt(listInfo2, 0);
+    length_ = BinaryConverter.byteArrayToInt(listInformation, 0);
 
     // Obtain the recordLength from the QGYGTLE() listinfo output  @A2A
-    recLen_ = BinaryConverter.byteArrayToInt(listInfo2, 12);     //@A2A
+    recLen_ = BinaryConverter.byteArrayToInt(listInformation, 12); //@A2A
     if (recLen_ <= 0)                                            //@A2A
     {                                                            //@A2A
         Trace.log(Trace.ERROR, "invalid record length", recLen_);
@@ -1496,4 +1476,16 @@ public class ObjectList implements Serializable
     statusSelection_ = select;
     resetHandle();
   }
+
+
+  /**
+   Closes the list on the system when this object is garbage collected.
+   **/
+  protected void finalize() throws Throwable
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Finalize method for object list invoked.");
+    if (handle_ != null) try { close(); } catch (Throwable t) {}
+    super.finalize();
+  }
+
 }
