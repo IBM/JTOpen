@@ -1,5 +1,5 @@
 package java.sql;
 
-public interface Time {
+public class Time  extends java.util.Date {
 
 }

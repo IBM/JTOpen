@@ -1,5 +1,5 @@
 package java.sql;
 
-public interface Timestamp {
+public class Timestamp  extends java.util.Date{
 
 }
