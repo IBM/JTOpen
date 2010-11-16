@@ -276,7 +276,12 @@ public class DateFieldDescription extends FieldDescription implements Serializab
   {
     if (dateFormat == null) throw new NullPointerException("dateFormat");
 
-    dateFormat_ = "*" + dateFormat.toUpperCase();
+    if (dateFormat.startsWith("*")) {
+      dateFormat_ = dateFormat.toUpperCase();
+    }
+    else {
+      dateFormat_ = "*" + dateFormat.toUpperCase();
+    }
 
     // Inform the AS400Date object of the format.
     if (dataType_ instanceof AS400Date) {

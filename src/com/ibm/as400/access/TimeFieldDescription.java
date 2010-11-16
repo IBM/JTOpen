@@ -293,7 +293,12 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
   {
     if (timeFormat == null) throw new NullPointerException("timeFormat");
 
-    timeFormat_ = "*" + timeFormat.toUpperCase();
+    if (timeFormat.startsWith("*")) {
+      timeFormat_ = timeFormat.toUpperCase();
+    }
+    else {
+      timeFormat_ = "*" + timeFormat.toUpperCase();
+    }
 
     // Inform the AS400Time object of the format.
     if (dataType_ instanceof AS400Time) {
