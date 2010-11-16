@@ -245,9 +245,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml".  This parameter can be null.
     @param type The type of data contained in docStream. Possible values are:
     <UL>
-    <LI>ProgramCallDocument.SERIALIZED - The docStream contains a serialized PCML or XPCML document.
-    <LI>ProgramCallDocument.SOURCE_PCML - The docStream contains a PCML document.
-    <LI>ProgramCallDocument.SOURCE_XPCML - The docStream contains an XPCML document.
+    <LI>{@link #SERIALIZED SERIALIZED} - The docStream contains a serialized PCML or XPCML document.
+    <LI>{@link #SOURCE_PCML SOURCE_PCML} - The docStream contains a PCML document.
+    <LI>{@link #SOURCE_XPCML SOURCE_XPCML} - The docStream contains an XPCML document.
     </UL>
     @exception PcmlException when the specified PCML document cannot be found
     */
@@ -1616,6 +1616,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     // @E1A -- ALL NEW XPCML methods....
     /**
      Generates XPCML representing the data associated with the passed-in program name.
+     Note: XPCML cannot be generated from a serialized PCML file.
      XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
      to PCML but allows for better validation of parameters and allows parameter
      data to be input and output within an XML document.  PCML is data-less in
@@ -1646,6 +1647,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     // @E2C -- Added more info on XPCML.  Changed all RFML references to XPCML.
     /**
      Generates XPCML representing the data contained in the entire PCML node tree.
+     Note: XPCML cannot be generated from a serialized PCML file.
      XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
      to PCML but allows for better validation of parameters and allows parameter
      data to be input and output within an XML document.  PCML is data-less in
@@ -1676,6 +1678,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     /**
      Generates XPCML representing the data contained in the entire PCML node tree.
+     Note: XPCML cannot be generated from a serialized PCML file.
      XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
      to PCML but allows for better validation of parameters and allows parameter
      data to be input and output within an XML document.  PCML is data-less in
@@ -1709,6 +1712,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     /**
      Generates XPCML representing the data contained for the passed in program name.
+     Note: XPCML cannot be generated from a serialized PCML file.
      XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
      to PCML but allows for better validation of parameters and allows parameter
      data to be input and output within an XML document.  PCML is data-less in
