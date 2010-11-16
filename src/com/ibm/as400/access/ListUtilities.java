@@ -117,10 +117,10 @@ class ListUtilities
       default:  // any other status
 
         StringBuffer msg = new StringBuffer("Unable to synchronously build object list on server.");
-        msg.append("\n  List status indicator: " + listStatusIndicator);
-        msg.append("\n  Info complete indicator: " + infoCompleteIndicator);
 
         try {
+          msg.append("\n  List status indicator: " + listStatusIndicator);
+          msg.append("\n  Info complete indicator: " + infoCompleteIndicator);
           msg.append("\n  Total records:    " +
                      BinaryConverter.byteArrayToInt(listInformation, 0));
           msg.append("\n  Records returned: " +
@@ -129,8 +129,8 @@ class ListUtilities
         catch (Throwable t) {}  // will never happen
         finally {
           Trace.log(Trace.ERROR, msg.toString());
-            throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
         }
+        throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
     }
 
     if (infoCompleteIndicator == INFORMATION_INTERRUPTED)
