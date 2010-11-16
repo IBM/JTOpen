@@ -19,8 +19,6 @@ import java.net.UnknownHostException;
 // Remote implementation of central server function
 class NLSImplRemote extends NLSImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
   static
   {
     AS400Server.addReplyStream(new NLSExchangeAttrReply(), AS400.CENTRAL);
@@ -125,8 +123,8 @@ class NLSImplRemote extends NLSImpl
         }
         else // unknown data stream
         {
-            disconnect();
             Trace.log(Trace.ERROR, "Unknown instance returned from Exchange Attribute Reply");
+            disconnect();
             throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
         }
     }

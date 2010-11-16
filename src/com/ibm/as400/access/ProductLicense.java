@@ -600,12 +600,8 @@ public class ProductLicense implements java.io.Serializable
                     disconnect();
                     if(releaseReply.getPrimaryRC() != 0)
                     {
-                        if(Trace.traceOn_)
-                        {
-                            Trace.log(Trace.DIAGNOSTIC, "Release license failed, primary return code = ", releaseReply.getPrimaryRC());
-                            Trace.log(Trace.DIAGNOSTIC, "Release license failed, secondary return code = ", releaseReply.getSecondaryRC());
-                        }
-
+                        Trace.log(Trace.DIAGNOSTIC, "Release license failed, primary return code = ", releaseReply.getPrimaryRC());
+                        Trace.log(Trace.DIAGNOSTIC, "Release license failed, secondary return code = ", releaseReply.getSecondaryRC());
                         throw new LicenseException(releaseReply.getPrimaryRC(), releaseReply.getSecondaryRC());
                     }
 
@@ -693,10 +689,7 @@ public class ProductLicense implements java.io.Serializable
             }
             catch(IOException e)
             {
-                if(Trace.traceOn_)
-                {
-                    Trace.log(Trace.ERROR, "IOException After Exchange Attribute Request", e);
-                }
+                Trace.log(Trace.ERROR, "IOException After Exchange Attribute Request", e);
                 disconnect();
                 throw e;
             }
@@ -708,13 +701,10 @@ public class ProductLicense implements java.io.Serializable
                 NLSExchangeAttrReply NLSReply = (NLSExchangeAttrReply)baseReply;
                 if(NLSReply.primaryRC_ != 0)
                 {
-                    if(Trace.traceOn_)
-                    {
-                        Trace.log(Trace.DIAGNOSTIC, ("Exchange attribute failed, primary return code =" +
-                                                     NLSReply.primaryRC_ +
-                                                     "secondary return code =" +
-                                                     NLSReply.secondaryRC_) );
-                    }
+                    Trace.log(Trace.ERROR, ("Exchange attribute failed, primary return code =" +
+                                             NLSReply.primaryRC_ +
+                                            "secondary return code =" +
+                                             NLSReply.secondaryRC_) );
                     disconnect();
                     throw new IOException();
                 }
@@ -742,10 +732,7 @@ public class ProductLicense implements java.io.Serializable
             }
             catch(IOException e)
             {
-                if(Trace.traceOn_)
-                {
-                    Trace.log(Trace.ERROR, "IOException occured - Request license", e);
-                }
+                Trace.log(Trace.ERROR, "IOException occured - Request license", e);
                 disconnect();
                 throw e;
             }

@@ -437,16 +437,16 @@ implements IFSFileDescriptorImpl
               }
               catch(InterruptedException e)
               {
+                  Trace.log(Trace.ERROR, "Interrupted", e);
                   system_.disconnectServer(server_);
                   server_ = null;
-                  Trace.log(Trace.ERROR, "Interrupted", e);
                   throw new InterruptedIOException(e.getMessage());
               }
               catch(IOException e)
               {
+                  Trace.log(Trace.ERROR, "I/O error during attribute exchange.");
                   system_.disconnectServer(server_);
                   server_ = null;
-                  Trace.log(Trace.ERROR, "I/O error during attribute exchange.");
                   throw e;
               }
               catch(ClassCastException e)
@@ -486,16 +486,18 @@ implements IFSFileDescriptorImpl
           else
           {
               // Should never happen.
-              system_.disconnectServer(server_);
-              server_ = null;
               if (rep != null) {
                 Trace.log(Trace.ERROR, "Unknown reply data stream", rep.data_);
+                system_.disconnectServer(server_);
+                server_ = null;
                 throw new
                   InternalErrorException(Integer.toHexString(rep.getReqRepID()),
                                          InternalErrorException.DATA_STREAM_UNKNOWN);
               }
               else {
                 Trace.log(Trace.ERROR, "Null reply data stream");
+                system_.disconnectServer(server_);
+                server_ = null;
                 throw new
                   InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
               }

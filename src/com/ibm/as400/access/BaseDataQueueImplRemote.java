@@ -17,8 +17,6 @@ import java.io.IOException;
 
 class BaseDataQueueImplRemote implements BaseDataQueueImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     // Identify all data queue reply data streams.
     static
     {
@@ -65,8 +63,8 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                 }
                 catch (IOException e)
                 {
-                    system_.disconnectServer(server_);
                     Trace.log(Trace.ERROR, "IOException during exchange attributes:", e);
+                    system_.disconnectServer(server_);
                     throw e;
                 }
 
@@ -76,13 +74,14 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                         // Means request completed OK.
                         return;  // Exchange attributes succeeded.
                     case 0x8002:  // DQCommonReplyDataStream.
+                        Trace.log(Trace.ERROR, "Unexpected reply datastream:", baseReply.data_);
                         system_.disconnectServer(server_);
                         // Throw an appropriate exception.
                         DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
                         throw buildException(reply.getRC(), reply.getMessage());
                     default:  // Unknown data stream.
-                        system_.disconnectServer(server_);
                         Trace.log(Trace.ERROR, "Unknown exchange attributes reply datastream:", baseReply.data_);
+                        system_.disconnectServer(server_);
                         throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
                 }
             }
@@ -119,8 +118,8 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
+            system_.disconnectServer(server_);
             throw e;
         }
     }
@@ -163,8 +162,8 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
+            system_.disconnectServer(server_);
             throw e;
         }
     }
@@ -199,8 +198,8 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
+            system_.disconnectServer(server_);
             throw e;
         }
     }
@@ -241,8 +240,8 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
+            system_.disconnectServer(server_);
             throw e;
         }
     }
@@ -307,8 +306,8 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
+            system_.disconnectServer(server_);
             throw e;
         }
     }
@@ -343,8 +342,8 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         }
         catch (IOException e)
         {
-            system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
+            system_.disconnectServer(server_);
             throw e;
         }
     }
