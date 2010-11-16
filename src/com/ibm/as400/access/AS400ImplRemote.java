@@ -714,13 +714,57 @@ class AS400ImplRemote implements AS400Impl
     // Get either the user's CCSID, the signon server CCSID, or our best guess.
     public int getCcsid()
     {
-        if (ccsid_ != 0) return ccsid_;
-        if (signonInfo_ != null) ccsid_ = signonInfo_.serverCCSID;
-        if (ccsid_ != 0) return ccsid_;
-        ccsid_ = getCcsidFromServer();
-        if (ccsid_ != 0) return ccsid_;
-        ccsid_ = ExecutionEnvironment.getBestGuessAS400Ccsid();
-        return ccsid_;
+      int howObtained = 0;  // how we got the CCSID value
+
+      // CCSID values obtained from different sources (indexed by 'howObtained')
+      int[] ccsidValues = { ccsid_, 0, 0, 0 };
+
+      // First pass:
+      // Try to arrive at a CCSID other than 0 or 65535.
+      if (ccsid_ == 0 || ccsid_ == 65535)
+      {
+        if (signonInfo_ != null) {
+          howObtained = 1;
+          ccsidValues[howObtained] = signonInfo_.serverCCSID;
+          ccsid_ = ccsidValues[howObtained];
+        }
+
+        if (ccsid_ == 0 || ccsid_ == 65535) {
+          howObtained = 2;
+          ccsidValues[howObtained] = getCcsidFromServer();
+          ccsid_ = ccsidValues[howObtained];
+        }
+
+        if (ccsid_ == 0 || ccsid_ == 65535) {
+          howObtained = 3;
+          ccsidValues[howObtained] = ExecutionEnvironment.getBestGuessAS400Ccsid();
+          ccsid_ = ccsidValues[howObtained];
+        }
+      }
+
+      // Second pass:
+      // If first pass ended up with CCSID == 0, settle for any non-zero CCSID.
+      if (ccsid_ == 0)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote.getCcsid() [after first pass]: CCSID="+ccsid_+", howObtained="+howObtained);
+        for (int i=0; i<ccsidValues.length; i++)
+        {
+          if (ccsidValues[i] != 0) {
+            howObtained = i;
+            ccsid_ = ccsidValues[howObtained];
+            break;
+          }
+        }
+      }
+
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote.getCcsid(): CCSID="+ccsid_+", howObtained="+howObtained);
+        if (ccsid_ < 1 || ccsid_ >= 65535) {
+          Trace.log(Trace.WARNING, "AS400ImplRemote.getCcsid(): CCSID is out of valid range: CCSID="+ccsid_+", howObtained="+howObtained);
+        }
+      }
+
+      return ccsid_;
     }
 
     // Get the user's override CCSID or zero if not set.
