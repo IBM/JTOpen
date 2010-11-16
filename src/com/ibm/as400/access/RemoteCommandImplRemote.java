@@ -59,8 +59,14 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         int ccsid = system_.getUserOverrideCcsid();
         if (ccsid != 0)
         {
+          // If the user override CCSID is 65535, disregard it, since that's not a "real" CCSID, and getConverter() will reject it.
+          if (ccsid == 65535) {
+            if (Trace.traceOn_) Trace.log(Trace.WARNING, "Disregarding specified user override CCSID: 65535");
+          }
+          else {
             converter_ = ConverterImplRemote.getConverter(ccsid, system_);
             ccsidIsUserOveride_ = true;
+          }
         }
     }
 
@@ -336,7 +342,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
           }
           catch (IOException e)
           {
-            Trace.log(Trace.ERROR, "IOException during exchange attributes, :", e);
+            Trace.log(Trace.ERROR, "IOException during exchange attributes:", e);
             disconnectServer();
             throw e;
           }
