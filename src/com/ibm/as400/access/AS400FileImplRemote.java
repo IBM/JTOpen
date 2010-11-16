@@ -459,7 +459,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
     catch (Exception e)
     { // log error and rethrow exception
-      Trace.log(Trace.ERROR, "Unable to write records to DDS source file:"+e);
+      Trace.log(Trace.ERROR, "Unable to write records to DDS source file:", e);
       try
       {
         if (src != null)
@@ -879,11 +879,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
     catch (ConnectionDroppedException e)
     {
-      // UConnection dropped.  Disconnect server and rethrow
-      if (Trace.traceOn_)
-      {
-        Trace.log(Trace.ERROR, "ConnectionDroppedException.");
-      }
+      // Connection dropped.  Disconnect server and rethrow.
+      Trace.log(Trace.ERROR, "ConnectionDroppedException:", e);
       system_.disconnectServer(server_); //@C0C
 //@C1 - Setting the server_ object to null means that
 //      any operations on this AS400File object after the connection has been
@@ -974,11 +971,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
     catch (ConnectionDroppedException e)
     {
-      // UConnection dropped.  Disconnect server and rethrow
-      if (Trace.traceOn_)
-      {
-        Trace.log(Trace.ERROR, "ConnectionDroppedException.");
-      }
+      // Connection dropped.  Disconnect server and rethrow.
+      Trace.log(Trace.ERROR, "ConnectionDroppedException:", e);
       system_.disconnectServer(server_); //@C0C
 //@C1 - Setting the server_ object to null means that
 //      any operations on this AS400File object after the connection has been
@@ -1890,11 +1884,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
     catch (ConnectionDroppedException e)
     {
-      // UConnection dropped.  Disconnect server and rethrow
-      if (Trace.traceOn_)
-      {
-        Trace.log(Trace.ERROR, "ConnectionDroppedException.");
-      }
+      // Connection dropped.  Disconnect server and rethrow.
+      Trace.log(Trace.ERROR, "ConnectionDroppedException:", e);
       system_.disconnectServer(server_);
 //@C1 - Setting the server_ object to null means that
 //      any operations on this AS400File object after the connection has been
@@ -1916,11 +1907,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       catch (ConnectionDroppedException e)
       {
-        // UConnection dropped.  Disconnect server and rethrow
-        if (Trace.traceOn_)
-        {
-          Trace.log(Trace.ERROR, "ConnectionDroppedException.");
-        }
+        // Connection dropped.  Disconnect server and rethrow.
+        Trace.log(Trace.ERROR, "ConnectionDroppedException:", e);
         system_.disconnectServer(server_);
 //@C1 - Setting the server_ object to null means that
 //      any operations on this AS400File object after the connection has been
@@ -1979,11 +1967,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   {
     if (record.getRecordLength() != openFeedback_.getRecordLength())
     {
-      if (Trace.traceOn_)
-      {
-        Trace.log(Trace.ERROR, "Incorrect record length for file :");
-        Trace.log(Trace.ERROR, "record.getRecordLength() :" + String.valueOf(record.getRecordLength()));
-      }
+      Trace.log(Trace.ERROR, "Incorrect record length for file :");
+      Trace.log(Trace.ERROR, "record.getRecordLength() :" + String.valueOf(record.getRecordLength()));
       throw new ExtendedIllegalArgumentException("record", ExtendedIllegalArgumentException. PARAMETER_VALUE_NOT_VALID);
     }
 
@@ -2039,8 +2024,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       catch (ConnectionDroppedException e)
       {
-        // UConnection dropped.  Disconnect server and rethrow
-        Trace.log(Trace.ERROR, "ConnectionDroppedException.");
+        // Connection dropped.  Disconnect server and rethrow.
+        Trace.log(Trace.ERROR, "ConnectionDroppedException:", e);
         system_.disconnectServer(server_);
 //@C1 - Setting the server_ object to null means that
 //      any operations on this AS400File object after the connection has been
