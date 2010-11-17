@@ -201,10 +201,11 @@ public class UDFS
         if (vrm >= 0x00060100) {
           cmd.append(" DFTDISKSTG(" + defaultDiskStorageOption + ")");
           cmd.append(" DFTMAINSTG(" + defaultMainStorageOption + ")");
-          cmd.append(" CASE(" + caseSensitivity + ")");
-          cmd.append(" DFTFILEFMT(" + defaultFileFormat + ")");
-          cmd.append(" TEXT('" + description + "')");
         }
+        cmd.append(" CASE(" + caseSensitivity + ")");
+        cmd.append(" DFTFILEFMT(" + defaultFileFormat + ")");
+        cmd.append(" TEXT('" + description + "')");
+
         if (storageUnit_ != null && !storageUnit_.equalsIgnoreCase("*ANY"))
         {
           if (vrm >= 0x00070100) {
