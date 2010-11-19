@@ -477,8 +477,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
         {
             if (Trace.isTraceErrorOn())                         // @C4A
                e.printStackTrace(Trace.getPrintWriter());       // @C4C
-            PcmlException pe = new PcmlException(e);
-            throw pe;
+            throw new PcmlException(e);
         }
 
     }
@@ -966,7 +965,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
         savePcmlDocument(m_pcmlDoc);
       }
       catch (IOException e) {
-        if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
+        if (Trace.isTraceErrorOn())
+          e.printStackTrace(Trace.getPrintWriter());
         throw new PcmlException(e);
       }
     }
@@ -1845,7 +1845,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
              throw new NullPointerException("xsdStreamName");
            }
 
-
            // Copy input stream fullStream into twoOutputStream
            ByteArrayOutputStream outStream1 = new ByteArrayOutputStream();
 
@@ -1918,6 +1917,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
            catch (IOException e)
            {
              Trace.log(Trace.PCML, "Error when reading input stream in condenseXPCML");
+             if (Trace.isTraceErrorOn())
+               e.printStackTrace(Trace.getPrintWriter());
+             throw new PcmlException(e);
            }
            if (xpcmlName == "")
               xpcmlName="xpcml.xsd";
