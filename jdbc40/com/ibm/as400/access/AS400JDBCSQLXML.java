@@ -53,11 +53,11 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.ParserConfigurationException;
 /* ifdef JDBC40 */
 import org.xml.sax.SAXException;
-/* endif */ 
+ 
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
-
+/* endif */ 
 //@PDA jdbc40 new class
 //@xml2 whole class is redesigned after that of The Native Driver
 /**
