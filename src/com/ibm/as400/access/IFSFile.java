@@ -1244,7 +1244,7 @@ public class IFSFile
 
   /**
    Returns the amount of unused storage space that is available to the user.
-   @return The number of bytes of storage available.
+   @return The number of bytes of storage available to the user, or special value {@link Long#MAX_VALUE Long.MAX_VALUE} if the system reports "no maximum".
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -1274,7 +1274,7 @@ public class IFSFile
   /**
    Returns the amount of unused storage space that is available to the user.
    @param system The system of interest.
-   @return The number of bytes of storage available.
+   @return The number of bytes of storage available to the user, or special value {@link Long#MAX_VALUE Long.MAX_VALUE} if the system reports "no maximum".
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.

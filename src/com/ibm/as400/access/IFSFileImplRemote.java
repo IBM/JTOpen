@@ -739,6 +739,7 @@ implements IFSFileImpl
    Determines the amount of unused storage space in the file system.
    @param forUserOnly Whether to report only the space for the user. If false, report space in entire file system.
    @return The number of bytes of storage available.
+   Returns special value Long.MAX_VALUE if the system reports "no maximum".
    **/
   public long getAvailableSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
@@ -764,6 +765,7 @@ implements IFSFileImpl
    Determines the total amount of storage space in the file system.
    @param forUserOnly Whether to report only the space for the user. If false, report space in entire file system.
    @return The number of bytes of storage.
+   Returns special value Long.MAX_VALUE if the system reports "no maximum".
    **/
   public long getTotalSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
@@ -777,6 +779,7 @@ implements IFSFileImpl
    @param forUserOnly Whether to report only the space for the user. If false, report space in entire file system.
    @param availableSpaceOnly Whether to report only the space available. If false, report total space, rather than just available space.
    @return The number of bytes of storage.
+   Returns special value Long.MAX_VALUE if the system reports "no maximum".
    **/
   private long getAmountOfSpace(boolean forUserOnly, boolean availableSpaceOnly)
     throws IOException, AS400SecurityException
