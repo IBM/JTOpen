@@ -44,7 +44,8 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // @param threadSafety  The assumed thread safety of the command/program.
     protected void open(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      if (LOOKUP_THREADSAFETY.equals(threadSafety) || OFF_THREAD.equals(threadSafety)) {
+      // Note:  LOOKUP_THREADSAFETY is null so == must be used
+      if ((LOOKUP_THREADSAFETY == threadSafety) || OFF_THREAD.equals(threadSafety)) {
         openOffThread();
       }
       else {
