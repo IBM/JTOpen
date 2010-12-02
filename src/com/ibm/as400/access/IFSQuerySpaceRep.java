@@ -21,7 +21,8 @@ Query available file system space reply.
 **/
 class IFSQuerySpaceRep extends IFSDataStream
 {
-  static final long NO_MAX = Long.MAX_VALUE;  // indicates user has no maximum storage limit
+  // Special value that is returned by the system the Total Space field, indicating "no maximum".
+  private static final long NO_MAX = 0x7FFFFFFFL;
 
   private static final int UNIT_SIZE_OFFSET = 22;
   private static final int TOTAL_SPACE_OFFSET = 26;
@@ -45,9 +46,9 @@ Generate a new instance of this type.
 
 /**
 Return the space available (in bytes).
-Returns NO_MAX if the user profile has a "maximum storage allowed" setting of *NOMAX.
-(The File Server returns a bogus value in the Space Available field in that case.)
 @return the available space (in bytes)
+Returns special value Long.MAX_VALUE if the system reports "no maximum size".
+(The File Server returns a bogus value in the Space Available field in that case.)
 **/
   long getSpaceAvailable()
   {
@@ -62,13 +63,14 @@ Returns NO_MAX if the user profile has a "maximum storage allowed" setting of *N
 
     // Note: According to the PWSI Datastream Spec:
     // "The value 0x7FFFFFFF is returned to indicate there is no maximum size for the Total Space and Space Available fields."
-    if (totalSpace == 0x7FFFFFFFL) return NO_MAX;  // no maximum storage limit
+    if (totalSpace == NO_MAX) return Long.MAX_VALUE;  // no maximum storage limit
     else return (unitSize * spaceAvail);
   }
 
 /**
 Return the total space (in bytes).
 @return the total space (in bytes)
+Returns special value Long.MAX_VALUE if the system reports "no maximum size".
 **/
   long getTotalSpace()
   {
@@ -77,7 +79,7 @@ Return the total space (in bytes).
 
     // Note: According to the PWSI Datastream Spec:
     // "The value 0x7FFFFFFF is returned to indicate there is no maximum size for the Total Space and Space Available fields."
-    if (totalSpace == 0x7FFFFFFFL) return NO_MAX;  // no maximum storage limit
+    if (totalSpace == NO_MAX) return Long.MAX_VALUE;  // no maximum storage limit
     else return (unitSize * totalSpace);
   }
 
