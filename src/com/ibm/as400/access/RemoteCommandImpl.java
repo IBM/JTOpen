@@ -20,6 +20,7 @@ interface RemoteCommandImpl
 {
     static final Boolean ON_THREAD = CommandCall.THREADSAFE_TRUE;
     static final Boolean OFF_THREAD = CommandCall.THREADSAFE_FALSE;
+    // Warning... LOOKUP_THREADSAFETY is defined to be NULL.  Use only == for comparisions
     static final Boolean LOOKUP_THREADSAFETY = CommandCall.THREADSAFE_LOOKUP;
 
     static final int MESSAGE_OPTION_DEFAULT = AS400Message.MESSAGE_OPTION_UP_TO_10;
