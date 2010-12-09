@@ -561,6 +561,7 @@ public class Trace implements Runnable
       {
         setFileName (file);
         destination_.println("Toolbox for Java - " + Copyright.version);
+        destination_.println(getJvmInfo()); /* @B1A*/ 
       }
       catch (IOException e)
       {
@@ -1501,6 +1502,7 @@ public class Trace implements Runnable
         if (logger_ != null && logger_.isLoggingOn())
         {
           logger_.info("Toolbox for Java - " + Copyright.version);
+          logger_.info(getJvmInfo());  /* @B1A*/
           if (mostRecentTracingChange_ != TURNED_TRACE_OFF) {
             traceOn_ = true;
           }
@@ -1525,8 +1527,10 @@ public class Trace implements Runnable
       mostRecentTracingChange_ = (traceOn ? TURNED_TRACE_ON : TURNED_TRACE_OFF);
       findLogger();
       if (traceOn_ &&                                    //$D1A
-          (logger_ == null || userSpecifiedDestination_))
+          (logger_ == null || userSpecifiedDestination_)) {
         destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
+        destination_.println(getJvmInfo()); /* @B1A*/
+      }
 
       // If logger exists, set its attributes accordingly.
       if (logger_ != null && aTraceCategoryHasBeenActivated_) {
@@ -1534,10 +1538,31 @@ public class Trace implements Runnable
         logger_.config("Toolbox for Java - " + Copyright.version);
       }
     }
-    // Design issue: How does the Trace class reliably become aware that a Logger exists (and therefore that traceOn_ should be set to true), if the caller prefaces each Trace method call with "if (traceOn_)"?  (Most Toolbox classes check that condition before Trace.log() calls.)  We can't rely on everything to get set up correctly at static initialization time.
+    // Design issue: How does the Trace class reliably become aware that a Logger exists 
+    // (and therefore that traceOn_ should be set to true), if the caller prefaces each 
+    // Trace method call with "if (traceOn_)"?  
+    // (Most Toolbox classes check that condition before Trace.log() calls.)  
+    // We can't rely on everything to get set up correctly at static initialization time.
   }
 
-
+  /** 
+   * Gets information about the JVM currently in use. 
+   * @B1A
+   */
+  private static String getJvmInfo() { 
+	 StringBuffer sb = new StringBuffer();
+	 sb.append("java.home="); 
+	 sb.append(System.getProperty("java.home")); 
+	 sb.append(" java.vm.version=");
+	 sb.append(System.getProperty("java.vm.version")); 
+	 sb.append(" java.version=");
+	 sb.append(System.getProperty("java.version")); 
+	 sb.append(" os.name="); 
+	 sb.append(System.getProperty("os.name")); 
+	 sb.append(" os.version="); 
+	 sb.append(System.getProperty("os.version")); 
+	 return sb.toString(); 
+  }
   /**
    *  Sets PCML tracing on or off.  The actual tracing does not happend
    *  unless tracing is on.
