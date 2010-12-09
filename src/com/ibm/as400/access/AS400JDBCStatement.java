@@ -110,6 +110,7 @@ implements Statement
     int                     positionOfSyntaxError_;    //@F10A
     boolean                 prefetch_;    // private protected
     private     int                     queryTimeout_;
+    private     boolean                 queryTimeoutSet_ = false;  /*@B2A*/ 
     AS400JDBCResultSet      resultSet_;    // private protected
     private     int                     rowCountEstimate_;    // @ECA
     private     boolean                 rpbCreated_;
@@ -3778,8 +3779,9 @@ implements Statement
             if(queryTimeout < 0)
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-            if(queryTimeout_ != queryTimeout)
+            if((queryTimeout_ != queryTimeout) || !queryTimeoutSet_)  /*@B2C*/ 
             {
+            	queryTimeoutSet_ = true;                              /*@B2A*/ 
                 queryTimeout_ = queryTimeout;
 
                 // Since we store the query timeout in the RPB, we need

@@ -113,6 +113,10 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @A9   20100720  Fix AS400JDBCResultSetMetaData.isAutoIncrement() when extended metadata is off
 // @AA   20100805  Fix AS400JDBCStatement.execute to return syntax error from database engine.
 // @AB   20101108  Make sure locators are scoped to cursor when isolation level = *NONE
+//
+// @B1   20101203  Call Trace.logLoadPath when loading class, so trace indicated where driver was loaded from.
+//                 Also trace JVM information. 
+// @B1   20101209  Fix Statement.setQueryTimeout
 //--------------------------------------------------------------------
 
 
@@ -152,6 +156,8 @@ implements java.sql.Driver
 	// Toolbox resources NOT needed in proxy jar file.        @A1A
 	private static ResourceBundle resources2_;
 
+    private static final String CLASSNAME = "com.ibm.as400.access.AS400JDBCDriver";
+
 
 	/**
 	Static initializer.  Registers the JDBC driver with the JDBC
@@ -161,7 +167,10 @@ implements java.sql.Driver
 	static {
 		try
 		{
-			DriverManager.registerDriver (new AS400JDBCDriver ());
+			// Log where the toolbox is loaded from @B1A
+	        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+
+	        DriverManager.registerDriver (new AS400JDBCDriver ());
 			resources_  = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI");
 			resources2_ = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI2");
 			// Note: When using the proxy jar file, we do not expect to find JDMRI2.
