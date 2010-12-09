@@ -116,7 +116,8 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 //
 // @B1   20101203  Call Trace.logLoadPath when loading class, so trace indicated where driver was loaded from.
 //                 Also trace JVM information. 
-// @B1   20101209  Fix Statement.setQueryTimeout
+// @B2   20101209  Fix Statement.setQueryTimeout
+// @B3   20101209  Delay reading of input stream until execute
 //--------------------------------------------------------------------
 
 

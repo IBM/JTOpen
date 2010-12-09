@@ -2035,7 +2035,10 @@ endif */
                 {
                   SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                   sqlDataAsLocator.setHandle (parameterRow_.getFieldLOBLocatorHandle (parameterIndex));
-                  sqlData.set (JDUtilities.streamToBytes(parameterValue, length), null, length);//@set1 allow setX one time and reuse execute() without having to reset stream
+                  // Don't convert immediately to Bytes.  This causes memory problems with Large lobs @B3A
+	              //  sqlData.set (JDUtilities.streamToBytes(parameterValue, length), null, length);//@set1 allow setX one time and reuse execute() without having to reset stream
+                  sqlData.set (parameterValue, null, length); // @J0M hacked this to use the scale parm for the length
+	              
                 }
                 else
                 {
