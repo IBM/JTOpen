@@ -1184,6 +1184,7 @@ class AS400ImplRemote implements AS400Impl
                 AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
             {
                 encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed);
+                Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
             }
             else
             {

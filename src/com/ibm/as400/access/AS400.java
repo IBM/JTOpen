@@ -2759,6 +2759,9 @@ public class AS400 implements Serializable
         	try { 
         	systemName = InetAddress.getLocalHost().getHostName();
         	} catch (Exception e) { /* ignore */ } 
+        } else {
+        	// Note. The check to see if the current system was also local host was
+        	// done in resolveSystem. 
         }
         int dotIndex = systemName.indexOf("."); 
         if (dotIndex > 0) {
@@ -3029,7 +3032,7 @@ public class AS400 implements Serializable
             }
 
             // Now add the new one.
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry for "+systemName+":"+userId+".");
             AS400.systemList.addElement(new Object[] {systemName, userId, pwVault.clone()} );	// @mds
         }
     }
