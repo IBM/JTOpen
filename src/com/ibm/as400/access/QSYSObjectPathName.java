@@ -834,7 +834,7 @@ public class QSYSObjectPathName implements Serializable
         // Process the library name, if quoted, store as mixed case, else store as uppercase.
         String newLibraryName = toQSYSName(libraryName);
         // Build new path.
-        String newPath = buildPathName(newLibraryName, objectName_, memberName_, objectType_);
+        String newPath = buildPathName(aspName_, newLibraryName, objectName_, memberName_, objectType_);
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
         {
@@ -889,7 +889,7 @@ public class QSYSObjectPathName implements Serializable
         // The type of an object with a member is always MBR.
         String newObjectType = memberName.length() != 0 ? "MBR" : objectType_;
         // Build new path name.
-        String newPath = buildPathName(libraryName_, objectName_, newMemberName, newObjectType);
+        String newPath = buildPathName(aspName_, libraryName_, objectName_, newMemberName, newObjectType);
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
         {
@@ -938,7 +938,7 @@ public class QSYSObjectPathName implements Serializable
         // Process object name. if quoted, store as mixed case else store as uppercase.
         String newObjectName = toQSYSName(objectName);
         // Build new path name.
-        String newPath = buildPathName(libraryName_, newObjectName, memberName_, objectType_);
+        String newPath = buildPathName(aspName_, libraryName_, newObjectName, memberName_, objectType_);
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
         {
@@ -983,7 +983,7 @@ public class QSYSObjectPathName implements Serializable
         String newObjectType = objectType.toUpperCase();
         String newMemberName = newObjectType.equals("MBR") ? memberName_ : "";
         // Build new path name.
-        String newPath = buildPathName(libraryName_, objectName_, newMemberName, newObjectType);
+        String newPath = buildPathName(aspName_, libraryName_, objectName_, newMemberName, newObjectType);
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
         {
