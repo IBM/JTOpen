@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.lang.ref.SoftReference;
 
+
 // This handles all of the datastream pooling for JDBC.
 final class DBDSPool
 {
@@ -54,32 +55,58 @@ final class DBDSPool
   /* private  */ 
   static SoftReference[] dbreplyrequesteddsPool_ = new SoftReference[4];
   private static final Object dbreplyrequesteddsPoolLock_ = new Object(); //@P1A
+  private static int dbReplyRequestedPoolSearchStart_=0;                                         //@B5A
+  private static final int DB_REPLY_REQUEST_POOL_SEARCH_RESET = 4096;         // @B5A
+  private static final int DB_REPLY_REQUEST_LOCALITY = 256; 
+  private static int       dbReplyRequestedPoolSearchCount_ = 0;                                    // @B5A
+  private static boolean   dbReplyRequestedPoolFull_ = false; 
 
   static final DBStoragePool storagePool_ = new DBStoragePool();
+  
   
   // IMPORTANT: These methods only retrieve free streams from their respective pools.
   // It is up to the code using these pools to free up the streams by setting
   // their inUse_ flags to false.
   static String changeTime="2010/06/14 08:09"; 
   static boolean noDBReplyPooling = false;
-  // static boolean monitor = false; 
+  static boolean monitor = false;                                                                                 //@B5A
+
   static { 
 	  String noPoolingProperty = System.getProperty("com.ibm.as400.access.noDBReplyPooling"); 
 	  if (noPoolingProperty != null) { 
 		  noDBReplyPooling = true; 
 	  }
-  //	  String monitorProperty = System.getProperty("com.ibm.as400.access.DBDSPool.monitor");
-  //	  if (monitorProperty != null) { 
-  //		  monitor = true; 
-  //	  }
+    String monitorProperty = System.getProperty("com.ibm.as400.access.DBDSPool.monitor");                 //@B5A
+  	  if (monitorProperty != null) { 
+  		  monitor = true; 
+  	  }
+  }
+  
+  static void returnToDBReplyRequestedPool(int poolIndex) {                                        //@B5A
+	  if (poolIndex >= 0) {
+	  if (dbReplyRequestedPoolFull_) {
+		  dbReplyRequestedPoolFull_ = false;
+	      dbReplyRequestedPoolSearchStart_ = poolIndex; 
+	  } else { 
+	    if (poolIndex < dbReplyRequestedPoolSearchStart_ &&
+		  poolIndex >= (dbReplyRequestedPoolSearchStart_ - DB_REPLY_REQUEST_LOCALITY )) {
+	      dbReplyRequestedPoolSearchStart_ = poolIndex; 
+	    }
+	  }
+	  }
+  }
+  
+  public static int getDBReplyRequestedDSPoolSize() {
+	  return dbreplyrequesteddsPool_.length; 
   }
   
   static final DBReplyRequestedDS getDBReplyRequestedDS()
   {
 	if (noDBReplyPooling) { 
-		DBReplyRequestedDS newDS = new DBReplyRequestedDS();
-		newDS.canUse(); 
-		return newDS; 
+		DBReplyRequestedDS unpooledDS = new DBReplyRequestedDS(monitor, -1);                    //@B5C
+		unpooledDS.canUse();                                                 
+		unpooledDS.setInPool(false);                                                                                                // @B5A
+		return unpooledDS; 
 	} else { 
     synchronized(dbreplyrequesteddsPoolLock_) //@P1C
     {
@@ -88,22 +115,39 @@ final class DBDSPool
       // DBReplyRequestedDS[] pool = dbreplyrequesteddsPool_; //@P1M
       SoftReference[] pool = dbreplyrequesteddsPool_; //@P1M
       int max = pool.length;
-      for (int i=0; i<pool.length; ++i)
+      
+      // Periodically begin the search for free items at the beginning of the pool @B5A
+      int searchStart = dbReplyRequestedPoolSearchStart_;
+      if (dbReplyRequestedPoolFull_) {
+    	  searchStart = pool.length;
+      }
+      if (dbReplyRequestedPoolSearchCount_ > DB_REPLY_REQUEST_POOL_SEARCH_RESET) {
+    	  dbReplyRequestedPoolFull_ = false; 
+    	  searchStart = 0; 
+    	  dbReplyRequestedPoolSearchCount_ = 0; 
+      }
+   	  dbReplyRequestedPoolSearchCount_++; 
+   	  
+   	  
+      for (int i=searchStart; i<pool.length; ++i)
       {
         if (pool[i] == null )
         {
-          DBReplyRequestedDS ds =  new DBReplyRequestedDS();
-          ds.canUse(); 
-          pool[i] = new SoftReference(ds);
-   		  // pool[i].setPoolIndex(i); 
-          return ds;
+          DBReplyRequestedDS pooledDs =  new DBReplyRequestedDS(monitor, i);
+          pooledDs.canUse(); 
+          pooledDs.setInPool(true); 
+          pool[i] = new SoftReference(pooledDs);
+          dbReplyRequestedPoolSearchStart_ = i+1; 
+          return pooledDs;
         
         } else {
-          DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get(); 
+            DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get(); 
           if (ds == null) { 
-              ds =  new DBReplyRequestedDS();
+              ds =  new DBReplyRequestedDS(monitor, i);
               ds.canUse(); 
+              ds.setInPool(true); 
               pool[i] = new SoftReference(ds);
+              dbReplyRequestedPoolSearchStart_ = i+1; 
        		  // pool[i].setPoolIndex(i); 
               return ds;
         	  
@@ -111,32 +155,47 @@ final class DBDSPool
         	   if ((ds.inUse_ == false) && (ds.canUse())) {
         		ds.initialize();
         		// pool[i].setPoolIndex(i); 
+                dbReplyRequestedPoolSearchStart_ = i+1; 
         		return ds;
         	   }
           }
         }
       }
       // All are in use, so expand the pool but keep the pool less than 16384
-      if (max * 2 < 16384) { 
-    	// if (monitor) {
-    	//	System.out.println("Expanding DBDSPool to size "+( max * 2)); 
-    	//	for (int i = 0 ; i < max; i++) { 
-    	//		System.out.println("Entry "+i+" : "+pool[i].getAllocatedLocation());
-    	//	}
-    	//}
-        SoftReference[] temp = new SoftReference[max*2];
+	  if (max * 2 < 16385) {
+	    // Have a monitor so we can see the usage of these items  @B5A
+		if (monitor) {
+		   System.out.println("Expanding DBDSPool to size "	+ (max * 2));
+		   for (int i = 0; i < max; i++) {
+			   DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get();
+			   if (ds == null) { 
+				   System.out.println("Entry " + i + " : null"); 
+			   } else {
+			   System.out.println("Entry " + i + " : "
+								+ ds.getAllocatedLocation());
+			   }
+		   }
+		}
+		SoftReference[] temp = new SoftReference[max*2];
         System.arraycopy(pool, 0, temp, 0, max);
-        DBReplyRequestedDS ds = new DBReplyRequestedDS(); 
-        temp[max] = new SoftReference(ds); 
-        ds.canUse();
+        DBReplyRequestedDS pooledDs = new DBReplyRequestedDS(monitor, max); 
+        temp[max] = new SoftReference(pooledDs); 
+        pooledDs.canUse();
+		pooledDs.setInPool(true);              //@B5A
 		// temp[max].setPoolIndex(max); 
 
         dbreplyrequesteddsPool_ = temp;
-        return ds;
+        // Start the search at zero after expanding 
+        dbReplyRequestedPoolSearchStart_ = 0;  //@B5A
+        return pooledDs;
       } else {
-  		DBReplyRequestedDS newDS = new DBReplyRequestedDS();
-		newDS.canUse(); 
-		return newDS; 
+  		DBReplyRequestedDS nonpooledDS = new DBReplyRequestedDS(monitor, -1);
+		nonpooledDS.canUse(); 
+		nonpooledDS.setInPool(false);
+		if (!dbReplyRequestedPoolFull_) {
+			dbReplyRequestedPoolFull_ = true; 
+		}
+		return nonpooledDS; 
       }
     }
     }

@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
@@ -133,8 +132,12 @@ implements Statement
     JDServerRow         parameterRow_;          // private protected //@re-prep moved from preparedStatement so that it has visibility here
     private boolean     threadInterrupted = false; 
     private DBReplyRequestedDS commonExecuteReply = null; // reply from commonExecute.  Note:  This cannot be returned to the pool until it is 
-                                                          // no longer being used.  The data_ pointer from this replied is shared with
-                                                          // all kinds of objects
+                                                          // no longer being used.  The data_ pointer from this reply is shared with
+                                                          // all kinds of objects.
+    	                                                  // Note:  Because of the current structure, this can be returned after it is used.  The data_
+                                                          // pointer from the reply was created by ClientAccessDataStream.construct.  The returnToPool
+                                                          // method for the reply has been corrected to set the data_ pointer back to DBStorage_.data. 
+                                                          // @B5A
     private DBReplyRequestedDS connectReply = null;    
     private DBReplyRequestedDS execImmediateReply = null; 
     private DBReplyRequestedDS normalPrepareReply = null;    
@@ -729,7 +732,7 @@ implements Statement
                     functionId = DBSQLRequestDS.FUNCTIONID_EXECUTE;
 
                 DBSQLRequestDS request = null;    //@P0A
-                DBReplyRequestedDS replyX = null;    //@P0A
+                // DBReplyRequestedDS replyX = null;    //@P0A
                 int openAttributes = 0;
                 try
                 {
@@ -796,8 +799,13 @@ implements Statement
                             request.setVariableFieldCompression(true);
                             request.setBufferSize(blockSize_ * 1024);
                         }
-                        else                                                    //@K54
-                            request.setBlockingFactor(getBlockingFactor (sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0 
+                        else {                                                    //@K54
+                        	if (resultRow != null) {  // @B5A -- check for null pointer  
+                               request.setBlockingFactor(getBlockingFactor (sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
+                        	} else { 
+                                request.setBlockingFactor(getBlockingFactor (sqlStatement, 0));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
+                        	}
+                        }
                     }
 
                     //@K1D //@F8 If we are pre-V5R2, the user set the resultSetType to "TYPE_SCROLL_INSENSITIVE", or
@@ -984,16 +992,21 @@ implements Statement
                     // Compute the update count and result set .
                     if(openNeeded)
                     {
+                      // @B5A Check for null pointer.
+                    	int rowLength = 0; 
+                    	if (resultRow != null) {
+                    		rowLength = resultRow.getRowLength(); 
+                    	}
                         JDServerRowCache rowCache;
                         if((fetchFirstBlock) && (resultData != null))
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, resultRow.getRowLength()), resultData,
+                                                             getBlockingFactor (sqlStatement, rowLength), resultData,
                                                              lastBlock, resultSetType_, cursor_); //@pdc perf2 - fetch/close
                         else
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, resultRow.getRowLength()), lastBlock, resultSetType_, cursor_); //@PDC perf //@pdc perf2 - fetch/close
+                                                             getBlockingFactor (sqlStatement, rowLength), lastBlock, resultSetType_, cursor_); //@PDC perf //@pdc perf2 - fetch/close
 
                         // If the result set concurrency is updatable, check to                            @E1C
                         // see if the system overrode the cursor type to read only.                        @E1C
@@ -1097,11 +1110,9 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    // Don't return the reply to the pool because references to the 
-                    // data pointer are shared by other objects that have been created.
-                    // The commonExecuteReply will be returned to the pool before the 
-                    // next execute or when the statement is closed. 
-                    // if(reply != null) reply.returnToPool();    //@P0A
+                    // This can be returned.  See comment at declaration.  @B5A
+                    if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; } 
+
                 }
             }
             catch(DBDataStreamException e)
@@ -1359,6 +1370,8 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
+                    if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }      /*@B5A*/ 
+
                 }
 
                 // Inform the transaction manager that a statement
@@ -1555,7 +1568,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    // if(execImmediateReply != null) execImmediateReply.returnToPool();    //@P0A
+                    if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }   /*@B5A*/ 
                 }
 
                 // Inform the transaction manager that a statement
@@ -1587,6 +1600,9 @@ implements Statement
                 syncRPB ();
 
                 DBSQLRequestDS request = null;    //@P0A
+                if (normalPrepareReply != null) { 
+                	normalPrepareReply.returnToPool(); 
+                } /* B5A */ 
                 normalPrepareReply = null;    //@P0A
                 try
                 {
@@ -1688,7 +1704,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    // if(reply != null) reply.returnToPool();    //@P0A
+                    if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; }   //@B5A
                 }
 
                 // Output a summary as a trace message.  The * signifies that the
@@ -3041,7 +3057,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) request.returnToPool();    //@P0A
-                    // if(getMoreResultsReply != null) getMoreResultsReply.returnToPool();    //@P0A
+                    if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }  
                 }
             }
 

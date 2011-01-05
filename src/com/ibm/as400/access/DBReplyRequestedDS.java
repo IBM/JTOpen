@@ -25,14 +25,19 @@ import java.io.StringWriter;
 final class DBReplyRequestedDS extends DBBaseReplyDS
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-  // Exception allocatedLocation = null; 
-  // int       poolIndex = 0; 
+  private static long firstUsed = 0;          // @B5A
+  long                lastUsed = 0;                      // @B5A
+  Exception allocatedLocation = null;           // @B5A
+  int       poolIndex = -1;                              // @B5A
   
   
-  public DBReplyRequestedDS()
+  public DBReplyRequestedDS(boolean setAllocatedLocation, int poolIndex)
   {
     super();
+    if (setAllocatedLocation) {
+    	setAllocatedLocation(); 
+    } /*@B5A*/ 
+    this.poolIndex = poolIndex;  /*@B5A*/ 
   }
 
 
@@ -51,22 +56,37 @@ final class DBReplyRequestedDS extends DBBaseReplyDS
     return DBDSPool.getDBReplyRequestedDS(); //@P0A
   }
   
-  // void setAllocatedLocation() {
-  //	  allocatedLocation = new Exception("location"); 
-  // }
-  //String getAllocatedLocation() { 
-//	  if (allocatedLocation == null) { 
-//		return "NONE";   
-//	  } else { 
-//	  StringWriter sw = new StringWriter(); 
-//	  PrintWriter pw = new PrintWriter(sw); 
-//	  allocatedLocation.printStackTrace(pw); 
-//	  String result = sw.toString(); 
-//	  result.replace('\n', ' '); 
-//	  return result; 
-//	  }	
-//	  
- // }
+  void setAllocatedLocation() {
+	if (firstUsed == 0) {
+		firstUsed = System.currentTimeMillis(); 
+	}
+	lastUsed = System.currentTimeMillis() - firstUsed; 
+    allocatedLocation = new Exception("location");
+    storage_.setAllocatedLocation(); 
+    
+    
+  }/* @B5A*/ 
+  
+  String getAllocatedLocation() { 
+	  if (allocatedLocation == null) { 
+		return "NONE";   
+	  } else { 
+	  StringWriter sw = new StringWriter(); 
+	  PrintWriter pw = new PrintWriter(sw); 
+	  allocatedLocation.printStackTrace(pw); 
+	  String result = sw.toString(); 
+	  result.replace('\n', ' '); 
+	  return "Used at "+lastUsed+" "+result; 
+	  }	
+ } /*@B5A*/ 
+  
+  void returnToPool() {
+	  if (poolIndex >= 0) {
+		  DBDSPool.returnToDBReplyRequestedPool(poolIndex); 
+	  }
+	  super.returnToPool();
+	} /*@B5A*/ 
+  
   
 //  void setPoolIndex(int poolIndex) {
 //	  if (DBDSPool.monitor) { 

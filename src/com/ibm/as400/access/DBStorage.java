@@ -13,9 +13,8 @@
 
 package com.ibm.as400.access;
 
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 
 
@@ -29,15 +28,31 @@ final class DBStorage //@P0C
 {
   public final static int DEFAULT_SIZE = 1024; 	
   private byte[] data_ = new byte[DEFAULT_SIZE]; //@P0C
-  //@P0D private int     id_;
-
+  private int     id_;                                 // @B5A
+  private DBStoragePool pool_;              // @B5A
+  
   private boolean inUse_ = false; //@P0A
+  private Exception allocatedLocation;   // @B5A
 
+  
+  /**
+  Constructs a DBStorage object.
+
+  @param     id   an id assigned by the pool.  This is -1 if the storage does not belong to the pool. 
+  @param     pool  pool that this object belongs to
+  **/
+  // @B5A
+  DBStorage(int id, DBStoragePool pool) {
+	  id_ = id; 
+	  pool_ = pool; 
+  }
+  
 /**
 Constructs a DBStorage object.
 
 @param      id      an id assigned by the pool.
 **/
+  
 //@P0D  DBStorage (int id)
 //@P0D  {
     // Initialize to 63 KB.  This used to be 64K 
@@ -115,19 +130,29 @@ public synchronized void returnToPool() {
 	//   Arrays.fill(data_, (byte) 0xeb); 
 	// }
 	inUse_ = false; 
+	if (id_>= 0) { 
+	  pool_.returned(id_);   //@B5A
+	}
 }
 
 /**
  * Can this be used.  If not, false is returned.
- * If it can be used, then inUse_ is set to return and true is returned
+ * If it can be used, then inUse_ is set to return and true is returned.
+ * Note:  We first check unsynchronized.  Then check after synchronizing. 
  * @return
  */
-public synchronized boolean canUse() {
+public boolean canUse() {
    if (inUse_) {
 	   return false; 
    } else {
-	   inUse_ = true; 
-	   return true; 
+	   synchronized(this) {
+		   if (inUse_) {
+			  return false; 
+		   } else {
+			  inUse_ = true; 
+	          return true;
+		   }
+	   }
    }
 }
 
@@ -173,6 +198,22 @@ Clears the contents of the storage.
     // No-op.
 //@P0D  }
 
+public void setAllocatedLocation() {
+	allocatedLocation = new Exception("location");
+}
+
+String getAllocatedLocation() { 
+	  if (allocatedLocation == null) { 
+		return "NONE";   
+	  } else { 
+	  StringWriter sw = new StringWriter(); 
+	  PrintWriter pw = new PrintWriter(sw); 
+	  allocatedLocation.printStackTrace(pw); 
+	  String result = sw.toString(); 
+	  result.replace('\n', ' '); 
+	  return result; 
+	  }	
+}
 
 
 /**

@@ -64,6 +64,11 @@ For example, if the input parameter has SQL type INTEGER, then the
 caller must call setInt() to set the IN parameter value.  If
 arbitrary type conversions are required, then use setObject() with
 a target SQL type.
+
+<p>For method that sets parameters, the application should not modify the parameter
+   value until after the execute completes.  Modifying a value
+   between the setXXXX method and the execute method may result in unpredictable
+   behavior. 
 **/
 //
 // Implementation notes:  
@@ -1973,6 +1978,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     reads the data from the stream as needed until no more bytes
     are available.  The driver converts this to an SQL VARBINARY
     value.
+    
+    <br>If a parameter is set using setBinaryStream, then the parameter  
+        must be reset prior to the second execute of the PreparedStatement object.  
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
