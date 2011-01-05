@@ -179,6 +179,10 @@ class ClientAccessDataStream extends DataStream
       //		Trace.setTraceOn(false); 
       //	}
       //}
+      
+      // 
+      // TODO:   Restructure this code so that a new byte array is not always allocated.
+      // 
       newDataStream.data_ = new byte[nowLength];
       System.arraycopy(baseDataStream.data_, 0, newDataStream.data_, 0, HEADER_LENGTH);
 
@@ -332,10 +336,12 @@ class ClientAccessDataStream extends DataStream
   void returnToPool() throws InternalErrorException {  // @A7C  
 	  synchronized(inUseLock_) { 
 	  if (inUse_) { 
-	    // Use this to find places where the object is used after it is returned to the pool  
-	    // if (data_ != null) {
-		//    Arrays.fill(data_, (byte) 0xeb); 
-	    // }
+	    // Use this to find places where the object is used after it is returned to the pool
+		// Note:  For DBBaseRequestDS objects, the data_ pointer has been set to the one for the 
+		// DBStorage object.  
+	    if (data_ != null) {
+		    Arrays.fill(data_, (byte) 0xeb); 
+	    }
 		  
 	    inUse_ = false;
 	    // if (DBDSPool.monitor && this instanceof DBReplyRequestedDS) {

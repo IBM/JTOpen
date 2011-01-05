@@ -221,7 +221,9 @@ extends ClientAccessDataStream
   private DBReplyXids             xids_                   = null;             // @E0A
 
 
-  private final DBStorage storage_ = DBDSPool.storagePool_.getUnusedStorage(); //@P0A
+  // Don't pool this objects, but rely on the pooling of DBReplayRequestedDS objects 
+  DBStorage storage_ = DBDSPool.storagePool_.getUnpooledStorage(); //@P0A
+  private boolean inPool_ = false;                                       // Is this reply part of a pool? @B5A
   
   private int holdable = -1;      //@cur
   private int scrollable = -1;    //@cur
@@ -230,6 +232,7 @@ extends ClientAccessDataStream
   
   private int isolationLevel = -1; //@isol
 
+  
   
   //@P0A - Call this in place of constructing a new reply datastream.
   final void initialize()
@@ -917,6 +920,48 @@ Parses the datastream.
       offset += parmLength;
     }
   }
+
+  void setInPool(boolean inPool) {
+	  inPool_ = inPool; 
+  } /*@B5A*/ 
+  
+  synchronized void returnToPool() {
+	  //
+	  // Note:  At this point the data_ pointer contains memory that was allocated
+	  // in the static ClientAccessDataStream.construct().  This data_ pointer has
+	  // probably been shared with other data structures.   Reset the data_ pointer
+	  // to the one from the storage object so that the one allocated by 
+	  // ClientAccessDataStream.construct() will not be overwritten by 
+	  // super.returnToPool();
+	  // 
+	  // 
+	  data_ = storage_.getData();
+	  
+	  super.returnToPool();
+	  // In this is not in the pool, go ahead and free the storage
+	  if (!inPool_) {
+		    // if (storage_ != null) {
+		    // 	   storage_.returnToPool(); 
+		    // }
+		    storage_ = null; 
+		    data_ = null; 
+	  }
+  } /*@B5A*/ 
+
+  
+  // Make sure the storage is freed before going away. @B5A
+  synchronized protected void finalize()
+  throws Throwable
+  {
+    // if (storage_ != null) {
+    // 	   storage_.returnToPool(); 
+    // }
+    storage_ = null; 
+    data_ = null; 
+    super.finalize();
+  } /*@B5A*/ 
+
+  
 }
 
 

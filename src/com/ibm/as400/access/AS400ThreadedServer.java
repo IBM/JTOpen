@@ -313,6 +313,13 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                   if (Trace.traceOn_) {
                     Trace.log(Trace.DIAGNOSTIC, "receive(): Valid reply found:", correlationId);
                   }
+                  
+                  if (DBDSPool.monitor) {
+                	  if (ds instanceof DBReplyRequestedDS) {
+                		  ((DBReplyRequestedDS) ds).setAllocatedLocation(); 
+                	  }
+                  } /* @B5A*/ 
+                  
                     return ds;
                 }
                 else if (readDaemonException_ != null)
