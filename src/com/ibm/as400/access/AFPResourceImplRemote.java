@@ -82,7 +82,7 @@ class AFPResourceImplRemote extends PrintObjectImplRemote
     }
 
 
-    private static NPCPIDAFPResource buildIDCodePoint(String IFSResourceName)
+    static NPCPIDAFPResource buildIDCodePoint(String IFSResourceName)
     {
         QSYSObjectPathName ifsPath = new QSYSObjectPathName(IFSResourceName);
 

@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.lang.reflect.InvocationTargetException;
 
 /**
   * The AFPResourceImplProxy class implements proxy versions of
@@ -25,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 class AFPResourceImplProxy extends PrintObjectImplProxy
 implements ProxyImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     AFPResourceImplProxy() 
     {
