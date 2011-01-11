@@ -20,12 +20,12 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
-    public static String version   = "Open Source Software, JTOpen 7.2, codebase 5770-SS1 V7R1M0.03 2011/01/05 @B5";  // As of V7R1: JC1 is merged into SS1 Option 3
+    public static String version   = "Open Source Software, JTOpen 7.3, codebase 5770-SS1 V7R1M0.03 2011/01/05 @B5";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9; // ex: "9" indicates V7R1
-    static final int    MINOR_VERSION = 3; // ex: "1" indicates PTF #1 
-                                           //Note: JTOpen 7.0 is synching with ptf 9.1
-    static final String DRIVER_LEVEL  = "07010003"; //(ex: 05040102 -> V5R4M1 PTF#2) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final int    MINOR_VERSION = 4; // ex: "1" indicates PTF #1 
+                                           //Note: JTOpen 7.3 is synching with ptf 9.4
+    static final String DRIVER_LEVEL  = "07010004"; //(ex: 05040102 -> V5R4M1 PTF#2) (needed for hidden clientInfo) (each # is 2 digits in length)
     
 }
