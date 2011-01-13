@@ -15,16 +15,13 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Hashtable;
 
 
 // Base class for client access server data streams.  Provides methods to access common client access data stream header.
 class ClientAccessDataStream extends DataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   protected static final int HEADER_LENGTH = 20;
 
@@ -339,9 +336,9 @@ class ClientAccessDataStream extends DataStream
 	    // Use this to find places where the object is used after it is returned to the pool
 		// Note:  For DBBaseRequestDS objects, the data_ pointer has been set to the one for the 
 		// DBStorage object.  
-	    if (data_ != null) {
-		    Arrays.fill(data_, (byte) 0xeb); 
-	    }
+	    // if (data_ != null) {
+		//    Arrays.fill(data_, (byte) 0xeb); 
+	    // }
 		  
 	    inUse_ = false;
 	    // if (DBDSPool.monitor && this instanceof DBReplyRequestedDS) {
