@@ -15,6 +15,7 @@ package com.ibm.as400.vaccess;
 
 import com.ibm.as400.access.Trace;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -35,10 +36,15 @@ import java.awt.event.FocusListener;                    // @C2A
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;                              // @C0A
 import java.sql.SQLWarning;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.Enumeration;
 
@@ -633,6 +639,7 @@ public class SQLResultSetTablePane
     table_ = new JTable();
     table_.setAutoCreateColumnsFromModel(false);
     table_.setModel(model_);
+    model_.setTable(table_);   /* Let the model know about the table so that the selected cell can be preserved @B6A*/ 
     table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
     table_.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); //@D6A
@@ -1227,7 +1234,50 @@ public class SQLResultSetTablePane
     tableShowVerticalLines_ = show; //@B0A
   }
 
+  //
+  // Temporary testcase code.  -- Leave here if we need to test @B6A
+  // 
+  public static void main(String args[]) {
+	    BufferedReader input = new BufferedReader(new InputStreamReader(System.in)); 
 
-
+	  try {
+		  String line = "X"; 
+		  boolean loop=true; 
+		  while (line != null && !"exit".equalsIgnoreCase(line)) { 
+	// Register the IBM Toolbox for Java JDBC driver.
+		  
+	  Class.forName("com.ibm.as400.access.AS400JDBCDriver");
+	// Use JDBC to execute the SQL query directly.
+	Connection connection = DriverManager.getConnection("jdbc:as400://"+args[0], args[1], args[2]);
+	Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	ResultSet rs = statement.executeQuery("SELECT * FROM QSYS2.SYSCOLUMNS");
+	// Create the SQLResultSetTablePane object.
+	SQLResultSetTablePane table = new SQLResultSetTablePane(rs, false);
+	// Put the table in a JFrame.
+	JFrame frame = new JFrame("My Window");
+	frame.getContentPane().add(table);
+	// Set up the error dialog adapter.
+	table.addErrorListener(new ErrorDialogAdapter(frame));
+	// Display the JFrame.
+	frame.pack();
+	frame.show();
+	// Load the contents of the table.
+	table.load();
+	
+	System.out.println("Table loaded Sleeping for 10 minutes");
+	try {
+		Thread.sleep(600000); 
+	} catch (Exception e) {
+		e.printStackTrace(); 
+	}
+	line = input.readLine(); 
+	
+		  }
+	  } catch (Exception e) { 
+		  e.printStackTrace(); 
+	  }
+  }
 
 }
+
+

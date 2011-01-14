@@ -14,7 +14,10 @@
 package com.ibm.as400.vaccess;
 
 import com.ibm.as400.access.Trace;
+
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -187,6 +190,7 @@ public class SQLResultSetTableModel
   private transient Statement             statement_;
   private transient boolean               updatable_;
 
+  private transient JTable                table_;    /* Keep a reference to the table so we can maintain selection information @B6A*/ 
   private static final int                CACHE_SIZE_             = 500;  // In rows.
   private static final int                READ_INCREMENT_         = 50;   // In rows.
 
@@ -804,7 +808,40 @@ public class SQLResultSetTableModel
     // not complete, then add 2 to keep the JTable asking for more.
     if(oldRowCount != newRowCount)
     {
+      // In JDK 1.5 and 1.6, there is a problem with the selection in the JTable being cleared. 
+      // This causes problems if the user is using the page down key to scroll through the results.
+      //
+      // The call to fireTableRowsInserted may be the code that is clearing the selection.  
+      // For a similar problem see:  http://stackoverflow.com/questions/254212/preserve-jtable-selection-across-tablemodel-change
+      // I tried setting the first parameter to oldRowCount+1 to see if that fixes the problem.	
+      // That did not fix the problem.  The row at the bottom retains it's highlight, but the next
+      // PageDown jumps to the top of the area. 
+      // 
+      // Instead we need to remember the selected rows and restore them after. 
+      // For now, we'll only handle the simple case where a single cell is selected. 
+      //
+      // We also only want to change the selection if the selected row has changed after  
+      // fireTableRowsInserted.  In the case where the use of the scroll bar causes new
+      // entries to be loaded, the selectedRow does not change, so we do not need to 
+      // change the selection back to their original values. 
+      //
+      // @B6A 
+      
+      
+     int  selectedRow = table_.getSelectedRow();
+      int selectedColumn = table_.getSelectedColumn(); 
+      
       fireTableRowsInserted(oldRowCount, getRowCount());
+      
+      
+      
+      // Restore the selected cell.  @B6A 
+     int  afterSelectedRow = table_.getSelectedRow();
+      if ((selectedRow >= 0 && selectedColumn >= 0 ) && 
+    		  ((afterSelectedRow != selectedRow) )) {
+      table_.changeSelection(selectedRow, selectedColumn, false /* toggle */ , false /* extend */); 
+	  
+      }
     }
 
     // Return the value.
@@ -1240,6 +1277,22 @@ public class SQLResultSetTableModel
       return dataMapping;
   }
 
+  
+  
+/**
+ * Set a reference to the JTable so that the selected row can be updated after 
+ * fireTableRowsInserted. 
+ * 
+ * @param table
+ */
+public void setTable(JTable table) {
+	table_ = table; 
+	
+}
+
+
+  
+  
 }
 
 
