@@ -828,15 +828,18 @@ public class SQLResultSetTableModel
       // @B6A 
       
       
-     int  selectedRow = table_.getSelectedRow();
-      int selectedColumn = table_.getSelectedColumn(); 
+      int  selectedRow = -1; 
+      if (table_ != null)   selectedRow = table_.getSelectedRow();
+      int selectedColumn = -1; 
+      if (table_ != null)   selectedColumn = table_.getSelectedColumn(); 
       
       fireTableRowsInserted(oldRowCount, getRowCount());
       
       
       
       // Restore the selected cell.  @B6A 
-     int  afterSelectedRow = table_.getSelectedRow();
+     int  afterSelectedRow = -1 ; 
+     if (table_ != null)	afterSelectedRow = table_.getSelectedRow();
       if ((selectedRow >= 0 && selectedColumn >= 0 ) && 
     		  ((afterSelectedRow != selectedRow) )) {
       table_.changeSelection(selectedRow, selectedColumn, false /* toggle */ , false /* extend */); 
