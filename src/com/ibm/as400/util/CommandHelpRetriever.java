@@ -316,6 +316,15 @@ public class CommandHelpRetriever
       {
         return new StreamSource(new StringReader(helpResults_));
       }
+      
+      // If the transformer happens to load the __NO_HELP document, make something
+      // available.  In Sun's later JVMs this gets called.  For the J9 JVM this
+      // doesn't get called. @C2A
+      if (href.indexOf("__NO_HELP") > -1)
+      {
+        return new StreamSource(new StringReader("<help>NO HELP AVAILABLE</help>"));
+      }
+      
       return defaultResolver_.resolve(href, base);
     }
   }
@@ -589,7 +598,7 @@ public class CommandHelpRetriever
   ParserConfigurationException, 
   TransformerConfigurationException, TransformerException
   {
-    if (Trace.isTraceOn())
+     if (Trace.isTraceOn())
       Trace.log(Trace.DIAGNOSTIC, "Generating HTML documentation for '"+command+"' and panel group '"+panelGroup+"'.");
 
     String xml = command.getXML();
@@ -661,8 +670,14 @@ public class CommandHelpRetriever
     {
       AS400Message[] msgs = e.getAS400MessageList();
 
+      // 
+      // Note:  It is also possible to get a CPF6E3B when the user is not authorized to the help text.
+      //        However, we do not see the underlying message that the user is not authorized. 
+      //       @C2A
       // CPF6250 - Can't retrieve info for command. Probably because it is a system command.
-      if (msgs.length != 1 || !msgs[0].getID().toUpperCase().trim().equals("CPF6250"))
+      if (msgs.length != 1 || 
+    		  ( !msgs[0].getID().toUpperCase().trim().equals("CPF6250") &&
+    			!msgs[0].getID().toUpperCase().trim().equals("CPF6E3B")	  ))
         throw new AS400Exception(msgs);
     }
 
@@ -712,14 +727,22 @@ public class CommandHelpRetriever
     StringWriter buf = new StringWriter();
     StreamResult output = new StreamResult(buf);
 
-    if (Trace.isTraceOn())
+    if (Trace.isTraceOn()) {
       Trace.log(Trace.DIAGNOSTIC, "Performing XSL transform.");
-
-    htmlTransformer_.transform(sourceXML, output);
-
+      Trace.log(Trace.DIAGNOSTIC, "Help Results is "+helpResults); 
+    }
+    try { 
+      htmlTransformer_.transform(sourceXML, output);
+    } catch (TransformerException e) {
+    	 if (Trace.isTraceOn()) {
+    	      Trace.log(Trace.DIAGNOSTIC, "Exception from transform.");
+    	      Trace.log(Trace.DIAGNOSTIC, e); 
+    	 }
+    	throw e; 
+    }
     if (Trace.isTraceOn())
       Trace.log(Trace.DIAGNOSTIC, "Successfully generated help documentation.");
-
+ 
     return buf.toString();
   }
 
