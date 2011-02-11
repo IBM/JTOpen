@@ -490,8 +490,12 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request3 != null) request3.returnToPool();    //@P0A
-                    if(closeReply != null) closeReply.returnToPool();
+                    if(request3 != null) {
+                    		request3.returnToPool();  request3=null; 
+                    }
+                    if(closeReply != null) {
+                    	closeReply.returnToPool();closeReply=null;
+                    }
                 }
             }    // @EDA
 
@@ -521,7 +525,9 @@ implements Statement
             }
             finally
             {    //@P0A
-                if(request2 != null) request2.returnToPool();    //@P0A
+                if(request2 != null) {
+                	request2.returnToPool();  request2=null; 
+                }
             }
 
             // Ignore errors, since we would not be able to get
@@ -593,8 +599,8 @@ implements Statement
                 }
                 finally
                 {    
-                    if(request3 != null) request3.returnToPool();    
-                    if(finishClosingReply != null) finishClosingReply.returnToPool();
+                    if(request3 != null) { request3.returnToPool(); request3=null; }    
+                    if(finishClosingReply != null) { finishClosingReply.returnToPool(); finishClosingReply = null; }
                 }
             }    
 
@@ -619,7 +625,9 @@ implements Statement
             }
             finally
             {    
-                if(request2 != null) request2.returnToPool();    
+                if(request2 != null) {
+                		request2.returnToPool();   request2 = null; 
+                }
             }
 
             // Ignore errors, since we would not be able to get
@@ -897,7 +905,7 @@ implements Statement
 
                     commonExecuteBefore(sqlStatement, request);
 
-                    if (commonExecuteReply != null) commonExecuteReply.returnToPool();
+                    if (commonExecuteReply != null) { commonExecuteReply.returnToPool(); commonExecuteReply=null; }
                     
                     commonExecuteReply = connection_.sendAndReceive(request, id_);    //@P0C
 
@@ -1109,7 +1117,9 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.returnToPool();    //@P0A
+                    if(request != null)  {
+                    	request.returnToPool();    request = null; 
+                    }
                     // This can be returned.  See comment at declaration.  @B5A
                     if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; } 
 
@@ -1332,14 +1342,12 @@ implements Statement
                     commonExecuteBefore (sqlStatement, request);
 
                     if (execImmediateReply != null) { 
-                    	execImmediateReply.returnToPool();
-                    	execImmediateReply = null; 
+                    	execImmediateReply.returnToPool(); execImmediateReply = null; 
                     }
                     if (normalPrepareReply != null) { 
-                    	normalPrepareReply.returnToPool();
-                    	normalPrepareReply = null; 
+                    	normalPrepareReply.returnToPool();normalPrepareReply = null; 
                     }
-                    if (connectReply != null) connectReply.returnToPool(); 
+                    if (connectReply != null) { connectReply.returnToPool(); connectReply=null; }
                     connectReply = connection_.sendAndReceive (request, id_);    //@P0C
 
                     int errorClass = connectReply.getErrorClass();
@@ -1369,7 +1377,9 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.returnToPool();    //@P0A
+                    if(request != null)  { 
+                    		request.returnToPool();    request=null; 
+                    }
                     if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }      /*@B5A*/ 
 
                 }
@@ -1462,15 +1472,13 @@ implements Statement
                     commonExecuteBefore (sqlStatement, request);
 
                     if (connectReply != null) { 
-                    	connectReply.returnToPool();
-                    	connectReply = null; 
+                    	connectReply.returnToPool();connectReply = null; 
                     }
                     if (normalPrepareReply != null) { 
-                    	normalPrepareReply.returnToPool();
-                    	normalPrepareReply = null; 
+                    	normalPrepareReply.returnToPool();normalPrepareReply = null; 
                     }
 
-                    if (execImmediateReply != null) execImmediateReply.returnToPool(); 
+                    if (execImmediateReply != null) { execImmediateReply.returnToPool(); execImmediateReply=null;} 
                     execImmediateReply = connection_.sendAndReceive (request, id_);    //@P0C
 
                     int errorClass = execImmediateReply.getErrorClass();
@@ -1567,7 +1575,9 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.returnToPool();    //@P0A
+                    if(request != null) { 
+                    		request.returnToPool();  request = null; 
+                    }
                     if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }   /*@B5A*/ 
                 }
 
@@ -1601,9 +1611,8 @@ implements Statement
 
                 DBSQLRequestDS request = null;    //@P0A
                 if (normalPrepareReply != null) { 
-                	normalPrepareReply.returnToPool(); 
+                	normalPrepareReply.returnToPool(); normalPrepareReply = null;  
                 } /* B5A */ 
-                normalPrepareReply = null;    //@P0A
                 try
                 {
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A @F10C
@@ -1655,15 +1664,13 @@ implements Statement
 
                     commonPrepareBefore (sqlStatement, request);
                     if (execImmediateReply != null) { 
-                    	execImmediateReply.returnToPool();
-                    	execImmediateReply = null; 
+                    	execImmediateReply.returnToPool();execImmediateReply = null; 
                     }
                     if (connectReply != null) { 
-                    	connectReply.returnToPool();
-                    	connectReply = null; 
+                    	connectReply.returnToPool();connectReply = null; 
                     }
 
-                    if (normalPrepareReply != null) normalPrepareReply.returnToPool(); 
+                    if (normalPrepareReply != null) { normalPrepareReply.returnToPool(); normalPrepareReply=null; }
                     normalPrepareReply = connection_.sendAndReceive (request, id_);    //@P0C
 
                     int errorClass = normalPrepareReply.getErrorClass();
@@ -1703,7 +1710,9 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.returnToPool();    //@P0A
+                    if(request != null) {
+                    		request.returnToPool();  request=null; 
+                    }
                     if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; }   //@B5A
                 }
 
@@ -2999,7 +3008,7 @@ implements Statement
                         }    //@KBA
                     }
 
-                    if (getMoreResultsReply != null) getMoreResultsReply.returnToPool(); 
+                    if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply=null; }
                     getMoreResultsReply = connection_.sendAndReceive (request, id_);    //@P0C
 
                     // Gather information from the reply.
@@ -3056,7 +3065,9 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) request.returnToPool();    //@P0A
+                    if(request != null)  { 
+                    	request.returnToPool();    request = null; 
+                    }
                     if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }  
                 }
             }
@@ -3872,7 +3883,9 @@ implements Statement
             }
             finally
             {    //@P0A
-                if(request != null) request.returnToPool();    //@P0A
+                if(request != null) { 
+                	request.returnToPool();   request = null;
+                }
             }
 
             rpbCreated_ = true;

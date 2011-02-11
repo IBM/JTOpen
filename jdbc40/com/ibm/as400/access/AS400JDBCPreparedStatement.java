@@ -461,7 +461,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 dummyPrint.print("!!!changeDescriptor.inUser_(false): request2-id=" +  request2.hashCode());
                 dummyPrint.flush();
             }
-            if(request2 != null) request2.returnToPool(); //@P0C
+            if(request2 != null) { request2.returnToPool(); request2= null; } //@P0C
         }
     }
 
@@ -542,7 +542,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 { //@P0C
                     if(isjvm16Synchronizer)
                         dummyPrint.print("!!!close.inUser_(false): request-id=" +  request.hashCode());
-                    if(request != null) request.returnToPool(); //@P0C
+                    if(request != null) { request.returnToPool();  request = null; } //@P0C
                 }
 
                 descriptorHandle_ = 0;

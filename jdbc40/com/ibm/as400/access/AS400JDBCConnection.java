@@ -333,12 +333,10 @@ implements Connection
                     finally
                     {
                         if (request != null) {
-                        	request.returnToPool();
-                        	request = null; 
+                        	request.returnToPool();	request = null; 
                         }
                         if (cancelReply != null) {
-                        	cancelReply.returnToPool();
-                        	cancelReply = null; 
+                        	cancelReply.returnToPool(); cancelReply = null; 
                         }
                     }
                 }
@@ -3054,9 +3052,12 @@ implements Connection
             JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
         } finally
         {
-            if (request != null) 
-                request.returnToPool();
-            if (reply != null) reply.returnToPool(); // Can return -- only errorClass accessed 
+            if (request != null)  { 
+            	request.returnToPool(); request=null; 
+            }
+            if (reply != null) {
+            	reply.returnToPool(); reply = null; // Can return -- only errorClass accessed 
+            }
         }
        
         concurrentAccessResolution_ = concurrentAccessResolution;
@@ -3099,8 +3100,8 @@ implements Connection
             }   
             finally
             {
-                if (request != null) request.returnToPool();
-                if (reply != null) reply.returnToPool(); // Return to pool since only errorClass accessed
+                if (request != null) { request.returnToPool(); request = null; }
+                if (reply != null) { reply.returnToPool(); reply = null; } // Return to pool since only errorClass accessed
             }
         }
     }
@@ -4127,8 +4128,7 @@ implements Connection
             finally
             {
                 if (request != null) { 
-                	request.returnToPool();
-                	request = null; 
+                	request.returnToPool(); request = null; 
                 }
                 // We cannot return the reply to the pool while it is still being used in the serverAttributes structure 
                 // if (reply != null) reply.returnToPool();
@@ -4331,7 +4331,7 @@ implements Connection
         {
         	// Don't return the reply to the pool until the very end,
         	// as it is used by the DBReplyServerAttributes object 
-            if (reply != null) reply.returnToPool();
+            if (reply != null) { reply.returnToPool(); reply = null; }
         }
     }
 
@@ -4553,10 +4553,10 @@ implements Connection
         finally
         { 
             if (request != null) {
-                   request.returnToPool(); 
+                   request.returnToPool(); request = null; 
             } 
             if (reply != null) {
-                   reply.returnToPool();   // commented out code 
+                   reply.returnToPool();  reply = null;   // commented out code 
             }
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Connection.isValid call complete");
@@ -4723,10 +4723,12 @@ implements Connection
  endif */ 
         } finally
         {
-            if (request != null)
-                request.returnToPool();
-            if (setClientInfoReply != null)
-            	setClientInfoReply.returnToPool(); // only error class used 
+            if (request != null) {
+                request.returnToPool(); request = null; 
+            }
+            if (setClientInfoReply != null) {
+            	setClientInfoReply.returnToPool(); setClientInfoReply = null; // only error class used 
+            }
         }
     }
 
@@ -4855,9 +4857,12 @@ implements Connection
  endif */ 
         } finally
         {
-            if (request != null)
-                request.returnToPool();
-            if (setClientInfoReply != null) 	setClientInfoReply.returnToPool(); // only error class used  
+            if (request != null) { 
+                request.returnToPool(); request = null; 
+            }
+            if (setClientInfoReply != null)  {
+            	setClientInfoReply.returnToPool(); setClientInfoReply=null; // only error class used  
+            }
         }
         
     }
