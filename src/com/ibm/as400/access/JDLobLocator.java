@@ -125,8 +125,8 @@ class JDLobLocator
         }
         finally
         {
-          if (request != null) request.returnToPool();
-          if (getLengthReply != null) getLengthReply.returnToPool(); // Note:  No portion of this reply is cached, so it can be returned to the pool
+          if (request != null) { request.returnToPool(); request =null; } 
+          if (getLengthReply != null) { getLengthReply.returnToPool(); getLengthReply=null; } // Note:  No portion of this reply is cached, so it can be returned to the pool
           
         }                                                                                     
       }
@@ -195,7 +195,7 @@ Retrieves part of the contents of the lob.
                                  " dataCompression: " + dataCompression_ + " columnIndex: " + columnIndex_);
         }
 
-        if (retrieveDataReply != null) retrieveDataReply.returnToPool(); 
+        if (retrieveDataReply != null) { retrieveDataReply.returnToPool(); retrieveDataReply=null; } 
         retrieveDataReply = connection_.sendAndReceive(request, id_);
         int errorClass = retrieveDataReply.getErrorClass();
         int returnCode = retrieveDataReply.getReturnCode();
@@ -215,9 +215,9 @@ Retrieves part of the contents of the lob.
       }
       finally
       {
-        if (request != null) request.returnToPool();
+        if (request != null) { request.returnToPool(); request =null; } 
         // Cannot return this to the pool because the data_ array is now part of lobData
-        // if (retrieveDataReply != null) retrieveDataReply.returnToPool();
+        // if (retrieveDataReply != null) { retrieveDataReply.returnToPool(); retrieveDataReply = null; } 
       }
     }
     catch (DBDataStreamException e)
@@ -328,9 +328,9 @@ Writes part of the contents of the lob.
       }
       finally
       {
-        if (request != null) request.returnToPool();
+        if (request != null) { request.returnToPool(); request =null; } 
         // Can be returned immediately 
-        if (writeDataReply != null) writeDataReply.returnToPool();
+        if (writeDataReply != null) { writeDataReply.returnToPool(); writeDataReply= null; } 
       }
     }
     catch (DBDataStreamException e)
@@ -388,8 +388,7 @@ Writes part of the contents of the lob.
           
           // In free, if the retrieveDataReply is set, then return it to the pool 
           if (retrieveDataReply != null) { 
-        	  	retrieveDataReply.returnToPool();
-        	  	retrieveDataReply = null; 
+        	  	retrieveDataReply.returnToPool();retrieveDataReply = null; 
           }
 
           
@@ -399,9 +398,10 @@ Writes part of the contents of the lob.
           JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
       }finally
       {
-          if (request != null)
-              request.returnToPool();
-          if (freeReply != null) freeReply.returnToPool();
+          if (request != null) { 
+              request.returnToPool(); request =null; 
+          }
+          if (freeReply != null) { freeReply.returnToPool(); freeReply = null; } 
       }   
   }
   
@@ -409,8 +409,7 @@ Writes part of the contents of the lob.
   protected void finalize() throws Throwable {
 		super.finalize();
         if (retrieveDataReply != null) { 
-    	  	retrieveDataReply.returnToPool();
-    	  	retrieveDataReply = null; 
+    	  	retrieveDataReply.returnToPool();retrieveDataReply = null; 
       }
 		
 		

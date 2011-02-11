@@ -172,8 +172,8 @@ Commit the current transaction.
       }
       finally
       {
-        if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool(); // Only errorClass used from reply 
+        if (request != null) { request.returnToPool(); request =null; } 
+        if (reply != null) { reply.returnToPool(); reply = null; } // Only errorClass used from reply 
       }
 
     }
@@ -448,8 +448,8 @@ enabled, then do nothing.
       }
       finally
       {
-        if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool(); // Only errorClass used from reply 
+        if (request != null) { request.returnToPool(); request =null; } 
+        if (reply != null) { reply.returnToPool(); reply = null; } // Only errorClass used from reply 
       }
     }
     catch (DBDataStreamException e)
@@ -545,8 +545,8 @@ Set the auto-commit mode.
               if(errorClass != 0 && changed) {
             	  // Try again for the case where the server does not support the change
             	  serverAllowsLocatorPersistenceChange_ = false; 
-            	  request.returnToPool(); 
-            	  reply.returnToPool(); 
+            	  request.returnToPool(); request =null; 
+            	  reply.returnToPool(); reply = null; 
                   request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                           id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                           + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
@@ -574,8 +574,8 @@ Set the auto-commit mode.
           }                                                                                   //@KBA
           finally                                                                             //@KBA
           {                                                                                   //@KBA
-              if (request != null) request.returnToPool();                                    //@KBA
-              if (reply != null) reply.returnToPool(); // Only errorClass used from reply     //@KBA
+              if (request != null) { request.returnToPool();  request =null;}                 //@KBA
+              if (reply != null) { reply.returnToPool(); reply = null; }                      //@KBA
           }                                                                                   //@KBA
       }                                                                                       //@KBA
     }                                                                       // @C4A
@@ -682,8 +682,8 @@ Set the commit mode on the system.
         }
         finally
         {
-          if (request != null) request.returnToPool();
-          if (reply != null) reply.returnToPool(); // Only errorClass Used from reply 
+          if (request != null) { request.returnToPool(); request = null; } 
+          if (reply != null) { reply.returnToPool(); reply = null; } // Only errorClass Used from reply 
         }
       }
       catch (DBDataStreamException e)
@@ -767,8 +767,8 @@ java.sql.Connection.TRANSACTION_* values.
                   if (errorClass != 0 && changed) {
                 	  // Retry request if this fails. 
                 	  serverAllowsLocatorPersistenceChange_ = false; 
-                	  request.returnToPool(); 
-                	  reply.returnToPool();
+                	  request.returnToPool(); request =null; 
+                	  reply.returnToPool(); reply =null; 
                       request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                               id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                               + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
@@ -789,8 +789,8 @@ java.sql.Connection.TRANSACTION_* values.
           }                                                                                   //@KBA
           finally                                                                             //@KBA
           {                                                                                   //@KBA
-              if (request != null) request.returnToPool();                                    //@KBA
-              if (reply != null) reply.returnToPool();  // Only errorClass used from reply    //@KBA
+              if (request != null) { request.returnToPool(); request = null; }                //@KBA
+              if (reply != null) { reply.returnToPool(); reply = null; }                      //@KBA
           }                                                                                   //@KBA
           serverCommitMode_ = commitMode;                                            //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
     }                                                                                         //@KBA
@@ -846,8 +846,8 @@ can not be called directly on this object.
               if (errorClass != 0 && changed) {
             	  // Retry request if this fails. 
             	  serverAllowsLocatorPersistenceChange_ = false; 
-            	  request.returnToPool(); 
-            	  reply.returnToPool(); 
+            	  request.returnToPool(); request = null; 
+            	  reply.returnToPool();   reply =null; 
             	  
                   request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                           id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
@@ -874,8 +874,8 @@ can not be called directly on this object.
           }                                                                                   
           finally                                                                             
           {                                                                                   
-              if (request != null) request.returnToPool();                                    
-              if (reply != null) reply.returnToPool(); // Only errorClass used from reply                                         
+              if (request != null) { request.returnToPool(); request = null; }                                     
+              if (reply != null) { reply.returnToPool(); reply = null; } // Only errorClass used from reply                                         
           }                                                                                     
       }
 
@@ -907,8 +907,8 @@ can not be called directly on this object.
               if (errorClass != 0 && changed) {
             	  // Retry request if this fails. 
             	  serverAllowsLocatorPersistenceChange_ = false; 
-            	  request.returnToPool(); 
-            	  reply.returnToPool(); 
+            	  request.returnToPool(); request = null; 
+            	  reply.returnToPool(); reply = null; 
                   request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                           id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                           + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
@@ -930,8 +930,8 @@ can not be called directly on this object.
           }                                                                                   //@KBA
           finally                                                                             //@KBA
           {                                                                                   //@KBA
-              if (request != null) request.returnToPool();                                    //@KBA
-              if (reply != null) reply.returnToPool();    // Only errorClass used from reply  //@KBA
+              if (request != null) { request.returnToPool();  request = null; }               //@KBA
+              if (reply != null) { reply.returnToPool(); reply = null; }                      //@KBA
           }                                                                                   //@KBA
             serverCommitMode_ = currentCommitMode_;                                             //@KBA
       }

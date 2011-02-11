@@ -856,7 +856,7 @@ four bytes, and sixteen bytes per line.
   {
     //@P0D freeCommunicationsBuffer();
     if (storage_ != null) {
-    	   storage_.returnToPool(); //@P0A
+    	   storage_.returnToPool(); /* storage_ = null; */ //@P0A 
     }
     data_ = null; //@P0A
     super.finalize();
@@ -1004,7 +1004,7 @@ Overrides the superclass to write the datastream.
         }
         finally //@P0A
         {
-              secondaryStorage.returnToPool(); //@P0A
+              secondaryStorage.returnToPool(); secondaryStorage = null; //@P0A
         }
       }                                                                                   // @E3A
       else

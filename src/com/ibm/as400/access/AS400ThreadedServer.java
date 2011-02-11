@@ -65,7 +65,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
             if (discardList_.remove(id))
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ReplyList: Discarded datastream:", id);
-                ClassDecoupler.freeDBReplyStream(ds);
+                ClassDecoupler.freeDBReplyStream(ds); ds = null; 
                 return;
             }
             int hash = ds.getCorrelation() % 16;
@@ -128,7 +128,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         {
           discardList_ = discardList;
         }
-    };
+    }
 
     private final DiscardList discardList_ = new DiscardList();
 
@@ -144,7 +144,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
             if (ds != null)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DiscardList: Discarded datastream:", correlation);
-                ClassDecoupler.freeDBReplyStream(ds);
+                ClassDecoupler.freeDBReplyStream(ds); ds = null; 
                 return;
             }
             synchronized (idsLock_)

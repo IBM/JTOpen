@@ -333,7 +333,7 @@ Fetches a block of data from the system.
         if (JDTrace.isTraceOn ())
           JDTrace.logInformation (connection_, "Fetching a block of data from the system");
 
-        if (fetchReply != null) fetchReply.returnToPool(); 
+        if (fetchReply != null) { fetchReply.returnToPool(); fetchReply = null; } 
         fetchReply = connection_.sendAndReceive (request, id_); //@P0C
 
         int errorClass = fetchReply.getErrorClass();
@@ -382,8 +382,8 @@ Fetches a block of data from the system.
       }
       finally
       {
-        if (request != null) request.returnToPool();
-        // if (fetchReply != null) fetchReply.returnToPool();
+        if (request != null) { request.returnToPool(); request =null; } 
+        // if (fetchReply != null) { fetchReply.returnToPool(); fetchReply = null; } 
       }
     }
     catch (DBDataStreamException e)
@@ -439,8 +439,7 @@ Sets the fetch size.
     
       // Make sure reply is returned to pool 
       if (fetchReply != null) {
-        fetchReply.returnToPool(); 
-        fetchReply = null; 
+        fetchReply.returnToPool();  fetchReply = null; 
       }
   }
 
@@ -942,6 +941,6 @@ Sets the fetch size.
   
   protected void finalize() throws Throwable {
 		super.finalize();
-        if (fetchReply != null) fetchReply.returnToPool(); 
+        if (fetchReply != null) { fetchReply.returnToPool(); fetchReply=null; } 
   }
 }

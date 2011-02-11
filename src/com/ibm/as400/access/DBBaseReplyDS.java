@@ -222,7 +222,7 @@ extends ClientAccessDataStream
 
 
   // Don't pool this objects, but rely on the pooling of DBReplayRequestedDS objects 
-  DBStorage storage_ = DBDSPool.storagePool_.getUnpooledStorage(); //@P0A
+  DBStorage storage_ = DBDSPool.storagePool_.getUnpooledStorage(); //@P0A @B5C
   private boolean inPool_ = false;                                       // Is this reply part of a pool? @B5A
   
   private int holdable = -1;      //@cur
@@ -940,6 +940,8 @@ Parses the datastream.
 	  super.returnToPool();
 	  // In this is not in the pool, go ahead and free the storage
 	  if (!inPool_) {
+		    // Note:  storage_ was allocated using getUnpooledStorage. 
+		    //        We do not need to return it to the pool. 
 		    // if (storage_ != null) {
 		    // 	   storage_.returnToPool(); 
 		    // }
@@ -953,6 +955,8 @@ Parses the datastream.
   synchronized protected void finalize()
   throws Throwable
   {
+    // Note:  storage_ was allocated using getUnpooledStorage. 
+    //        We do not need to return it to the pool. 
     // if (storage_ != null) {
     // 	   storage_.returnToPool(); 
     // }

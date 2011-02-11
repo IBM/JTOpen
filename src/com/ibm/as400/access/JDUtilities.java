@@ -259,9 +259,9 @@ for use in implementing various pieces of the JDBC driver.
             }
             finally
             {
-                if (request != null) request.returnToPool();
+                if (request != null) { request.returnToPool(); request = null; } 
                 // Cannot close this reply.  Pass to AS400JDBCResultSet to close
-                // if (reply != null) reply.returnToPool(); 
+                // if (reply != null) { reply.returnToPool(); reply = null; }  
             }
 
         } // End of try block

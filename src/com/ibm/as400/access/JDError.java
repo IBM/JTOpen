@@ -232,8 +232,8 @@ Returns the message text for the last operation on the IBM i system.
       }
       finally
       {
-        if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        if (request != null) { request.returnToPool(); request = null; } 
+        if (reply != null) { reply.returnToPool(); reply = null; } 
       }
     }
     catch (DBDataStreamException e)
@@ -289,8 +289,8 @@ Returns the SQL state for the last operation on the IBM i system.
       }
       finally
       {
-        if (request != null) request.returnToPool();
-        if (reply != null) reply.returnToPool();
+        if (request != null) { request.returnToPool(); request = null; } 
+        if (reply != null) { reply.returnToPool(); reply = null; } 
       }
     }
     catch (DBDataStreamException e)

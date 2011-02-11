@@ -162,8 +162,8 @@ class JDPackageManager
         }
         finally
         {
-          if (request != null) request.returnToPool();
-          if (reply != null) reply.returnToPool(); // only ErrorClass used from reply
+          if (request != null) { request.returnToPool(); request =null; } 
+          if (reply != null) { reply.returnToPool(); reply =null; } // only ErrorClass used from reply
         }
       }
       catch (DBDataStreamException e)
@@ -246,8 +246,8 @@ class JDPackageManager
         }
         finally
         {
-          if (request != null) request.returnToPool();
-          if (reply != null) reply.returnToPool(); // only errorClass used in reply 
+          if (request != null) { request.returnToPool(); request =null; } 
+          if (reply != null) { reply.returnToPool(); reply = null; } // only errorClass used in reply 
         }
       }
       catch (DBDataStreamException e)

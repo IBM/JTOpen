@@ -51,8 +51,7 @@ class ClientAccessDataStream extends DataStream
       if (readFromStream(is, data, 0, HEADER_LENGTH, connectionID) < HEADER_LENGTH)
       {
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the data stream header."); //@P0C
-        baseDataStream.returnToPool(); 
-        baseDataStream=null; 
+        baseDataStream.returnToPool();   baseDataStream=null; 
         throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
       }
       // int length2 = ((data[0] & 0xFF) << 24) + ((data[1] & 0xFF) << 16) + ((data[2] & 0xFF) << 8) + (data[3] & 0xFF); 
@@ -98,8 +97,7 @@ class ClientAccessDataStream extends DataStream
       	//}
 
       	
-        baseDataStream.returnToPool(); 
-        baseDataStream=null; 
+        baseDataStream.returnToPool();   baseDataStream=null; 
         
         is.skip(is.available());  // disregard the rest of this data stream
         
@@ -195,7 +193,7 @@ class ClientAccessDataStream extends DataStream
     finally
     {
     	if (baseDataStream != null) { 
-           baseDataStream.returnToPool();
+           baseDataStream.returnToPool();   baseDataStream = null; 
     	}
     }
   }

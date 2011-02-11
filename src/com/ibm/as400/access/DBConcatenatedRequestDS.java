@@ -116,7 +116,7 @@ Write the datastream.
         {
             synchronized(requests_[i]) {  // @A7A  
               requests_[i].write(concatenated);
-              requests_[i].returnToPool(); //@P1A
+              requests_[i].returnToPool();    requests_[i]=null; 
             }
         }
         requests_[countMinusOne_].write(concatenated); //@P1A - ...the caller will mark it free, we just write it.

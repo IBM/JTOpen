@@ -492,7 +492,7 @@ implements ResultSet
                 return;
 
             rowCache_.close ();
-            if (reply_ != null) reply_.returnToPool(); 
+            if (reply_ != null) { reply_.returnToPool(); reply_ = null; }
             closed_ = true;
             if(statement_ != null)
                 statement_.notifyClose ();

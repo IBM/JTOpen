@@ -122,12 +122,11 @@ Closes the cursor.
     }
     finally
     {
-      if (request != null && !keepDS) request.returnToPool(); //@P1C
+      if (request != null && !keepDS)  { request.returnToPool(); request = null; }  //@P1C
     }
 
     if (openReply != null) {
-      openReply.returnToPool(); 
-      openReply = null; 
+      openReply.returnToPool();  openReply = null; 
     }
     
     closed_ = true;
@@ -333,7 +332,7 @@ Opens the cursor and describes the data format.
                      request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@KBA        Option 2
                 }    //@KBA
 
-      if (openReply != null) openReply.returnToPool(); 
+      if (openReply != null) { openReply.returnToPool(); openReply =null; }  
       openReply = connection_.sendAndReceive (request, id_); //@P0C
 
       int errorClass = openReply.getErrorClass();
@@ -351,8 +350,8 @@ Opens the cursor and describes the data format.
       }
       finally
       {
-        if (request != null) request.returnToPool();
-        // if (openReply != null) openReply.returnToPool();
+        if (request != null) { request.returnToPool(); request = null; } 
+        // if (openReply != null) { openReply.returnToPool(); openReply = null; }
       }
     }
     catch (DBDataStreamException e)
