@@ -511,7 +511,7 @@ implements DatabaseMetaData
                     //--------------------------------------------------------
                     //  Send the request and cache all results from the system
                     //--------------------------------------------------------
-                    if (getBestRowIdentifierReply != null) getBestRowIdentifierReply.returnToPool();
+                    if (getBestRowIdentifierReply != null) { getBestRowIdentifierReply.returnToPool(); getBestRowIdentifierReply=null; } 
                     getBestRowIdentifierReply = connection_.sendAndReceive(request);
 
 
@@ -549,7 +549,7 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null; }
                     // Cannot return to pool yet because array in use by resultData.  Pased to result set to be closed there 
                     // if (getBestRowIdentifierReply != null) getBestRowIdentifierReply.returnToPool();
                 }
@@ -942,13 +942,13 @@ implements DatabaseMetaData
                     rowCache = new JDSimpleRowCache(formatRow);
             } catch (DBDataStreamException e)
             {
-            	if (reply != null) reply.returnToPool(); 
+            	if (reply != null) { reply.returnToPool(); reply = null; }
                 JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             }
             finally
             {
-                if (request != null) request.returnToPool();
-                // if (reply != null) reply.returnToPool();
+                if (request != null) { request.returnToPool(); request = null; }
+                // if (reply != null) { reply.returnToPool(); reply = null; }
             }
             // Return the results
             return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_, reply); //@in2
@@ -969,9 +969,14 @@ implements DatabaseMetaData
     @param  catalog         The catalog name. If null is specified, this parameter
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
-    @param  schemaPattern   The schema name pattern.  If null is specified,
-                            no value is sent to the system and the system
-                            default of *USRLIBL is used.  If empty string
+    @param  schemaPattern   The schema name pattern.  
+                            If the "metadata source" connection property is set to 0 
+                            and null is specified, no value is sent to the system and 
+                            the default of *USRLIBL is used.  
+                            If the "metadata source" connection property is set to 1
+                            and null is specified, then information from all schemas 
+                            will be returned. 
+                            If an empty string
                             is specified, an empty result set is returned.
     @param  tablePattern    The table name pattern. If null is specified,
                             no value is sent to the system and the system
@@ -1391,8 +1396,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null; } 
+                    // if (reply != null) {  reply.returnToPool(); reply = null; }
                 }
             }  // end of else blank
 
@@ -1400,7 +1405,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -1686,7 +1691,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) reply.returnToPool(); 
+                    	if (reply != null) { reply.returnToPool(); reply = null; } 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -1736,15 +1741,15 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null; }
+                    // if (reply != null) {  reply.returnToPool(); reply = null; }
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -2150,7 +2155,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) reply.returnToPool(); 
+                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2196,14 +2201,14 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null; }
+                    // if (reply != null) { reply.returnToPool(); reply = null; }
                 }
             }  
         }
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -2432,7 +2437,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) reply.returnToPool(); 
+                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2476,8 +2481,8 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null; }
+                    // if (reply != null) { reply.returnToPool(); reply = null; }
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -2714,7 +2719,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) reply.returnToPool(); 
+                    	if (reply != null) { reply.returnToPool();  reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2765,15 +2770,15 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null; }
+                    // if (reply != null) { reply.returnToPool(); reply = null; }
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -3307,7 +3312,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) reply.returnToPool(); 
+                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -3344,15 +3349,15 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request= null; } 
+                    // if (reply != null) { reply.returnToPool(); reply = null; }
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -3370,7 +3375,7 @@ endif */
     @param  catalog            The catalog name. If null is specified, this parameter
                                is ignored.  If empty string is specified,
                                an empty result set is returned.
-    @param  schemaPattern      The schema name pattern.  If null is specified,
+    @param  schemaPattern      The schema name pattern.   If null is specified,
                                it will not be included in the selection
                                criteria. If empty string
                                is specified, an empty result set is returned.
@@ -4121,9 +4126,14 @@ endif */
     @param  catalog             The catalog name. If null is specified, this parameter
                                 is ignored.  If empty string is specified,
                                 an empty result set is returned.
-    @param  schemaPattern       The schema name pattern. If null is specified,
-                                no value is sent to the system and the
-                                system default of *USRLIBL is used.
+    @param  schemaPattern       The schema name pattern. 
+                                If the "metadata source" connection property is set to 0 
+                                and null is specified, no value is sent to the system and 
+                                the default of *USRLIBL is used.  
+                                If the "metadata source" connection property is set to 1
+                                and null is specified, then information from all schemas 
+                                will be returned. 
+
                                 If empty string is specified, an empty
                                 result set is returned.
     @param  tablePattern        The table name. If null is specified,
@@ -4275,7 +4285,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) reply.returnToPool(); 
+                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -4312,15 +4322,15 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null;} 
+                    // if (reply != null) { reply.returnToPool(); reply = null; }
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -4337,9 +4347,13 @@ endif */
     @param  catalog        The catalog name. If null is specified, this parameter
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
-    @param  schemaPattern  The schema name pattern.  If null is specified,
-                           no value is sent to the system and the system
-                           default of *USRLIBL is used.  If empty string
+    @param  schemaPattern  The schema name pattern.  
+                           If the "metadata source" connection property is set to 0 
+                           and null is specified, no value is sent to the system and 
+                           the default of *USRLIBL is used.  
+                           If the "metadata source" connection property is set to 1
+                           and null is specified, then information from all schemas 
+                           will be returned.  If an empty string
                            is specified, an empty result set is returned.
     @param  tablePattern   The table name pattern. If null is specified,
                            no value is sent to the system and the system
@@ -4754,7 +4768,7 @@ endif */
                         if (errorClass != 0)
                         {
                             int returnCode = reply.getReturnCode();
-                        	if (reply != null) reply.returnToPool(); 
+                        	if (reply != null) { reply.returnToPool(); reply = null; }
                             JDError.throwSQLException (this, connection_, id_,
                                                        errorClass, returnCode);
                         }
@@ -4836,8 +4850,8 @@ endif */
                     }
                     finally
                     {
-                        if (request != null) request.returnToPool();
-                        // if (reply != null) reply.returnToPool();
+                        if (request != null) { request.returnToPool(); request = null; }
+                        // if (reply != null) { reply.returnToPool(); reply = null; }
                     }
                 } // End of if file attribute != -1
                 else
@@ -4851,7 +4865,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -5236,9 +5250,14 @@ endif */
     @param  catalog         The catalog name. If null is specified, this parameter
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
-    @param  schemaPattern   The schema name pattern.  If null is specified,
-                            no value is sent to the system and the system
-                            default of *USRLIBL is used.  If empty string
+    @param  schemaPattern   The schema name pattern.  
+                            If the "metadata source" connection property is set to 0 
+                            and null is specified, no value is sent to the system and 
+                            the default of *USRLIBL is used.  
+                            If the "metadata source" connection property is set to 1
+                            and null is specified, then information from all schemas 
+                            will be returned. 
+                            If an empty string
                             is specified, an empty result set is returned.
     @param  typeNamePattern The type name pattern. If null is specified,
                             no value is sent to the system and the system
@@ -5734,7 +5753,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) reply.returnToPool(); 
+                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -5773,15 +5792,15 @@ endif */
                 }
                 finally
                 {
-                    if (request != null) request.returnToPool();
-                    // if (reply != null) reply.returnToPool();
+                    if (request != null) { request.returnToPool(); request = null; }
+                    // if (reply != null) { reply.returnToPool(); reply = null; }
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) reply.returnToPool(); 
+        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
