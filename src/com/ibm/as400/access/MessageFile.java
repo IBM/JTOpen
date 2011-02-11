@@ -20,6 +20,10 @@ import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.DateFormat;                    //@C1A
+import java.text.ParseException;                //@C1A
+import java.text.SimpleDateFormat;              //@C1A
+import java.util.Date;                          //@C1A
 
 /**
  Represents a message file object on the system.  This class allows a user to get a message from a message file, returning an AS400Message object which contains the message.  The calling program can optionally supply substitution text for the message.
@@ -62,6 +66,12 @@ public class MessageFile implements Serializable
 {
     static final long serialVersionUID = 4L;
 
+    /**
+     * Date formatter to convert create & modification dates 
+     */
+    // @C1A
+    private static final DateFormat YYYYMMDD_FORMAT = new SimpleDateFormat("yyyyMMdd");
+    
     /**
      Constant indicating help text should not be formatted.
      **/
@@ -515,8 +525,11 @@ public class MessageFile implements Serializable
 
         if (substitutionText == null) substitutionText = new byte[0];
 
-        final byte[] NO = new byte[] { (byte)0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*NO" in EBCDIC
-        final byte[] YES = new byte[] { (byte)0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // *YES in EBCDIC
+        byte[] starNoBytes = new byte[] { 0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*NO       " (in EBCDIC)
+        byte[] starYesBytes = new byte[] { 0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*YES      " (in EBCDIC)
+
+        byte[] replace = (substitutionText.length == 0) ? starNoBytes : starYesBytes; // @C1A
+        byte[] format = (helpTextFormatting_ == 0) ? starNoBytes : starYesBytes; // @C1A
 
         // Setup program parameters.
         ProgramParameter[] parameters = new ProgramParameter[]
@@ -525,8 +538,8 @@ public class MessageFile implements Serializable
             new ProgramParameter(5120),
             // Length of message information, input, binary(4). (0x1400 == 5120)
             new ProgramParameter(new byte[] { 0x00, 0x00, 0x14, 0x00 } ),
-            // Format name, input, char(8), "RTVM0300" (in EBCDIC).
-            new ProgramParameter(new byte[] { (byte)0xD9, (byte)0xE3, (byte)0xE5, (byte)0xD4, (byte)0xF0, (byte)0xF3, (byte)0xF0, (byte)0xF0 } ),
+            // Format name, input, char(8), "RTVM0400" (in EBCDIC).  @C1C
+            new ProgramParameter(new byte[] { (byte)0xD9, (byte)0xE3, (byte)0xE5, (byte)0xD4, (byte)0xF0, (byte)0xF4, (byte)0xF0, (byte)0xF0 } ),
             // Message identifier, input, char(7).
             new ProgramParameter(idBytes),
             // Qualified message file name, input, char(20).
@@ -536,9 +549,9 @@ public class MessageFile implements Serializable
             // Length of replacement data, input, binary(4).
             new ProgramParameter(BinaryConverter.intToByteArray(substitutionText.length)),
             // Replace substitution values, input, char(10).
-            new ProgramParameter((substitutionText.length == 0) ? NO : YES),
+            new ProgramParameter(replace),
             // Return format control characters, input, char(10).
-            new ProgramParameter((helpTextFormatting_ == NO_FORMATTING) ? NO : YES),
+            new ProgramParameter(format),
             // Error code, I/0, char(*).
             new ProgramParameter(new byte[8]),
             // Retrieve option, input, char(10)
@@ -583,6 +596,19 @@ public class MessageFile implements Serializable
             msg = new AS400Message();
             msg.setID(ID);
             msg.setSeverity(BinaryConverter.byteArrayToInt(messageInformation, 8));
+
+            // extract, convert, & set the create and modification dates. @C1A
+            String _createDate = conv.byteArrayToString(messageInformation, 
+            		 		 200, 7, BidiStringType.DEFAULT);
+            String _modificationDate = conv.byteArrayToString(messageInformation, 
+            		 		 212, 7, BidiStringType.DEFAULT);
+            
+            Date createDate = convertDate(_createDate);
+            Date modificationDate = convertDate(_modificationDate);
+
+            msg.setCreateDate(createDate);
+            msg.setModificationDate(modificationDate);
+            
             int defaultReplyOffset = BinaryConverter.byteArrayToInt(messageInformation, 52);
             int defaultReplyLength = BinaryConverter.byteArrayToInt(messageInformation, 56);
             int messageOffset = BinaryConverter.byteArrayToInt(messageInformation, 64);
@@ -604,6 +630,27 @@ public class MessageFile implements Serializable
         return msg;
     }
 
+    /**
+     * Convert from CYYMMDD format to java date
+     * 
+     * @param input date in CYYMMDD format
+     * @return converted date
+     */
+    // @C1A
+    private Date convertDate(String input) {
+    		 Date output = null;
+    		 
+    		 String centuryAddedDate = (input.charAt(0) == '0' ? "19" : "20") + input.substring(1);
+    		 
+    		 try {
+		 		 		 output = YYYYMMDD_FORMAT.parse(centuryAddedDate);
+		 		 } catch (ParseException e) {
+		         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Invalid date " + input);
+		 		 		 throw new IllegalArgumentException(e.toString());
+		 		 }
+    		 
+    		 return output;
+    }
     /**
      Returns the system object representing the system on which the message file exists.
      @return  The system object representing the system on which the message file exists.  If the system has not been set, null is returned.

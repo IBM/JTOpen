@@ -17,6 +17,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Date;                   // @C1A
 
 /**
  Represents a message returned from an IBM i system.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
@@ -157,6 +158,12 @@ public class AS400Message implements Serializable
     // Flag indicating if load has been done.
     private transient boolean messageLoaded_ = false;
 
+    // date message was created @C1A
+    private Date createDate_ = null;
+    
+    // date message was last modified @C1A
+    private Date modificationDate_ = null;
+    
     // Constructs an AS400Message object.
     AS400Message()
     {
@@ -671,4 +678,44 @@ public class AS400Message implements Serializable
         }
         return buffer.toString().trim();
     }
+
+		 /**
+		  * Returns the messages create date
+		  * 
+		  * @return the createDate_
+		  */
+                 // @C1A
+		 public Date getCreateDate() {
+		 		 return createDate_;
+		 }
+
+		 /**
+		  * Sets the messages create date
+		  * 
+		  * @param createDate_ the createDate_ to set
+		  */
+                 // @C1A
+		 public void setCreateDate(Date createDate_) {
+		 		 this.createDate_ = createDate_;
+		 }
+
+		 /**
+		  * Returns the messages last modification date
+		  * 
+		  * @return the modificationDate_
+		  */
+                 // @C1A
+		 public Date getModificationDate() {
+		 		 return modificationDate_;
+		 }
+
+		 /**
+		  * Sets the messages last modification date
+		  * 
+		  * @param modificationDate_ the modificationDate_ to set
+		  */
+                 // @C1A
+		 public void setModificationDate(Date modificationDate_) {
+		 		 this.modificationDate_ = modificationDate_;
+		 }
 }
