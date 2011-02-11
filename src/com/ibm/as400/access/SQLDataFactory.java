@@ -620,6 +620,8 @@ class SQLDataFactory
                                                         0, 0) , connection.getVRM());   //@array   create SQLData array wrapper of actual datatype 
 
             case 2452: //@xml3 xml returned in bloblocator
+            case 988:  // the xml type will be seen when a parameter is retrieved from a cached package.  We'll change
+            	       // this to an SQLXML Locator 01/27/2010
                 if(ccsid == 65535)
                     xmlCharType = 2; //sb=0 or db=1 binary=2
                 return new SQLXMLLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex, xmlCharType); //@xml3
