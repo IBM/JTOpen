@@ -33,17 +33,23 @@ class ConverterImplRemote implements ConverterImpl
 
     String byteArrayToString(byte[] source)
     {
-        return byteArrayToString(source, 0, source.length, new BidiConversionProperties(getStringType(getCcsid())));
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid. @C5C
+        return byteArrayToString(source, 0, source.length, new BidiConversionProperties());
     }
 
     String byteArrayToString(byte[] source, int offset)
     {
-        return byteArrayToString(source, offset, source.length - offset, new BidiConversionProperties(getStringType(getCcsid())));
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid. @C5C
+        return byteArrayToString(source, offset, source.length - offset, new BidiConversionProperties());
     }
 
     public String byteArrayToString(byte[] source, int offset, int length)
     {
-        return byteArrayToString(source, offset, length, new BidiConversionProperties(getStringType(getCcsid())));
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid. @C5C
+        return byteArrayToString(source, offset, length, new BidiConversionProperties());
     }                                                                     
 
     public String byteArrayToString(byte[] source, int offset, int length, int type)
@@ -71,7 +77,8 @@ class ConverterImplRemote implements ConverterImpl
         return table_.getCcsid();
     }
 
-    // Returns the string type of the text based on the ccsid.  If the text is bidi, then the string type will be set accordingly.  If not, the default it LTR (left-to-right) text.
+    // Returns the string type of the text based on the ccsid.  If the text is bidi, then the string type will be set accordingly.  
+    // If not, the default it LTR (left-to-right) text.
     // @return  The string type.
     int getStringType(int ccsid)
     {
@@ -97,7 +104,9 @@ class ConverterImplRemote implements ConverterImpl
 
     public byte[] stringToByteArray(String source)
     {
-        return stringToByteArray(source, new BidiConversionProperties(getStringType(getCcsid())));
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid.  @C5C
+        return stringToByteArray(source, new BidiConversionProperties());
     }
 
     public byte[] stringToByteArray(String source, int type)
@@ -112,7 +121,9 @@ class ConverterImplRemote implements ConverterImpl
 
     void stringToByteArray(String source, byte[] destination) throws CharConversionException
     {
-        byte[] convertedBytes = stringToByteArray(source, new BidiConversionProperties(getStringType(getCcsid())));
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid.  @C5C
+        byte[] convertedBytes = stringToByteArray(source, new BidiConversionProperties());
         if (convertedBytes.length > destination.length)
         {
             // Copy as much as will fit.
@@ -125,7 +136,9 @@ class ConverterImplRemote implements ConverterImpl
 
     void stringToByteArray(String source, byte[] destination, int offset) throws CharConversionException
     {
-        byte[] convertedBytes = stringToByteArray(source, new BidiConversionProperties(getStringType(getCcsid())));
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid.  @C5C
+        byte[] convertedBytes = stringToByteArray(source, new BidiConversionProperties());
         if (convertedBytes.length > destination.length - offset)
         {
             // Copy as much as will fit.
@@ -144,7 +157,9 @@ class ConverterImplRemote implements ConverterImpl
     // @exception  CharConversionException  If destination is not large enough to hold the converted string.
     void stringToByteArray(String source, byte[] destination, int offset, int length) throws CharConversionException
     {
-        stringToByteArray(source, destination, offset, length, new BidiConversionProperties(getStringType(getCcsid())));
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid.  @C5C
+        stringToByteArray(source, destination, offset, length, new BidiConversionProperties());
     }
 
     // Converts the specified String into bytes.
