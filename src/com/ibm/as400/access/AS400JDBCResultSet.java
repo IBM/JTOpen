@@ -713,7 +713,11 @@ implements ResultSet
 
     // JDBC 2.0
     /**
-    Returns the result set type.
+    Returns the result set type.  If the statement requested a result set type 
+    ResultSet.TYPE_FORWARD_ONLY, then the result set type will be 
+    ResultSet.TYPE_FORWARD_ONLY.  Otherwise, the result set type may be a type
+    other than the requested type if the SQL statement that generated the 
+    result set specified a different cursor type when opening the cursor.  
     
     @return The result set type. Valid values are:
                                     <ul>
@@ -721,6 +725,7 @@ implements ResultSet
                                       <li>TYPE_SCROLL_INSENSITIVE
                                       <li>TYPE_SCROLL_SENSITIVE
                                     </ul>
+    
     
     
     @exception SQLException If the result set is not open.
@@ -733,7 +738,11 @@ implements ResultSet
         {                                            // @D1A
             checkOpen ();
 
-            //@cur return value from cursor attribues if exists else return value as done in pre 550                                                               
+            // Always return FORWARD_ONLY if the application requested forward only
+            // If this logic changes, also change the similar logic in AS400JDBCStatement. @C4A
+            if (type_ == ResultSet.TYPE_FORWARD_ONLY) return ResultSet.TYPE_FORWARD_ONLY; 
+            
+            //@cur return value from cursor attributes if exists else return value as done in pre 550                                                               
             if( statement_ != null )                                                     //@cur
             {                                                                            //@cur
                 if(statement_.cursor_.getCursorAttributeScrollable() == 0)               //@cur

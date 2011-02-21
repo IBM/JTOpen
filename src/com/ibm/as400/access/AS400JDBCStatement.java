@@ -1073,9 +1073,28 @@ implements Statement
                         if((isCall) && (numberOfResults_ > 0) && (resultSet_ == null))
                         {
                             boolean preV5R3 = connection_.getVRM() < JDUtilities.vrm530;
+                            
+                            // Change the result set type based on the current attributes
+                            // unless forward only cursors were requested.   This must
+                            // be kept in sync with similar code ins AS400JDBCResultSet
+                            // @C4A 
+                            int callResultSetType ;  
+                            if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY) {
+                            	// The user requested FORWARD_ONLY, so the result set will
+                            	// only be usable as forward only. 
+                            	callResultSetType = ResultSet.TYPE_FORWARD_ONLY; 
+                            } else if(cursor_.getCursorAttributeScrollable() == 0)             
+                                callResultSetType =  ResultSet.TYPE_FORWARD_ONLY;                               
+                            else if(cursor_.getCursorAttributeSensitive() == 0)          
+                                callResultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;                           
+                            else if(cursor_.getCursorAttributeSensitive() == 1)           
+                                callResultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;                            
+                            else                                                                   
+                            	callResultSetType = resultSetType_; 
+                            
                             JDServerRow row = new JDServerRow (
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
-                                                                                                      resultSetType_), settings_);          //@KBA
+                                                                                                      callResultSetType), settings_);          //@KBA
                             JDServerRowCache rowCache = new JDServerRowCache (row,
                                                                               connection_, id_, getBlockingFactor (sqlStatement,
                                                                                                                    row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
@@ -1092,7 +1111,7 @@ implements Statement
                             {                                                                                                       //@KBA
                                 resultSet_ = new AS400JDBCResultSet (this,                                                          //@KBA
                                                                  sqlStatement, rowCache, connection_.getCatalog(),                  //@KBA
-                                                                 cursor_.getName(), maxRows_, resultSetType_,                       //@KBA
+                                                                 cursor_.getName(), maxRows_, callResultSetType,                       //@KBA
                                                                  ResultSet.CONCUR_READ_ONLY, fetchDirection_,                       //@KBA
                                                                  fetchSize_);                                                       //@KBA
                             }
