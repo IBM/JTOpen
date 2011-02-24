@@ -3805,7 +3805,13 @@ implements Statement
     Sets the query timeout limit.  The query timeout limit
     is the number of seconds that the driver will wait for a
     SQL statement to execute.
-    Beginning with Version 6 Release 1 of IBM i, you must have *JOBCTL special authority.
+    
+    <p>This is implemented using the database query time limit, also 
+    known as QQRYTIMLMT.  This value specifies the query processing time limit that is 
+    compared to the estimated number of elapsed seconds that a query must run. The 
+    time limit determines if the database query can start.  
+    
+    <p> Beginning with Version 6 Release 1 of IBM i, you must have *JOBCTL special authority.
     
     @param  queryTimeout    The query timeout limit (in seconds)
                             or 0 for no limit.  The default is the job's query timeout limit
