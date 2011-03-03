@@ -98,7 +98,7 @@ implements Statement
     private     int                     fetchSize_;
     private     AS400JDBCResultSet      generatedKeys_;    // @G4A
     int                     id_;    // private protected
-    Object                  internalLock_;    // private protected    // @E6A
+    AS400JDBCStatementLock              internalLock_;    // private protected    // @E6A@C7C
     private     boolean                 lastPrepareContainsLocator_;    // @B2A
     private     int                     maxFieldSize_;
     private     int                     maxRows_;
@@ -189,7 +189,7 @@ implements Statement
         fetchDirection_         = ResultSet.FETCH_FORWARD;
         fetchSize_              = 0;
         id_                     = id;
-        internalLock_           = new Object();    // @E6A
+        internalLock_           = new AS400JDBCStatementLock();    // @E6A
         maxFieldSize_           = 0;
         maxRows_                = 0;
         numberOfResults_        = 0;
@@ -1073,9 +1073,28 @@ implements Statement
                         if((isCall) && (numberOfResults_ > 0) && (resultSet_ == null))
                         {
                             boolean preV5R3 = connection_.getVRM() < JDUtilities.vrm530;
+                            
+                            // Change the result set type based on the current attributes
+                            // unless forward only cursors were requested.   This must
+                            // be kept in sync with similar code ins AS400JDBCResultSet
+                            // @C4A 
+                            int callResultSetType ;  
+                            if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY) {
+                            	// The user requested FORWARD_ONLY, so the result set will
+                            	// only be usable as forward only. 
+                            	callResultSetType = ResultSet.TYPE_FORWARD_ONLY; 
+                            } else if(cursor_.getCursorAttributeScrollable() == 0)             
+                                callResultSetType =  ResultSet.TYPE_FORWARD_ONLY;                               
+                            else if(cursor_.getCursorAttributeSensitive() == 0)          
+                                callResultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;                           
+                            else if(cursor_.getCursorAttributeSensitive() == 1)           
+                                callResultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;                            
+                            else                                                                   
+                            	callResultSetType = resultSetType_; 
+                            
                             JDServerRow row = new JDServerRow (
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
-                                                                                                      resultSetType_), settings_);          //@KBA
+                                                                                                      callResultSetType), settings_);          //@KBA
                             JDServerRowCache rowCache = new JDServerRowCache (row,
                                                                               connection_, id_, getBlockingFactor (sqlStatement,
                                                                                                                    row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
@@ -1092,7 +1111,7 @@ implements Statement
                             {                                                                                                       //@KBA
                                 resultSet_ = new AS400JDBCResultSet (this,                                                          //@KBA
                                                                  sqlStatement, rowCache, connection_.getCatalog(),                  //@KBA
-                                                                 cursor_.getName(), maxRows_, resultSetType_,                       //@KBA
+                                                                 cursor_.getName(), maxRows_, callResultSetType,                       //@KBA
                                                                  ResultSet.CONCUR_READ_ONLY, fetchDirection_,                       //@KBA
                                                                  fetchSize_);                                                       //@KBA
                             }
@@ -3786,7 +3805,13 @@ implements Statement
     Sets the query timeout limit.  The query timeout limit
     is the number of seconds that the driver will wait for a
     SQL statement to execute.
-    Beginning with Version 6 Release 1 of IBM i, you must have *JOBCTL special authority.
+    
+    <p>This is implemented using the database query time limit, also 
+    known as QQRYTIMLMT.  This value specifies the query processing time limit that is 
+    compared to the estimated number of elapsed seconds that a query must run. The 
+    time limit determines if the database query can start.  
+    
+    <p> Beginning with Version 6 Release 1 of IBM i, you must have *JOBCTL special authority.
     
     @param  queryTimeout    The query timeout limit (in seconds)
                             or 0 for no limit.  The default is the job's query timeout limit

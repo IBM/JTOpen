@@ -205,7 +205,7 @@ implements ResultSet
     private PreparedStatement           deleteStatement_;
     private int                         fetchDirection_;
     private int                         fetchSize_;
-    private Object                      internalLock_;      // @D1A
+    private AS400JDBCStatementLock      internalLock_;      // @D1A @C7C
     private int                         maxRows_;
     private InputStream                 openInputStream_;
     private Reader                      openReader_;
@@ -272,7 +272,7 @@ implements ResultSet
         deleteStatement_        = null;
         fetchDirection_         = fetchDirection;
         fetchSize_              = fetchSize;
-        internalLock_           = (statement != null) ? statement.internalLock_ : new Object();  // @D1A
+        internalLock_           = (statement != null) ? statement.internalLock_ : new AS400JDBCStatementLock();  // @D1A
         maxRows_                = maxRows;
         openInputStream_        = null;
         openReader_             = null;

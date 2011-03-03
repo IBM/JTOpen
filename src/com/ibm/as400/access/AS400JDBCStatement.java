@@ -98,7 +98,7 @@ implements Statement
     private     int                     fetchSize_;
     private     AS400JDBCResultSet      generatedKeys_;    // @G4A
     int                     id_;    // private protected
-    Object                  internalLock_;    // private protected    // @E6A
+    AS400JDBCStatementLock              internalLock_;    // private protected    // @E6A@C7C
     private     boolean                 lastPrepareContainsLocator_;    // @B2A
     private     int                     maxFieldSize_;
     private     int                     maxRows_;
@@ -189,7 +189,7 @@ implements Statement
         fetchDirection_         = ResultSet.FETCH_FORWARD;
         fetchSize_              = 0;
         id_                     = id;
-        internalLock_           = new Object();    // @E6A
+        internalLock_           = new AS400JDBCStatementLock();    // @E6A
         maxFieldSize_           = 0;
         maxRows_                = 0;
         numberOfResults_        = 0;

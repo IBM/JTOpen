@@ -104,6 +104,10 @@ extends ToolboxWrapper
 endif */ 
 implements Connection
 {
+	
+    private class CancelLock extends Object {}          //@C7A
+    private class HeldRequestsLock extends Object {}          //@C7A
+
     // Turn this flag on to prevent this Connection object from establishing an actual connection to the IBM i system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
     // For production, this flag _must_ be set to 'false'.
     private static final boolean TESTING_THREAD_SAFETY = false;             //@CPMa
@@ -174,7 +178,7 @@ implements Connection
     private AS400                       as400PublicClassObj_; // Prevents garbage collection.
     //@P0D private BitSet                      assigned_;                      // @DAC
     private boolean                     cancelling_;                    // @E8A
-    private Object                      cancelLock_ = new Object();     // @E8A
+    private CancelLock                      cancelLock_ = new CancelLock();     // @E8A@C7C
     private String                      catalog_;
     boolean                     checkStatementHoldability_ = false;     // @F3A  //@XAC
     private boolean                     closing_;            // @D4A
@@ -187,7 +191,7 @@ implements Connection
     // @E2D private ConverterImplRemote          graphicConverter_;
     // @E2D private boolean                     graphicConverterLoaded_;
     private Vector                      heldRequests_;                                  // @E5A
-    private Object                      heldRequestsLock_           = new Object();     // @E5A
+    private HeldRequestsLock             heldRequestsLock_           = new HeldRequestsLock();     // @E5A@C7C
     private int                 holdability_  = AS400JDBCResultSet.HOLDABILITY_NOT_SPECIFIED; // @G4A
     private int                         id_;
     private AS400JDBCDatabaseMetaData   metaData_;

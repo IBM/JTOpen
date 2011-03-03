@@ -26,8 +26,9 @@ class ClientAccessDataStream extends DataStream
   protected static final int HEADER_LENGTH = 20;
 
   private static final CADSPool basePool_ = new CADSPool(); //@P0A - base datastream pool
+  private class InUseLock extends Object {}          //@C7A
 
-  private Object  inUseLock_ = new Object(); 
+  private InUseLock  inUseLock_ = new InUseLock(); 
   boolean inUse_; //@P0A
 
   // Note: The following method is called by AS400ThreadedServer and AS400NoThreadServer.

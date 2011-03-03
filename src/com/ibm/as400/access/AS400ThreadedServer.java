@@ -186,8 +186,11 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     }
 
     private int lastCorrelationId_ = 0;
-    private final Object correlationIdLock_ = new Object();
-    private final Object receiveLock_ = new Object();
+    private class CorrelationIdLock extends Object {}          //@C7A
+    private class ReceiveLock extends Object {}          //@C7A
+
+    private final CorrelationIdLock correlationIdLock_ = new CorrelationIdLock();
+    private final ReceiveLock receiveLock_ = new ReceiveLock();
 
     AS400ThreadedServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString) throws IOException
     {

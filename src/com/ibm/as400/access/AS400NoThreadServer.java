@@ -38,7 +38,9 @@ class AS400NoThreadServer extends AS400Server
     private Vector replyList_ = new Vector(5);
     private Vector discardList_ = new Vector();
     private int lastCorrelationId_ = 0;
-    private Object correlationIdLock_ = new Object();
+    private class CorrelationIdLock extends Object {}          //@C7A
+
+    private CorrelationIdLock correlationIdLock_ = new CorrelationIdLock(); //@C7C
 
     private boolean closed_ = false;
 
