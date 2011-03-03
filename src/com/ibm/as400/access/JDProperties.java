@@ -1359,7 +1359,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
-        defaults_[i]  = TRUE_;
+        defaults_[i]  = FALSE_; /* @C6A*/ 
         
         // Socket timeout  //@STIMEOUT
         i = SOCKET_TIMEOUT;
