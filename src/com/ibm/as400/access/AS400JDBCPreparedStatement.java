@@ -137,28 +137,89 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private static boolean isjvm16SynchronizerStatic;//@dmy
     
     static {
+    	// Changed 2/21/2011 to not use unless the JDBC.jvm16Synchronize property is true.  @C6A
+    	
+ /*  
+   Here is some information from service about this error. 
+
+Yes, this trace code was added for a very ugly issue that showed up when customers started moving to Java 6. 
+While trying to debug it, we found that the trace points ended up changing the behavior, so they were 
+altered to trace to a dummy stream so that it would workaround Sun's bug.  
+The CPS discussion item was 7LXN87. 
+
+Here's the contents of our KB doc on the issue:
+
+Abstract	
+A problem with the Sun HotSpot Server in the 1.6 JDK causes a variety of errors.
+
+Problem Summary:
+A problem was introduced into the version 1.6 JDK (Java Development Kit) and 
+JRE (Java Runtime Environment) from Sun.  The problem was introduced somewhere between
+ update number 7 and update 12, which can cause a number of problems.  Java version 1.6.0_7 works; 
+however, version 1.6.0_12 produces the errors.  The problem is specific to the HotSpot Server which is 
+something like an optimizing compiler that is designed to provide the best operating speed for long-running 
+applications similar to a Web server.  The problem seems to always manifest itself by 'removing' parameters 
+that had been bound to a statement.  However, it is not possible to know that this has occurred without 
+tracing the application.  The outward symptoms are exceptions which will vary depending on what data is 
+missing.  The common errors that have been reported are as follows:
+
+SQLException: Descriptor index not valid
+CPD4374  -  Field HVR000n and value N not compatible.    <-- where N might a variety of different numbers
+SQL0302  -  Conversion error on host variable or parameter *N.  <-- where n might a variety of different numbers
+SQL0406  -  Conversion error on assignment to column N.  <-- where N might a variety of different numbers
+
+Resolution:
+The problem has been reported to Sun; however, at this time, no fix is available from them.  
+We have found three ways to circumvent the problem:
+
+1.  Do not use JDK 1.6.
+2.	  Use JVM property -client (this turns off performance code in Sun Hotspot).
+3.  Use JVM property  -XX:CompileCommand=exclude,com/ibm/as400/access/AS400JDBCPreparedStatement,commonExecuteBefore (more selectively, turn off part of Hotspot).
+4.	 Use the latest version of jt400.jar (currently 6.6).  Additional trace points that were added while searching for the source of the problem appear to have changed the Hotspot behavior.
+
+
+
+Update 2/24/2011.  This was probably a problem with the buffer synchonization.  Before JTOpen 7.1, a flag 
+was set to indicate that a buffer was available.  This flag did not utilize any synchronization.  In JTOpen 7.1, 
+the buffer management code was restructure to used synchronzation. 
+
+A recreate for the original problem was found.  It failed using the JTOpen 6.4 jar.  We then used a jar
+with the change the set the default isjvm16SynchronizerStatic to false and set the default
+value of the property to false.  The problem did not occur with the jar file. 
+*/ 
+    	
+    	
+    	
         //Temporary fix for jvm 1.6 memroy stomp issue. (remove //@dmy code when jvm issue is resolved)
         //This fix will just trace a few extra traces to a dummy stream
         //if system property or jdbc property is set to false then extra trace is not executed
         //null value for system property means not specified...so true by default
         String jvm16Synchronize = SystemProperties.getProperty (SystemProperties.JDBC_JVM16_SYNCHRONIZE); //@dmy
-        isjvm16SynchronizerStatic = true;  //@dmy //true by default
-        if((jvm16Synchronize != null) && (Boolean.valueOf(jvm16Synchronize.trim()).booleanValue() == false)) 
+        isjvm16SynchronizerStatic = false;  //@dmy //false by default  @C6C
+        if((jvm16Synchronize != null) && (Boolean.valueOf(jvm16Synchronize.trim()).booleanValue() == true)) {
+            try{                                                    //@dmy
+                Class.forName("java.sql.SQLXML");                   //@dmy
+                isjvm16SynchronizerStatic = true;                        //@dmy
+            }catch(Exception e){                                    //@dmy
+                isjvm16SynchronizerStatic = false;                        //@dmy
+            }        	
+        
+        } else { 
         		   //@dmy    
             isjvm16SynchronizerStatic = false;  //@dmy
+        }
         
-        try{                                                    //@dmy
-            Class.forName("java.sql.SQLXML");                   //@dmy
-        }catch(Exception e){                                    //@dmy
-            isjvm16SynchronizerStatic = false;                        //@dmy
-        }        	
     }
+    // @C6C  -- Changed to remove the dummy PrimWriter.  The dummy PrintWriter uses a 
+    // 16k buffer of storage.  This causes storage problems when a lot of statements are 
+    // cached. Instead we'll use the write(byte[]) method instead of the buffered print writer
+    //                
     //@dmy private dummy outputstream
     OutputStream dummyOutputStream = new OutputStream() {
         int b1 = 0;
         public synchronized void write(int b) throws IOException {  b1 = b; }
+        	
     };
-    private PrintWriter dummyPrint = new PrintWriter(dummyOutputStream, true); //@dmy
     
     // Any method that can deal with extremely large data values must be prepared
     // to deal with them in blocks instead of as one giant unit.  This value is
@@ -214,8 +275,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         //if system property or jdbc property is set to false then extra trace is not executed
         //null value for system property means not specified...so true by default
         isjvm16Synchronizer = isjvm16SynchronizerStatic; 
-        if( !connection_.getProperties().getBoolean(JDProperties.JVM16_SYNCHRONIZE))    //@dmy    
-            isjvm16Synchronizer = false;  //@dmy
+        if( connection_.getProperties().getBoolean(JDProperties.JVM16_SYNCHRONIZE))    //@dmy    
+            isjvm16Synchronizer = true;  //@dmy@C6C
+
         
         batchExecute_               = false;                                        // @G9A
         outputParametersExpected_   = outputParametersExpected;
@@ -235,6 +297,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
         if(JDTrace.isTraceOn())
         {                                                  // @D1A @F2C
+        	JDTrace.logInformation (this, "isjvm16Synchronizer="+isjvm16Synchronizer);  // @C6A
             JDTrace.logInformation (this, "Preparing [" + sqlStatement_ + "]");     // @D1A
             if(useReturnValueParameter_)                                           // @F2A
                 JDTrace.logInformation(this, "Suppressing return value parameter (?=CALL)"); // @F2A
@@ -398,9 +461,13 @@ endif */
             parameterMarkerDataFormat.setConsistencyToken (1);
             parameterMarkerDataFormat.setRecordSize (parameterTotalSize_);
             
-            if(isjvm16Synchronizer)
-                dummyPrint.print("!!!changeDescriptor:  totalParameterLength_ = " + parameterTotalSize_);  //@dmy
-            
+            if(isjvm16Synchronizer) {
+            	try { 
+                dummyOutputStream.write(("!!!changeDescriptor:  totalParameterLength_ = " + parameterTotalSize_).getBytes());  //@dmy@C6C
+            	} catch (Exception e) { 
+            		
+            	}
+            } 
             
             for(int i = 0; i < parameterCount_; ++i)
             {
@@ -441,8 +508,13 @@ endif */
                                                          (short) sqlData.getScale());
                 parameterMarkerDataFormat.setFieldPrecision (i,
                                                              (short) sqlData.getPrecision());
-                if(isjvm16Synchronizer)
-                    dummyPrint.print("!!!changeDescriptor:  Parameter " + (i+1) + " length = " + parameterLengths_[i]);
+                if(isjvm16Synchronizer) {
+                	try { 
+                    dummyOutputStream.write(("!!!changeDescriptor:  Parameter " + (i+1) + " length = " + parameterLengths_[i]).getBytes()); //@C6C
+                	} catch (Exception e) { 
+                		
+                	}
+                }
             }
 
             connection_.send (request2, descriptorHandle_);
@@ -458,8 +530,11 @@ endif */
         { //@P0C
             
             if(isjvm16Synchronizer){
-                dummyPrint.print("!!!changeDescriptor.inUser_(false): request2-id=" +  request2.hashCode());
-                dummyPrint.flush();
+            	if (request2 != null) { 
+            		try { 
+                dummyOutputStream.write(("!!!changeDescriptor.inUser_(false): request2-id=" +  request2.hashCode()).getBytes()); //@C6C
+            		} catch (Exception e) {}; 
+            	}
             }
             if(request2 != null) { request2.returnToPool(); request2= null; } //@P0C
         }
@@ -540,8 +615,13 @@ endif */
                 }
                 finally
                 { //@P0C
-                    if(isjvm16Synchronizer)
-                        dummyPrint.print("!!!close.inUser_(false): request-id=" +  request.hashCode());
+                    if(isjvm16Synchronizer) {
+                    	try { 
+                        dummyOutputStream.write(("!!!close.inUser_(false): request-id=" +  request.hashCode()).getBytes()); // @C6C
+                    	} catch (Exception e) { 
+                    		
+                    	}
+                    }
                     if(request != null) { request.returnToPool();  request = null; } //@P0C
                 }
 
@@ -674,11 +754,20 @@ endif */
                         indicatorTotalSize_ += (arrayLen*2);//@array
                     }
                     
-                    if(isjvm16Synchronizer)
-                        dummyPrint.print("!!!commonExecuteBefore:  Parameter " + (i+1) + " length = " + parameterLengths_[i] );
+                    if(isjvm16Synchronizer) {
+                    try {
+                        dummyOutputStream.write(("!!!commonExecuteBefore:  Parameter " + (i+1) + " length = " + parameterLengths_[i] ).getBytes()); //@C6C
+						
+					} catch (Exception e) {
+					}	
+                    }
                 }
-                if(isjvm16Synchronizer)
-                    dummyPrint.print("!!!commonExecuteBefore:  totalParameterLength_ = " + parameterTotalSize_);
+                if(isjvm16Synchronizer) { 
+                    try {
+                    dummyOutputStream.write(("!!!commonExecuteBefore:  totalParameterLength_ = " + parameterTotalSize_).getBytes());  //@C6C
+					} catch (Exception e) {
+					}
+                }
                 changeDescriptor();
             }
 

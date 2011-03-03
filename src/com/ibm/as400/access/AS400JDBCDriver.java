@@ -126,6 +126,8 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @C3   20110122  Make sure returnToPool is associated with nulling object. (Not Marked)
 // @C4   20110217  Stored procedure scrollable cursor fixes. 
 // @C5   20110221  RLA Bidi Conversion
+// @C6   20110224  Change JVM16 synchronization to not be default behavior
+// @C7   20110303  Identify Generic Objects (replace with subclasses)
 //--------------------------------------------------------------------
 
 
