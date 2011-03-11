@@ -6,25 +6,16 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import java.sql.Connection;
-/* ifdef JDBC40 */
-import java.sql.DatabaseMetaData;
-/* endif */ 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-/* ifdef JDBC40 */
-import java.sql.Statement;
-/* endif */ 
-
 
 /**
 <p>The AS400JDBCResultSetMetaData class describes the
@@ -41,27 +32,24 @@ columns in a result set.
 //   data.  This is again because of the need to create this object
 //   before executing a query (via PreparedStatement.getMetaData()).
 //
-public class AS400JDBCResultSetMetaData
-/* ifdef JDBC40 */
-extends ToolboxWrapper
-/* endif */ 
+public class AS400JDBCResultSetMetaData extends ToolboxWrapper //@pdc jdbc40
 implements ResultSetMetaData
 {
-    static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private static final ints
     // Searchable constants 
     //@G1A @G2C
-    static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
-    static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our IBM i system
-    static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
-    static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
+    private static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
+    private static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our i5/OS system
+    private static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
+    private static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
 
     // Updateable constants
     //@G1A @G2C
-    static final int SQL_READ_ONLY          = 0xF0;  // isReadOnly = true, isWriteable = false
-    static final int SQL_WRITE_CAPABLE      = 0xF1;  // isReadOnly = false, isWriteable = true
-    static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our IBM i system
+    private static final int SQL_READ_ONLY          = 0xF0;  // isReadOnly = true, isWriteable = false
+    private static final int SQL_WRITE_CAPABLE      = 0xF1;  // isReadOnly = false, isWriteable = true
+    private static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our i5/OS system
 
     // Private data.
     private String              catalog_;
@@ -70,7 +58,6 @@ implements ResultSetMetaData
     private JDRow               row_;
     private DBExtendedColumnDescriptors extendedColumnDescriptors_;   //@G1A   
     private ConvTable           convTable_;                           //@G1A
-    private Connection          con_;                                 //@in1
 
     /**
     Constructs an AS400JDBCResultSetMetaData object.
@@ -86,8 +73,7 @@ implements ResultSetMetaData
                                 String cursorName,
                                 JDRow row,
                                 DBExtendedColumnDescriptors extendedColumnDescriptors,   //@G1A
-                                ConvTable convTable,                                     //@G1A
-                                Connection con)                                 //@in1
+                                ConvTable convTable)                                     //@G1A
     {
         catalog_        = catalog;
         concurrency_    = concurrency;
@@ -95,7 +81,6 @@ implements ResultSetMetaData
         row_            = row;
         extendedColumnDescriptors_ = extendedColumnDescriptors;                          //@G1A
         convTable_      = convTable;                                                     //@G1A
-        con_            = con;                                                           //@in1
     }                                                                                    
 
     /**
@@ -314,7 +299,7 @@ implements ResultSetMetaData
         if(extendedColumnDescriptors_ != null)                                  //@G1A
         {
             //@G1A
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA //@ss1
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
             if(dataFormat != null) //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
                 return dataFormat.getBaseTableSchemaName(convTable_);   //@G1A
         }                                                                        //@G1A
@@ -343,7 +328,7 @@ implements ResultSetMetaData
         // because we already have the information, we should return it to the user if they want it...
         if(extendedColumnDescriptors_ != null)
         {
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA //@ss1
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
             if(dataFormat != null)                                                                                      //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
                 return dataFormat.getBaseTableName(convTable_);                                                         //@KBA
             //@KBD return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableName(convTable_);       //K1C  use to call getBaseTableSchemaName
@@ -356,61 +341,16 @@ implements ResultSetMetaData
     /**
     Indicates if the column is automatically numbered.
     @param  columnIndex     The column index (1-based).
-    @return                 True if column is autoincrement, false otherwise.
+    @return                 Always false.  DB2 for i5/OS
+                            does not support automatically
+                            numbered columns.
     @exception  SQLException    If the column index is not valid.
-    Note:  connection property "extended metadata" must be true for this method to be return accurate information. 
-    If the "extended metadata" connection property is not set to true, then this method will always return false.
     **/
     public boolean isAutoIncrement(int columnIndex)
     throws SQLException
     {
         checkIndex(columnIndex);
-        
-        // Only run the query to get the information if the table name can be found.  The table name
-        // can only be found if "extended metadata" == true
-        // @A9A
-        
-        String tableName = this.getTableName(columnIndex); 
-        if ((tableName == null) || (tableName.length() == 0) ) {
-         	return false; 
-        }
-        
-        //return false; //@in1 add implementation instead of always returning false
-
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try
-        {
-            ps = con_.prepareStatement("SELECT identity_generation " +
-                    "FROM QSYS2" + getCatalogSeparator() + "SYSCOLUMNS" +
-                    " WHERE identity_generation is not null" +
-                    " AND column_name = ?" +
-                    " AND table_name = ?" +
-                    " AND table_schema = ?");
-            ps.setString(1, this.getColumnName(columnIndex));
-            ps.setString(2, tableName);
-            ps.setString(3, this.getSchemaName(columnIndex));
-
-            rs = ps.executeQuery();
-            if ( rs.next()) 
-                return true;
-            else
-                return false;
-
-        }
-        catch (SQLException e)
-        {
-            throw e;
-        }
-        finally
-        {
-            try{
-            if(rs != null)
-                rs.close();   
-            }catch(Exception e){} //allow next close to execute
-            if(ps != null)
-                ps.close();   
-        }
+        return false;
     }
 
     /**
@@ -425,7 +365,7 @@ implements ResultSetMetaData
     {
         checkIndex(columnIndex);
 
-        // In DB2 for IBM i, all text types
+        // In DB2 for i5/OS, all text types
         // are case sensitive.
         return row_.getSQLType(columnIndex).isText();
     }
@@ -433,7 +373,7 @@ implements ResultSetMetaData
     /**
     Indicates if the column is a currency value.
     @param  columnIndex     The column index (1-based).
-    @return                 Always false.  DB2 for IBM i
+    @return                 Always false.  DB2 for i5/OS
                             does not directly support currency
                             values.
     @exception  SQLException    If the column index is not valid.
@@ -488,7 +428,7 @@ implements ResultSetMetaData
         checkIndex(columnIndex);
 
         // @G1A If we have column descriptors, use them to get searchable label.              //@G1A
-        if(extendedColumnDescriptors_ != null)// && concurrency_ != ResultSet.CONCUR_READ_ONLY) //@G1A @G3C @36072
+        if(extendedColumnDescriptors_ != null && concurrency_ != ResultSet.CONCUR_READ_ONLY) //@G1A @G3C
         {
             //@G1A
             if(extendedColumnDescriptors_.getUpdateable(columnIndex) == (byte)SQL_READ_ONLY) //@G1A @G2C
@@ -571,33 +511,10 @@ implements ResultSetMetaData
         return cursorName_;
     }
     
-    
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCResultSetMetaData", "java.sql.ResultSetMetaData" };
     } 
-         
-    //@in1 (copied from AS400JDBCDatabaseMetadata)
-    /**
-    Returns the naming convention used when referring to tables.
-    This depends on the naming convention specified in the connection
-    properties.
-    
-    @return     If using SQL naming convention, "." is returned. If
-                using system naming convention, "/" is returned.
-    
-    @exception  SQLException    This exception is never thrown.
-    **/
-    private String getCatalogSeparator ()
-    throws SQLException
-    {
-        String catalogSeparator;
-        if (((AS400JDBCConnection)con_).getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))
-            catalogSeparator = ".";
-        else
-            catalogSeparator = "/";
 
-        return catalogSeparator;
-    }
 }

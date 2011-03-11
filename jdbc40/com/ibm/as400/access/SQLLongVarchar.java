@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,18 +19,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -38,7 +33,7 @@ import java.util.Calendar;
 final class SQLLongVarchar
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -60,7 +55,7 @@ implements SQLData
 
     public Object clone()
     {
-        return new SQLLongVarchar(maxLength_, settings_); //@pdc
+        return new SQLVarchar(maxLength_, settings_);
     }
 
     // @A2A
@@ -89,11 +84,7 @@ implements SQLData
         bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
-        try{
-            value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidStringType
-        }catch(Exception e){
-            JDError.throwSQLException(JDError.EXC_CHAR_CONVERSION_INVALID, e);
-        }
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidStringType
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -129,7 +120,7 @@ implements SQLData
             // actual length is less that field length.  Note the 0s are written only if 
             // the field length is pretty big.  The data stream code (DBBaseRequestDS)
             // does not compress anything smaller than 1K.
-            if(  (maxLength_ - temp.length > 16)) //@rle
+            if((maxLength_ > 256) && (maxLength_ - temp.length > 16))
             {
                 int stopHere = offset + 2 + maxLength_;
                 for(int i=offset + 2 + temp.length; i<stopHere; i++)
@@ -182,15 +173,12 @@ implements SQLData
             Clob clob = (Clob)object;                                              // @C1C
             value = clob.getSubString(1, (int)clob.length());                      // @C1C  @D1
         }                                                                          // @C1C
-        
-/* ifdef JDBC40 */
         else if(object instanceof SQLXML) //@PDA jdbc40 
         {    
             SQLXML xml = (SQLXML)object;
             value = xml.getString();
         }     
-/* endif */ 
-        
+
         if(value == null)                                                          // @C1C
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         value_ = value;                                                            // @C1A
@@ -413,13 +401,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(value_.trim())).byteValue();  //@trunc
-            Double doubleValue  = new Double (value_.trim ());              //@trunc
-            double d = doubleValue.doubleValue();                           //@trunc
-            if(d > Byte.MAX_VALUE || d < Byte.MIN_VALUE)                    //@trunc
-                truncated_ = 1;                                             //@trunc
-            
-            return doubleValue.byteValue ();                                //@trunc
+            return(new Double(value_.trim())).byteValue();
         }
         catch(NumberFormatException e)
         {
@@ -466,11 +448,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLDate.stringToDate(value_, settings_, calendar);
     }
 
@@ -513,14 +490,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(value_.trim())).intValue();  //@trunc
-            Double doubleValue  = new Double (value_.trim ());     //@trunc
-            double d = doubleValue.doubleValue();                  //@trunc 
-
-            if( d > Integer.MAX_VALUE || d < Integer.MIN_VALUE)    //@trunc    
-                truncated_ = 1;                                    //@trunc
-                
-            return doubleValue.intValue ();                        //@trunc
+            return(new Double(value_.trim())).intValue();
         }
         catch(NumberFormatException e)
         {
@@ -536,14 +506,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(value_.trim())).longValue();  //@trunc
-            Double doubleValue  = new Double (value_.trim ()); //@trunc
-            double d = doubleValue.doubleValue();              //@trunc
-
-            if( d > Long.MAX_VALUE || d < Long.MIN_VALUE)      //@trunc
-                truncated_ = 1;                                //@trunc
-                
-            return doubleValue.longValue ();                   //@trunc
+            return(new Double(value_.trim())).longValue();
         }
         catch(NumberFormatException e)
         {
@@ -568,14 +531,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(value_.trim())).shortValue();            //@trunc
-            Double doubleValue  = new Double (value_.trim ());               //@trunc
-            double d = doubleValue.doubleValue();                            //@trunc
-
-            if( d > Short.MAX_VALUE || d < Short.MIN_VALUE)                  //@trunc      
-                truncated_ = 1;                                              //@trunc
-        
-            return doubleValue.shortValue ();                                //@trunc
+            return(new Double(value_.trim())).shortValue();
         }
         catch(NumberFormatException e)
         {
@@ -607,11 +563,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLTime.stringToTime(value_, settings_, calendar);
     }
 
@@ -619,11 +570,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLTimestamp.stringToTimestamp(value_, calendar);
     }
 
@@ -653,7 +599,6 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
@@ -663,7 +608,6 @@ implements SQLData
         String string = getNString();
         return new AS400JDBCNClob(string, maxLength_);
     }
-/* endif */ 
 
     //@pda jdbc40
     public String getNString() throws SQLException
@@ -683,23 +627,22 @@ implements SQLData
      
     }
 
-/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
-        
-        //truncated_ = 0;
-        //try
-        //{
-        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
-        //}
-        //catch(NumberFormatException nfe)
-        //{
+        /*
+        truncated_ = 0;
+        try
+        {
+            return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        }
+        catch(NumberFormatException nfe)
+        {
             // this string contains non-hex characters
-        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-        //    return null;
-        //}
-       
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
+        */
         //decided this is of no use
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
@@ -712,13 +655,6 @@ implements SQLData
         // handle truncating to the max field size if needed.
         truncated_ = 0;
         return new AS400JDBCSQLXML(getString().toCharArray());     
-    }
-/* endif */ 
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
     }
 }
 

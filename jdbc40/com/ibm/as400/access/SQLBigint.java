@@ -20,18 +20,13 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -39,7 +34,7 @@ import java.util.Calendar;
 final class SQLBigint
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private static final BigInteger LONG_MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
     private static final BigInteger LONG_MIN_VALUE = BigInteger.valueOf(Long.MIN_VALUE);
@@ -47,16 +42,10 @@ implements SQLData
     // Private data.
     private int  truncated_ = 0;
     private long value_     = 0;
-    private int vrm_;            //@trunc3
 
-    SQLBigint(int vrm)           //@trunc3
-    {                            //@trunc3
-        vrm_ = vrm;              //@trunc3
-    }                            //@trunc3
-    
     public Object clone()
     {
-        return new SQLBigint(vrm_);  //@trunc3
+        return new SQLBigint();
     }
 
     //---------------------------------------------------------//
@@ -108,11 +97,6 @@ implements SQLData
                     if((bigInteger.compareTo(LONG_MAX_VALUE) > 0) || (bigInteger.compareTo(LONG_MIN_VALUE) < 0))
                     {
                         truncated_ = bigInteger.toByteArray().length - 8;
-                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                        {                                                                    //@trunc3
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                        }                                                                    //@trunc3
                     }
                     value_ = bigInteger.longValue();
                 }
@@ -379,7 +363,7 @@ implements SQLData
     public float getFloat()
     throws SQLException
     {
-        if(value_ > Float.MAX_VALUE || value_ < -Float.MAX_VALUE)  //@trunc min_val is a positive number. //Float.MIN_VALUE)
+        if(value_ > Float.MAX_VALUE || value_ < Float.MIN_VALUE)
         {
             truncated_ = 4;
         }
@@ -479,19 +463,16 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;  //@pdc
-        return new StringReader(Long.toString(value_));  //@pdc
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
-        String string = Long.toString(value_);
-        return new AS400JDBCNClob(string, string.length());
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
-/* endif */ 
 
     //@pda jdbc40
     public String getNString() throws SQLException
@@ -501,24 +482,14 @@ implements SQLData
     }
 
     //@pda jdbc40
-/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
 
     //@pda jdbc40
-/* ifdef JDBC40 */
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

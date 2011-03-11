@@ -18,13 +18,11 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-/* endif */ 
 import java.sql.SQLException;
 
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 
 
 
@@ -36,14 +34,13 @@ import java.sql.SQLException;
  **/
 class JDSQLXMLProxy
 extends AbstractProxyImpl
-/* ifdef JDBC40 */
 implements SQLXML
-/* endif */ 
 {
+    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
     
     
     // Copied from JDError:
-    static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
+    private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
     
     public Reader getCharacterStream ()
     throws SQLException
@@ -114,7 +111,7 @@ implements SQLXML
         }
     }
     
-/* ifdef JDBC40 */
+    
     public <T extends Source> T getSource(Class<T> sourceClass) throws SQLException
     {
         try
@@ -130,7 +127,7 @@ implements SQLXML
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-/* endif */ 
+    
     
     public String getString() throws SQLException
     {
@@ -157,7 +154,7 @@ implements SQLXML
     }
     
     
-/* ifdef JDBC40 */
+    
     public <T extends Result> T setResult(Class<T> resultClass) throws SQLException
     {
         try
@@ -174,6 +171,6 @@ implements SQLXML
         }
     }
     
-/* endif */ 
+    
     
 }

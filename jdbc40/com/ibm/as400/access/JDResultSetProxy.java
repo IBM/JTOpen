@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,20 +23,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40 */
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -48,7 +42,7 @@ class JDResultSetProxy
 extends AbstractProxyImpl
 implements ResultSet
 {
-  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -1843,19 +1837,18 @@ implements ResultSet
     
     
     //@pda jdbc40
-     /**
-      * Retrieves the value of the designated column in the current row
-      * of this <code>ResultSet</code> object as a <code>NClob</code> object
-      * in the Java programming language.
-      *
-      * @param columnIndex the first column is 1, the second is 2, ...
-      * @return a <code>NClob</code> object representing the SQL 
-      *         <code>NCLOB</code> value in the specified column
-      * @exception SQLException if the driver does not support national
-      *         character sets;  if the driver can detect that a data conversion
-      *  error could occur; or if a database access error occurss
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return a <code>NClob</code> object representing the SQL 
+     *         <code>NCLOB</code> value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurss
+     */
     public NClob getNClob(int columnIndex) throws SQLException
     {
         try {
@@ -1870,28 +1863,25 @@ implements ResultSet
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-/* endif */ 
     
     
     //@pda jdbc40
-     /**
-      * Retrieves the value of the designated column in the current row
-      * of this <code>ResultSet</code> object as a <code>NClob</code> object
-      * in the Java programming language.
-      *
-      * @param columnName the name of the column from which to retrieve the value
-      * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
-      * value in the specified column
-      * @exception SQLException if the driver does not support national
-      *         character sets;  if the driver can detect that a data conversion
-      *  error could occur; or if a database access error occurs
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnName the name of the column from which to retrieve the value
+     * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
+     * value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
     public NClob getNClob(String columnName) throws SQLException
     {
         return getNClob (findColumn (columnName));
     }
-/* endif */ 
     
     
     //@pda jdbc40
@@ -1937,7 +1927,6 @@ implements ResultSet
     
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public RowId getRowId(int columnIndex) throws SQLException
     {
         try {
@@ -1975,14 +1964,13 @@ implements ResultSet
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-
+    
     //@pda jdbc40
     public SQLXML getSQLXML(String columnName) throws SQLException
     {
         return getSQLXML(findColumn (columnName));
     }
-/* endif */ 
-     
+    
     //@pda jdbc40
     public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
     {
@@ -2010,7 +1998,6 @@ implements ResultSet
     }
     
     //@PDA jdbc40
-/* ifdef JDBC40 */
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
     {
         callMethod ("updateNClob",
@@ -2025,7 +2012,6 @@ implements ResultSet
         updateNClob (findColumn (columnName), nClob);
         
     }
-/* endif */ 
     
     //@pda jdbc40
     public void updateNString(int columnIndex, String nString) throws SQLException
@@ -2042,7 +2028,6 @@ implements ResultSet
         updateNString (findColumn (columnName), nString);
     }
     
-/* ifdef JDBC40 */
     //@PDA jdbc40
     public void updateRowId(int columnIndex, RowId x) throws SQLException
     {
@@ -2073,13 +2058,11 @@ implements ResultSet
     {
         updateSQLXML(findColumn(columnName), xmlObject);
     }
-    
-/* endif */ 
-    
+     
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] {  "java.sql.ResultSet" }; //@pdc user cannot cast to AS400JDBCResultSet
+        return new String[] { "com.ibm.as400.access.AS400JDBCResultSet", "java.sql.ResultSet" };
     } 
     
     //@PDA jdbc40

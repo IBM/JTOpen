@@ -20,18 +20,13 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -39,29 +34,27 @@ import java.util.Calendar;
 final class SQLDate
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
-    private int			    dateFormat_;	// @550A
     private int                     truncated_;
     private int                     year_;
     private int                     month_;
     private int                     day_;
 
-    SQLDate(SQLConversionSettings settings, int dateFormat)
+    SQLDate(SQLConversionSettings settings)
     {
         settings_   = settings;
         truncated_  = 0;
         year_       = 0;
         month_      = 0;
         day_        = 0;
-        dateFormat_ = dateFormat;	// @550A
     }
 
     public Object clone()
     {
-        return new SQLDate(settings_, dateFormat_);	// @550C
+        return new SQLDate(settings_);
     }
 
     public static Date stringToDate(String s,
@@ -84,12 +77,8 @@ implements SQLData
             // Ignore.  This just means the value is not NULL.
         }
 
-        if(calendar == null) 
-        {
-            calendar = Calendar.getInstance(); //@P0A
-            calendar.setLenient(false); //@dat1
-        }
-        
+        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+
         try
         {
             // Parse the string according to the format and separator.
@@ -185,14 +174,7 @@ implements SQLData
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
         }
 
-        try //@dat1
-        {
-            return new Date(calendar.getTime().getTime());
-        }catch(Exception e){
-            if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing date "+s, e); //@dat1
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
-            return null; //@dat1
-        }
+        return new Date(calendar.getTime().getTime());
     }
 
     public static String dateToString(java.util.Date d,              // @F5C
@@ -288,9 +270,7 @@ implements SQLData
     public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-    	int connectionDateFormat = settings_.getDateFormat();	// @550A
-    	// @550 If the date is in a stored procedure result set, it could have a different date format than the format of the connection
-        switch(((dateFormat_ != -1) && (dateFormat_ != connectionDateFormat)) ? dateFormat_ : connectionDateFormat)	// @550C
+        switch(settings_.getDateFormat())
         {
             
             case SQLConversionSettings.DATE_FORMAT_JULIAN:                      // yy/ddd
@@ -401,11 +381,7 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(calendar == null) 
-        {
-            calendar = Calendar.getInstance(); //@P0A
-            calendar.setLenient(false); //@dat1
-        }
+        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
         if(object instanceof String)
         {
             stringToDate((String) object, settings_, calendar);
@@ -727,15 +703,12 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
-
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;                                     //@pda
-        String string = getString();                        //@pda
-        return new AS400JDBCNClob(string, string.length()); //@pda
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
-/* endif */ 
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -748,25 +721,14 @@ implements SQLData
     }
 
     //@pda jdbc40
-/* ifdef JDBC40 */
-
     public RowId getRowId() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
-    
+
     //@pda jdbc40
-/* ifdef JDBC40 */
-	public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    // @array
-    public Array getArray() throws SQLException
+    public SQLXML getSQLXML() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

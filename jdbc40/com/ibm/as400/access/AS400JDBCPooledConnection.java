@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,13 +16,10 @@ package com.ibm.as400.access;
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.PooledConnection;
-/* ifdef JDBC40 */
 import javax.sql.StatementEventListener;
-/* endif */ 
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.lang.ref.SoftReference;
 
 /**
 *  The AS400JDBCPooledConnection class represents a connection object
@@ -67,10 +64,10 @@ import java.lang.ref.SoftReference;
 **/
 public class AS400JDBCPooledConnection implements PooledConnection
 {
-  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   private AS400JDBCConnection connection_;                          // The database connection.
-//@CRS - If we maintain a [direct] reference to the handle, and the user doesn't call close(), it
+//@CRS - If we maintain a reference to the handle, and the user doesn't call close(), it
 // will never get closed because it will never get garbage collected.
 // Instead, we are a listener to the handle, so we know when either the user or the
 // garbage collector closes it.  At that point, this PooledConnection is no longer
@@ -83,20 +80,8 @@ public class AS400JDBCPooledConnection implements PooledConnection
 // After we are done with handle_, we must set it to null, so AS400JDBCConnectionHandle can be GCed.
 // In order for the handle to be GCed, a leaked connection has to be Expired and have handle_ set to null
 // upon returning to available queue.
-  private SoftReference handle_;               // The handle to the connection. //@pdc make use of reference to handle
-  // This is a soft reference to an AS400JDBCConnectionHandle object.
-  // DESIGN NOTE:
-  // We use a soft reference (rather than a direct reference) in order to avoid
-  // having circular/mutual direct references between the handle and the connection.
-  // In some scenarios, such circular references can prevent such pairs of objects
-  // from being garbage-collected; which can result in memory leaks.
-  // Advantage of a soft reference: If the connection requester gives up their
-  // reference to the handle but neglects to call close() first,
-  // then the only remaining reference to the handle is the soft reference
-  // from the associated AS400JDBCPooledConnection.
-  // The garbage collector will then notice that the only reference to the handle
-  // is a soft reference; and the GC will then collect/remove the handle.
- 
+  private AS400JDBCConnectionHandle handle_;               // The handle to the connection. //@pdc make use of reference to handle
+
   private PoolItemProperties properties_;                  // The usage properties.
   private AS400JDBCConnectionEventSupport eventManager_;
 
@@ -177,7 +162,6 @@ public class AS400JDBCPooledConnection implements PooledConnection
   // JDConnectionPoolManager needs this when identifying returned connections.
   public boolean equals(Object obj)
   {
-	if (obj == null) return false; 
     try
     {
       AS400JDBCPooledConnection pc = (AS400JDBCPooledConnection)obj;
@@ -266,9 +250,9 @@ public class AS400JDBCPooledConnection implements PooledConnection
     // Start the connection tracking timers.
     setInUse(true);
 
-    AS400JDBCConnectionHandle handle = new AS400JDBCConnectionHandle(this, connection_); //@pdc handle
-    handle_ = new SoftReference(handle);
-    return handle; //@pda handle
+    handle_ = new AS400JDBCConnectionHandle(this, connection_); //@pdc handle
+    return handle_; //@pda handle
+
   }
 
 
@@ -336,16 +320,6 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
 
   /**
-  *  Determine whether the connection is still alive.
-  *  @return true if the connection is alive; false otherwise.
-  **/
-  boolean isConnectionAlive() throws SQLException
-  {
-    return connection_.getAS400().isConnectionAlive(AS400.DATABASE);
-  }
-
-
-  /**
   *  Indicates if the pooled connection is in use.
   *  @return true if the pooled connection is in use; false otherwise.
   **/
@@ -387,14 +361,9 @@ public class AS400JDBCPooledConnection implements PooledConnection
       connection_.setAutoCommit(true);    // Ditto.
       if (handle_ != null) //@pda handle
       {
-          AS400JDBCConnectionHandle handle = (AS400JDBCConnectionHandle)handle_.get();
-          if (handle != null)
-          {
-            handle.invalidate();      //@pda Invalidate the handle.
-            // So if this pooledConnection gets expired then also need to invalidate handle (remove reference from handle to pooledConnection).
-            //if the handle gets GCed (due to connection leak), then handle.finalize() will not try to close this pooledConnection, which could have been already assigned to a new handle.
-            //(ie prevent two handles from pointing to one pooledConnection)
-          }
+          handle_.invalidate();      //@pda Invalidate the handle.  so if this pooledConnection gets expired then also need to invalidate (remove reference from handle to pooledConnection) handle.
+                                     //if the handle gets GCed (due to connection leak), then handle.finalize() will not try to close this pooledConnection, which could have been already assigned to a new handle.
+                                     //(ie prevent two handles from pointing to one pooledConnection)
           handle_ = null;          //remove reference also, so handle is free for GC.
       }
     }
@@ -423,49 +392,40 @@ public class AS400JDBCPooledConnection implements PooledConnection
   }
   
     //@PDA jdbc40
-     /**
-      * Registers a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.  Components that 
-      * wish to be notified when  <code>PreparedStatement</code>s created by the
-      * connection are closed or are detected to be invalid may use this method 
-      * to register a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.
-      * <p>
-      * @param listener  an component which implements the <code>StatementEventListener</code> 
-      *                  interface that is to be registered with this <code>PooledConnection</code> object
-      */
-/* ifdef JDBC40 */
+    /**
+     * Registers a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.  Components that 
+     * wish to be notified when  <code>PreparedStatement</code>s created by the
+     * connection are closed or are detected to be invalid may use this method 
+     * to register a <code>StatementEventListener</code> with this <code>PooledConnection</code> object.
+     * <p>
+     * @param listener  an component which implements the <code>StatementEventListener</code> 
+     *                  interface that is to be registered with this <code>PooledConnection</code> object
+     */
   public void addStatementEventListener(StatementEventListener listener)
   {
+      //todo ? my understanding is that a statement wrapper (ie pooledStatement) would need
+      //to notify this pooledConnection object when the pooledStatement is closed.  And then
+      //the pooledConnection would fire StatementEvents to all listeners.  
       //Currently toolbox does not have a pooledStatemnt.
       
       //Method can not throw SQLException in current driver
       //For now just do nothing in this method.
-      if (JDTrace.isTraceOn())                                                    //@G2C
-      {
-        JDTrace.logInformation(this, "AS400JDBCPooledConnection.addStatementEventListener is called, but is N/A."); 
-      }
   }
-/* endif */ 
   
     //@PDA jdbc40 
-     /**
-      * Removes the specified <code>StatementEventListener</code> from the list of 
-      * components that will be notified when the driver detects that a 
-      * <code>PreparedStatement</code> has been closed or is invalid.
-      * <p> 
-      * @param listener  the component which implements the
-      *                  <code>StatementEventListener</code> interface that was previously 
-      *                  registered with this <code>PooledConnection</code> object
-      */
-/* ifdef JDBC40 */
+    /**
+     * Removes the specified <code>StatementEventListener</code> from the list of 
+     * components that will be notified when the driver detects that a 
+     * <code>PreparedStatement</code> has been closed or is invalid.
+     * <p> 
+     * @param listener  the component which implements the
+     *                  <code>StatementEventListener</code> interface that was previously 
+     *                  registered with this <code>PooledConnection</code> object
+     */
   public void removeStatementEventListener(StatementEventListener listener)
   {
       //Method can not throw SQLException
       //For now just do nothing
-      if (JDTrace.isTraceOn())                                                    //@G2C
-      {
-        JDTrace.logInformation(this, "AS400JDBCPooledConnection.removeStatementEventListener is called, but is N/A."); 
-      }
   }
-/* endif */ 
 
 }

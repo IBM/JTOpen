@@ -17,7 +17,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
-
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.io.CharArrayReader;
@@ -46,16 +45,15 @@ transaction.
 **/
 public class AS400JDBCClob implements Clob
 {
-  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   protected char[] data_;                                 //@pdc jdbc40
   protected int maxLength_;                               //@pdc jdbc40
-  static final int MAX_LOB_SIZE = 2147483647;   //@PDA jdbc40 same as native driver. (if column is a DBCLOB the limit is 1,073,741,823)
-  private boolean isXML_ = false;      //@xmltrim true if this data originated from a native XML column type
-  
+  static final int MAX_LOB_SIZE = 2147483647;   //@PDA jdbc40 same as native driver
+
 /**
 Constructs an AS400JDBCClob object.  The data is contained
-in the String.  No further communication with the IBM i system is necessary.
+in the String.  No further communication with the i5/OS system is necessary.
 
 @param  data     The CLOB data.
 **/
@@ -71,30 +69,6 @@ in the String.  No further communication with the IBM i system is necessary.
     data_ = data;
   }
   
-  //@xmltrim
-  /**
-  Constructs an AS400JDBCClob object.  The data is contained
-  in the String.  No further communication with the IBM i system is necessary.
-  If this clob has a source of a columne of type XML, then any getX method that returns xml as string will trim the xml declaration.
-  
-  @param  data     The CLOB data.
-  @param maxLength
-  @param isXML flag to signal if source is xml
-  **/
-    AS400JDBCClob(String data, int maxLength, boolean isXML)
-    {
-      data_ = data.toCharArray();
-      maxLength_ = maxLength;
-      isXML_ = isXML;
-    }
-
-   //@xmltrim
-    AS400JDBCClob(char[] data, boolean isXML)
-    {
-      data_ = data;
-      isXML_ = isXML;
-    }
-  
 
 
 /**
@@ -106,16 +80,9 @@ Returns the entire CLOB as a stream of ASCII characters.
 **/
   public synchronized InputStream getAsciiStream() throws SQLException
   {
-    //Following Native, throw HY010 after free() has been called
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     try
     {
-      if(isXML_)//@xmltrim
-          return new ByteArrayInputStream((JDUtilities.stripXMLDeclaration(new String(data_))).getBytes("ISO8859_1"));  //@xmltrim
-      else
-          return new ByteArrayInputStream((new String(data_)).getBytes("ISO8859_1"));
+      return new ByteArrayInputStream((new String(data_)).getBytes("ISO8859_1"));
     }
     catch (UnsupportedEncodingException e)
     {
@@ -135,13 +102,7 @@ Returns the entire CLOB as a character stream.
 **/
   public synchronized Reader getCharacterStream() throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
-    if(isXML_)//@xmltrim
-        return new CharArrayReader( JDUtilities.stripXMLDeclaration( new String(data_) ).toCharArray());  //@xmltrim
-    else
-        return new CharArrayReader(data_);
+    return new CharArrayReader(data_);
   }
 
 
@@ -159,21 +120,12 @@ Returns part of the contents of the CLOB.
 **/
   public synchronized String getSubString(long position, int length) throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     int offset = (int)position-1;
     if (offset < 0 || length < 0 || (offset + length) > data_.length)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
-    //@xmltrim
-    if(isXML_)
-    {
-        data_ = JDUtilities.stripXMLDeclaration( new String(data_) ).toCharArray();
-    }
-    
     int lengthToUse = data_.length - offset;
     if (lengthToUse < 0) return "";
     if (lengthToUse > length) lengthToUse = length;
@@ -194,9 +146,6 @@ Returns the length of the CLOB.
 **/
   public long length() throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     return data_.length;
   }
 
@@ -218,9 +167,6 @@ Returns the position at which a pattern is found in the CLOB.
 **/
   public synchronized long position(String pattern, long position) throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     int offset = (int)position-1;
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
@@ -258,9 +204,6 @@ Returns the position at which a pattern is found in the CLOB.
 **/
   public synchronized long position(Clob pattern, long position) throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     int offset = (int)position-1;
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
@@ -295,10 +238,7 @@ Returns the position at which a pattern is found in the CLOB.
   specified is greater than the length of the CLOB.
   **/
   public OutputStream setAsciiStream(long position) throws SQLException
-  {   
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-     
+  {
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -329,10 +269,7 @@ Returns the position at which a pattern is found in the CLOB.
   specified is greater than the length of the CLOB.
   **/
   public Writer setCharacterStream(long position) throws SQLException
-  {      
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-     
+  {
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -356,9 +293,6 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public synchronized int setString(long position, String stringToWrite) throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-     
     int offset = (int)position-1;
 
     if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
@@ -407,9 +341,6 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public synchronized int setString(long position, String string, int offset, int lengthOfWrite) throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-     
     int clobOffset = (int)position-1;
     if (clobOffset < 0 || clobOffset >= maxLength_ ||
         string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||
@@ -453,9 +384,6 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public synchronized void truncate(long lengthOfCLOB) throws SQLException
   {
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     int length = (int)lengthOfCLOB;
     if (length < 0 || length > maxLength_)
     {
@@ -481,7 +409,7 @@ Returns the position at which a pattern is found in the CLOB.
      */
     public synchronized void free() throws SQLException
     {
-        data_ = null; //@pda make available for GC
+        //no-op if not locator
     }
 
     // @PDA jdbc40
@@ -505,13 +433,7 @@ Returns the position at which a pattern is found in the CLOB.
      */
     public synchronized Reader getCharacterStream(long pos, long length) throws SQLException
     {
-        if(data_ == null)//@free
-            JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-        
-        if(isXML_ )//@xmltrim
-            return new CharArrayReader( JDUtilities.stripXMLDeclaration( new String(data_)).toCharArray(), (int) pos-1, (int)length);  //@xmltrim
-        else
-            return new CharArrayReader(data_, (int) pos-1, (int)length);
+        return new CharArrayReader(data_, (int) pos-1, (int)length);
     }
  
 }

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ which returns an object of type Writer.
 **/
 class AS400JDBCWriter extends Writer
 {
-  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   private boolean closed_ = false;   // is the stream closed?
@@ -168,12 +168,12 @@ class AS400JDBCWriter extends Writer
     {
       if (clob_ != null) clob_.setString(position_, str, off, len);
       else if (locator_ != null) locator_.setString(position_, str, off, len); //@PDC jdbc40
-      else if (xml_ != null ) xml_.setString(position_, str, off, len); //@PDA jdbc40
+      else xml_.setString(position_, str, off, len); //@PDA jdbc40
       position_ += len;
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
+      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogStream());
       closed_ = true;
       throw new IOException(e.getMessage());
     }

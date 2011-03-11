@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,25 +21,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLRowID implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[] default_ = new byte[0];
@@ -94,12 +89,9 @@ final class SQLRowID implements SQLData
 
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException {
-/* ifdef JDBC40 */
         if(object instanceof RowId) //@PDA jdbc40
             value_ = ((RowId)object).getBytes();
-        else
-/* endif */ 
-        if(object instanceof String)
+        else if(object instanceof String)
         {
             try
             {
@@ -196,8 +188,6 @@ final class SQLRowID implements SQLData
                         System.arraycopy(value_, 0, newValue, 0, 40);
                         value_ = newValue;
                     }
-                    stream.close(); //@scan1
-                    
                     truncated_ = objectLength - value_.length;
                 }
                 catch(ExtendedIOException eie)
@@ -328,12 +318,8 @@ final class SQLRowID implements SQLData
 
     public int getType()
     {
-/* ifdef JDBC40 */
-        return java.sql.Types.ROWID; 
-/* endif */ 
-/* ifndef JDBC40 
-        return java.sql.Types.BINARY;
- endif */ 
+        //return java.sql.Types.ROWID;  //BINARY; //@pdc jdbc40
+        return -8;  //@PDA jdbc40 merge.  Types.ROWID not in pre-1.6.  
     }
 
     public String getTypeName()
@@ -375,7 +361,7 @@ final class SQLRowID implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -447,7 +433,7 @@ final class SQLRowID implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToString(getBytes()));
     }
 
     public Clob getClob()
@@ -456,7 +442,7 @@ final class SQLRowID implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        String string = BinaryConverter.bytesToHexString(getBytes());
+        String string = BinaryConverter.bytesToString(getBytes());
         return new AS400JDBCClob(string, string.length());
     }
 
@@ -501,12 +487,7 @@ final class SQLRowID implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-/* ifdef JDBC40 */
-         return new AS400JDBCRowId(getBytes());   //@PDC
-/* endif */ 
-/* ifndef JDBC40 
-        return getBytes();
- endif */ 
+        return new AS400JDBCRowId(getBytes());   //@PDC jdbc40 
     }
 
     public short getShort()
@@ -522,7 +503,7 @@ final class SQLRowID implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return BinaryConverter.bytesToHexString(getBytes());
+        return BinaryConverter.bytesToString(getBytes());
     }
 
     public Time getTime(Calendar calendar)
@@ -547,7 +528,7 @@ final class SQLRowID implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -562,31 +543,27 @@ final class SQLRowID implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToString(getBytes()));
     }
 
     //@PDA jdbc40
-/* ifdef JDBC40 */
-    
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        String string = BinaryConverter.bytesToHexString(getBytes());
+        String string = BinaryConverter.bytesToString(getBytes());
         return new AS400JDBCNClob(string, string.length());
     }
-/* endif */ 
+
     //@PDA jdbc40
     public String getNString() throws SQLException
     {
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return BinaryConverter.bytesToHexString(getBytes());
+        return BinaryConverter.bytesToString(getBytes());
     }
-
-/* ifdef JDBC40 */
 
     //@PDA jdbc40
     public RowId getRowId() throws SQLException
@@ -599,14 +576,6 @@ final class SQLRowID implements SQLData
 
     //@PDA jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

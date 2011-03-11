@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,19 +17,13 @@ import java.lang.reflect.*; //@A2C
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
-/* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
-/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
 import java.sql.PreparedStatement;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Savepoint; //@A1A
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -39,13 +33,10 @@ import java.util.Map;
 import java.util.Properties;
 
 
-class JDGenericConnection
-/* ifdef JDBC40 */
-extends ToolboxWrapper
-/* endif */ 
+class JDGenericConnection extends ToolboxWrapper //@pdc jdbc40
 implements Connection
 {
-  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -574,37 +565,36 @@ implements Connection
   //@pda jdbc40
   protected String[] getValidWrappedList()
   {
-      return new String[] { "java.sql.Connection" };
+      return new String[] { "com.ibm.as400.access.JDGenericConnection" };
   } 
   
   
   //@PDA jdbc40
-   /**
-    * Returns true if the connection has not been closed and is still valid.  
-    * The driver shall submit a query on the connection or use some other 
-    * mechanism that positively verifies the connection is still valid when 
-    * this method is called.
-    * <p>
-    * The query submitted by the driver to validate the connection shall be 
-    * executed in the context of the current transaction.
-    * 
-    * @param timeout -     The time in seconds to wait for the database operation 
-    *                      used to validate the connection to complete.  If 
-    *                      the timeout period expires before the operation 
-    *                      completes, this method returns false.  A value of 
-    *                      0 indicates a timeout is not applied to the 
-    *                      database operation.  Note that currently the timeout
-    *                      value is not used.
-    * <p>
-    * @return true if the connection is valid, false otherwise
-    * @exception SQLException if a database access error occurs.
-    */ 
-/* ifdef JDBC40 */
+  /**
+   * Returns true if the connection has not been closed and is still valid.  
+   * The driver shall submit a query on the connection or use some other 
+   * mechanism that positively verifies the connection is still valid when 
+   * this method is called.
+   * <p>
+   * The query submitted by the driver to validate the connection shall be 
+   * executed in the context of the current transaction.
+   * 
+   * @param timeout -     The time in seconds to wait for the database operation 
+   *                      used to validate the connection to complete.  If 
+   *                      the timeout period expires before the operation 
+   *                      completes, this method returns false.  A value of 
+   *                      0 indicates a timeout is not applied to the 
+   *                      database operation.  Note that currently the timeout
+   *                      value is not used.
+   * <p>
+   * @return true if the connection is valid, false otherwise
+   * @exception SQLException if a database access error occurs.
+   */ 
   public boolean isValid(int timeout) throws SQLException 
   { 
       return actualConnection_.isValid(timeout);
   }
-/* endif */ 
+   
         
   //@PDA jdbc40
   /**
@@ -633,8 +623,10 @@ implements Connection
    * generates a <code>SQLException</code>, the value specified was not set on the 
    * connection.
    * <p>
-   * 
-   * The following client info properties are supported in Toobox for Java.  
+   * The following are standard client info properties.  Drivers are not 
+   * required to support these properties however if the driver supports a 
+   * client info property that can be described by one of the standard 
+   * properties, the standard property name should be used.
    * <p>
    * <ul>
    * <li>ApplicationName  -   The name of the application currently utilizing 
@@ -645,8 +637,6 @@ implements Connection
    *                          in establishing the connection.</li>
    * <li>ClientHostname   -   The hostname of the computer the application 
    *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
    * </ul>
    * <p>
    * @param name      The name of the client info property to set 
@@ -658,15 +648,9 @@ implements Connection
    *          setting the client info value on the database server.
    * <p>
    */
-  public void setClientInfo(String name, String value) 
-/* ifdef JDBC40 */
-  throws SQLClientInfoException
-/* endif */ 
-/* ifndef JDBC40 
-  throws SQLException
- endif */ 
+  public void setClientInfo(String name, String value) throws SQLClientInfoException
   {
-	  ((AS400JDBCConnection)actualConnection_).setClientInfo(name, value);
+      actualConnection_.setClientInfo(name, value);
   }
 
   // @PDA jdbc40
@@ -690,22 +674,6 @@ implements Connection
    * properties may have been set before the error occurred.
    * <p>
    * 
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
-   * 
    * @param properties
    *            the list of client info properties to set
    *            <p>
@@ -716,15 +684,9 @@ implements Connection
    * @see java.sql.Connection#setClientInfo(String, String)
    *      setClientInfo(String, String)
    */
-  public void setClientInfo(Properties properties) 
-/* ifdef JDBC40 */
-  throws SQLClientInfoException
-/* endif */ 
-/* ifndef JDBC40 
-  throws SQLException 
- endif */ 
+  public void setClientInfo(Properties properties) throws SQLClientInfoException
   {
-	  ((AS400JDBCConnection)actualConnection_).setClientInfo(properties);
+      actualConnection_.setClientInfo(properties);
   }
 
   //@PDA jdbc40
@@ -738,22 +700,6 @@ implements Connection
    * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
    * method to determine the client info properties supported by the driver.
    * <p>
-   * 
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
    * @param name      The name of the client info property to retrieve
    * <p>
    * @return          The value of the client info property specified
@@ -765,7 +711,7 @@ implements Connection
    */
   public String getClientInfo(String name) throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).getClientInfo(name);
+      return actualConnection_.getClientInfo(name);
   }
 
   //@PDA jdbc40
@@ -775,22 +721,6 @@ implements Connection
    * may be null if the property has not been set and does not have a 
    * default value.
    * <p>
-   * 
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
    * @return  A <code>Properties</code> object that contains the name and current value of 
    *          each of the client info properties supported by the driver.  
    * <p>
@@ -799,7 +729,7 @@ implements Connection
    */
   public Properties getClientInfo() throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).getClientInfo();
+      return actualConnection_.getClientInfo();
   }
   
   //@PDA jdbc40
@@ -815,7 +745,7 @@ implements Connection
    */
   public Clob createClob() throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).createClob();
+      return actualConnection_.createClob();
   }
   
   //@PDA jdbc40
@@ -831,43 +761,39 @@ implements Connection
    */
   public Blob createBlob() throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).createBlob();
+      return actualConnection_.createBlob();
   }
 
   //@PDA jdbc40
-   /**
-    * Constructs an object that implements the <code>NClob</code> interface. The object
-    * returned initially contains no data.  The <code>setAsciiStream</code>,
-    * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
-    * be used to add data to the <code>NClob</code>.
-    * @return An object that implements the <code>NClob</code> interface
-    * @throws SQLException if an object that implements the
-    * <code>NClob</code> interface can not be constructed.
-    *
-    */
-/* ifdef JDBC40 */
+  /**
+   * Constructs an object that implements the <code>NClob</code> interface. The object
+   * returned initially contains no data.  The <code>setAsciiStream</code>,
+   * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+   * be used to add data to the <code>NClob</code>.
+   * @return An object that implements the <code>NClob</code> interface
+   * @throws SQLException if an object that implements the
+   * <code>NClob</code> interface can not be constructed.
+   *
+   */
   public NClob createNClob() throws SQLException
   {
       return actualConnection_.createNClob();
   }
-/* endif */ 
+
   //@PDA jdbc40
-   /**
-    * Constructs an object that implements the <code>SQLXML</code> interface. The object
-    * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
-    * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
-    * object.
-    * @return An object that implements the <code>SQLXML</code> interface
-    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
-    * be constructed
-    */
-/* ifdef JDBC40 */
+  /**
+   * Constructs an object that implements the <code>SQLXML</code> interface. The object
+   * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
+   * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+   * object.
+   * @return An object that implements the <code>SQLXML</code> interface
+   * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+   * be constructed
+   */
   public SQLXML createSQLXML() throws SQLException
   {
       return actualConnection_.createSQLXML();
   }
-/* endif */ 
-  
 
   //@PDA jdbc40
   /**
@@ -883,7 +809,7 @@ implements Connection
    */
   public Array createArrayOf(String typeName, Object[] elements) throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).createArrayOf(typeName, elements);
+      return actualConnection_.createArrayOf(typeName, elements);
   }
 
   //@PDA jdbc40
@@ -901,7 +827,7 @@ implements Connection
    */
   public Struct createStruct(String typeName, Object[] attributes) throws SQLException
   {   
-      return ((AS400JDBCConnection)actualConnection_).createStruct(typeName, attributes);
+      return actualConnection_.createStruct(typeName, attributes);
   }
   
   

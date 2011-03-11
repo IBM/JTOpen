@@ -18,43 +18,32 @@ import java.io.UnsupportedEncodingException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
-/* ifdef JDBC40 */
 import java.sql.ClientInfoStatus;
 import java.sql.SQLClientInfoException;
-/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Statement;
 import java.sql.Savepoint;                        // @E10a                
 import java.sql.Struct;
 import java.util.Enumeration;               // @DAA
-/* ifdef JDBC40 */
 import java.util.HashMap;
-/* endif */ 
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
-/* ifdef JDBC40 */
 import java.util.concurrent.locks.ReentrantLock;
-/* endif */ 
+
 
 
 /**
 <p>The AS400JDBCConnection class provides a JDBC connection
-to a specific DB2 for IBM i database.  Use
+to a specific DB2 for i5/OS database.  Use
 DriverManager.getConnection() to create new AS400JDBCConnection
 objects.
 
@@ -77,14 +66,14 @@ statements.
 //
 //     The id is used as a convention for assigning each
 //     connection and statement its own ORS (Operation Result
-//     Set) on the IBM i as well as assigning each statement
+//     Set) on the i5/OS as well as assigning each statement
 //     its own RPB (Request Parameter Block).
 //
 //     Every communication to the database requires a connection
 //     and an id within that connection.
 //
 // 2.  It is a requirement that no finalize() methods need to
-//     receive a reply from the IBM i system.  Because of the way the
+//     receive a reply from the i5/OS system.  Because of the way the
 //     AS400Server class is implemented, certain scenarios where
 //     this is the case will result in deadlock.  The AS400Server
 //     class provides sendAndDiscardReply() specifically to avoid
@@ -98,17 +87,12 @@ statements.
 //     its context should be sent via a variation of one of the
 //     sendXXX() methods.  This makes debugging cleaner.
 //    
-public class AS400JDBCConnection
-/* ifdef JDBC40 */
-extends ToolboxWrapper
-/* endif */ 
+public class AS400JDBCConnection extends ToolboxWrapper //@pdc jdbc40
 implements Connection
 {
-	
-    private class CancelLock extends Object {}          //@C7A
-    private class HeldRequestsLock extends Object {}          //@C7A
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    // Turn this flag on to prevent this Connection object from establishing an actual connection to the IBM i system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
+    // Turn this flag on to prevent this Connection object from establishing an actual connection to the i5/OS system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
     // For production, this flag _must_ be set to 'false'.
     private static final boolean TESTING_THREAD_SAFETY = false;             //@CPMa
 
@@ -144,7 +128,7 @@ implements Connection
 
     // This is a compile time flag for forcing the use of
     // extended datastream formats.  This can be useful when
-    // testing extended formats, but the IBM i system is not reporting
+    // testing extended formats, but the i5/OS system is not reporting
     // the correct VRM.
     //
     // The choices are:
@@ -154,9 +138,9 @@ implements Connection
     // @E9D private static final boolean        FORCE_EXTENDED_FORMATS_ = false;
     
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
-    //        The IBM i passes it along to database to enable correct package caching of
+    //        The i5/OS passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching. 
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R1M01   "; // @EDA F8c H2c pdc 610
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V5R4M01   "; // @EDA F8c H2c pdc
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
@@ -178,9 +162,9 @@ implements Connection
     private AS400                       as400PublicClassObj_; // Prevents garbage collection.
     //@P0D private BitSet                      assigned_;                      // @DAC
     private boolean                     cancelling_;                    // @E8A
-    private CancelLock                      cancelLock_ = new CancelLock();     // @E8A@C7C
+    private Object                      cancelLock_ = new Object();     // @E8A
     private String                      catalog_;
-    boolean                     checkStatementHoldability_ = false;     // @F3A  //@XAC
+    private boolean                     checkStatementHoldability_ = false;     // @F3A
     private boolean                     closing_;            // @D4A
             ConvTable                   converter_; //@P0C
     private int                         dataCompression_            = -1;               // @ECA
@@ -191,7 +175,7 @@ implements Connection
     // @E2D private ConverterImplRemote          graphicConverter_;
     // @E2D private boolean                     graphicConverterLoaded_;
     private Vector                      heldRequests_;                                  // @E5A
-    private HeldRequestsLock             heldRequestsLock_           = new HeldRequestsLock();     // @E5A@C7C
+    private Object                      heldRequestsLock_           = new Object();     // @E5A
     private int                 holdability_  = AS400JDBCResultSet.HOLDABILITY_NOT_SPECIFIED; // @G4A
     private int                         id_;
     private AS400JDBCDatabaseMetaData   metaData_;
@@ -207,15 +191,11 @@ implements Connection
     private Vector                      statements_;                    // @DAC
     JDTransactionManager        transactionManager_;            //      @E10c
     static final ConvTable      unicodeConverter_ = new ConvTable13488();              // @E3A @P0C
-    ConvTable      packageCCSID_Converter = null; //Bidi-HCG
     int                         vrm_;                           // @D0A @E10c
 
     // declare the user-supplied value for server trace.  The constants for
     // the definition of each bit in the bit map are defined in Trace.java
     private int                         traceServer_ = 0;               // @j1a
-
-    // set to true if database host server tracing is started via the setDBHostServerTrace method
-    private boolean databaseHostServerTrace_ = false;       // @2KR
 
     private boolean mustSpecifyForUpdate_ = true;                       // @j31
 
@@ -231,26 +211,20 @@ implements Connection
     // If "true autocommit" connection property is true - run with specified isolation (2)
     int newAutoCommitSupport_ = 1;                                      //@KBA  
 
-    private boolean wrappedInsert_ = false;                             // @GKA
-    //@pda 550 client info
+    //pda jdbc40 client info
+    //Decided to not include these with JDProperties, but could be in future if needed, 
+    //but would need to clone properties from datasource
     //Names for clientInfo identifiers.  DatabaseMetadata also will use these names
     static final String applicationNamePropertyName_ = "ApplicationName";
     static final String clientUserPropertyName_ = "ClientUser";
     static final String clientHostnamePropertyName_ = "ClientHostname";
     static final String clientAccountingPropertyName_ = "ClientAccounting";
-    static final String clientProgramIDPropertyName_ = "ClientProgramID"; //@pda
     
-    //@pda 550 client info values
-    private String applicationName_ = "";   //@pdc so can be added to Properties object in getClientInfo()
-    private String clientUser_ = ""; //@pdc
-    private String clientHostname_ = ""; //@pdc
-    private String clientAccounting_ = ""; //@pdc
-    private String clientProgramID_ = ""; //@pdc
-    
-    private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
-
-	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
-	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A 
+    //clientInfo values
+    private String applicationName_ = null;  
+    private String clientUser_ = null;
+    private String clientHostname_ = null;
+    private String clientAccounting_ = null; 
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -317,16 +291,16 @@ implements Connection
 
                     // Send the cancel request.
                     DBSQLRequestDS request = null;
-                    DBReplyRequestedDS cancelReply = null;
+                    DBReplyRequestedDS reply = null;
                     try
                     {
                         request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_CANCEL, id_,
                                                              DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
                         request.setJobIdentifier(serverJobIdentifier_, converter_);
-                        cancelReply = cancelConnection.sendAndReceive (request);
+                        reply = cancelConnection.sendAndReceive (request);
 
-                        int errorClass = cancelReply.getErrorClass();
-                        int returnCode = cancelReply.getReturnCode();
+                        int errorClass = reply.getErrorClass();
+                        int returnCode = reply.getReturnCode();
                         if (errorClass != 0)
                             JDError.throwSQLException(this, id_, errorClass, returnCode);
                     }
@@ -336,12 +310,8 @@ implements Connection
                     }
                     finally
                     {
-                        if (request != null) {
-                        	request.returnToPool();	request = null; 
-                        }
-                        if (cancelReply != null) {
-                        	cancelReply.returnToPool(); cancelReply = null; 
-                        }
+                        if (request != null) request.inUse_ = false;
+                        if (reply != null) reply.inUse_ = false;
                     }
                 }
                 else
@@ -447,7 +417,7 @@ implements Connection
     void checkOpen ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
         if (server_ == null)
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
     }
@@ -473,7 +443,7 @@ implements Connection
     Releases the connection's resources immediately instead of waiting
     for them to be automatically released.  This rolls back any active
     transactions, closes all statements that are running in the context
-    of the connection, and disconnects from the IBM i system.
+    of the connection, and disconnects from the i5/OS system.
     
     @exception SQLException If an error occurs.
     **/
@@ -563,10 +533,6 @@ implements Connection
         if (!transactionManager_.isLocalTransaction())                      // @E4A
             JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);      // @E4A
 
-        // Note: CPS 72CSHT support
-        if (transactionManager_.getAutoCommit () && properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION))  //@CE1
-            JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);    //@CE1
-        
         // Note:  Intuitively, it seems like if we are in
         //        auto-commit mode, that we should not need to
         //        do anything for an explicit commit.  However,
@@ -700,7 +666,7 @@ implements Connection
     is more efficient to use prepareStatement().
     
     <p>Full functionality of this method requires support in OS/400 V5R2  
-    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
+    or i5/OS.  If connecting to OS/400 V5R1 or earlier, the value for 
     resultSetHoldability will be ignored.
         
     @param resultSetType            The result set type.  Valid values are:
@@ -810,15 +776,13 @@ implements Connection
         if (DEBUG_COMM_TRACE_ >= 2)
             reply.dump (System.out);
 
+        int errorClass = ((DBReplyRequestedDS) reply).getErrorClass();
         int returnCode = ((DBReplyRequestedDS) reply).getReturnCode();
 
         if (DEBUG_COMM_TRACE_ >= 1)
-        {
-            int errorClass = ((DBReplyRequestedDS) reply).getErrorClass();
             if ((errorClass != 0) || (returnCode != 0))
                 System.out.println ("Server error = " + errorClass + ":"
                                     + returnCode + ".");
-        }
     }
 
 
@@ -831,10 +795,9 @@ implements Connection
     protected void finalize ()
     throws Throwable
     {
-        if (! isClosed ()) {
-        	JDTrace.logInformation (this, "WARNING: Finalizer thread closing connection object.");
+        if (! isClosed ())
             close ();
-        }
+
         super.finalize ();
     }
 
@@ -884,41 +847,7 @@ implements Connection
         return catalog_;
     }
 
-    //@cc1
-    /**
-     * This method returns the concurrent access resolution setting.
-     * This method has no effect on IBM i V6R1 or earlier.
-     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-     * Setting this property to default exhibits the default behavior on the servers  
-     * i.e., the semantic applied for read 
-     * transactions to avoid locks will be determined by the server.          
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-     * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-     * ultimately determined by server. 
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-     * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-     * if enabled, and the server will wait for the commit or rollback of data in the process of
-     * being updated.  
-     * 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-     *   
-     * @return  The concurrent access resolution setting.    Possible return valuse:
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-     */
-    public int getConcurrentAccessResolution ()
-    {
-        return concurrentAccessResolution_;
-    }
+
 
     /**
     Returns the converter for this connection.
@@ -989,9 +918,9 @@ implements Connection
 
 
     /**
-    Returns the default SQL schema.
+    Returns the default schema.
     
-    @return     The default SQL schema, or QGPL if none was
+    @return     The default schema, or QGPL if none was
                 specified.
     **/
     String getDefaultSchema ()
@@ -1003,10 +932,10 @@ implements Connection
 
     //@DELIMa
     /**
-    Returns the default SQL schema.
+    Returns the default schema.
 
-    @param returnRawValue Indicates what to return if default SQL schema has not been set.  If true, return raw value; if false, then return QGPL rather than null.
-    @return     The default SQL schema.  If returnRawValue==false and no default SQL schema was specified, then return QGPL rather than null.
+    @param returnRawValue Indicates what to return if default schema has not been set.  If true, return raw value; if false, then return QGPL rather than null.
+    @return     The default schema.  If returnRawValue==false and no default schema was specified, then return QGPL rather than null.
     **/
     String getDefaultSchema (boolean returnRawValue)
     throws SQLException
@@ -1028,7 +957,7 @@ implements Connection
                 <li>2.  The value of the <code> cursor hold </code> 
                 <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>. </ul>  
                 Full functionality of #1 requires support in OS/400 
-                V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, 
+                V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
                 the value specified on this method will be ignored and the default holdability
                 will be the value of #2.
     
@@ -1184,7 +1113,7 @@ implements Connection
     // @E8A
     /**
     Returns the job identifier of the host server job corresponding to this connection.
-    Every JDBC connection is associated with a host server job on the IBM i system.  The
+    Every JDBC connection is associated with a host server job on the i5/OS system.  The
     format is:
     <ul>
       <li>10 character job name
@@ -1409,7 +1338,7 @@ implements Connection
     String getUserName ()
     throws SQLException // @EGA
     {
-        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact IBM i system
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact i5/OS system
         {
           String userName = as400_.getUserId ();
           if (userName == null || userName.length() == 0) {
@@ -1480,7 +1409,7 @@ implements Connection
     public boolean isClosed ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact IBM i system
+        if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact i5/OS system
 
         if (server_ == null)                        // @EFC
             return true;                            // @EFA
@@ -1526,7 +1455,7 @@ implements Connection
     
     @param  isRollback True if we called this from rollback(), false if we called this from commit().
     **/
-    void markCursorsClosed(boolean isRollback)  //@F3C //@XAC
+    private void markCursorsClosed(boolean isRollback)  //@F3C
     throws SQLException                  //@F2A
     {
         if (JDTrace.isTraceOn())
@@ -1578,101 +1507,15 @@ implements Connection
             }                                                                                    
     }
 
-    //@GKA
-    // Note:  This method is used when the user supplies either the column indexes or names
-    // to the execute/executeUpdate/prepareStatement method.
-    /*
-    * Prepares and executes the statement needed to retrieve generated keys.
-    */
-    String makeGeneratedKeySelectStatement(String sql, int[] columnIndexes, String[] columnNames)
-    throws SQLException
-    {
-        if(columnIndexes != null)
-        {
-            //verify there is a column index in the specified array
-            if(columnIndexes.length == 0)
-                JDError.throwSQLException(JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-            //Prepare a statement in order to retrieve the column names associated with the indexes specified in the array
-            //wrapper the statement with a select * from final table
-            // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
-            // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will 
-            // change the autogenerated keys, NEW TABLE is used. 
-            StringBuffer selectAll = new StringBuffer("SELECT * FROM NEW TABLE(");
-            selectAll.append(sql);
-            selectAll.append(")");
-            PreparedStatement genPrepStat = prepareStatement(selectAll.toString());
-
-            // retrieve the JDServerRow object associated with this statement.  It contains the column name info.
-            JDServerRow results = ((AS400JDBCPreparedStatement)genPrepStat).getResultRow();
-            columnNames = new String[columnIndexes.length];
-            try{
-                for(int j=0; j<columnIndexes.length; j++)
-                {
-                    columnNames[j] = results.getFieldName(columnIndexes[j]);
-                }
-            }
-            catch(SQLException e){
-                // If this occurs there is not a column name for the index, throw an exception
-                genPrepStat.close();
-                JDError.throwSQLException(JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-            }
-
-            // close the PreparedStatement
-            genPrepStat.close();
-        }
-
-        //verify there is a column name  specified in the array
-        if(columnNames == null || columnNames.length == 0)
-            JDError.throwSQLException(JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        //wrapper the statement with a select xxx from final table where xxx is replaced with the appropriate column(s)
-        // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
-        // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will 
-        // change the autogenerated keys, NEW TABLE is used. 
-        StringBuffer selectFrom = new StringBuffer("SELECT " + columnNames[0]);  //we verified above that there is at least one name
-        for(int i=1; i<columnNames.length; i++)
-        {
-            selectFrom.append(",");
-            selectFrom.append(columnNames[i]);
-        }
-        selectFrom.append(" FROM NEW TABLE(");
-        selectFrom.append(sql);
-        selectFrom.append(")");
-
-        return selectFrom.toString();
-    }
-
-    //@GKA
-    // Note:  This method is used when the user supplies ResultSet.RETURN_GENERATED_KEYS 
-    // to the execute/executeUpdate method.
-    /*
-    * Prepares and executes the statement needed to retrieve generated keys
-    */ 
-    String makeGeneratedKeySelectStatement(String sql)
-    throws SQLException
-    {
-        // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
-        // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will 
-        // change the autogenerated keys, NEW TABLE is used. 
-
-        StringBuffer selectFrom = new StringBuffer("SELECT *SQLGENCOLUMNS FROM NEW TABLE(");
-        selectFrom.append(sql);
-        selectFrom.append(")");
-
-        return selectFrom.toString();
-        
-    }
-
     /**
     Returns the native form of an SQL statement without
     executing it. The JDBC driver converts all SQL statements
-    from the JDBC SQL grammar into the native DB2 for IBM i
+    from the JDBC SQL grammar into the native DB2 for i5/OS
     SQL grammar prior to executing them.
     
     @param  sql     The SQL statement in terms of the JDBC SQL grammar.
     @return         The translated SQL statement in the native
-                    DB2 for IBM i SQL grammar.
+                    DB2 for i5/OS SQL grammar.
     
     @exception      SQLException    If the SQL statement has a syntax error.
     **/
@@ -1802,7 +1645,7 @@ implements Connection
     stored procedure multiple times.
     
     <p>Full functionality of this method requires support in OS/400 V5R2  
-    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
+    or i5/OS.  If connecting to OS/400 V5R1 or earlier, the value for 
     resultSetHoldability will be ignored.
     
     @param sql                      The SQL statement.
@@ -1917,7 +1760,7 @@ implements Connection
     be used to efficiently execute this SQL statement
     multiple times.
     
-    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception will be 
+    <p>This method requires OS/400 V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, an exception will be 
     thrown. 
     
     <p>Result sets created using the statement will be type
@@ -1952,31 +1795,7 @@ implements Connection
         JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                           properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
                                                           properties_.getString (JDProperties.PACKAGE_CRITERIA), this);  // @A2A @G4A
-
-        if(getVRM() >= JDUtilities.vrm610 && autoGeneratedKeys==Statement.RETURN_GENERATED_KEYS)    //@GKA added new generated key support
-        {
-            // check if it is an insert statement.  
-            // Note:  this should be false if the statement was wrappered with a SELECT
-            // when prepareStatement(String sql, int[] columnIndex) or
-            // prepareStatement(String sql, String[] columnNames) was called.
-            if(sqlStatement.isInsert_)
-            {
-                //wrapper the statement
-                String selectStatement = makeGeneratedKeySelectStatement(sql);
-                sqlStatement = new JDSQLStatement (selectStatement, properties_.getString(JDProperties.DECIMAL_SEPARATOR), true,
-                                                   properties_.getString(JDProperties.PACKAGE_CRITERIA), this);                               
-                wrappedInsert_ = true;
-
-            }
-        }
         int statementId = getUnusedId (ResultSet.TYPE_FORWARD_ONLY); // @B1C
-
-        if(wrappedInsert_)
-        {
-            sqlStatement.setSelectFromInsert(true);
-            wrappedInsert_ = false;
-        }
-
         AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (this,
                                                                                statementId, transactionManager_, packageManager_,
                                                                                properties_.getString (JDProperties.BLOCK_CRITERIA),
@@ -2140,42 +1959,19 @@ implements Connection
      * be used to efficiently execute this SQL statement
      * multiple times.
      *
-     * <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
+     * <p><B>This method is not supported.  An SQLException is always thrown. </B>
      *
      * @param  sql     The SQL statement.                                  
      * @param  columnIndexes An array of column indexes indicating the columns that should be returned from the inserted row or rows.
-     * @return         The prepared statement object.
-     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
-     *                 the connection is not open,
-     *                 the maximum number of statements for this connection has been reached,
-     *                 or an error occurs.
+     * @return         An SQLException is always thrown. This method is not supported.
+     * @exception      java.sql.SQLException - Always thrown because the Toolbox JDBC driver does does not support this method.
      * @since Modification 5
     **/
     public PreparedStatement prepareStatement (String sql, int[] columnIndexes)
     throws SQLException
     {
-        if(getVRM() >= JDUtilities.vrm610)   //@GKA added support for generated keys
-        {
-            // Validation
-            checkOpen();
-
-            //Create a JDSQLStatement
-            JDSQLStatement sqlStatement = new JDSQLStatement (sql,
-                                                              properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-                                                              properties_.getString (JDProperties.PACKAGE_CRITERIA), this);
-            //Check if the statement is an insert
-            if(sqlStatement.isInsert_){
-                wrappedInsert_ = true;
-                return prepareStatement(makeGeneratedKeySelectStatement(sql, columnIndexes, null), Statement.RETURN_GENERATED_KEYS);
-            }
-            else    // treat like prepareStatement(sql) was called
-                return prepareStatement(sql);
-        }
-        else        //@GKA Throw an exception.  V5R4 and earlier does not support retrieving generated keys by column index.
-        {
-            JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
-            return null;
-        }
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        return null;
     }
 
 
@@ -2186,42 +1982,19 @@ implements Connection
      * be used to efficiently execute this SQL statement
      * multiple times.
      *
-     * <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
+     * <p><B>This method is not supported.  An SQLException is always thrown. </B>
      *
      * @param  sql     The SQL statement.                                  
      * @param  columnNames An array of column names indicating the columns that should be returned from the inserted row or rows.
-     * @return         The prepared statement object.
-     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
-     *                 the connection is not open,
-     *                 the maximum number of statements for this connection has been reached,
-     *                 or an error occurs.
+     * @return         An SQLException is always thrown. This method is not supported.
+     * @exception      java.sql.SQLException - Always thrown because the Toolbox JDBC driver does does not support this method.
      * @since Modification 5
     **/
     public PreparedStatement prepareStatement (String sql, String[] columnNames)
     throws SQLException
     {
-        if(getVRM() >= JDUtilities.vrm610)  //@GKA added generated key support
-        {
-            //Validation
-            checkOpen();
-
-            //Create a JDSQLStatement
-            JDSQLStatement sqlStatement = new JDSQLStatement (sql,
-                                                              properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-                                                              properties_.getString (JDProperties.PACKAGE_CRITERIA), this);
-            //Check if the statement is an insert
-            if(sqlStatement.isInsert_){
-                wrappedInsert_ = true;
-                return prepareStatement(makeGeneratedKeySelectStatement(sql, null, columnNames), Statement.RETURN_GENERATED_KEYS);
-            }
-            else    // treat like prepareStatement(sql) was called
-                return prepareStatement(sql);
-        }
-        else        //@GKA Throw an exception.  V5R4 and earlier does not support retrieving generated keys by column name.
-        {
-            JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
-            return null;
-        }
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        return null;
     }
 
 
@@ -2230,7 +2003,7 @@ implements Connection
     void processSavepointRequest(String savepointStatement)
     throws SQLException
     {                                                                       
-        // must be OS/400 v5r2 or IBM i
+        // must be OS/400 v5r2 or i5/OS
         if (vrm_ < JDUtilities.vrm520)
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
 
@@ -2242,18 +2015,10 @@ implements Connection
         if (getAutoCommit())
             JDError.throwSQLException(this, JDError.EXC_TXN_STATE_INVALID);
 
-        Statement statement = null;   //@scan1
-        try{
-            statement = createStatement();
+        Statement statement = createStatement();
 
-            statement.executeUpdate(savepointStatement);
-        
-        }finally                  //@scan1
-        {
-            if(statement != null) //@scan1
-                statement.close();
-            
-        }
+        statement.executeUpdate(savepointStatement);
+        statement.close();
     }
 
 
@@ -2303,9 +2068,9 @@ implements Connection
             }                                                                            // @J4a
         }
 
-        // @j1a clean up any IBM i debug that is going on.  This entire block
+        // @j1a clean up any i5/OS debug that is going on.  This entire block
         //      is new for @J1
-        if (traceServer_ > 0 || databaseHostServerTrace_)                             // @2KRC
+        if (traceServer_ > 0)
         {
             // Get the job identifier because we need the id (it is part of some
             // of our trace files).  I know I could have saved it from
@@ -2358,7 +2123,7 @@ implements Connection
             if(getVRM() >= JDUtilities.vrm530  && !endedTraceJob)
             {
                 // Only issue ENDTRC if not already done.
-                if(((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0) || databaseHostServerTrace_)        // @2KRC
+                if((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)
                 {
                     // end database host server trace
                     try{
@@ -2503,9 +2268,6 @@ implements Connection
 
         if (!transactionManager_.isLocalTransaction())                      // @E4A
             JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);      // @E4A
-
-        if (transactionManager_.getAutoCommit () && properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION))
-            JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);
 
         if (! transactionManager_.getAutoCommit ())
         {
@@ -2932,10 +2694,6 @@ implements Connection
             //@P0D request.freeCommunicationsBuffer();                              // @EMa
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
-        
-        // if (DBDSPool.monitor) {
-        //	reply.setAllocatedLocation(); 
-        // }
 
         return(DBReplyRequestedDS) reply;
     }
@@ -2974,7 +2732,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
 
         transactionManager_.setAutoCommit (autoCommit);
 
@@ -2997,81 +2755,10 @@ implements Connection
         // No-op.
     }
 
-    //@cc1
-    /**
-     * This method sets concurrent access resolution.  This method overrides the setting of ConcurrentAccessResolution on the datasource or connection
-     * URL properties.  This changes the setting for this connection only.  This method has no effect on
-     * IBM i V6R1 or earlier.
-     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-     * Setting this property to default exhibits the default behavior on the servers  
-     * i.e., the semantic applied for read 
-     * transactions to avoid locks will be determined by the server.          
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-     * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-     * ultimately determined by server. 
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-     * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-     * if enabled, and the server will wait for the commit or rollback of data in the process of
-     * being updated.  
-     * 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-     *   
-     *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-     */
-    public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
-    {
-             
-        DBSQLAttributesDS request = null;
-        DBReplyRequestedDS reply = null;
-        try
-        {
-            if (getVRM() >= JDUtilities.vrm710)
-            {
-                request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
-               
-                //get value of concurrent access resolution.
-                int car = properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);         
-                //here, we also allow resetting back to default 0
-                //pass value of concurrent access resolution into the hostserver request.
-                request.setConcurrentAccessResolution( car );              
-                
-                reply = sendAndReceive(request);
-                int errorClass = reply.getErrorClass();
-                if (errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
-            }
-        } catch( Exception e)
-        {
-            JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
-        } finally
-        {
-            if (request != null)  { 
-            	request.returnToPool(); request=null; 
-            }
-            if (reply != null) {
-            	reply.returnToPool(); reply = null; // Can return -- only errorClass accessed 
-            }
-        }
-       
-        concurrentAccessResolution_ = concurrentAccessResolution;
-    }
-    
-    
     /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
-    eWLM correlators require IBM i V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
+    eWLM correlators require i5/OS V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
     
     @param bytes The eWLM correlator value
     **/
@@ -3104,8 +2791,8 @@ implements Connection
             }   
             finally
             {
-                if (request != null) { request.returnToPool(); request = null; }
-                if (reply != null) { reply.returnToPool(); reply = null; } // Return to pool since only errorClass accessed
+                if (request != null) request.inUse_ = false;
+                if (reply != null) reply.inUse_ = false;
             }
         }
     }
@@ -3133,7 +2820,7 @@ implements Connection
     Sets the holdability of ResultSets created from this connection.
     
     <p>Full functionality of this method requires OS/400 V5R2
-    or IBM i.  If connecting to OS/400 V5R1 or earlier, all
+    or i5/OS.  If connecting to OS/400 V5R1 or earlier, all
     cursors for the connection will be changed to the value of the variable
     <i>holdability</i>.
     
@@ -3149,7 +2836,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
 
         if (!checkHoldabilityConstants(holdability))                            //@F3A
             JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
@@ -3172,7 +2859,7 @@ implements Connection
                         AS400 as400)
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact IBM i system
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact i5/OS system
         {
           as400PublicClassObj_ = as400;
         }
@@ -3190,25 +2877,6 @@ implements Connection
           {                                       //@D5C
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_UNABLE, e);
           }
-          finally                                               //@dbldrvr
-          {                                                     //@dbldrvr
-              //Since driver is registered twice in DriverManager via DriverManager.registerDriver(new AS400JDBCDriver()), 
-              //remove extra driver references now so we don't waste resources by continuing to try, and also so we don't lock out id if pwd is not correct.
-              Enumeration en = DriverManager.getDrivers();      //@dbldrvr
-              Driver firstDriver = null;                        //@dbldrvr
-              Driver nextDriver = null;                         //@dbldrvr
-              while (en.hasMoreElements())                      //@dbldrvr
-              {                                                 //@dbldrvr
-                  nextDriver = (Driver) en.nextElement();       //@dbldrvr
-                  if(nextDriver instanceof AS400JDBCDriver)     //@dbldrvr
-                  {                                             //@dbldrvr
-                      if(firstDriver == null)                   //@dbldrvr
-                          firstDriver = nextDriver;             //@dbldrvr
-                      else                                      //@dbldrvr
-                          DriverManager.deregisterDriver(nextDriver); //@dbldrvr  
-                  }                                             //@dbldrvr
-              }                                                 //@dbldrvr
-          }                                                     //@dbldrvr
         }
 
         setProperties (dataSourceUrl, properties, as400.getImpl());
@@ -3231,33 +2899,15 @@ implements Connection
         dataSourceUrl_          = dataSourceUrl;
         extendedFormats_        = false;
         properties_             = properties;
-        //Set the real default for METADATA SOURCE property since we now know the hostsrvr version
-        if(properties_.getString(JDProperties.METADATA_SOURCE).equals(JDProperties.METADATA_SOURCE_HOST_VERSION_DEFAULT))   //@mdsp
-        {                                                                                                                   //@mdsp
-            if(as400_.getVRM() < JDUtilities.vrm710)                                                                        //@mdsp //@710 take effect after 710 (ie. not 615)
-                properties_.setString(JDProperties.METADATA_SOURCE, JDProperties.METADATA_SOURCE_ROI);                      //@mdsp
-            else                                                                                                            //@mdsp
-                properties_.setString(JDProperties.METADATA_SOURCE, JDProperties.METADATA_SOURCE_STORED_PROCEDURE);         //@mdsp
-        }                                                                                                                   //@mdsp
-            
         //@P0D requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         if(!TESTING_THREAD_SAFETY && as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
             newAutoCommitSupport_ = 0;                                               //@KBA
-        else if(!properties_.getBoolean(JDProperties.TRUE_AUTO_COMMIT))              //@KBA //@true     //run autocommit with *NONE isolation level
+        else if(!properties_.getBoolean(JDProperties.AUTO_COMMIT))                   //@KBA         //run autocommit with *NONE isolation level
             newAutoCommitSupport_ = 1;                                               //@KBA
         else                                                                         //@KBA
             newAutoCommitSupport_ = 2;                                               //@KBA         //run autocommit with specified isolation level
 
-        
-        if (as400_.getVRM() >= JDUtilities.vrm710) {
-        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);  //@A2A
-        }
-        
-        maximumBlockedInputRows_ = properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);       // @A6A
-        if ( maximumBlockedInputRows_ > 32000 ) maximumBlockedInputRows_ = 32000;                     // @A6A
-        if ( maximumBlockedInputRows_ < 1 ) maximumBlockedInputRows_ = 1;                             // @A6A
-        	
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
@@ -3284,19 +2934,10 @@ implements Connection
 
         // Initialize a transaction manager for this connection.
         transactionManager_ = new JDTransactionManager (this, id_,
-                                                        properties_.getString (JDProperties.TRANSACTION_ISOLATION),
-                                                        properties_.getBoolean (JDProperties.AUTO_COMMIT));  //@AC1
-        
+                                                        properties_.getString (JDProperties.TRANSACTION_ISOLATION));
+
         transactionManager_.setHoldIndicator(properties_.getString(JDProperties.CURSOR_HOLD));       // @D9
-        
-        // If the hold properties are specified, make sure they are set locally
-        if (properties_.getString(JDProperties.CURSOR_HOLD) != null) { 
-          if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_TRUE)
-            holdability_ = AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
-          else if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE)
-            holdability_ = AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
-        }
-        
+
         // Initialize the read-only mode to true if the access
         // property says read only.
         readOnly_ = (properties_.equals (JDProperties.ACCESS,
@@ -3306,8 +2947,8 @@ implements Connection
         // Determine the amount of system tracing that should be started.  Trace
         // can be started by either a JDBC property or the ServerTrace class.  Our value
         // will be the combination of the two (instead of one overriding the other).
-        traceServer_ = properties_.getInt(JDProperties.TRACE_SERVER) |
-                       ServerTrace.getJDBCServerTraceCategories();  // @j1a //@SSa logical OR
+        traceServer_ = properties_.getInt(JDProperties.TRACE_SERVER) +
+                       ServerTrace.getJDBCServerTraceCategories();  // @j1a
 
         // Determine if a QAQQINI library name was specified.  The library can be set using                     //@K2A
         // a JDBC property.                                                                                     //@k2A
@@ -3325,7 +2966,7 @@ implements Connection
             JDTrace.logInformation("JDBC Level: " + JDUtilities.JDBCLevel_);          // @F6a
         }                                                                             // @F6a
 
-        if (!TESTING_THREAD_SAFETY) // in certain testing modes, we don't contact IBM i system
+        if (!TESTING_THREAD_SAFETY) // in certain testing modes, we don't contact i5/OS system
         {
           try
           {
@@ -3583,7 +3224,7 @@ implements Connection
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.                                                                              
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
+     * <LI>Savepoints require OS/400 V5R2 or i5/OS.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      *
@@ -3604,7 +3245,7 @@ implements Connection
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.   
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
+     * <LI>Savepoints require OS/400 V5R2 or i5/OS.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      * @param      name A String containing the name of the savepoint
@@ -3629,7 +3270,7 @@ implements Connection
             name = "T_JDBCINTERNAL_" + id;
 
         // When creating the savepoint specify retain cursors.  That is the
-        // only option supported by the IBM i system at this time.  We have to specify
+        // only option supported by the i5/OS system at this time.  We have to specify
         // it because the SQL default is close cursors.  Since we need to use 
         // an option other than the default we have to specify it on the statement.
         // Plus, the system will return an error if we don't specify it.  
@@ -3654,14 +3295,14 @@ implements Connection
     private void setServerAttributes ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
-        DBReplyRequestedDS reply = null;
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
         try
         {
             vrm_ = as400_.getVRM();                                     // @D0A @ECM
 
             //@P0C
             DBSQLAttributesDS request = null;
+            DBReplyRequestedDS reply = null;
             int decimalSeparator, dateFormat, dateSeparator, timeFormat, timeSeparator;
             DBReplyServerAttributes serverAttributes = null;
             try
@@ -3692,39 +3333,21 @@ implements Connection
                 
                 // @M0C - As of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which   
                 // will cause our statement to flow in 1200 and our package to be 1200
+                if(vrm_ >= JDUtilities.vrm530 && properties_.getInt(JDProperties.PACKAGE_CCSID) == 1200)
+                {
+                    request.setClientCCSID(1200);
 
-                //Bidi-HCG allow any ccsid or "system" to use ccsid of AS400 object
-                //Bidi-HCG start
-                String sendCCSID = properties_.getString(JDProperties.PACKAGE_CCSID);  
-
-                int sendCCSIDInt; 
-                int hostCCSID;
-                if(this.getSystem() == null)  //@pdcbidi 
-                    hostCCSID = 37;
-                else
-                    hostCCSID = this.getSystem().getCcsid();
-                int default_ccsid = Integer.parseInt(JDProperties.PACKAGE_CCSID_UCS2);  
-                
-                if( sendCCSID.equalsIgnoreCase("system"))
-                	sendCCSIDInt = hostCCSID;                	                 
-                else {
-                	try{
-                		if((sendCCSIDInt = Integer.valueOf(sendCCSID).intValue()) <= 0) 
-                			sendCCSIDInt = default_ccsid;
-                		if(vrm_ < JDUtilities.vrm530 && sendCCSIDInt == 1200)
-                			sendCCSIDInt = default_ccsid;
-                	} catch(Exception e) {
-                		sendCCSIDInt = default_ccsid;
-                	}
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "Client CCSID = 1200");
                 }
-                
-                packageCCSID_Converter = ConvTable.getTable(sendCCSIDInt, null);
-                properties_.setString(JDProperties.PACKAGE_CCSID, (new Integer(sendCCSIDInt)).toString());
-                request.setClientCCSID(sendCCSIDInt);
-                if(JDTrace.isTraceOn())
-        			JDTrace.logInformation(this, "Client CCSID = " + sendCCSIDInt);                
-                //Bidi-HCG end
-                
+                else
+                {
+                    request.setClientCCSID(13488);
+
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "Client CCSID = 13488");
+                }
+
                 // This language feature code is used to tell the
                 // system what language to send error messages in.
                 // If that language is not installed on the system,
@@ -3760,16 +3383,10 @@ implements Connection
 
                 request.setTranslateIndicator (0xF0);                       // @E2C
                 request.setDRDAPackageSize (1);
-                //Note:  newAutoCommitSupport is trueAutoCommitSupport
                 if(!(newAutoCommitSupport_ == 0))                           //@KBA  V5R3 or greater so run with new support
-                {                                                                 //@AC1
-                    if(properties_.getBoolean(JDProperties.AUTO_COMMIT))          //@AC1
-                        request.setAutoCommit(0xE8);                        //@KBA  Turn on auto commit
-                    else                                                          //@AC1
-                        request.setAutoCommit(0xD5);                              //@AC1
-                }                                                                 //@AC1
-                
-                if((newAutoCommitSupport_ == 1) && (properties_.getBoolean(JDProperties.AUTO_COMMIT)))  //@KBA //@AC1 (only set to *NONE if autocommit is on)
+                    request.setAutoCommit(0xE8);                            //@KBA  Turn on auto commit
+
+                if(newAutoCommitSupport_ == 1)                              //@KBA
                     request.setCommitmentControlLevelParserOption(0);       //@KBA Run under *NONE when in autocommit
                 else                                                        //@KBA Run under default isolation level
                     request.setCommitmentControlLevelParserOption (transactionManager_.getCommitMode ());
@@ -3828,7 +3445,7 @@ implements Connection
                         JDTrace.logInformation (this, "Data compression = none");       // @ECA
                 }                                                                       // @ECA
 
-                // Default SQL schema.
+                // Default schema.
                 if (defaultSchema_ != null)
                     request.setDefaultSQLLibraryName (defaultSchema_, tempConverter);
 
@@ -3880,20 +3497,8 @@ implements Connection
                 {                                                            // @J3a
                     request.setAmbiguousSelectOption(1);                     // @J3a
                     mustSpecifyForUpdate_ = false;                           // @J31a
-
-                    if(vrm_ >= JDUtilities.vrm710){                         //@710 //@128sch
-                        //@710 - Client support information - indicate our support for ROWID data type, true autocommit
-                        // and 128 byte column names and 128 length schemas
-                        request.setClientSupportInformation(0xF0000000);
-                        if(JDTrace.isTraceOn()){
-                            JDTrace.logInformation(this, "ROWID supported = true");
-                            JDTrace.logInformation(this, "True auto-commit supported = true");
-                            JDTrace.logInformation(this, "128 byte column names supported = true");
-                            JDTrace.logInformation(this, "128 length schema names supported = true");
-                        }
-
-                    }
-                    else if(vrm_ >= JDUtilities.vrm540){                         //@540 for IBM i V5R4 and later, 128 byte column names are supported
+                
+                    if(vrm_ >= JDUtilities.vrm540){                         //@540 for i5/OS V5R4 and later, 128 byte column names are supported
                         //@540 - Client support information - indicate our support for ROWID data type, true autocommit
                         // and 128 byte column names
                         request.setClientSupportInformation(0xE0000000);
@@ -3904,7 +3509,7 @@ implements Connection
                         }
 
                     }
-                    else if (vrm_ >= JDUtilities.vrm530)                          //@KBA  For IBM i V5R3 and later true auto commit support is supported.
+                    else if (vrm_ >= JDUtilities.vrm530)                          //@KBA  For i5/OS V5R3 and later true auto commit support is supported.
                     {
                         // @KBA - Client support information - indicate our support for ROWID data type and
                         // true auto-commit
@@ -4000,7 +3605,7 @@ implements Connection
                 }
 
                 //@550  Query Storage Limit Support
-                if(vrm_ >= JDUtilities.vrm610){
+                if(vrm_ >= JDUtilities.vrm550){
                     //Set the query storage limit
                     int queryStorageLimit = properties_.getInt(JDProperties.QUERY_STORAGE_LIMIT);
                     if(queryStorageLimit != -1) // Only need to send if we are not using the default of *NOMAX (-1)
@@ -4025,7 +3630,7 @@ implements Connection
                 }
 
                 // Send an RDB name to the system only if connecting to 
-                // v5r2 and newer versions of IBM i
+                // v5r2 and newer versions of i5/OS
                 if (vrm_ >= JDUtilities.vrm520)                                                                   // @J2a
                 {
                     // @J2a
@@ -4041,57 +3646,17 @@ implements Connection
                     }                                                                                             // @J2a
                 }                                                                                                 // @J2a
 
-                //@PDA 550 client interface info settings
+                //@PDA jdbc40 v5r5 client interface info settings
                 //These three settings cannot be updated by user apps.
                 //This gives driver information to host server for any logging or future diagnostics.
-                if (vrm_ >= JDUtilities.vrm610)
+                if (vrm_ >= JDUtilities.vrm550)
                 {
                     //these strings are not mri translated for future diagnostic tools, searching etc on host server
                     request.setInterfaceType( "JDBC", tempConverter); 
-                    request.setInterfaceName( "IBM Toolbox for Java", tempConverter); 
+                    request.setInterfaceName( "Toolbox for Java", tempConverter); 
                     request.setInterfaceLevel( AS400JDBCDriver.DRIVER_LEVEL_, tempConverter);
-                    
-                    //@DFA 550 decfloat rounding mode
-                    short roundingMode = 0;                                                               //@DFA
-                    String roundingModeStr = properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);  //@DFA
-                    if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_EVEN))    //@DFA
-                        roundingMode = 0;                                                          //@DFA
-                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_UP))      //@DFA
-                        roundingMode = 6;                                                          //@DFA
-                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_DOWN))    //@DFA
-                        roundingMode = 2;                                                          //@DFA
-                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_CEILING)) //@DFA
-                        roundingMode = 3;                                                          //@DFA
-                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_FLOOR))   //@DFA
-                        roundingMode = 4;                                                          //@DFA
-                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_UP)) //@DFA
-                        roundingMode = 1;                                                          //@DFA
-                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_DOWN))  //@DFA
-                        roundingMode = 5;                                                             //@DFA
-                   
-                    //only need to send request if not default 0 (half even)
-                    if(roundingMode != 0)                                                             //@DFA
-                        request.setDecfloatRoundingMode(roundingMode);                                //@DFA
-                    
-                    //@eof Close on EOF
-                    request.setCloseEOF( 0xE8) ;
-                    
                 }
 
-                //@710 
-                if (vrm_ >= JDUtilities.vrm710)
-                {
-                    int car = properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);        //@cc1
-                    if( !(properties_.getString(JDProperties.CONCURRENT_ACCESS_RESOLUTION)).equals( JDProperties.CONCURRENTACCESS_NOT_SET ))       //@cc1
-                    {                                                                               //@cc1
-                        request.setConcurrentAccessResolution( car );                               //@cc1
-                        //Use instance variable to to "current setting".
-                        //This will allow the Connection setting to override DataSource 
-                        //setting for future updates to this property from the Connection object.   //@cc1
-                        concurrentAccessResolution_ = car;                                          //@cc1
-                    }                                                                               //@cc1
-                }
-                
                 // Send the request and process the reply.
                 reply = sendAndReceive (request);
 
@@ -4131,11 +3696,8 @@ implements Connection
             }
             finally
             {
-                if (request != null) { 
-                	request.returnToPool(); request = null; 
-                }
-                // We cannot return the reply to the pool while it is still being used in the serverAttributes structure 
-                // if (reply != null) reply.returnToPool();
+                if (request != null) request.inUse_ = false;
+                if (reply != null) reply.inUse_ = false;
             }
 
             // The CCSID that comes back is a mixed CCSID (i.e. mixed
@@ -4176,9 +3738,9 @@ implements Connection
                 int m = (vrm_ & 0x000000ff);                                    // @D1A
                 JDTrace.logInformation (this, "JDBC driver major version = "    // @C2A
                                         + AS400JDBCDriver.MAJOR_VERSION_);      // @C2A
-                //Check version - V5R2 and earlier run on OS/400, V5R3 and later run on IBM i
+                //Check version - V5R2 and earlier run on OS/400, V5R3 and later run on i5/OS
                 if(((v==5) && (r>=3)) || (v>5))
-                    JDTrace.logInformation(this, "IBM i VRM = V" + v
+                    JDTrace.logInformation(this, "i5/OS VRM = V" + v
                                            + "R" + r + "M" + m);
                 else
                     JDTrace.logInformation (this, "OS/400 VRM = V" + v              // @C2A
@@ -4331,12 +3893,6 @@ implements Connection
         {                      // @J5C
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
-        finally 
-        {
-        	// Don't return the reply to the pool until the very end,
-        	// as it is used by the DBReplyServerAttributes object 
-            if (reply != null) { reply.returnToPool(); reply = null; }
-        }
     }
 
 
@@ -4358,12 +3914,12 @@ implements Connection
     isolation level cannot be changed while in the middle of
     a transaction.
     
-    <p>JDBC and DB2 for IBM i use different terminology for transaction
+    <p>JDBC and DB2 for i5/OS use different terminology for transaction
     isolation levels.  The following table provides a terminology
     mapping:
     
     <p><table border>
-    <tr><th>IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
+    <tr><th>i5/OS isolation level</th><th>JDBC transaction isolation level</th></tr>
     <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
     <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
     <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
@@ -4402,10 +3958,10 @@ implements Connection
     Sets the type map to be used for distinct and structured
     types.
     
-    <p>Note: Distinct types are supported by DB2 for IBM i, but
+    <p>Note: Distinct types are supported by DB2 for i5/OS, but
     are not externalized by the IBM Toolbox for Java JDBC driver.
     In other words, distinct types behave as if they are the underlying
-    type.  Structured types are not supported by DB2 for IBM i.
+    type.  Structured types are not supported by DB2 for i5/OS.
     Consequently, this driver does not support the type map.
     
     @param typeMap  The type map.
@@ -4422,7 +3978,7 @@ implements Connection
 
     /**
     Returns the connection's catalog name.  This is the
-    name of the IBM i system.
+    name of the i5/OS system.
     
     @return     The catalog name.
     **/
@@ -4452,8 +4008,6 @@ implements Connection
         return new String[] {  "com.ibm.as400.access.AS400JDBCConnection", "java.sql.Connection" };
     }
 
-
-
     //@PDA jdbc40
     /**
      * Returns true if the connection has not been closed and is still valid.  
@@ -4474,8 +4028,7 @@ implements Connection
      * <p>
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if a database access error occurs.
- */ 
-/* ifdef JDBC40 */
+     */ 
     public boolean isValid(int timeout) throws SQLException 
     { 
         DBSQLRequestDS request = null;
@@ -4486,7 +4039,7 @@ implements Connection
 
         try 
         { 
-            // inner class to run timer in sep thread 
+            /* inner class to run timer in sep thread */
             class CommTimer implements Runnable 
             {      
        
@@ -4556,23 +4109,18 @@ implements Connection
         } 
         finally
         { 
-            if (request != null) {
-                   request.returnToPool(); request = null; 
-            } 
-            if (reply != null) {
-                   reply.returnToPool();  reply = null;   // commented out code 
-            }
+            if (request != null) 
+                request.inUse_ =   false; 
+            if (reply != null)
+                reply.inUse_ = false; 
+            
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Connection.isValid call complete");
         } 
          
     }
-       
-/* endif */ 
-
-
-
-    //@PDA 550 client info
+          
+    //@PDA jdbc40
     /**
      * Sets the value of the client info property specified by name to the 
      * value specified by value.  
@@ -4599,7 +4147,10 @@ implements Connection
      * generates a <code>SQLException</code>, the value specified was not set on the 
      * connection.
      * <p>
-     * The following client info properties are supported in Toobox for Java.  
+     * The following are standard client info properties.  Drivers are not 
+     * required to support these properties however if the driver supports a 
+     * client info property that can be described by one of the standard 
+     * properties, the standard property name should be used.
      * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing 
@@ -4610,8 +4161,6 @@ implements Connection
      *                          in establishing the connection.</li>
      * <li>ClientHostname   -   The hostname of the computer the application 
      *                          using the connection is running on.</li>
-     * <li>ClientAccounting -   Client accounting information.</li>
-     * <li>ClientProgramID  -   The client program identification.</li>
      * </ul>
      * <p>
      * @param name      The name of the client info property to set 
@@ -4619,21 +4168,15 @@ implements Connection
      *                  value is null, the current value of the specified
      *                  property is cleared.
      * <p>
-     * @throws  SQLClientInfoException if the database returns an error while 
+     * @throws  SQLClientInfoException if the database server returns an error while 
      *          setting the client info value on the database server.
      * <p>
      */
-    public void setClientInfo(String name, String value) 
-/* ifdef JDBC40 */
-    throws SQLClientInfoException
-/* endif */ 
-/* ifndef JDBC40 
-    throws SQLException
- endif */ 
+    public void setClientInfo(String name, String value) throws SQLClientInfoException
     {
 
         DBSQLAttributesDS request = null;
-        DBReplyRequestedDS setClientInfoReply = null;
+        DBReplyRequestedDS reply = null;
         ConvTable tempConverter = null;
 
         String oldValue = null;  //save in case we get error from host db
@@ -4644,7 +4187,7 @@ implements Connection
         
         try
         {
-            if (getVRM() >= JDUtilities.vrm610)
+            if (getVRM() >= JDUtilities.vrm550)
             {
                 request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
                 tempConverter = ConvTable.getTable(as400_.getCcsid(), null);
@@ -4654,36 +4197,29 @@ implements Connection
             {
                 oldValue = applicationName_;
                 applicationName_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (getVRM() >= JDUtilities.vrm550)
                     request.setClientInfoApplicationName(value, tempConverter);
 
             } else if (name.equals(clientUserPropertyName_))
             {
                 oldValue = clientUser_;
                 clientUser_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (getVRM() >= JDUtilities.vrm550)
                     request.setClientInfoClientUser(value, tempConverter);
 
             } else if (name.equals(clientAccountingPropertyName_))
             {
                 oldValue = clientAccounting_;
                 clientAccounting_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (getVRM() >= JDUtilities.vrm550)
                     request.setClientInfoClientAccounting(value, tempConverter);
 
             } else if (name.equals(clientHostnamePropertyName_))
             {
                 oldValue = clientHostname_;
                 clientHostname_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (getVRM() >= JDUtilities.vrm550)
                     request.setClientInfoClientHostname(value, tempConverter);
-
-            } else if (name.equals(clientProgramIDPropertyName_))  //@PDA add block for ProgramID
-            {
-                oldValue = clientProgramID_;
-                clientProgramID_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
-                    request.setClientInfoProgramID(value, tempConverter);
 
             } else
             {
@@ -4692,13 +4228,13 @@ implements Connection
                 postWarning(JDError.getSQLWarning(JDError.EXC_SYNTAX_ERROR));
             }
 
-            if ((getVRM() >= JDUtilities.vrm610) && (oldValue != null))
+            if ((getVRM() >= JDUtilities.vrm550) && (oldValue != null))
             {
-            	setClientInfoReply = sendAndReceive(request);
-                int errorClass = setClientInfoReply.getErrorClass();
-                //throw SQLException  
+                reply = sendAndReceive(request);
+                int errorClass = reply.getErrorClass();
+                //throw SQLException and wrap in SQLClientInfoException below
                 if (errorClass != 0)     
-                    JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
+                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
                 
             }
         } catch (Exception e)
@@ -4712,31 +4248,21 @@ implements Connection
                 clientAccounting_ = oldValue;
             else if (name.equals(clientHostnamePropertyName_))
                 clientHostname_ = oldValue;
-            else if (name.equals(clientProgramIDPropertyName_)) //@pda
-                clientProgramID_ = oldValue;
-/* ifdef JDBC40 */
 
             //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
             HashMap m = new HashMap();
             m.put(name, ClientInfoStatus.REASON_UNKNOWN);
             JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m );
-
-/* endif */ 
-/* ifndef JDBC40 
-            JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
- endif */ 
         } finally
         {
-            if (request != null) {
-                request.returnToPool(); request = null; 
-            }
-            if (setClientInfoReply != null) {
-            	setClientInfoReply.returnToPool(); setClientInfoReply = null; // only error class used 
-            }
+            if (request != null)
+                request.inUse_ = false;
+            if (reply != null)
+                reply.inUse_ = false;
         }
     }
 
-    //@PDA 550 client info
+    // @PDA jdbc40
     /**
      * Sets the value of the connection's client info properties. The
      * <code>Properties</code> object contains the names and values of the
@@ -4757,43 +4283,20 @@ implements Connection
      * properties may have been set before the error occurred.
      * <p>
      * 
-     * The following client info properties are supported in Toobox for Java.  
-     * <p>
-     * <ul>
-     * <li>ApplicationName  -   The name of the application currently utilizing 
-     *                          the connection</li>
-     * <li>ClientUser       -   The name of the user that the application using 
-     *                          the connection is performing work for.  This may 
-     *                          not be the same as the user name that was used 
-     *                          in establishing the connection.</li>
-     * <li>ClientHostname   -   The hostname of the computer the application 
-     *                          using the connection is running on.</li>
-     * <li>ClientAccounting -   Client accounting information.</li>
-     * <li>ClientProgramID  -   The client program identification.</li>
-     * </ul>
-     * <p>
-     * 
      * @param properties
      *            the list of client info properties to set
      *            <p>
      * @throws SQLClientInfoException
-     *             if the database returns an error while setting the
-     *             clientInfo values on the database
+     *             if the database server returns an error while setting the
+     *             clientInfo values on the database server
      *             <p>
      */
-    public void setClientInfo(Properties properties) 
-/* ifdef JDBC40 */
-    throws SQLClientInfoException
-/* endif */ 
-/* ifndef JDBC40 
-    throws SQLException
- endif */ 
+    public void setClientInfo(Properties properties) throws SQLClientInfoException
     {
         String newApplicationName = properties.getProperty(applicationNamePropertyName_);
         String newClientHostname = properties.getProperty(clientHostnamePropertyName_);
         String newClientUser = properties.getProperty(clientUserPropertyName_);
         String newClientAccounting = properties.getProperty(clientAccountingPropertyName_);
-        String newClientProgramID = properties.getProperty(clientProgramIDPropertyName_); //@pda
         
         //In order to reset if null value is passed in, use empty string
         //per javadoc, clear its value if not specified in properties 
@@ -4805,15 +4308,13 @@ implements Connection
             newClientUser = "";
         if (newClientAccounting == null)
             newClientAccounting = "";
-        if (newClientProgramID == null)  //@PDA
-            newClientProgramID = "";
         
         DBSQLAttributesDS request = null;
-        DBReplyRequestedDS setClientInfoReply = null;
+        DBReplyRequestedDS reply = null;
         ConvTable tempConverter = null;
         try
         {
-            if (getVRM() >= JDUtilities.vrm610)
+            if (getVRM() >= JDUtilities.vrm550)
             {
                 request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
                 tempConverter = ConvTable.getTable(as400_.getCcsid(), null);
@@ -4826,12 +4327,10 @@ implements Connection
                 
                 request.setClientInfoClientHostname(newClientHostname, tempConverter);
                 
-                request.setClientInfoProgramID(newClientProgramID, tempConverter); //@pda
-                
-                setClientInfoReply = sendAndReceive(request);
-                int errorClass = setClientInfoReply.getErrorClass();
+                reply = sendAndReceive(request);
+                int errorClass = reply.getErrorClass();
                 if (errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
+                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
             }
             
             //update local values after request/reply in case of exception
@@ -4839,11 +4338,9 @@ implements Connection
             clientHostname_ = newClientHostname;
             clientUser_ = newClientUser;
             clientAccounting_ = newClientAccounting;
-            clientProgramID_ = newClientProgramID;
             
-        } catch( Exception e)
+        } catch (Exception e)
         {
-/* ifdef JDBC40 */
             //create Map<String,ClientInfoStatus> for exception constructor
             //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
             HashMap m = new HashMap();
@@ -4854,24 +4351,18 @@ implements Connection
                 m.put(clientInfoName, ClientInfoStatus.REASON_UNKNOWN);
             }
             JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m);
-
-/* endif */ 
-/* ifndef JDBC40 
-        	JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
- endif */ 
+          
         } finally
         {
-            if (request != null) { 
-                request.returnToPool(); request = null; 
-            }
-            if (setClientInfoReply != null)  {
-            	setClientInfoReply.returnToPool(); setClientInfoReply=null; // only error class used  
-            }
+            if (request != null)
+                request.inUse_ = false;
+            if (reply != null)
+                reply.inUse_ = false;
         }
         
     }
 
-    //@PDA 550 client info
+    //@PDA jdbc40
     /**
      * Returns the value of the client info property specified by name.  This 
      * method may return null if the specified client info property has not 
@@ -4882,27 +4373,11 @@ implements Connection
      * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
      * method to determine the client info properties supported by the driver.
      * <p>
-     * 
-     * The following client info properties are supported in Toobox for Java.  
-     * <p>
-     * <ul>
-     * <li>ApplicationName  -   The name of the application currently utilizing 
-     *                          the connection</li>
-     * <li>ClientUser       -   The name of the user that the application using 
-     *                          the connection is performing work for.  This may 
-     *                          not be the same as the user name that was used 
-     *                          in establishing the connection.</li>
-     * <li>ClientHostname   -   The hostname of the computer the application 
-     *                          using the connection is running on.</li>
-     * <li>ClientAccounting -   Client accounting information.</li>
-     * <li>ClientProgramID  -   The client program identification.</li>
-     * </ul>
-     * <p>
      * @param name      The name of the client info property to retrieve
      * <p>
      * @return          The value of the client info property specified
      * <p>
-     * @throws SQLException     if the database returns an error when 
+     * @throws SQLException     if the database server returns an error when 
      *                          fetching the client info value from the database.
      * <p>
      * see java.sql.DatabaseMetaData#getClientInfoProperties
@@ -4917,8 +4392,6 @@ implements Connection
             return clientAccounting_;
         else if (name.equals(clientHostnamePropertyName_))
             return clientHostname_;
-        else if (name.equals(clientProgramIDPropertyName_))  //@pda
-            return clientProgramID_;
         else
         {
             //post generic syntax error for invalid clientInfo name
@@ -4928,33 +4401,17 @@ implements Connection
         }
     }
 
-    //@PDA 550 client info
+    //@PDA jdbc40
     /**
      * Returns a list containing the name and current value of each client info 
      * property supported by the driver.  The value of a client info property 
      * may be null if the property has not been set and does not have a 
      * default value.
      * <p>
-     * 
-     * The following client info properties are supported in Toobox for Java.  
-     * <p>
-     * <ul>
-     * <li>ApplicationName  -   The name of the application currently utilizing 
-     *                          the connection</li>
-     * <li>ClientUser       -   The name of the user that the application using 
-     *                          the connection is performing work for.  This may 
-     *                          not be the same as the user name that was used 
-     *                          in establishing the connection.</li>
-     * <li>ClientHostname   -   The hostname of the computer the application 
-     *                          using the connection is running on.</li>
-     * <li>ClientAccounting -   Client accounting information.</li>
-     * <li>ClientProgramID  -   The client program identification.</li>
-     * </ul>
-     * <p>
      * @return  A <code>Properties</code> object that contains the name and current value of 
      *          each of the client info properties supported by the driver.  
      * <p>
-     * @throws  SQLException if the database returns an error when 
+     * @throws  SQLException if the database server returns an error when 
      *          fetching the client info values from the database
      */
     public Properties getClientInfo() throws SQLException
@@ -4964,14 +4421,9 @@ implements Connection
         props.setProperty(clientAccountingPropertyName_, clientAccounting_);
         props.setProperty(clientHostnamePropertyName_, clientHostname_);
         props.setProperty(clientUserPropertyName_, clientUser_);
-        props.setProperty(clientProgramIDPropertyName_, clientProgramID_); //@pda
         return props;
     }
- 
- 
- 
- 
-     
+    
     //@PDA jdbc40
     /**
      * Constructs an object that implements the <code>Clob</code> interface. The object
@@ -5001,7 +4453,7 @@ implements Connection
      */
     public Blob createBlob() throws SQLException
     {
-        return new AS400JDBCBlob(new byte[0], AS400JDBCBlob.MAX_LOB_SIZE);  //@pdc 0 len array
+        return new AS400JDBCBlob(new byte[1], AS400JDBCBlob.MAX_LOB_SIZE);
     }
   
     //@PDA jdbc40
@@ -5015,39 +4467,33 @@ implements Connection
      * <code>NClob</code> interface can not be constructed.
      *
      */
-/* ifdef JDBC40 */
     public NClob createNClob() throws SQLException
     {
         return new AS400JDBCNClob("", AS400JDBCNClob.MAX_LOB_SIZE);
     }
-/* endif */ 
 
     //@PDA jdbc40
     /**
      * Constructs an object that implements the <code>SQLXML</code> interface. The object
-     * returned initially contains no data. The <code>createXMLStreamWriter</code> object and
+     * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
      * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
      * object.
      * @return An object that implements the <code>SQLXML</code> interface
      * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
      * be constructed
      */
-/* ifdef JDBC40 */
     public SQLXML createSQLXML() throws SQLException
     {
         return new AS400JDBCSQLXML("", AS400JDBCSQLXML.MAX_XML_SIZE); 
     }
-/* endif */ 
-    
-    //@PDA //@array
+
+    //@PDA jdbc40
     /**
      * Factory method for creating Array objects.
      *
      * @param typeName the SQL name of the type the elements of the array map to. The typeName is a
      * database-specific name which may be the name of a built-in type, a user-defined type or a standard  SQL type supported by this database. This
      *  is the value returned by <code>Array.getBaseTypeName</code>
-     *  For Toolbox, the typeName will correspond to a typename in java.sql.Types.
-     *  
      * @param elements the elements that populate the returned object
      * @return an Array object whose elements map to the specified SQL type
      * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
@@ -5055,11 +4501,11 @@ implements Connection
      */
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException
     {
-        //@array            
-        return new AS400JDBCArray(typeName, elements, this.vrm_, this);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        return null;
     }
 
-   //@PDA jdbc40
+    //@PDA jdbc40
     /**
      * Factory method for creating Struct objects.
      *
@@ -5078,86 +4524,6 @@ implements Connection
         return null;
     }
     
-
-    //@2KRA
-    /**
-     * Starts or stops the Database Host Server trace for this connection.
-     * Note:  This method is only supported when running to IBM i V5R3 or later 
-     * and is ignored if you specified to turn on database host server tracing
-     * using the 'server trace' connection property.
-     * @param trace true to start database host server tracing, false to end it.
-     */
-    public void setDBHostServerTrace(boolean trace){
-        try{
-            if(getVRM() >= JDUtilities.vrm530){
-                // See if tracing was specified by server trace property
-                // Server Job Trace
-                boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);  
-                // Database Host Server Trace
-                boolean traceDatabaseHostServer = (((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)); 
-                String serverJobIdentifier = getServerJobIdentifier();
-                boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
-
-                if(!traceDatabaseHostServer){   // database host server trace was not already started
-                    if(trace)   // user requested tracing be turned on
-                    {
-                        try{
-                            if(getVRM() == JDUtilities.vrm530){  // run command for V5R3
-                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                
-                                                       serverJobIdentifier.substring(20) +                    
-                                                       ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +
-                                                       "TRCTYPE((TESTA *INFO))", SQLNaming);                 
-                            }
-                            else{   // run command for V5R4 and higher                                    
-                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                 
-                                                       serverJobIdentifier.substring(20) +                     
-                                                       ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +       
-                                                       "TRCTYPE((*DBHSVR *INFO))", SQLNaming);
-                            }
-                            databaseHostServerTrace_ = true;
-                        }catch(Exception e){
-                            JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start database host server tracing failed, could not trace server job");    
-                        }
-                    }
-                    else // user requested tracing be turned off
-                    {
-                        // Only issue ENDTRC if not already done.
-                        if(!traceServerJob)     // turn off it we don't have to wait to turn off server job tracing
-                        {
-                            try{
-                                JDUtilities.runCommand(this, "QSYS/ENDTRC SSNID(QJT" +
-                                                       serverJobIdentifier.substring(20) +
-                                                       ") DTAOPT(*LIB) DTALIB(QUSRSYS) RPLDTA(*YES) PRTTRC(*YES)", SQLNaming );
-
-                                JDUtilities.runCommand(this, "QSYS/DLTTRC DTAMBR(QJT" +
-                                                       serverJobIdentifier.substring(20) +
-                                                       ") DTALIB(QUSRSYS)", SQLNaming );
-                                databaseHostServerTrace_ = false;
-                            }
-                            catch(Exception e){
-                                JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end database host server tracing failed.");
-                            }
-                        }
-                    }
-                }
-            }
-        }catch(SQLException e){
-            if(JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "Attempt to start/stop database host server tracing failed.");
-        }
-
-    }
-
-
-    //@A2A
-	public boolean doUpdateDeleteBlocking() {
-		return doUpdateDeleteBlocking_; 
-	}
-
-	// @A6A 
-	public int getMaximumBlockedInputRows() { 
-		return maximumBlockedInputRows_; 
-	}
 
 
 }

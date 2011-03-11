@@ -19,18 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -40,7 +35,7 @@ import java.net.MalformedURLException;
 final class SQLDatalink
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private int                     length_;
@@ -416,13 +411,12 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
         return new AS400JDBCNClob(value_, value_.length());
     }
-/* endif */ 
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -430,26 +424,17 @@ implements SQLData
     }
 
     //@pda jdbc40
-/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
+
     //@pda jdbc40
-/* ifdef JDBC40 */
-	public SQLXML getSQLXML() throws SQLException
+    public SQLXML getSQLXML() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        return null;  
     }
 }
 

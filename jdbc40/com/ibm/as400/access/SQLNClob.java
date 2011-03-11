@@ -20,21 +20,16 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;  
-/* endif */ 
 
 //@PDA jdbc40 brand new class
 //This is almost the same as SQLClob, and I would have liked to extend it, but it is final, and so decided
@@ -42,7 +37,8 @@ import java.sql.SQLXML;
 
 final class SQLNClob implements SQLData
 {
-   
+    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
+
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
     private SQLConversionSettings   settings_;
@@ -137,12 +133,8 @@ final class SQLNClob implements SQLData
         } 
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if(!(object instanceof Clob) && //@PDC NClob extends Clob
-                !(object instanceof InputStream) && 
-                !(object instanceof Reader)  //@PDC jdbc40
-/* ifdef JDBC40 */
-                && !(object instanceof SQLXML)
-/* endif */ 
-                ) //@PDC jdbc40
+                !(object instanceof Reader) && //@PDC jdbc40
+                !(object instanceof SQLXML)) //@PDC jdbc40
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
@@ -197,31 +189,6 @@ final class SQLNClob implements SQLData
                         JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                     }
                 }
-                else if(length_ == -2) //@readerlen new else-if block (read all data)
-                {
-                    try
-                    {
-                        int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        Reader stream = (Reader)object;
-                        StringBuffer buf = new StringBuffer();
-                        char[] charBuffer = new char[blockSize];
-                        int totalCharsRead = 0;
-                        int charsRead = stream.read(charBuffer, 0, blockSize);
-                        while(charsRead > -1 )
-                        {
-                            buf.append(charBuffer, 0, charsRead);
-                            totalCharsRead += charsRead;
-                          
-                            charsRead = stream.read(charBuffer, 0, blockSize);
-                        }
-                        value_ = buf.toString();
-
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                    }
-                }
                 else
                 {
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -232,13 +199,11 @@ final class SQLNClob implements SQLData
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
-/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) //@PDA jdbc40 
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
-/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -307,7 +272,7 @@ final class SQLNClob implements SQLData
 
     public int getMaximumPrecision()
     {
-        return AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3 // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
+        return 2147483646; // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
     }
 
     public int getMaximumScale()
@@ -342,14 +307,8 @@ final class SQLNClob implements SQLData
 
     public int getType()
     {
-/* ifdef JDBC40 */
-        return java.sql.Types.NCLOB;
-/* endif */ 
-/* ifndef JDBC40 
-    	return java.sql.Types.CLOB; 
- endif */ 
-    	 
-    	 
+        //return java.sql.Types.NCLOB;
+        return 2011;  //@PDA jdbc40 merge.  Types.NCLOB not in pre-1.6. 
     }
 
     public String getTypeName()
@@ -518,12 +477,7 @@ final class SQLNClob implements SQLData
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
-/* ifdef JDBC40 */
         return new AS400JDBCNClob(value_, maxLength_);
-/* endif */ 
-/* ifndef JDBC40 
-        return new AS400JDBCClob(value_, maxLength_);
- endif */ 
     }
 
     public short getShort()
@@ -579,14 +533,14 @@ final class SQLNClob implements SQLData
         return new StringReader(value_);
     }
     
-/* ifdef JDBC40 */
+
     public NClob getNClob() throws SQLException
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
         return new AS400JDBCNClob(value_, maxLength_);
     }
-/* endif */ 
+
 
     public String getNString() throws SQLException
     {
@@ -595,26 +549,24 @@ final class SQLNClob implements SQLData
         return value_;     
     }
 
-/* ifdef JDBC40 */
+
     public RowId getRowId() throws SQLException
     {
-        //
-        //if(savedObject_ != null) doConversion();
-        //truncated_ = 0;
-        //try
-        //{
-        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
-        //}
-        //catch(NumberFormatException nfe)
-        //{
+        /*
+        if(savedObject_ != null) doConversion();
+        truncated_ = 0;
+        try
+        {
+            return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        }
+        catch(NumberFormatException nfe)
+        {
             // this NClob contains non-hex characters
-            //JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-            //return null;
-        //}
-        
-        //Decided this is of no use because rowid is so specific to the dbms internals.
-        //And there are issues in length and difficulties in converting to a
-        //valid rowid that is useful.
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
+        */
+        //decided this is of no use
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
@@ -624,15 +576,6 @@ final class SQLNClob implements SQLData
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
         return new AS400JDBCSQLXML(value_.toCharArray());     
-    }
-
-/* endif */ 
-    
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
     }
 }
 

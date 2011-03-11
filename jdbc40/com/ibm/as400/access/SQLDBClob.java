@@ -20,25 +20,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLDBClob implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private int                     length_;                    // Length of string, in characters.     @E3C
     private int                     maxLength_;                 // Max length of field, in bytes.       @E3C
@@ -122,22 +117,16 @@ final class SQLDBClob implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        //@selins1 make similar to SQLDBClobLocator
         // If it's a String we check for data truncation.
         if(object instanceof String)
         {
             String s = (String)object;
-            int byteLength = s.length() * 2; //@selins1
-            truncated_ = (byteLength > maxLength_ ? byteLength-maxLength_ : 0); //@selins1
-        } else if( !(object instanceof Reader) &&
-                !(object instanceof InputStream) &&
-                (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob))
-/* ifdef JDBC40 */
-                  && !(object instanceof SQLXML)
-/* endif */ 
-                
-                
-                )
+            truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
+        }
+        //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
+        else if(!(object instanceof Clob) && //@PDC NClob extends Clob
+                !(object instanceof Reader) && //@PDC jdbc40
+                !(object instanceof SQLXML)) //@PDC jdbc40
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
@@ -185,30 +174,6 @@ final class SQLDBClob implements SQLData
                         JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                     }
                 }
-                else if(length_ == -2) //@readerlen new else-if block (read all data)
-                {
-                    try
-                    {
-                        int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        Reader stream = (Reader)object;
-                        StringBuffer buf = new StringBuffer();
-                        char[] charBuffer = new char[blockSize];
-                        int totalCharsRead = 0;
-                        int charsRead = stream.read(charBuffer, 0, blockSize);
-                        while(charsRead > -1 )
-                        {
-                            buf.append(charBuffer, 0, charsRead);
-                            totalCharsRead += charsRead;
-                          
-                            charsRead = stream.read(charBuffer, 0, blockSize);
-                        }
-                        value_ = buf.toString();
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                    }
-                }
                 else
                 {
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -219,14 +184,11 @@ final class SQLDBClob implements SQLData
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
-/* ifdef JDBC40 */
-
             else if(object instanceof SQLXML)  //@PDA jdbc40 
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
-/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -558,15 +520,13 @@ final class SQLDBClob implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
-
     public NClob getNClob() throws SQLException
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
         return new AS400JDBCNClob(value_, maxLength_);
     }
-/* endif */ 
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -576,42 +536,31 @@ final class SQLDBClob implements SQLData
     }
 
     //@pda jdbc40
-/* ifdef JDBC40 */
-
     public RowId getRowId() throws SQLException
     {
-        
-        //if(savedObject_ != null) doConversion();
-        //truncated_ = 0;
-        //try
-        //{
-        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
-        //}
-        //catch(NumberFormatException nfe)
-        //{
+        /*
+        if(savedObject_ != null) doConversion();
+        truncated_ = 0;
+        try
+        {
+            return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        }
+        catch(NumberFormatException nfe)
+        {
             // this Clob contains non-hex characters
-        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-        //    return null;
-        //}
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }*/
         //decided this is of no use
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
-    
+
     //@pda jdbc40
-/* ifdef JDBC40 */
     public SQLXML getSQLXML() throws SQLException
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
         return new AS400JDBCSQLXML(value_.toCharArray());     
-    }
-/* endif */ 
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
     }
 }

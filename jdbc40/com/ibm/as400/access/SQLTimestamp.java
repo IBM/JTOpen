@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,18 +18,13 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -37,7 +32,7 @@ import java.util.Calendar;
 final class SQLTimestamp
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -83,11 +78,7 @@ implements SQLData
             // Parse the string .
             // @E3D else {
 
-            if(calendar == null)
-            {
-                calendar = Calendar.getInstance(); // @F5A
-                calendar.setLenient(false); //@dat1
-            }
+            if(calendar == null) calendar = Calendar.getInstance(); // @F5A
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(5, 7)) - 1);
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(8, 10)));
@@ -95,16 +86,7 @@ implements SQLData
             calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(14, 16)));
             calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(17, 19)));
 
-            Timestamp ts = null;//@dat1
-            try //@dat1
-            {
-                ts = new Timestamp(calendar.getTime().getTime()); //@dat1
-            }catch(Exception e){
-                if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e); //@dat1
-                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
-                return null; //@dat1
-            }
-                
+            Timestamp ts = new Timestamp(calendar.getTime().getTime());
             // @F2A
             // Remember that the value for nanoseconds is optional.  If we don't check the 
             // length of the string before trying to handle nanoseconds for the timestamp, 
@@ -153,18 +135,7 @@ implements SQLData
         StringBuffer buffer = new StringBuffer();
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
         calendar.setTime(ts);
-        
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);  //@tim2
-        if(hourIn == 24 && hour==0)     //@tim2
-        {//@tim2
-            //db2 represents midnight as 24:00 and midnight + 1 min as 00:01, but in java, 24 is midnight of
-            //the next day (ie calendar.set(2007, 9, 10, 24, 0, 0) toString() -> 2007-10-11 00:00)
-            //java changes 1/1/2007 24:00 -> 1/2/2007 00:00
-            //for Native jdbc driver compliance, code block at bottom replaces "00" with "24", but need to
-            //go back one day to counteract java's conversion.
-            calendar.add(Calendar.DATE, -1); 
-        }//@tim2
-        
+
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
         buffer.append('-');
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
@@ -172,7 +143,7 @@ implements SQLData
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
         buffer.append(' '); //@F6C
         //@F6D buffer.append('-');    // @F3C
-        hour = calendar.get(Calendar.HOUR_OF_DAY);       // @F4A //@tim2
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);       // @F4A
         // @F4D buffer.append(JDUtilities.padZeros(calendar.get(Calendar.HOUR_OF_DAY), 2));
         buffer.append(JDUtilities.padZeros(hour, 2));       // @F4C
         buffer.append(':');  //@F6C
@@ -265,11 +236,7 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(calendar == null)
-        {
-            calendar = Calendar.getInstance(); // @F5A
-            calendar.setLenient(false); //@dat1
-        }
+        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
         if(object instanceof String)
         {
             Timestamp ts = stringToTimestamp((String) object, calendar);
@@ -579,11 +546,10 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);  //@pdc
-        return null;   //@pdc
+        truncated_ = 0;
+        return new StringReader(getNString());
     }
     
-/* ifdef JDBC40 */
     //@pda jdbc40
     public NClob getNClob() throws SQLException
     {
@@ -591,8 +557,6 @@ implements SQLData
         return null;
     }
 
-/* endif */ 
-    
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -604,7 +568,6 @@ implements SQLData
         return timestampToString(ts, calendar, hour_);      
     }
 
-/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -614,14 +577,6 @@ implements SQLData
 
     //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

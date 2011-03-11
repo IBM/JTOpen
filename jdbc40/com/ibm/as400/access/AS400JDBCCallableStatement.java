@@ -24,29 +24,20 @@ import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
 import java.sql.Ref;
-/* ifdef JDBC40 */
 import java.sql.ResultSet;              //@G4A
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
 import java.sql.Statement;              //@G4A
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Map;
-/* ifdef JDBC40 */
 import java.util.Hashtable;             //@G4A
 import java.util.Vector;
-/* endif */ 
-
 
 /**
 <p>The AS400JDBCCallableStatement class runs a stored procedure.
@@ -66,9 +57,9 @@ public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatement
 implements CallableStatement
 {
-    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    static final int    NO_VALIDATION_  = -9999;
+    private static final int    NO_VALIDATION_  = -9999;
 
     private int[]               registeredTypes_; // array of types to track what the user registers the output parm as
     private boolean[]           registered_;      // array of booleans to keep track of which parameters were registered
@@ -214,10 +205,8 @@ implements CallableStatement
             parameterNames_ = new String[parameterCount_];
 
             // Cache all the parm names and numbers.
-            Statement s = null; //@scan1
-            ResultSet rs = null; //@scan1
-            try{
-            s = connection_.createStatement();
+
+            Statement s = connection_.createStatement();
             String catalogSeparator = "";                                                           //@74A Added a check for the naming used.  Need to use separator appropriate to naming.
             if (connection_.getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))  //@74A
                 catalogSeparator = ".";                                                             //@74A
@@ -229,7 +218,7 @@ implements CallableStatement
             { // Derive the schema.
               schema = connection_.getDefaultSchema(true); // get raw value
 
-              if(schema == null)	// No default SQL schema was set on the connection url, or by the libraries connection property.
+              if(schema == null)	// No default schema was set on the connection url, or by the libraries connection property.
               {
                 if(catalogSeparator.equals(".")) // using sql naming
                 {
@@ -237,24 +226,23 @@ implements CallableStatement
                 }
                 else // using system naming
                 {
-                  // Retrieve the library list from the IBM i - Use ROI Retrieve Library List.
+                  // Retrieve the library list from the i5/OS - Use ROI Retrieve Library List.
                   ResultSet rs1 = JDUtilities.getLibraries(this, connection_, null, true);
                   Vector libListV = new Vector();
                   while(rs1.next()) {
                     libListV.addElement(rs1.getString(1));
                   }
-                  rs1.close(); //@SS
                   String[] libList = new String[libListV.size()];
                   libListV.toArray(libList);
 
                   // Get a result set that we can scroll forward/backward through.
                   Statement s1 = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                  rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
+                  ResultSet rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
                                   + catalogSeparator
                                   + "SYSPROCS WHERE ROUTINE_NAME='"
                                   + unquote(sqlStatement_.getProcedure())
                                   + "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = "
-                                  + parameterCount_);//@scan1
+                                  + parameterCount_);
                   if(!rs.next())
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);	// didn't find the procedure in any schema
 
@@ -272,17 +260,13 @@ implements CallableStatement
                       }
                     }
                   }
-                  try{
-                      rs.close(); //@SS
-                  }catch(Exception e){} //allow next close to execute
-                  s1.close(); //@SS
                   if(!found)	// none of the libraries in our library list contain a stored procedure that we are looking for
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);
                 }
               }
             }
 
-            rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
+            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
                                           "' AND ROUTINE_NAME = '" + unquote(sqlStatement_.getProcedure()) + //@DELIMc
                                           "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
 
@@ -291,8 +275,7 @@ implements CallableStatement
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL);
 
             String specificName = rs.getString(1);
-            rs.close(); //@SS
-            
+
             rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2" + catalogSeparator + "SYSPARMS WHERE " + //@74A
                                 " SPECIFIC_NAME = '" + unquoteNoUppercase(specificName) + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); //@DELIMc
 
@@ -309,15 +292,6 @@ implements CallableStatement
                 else if(!caseSensitive && colName.equalsIgnoreCase(parameterName))
                     returnParm = colInd;
             }
-            }finally //@scan1
-            {
-                try{
-                    if(rs != null) //@scan1
-                        rs.close(); //@SS
-                }catch(Exception e){} //allow next close to execute
-                if(s != null)  //@scan1
-                    s.close();  //@SS
-            }
     
             // If the number of parm names didn't equal the number of parameters, throw
             // an exception (INTERNAL).
@@ -332,85 +306,40 @@ implements CallableStatement
             JDError.throwSQLException(this, JDError.EXC_COLUMN_NOT_FOUND);
 
         return returnParm;
-    }
+    } */
 
     // JDBC 2.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  parameterIndex  The parameter index (1-based).
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray(int parameterIndex)
     throws SQLException
     {
-        //@array3 implement this method
-        synchronized(internalLock_)
-        {
-            checkOpen();
-
-            SQLData data = null;
-
-            // Check if the parameter index refers to the return value parameter.
-            // If it is not parameter index 1, then decrement the parameter index,
-            // since we are "faking" the return value parameter.
-            if(useReturnValueParameter_ && parameterIndex == 1)
-            {
-                if(!returnValueParameterRegistered_)
-                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
-
-                data = returnValueParameter_;
-            }
-            else
-            {
-                if(useReturnValueParameter_)
-                {
-                    --parameterIndex;
-                }
-
-                // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
-                // Check that the parameter is an output parameter.
-                if(!parameterRow_.isOutput(parameterIndex))
-                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
-
-                // Verify that the output parameter is registered.
-                if(registered_[parameterIndex-1] == false)
-                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
-
-                // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.ARRAY)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
-                // Get the data and check for SQL NULL.
-                data = getValue(parameterIndex);
-            }
-
-            Array value = (data == null) ? null : data.getArray();
-            testDataTruncation(parameterIndex, data);
-            return value;
-        }
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     //@G4A JDBC 3.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
         
     @param  parameterName   The parameter name.
     @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray(String parameterName)
     throws SQLException
     {
-        return getArray(findParameterIndex(parameterName)); //@array3
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     // JDBC 2.0
@@ -673,7 +602,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public boolean getBoolean(int parameterIndex)
@@ -748,7 +677,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public boolean getBoolean(String parameterName)
@@ -774,7 +703,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
     // does not support that.
     //
     public byte getByte(int parameterIndex)
@@ -847,7 +776,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i 
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS 
     // does not support that.
     //
     public byte getByte(String parameterName)
@@ -1434,7 +1363,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
     // does not support that until V4R5.
     //
     public long getLong(int parameterIndex)
@@ -1517,7 +1446,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i 
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS 
     // does not support that until V4R5.
     //
     public long getLong(String parameterName)
@@ -1664,12 +1593,12 @@ implements CallableStatement
     // JDBC 2.0
     /**
     Returns the value of an SQL REF output parameter as a Ref value.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
     
     @param  parameterIndex  The parameter index (1-based).
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public Ref getRef(int parameterIndex)
     throws SQLException
@@ -1681,12 +1610,12 @@ implements CallableStatement
     //@G4A  JDBC 3.0
     /**
     Returns the value of an SQL REF output parameter as a Ref value.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
     
     @param  parameterName   The parameter name.
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public Ref getRef(String parameterName)
     throws SQLException
@@ -2556,7 +2485,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for IBM i 
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS 
     // does not support that.
     //
     public void setBoolean(String parameterName, boolean parameterValue) 
@@ -2586,7 +2515,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i 
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS 
     // does not support that.
     //
     public void setByte(String parameterName, byte parameterValue) 
@@ -2818,7 +2747,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i 
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS 
     // does not support that until V4R5.
     //
     public void setLong(String parameterName, long parameterValue) 
@@ -2888,7 +2817,7 @@ implements CallableStatement
     this to a value of an SQL type, depending on the type of the
     specified value.  The JDBC specification defines a standard
     mapping from Java types to SQL types.  In the cases where a
-    SQL type is not supported by DB2 for IBM i, the
+    SQL type is not supported by DB2 for i5/OS, the
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a> 
     is used.
     <br>If proxy support is in use, the Object must be serializable.
@@ -3410,23 +3339,22 @@ implements CallableStatement
     }
 
     //@PDA jdbc40
-     /**
-      * Retrieves the value of the designated JDBC <code>NCLOB</code> parameter as a
-      * <code>java.sql.NClob</code> object in the Java programming language.
-      * 
-      * @param parameterIndex the first parameter is 1, the second is 2, and
-      * so on
-      * @return the parameter value as a <code>NClob</code> object in the
-      * Java programming language.  If the value was SQL <code>NULL</code>, the
-      * value <code>null</code> is returned.
-      * @exception SQLException if the driver does not support national
-      *         character sets;  if the driver can detect that a data conversion
-      *  error could occur; if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated JDBC <code>NCLOB</code> parameter as a
+     * <code>java.sql.NClob</code> object in the Java programming language.
+     * 
+     * @param parameterIndex the first parameter is 1, the second is 2, and
+     * so on
+     * @return the parameter value as a <code>NClob</code> object in the
+     * Java programming language.  If the value was SQL <code>NULL</code>, the
+     * value <code>null</code> is returned.
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public NClob getNClob(int parameterIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -3477,29 +3405,26 @@ implements CallableStatement
             return value;
         }
     }
-/* endif */ 
-    
+
     //@PDA jdbc40
-     /**
-      * Retrieves the value of a JDBC <code>NCLOB</code> parameter as a
-      * <code>java.sql.NClob</code> object in the Java programming language.
-      * @param parameterName the name of the parameter
-      * @return the parameter value as a <code>NClob</code> object in the
-      *         Java programming language.  If the value was SQL <code>NULL</code>, 
-      *         the value <code>null</code> is returned.
-      * @exception SQLException if the driver does not support national
-      *         character sets;  if the driver can detect that a data conversion
-      *  error could occur; if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of a JDBC <code>NCLOB</code> parameter as a
+     * <code>java.sql.NClob</code> object in the Java programming language.
+     * @param parameterName the name of the parameter
+     * @return the parameter value as a <code>NClob</code> object in the
+     *         Java programming language.  If the value was SQL <code>NULL</code>, 
+     *         the value <code>null</code> is returned.
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public NClob getNClob(String parameterName) throws SQLException
     {
         return getNClob(findParameterIndex(parameterName));  
     }
-/* endif */ 
 
     //@PDA jdbc40
     /**
@@ -3598,20 +3523,19 @@ implements CallableStatement
     }
 
     //@PDA jdbc40
-     /**
-      * Retrieves the value of the designated JDBC <code>ROWID</code> parameter as a  
-      * <code>java.sql.RowId</code> object.  
-      *
-      * @param parameterIndex the first parameter is 1, the second is 2,...
-      * @return a <code>RowId</code> object that represents the JDBC <code>ROWID</code>
-      *     value is used as the designated parameter. If the parameter contains
-      * a SQL <code>NULL</code>, then a <code>null</code> value is returned.
-      * @throws SQLException if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated JDBC <code>ROWID</code> parameter as a  
+     * <code>java.sql.RowId</code> object.  
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2,...
+     * @return a <code>RowId</code> object that represents the JDBC <code>ROWID</code>
+     *     value is used as the designated parameter. If the parameter contains
+     * a SQL <code>NULL</code>, then a <code>null</code> value is returned.
+     * @throws SQLException if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public RowId getRowId(int parameterIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -3658,41 +3582,37 @@ implements CallableStatement
             return value;
         }
     }
-/* endif */ 
-    
+
     //@PDA jdbc40
-     /**
-      * Retrieves the value of the designated JDBC <code>ROWID</code> parameter as a  
-      * <code>java.sql.RowId</code> object.  
-      *
-      * @param parameterName the name of the parameter
-      * @return a <code>RowId</code> object that represents the JDBC <code>ROWID</code>
-      *     value is used as the designated parameter. If the parameter contains
-      * a SQL <code>NULL</code>, then a <code>null</code> value is returned.
-      * @throws SQLException if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated JDBC <code>ROWID</code> parameter as a  
+     * <code>java.sql.RowId</code> object.  
+     *
+     * @param parameterName the name of the parameter
+     * @return a <code>RowId</code> object that represents the JDBC <code>ROWID</code>
+     *     value is used as the designated parameter. If the parameter contains
+     * a SQL <code>NULL</code>, then a <code>null</code> value is returned.
+     * @throws SQLException if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public RowId getRowId(String parameterName) throws SQLException
     {
         return getRowId(findParameterIndex(parameterName));  
     }
-/* endif */ 
     
     //@PDA jdbc40
-     /**
-      * Retrieves the value of the designated <code>SQL XML</code> parameter as a
-      * <code>java.sql.SQLXML</code> object in the Java programming language.
-      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
-      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
-      * @throws SQLException if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated <code>SQL XML</code> parameter as a
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public SQLXML getSQLXML(int parameterIndex) throws SQLException
     {
         synchronized(internalLock_)
@@ -3739,25 +3659,22 @@ implements CallableStatement
             return value;
         }
     }
-/* endif */ 
-    
+
     //@PDA jdbc40
-     /**
-      * Retrieves the value of the designated <code>SQL XML</code> parameter as a
-      * <code>java.sql.SQLXML</code> object in the Java programming language.
-      * @param parameterName the name of the parameter
-      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
-      * @throws SQLException if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated <code>SQL XML</code> parameter as a
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param parameterName the name of the parameter
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public SQLXML getSQLXML(String parameterName) throws SQLException
     {
         return getSQLXML(findParameterIndex(parameterName));  
-    } 
-/* endif */ 
+    }
 
     //@PDA jdbc40
     /**
@@ -3856,23 +3773,24 @@ implements CallableStatement
 
     //@PDA jdbc40
     /**
-     * Sets the designated parameter to a <code>InputStream</code> object.  The <code>InputStream</code> must contain  the number
+     * Sets the designated parameter to a <code>InputStream</code> object.  The <code>inputstream</code> must contain  the number
      * of characters specified by length, otherwise a <code>SQLException</code> will be
      * generated when the <code>CallableStatement</code> is executed.
      * This method differs from the <code>setBinaryStream (int, InputStream, int)</code>
      * method because it informs the driver that the parameter value should be
-     * sent to the system as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
      * the driver may have to do extra work to determine whether the parameter
-     * data should be sent to the system as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      *
      * @param parameterName the name of the parameter to be set
+     * the second is 2, ...
      * 
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
      * @throws SQLException  if parameterIndex does not correspond
      * to a parameter marker in the SQL statement,  or if the length specified
-     * is less than zero; if the number of bytes in the inputStream does not match
+     * is less than zero; if the number of bytes in the inputstream does not match
      * the specfied length; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
@@ -3962,9 +3880,9 @@ implements CallableStatement
      * generated when the <code>CallableStatement</code> is executed.
      * This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the system as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be sent to the system as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
      * @param parameterName the name of the parameter to be set
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
@@ -4019,20 +3937,19 @@ implements CallableStatement
     }
 
     //@PDA jdbc40
-     /**
-      * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
-      * implements the <code>java.sql.NClob</code> interface. This <code>NClob</code>
-      * object maps to a SQL <code>NCLOB</code>.
-      * @param parameterName the name of the parameter to be set
-      * @param value the parameter value
-      * @throws SQLException if the driver does not support national
-      *         character sets;  if the driver can detect that a data conversion
-      *  error could occur; if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
+     * implements the <code>java.sql.NClob</code> interface. This <code>NClob</code>
+     * object maps to a SQL <code>NCLOB</code>.
+     * @param parameterName the name of the parameter to be set
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public void setNClob(String parameterName, NClob value) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -4045,8 +3962,7 @@ implements CallableStatement
 
         setNClob(findParameterIndex(parameterName), value);
     }
-/* endif */ 
-    
+
     //@PDA jdbc40
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
@@ -4054,9 +3970,9 @@ implements CallableStatement
      * generated when the <code>CallableStatement</code> is executed.
      * This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the system as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be sent to the system as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
      * 
      * @param parameterName the name of the parameter to be set
      * @param reader An object that contains the data to set the parameter value to.
@@ -4113,19 +4029,18 @@ implements CallableStatement
     }
 
     //@PDA jdbc40
-     /**
-      * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
-      * driver converts this to a SQL <code>ROWID</code> when it sends it to the
-      * database.
-      *
-      * @param parameterName the name of the parameter
-      * @param x the parameter value
-      * @throws SQLException if a database access error occurs or 
-      * this method is called on a closed <code>CallableStatement</code>
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+     * driver converts this to a SQL <code>ROWID</code> when it sends it to the
+     * database.
+     *
+     * @param parameterName the name of the parameter
+     * @param x the parameter value
+     * @throws SQLException if a database access error occurs or 
+     * this method is called on a closed <code>CallableStatement</code>
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public void setRowId(String parameterName, RowId x) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -4138,23 +4053,21 @@ implements CallableStatement
 
         setRowId(findParameterIndex(parameterName), x);
     }
-/* endif */ 
-    
+
     //@PDA jdbc40
-     /**
-      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
-      * <code>SQL XML</code> value when it sends it to the database.
-      *
-      * @param parameterName the name of the parameter
-      * @param xmlObject a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
-      * @throws SQLException if a database access error occurs, 
-      * this method is called on a closed <code>CallableStatement</code> or 
-      * the <code>java.xml.transform.Result</code>,
-      *  <code>Writer</code> or <code>OutputStream</code> has not been closed for the <code>SQLXML</code> object 
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
-      */
-/* ifdef JDBC40 */
+    /**
+     * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
+     * <code>SQL XML</code> value when it sends it to the database.
+     *
+     * @param parameterName the name of the parameter
+     * @param xmlObject a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs, 
+     * this method is called on a closed <code>CallableStatement</code> or 
+     * the <code>java.xml.transform.Result</code>,
+     *  <code>Writer</code> or <code>OutputStream</code> has not been closed for the <code>SQLXML</code> object 
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -4167,7 +4080,6 @@ implements CallableStatement
 
         setSQLXML(findParameterIndex(parameterName), xmlObject);
     }
-/* endif */ 
 
     //@PDA jdbc40 
     /**
@@ -4243,9 +4155,9 @@ implements CallableStatement
      * Sets the designated parameter to a <code>InputStream</code> object. 
      * This method differs from the <code>setBinaryStream (int, InputStream)</code>
      * method because it informs the driver that the parameter value should be
-     * sent to the system as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
      * the driver may have to do extra work to determine whether the parameter
-     * data should be sent to the system as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     * data should be send to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      *
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
      * it might be more efficient to use a version of 
@@ -4313,9 +4225,9 @@ implements CallableStatement
      * Sets the designated parameter to a <code>Reader</code> object. 
      * This method differs from the <code>setCharacterStream (int, Reader)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the system as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be sent to the system as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
      * 
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
      * it might be more efficient to use a version of 
@@ -4381,9 +4293,9 @@ implements CallableStatement
      * Sets the designated parameter to a <code>Reader</code> object.  
      * This method differs from the <code>setCharacterStream (int, Reader)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the system as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be sent to the system as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
      * it might be more efficient to use a version of 
      * <code>setNClob</code> which takes a length parameter.

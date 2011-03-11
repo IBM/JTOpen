@@ -20,18 +20,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -41,7 +36,8 @@ import java.net.URL;
 final class SQLNChar
 implements SQLData
 {
-   
+    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
+
     // Private data.
     private SQLConversionSettings   settings_;
     private int                     maxLength_;
@@ -258,22 +254,13 @@ implements SQLData
 
     public int getType()
     {
-/* ifdef JDBC40 */
-        return java.sql.Types.NCHAR;
-/* endif */ 
-/* ifndef JDBC40 
-    	return java.sql.Types.CHAR; 
- endif */ 
+        //return java.sql.Types.NCHAR;
+        return -15;  //@PDC jdbc40 merge.  Types.NCHAR not in pre-1.6.  
     }
 
     public String getTypeName()
     {
-/* ifdef JDBC40 */
         return "NCHAR";
-/* endif */ 
-/* ifndef JDBC40 
-    	return "CHAR"; 
- endif */ 
     }
 
     public boolean isSigned()
@@ -391,13 +378,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(getString().trim())).byteValue();           //@trunc
-            Double doubleValue  = new Double (value_.trim ());              //@trunc
-            double d = doubleValue.doubleValue();                           //@trunc
-            if(d > Byte.MAX_VALUE || d < Byte.MIN_VALUE)                    //@trunc
-                truncated_ = 1;                                             //@trunc
-
-            return doubleValue.byteValue ();                                //@trunc
+            return(new Double(getString().trim())).byteValue();
         }
         catch(NumberFormatException e)
         {
@@ -447,11 +428,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLDate.stringToDate(getString(), settings_, calendar);
     }
 
@@ -494,14 +470,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(getString().trim())).intValue();   //@trunc
-            Double doubleValue  = new Double (value_.trim ());     //@trunc
-            double d = doubleValue.doubleValue();                  //@trunc 
-
-            if( d > Integer.MAX_VALUE || d < Integer.MIN_VALUE)    //@trunc    
-                truncated_ = 1;                                    //@trunc
-                 
-            return doubleValue.intValue ();                        //@trunc
+            return(new Double(getString().trim())).intValue();
         }
         catch(NumberFormatException e)
         {
@@ -517,14 +486,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(getString().trim())).longValue();  //@trunc
-            Double doubleValue  = new Double (value_.trim ()); //@trunc
-            double d = doubleValue.doubleValue();              //@trunc
-
-            if( d > Long.MAX_VALUE || d < Long.MIN_VALUE)      //@trunc
-                truncated_ = 1;                                //@trunc
-
-            return doubleValue.longValue ();                   //@trunc
+            return(new Double(getString().trim())).longValue();
         }
         catch(NumberFormatException e)
         {
@@ -548,14 +510,7 @@ implements SQLData
 
         try
         {
-            //return(new Double(getString().trim())).shortValue();           //@trunc
-            Double doubleValue  = new Double (value_.trim ());               //@trunc
-            double d = doubleValue.doubleValue();                            //@trunc
-
-            if( d > Short.MAX_VALUE || d < Short.MIN_VALUE)                  //@trunc      
-                truncated_ = 1;                                              //@trunc
-
-            return doubleValue.shortValue ();                                //@trunc
+            return(new Double(getString().trim())).shortValue();
         }
         catch(NumberFormatException e)
         {
@@ -584,11 +539,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLTime.stringToTime(getString(), settings_, calendar);
     }
 
@@ -596,11 +546,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLTimestamp.stringToTimestamp(getString(), calendar);
     }
 
@@ -638,7 +583,7 @@ implements SQLData
         return new StringReader(getNString());
     }
     
-/* ifdef JDBC40 */
+
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
@@ -648,7 +593,7 @@ implements SQLData
         String string = getNString();
         return new AS400JDBCNClob(string, string.length());
     }
-/* endif */ 
+
 
     public String getNString() throws SQLException
     {
@@ -665,28 +610,27 @@ implements SQLData
         } 
     }
 
-/* ifdef JDBC40 */
+
     public RowId getRowId() throws SQLException
     {
-        
-        //truncated_ = 0;
-        //try
-        //{
-        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
-        //}
-        //catch(NumberFormatException nfe)
-        //{
+        /*
+        truncated_ = 0;
+        try
+        {
+            return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        }
+        catch(NumberFormatException nfe)
+        {
             // this string contains non-hex characters
-        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-        //    return null;
-        //}
-        
-        //Decided this is of no use because rowid is so specific to the dbms internals.
-        //And there are issues in length and difficulties in converting to a
-        //valid rowid that is useful.
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
+        */
+        //decided this is of no use
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
+
   
     public SQLXML getSQLXML() throws SQLException
     {
@@ -694,14 +638,6 @@ implements SQLData
         // handle truncating to the max field size if needed.
         truncated_ = 0;
         return new AS400JDBCSQLXML(getString().toCharArray());     
-    }
-/* endif */ 
-
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
     }
 }
 

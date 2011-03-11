@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,13 +17,12 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-/* ifdef JDBC40 */
 import java.sql.RowIdLifetime;
-/* endif */ 
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.Vector;                            // @D0A
+import java.io.IOException;                         // @J0A
 
 
 
@@ -65,14 +64,14 @@ double-quotes.
 //   When the parameter is NOT search pattern capable and:
 //     null is specified for:
 //             catalog (system) - parameter is ignored
-//             schema (library) - use default SQL schema
-//                                The default SQL schema can be
+//             schema (library) - use default library
+//                                The default library can be
 //                                set in the URL. If not
 //                                specified in URL, the first
 //                                library specified in the library
 //                                properties is used as the
-//                                default SQL schema.
-//                                If no default SQL schema exists,
+//                                default library.
+//                                If no default library exists,
 //                                QGPL is used.
 //             table (file)     - empty result set is returned
 //             column (field)   - empty result set is returned
@@ -97,15 +96,14 @@ double-quotes.
 //
 //----------------------------------------------------------
 
-public class AS400JDBCDatabaseMetaData
-/* ifdef JDBC40 */
-extends ToolboxWrapper 
-/* endif */ 
-
+public class AS400JDBCDatabaseMetaData extends ToolboxWrapper //@pdc jdbc40
 implements DatabaseMetaData
 {
-  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
+
+    static final int    JDBC_MAJOR_VERSION          = 3;        // @G4A
+    static final int    JDBC_MINOR_VERSION          = 0;        // @G4A
 
     //New constants for JDBC 3.0.
     public static final int sqlStateXOpen = 1;
@@ -117,27 +115,6 @@ implements DatabaseMetaData
     private int                     id_;
     private SQLConversionSettings   settings_;
 
-    //@mdsp misc constants for sysibm stored procedures
-    final static int SQL_NO_NULLS            = 0;   //@mdsp
-    final static int SQL_NULLABLE            = 1;   //@mdsp
-    final static int SQL_NULLABLE_UNKNOWN    = 2;   //@mdsp
-    final static int SQL_BEST_ROWID          = 1;   //@mdsp
-    final static int SQL_ROWVER              = 2;   //@mdsp
-    static final String EMPTY_STRING         = "";  //@mdsp
-    static final String MATCH_ALL            = "%"; //@mdsp
-    
-
-    private static final String VIEW          = "VIEW";          //@mdsp
-    private static final String TABLE         = "TABLE";         //@mdsp
-    private static final String SYSTEM_TABLE  = "SYSTEM TABLE";  //@mdsp
-    private static final String ALIAS         = "ALIAS";         //@mdsp
-    private static final String MQT           = "MATERIALIZED QUERY TABLE";      //@mdsp
-    private static final String SYNONYM       = "SYNONYM";       //@mdsp
-    private static final String FAKE_VALUE    = "QCUJOFAKE";     //@mdsp
-    private static final int  SQL_ALL_TYPES   = 0;               //@mdsp
-    
-    // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
-    static final int MAX_LOB_LENGTH           = 2147483646;      //@xml3
 
 
 
@@ -274,7 +251,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog. Since DB2 for IBM i does not support 
+    catalog, not the attributes catalog. Since DB2 for i5/OS does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -330,11 +307,11 @@ implements DatabaseMetaData
                        is ignored.  If empty string is specified,
                        an empty result set is returned.
   @param  schema         The schema name. If null is specified, the
-                       default SQL schema specified in the URL is used.
-                       If null is specified and a default SQL schema was not
+                       default library specified in the URL is used.
+                       If null is specified and a default library was not
                        specified in the URL, the first library specified
                        in the libraries properties file is used.
-                       If null is specified and a default SQL schema was
+                       If null is specified and a default library was
                        not specified in the URL and a library was not
                        specified in the libraries properties file,
                        QGPL is used.
@@ -368,37 +345,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
-        DBReplyRequestedDS getBestRowIdentifierReply = null;
 
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLSPECIALCOLUMNS(?,?,?,?,?,?,?)");
-            
-            cstmt.setShort(1, (short)SQL_BEST_ROWID); 
-            cstmt.setString(2, normalize(catalog));
-            cstmt.setString(3, normalize(schema));
-            cstmt.setString(4, normalize(table));
-            cstmt.setShort(5, (short) scope);
-            if (nullable) {
-                cstmt.setShort(6, (short) SQL_NULLABLE);
-            } else {
-                cstmt.setShort(6, (short) SQL_NO_NULLS);
-            }
-            cstmt.setString(7,
-                "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cstmt.execute();
-
-            ResultSet rs = cstmt.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cstmt.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         // Initialize the format of the result set.
         String[] fieldNames = { "SCOPE",
             "COLUMN_NAME",
@@ -410,14 +357,14 @@ implements DatabaseMetaData
             "PSEUDO_COLUMN",
         };
 
-        SQLData[] sqlData = { new SQLSmallint (vrm), // scope //@trunc3
+        SQLData[] sqlData = { new SQLSmallint (), // scope
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (vrm),    // data type   //@trunc3
+            new SQLSmallint (),    // data type
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (vrm),     // column size    //@trunc3
-            new SQLInteger (vrm),     // buffer length  //@trunc3
-            new SQLSmallint (vrm),    // decimal digits //@trunc3
-            new SQLSmallint (vrm),    // pseudo column  //@trunc3
+            new SQLInteger (),     // column size
+            new SQLInteger (),     // buffer length
+            new SQLSmallint (),    // decimal digits
+            new SQLSmallint (),    // pseudo column
         };
 
         int[] fieldNullables = { columnNoNulls,  // scope
@@ -462,7 +409,7 @@ implements DatabaseMetaData
 
                  ( (scope == bestRowTransaction) &&
                    ( (connection_.getAutoCommit()==true) ||
-                     (connection_.getTransactionIsolation() != Connection.TRANSACTION_REPEATABLE_READ)))))
+                     (connection_.getTransactionIsolation() != connection_.TRANSACTION_REPEATABLE_READ)))))
             { // Return empty result set
                 rowCache = new JDSimpleRowCache(formatRow);
             }
@@ -473,6 +420,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
 
@@ -486,7 +434,7 @@ implements DatabaseMetaData
 
                     // Set the library name
                     if (schema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setLibraryName(connection_.getDefaultSchema(), connection_.converter_); //@P0C
                     }
                     else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
@@ -511,23 +459,23 @@ implements DatabaseMetaData
                     //--------------------------------------------------------
                     //  Send the request and cache all results from the system
                     //--------------------------------------------------------
-                    if (getBestRowIdentifierReply != null) { getBestRowIdentifierReply.returnToPool(); getBestRowIdentifierReply=null; } 
-                    getBestRowIdentifierReply = connection_.sendAndReceive(request);
+
+                    reply = connection_.sendAndReceive(request);
 
 
                     // Check for errors - throw exception if errors were
                     // returned
-                    int errorClass = getBestRowIdentifierReply.getErrorClass();
+                    int errorClass = reply.getErrorClass();
                     if (errorClass !=0)
                     {
-                        int returnCode = getBestRowIdentifierReply.getReturnCode();
+                        int returnCode = reply.getReturnCode();
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
                     // Get the data format and result data
-                    DBDataFormat dataFormat = getBestRowIdentifierReply.getDataFormat();
-                    DBData resultData = getBestRowIdentifierReply.getResultData();
+                    DBDataFormat dataFormat = reply.getDataFormat();
+                    DBData resultData = reply.getResultData();
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
@@ -549,9 +497,8 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null; }
-                    // Cannot return to pool yet because array in use by resultData.  Pased to result set to be closed there 
-                    // if (getBestRowIdentifierReply != null) getBestRowIdentifierReply.returnToPool();
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }
         }
@@ -560,7 +507,7 @@ implements DatabaseMetaData
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "BestRowIdentifier", connection_, getBestRowIdentifierReply); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "BestRowIdentifier");
     }
 
 
@@ -570,9 +517,9 @@ implements DatabaseMetaData
     /**
     Returns the catalog name available in this database.  This
     will return a ResultSet with a single row, whose value is
-    the IBM i system name.
+    the i5/OS system name.
     
-    @return      The ResultSet containing the IBM i system name.
+    @return      The ResultSet containing the i5/OS system name.
     
     @exception  SQLException    If the connection is not open
                                 or an error occurs.
@@ -582,26 +529,6 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();     
 
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cstmt = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
-
-            cstmt.setString(1, "%");
-            cstmt.setString(2, "%");
-            cstmt.setString(3, "%");
-            cstmt.setString(4, "%");
-            cstmt.setString(5, "DATATYPE='JDBC';GETCATALOGS=1;CURSORHOLD=1");
-            cstmt.execute();
-            ResultSet rs = cstmt.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cstmt.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         String[] fieldNames = {"TABLE_CAT"};
         SQLData[] sqlData   = { new SQLVarchar (128, settings_)};
         int[] fieldNullables = {columnNoNulls};    // Catalog Name
@@ -610,7 +537,7 @@ implements DatabaseMetaData
         boolean[][] nulls = {{false}};
         boolean[][] dataMappingErrors = {{false}};
 
-        // If running to a system running OS/400 v5r2 or IBM i the list can contain more than just the system
+        // If running to a system running OS/400 v5r2 or i5/OS the list can contain more than just the system
         // name (when IASPs are on the system).  Try to retrieve that list.  Note 
         // if getting the list fails we will still return a result set containing
         // one item -- the name of the system.  We just built that result set 
@@ -623,26 +550,14 @@ implements DatabaseMetaData
             try
             {                                                                          // @F1a                                                                            // @F1a
                 Vector RDBEntries = new Vector();                                        // @F1a
-                
-                Statement statement = null; //@scan1
-                ResultSet rs = null;        //@scan1
-                try
-                {
-                    statement = connection_.createStatement();                     // @F1a
-                    rs = statement.executeQuery("SELECT LOCATION FROM QSYS2" + getCatalogSeparator() + "SYSCATALOGS WHERE RDBTYPE = 'LOCAL' AND RDBASPSTAT='AVAILABLE' ");  // @F1a
-                    while (rs.next())                                                        // @F1a
-                    {                                                                        // @F1a
-                        RDBEntries.add(rs.getString(1).trim());                              // @F1a
-                    }           
-                }finally   //@scan1
-                {
-                    try{
-                    if(rs != null)
-                        rs.close();     
-                    }catch(Exception e){} //allow next close to execute
-                    if(statement != null)
-                        statement.close();         
-                }
+                Statement statement = connection_.createStatement();                     // @F1a
+                ResultSet rs = statement.executeQuery("SELECT LOCATION FROM QSYS2" + getCatalogSeparator() + "SYSCATALOGS WHERE RDBTYPE = 'LOCAL' AND RDBASPSTAT='AVAILABLE' ");  // @F1a
+                while (rs.next())                                                        // @F1a
+                {                                                                        // @F1a
+                    RDBEntries.add(rs.getString(1).trim());                              // @F1a
+                }                                                                        // @F1a
+                rs.close();                                                              // @F1a
+                statement.close();                                                       // @F1a
                 int count = RDBEntries.size();                                           // @F1a
                 if (count > 0)                                                           // @F1a
                 {                                                                        // @F1a
@@ -670,7 +585,7 @@ implements DatabaseMetaData
         }                                                                                // @F1a
 
         JDSimpleRowCache rowCache = new JDSimpleRowCache (formatRow, data, nulls, dataMappingErrors);
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "Catalogs", connection_, null); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "Catalogs");
     }
 
 
@@ -700,7 +615,7 @@ implements DatabaseMetaData
 
 
     /**
-    Returns the DB2 for IBM i SQL term for "catalog".
+    Returns the DB2 for i5/OS SQL term for "catalog".
     
     @return     The term "System".
     
@@ -721,11 +636,11 @@ implements DatabaseMetaData
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
     @param  schema          The schema name. If null is specified, the
-                            default SQL schema specified in the URL is used.
-                            If null is specified and a default SQL schema was not
+                            default library specified in the URL is used.
+                            If null is specified and a default library was not
                             specified in the URL, the first library specified
                             in the libraries properties file is used.
-                            If null is specified and a default SQL schema was
+                            If null is specified and a default library was
                             not specified in the URL and a library was not
                             specified in the libraries properties file,
                             QGPL is used.
@@ -752,44 +667,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-        // int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call - move block to top of method
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            //@PDC change to use sysibm.sqlcolprivileges stored procedure 
-            
-            // Set the library name
-            //@mdsp follow Native JDBC logic
-            /*if (schema == null)
-            {   // use default SQL schema or qgpl
-                schema = normalize(connection_.getDefaultSchema());
-            }
-            else schema = normalize(schema);
-            
-            // Set the table name
-            table = normalize(table);
-            */
-            // Set the column name and search pattern
-            // If null, do not set parameter. The system default
-            // value of *ALL is used.
-            
-            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
-            
-            cstmt.setString(1, normalize(catalog));
-            cstmt.setString(2, normalize(schema));
-            cstmt.setString(3, normalize(table));
-            cstmt.setString(4, normalize(columnPattern));
-            cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");  //@pdc options per db2 common design.  //@mdsp more native synch
-            ResultSet rs = cstmt.executeQuery();
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cstmt.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
+
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -847,10 +725,10 @@ implements DatabaseMetaData
                 ((columnPattern != null) && (columnPattern.length()==0)))
         { // Return empty result set
             rowCache = new JDSimpleRowCache (formatRow);
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_, null); //@in2 //@PDC
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges"); //@PDC
             
         }
-        else
+        else if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_ROI))
         {
             // parameter values are valid, build request & send
             // Create a request
@@ -866,7 +744,7 @@ implements DatabaseMetaData
                         DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
                 // Set the library name
                 if (schema == null)
-                {   // use default SQL schema or qgpl
+                {   // use default library or qgpl
                     request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C @P0C
                 }
                 else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
@@ -942,20 +820,46 @@ implements DatabaseMetaData
                     rowCache = new JDSimpleRowCache(formatRow);
             } catch (DBDataStreamException e)
             {
-            	if (reply != null) { reply.returnToPool(); reply = null; }
                 JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             }
             finally
             {
-                if (request != null) { request.returnToPool(); request = null; }
-                // if (reply != null) { reply.returnToPool(); reply = null; }
+                if (request != null) request.inUse_ = false;
+                if (reply != null) reply.inUse_ = false;
             }
             // Return the results
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_, reply); //@in2
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges");
      
         }  // End of else to build and send request
         
-      
+        else
+        {
+            //@PDC change to use sysibm.sqlcolprivileges stored procedure 
+            
+            // Set the library name
+            if (schema == null)
+            {   // use default library or qgpl
+                schema = normalize(connection_.getDefaultSchema());
+            }
+            else schema = normalize(schema);
+            
+            // Set the table name
+            table = normalize(table);
+            
+            // Set the column name and search pattern
+            // If null, do not set parameter. The system default
+            // value of *ALL is used.
+            
+            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
+            
+            cstmt.setString(1, catalog);
+            cstmt.setString(2, schema);
+            cstmt.setString(3, table);
+            cstmt.setString(4, columnPattern);
+            cstmt.setObject(5, "DATATYPE='JDBC';CURSORHOLD=1");  //@pdc options per db2 common design
+            ResultSet rs = cstmt.executeQuery();
+            return rs;
+        }
              
     }
 
@@ -969,14 +873,9 @@ implements DatabaseMetaData
     @param  catalog         The catalog name. If null is specified, this parameter
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
-    @param  schemaPattern   The schema name pattern.  
-                            If the "metadata source" connection property is set to 0 
-                            and null is specified, no value is sent to the system and 
-                            the default of *USRLIBL is used.  
-                            If the "metadata source" connection property is set to 1
-                            and null is specified, then information from all schemas 
-                            will be returned. 
-                            If an empty string
+    @param  schemaPattern   The schema name pattern.  If null is specified,
+                            no value is sent to the system and the system
+                            default of *USRLIBL is used.  If empty string
                             is specified, an empty result set is returned.
     @param  tablePattern    The table name pattern. If null is specified,
                             no value is sent to the system and the system
@@ -1000,8 +899,6 @@ implements DatabaseMetaData
     throws SQLException
     {
 
-        DBReplyRequestedDS reply = null;
-
         connection_.checkOpen ();
 
 
@@ -1011,40 +908,6 @@ implements DatabaseMetaData
         SQLData[] sqlData = null;                 //@F2C
         int[] fieldNullables = null;              //@F2C
         //@F2A Result sets must be different depending on whether we are running under JDBC 3.0
-        //@pda jdbc40 is also contained in same block as jdbc30, since this file is jdbc40 only compiled.
-        int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLCOLUMNS(?,?,?,?,?)");
-     
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schemaPattern));
-            cs.setString(3, normalize(tablePattern));
-            cs.setString(4, normalize(columnPattern));
-/* ifdef JDBC40 */
-            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
-/* endif */ 
-/* ifndef JDBC40 
-            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
- endif */ 
-            cs.execute();
-
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-            
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-
-            // Create an return the result set for the request.
-            // Note: This will failed until SQLCOLUMNS returns more columns
-            // return new DB2RSGetColumns40(x, isTransactional);
-        }
-        
         if (!isJDBC3)                             //@F2A
         {
             // Set up the result set in the format required by JDBC
@@ -1072,19 +935,19 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // library
                 new SQLVarchar (128, settings_),  // table
                 new SQLVarchar (128, settings_),  // column
-                new SQLSmallint (vrm), // data type  //@trunc3
+                new SQLSmallint (), // data type
                 new SQLVarchar (128, settings_),  // type name
-                new SQLInteger (vrm),  // column size  //@trunc3
-                new SQLInteger (vrm),  // buffer length //@trunc3
-                new SQLInteger (vrm), // decimal digits //@trunc3
-                new SQLInteger (vrm), // radix //@trunc3
-                new SQLInteger (vrm), // nullable //@trunc3
+                new SQLInteger (),  // column size
+                new SQLInteger (),  // buffer length
+                new SQLInteger (), // decimal digits
+                new SQLInteger (), // radix
+                new SQLInteger (), // nullable
                 new SQLVarchar (254, settings_),  // remarks
-                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def   //@550 Column default value support
-                new SQLInteger (vrm),  // sql data type //@trunc3
-                new SQLInteger (vrm),  // datetime sub //@trunc3
-                new SQLInteger (vrm),  // octet length //@trunc3
-                new SQLInteger (vrm),  // ordinal  //@trunc3
+                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm550) ? 2000 : 254, settings_),  // column def   //@550 Column default value support
+                new SQLInteger (),  // sql data type
+                new SQLInteger (),  // datetime sub
+                new SQLInteger (),  // octet length
+                new SQLInteger (),  // ordinal
                 new SQLVarchar (254, settings_),  // is nullable
             };
 
@@ -1129,48 +992,34 @@ implements DatabaseMetaData
                 "CHAR_OCTET_LENGTH",
                 "ORDINAL_POSITION",
                 "IS_NULLABLE",
-/* ifdef JDBC40 */
-                "SCOPE_CATLOG",    //@G4A
-/* endif */ 
-/* ifndef JDBC40 
                 "SCOPE_CATALOG",    //@G4A
- endif */ 
                 "SCOPE_SCHEMA",     //@G4A
                 "SCOPE_TABLE",      //@G4A
-/* ifndef JDBC40 
                 "SOURCE_DATA_TYPE"  //@G4A
- endif */ 
-/* ifdef JDBC40 */
-                "SOURCE_DATA_TYPE", //@G4A
-                "IS_AUTOINCREMENT"  //jdbc40
-/* endif */ 
             };
 
             sqlData = new SQLData[] { new SQLVarchar (128, settings_), // catalog
                 new SQLVarchar (128, settings_),  // library
                 new SQLVarchar (128, settings_),  // table
                 new SQLVarchar (128, settings_),  // column
-                new SQLSmallint (vrm), // data type //@trunc3
+                new SQLSmallint (), // data type
                 new SQLVarchar (128, settings_),  // type name
-                new SQLInteger (vrm),  // column size //@trunc3
-                new SQLInteger (vrm),  // buffer length //@trunc3
-                new SQLInteger (vrm), // decimal digits //@trunc3
-                new SQLInteger (vrm), // radix //@trunc3
-                new SQLInteger (vrm), // nullable //@trunc3
+                new SQLInteger (),  // column size
+                new SQLInteger (),  // buffer length
+                new SQLInteger (), // decimal digits
+                new SQLInteger (), // radix
+                new SQLInteger (), // nullable
                 new SQLVarchar (254, settings_),  // remarks
-                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def
-                new SQLInteger (vrm),  // sql data type //@trunc3
-                new SQLInteger (vrm),  // datetime sub //@trunc3
-                new SQLInteger (vrm),  // octet length //@trunc3
-                new SQLInteger (vrm),  // ordinal //@trunc3
+                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm550) ? 2000 : 254, settings_),  // column def
+                new SQLInteger (),  // sql data type
+                new SQLInteger (),  // datetime sub
+                new SQLInteger (),  // octet length
+                new SQLInteger (),  // ordinal
                 new SQLVarchar (254, settings_),  // is nullable
                 new SQLVarchar (128, settings_),  // scope catalog       //@G4A
                 new SQLVarchar (128, settings_),  // scope schema        //@G4A
                 new SQLVarchar (128, settings_),  // scope table         //@G4A
-                new SQLSmallint (vrm), // source data type    //@G4A //@trunc3
-/* ifdef JDBC40 */
-                new SQLVarchar (128, settings_),  // is autoincrement    //jdbc40
-/* endif */ 
+                new SQLSmallint (), // source data type    //@G4A
             };
 
             fieldNullables = new int[] {columnNullable, // catalog
@@ -1195,9 +1044,6 @@ implements DatabaseMetaData
                 columnNullable, // scope schema     //@G4A
                 columnNullable, // scope table      //@G4A
                 columnNullable, // source data type //@G4A
-/* ifdef JDBC40 */
-                columnNoNulls,  // is autoincrement //jdbc40
-/* endif */ 
             };
         }
 
@@ -1236,6 +1082,7 @@ implements DatabaseMetaData
                 // Create a request
                 //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -1284,7 +1131,7 @@ implements DatabaseMetaData
 
                     // Set the Field Information to Return Bitmap
                     // Return everything but the reserved fields
-                    if(connection_.getVRM() >= JDUtilities.vrm610)  //@550 column default value support
+                    if(connection_.getVRM() >= JDUtilities.vrm550)  //@550 column default value support
                         request.setFieldReturnInfoBitmap(0xEFF70000);   //@550 request column default, 16th bit
                     else                                                //@550
                         request.setFieldReturnInfoBitmap(0xEFF60000);   // @E3C   //@KKB changed from EFF20000 inorder to request CCSID
@@ -1329,12 +1176,7 @@ implements DatabaseMetaData
                     if (!isJDBC3)                  //@F2A
                         maps = new JDFieldMap[18];
                     else
-/* ifdef JDBC40 */
-                       maps = new JDFieldMap[23]; //@G4A //jdbc40
-/* endif */ 
-/* ifndef JDBC40 
                         maps = new JDFieldMap[22]; //@G4A
- endif */ 
 
                     maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                     maps[1] = new JDSimpleFieldMap (1); // library
@@ -1384,9 +1226,6 @@ implements DatabaseMetaData
                         maps[19] = new JDHardcodedFieldMap ("", true, false);  // scope schema     //@G4A
                         maps[20] = new JDHardcodedFieldMap ("", true, false);  // scope table      //@G4A
                         maps[21] = new JDHardcodedFieldMap (new Short((short) 0)); // source data type //@G4A
-/* ifdef JDBC40 */
-                        maps[22] = new JDHardcodedFieldMap ("");  // is autoincrement "" till switch to sysibm //jdbc40
-/* endif */ 
                     }
 
                     // Create the mapped row cache that is returned in the
@@ -1396,8 +1235,8 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null; } 
-                    // if (reply != null) {  reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  // end of else blank
 
@@ -1405,13 +1244,12 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Columns", connection_, reply); //@in2
+                                       "Columns");
 
     }  // End of getColumns
 
@@ -1447,11 +1285,11 @@ implements DatabaseMetaData
     @param  primarySchema    The name of the schema where the primary table
                              is located.
                              If null is specified, the
-                             default SQL schema specified in the URL is used.
-                             If null is specified and a default SQL schema was not
+                             default library specified in the URL is used.
+                             If null is specified and a default library was not
                              specified in the URL, the first library specified
                              in the libraries properties file is used.
-                             If null is specified,a default SQL schema was
+                             If null is specified,a default library was
                              not specified in the URL, and a library was not
                              specified in the libraries properties file,
                              QGPL is used.
@@ -1465,11 +1303,11 @@ implements DatabaseMetaData
                              result set is returned.
     @param  foreignSchema    The name of the schema where the primary table
                              is located. If null is specified, the
-                             default SQL schema specified in the URL is used.
-                             If null is specified and a default SQL schema was not
+                             default library specified in the URL is used.
+                             If null is specified and a default library was not
                              specified in the URL, the first library specified
                              in the libraries properties file is used.
-                             If null is specified, a default SQL schema was
+                             If null is specified, a default library was
                              not specified in the URL, and a library was not
                              specified in the libraries properties file,
                              QGPL is used.
@@ -1532,35 +1370,8 @@ implements DatabaseMetaData
                                         String foreignTable)
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
-
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall(
-              "CALL SYSIBM"+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
-               
-            cs.setString(1, normalize(primaryCatalog));
-            cs.setString(2, normalize(primarySchema));
-            cs.setString(3, normalize(primaryTable));
-            cs.setString(4, normalize(foreignCatalog));
-            cs.setString(5, normalize(foreignSchema));
-            cs.setString(6, normalize(foreignTable));
-            cs.setString(7, "DATATYPE='JDBC';EXPORTEDKEY=0;IMPORTEDKEY=0;DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cs.execute();
 
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -1589,12 +1400,12 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (vrm),    // key seq //@trunc3
-            new SQLSmallint (vrm),    // update rule //@trunc3
-            new SQLSmallint (vrm),    // delete rule //@trunc3
+            new SQLSmallint (),    // key seq
+            new SQLSmallint (),    // update rule
+            new SQLSmallint (),    // delete rule
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (vrm),    // deferrability //@trunc3
+            new SQLSmallint (),    // deferrability
         };
 
         int[] fieldNullables = {columnNullable,  // pk catalog
@@ -1643,6 +1454,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -1653,14 +1465,14 @@ implements DatabaseMetaData
 
                     // Set the primary key file library name
                     if (primarySchema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_); // @E4C @P0C
                     }
                     else request.setPrimaryKeyFileLibraryName(normalize(primarySchema), connection_.converter_);              // @E4C @P0C
 
                     // Set the foreign key file library name
                     if (foreignSchema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C @P0C
                     }
                     else request.setForeignKeyFileLibraryName(normalize(foreignSchema), connection_.converter_);                  // @E4C @P0C
@@ -1691,7 +1503,6 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; } 
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -1741,21 +1552,20 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null; }
-                    // if (reply != null) {  reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
 
         // Return the results
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "CrossReference", connection_, reply); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "CrossReference");
 
     }  // End of getCrossReference
 
@@ -1769,25 +1579,7 @@ implements DatabaseMetaData
     **/
     public int getDatabaseMajorVersion ()
     {
-        //return 5;   //@610 
-
-        //@610 get this dynamically since we can now have version 5 or 6
-        int defaultVersion = 0; //since we do not want to change signature to throw exception, have default as 0
-        try
-        {
-            String v = getDatabaseProductVersion();
-            int dotIndex = v.indexOf('.');
-            if (dotIndex > 0) 
-            {
-                v = v.substring(0,dotIndex);
-                defaultVersion = Integer.parseInt(v); 
-            } 
-        }catch(Exception e)
-        {   
-            //should not happen 
-        }
-
-        return defaultVersion;
+        return 5;
     }
 
 
@@ -1799,32 +1591,7 @@ implements DatabaseMetaData
     **/
     public int getDatabaseMinorVersion ()
     {
-        //return 0;   //@610 
-
-        //@610 get this dynamically since we can now as Native driver does
-        int defaultVersion = 0; 
-        try
-        {
-            String v = getDatabaseProductVersion();
-            int dotIndex = v.indexOf('.');
-            if (dotIndex > 0) 
-            {
-                v = v.substring(dotIndex+1);
-                dotIndex = v.indexOf('.');
-                if (dotIndex > 0)
-                {
-                    v = v.substring(0,dotIndex);
-                } 
-
-                defaultVersion = Integer.parseInt(v); 
-
-            } 
-        }catch(Exception e)
-        {   
-            //should not happen 
-        }
-        return defaultVersion;  
-
+        return 0;
     }
 
 
@@ -1975,11 +1742,11 @@ implements DatabaseMetaData
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
     @param  schema         The schema name. If null is specified, the
-                           default SQL schema specified in the URL is used.
-                           If null is specified and a default SQL schema was not
+                           default library specified in the URL is used.
+                           If null is specified and a default library was not
                            specified in the URL, the first library specified
                            in the libraries properties file is used.
-                           If null is specified, a default SQL schema was
+                           If null is specified, a default library was
                            not specified in the URL, and a library was not
                            specified in the libraries properties file,
                            QGPL is used.
@@ -2000,35 +1767,8 @@ implements DatabaseMetaData
                                       String table)
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
-
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
 
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schema));
-            cs.setString(3, normalize(table));
-            cs.setString(4, normalize(catalog));
-            cs.setString(5, EMPTY_STRING);
-            cs.setString(6, EMPTY_STRING);
-            cs.setString(7, "DATATYPE='JDBC';EXPORTEDKEY=1; CURSORHOLD=1");
-            cs.execute();
-
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-
-        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -2058,12 +1798,12 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (vrm),    // key seq  //@trunc3
-            new SQLSmallint (vrm),    // update rule //@trunc3
-            new SQLSmallint (vrm),    // delete rule //@trunc3
+            new SQLSmallint (),    // key seq
+            new SQLSmallint (),    // update rule
+            new SQLSmallint (),    // delete rule
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (vrm),    // deferrability //@trunc3
+            new SQLSmallint (),    // deferrability
         };
         int[] fieldNullables = {columnNullable,  // pk catalog
             columnNullable,  // pk schema
@@ -2107,6 +1847,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -2118,7 +1859,7 @@ implements DatabaseMetaData
 
                     // Set the primary key file library name
                     if (schema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C @P0C
                     }
                     else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.converter_);                         // @E4C @P0C
@@ -2155,7 +1896,6 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2201,19 +1941,18 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null; }
-                    // if (reply != null) { reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  
         }
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ExportedKeys", connection_, reply); //@in2
+                                       "ExportedKeys");
     }
 
 
@@ -2259,11 +1998,11 @@ implements DatabaseMetaData
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
     @param  schema         The schema name. If null is specified, the
-                           default SQL schema specified in the URL is used.
-                           If null is specified and a default SQL schema was not
+                           default library specified in the URL is used.
+                           If null is specified and a default library was not
                            specified in the URL, the first library specified
                            in the libraries properties file is used.
-                           If null is specified, a default SQL schema was
+                           If null is specified, a default library was
                            not specified in the URL, and a library was not
                            specified in the libraries properties file,
                            QGPL is used.
@@ -2284,35 +2023,8 @@ implements DatabaseMetaData
                                       String table)
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
-
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
 
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
-
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, null);
-            cs.setString(3, null);
-            cs.setString(4, normalize(catalog));
-            cs.setString(5, normalize(schema)); 
-            cs.setString(6, normalize(table));
-            cs.setString(7, "DATATYPE='JDBC';IMPORTEDKEY=1; CURSORHOLD=1");
-            cs.execute();
-
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -2341,12 +2053,12 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (vrm),    // key seq //@trunc3
-            new SQLSmallint (vrm),    // update rule //@trunc3
-            new SQLSmallint (vrm),    // delete rule //@trunc3
+            new SQLSmallint (),    // key seq
+            new SQLSmallint (),    // update rule
+            new SQLSmallint (),    // delete rule
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (vrm),    // deferrability //@trunc3
+            new SQLSmallint (),    // deferrability
         };
 
         int[] fieldNullables = {columnNullable,  // pk catalog
@@ -2390,6 +2102,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -2403,7 +2116,7 @@ implements DatabaseMetaData
 
                     // Set the foreign key file library name
                     if (schema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C
                     }
                     else request.setForeignKeyFileLibraryName(normalize(schema), connection_.converter_); // @E4C
@@ -2437,7 +2150,6 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2481,8 +2193,8 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null; }
-                    // if (reply != null) { reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  // End of else to build and send request
         } // End of try block
@@ -2494,7 +2206,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ImportedKeys", connection_, reply); //@in2
+                                       "ImportedKeys");
     }
 
 
@@ -2506,11 +2218,11 @@ implements DatabaseMetaData
                          is ignored.  If empty string is specified,
                          an empty result set is returned.
     @param  schema       The schema name. If null is specified, the
-                         default SQL schema specified in the URL is used.
-                         If null is specified and a default SQL schema was not
+                         default library specified in the URL is used.
+                         If null is specified and a default library was not
                          specified in the URL, the first library specified
                          in the libraries properties file is used.
-                         If null is specified, a default SQL schema was
+                         If null is specified, a default library was
                          not specified in the URL, and a library was not
                          specified in the libraries properties file,
                          QGPL is used.
@@ -2536,63 +2248,8 @@ implements DatabaseMetaData
                                    boolean approximate)
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
-
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
 
-        String metadataSourceProperty = connection_.getProperties().getString(JDProperties.METADATA_SOURCE);  
-        //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --start
-        //@mdsp comment //note always call SP in v6r1 and later.  ROI was lacking in this area.
-		if (connection_.getVRM() >= JDUtilities.vrm610
-				|| (metadataSourceProperty
-						.equals(JDProperties.METADATA_SOURCE_STORED_PROCEDURE))) {  
-        	short iUnique;
-        	short reserved = 0;
-
-        	if (unique)
-        		iUnique = 0;
-        	else
-        		iUnique = 1;
-
-            //Set the library name
-        	if(schema != null)
-                schema = normalize(schema);
-
-            // Set the table name
-        	if(table != null)
-                table = normalize(table);
-
-        	/*
-        	  sysibm.SQLStatistics(
-               CatalogName     varchar(128),
-               SchemaName      varchar(128),
-               TableName       varchar(128),
-               Unique          Smallint,
-               Reserved        Smallint,
-               Options         varchar(4000))
-        	 */
-        	CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLSTATISTICS(?,?,?,?,?,?)");
-
-        	cstmt.setString(1, normalize(catalog));
-        	cstmt.setString(2, normalize(schema));
-        	cstmt.setString(3, normalize(table));
-        	cstmt.setShort(4,  iUnique);
-        	cstmt.setShort(5,  reserved);
-        	cstmt.setString(6, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-        	cstmt.execute();
-
-            ResultSet rs = cstmt.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cstmt.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-
-        }
-        //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --end
-        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -2618,15 +2275,15 @@ implements DatabaseMetaData
             // when instantiating the non-unique small int
             // pass in a boolean and it will give it the
             // right value
-            new SQLSmallint (vrm),    // non-unique - boolean //@trunc3
+            new SQLSmallint (),    // non-unique - boolean
             new SQLVarchar (128, settings_),  // index qualifier
             new SQLVarchar (128, settings_),  // index name
-            new SQLSmallint (vrm),    // type //@trunc3
-            new SQLSmallint (vrm),    // ordinal position //@trunc3
+            new SQLSmallint (),    // type
+            new SQLSmallint (),    // ordinal position
             new SQLVarchar (128, settings_),  // column name
             new SQLVarchar (1, settings_),    // sort sequence
-            new SQLInteger  (vrm),    // cardinality
-            new SQLInteger  (vrm),    // pages //@trunc3
+            new SQLInteger  (),    // cardinality
+            new SQLInteger  (),    // pages
             new SQLVarchar (128, settings_),  // filter condition
         };
 
@@ -2670,6 +2327,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -2679,7 +2337,7 @@ implements DatabaseMetaData
                                                                              DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
                     // Set the library name
                     if (schema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);      // @E4C
                     }
                     else request.setLibraryName(normalize(schema), connection_.converter_);                           // @E4C
@@ -2719,7 +2377,6 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool();  reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2770,21 +2427,20 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null; }
-                    // if (reply != null) { reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "IndexInfo", connection_, reply); //@in2
+                                       "IndexInfo");
 
     } // End of getIndexInfo
 
@@ -2802,7 +2458,7 @@ implements DatabaseMetaData
     public int getJDBCMajorVersion ()
     throws SQLException
     {
-        return AS400JDBCDriver.JDBC_MAJOR_VERSION_;  //@pdc
+        return JDBC_MAJOR_VERSION;
     }
 
 
@@ -2819,7 +2475,7 @@ implements DatabaseMetaData
     public int getJDBCMinorVersion ()
     throws SQLException
     {
-        return AS400JDBCDriver.JDBC_MINOR_VERSION_; //@pdc
+        return JDBC_MINOR_VERSION;
     }
 
 
@@ -2898,7 +2554,7 @@ implements DatabaseMetaData
     public int getMaxColumnsInGroupBy ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm610)          //@550  max columns in group by support
+        if(connection_.getVRM() >= JDUtilities.vrm550)          //@550  max columns in group by support
             return 8000;                                        //@550
         else                                                    //@550
             return 120;
@@ -2997,10 +2653,10 @@ implements DatabaseMetaData
     public int getMaxCursorNameLength ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm610)                  //@550A
+        if(connection_.getVRM() >= JDUtilities.vrm550)                  //@550A
             return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH;
         else                                                            //@550A
-            return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH_PRE_V6R1;  //@550A
+            return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH_PRE_V5R5;  //@550A
     }
 
 
@@ -3059,10 +2715,7 @@ implements DatabaseMetaData
     public int getMaxSchemaNameLength ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm710)                             //@128sch
-            return 128;                                                            //@128sch
-        else                                                                       //@128sch
-            return 10;
+        return 10;
     }
 
 
@@ -3172,11 +2825,11 @@ implements DatabaseMetaData
                          is ignored.  If empty string is specified,
                          an empty result set is returned.
     @param  schema       The schema name. If null is specified, the
-                         default SQL schema specified in the URL is used.
-                         If null is specified and a default SQL schema was not
+                         default library specified in the URL is used.
+                         If null is specified and a default library was not
                          specified in the URL, the first library specified
                          in the libraries properties file is used.
-                         If null is specified, a default SQL schema was
+                         If null is specified, a default library was
                          not specified in the URL, and a library was not
                          specified in the libraries properties file,
                          QGPL is used.
@@ -3196,30 +2849,8 @@ implements DatabaseMetaData
                                      String table)
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc
 
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () +"SQLPRIMARYKEYS(?,?,?,?)");
-
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schema));
-            cs.setString(3, normalize(table));
-            cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cs.execute();
-
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3236,7 +2867,7 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // pk schema
             new SQLVarchar (128, settings_),  // pk table
             new SQLVarchar (128, settings_),  // pk column
-            new SQLSmallint (vrm),    // key seq  //@trunc3
+            new SQLSmallint (),    // key seq
             new SQLVarchar (128, settings_),  // pk name
         };
 
@@ -3273,6 +2904,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -3284,7 +2916,7 @@ implements DatabaseMetaData
 
                     // Set the primary key file library name
                     if (schema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C
                     }
                     else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.converter_);                         // @E4C
@@ -3294,7 +2926,7 @@ implements DatabaseMetaData
                     request.setPrimaryKeyFileName(normalize(table), connection_.converter_);        // @E4C
 
                     // Set the primary key Information to Return Bitmap
-                    request.setPrimaryKeyReturnInfoBitmap(0xBC000000);  //@pdc
+                    request.setPrimaryKeyReturnInfoBitmap(0xB8000000);
 
                     // This is not documented in the LIPI, but it happens to work!           @E2A
                     request.setFileShortOrLongNameIndicator(0xF0);                        // @E2A
@@ -3312,7 +2944,6 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -3328,16 +2959,15 @@ implements DatabaseMetaData
                         // result set.
                         // This does not actual move the data, it just sets up
                         // the mapping.
-                        // boolean nullValue = true; // used when hardcoding null
+                        boolean nullValue = true; // used when hardcoding null
                         JDFieldMap[] maps = new JDFieldMap[6];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                         maps[1] = new JDSimpleDelimitedFieldMap (1); // pk schema //@PDC code to remove quotes
                         maps[2] = new JDSimpleFieldMap (2); // pk table
                         maps[3] = new JDSimpleFieldMap (3); // pk column
                         maps[4] = new JDCharToShortFieldMap (4);    // key seq
-                        //maps[5] = new JDHardcodedFieldMap (new SQLVarchar (0, settings_), true, false); //@pdd
-                        maps[5] = new JDSimpleFieldMap (5);  //@pda
-                        
+                        maps[5] = new JDHardcodedFieldMap (new SQLVarchar (0, settings_), true, false);
+
                         // Create the mapped row cache that is returned in the
                         // result set
                         JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
@@ -3349,21 +2979,20 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request= null; } 
-                    // if (reply != null) { reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "PrimaryKeys", connection_, reply); //@in2
+                                       "PrimaryKeys");
     } 
 
 
@@ -3375,7 +3004,7 @@ implements DatabaseMetaData
     @param  catalog            The catalog name. If null is specified, this parameter
                                is ignored.  If empty string is specified,
                                an empty result set is returned.
-    @param  schemaPattern      The schema name pattern.   If null is specified,
+    @param  schemaPattern      The schema name pattern.  If null is specified,
                                it will not be included in the selection
                                criteria. If empty string
                                is specified, an empty result set is returned.
@@ -3402,35 +3031,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLPROCEDURECOLS(?,?,?,?,?)");
-           
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schemaPattern));
-            cs.setString(3, normalize(procedurePattern));
-            cs.setString(4, normalize(columnPattern));
-/* ifdef JDBC40 */
-            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
-/* endif */ 
-/* ifndef JDBC40 
-            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
- endif */ 
-            cs.execute();
 
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-
-        }         
-                    
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3454,14 +3055,14 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // schema
             new SQLVarchar (128, settings_),  // procedure
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (vrm),    // column type //@trunc3
-            new SQLSmallint (vrm),    // data type //@trunc3
+            new SQLSmallint (),    // column type
+            new SQLSmallint (),    // data type
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (vrm),     // precision //@trunc3
-            new SQLInteger (vrm),     // length //@trunc3
-            new SQLSmallint (vrm),    // scale //@trunc3
-            new SQLInteger (vrm),    // radix //@trunc3
-            new SQLSmallint (vrm),    // nullable //@trunc3
+            new SQLInteger (),     // precision
+            new SQLInteger (),     // length
+            new SQLSmallint (),    // scale
+            new SQLInteger (),    // radix
+            new SQLSmallint (),    // nullable
             new SQLVarchar (2000, settings_)  // remarks
         };
 
@@ -3517,7 +3118,7 @@ implements DatabaseMetaData
 
                 if (schemaPattern !=null)
                 {
-                    JDSearchPattern schema = new JDSearchPattern (normalize(schemaPattern)); //@pdc normalize
+                    JDSearchPattern schema = new JDSearchPattern (schemaPattern);
                     String schemaWhereClause = schema.getSQLWhereClause("SPECIFIC_SCHEMA");
                     selectStmt.append("WHERE " + schemaWhereClause);
                 }
@@ -3565,16 +3166,11 @@ implements DatabaseMetaData
                 selectStmt.append ("ORDER BY SPECIFIC_SCHEMA, SPECIFIC_NAME, ORDINAL_POSITION");        // Added ORDINAL_POSITION to fix JTOpen bug 3646, SYSPARMS table doesn't always have parameters in physical right order
 
                 // Create statement object and do Execute Query
-                AS400JDBCStatement statement_ = null;  //@scan1
-                AS400JDBCResultSet serverResultSet = null; //@scan1
-                JDRowCache serverRowCache  = null;
-                try
-                {
-                statement_ = (AS400JDBCStatement)connection_.createStatement(); // caste needed
-                serverResultSet = (AS400JDBCResultSet) statement_.executeQuery (selectStmt.toString());
+                AS400JDBCStatement statement_ = (AS400JDBCStatement)connection_.createStatement(); // caste needed
+                AS400JDBCResultSet serverResultSet = (AS400JDBCResultSet) statement_.executeQuery (selectStmt.toString());
 
-                serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
-               
+                JDRowCache serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
+                statement_.close ();
 
                 JDFieldMap[] maps = new JDFieldMap[13];
 
@@ -3599,15 +3195,6 @@ implements DatabaseMetaData
                 JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                 rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
 
-                }finally  //@scan1
-                {
-                    try{
-                    if(serverResultSet != null)
-                        serverResultSet.close();
-                    }catch(Exception e){} //allow next close to execute
-                    if(statement_ != null)
-                        statement_.close ();
-                }
             } // End of else build request and send
 
 
@@ -3621,7 +3208,7 @@ implements DatabaseMetaData
 
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ProcedureColumns", connection_, null); //@in2
+                                       "ProcedureColumns");
 
     } // End of getProcedureColumns
 
@@ -3655,28 +3242,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLPROCEDURES(?,?,?,?)");
 
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schemaPattern));
-            cs.setString(3, normalize(procedurePattern));
-            cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cs.execute();
-
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3688,30 +3254,17 @@ implements DatabaseMetaData
             "RESERVED2",
             "RESERVED3",
             "REMARKS",
-/* ifdef JDBC40 */
-            "PROCEDURE_TYPE",
-            "SPECIFIC_NAME" //@JDBC40
-/* endif */ 
-/* ifndef JDBC40 
             "PROCEDURE_TYPE"
- endif */ 
         };
 
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // catalog
             new SQLVarchar (128, settings_),  // schema
             new SQLVarchar (128, settings_),  // procedure
-            new SQLInteger (vrm),     // reserved //@trunc3
-            new SQLInteger (vrm),     // reserved //@trunc3
-            new SQLInteger (vrm),     // reserved //@trunc3
+            new SQLInteger (),     // reserved
+            new SQLInteger (),     // reserved
+            new SQLInteger (),     // reserved
             new SQLVarchar (2000, settings_),  // remarks
-/* ifdef JDBC40 */
-            new SQLSmallint (vrm),     // procedure type //@trunc3
-            new SQLVarchar (128, settings_)  // specific name //@JDBC40
-
-/* endif */ 
-/* ifndef JDBC40 
-            new SQLSmallint (vrm)     // procedure type //@trunc3
- endif */ 
+            new SQLSmallint ()     // procedure type
         };
 
         int[] fieldNullables = {
@@ -3722,13 +3275,7 @@ implements DatabaseMetaData
             columnNullable,  // Reserved 2
             columnNullable,  // Reserved 3
             columnNoNulls,   // Remarks
-/* ifdef JDBC40 */
-            columnNoNulls,   // Procedure type
-            columnNoNulls    // Specific name //@JDBC40
-/* endif */ 
-/* ifndef JDBC40 
             columnNoNulls    // Procedure type
- endif */ 
         };
 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
@@ -3753,12 +3300,7 @@ implements DatabaseMetaData
             else
             {  // Parameters are valid, build request and send
                 StringBuffer selectStmt = new StringBuffer();
-/* ifdef JDBC40 */
-                selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS, SPECIFIC_NAME ");//@PROC //@JDBC40
-/* endif */ 
-/* ifndef JDBC40 
-                selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS ");//@PROC
- endif */ 
+                selectStmt.append ("SELECT SPECIFIC_SCHEMA, SPECIFIC_NAME, REMARKS, RESULTS ");
                 selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPROCS "); // use . or /
 
 
@@ -3766,7 +3308,7 @@ implements DatabaseMetaData
                 if (schemaPattern !=null)
                 {
                     JDSearchPattern schema = new JDSearchPattern (schemaPattern);
-                    String schemaWhereClause = schema.getSQLWhereClause("ROUTINE_SCHEMA");//@PROC
+                    String schemaWhereClause = schema.getSQLWhereClause("SPECIFIC_SCHEMA");
                     selectStmt.append("WHERE " + schemaWhereClause);
                 }
 
@@ -3784,29 +3326,26 @@ implements DatabaseMetaData
                         selectStmt.append (" WHERE ");
                     }
 
-                    String procedureWhereClause = procedure.getSQLWhereClause("ROUTINE_NAME");//@PROC
+                    String procedureWhereClause = procedure.getSQLWhereClause("SPECIFIC_NAME");
                     selectStmt.append(procedureWhereClause);
                 }
 
 
 
                 // Add order by
-                selectStmt.append (" ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME");//@PROC
+                selectStmt.append (" ORDER BY SPECIFIC_SCHEMA, SPECIFIC_NAME");
 
 
                 // Create statement object and do Execute Query
                 AS400JDBCStatement statement_ = (AS400JDBCStatement)connection_.createStatement(); // caste needed
 
+
                 AS400JDBCResultSet serverResultSet = (AS400JDBCResultSet) statement_.executeQuery (selectStmt.toString());
 
                 JDRowCache serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
                 statement_.close ();
-/* ifdef JDBC40 */
-               JDFieldMap[] maps = new JDFieldMap[9];
-/* endif */ 
-/* ifndef JDBC40 
+
                 JDFieldMap[] maps = new JDFieldMap[8];
- endif */ 
                 maps[0] = new JDHardcodedFieldMap (connection_.getCatalog());
                 maps[1] = new JDSimpleFieldMap (1); // schema
                 maps[2] = new JDSimpleFieldMap (2); // procedure
@@ -3815,9 +3354,6 @@ implements DatabaseMetaData
                 maps[5] = new JDHardcodedFieldMap (new Integer (0));
                 maps[6] = new JDHandleNullFieldMap (3, ""); // remarks
                 maps[7] = new JDProcTypeFieldMap (4);
-/* ifdef JDBC40 */
-                maps[8] = new JDSimpleFieldMap (5); //@jdbc40
-/* endif */ 
 
                 JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                 rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
@@ -3836,14 +3372,14 @@ implements DatabaseMetaData
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Procedures", connection_, null); //@in2
+                                       "Procedures");
 
     }
 
 
 
     /**
-    Returns the DB2 for IBM i SQL term for "procedure".
+    Returns the DB2 for i5/OS SQL term for "procedure".
     
     @return     The term for "procedure".
     
@@ -3889,33 +3425,13 @@ implements DatabaseMetaData
     public ResultSet getSchemas ()
     throws SQLException
     {
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLTABLES(?,?,?,?,?)");
-
-            cs.setString(1, "%");
-            cs.setString(2, "%");
-            cs.setString(3, "%");
-            cs.setString(4, "%");
-            cs.setString(5, "DATATYPE='JDBC';GETSCHEMAS=1;CURSORHOLD=1");
-            cs.execute();
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         return JDUtilities.getLibraries(this, connection_, settings_, false);  //@DELIMa
     }
 
 
 
     /**
-    Returns the DB2 for IBM i SQL term for "schema".
+    Returns the DB2 for i5/OS SQL term for "schema".
     
     @return     The term for schema.
     
@@ -4037,7 +3553,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog.  Since DB2 for IBM i does not support 
+    catalog, not the attributes catalog.  Since DB2 for i5/OS does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -4072,7 +3588,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog. Since DB2 for IBM i does not support 
+    catalog, not the attributes catalog. Since DB2 for i5/OS does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -4126,14 +3642,9 @@ implements DatabaseMetaData
     @param  catalog             The catalog name. If null is specified, this parameter
                                 is ignored.  If empty string is specified,
                                 an empty result set is returned.
-    @param  schemaPattern       The schema name pattern. 
-                                If the "metadata source" connection property is set to 0 
-                                and null is specified, no value is sent to the system and 
-                                the default of *USRLIBL is used.  
-                                If the "metadata source" connection property is set to 1
-                                and null is specified, then information from all schemas 
-                                will be returned. 
-
+    @param  schemaPattern       The schema name pattern. If null is specified,
+                                no value is sent to the system and the
+                                system default of *USRLIBL is used.
                                 If empty string is specified, an empty
                                 result set is returned.
     @param  tablePattern        The table name. If null is specified,
@@ -4152,30 +3663,8 @@ implements DatabaseMetaData
                                          String tablePattern)
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
         connection_.checkOpen ();
-        // int vrm = connection_.getVRM();  //@trunc3
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLTABLEPRIVILEGES(?,?,?,?)");
 
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schemaPattern));
-            cs.setString(3, normalize(tablePattern));
-            cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cs.execute();
-
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         //-----------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -4233,6 +3722,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -4285,7 +3775,6 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -4322,21 +3811,20 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null;} 
-                    // if (reply != null) { reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "TablePrivileges", connection_, reply); //@in2      //@G4C
+                                       "TablePrivileges");      //@G4C
     }
 
 
@@ -4347,13 +3835,9 @@ implements DatabaseMetaData
     @param  catalog        The catalog name. If null is specified, this parameter
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
-    @param  schemaPattern  The schema name pattern.  
-                           If the "metadata source" connection property is set to 0 
-                           and null is specified, no value is sent to the system and 
-                           the default of *USRLIBL is used.  
-                           If the "metadata source" connection property is set to 1
-                           and null is specified, then information from all schemas 
-                           will be returned.  If an empty string
+    @param  schemaPattern  The schema name pattern.  If null is specified,
+                           no value is sent to the system and the system
+                           default of *USRLIBL is used.  If empty string
                            is specified, an empty result set is returned.
     @param  tablePattern   The table name pattern. If null is specified,
                            no value is sent to the system and the system
@@ -4374,84 +3858,11 @@ implements DatabaseMetaData
                                 String tableTypes[])
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
 
         connection_.checkOpen ();// Verify that a connection
         // is available for use. Exception
         // is thrown if not available
 
-        // int vrm = connection_.getVRM();  //@trunc3
-        
-        
-        //@mdsp SYSIBM SP Call and Native logic
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-            // Handle processing the array of table types.
-            //bite the bullet and follow Native JDBC logic
-            boolean rsEmpty = false;
-            String typeString = EMPTY_STRING;
-            if (!rsEmpty) {
-                int i;
-                int stringsInList = 0;
-
-                if (tableTypes != null) {
-                    for (i = 0; i < tableTypes.length; i++) {
-                        String check = tableTypes[i];
-
-                        if ((check.equalsIgnoreCase(VIEW))  ||
-                                (check.equalsIgnoreCase(TABLE)) ||
-                                (check.equalsIgnoreCase(SYSTEM_TABLE)) ||
-                                (check.equalsIgnoreCase(ALIAS)) ||
-                                (check.equalsIgnoreCase(SYNONYM)) || 
-                                (check.equalsIgnoreCase(MQT))) 
-                        {
-
-                            if (check.equalsIgnoreCase(SYNONYM)) {
-                                check = ALIAS;
-                            }
-                            stringsInList++;
-                            if (stringsInList > 1)
-                                typeString = typeString.concat(",");
-                            typeString = typeString.concat(check);
-                        }
-                    }
-
-                    // If there were no valid types, ensure an empty result set.
-                    if (stringsInList == 0)
-                        rsEmpty = true;
-                }
-            }
-
-            // If an empty result set is to be generated, produce the values to
-            // do so here.
-            if (rsEmpty) {
-                schemaPattern = FAKE_VALUE;
-                tablePattern = FAKE_VALUE;
-                typeString = typeString.concat(TABLE); //@scan1
-            }
-
-
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator ()
-                    + "SQLTABLES(?,?,?,?,?)");
-
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schemaPattern));
-            cs.setString(3, normalize(tablePattern));
-            cs.setString(4, normalize(typeString));
-            cs.setString(5,
-                    "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cs.execute();
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-
-        }
-        
-        
         //-----------------------------------------------------
         // Set up the result set in the format required by JDBC
         //-----------------------------------------------------
@@ -4687,6 +4098,7 @@ implements DatabaseMetaData
                   // Create a request
                   //@P0C
                     DBReturnObjectInformationRequestDS request = null;
+                    DBReplyRequestedDS reply = null;
                     try
                     {
                         request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -4705,7 +4117,7 @@ implements DatabaseMetaData
                         // If null, do not set parameter.  The system default value of
                         // *USRLIBL is used.
                         if (schemaPattern != null)
-                        { // use default SQL schema or qgpl
+                        { // use default library or qgpl
                             JDSearchPattern schema = new JDSearchPattern(schemaPattern);
                             request.setLibraryName (normalize(schema.getPatternString()), connection_.converter_); // @E4C
                             request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
@@ -4768,7 +4180,6 @@ implements DatabaseMetaData
                         if (errorClass != 0)
                         {
                             int returnCode = reply.getReturnCode();
-                        	if (reply != null) { reply.returnToPool(); reply = null; }
                             JDError.throwSQLException (this, connection_, id_,
                                                        errorClass, returnCode);
                         }
@@ -4850,8 +4261,8 @@ implements DatabaseMetaData
                     }
                     finally
                     {
-                        if (request != null) { request.returnToPool(); request = null; }
-                        // if (reply != null) { reply.returnToPool(); reply = null; }
+                        if (request != null) request.inUse_ = false;
+                        if (reply != null) reply.inUse_ = false;
                     }
                 } // End of if file attribute != -1
                 else
@@ -4865,12 +4276,11 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Tables", connection_, reply); //@in2
+                                       "Tables");
     }
 
 //@K3A                                                           
@@ -4914,29 +4324,6 @@ implements DatabaseMetaData
     public ResultSet getTableTypes ()
     throws SQLException
     {
-
-
-      //@mdsp SYSIBM SP Call
-      if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-      {
-          CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
-
-          cs.setString(1, "%");
-          cs.setString(2, "%");
-          cs.setString(3, "%");
-          cs.setString(4, "%");
-          cs.setString(5, "DATATYPE='JDBC';GETTABLETYPES=1;CURSORHOLD=1");
-          cs.execute();
-          ResultSet rs = cs.getResultSet();  //@mdrs
-          if(rs != null)                        //@mdrs
-              ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-          else
-              cs.close(); //@mdrs2
-          
-          return rs;  //@mdrs
-        }
-        
-        
         // Set up the result set.
         String[] fieldNames      = {"TABLE_TYPE"};
         SQLData[] sqlData = { new SQLVarchar (128, settings_)};
@@ -4971,7 +4358,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Table Types", connection_, null); //@in2
+                                       "Table Types");
         
     }
 
@@ -5007,33 +4394,6 @@ implements DatabaseMetaData
     public ResultSet getTypeInfo ()
     throws SQLException
     {
-        int vrm = connection_.getVRM();  //@trunc3
-
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-
-
-            CallableStatement cs = connection_
-            .prepareCall("CALL SYSIBM" +getCatalogSeparator() + "SQLGETTYPEINFO(?,?)");
-
-            cs.setShort(1, (short) SQL_ALL_TYPES);
-/* ifdef JDBC40 */
-            cs.setString(2, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
-/* endif */ 
-/* ifndef JDBC40 
-            cs.setString(2, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
- endif */ 
-            cs.execute();
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         // Initialize a row to describe the format of the result set.
         String[] fieldNames = { "TYPE_NAME",
             "DATA_TYPE",
@@ -5056,23 +4416,23 @@ implements DatabaseMetaData
         };
 
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // Table name.
-            new SQLSmallint (vrm),               // Data type. //@trunc3
-            new SQLInteger (vrm),                // Precision. //@trunc3
+            new SQLSmallint (),               // Data type.
+            new SQLInteger (),                // Precision.
             new SQLVarchar (128, settings_),  // Literal prefix.
             new SQLVarchar (128, settings_),  // Literal suffix.
             new SQLVarchar (128, settings_),  // Create parameters.
-            new SQLSmallint (vrm),               // Nullable. //@trunc3
-            new SQLSmallint (vrm),               // Case sensitive. //@trunc3
-            new SQLSmallint (vrm),               // Searchable. //@trunc3
-            new SQLSmallint (vrm),               // Unsigned. //@trunc3
-            new SQLSmallint (vrm),               // Currency. //@trunc3
-            new SQLSmallint (vrm),               // Auto increment. //@trunc3
+            new SQLSmallint (),               // Nullable.
+            new SQLSmallint (),               // Case sensitive.
+            new SQLSmallint (),               // Searchable.
+            new SQLSmallint (),               // Unsigned.
+            new SQLSmallint (),               // Currency.
+            new SQLSmallint (),               // Auto increment.
             new SQLVarchar (128, settings_),  // Local type name.
-            new SQLSmallint (vrm),               // Minimum scale. //@trunc3
-            new SQLSmallint (vrm),               // Maximum scale. //@trunc3
-            new SQLInteger (vrm),                // Unused. //@trunc3
-            new SQLInteger (vrm),                // Unused. //@trunc3
-            new SQLInteger (vrm)                 // Radix. //@trunc3
+            new SQLSmallint (),               // Minimum scale.
+            new SQLSmallint (),               // Maximum scale.
+            new SQLInteger (),                // Unused.
+            new SQLInteger (),                // Unused.
+            new SQLInteger ()                 // Radix.
         };
 
 
@@ -5113,16 +4473,16 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLChar(32765, settings_));              // @D0C
         if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX
             typeSamples.addElement(new SQLCharForBitData(32765, settings_));           // @M0A
-        typeSamples.addElement(new SQLDate(settings_, -1));                            // @D0C @550C
+        typeSamples.addElement(new SQLDate(settings_));                            // @D0C
         typeSamples.addElement(new SQLDecimal(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLDouble(settings_));                          // @D0C
         typeSamples.addElement(new SQLFloat(settings_));                           // @D0C
-        typeSamples.addElement(new SQLGraphic(16382, settings_, -1)); //@cca1
-        typeSamples.addElement(new SQLInteger(vrm));    //@trunc3                               // @D0C
+        typeSamples.addElement(new SQLGraphic(16382, settings_));
+        typeSamples.addElement(new SQLInteger());                                  // @D0C
         typeSamples.addElement(new SQLNumeric(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLReal(settings_));                            // @D0C
-        typeSamples.addElement(new SQLSmallint(vrm));   //@trunc3                               // @D0C
-        typeSamples.addElement(new SQLTime(settings_, -1));                            // @D0C @550C
+        typeSamples.addElement(new SQLSmallint());                                 // @D0C
+        typeSamples.addElement(new SQLTime(settings_));                            // @D0C
         typeSamples.addElement(new SQLTimestamp(settings_));                       // @D0C
         //typeSamples.addElement(new SQLLongVarchar(32739, settings_));        //Change to report LONG VARCHAR as VARCHAR to be consistent with other clients.
         typeSamples.addElement(new SQLLongVargraphic(16369, settings_));
@@ -5130,18 +4490,18 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLVarchar(32739, settings_));                  // @D0C
         if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX
             typeSamples.addElement(new SQLVarcharForBitData(32739, settings_));        // @M0A
-        typeSamples.addElement(new SQLVargraphic(16369, settings_, -1)); //@cca1
+        typeSamples.addElement(new SQLVargraphic(16369, settings_));
         
         if (connection_.getVRM() >= JDUtilities.vrm440)
         {       // @B4D B5A @D0C
             typeSamples.addElement(new SQLDatalink(32717, settings_));
-            typeSamples.addElement(new SQLBlob(MAX_LOB_LENGTH, settings_));           // @B4D B5A @D0C      //@xml3
-            typeSamples.addElement(new SQLClob(MAX_LOB_LENGTH, settings_));           // @B4D B5A @D0C @E1C //@xml3
+            typeSamples.addElement(new SQLBlob(2147483646, settings_));           // @B4D B5A @D0C
+            typeSamples.addElement(new SQLClob(2147483646, settings_));           // @B4D B5A @D0C @E1C
             typeSamples.addElement(new SQLDBClob(1073741822, settings_));
         }                                                                       // @B4D B5A 
         
         if (connection_.getVRM() >= JDUtilities.vrm450)         // @D0A
-            typeSamples.addElement(new SQLBigint(vrm));  //@trunc3                              // @D0A
+            typeSamples.addElement(new SQLBigint());                               // @D0A
         
         // @M0A - added support for binary, varbinary, and rowid data types
         if(connection_.getVRM() >= JDUtilities.vrm520)
@@ -5157,11 +4517,6 @@ implements DatabaseMetaData
                 typeSamples.addElement(new SQLVarbinary(32739, settings_));
             }
         }
-        if(connection_.getVRM() >= JDUtilities.vrm610)                                                                //@dfa
-        {                                                                                                             //@dfa
-            //note that on hostserver both 16 and 34 are one type (stored proc returns one type)
-            typeSamples.addElement(new SQLDecFloat34( settings_, connection_.getVRM(), connection_.getProperties())); //@dfa
-        }                                                                                                             //@dfa
         // @M0A - end new support
 
         int numberOfTypes = typeSamples.size();                                 // @D0C
@@ -5233,7 +4588,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data, nulls, dataMappingErrors);
 
         return new AS400JDBCResultSet (rowCache,
-                                       connection_.getCatalog(), "Type Info", connection_, null); //@in2
+                                       connection_.getCatalog(), "Type Info");
 
 
 
@@ -5250,14 +4605,9 @@ implements DatabaseMetaData
     @param  catalog         The catalog name. If null is specified, this parameter
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
-    @param  schemaPattern   The schema name pattern.  
-                            If the "metadata source" connection property is set to 0 
-                            and null is specified, no value is sent to the system and 
-                            the default of *USRLIBL is used.  
-                            If the "metadata source" connection property is set to 1
-                            and null is specified, then information from all schemas 
-                            will be returned. 
-                            If an empty string
+    @param  schemaPattern   The schema name pattern.  If null is specified,
+                            no value is sent to the system and the system
+                            default of *USRLIBL is used.  If empty string
                             is specified, an empty result set is returned.
     @param  typeNamePattern The type name pattern. If null is specified,
                             no value is sent to the system and the system
@@ -5296,49 +4646,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-        
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
 
-
-
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator()+ "SQLUDTS(?,?,?,?,?)");
-
-            cs.setString(1, normalize(catalog));
-            cs.setString(2, normalize(schemaPattern));
-            cs.setString(3, normalize(typeNamePattern));
-            StringBuffer typesStringBuffer = new StringBuffer();
-            int stringsInList = 0;
-
-            if (types != null) {
-                for (int i = 0; i < types.length; i++) {
-                    if (stringsInList > 0) {
-                        typesStringBuffer.append(",");
-                    }
-                    typesStringBuffer.append(types[i]);
-                    stringsInList++;
-                }
-            }
-
-            cs.setString(4, typesStringBuffer.toString());
-/* ifdef JDBC40 */
-            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
-/* endif */ 
-/* ifndef JDBC40 
-            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
- endif */ 
-            cs.execute();
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
-        int vrm = connection_.getVRM();  //@trunc3
         boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
@@ -5359,7 +4667,7 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // type schema
                 new SQLVarchar (128, settings_),  // type name
                 new SQLVarchar (128, settings_),  // class name
-                new SQLSmallint (vrm),               // data type //@trunc3
+                new SQLSmallint (),               // data type
                 new SQLVarchar (2000, settings_), // remarks
             };
 
@@ -5387,9 +4695,9 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // type schema
                 new SQLVarchar (128, settings_),  // type name
                 new SQLVarchar (128, settings_),  // class name
-                new SQLSmallint (vrm),               // data type //@trunc3
+                new SQLSmallint (),               // data type
                 new SQLVarchar (2000, settings_), // remarks
-                new SQLSmallint (vrm),               // base type  //@G4A //@trunc3
+                new SQLSmallint (),               // base type  //@G4A
             };
 
             fieldNullables = new int[] {  columnNullable,  // type catalog
@@ -5541,7 +4849,7 @@ implements DatabaseMetaData
         }
 
         // Return the result set.
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "UDTs", connection_, null); //@in2
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "UDTs");
     }
 
 
@@ -5587,11 +4895,11 @@ implements DatabaseMetaData
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
     @param  schema         The schema name. If null is specified, the
-                           default SQL schema specified in the URL is used.
-                           If null is specified and a default SQL schema was not
+                           default library specified in the URL is used.
+                           If null is specified and a default library was not
                            specified in the URL, the first library specified
                            in the libraries properties file is used.
-                           If null is specified, a default SQL schema was
+                           If null is specified, a default library was
                            not specified in the URL, and a library was not
                            specified in the libraries properties file,
                            QGPL is used.
@@ -5612,36 +4920,8 @@ implements DatabaseMetaData
                                         String table)
     throws SQLException
     {
-        DBReplyRequestedDS reply = null;
-
         connection_.checkOpen ();
-        int vrm = connection_.getVRM();  //@trunc3
-        
 
-        //@mdsp SYSIBM SP Call
-        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
-        {
-
-            CallableStatement cs =   connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLSPECIALCOLUMNS(?,?,?,?, ?,?,?)");
-
-            cs.setShort(1, (short) SQL_ROWVER);
-            cs.setString(2, normalize(catalog));
-            cs.setString(3, normalize(schema));
-            cs.setString(4, normalize(table));
-            cs.setShort(5, (short) 0);
-            cs.setShort(6, (short) 1);
-            cs.setString(7, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cs.execute();
-
-            ResultSet rs = cs.getResultSet();  //@mdrs
-            if(rs != null)                        //@mdrs
-                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-            else
-                cs.close(); //@mdrs2
-            
-            return rs;  //@mdrs
-        }
-        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -5656,14 +4936,14 @@ implements DatabaseMetaData
             "PSEUDO_COLUMN",
         };
 
-        SQLData[] sqlData = { new SQLSmallint (vrm), // scope //@trunc3
+        SQLData[] sqlData = { new SQLSmallint (), // scope
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (vrm),    // data type //@trunc3
+            new SQLSmallint (),    // data type
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (vrm),     // column size //@trunc3
-            new SQLInteger (vrm),     // buffer length //@trunc3
-            new SQLSmallint (vrm),    // decimal digits //@trunc3
-            new SQLSmallint (vrm),    // pseudo column //@trunc3
+            new SQLInteger (),     // column size
+            new SQLInteger (),     // buffer length
+            new SQLSmallint (),    // decimal digits
+            new SQLSmallint (),    // pseudo column
         };
 
         int[] fieldNullables = {columnNoNulls,  // scope
@@ -5707,6 +4987,7 @@ implements DatabaseMetaData
               // Create a request
               //@P0C
                 DBReturnObjectInformationRequestDS request = null;
+                DBReplyRequestedDS reply = null;
                 try
                 {
                     request = DBDSPool.getDBReturnObjectInformationRequestDS (
@@ -5719,7 +5000,7 @@ implements DatabaseMetaData
 
                     // Set the library name
                     if (schema == null)
-                    {   // use default SQL schema or qgpl
+                    {   // use default library or qgpl
                         request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C
                     }
                     else request.setLibraryName(normalize(schema), connection_.converter_);                       // @E4C
@@ -5730,7 +5011,7 @@ implements DatabaseMetaData
 
                     // Set the Field Information to Return Bitmap
                     // Return library, table, and column
-                    request.setSpecialColumnsReturnInfoBitmap(0x1F800000); //@rchg set 8th bit for row change timestamp column information
+                    request.setSpecialColumnsReturnInfoBitmap(0x1F000000);
 
 
                     // Set the short / long file and field name indicator
@@ -5753,7 +5034,6 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
                         JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -5792,21 +5072,20 @@ implements DatabaseMetaData
                 }
                 finally
                 {
-                    if (request != null) { request.returnToPool(); request = null; }
-                    // if (reply != null) { reply.returnToPool(); reply = null; }
+                    if (request != null) request.inUse_ = false;
+                    if (reply != null) reply.inUse_ = false;
                 }
             }  // End of else to build and send request
         } // End of try block
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "VersionColumns", connection_, reply); //@in2
+                                       "VersionColumns");
     }
 
 
@@ -5904,7 +5183,7 @@ implements DatabaseMetaData
     to the LOB.
     
     @return     Always true.    Updateable lob methods update a copy of the LOB. 
-    ResultSet.updateRow() must be called to update the LOB in the DB2 for IBM i database.
+    ResultSet.updateRow() must be called to update the LOB in the DB2 for i5/OS database.
     
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -5923,9 +5202,6 @@ implements DatabaseMetaData
     // everything to save the caller from having to do so.
     private String normalize(String mixedCaseName)
     {
-        if(mixedCaseName == null)  //@mdsp
-            return null;           //@mdsp
-        
         if (mixedCaseName.length() > 2)
         {
             if (mixedCaseName.charAt(0) == '"')
@@ -6232,7 +5508,7 @@ implements DatabaseMetaData
     Indicates if the database treats mixed case, quoted SQL identifiers
     as case insensitive and stores them in mixed case.
     
-    @return     Always false. The database does not treat mixed case, quoted
+    @return     Always true. The database does treat mixed case, quoted
                 SQL identifiers as case insensitive and store them in
                 mixed case.
     
@@ -6242,7 +5518,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         // @A2C changed from false to true
-        return false;  //@pdc match other drivers
+        return true;
     }
 
 
@@ -6642,10 +5918,7 @@ implements DatabaseMetaData
     public boolean supportsFullOuterJoins ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm610)  //@550
-            return true;                                //@550
-        else                                            //@550
-            return false;
+        return false;
     }
 
 
@@ -6656,8 +5929,8 @@ implements DatabaseMetaData
     using the method Statement.getGeneratedKeys().
     
     @return     True if the user is connecting to a system running OS/400 V5R2      
-    or IBM i, otherwise false.  Auto-generated keys are supported
-    only if connecting to a system running OS/400 V5R2 or IBM i.
+    or i5/OS, otherwise false.  Auto-generated keys are supported
+    only if connecting to a system running OS/400 V5R2 or i5/OS.
         
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -7098,8 +6371,8 @@ implements DatabaseMetaData
     types are ResultSet.HOLD_CURSORS_OVER_COMMIT and ResultSet.CLOSE_CURSORS_AT_COMMIT.
         
     @return     True if the user is connecting to a system running OS/400     
-    V5R2 or IBM i, otherwise false.  Both types of result set 
-    holidability are supported if connecting to OS/400 V5R2 or IBM i.
+    V5R2 or i5/OS, otherwise false.  Both types of result set 
+    holidability are supported if connecting to OS/400 V5R2 or i5/OS.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -7120,8 +6393,8 @@ implements DatabaseMetaData
     Indicates if savepoints are supported.
         
     @return     True if the user is connecting to a system running 
-    OS/400 V5R2 or IBM i, otherwise false.  Savepoints are supported
-    only if connecting to OS/400 V5R2 or IBM i.
+    OS/400 V5R2 or i5/OS, otherwise false.  Savepoints are supported
+    only if connecting to OS/400 V5R2 or i5/OS.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -7543,7 +6816,7 @@ implements DatabaseMetaData
 
     //@PDA jdbc40
     /**
-     * Retrieves whether a <code>SQLException</code> thrown while autoCommit is <code>true</code> indicates 
+     * Retrieves whether a <code>SQLException</code> while autoCommit is <code>true</code> inidcates 
      * that all open ResultSets are closed, even ones that are holdable.  When a <code>SQLException</code> occurs while
      * autocommit is <code>true</code>, it is vendor specific whether the JDBC driver responds with a commit operation, a 
      * rollback operation, or by doing neither a commit nor a rollback.  A potential result of this difference
@@ -7557,6 +6830,7 @@ implements DatabaseMetaData
         return false;  //toolbox returns false based on current behavoir
     }
 
+    
     //@PDA jdbc40
     /**
      * Retrieves a list of the client info properties 
@@ -7571,10 +6845,10 @@ implements DatabaseMetaData
      *                      stored in the database.
      * </ol>
          * <p>
-     * The <code>ResultSet</code> is sorted by the NAME column in ascending order
+     * The <code>ResultSet</code> is sorted by the NAME column
      * <p>
      * @return  A <code>ResultSet</code> object; each row is a supported client info
-     * property
+         * property
      * <p>
      *  @exception SQLException if a database access error occurs
      * <p>
@@ -7582,50 +6856,47 @@ implements DatabaseMetaData
     public ResultSet getClientInfoProperties() throws SQLException
     {
         // Set up the result set.
-        int vrm = connection_.getVRM();  //@trunc3
         String[] fieldNames = { "NAME", "MAX_LEN", "DEFAULT_VALUE", "DESCRIPTION" };
-        SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(vrm), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) }; //trunc3
+        SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) };
         int[] fieldNullables = {columnNoNulls, columnNoNulls, columnNoNulls, columnNoNulls}; // table types can not be null
         
         Object[][] data =  { { "ApplicationName", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME") }, 
                 { "ClientUser", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTUSER")},
                 { "ClientHostname", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTHOSTNAME")},
-                { "ClientAccounting", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING")},
-                { "ClientProgramID", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTPROGRAMID")}};  //@pdc programID
+                { "ClientAccounting", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING")}};
      
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Client Info", connection_, null);  //@in2
+                                       "Client Info");
     }
 
 
     //@PDA jdbc40
- /**
-      * Indicates whether or not this data source supports the SQL <code>ROWID</code> type,
-      * and if so  the lifetime for which a <code>RowId</code> object remains valid. 
-      * <p>
-      * The returned int values have the following relationship: 
-      * <pre>
-      *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
-      *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
-      * </pre>
-      * so conditional logic such as 
-      * <pre>
-      *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
-      * </pre>
-      * can be used. Valid Forever means valid across all Sessions, and valid for 
-      * a Session means valid across all its contained Transactions. 
-      *
-      * @throws SQLException if a database access error occurs
-      */
-/* ifdef JDBC40 */
+    /**
+     * Indicates whether or not this data source supports the SQL <code>ROWID</code> type,
+     * and if so  the lifetime for which a <code>RowId</code> object remains valid. 
+     * <p>
+     * The returned int values have the following relationship: 
+     * <pre>
+     *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
+     *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
+     * </pre>
+     * so conditional logic such as 
+     * <pre>
+     *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
+     * </pre>
+     * can be used. Valid Forever means valid across all Sessions, and valid for 
+     * a Session means valid across all its contained Transactions. 
+     *
+     * @throws SQLException if a database access error occurs
+     */
     public RowIdLifetime getRowIdLifetime() throws SQLException
     {
         return RowIdLifetime.ROWID_VALID_FOREVER; //toolbox rowid is forever
     }
-/* endif */ 
+
 
     //@PDA jdbc40
     /**
@@ -7656,21 +6927,28 @@ implements DatabaseMetaData
 
         CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLTABLES  (?, ?, ?, ?, ?)");
         
-        cstmt.setString(1, normalize(catalog));
-        cstmt.setString(2, normalize(schemaPattern));
-        cstmt.setString(3, "%");  //@mdsp
-        cstmt.setString(4, "%");  //@mdsp
+        cstmt.setString(1, catalog);
+        cstmt.setString(2, schemaPattern);
+        cstmt.setString(3, null);
+        cstmt.setString(4, null);
         cstmt.setObject(5, "DATATYPE='JDBC';GETSCHEMAS=2;CURSORHOLD=1");
-        cstmt.execute(); //@mdrs
-        ResultSet rs = cstmt.getResultSet();  //@mdrs
-        if(rs != null)                        //@mdrs
-            ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-        else
-            cstmt.close(); //@mdrs2
-        
-        return rs;  //@mdrs
+        ResultSet rs = cstmt.executeQuery();
+        return rs;
     }
 
+    // @PDA jdbc40
+    /**
+     * Retrieves whether this JDBC driver provides its own
+     * <code>QueryObjectGenerator</code>.
+     * 
+     * @return <code>true</code> if so; <code>false</code> otherwise
+     * @exception SQLException
+     *                if a database access error occurs
+     */
+    public boolean providesQueryObjectGenerator() throws SQLException
+    {
+        return false; //toolbox uses shipped QOG with java
+    }
 
     //@PDA jdbc40
     /**
@@ -7685,37 +6963,121 @@ implements DatabaseMetaData
         // toolbox does not support this
         return false;
     }
- 
+
+    //@PDA jdbc40
+    /**
+     * Retrieves a description of the given catalog's user function parameters
+     * and return type.
+     *
+     * <P>Only descriptions matching the schema, user function and
+     * parameter name criteria are returned.  They are ordered by
+     * FUNCTION_SCHEM, FUNCTION_NAME and SPECIFIC_NAME and ORDINAL_POSITION.
+     *
+     * <P>Each row in the <code>ResultSet</code> is a parameter description or
+     * return type description with the following fields:
+     *  <OL>
+     *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
+     *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
+     *  <LI><B>FUNCTION_NAME</B> String => function name
+     *  <LI><B>PARAMETER_NAME</B> String => parameter name 
+     *  <LI><B>PARAMETER_TYPE</B> Short => kind of parameter:
+     *      <UL>
+     *      <LI> functionParameterUnknown - nobody knows
+     *      <LI> functionParameterIn - IN parameter
+     *      <LI> functionParameterInOut - INOUT parameter
+     *      <LI> functionParameterOut - OUT parameter
+     *      <LI> functionReturn - function return value
+     *      </UL>
+     *  <LI><B>DATA_TYPE</B> int => SQL type from java.sql.Types
+     *  <LI><B>TYPE_NAME</B> String => SQL type name, for a UDT type the
+     *  type name is fully qualified
+     *  <LI><B>PRECISION</B> int => precision
+     *  <LI><B>LENGTH</B> int => length in bytes of data
+     *  <LI><B>SCALE</B> short => scale -  null is returned for data types where  
+     * SCALE is not applicable.
+     *  <LI><B>RADIX</B> short => radix
+     *  <LI><B>NULLABLE</B> short => can it contain NULL.
+     *      <UL>
+     *      <LI> functionNoNulls - does not allow NULL values
+     *      <LI> functionNullable - allows NULL values
+     *      <LI> functionNullableUnknown - nullability unknown
+     *      </UL>
+     *  <LI><B>REMARKS</B> String => comment describing parameter
+     *  <LI><B>CHAR_OCTET_LENGTH</B> int  => the maximum length of binary 
+     * and character based parameters.  For any other datatype the returned value 
+     * is a NULL
+     *  <LI><B>ORDINAL_POSITION</B> int  => the ordinal position, starting 
+     * from 1, for the input and output parameters for a procedure. A value of 0
+     * is returned if this row describes the function's return value.
+     *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine the nullability for a column.
+     *       <UL>
+     *       <LI> YES           --- if the parameter can include NULLs
+     *       <LI> NO            --- if the parameter cannot include NULLs
+     *       <LI> empty string  --- if the nullability for the 
+     * parameter is unknown
+     *       </UL>
+     *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies 
+     * this function within its schema.
+     *  </OL>
+     * 
+     * <p>The PRECISION column represents the specified column size for the given 
+     * parameter. 
+     * For numeric data, this is the maximum precision.  For character data, this is the length in characters. 
+     * For datetime datatypes, this is the length in characters of the String representation (assuming the 
+     * maximum allowed precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID datatype, 
+     * this is the length in bytes. Null is returned for data types where the
+     * column size is not applicable.
+     * @param catalog a catalog name; must match the catalog name as it
+     *        is stored in the database; "" retrieves those without a catalog;
+     *        <code>null</code> means that the catalog name should not be used to narrow
+     *        the search
+     * @param schemaPattern a schema name pattern; must match the schema name
+     *        as it is stored in the database; "" retrieves those without a schema;
+     *        <code>null</code> means that the schema name should not be used to narrow
+     *        the search
+     * @param functionNamePattern a procedure name pattern; must match the
+     *        function name as it is stored in the database 
+     * @param parameterNamePattern a parameter name pattern; must match the 
+     * parameter name as it is stored in the database 
+     * @return <code>ResultSet</code> - each row describes a 
+     * user function parameter or return type
+     *
+     * @exception SQLException if a database access error occurs
+     * @see #getSearchStringEscape 
+     */
+    public ResultSet getFunctionParameters(String catalog, String schemaPattern, String functionNamePattern, String parameterNamePattern) throws SQLException
+    {
+        connection_.checkOpen();
+
+        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONPARAMETERS (?, ?, ?, ?, ?)");
+        
+        cstmt.setString(1, catalog);
+        cstmt.setString(2, schemaPattern);
+        cstmt.setString(3, functionNamePattern);
+        cstmt.setString(4, parameterNamePattern);
+        cstmt.setObject(5, "DATATYPE='JDBC';CURSORHOLD=1");
+        ResultSet rs = cstmt.executeQuery();
+        return rs;
+    }
 
     //@PDA jdbc40
     /**
      * Retrieves a description of the user functions available in the given
      * catalog.
-      * <P>
-     * Only system and user function descriptions matching the schema and
+     * <P>
+     * Only user function descriptions matching the schema and
      * function name criteria are returned.  They are ordered by
-     * <code>FUNCTION_CAT</code>, <code>FUNCTION_SCHEM</code>,
-     * <code>FUNCTION_NAME</code> and 
+     * <code>FUNCTION_SCHEM</code>, <code>FUNCTION_NAME</code> and 
      * <code>SPECIFIC_ NAME</code>.
      *
      * <P>Each function description has the the following columns:
      *  <OL>
      *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
      *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *  <LI><B>FUNCTION_NAME</B> String => function name.  This is the name 
-     * used to invoke the function
+     *  <LI><B>FUNCTION_NAME</B> String => function name
      *  <LI><B>REMARKS</B> String => explanatory comment on the function
-     * <LI><B>FUNCTION_TYPE</B> short => kind of function:
-     *      <UL>
-     *      <LI>functionResultUnknown - Cannot determine if a return value
-     *       or table will be returned
-     *      <LI> functionNoTable- Does not return a table
-     *      <LI> functionReturnsTable - Returns a table
-     *      </UL>
      *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies 
-     *  this function within its schema.  This is a user specified, or DBMS
-     * generated, name that may be different then the <code>FUNCTION_NAME</code> 
-     * for example with overload functions
+     *  this function within its schema
      *  </OL>
      * <p>
      * A user may not have permissions to execute any of the functions that are
@@ -7739,35 +7101,14 @@ implements DatabaseMetaData
     {
         connection_.checkOpen();
 
-        // @A3 Not sure why this was not supported, since the stored procedure exists on V5R4
-        // if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
-        // {
-        //    JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
-        //    return null;
-        //}
-        
-        /*
-         SYSIBM.SQLFunctions(
-         CatalogName     varchar(128),
-         SchemaName      varchar(128),
-         FunctionName        varchar(128),
-         Options         varchar(4000))
-        */
-        
         CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONS  ( ?, ?, ?, ?)");
         
-        cstmt.setString(1, normalize(catalog));
-        cstmt.setString(2, normalize(schemaPattern));
-        cstmt.setString(3, normalize(functionNamePattern));
-        cstmt.setObject(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
-        cstmt.execute(); //@mdrs
-        ResultSet rs = cstmt.getResultSet();  //@mdrs
-        if(rs != null)                        //@mdrs
-            ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-        else
-            cstmt.close(); //@mdrs2
-        
-        return rs;  //@mdrs
+        cstmt.setString(1, catalog);
+        cstmt.setString(2, schemaPattern);
+        cstmt.setString(3, functionNamePattern);
+        cstmt.setObject(4, "DATATYPE='JDBC';CURSORHOLD=1");
+        ResultSet rs = cstmt.executeQuery();
+        return rs;
     }
 
 
@@ -7867,45 +7208,11 @@ implements DatabaseMetaData
      */
     public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException
     { 
-        //@PDA add support to call stored procedure
-        connection_.checkOpen();
-
-        //@A3D  Allow this to occur to V5R4 
-        // if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
-        // {
-        //    JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
-        //    return null;
-        // }
-        /*
-         SQLFunctionCols(
-          CatalogName     varchar(128),
-          SchemaName      varchar(128),
-          FuncName        varchar(128),
-          ParamName         varchar(128),
-          Options         varchar(4000))
-        */
-        
-        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONCOLS  ( ?, ?, ?, ?, ?)");
-        
-        cstmt.setString(1, normalize(catalog));
-        cstmt.setString(2, normalize(schemaPattern));
-        cstmt.setString(3, normalize(functionNamePattern));
-        cstmt.setString(4, normalize(columnNamePattern));
-/* ifdef JDBC40 */
-        cstmt.setObject(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp //@ver
-/* endif */ 
-/* ifndef JDBC40 
-        cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
- endif */ 
-        cstmt.execute();//@mdrs
-        ResultSet rs = cstmt.getResultSet();  //@mdrs
-        if(rs != null)                        //@mdrs
-            ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
-        else
-            cstmt.close(); //@mdrs2
-        
-        return rs;  //@mdrs
+        //todo  new method added in b99 driver (sept 15ish)
+        //if stored procs support it, call them, if not, throw not supported exception
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        return null;
     }
   
-
+      
 }

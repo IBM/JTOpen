@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,18 +21,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -40,13 +35,14 @@ import java.util.Calendar;
 final class SQLVarbinary
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[]     default_    = new byte[0];
 
     private SQLConversionSettings   settings_;
     private int                     length_;
+    private boolean                 longValue_;
     private int                     maxLength_;
     private int                     truncated_;
     private byte[]                  value_;
@@ -150,30 +146,6 @@ implements SQLData
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
-            {
-                InputStream stream = (InputStream)object;
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                byte[] byteBuffer = new byte[blockSize];
-                try
-                {
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 )
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                     
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-                value_ = baos.toByteArray();
-            }
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -207,44 +179,11 @@ implements SQLData
                         bytesRead = stream.read(byteBuffer, 0, blockSize);
                     }
                     value_ = baos.toByteArray();
-                    stream.close(); //@scan1
-                    
                     if(value_.length < length)
                     {
                         // a length longer than the stream was specified
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
-                }
-                catch(ExtendedIOException eie)
-                {
-                    // the Reader contains non-hex characters
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-            }
-            else if(length == -2) //@readerlen new else-if block (read all data)
-            {
-                try
-                {
-                    int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    HexReaderInputStream stream = new HexReaderInputStream((Reader)object);
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 )
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                        
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-                    value_ = baos.toByteArray();
-                    stream.close(); //@scan1
-                    
                 }
                 catch(ExtendedIOException eie)
                 {
@@ -416,7 +355,7 @@ implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -489,7 +428,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToString(getBytes()));
     }
 
     public Clob getClob()
@@ -498,7 +437,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        String string = BinaryConverter.bytesToHexString(getBytes());
+        String string = BinaryConverter.bytesToString(getBytes());
         return new AS400JDBCClob(string, string.length());
     }
 
@@ -559,7 +498,7 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return BinaryConverter.bytesToHexString(getBytes());
+        return BinaryConverter.bytesToString(getBytes());
     }
 
     public Time getTime(Calendar calendar)
@@ -584,7 +523,7 @@ implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -599,20 +538,18 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
+        return new StringReader(BinaryConverter.bytesToString(getBytes()));
     }
 
-/* ifdef JDBC40 */
     //@PDA jdbc40
     public NClob getNClob() throws SQLException
     {        
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        String string = BinaryConverter.bytesToHexString(getBytes());
+        String string = BinaryConverter.bytesToString(getBytes());
         return new AS400JDBCNClob(string, maxLength_);
     }
-/* endif */ 
 
     //@PDA jdbc40
     public String getNString() throws SQLException
@@ -620,10 +557,9 @@ implements SQLData
         truncated_ = 0;
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        return BinaryConverter.bytesToHexString(getBytes());
+        return BinaryConverter.bytesToString(getBytes());
     }
 
-/* ifdef JDBC40 */
     //@PDA jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -633,14 +569,6 @@ implements SQLData
 
     //@PDA jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

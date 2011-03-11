@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
 
 /**
-*  The AS400JDBCDataSource class represents a factory for IBM i database connections.
+*  The AS400JDBCDataSource class represents a factory for i5/OS database connections.
 *
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a
 *  connection to the database.
@@ -52,7 +52,7 @@ import javax.naming.StringRefAddr;                // JNDI
 *  <P>The following example registers an AS400JDBCDataSource object with JNDI and then
 *  uses the object returned from JNDI to obtain a database connection.
 *  <pre><blockquote>
-*  // Create a data source to the IBM i database.
+*  // Create a data source to the i5/OS database.
 *  AS400JDBCDataSource dataSource = new AS400JDBCDataSource();
 *  dataSource.setServerName("myAS400");
 *
@@ -67,11 +67,7 @@ import javax.naming.StringRefAddr;                // JNDI
 *  Connection connection = datasource.getConnection("myUser", "MYPWD");
 *  </pre></blockquote>
 **/
-public class AS400JDBCDataSource 
-/* ifdef JDBC40 */
-extends ToolboxWrapper
-/* endif */ 
-
+public class AS400JDBCDataSource extends ToolboxWrapper //@pdc jdbc40
 implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
     static final long serialVersionUID = 4L;
@@ -99,7 +95,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     private static final String FALSE_ = "false";
     private static final String TOOLBOX_DRIVER = "jdbc:as400:";
     private static final int MAX_THRESHOLD = 16777216;                  // Maximum threshold (bytes). @A3C, @A4A
-    static final int MAX_SCALE = 63;                            // Maximum decimal scale
+    private static final int MAX_SCALE = 63;                            // Maximum decimal scale
 
     // socket options to store away in JNDI
     private static final String SOCKET_KEEP_ALIVE = "soKeepAlive"; // @F1A
@@ -107,7 +103,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     private static final String SOCKET_SEND_BUFFER_SIZE = "soSendBufferSize"; // @F1A
     private static final String SOCKET_LINGER = "soLinger"; // @F1A
     private static final String SOCKET_TIMEOUT = "soTimeout"; // @F1A
-    private static final String SOCKET_LOGIN_TIMEOUT = "loginTimeout"; // @st3
     private static final String SOCKET_TCP_NO_DELAY = "soTCPNoDelay"; // @F1A
 
     // Data source properties.
@@ -115,8 +110,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @J2d private String databaseName_ = "";                // Database name. @A6C
     private String dataSourceName_ = "";                      // Data source name. @A6C
     private String description_ = "";                         // Data source description. @A6C
-    private JDProperties properties_;                         // IBM i connection properties.
-    private SocketProperties sockProps_;                      // IBM i socket properties @F1A
+    private JDProperties properties_;                         // i5/OS connection properties.
+    private SocketProperties sockProps_;                      // i5/OS socket properties @F1A
     transient private PrintWriter writer_;                    // The EventLog print writer.  @C7c
     transient private EventLog log_;       //@C7c
 
@@ -127,7 +122,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     private boolean isSecure_ = false;  //@B4A
 
     // Handles loading the appropriate resource bundle
-    // private static ResourceBundleLoader loader_;      //@A9A
+    private static ResourceBundleLoader loader_;      //@A9A
 
 
     // In mod 5 support was added to optionally serialize the password with the
@@ -190,32 +185,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public static final int SERVER_TRACE_SAVE_SQL_INFORMATION = 32;           // @j1a
 
 
-    //@cc1
-    /**
-     * CONCURRENTACCESS_NOT_SET - Indicates that currently committed behavior is not 
-     * requested explicitly by the client.     
-     */
-    public final static int CONCURRENTACCESS_NOT_SET = 0;
-    //@cc1
-    /**
-     * CONCURRENTACCESS_USE_CURRENTLY_COMMITTED - Indicates that the currently committed 
-     * behavior is requested at the server.
-     */
-    public final static int CONCURRENTACCESS_USE_CURRENTLY_COMMITTED = 1;
-    //@cc1
-    /**
-     * CONCURRENTACCESS_WAIT_FOR_OUTCOME - Indicates that the readers will 
-     * wait on the writers during lock contention.      
-     */
-    public final static int CONCURRENTACCESS_WAIT_FOR_OUTCOME = 2;
-    //@cc1
-    /**
-     * CONCURRENTACCESS_SKIP_LOCKS - Indicates that the readers will 
-     * skip locks.      
-     */
-    public final static int CONCURRENTACCESS_SKIP_LOCKS = 3;
-
-    
     /**
     *  Constructs a default AS400JDBCDataSource object.
     **/
@@ -228,7 +197,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Constructs an AS400JDBCDataSource object to the specified <i>serverName</i>.
-    *  @param serverName The name of the IBM i system.
+    *  @param serverName The name of the i5/OS system.
     **/
     public AS400JDBCDataSource(String serverName)
     {
@@ -239,7 +208,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information.
-    *  @param serverName The name of the IBM i system.
+    *  @param serverName The name of the i5/OS system.
     *  @param user The user id.
     *  @param password The user password.
     **/
@@ -271,7 +240,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information
     *  to use for SSL communications with the system.
-    *  @param serverName The name of the IBM i system.
+    *  @param serverName The name of the i5/OS system.
     *  @param user The user id.
     *  @param password The user password.
        *  @param keyRingName The key ring class name to be used for SSL communications with the system.
@@ -408,9 +377,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             else if (property.equals(SOCKET_TIMEOUT)) {
                 sockProps_.setSoTimeout(Integer.parseInt(value));
             }
-            else if (property.equals(SOCKET_LOGIN_TIMEOUT)) {        //@st3
-                sockProps_.setLoginTimeout(Integer.parseInt(value)); //@st3
-            }
             else if (property.equals(SOCKET_TCP_NO_DELAY)) {
                 sockProps_.setTcpNoDelay((value.equals(TRUE_)? true : false));
             }
@@ -455,7 +421,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         try
         {
-            Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.close()"); 
             AS400JDBCDataSource clone = (AS400JDBCDataSource) super.clone();
             clone.properties_ = (JDProperties) this.properties_.clone();
             return clone;
@@ -476,7 +441,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.ACCESS);
     }
-     
+
     // @C9 new method
     /**
     *  Returns what behaviors of the Toolbox JDBC driver have been overridden.
@@ -498,7 +463,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     //@B2A
     /**
-    *  Returns the output string type of bidi data. See <a href="BidiStringType.html">
+    *  Returns the output string type of bidi data, as defined by the CDRA
+    *  (Character Data Representation Architecture). See <a href="BidiStringType.html">
     *  BidiStringType</a> for more information and valid values.  -1 will be returned
     *  if the value has not been set.
     **/
@@ -589,67 +555,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public Connection getConnection(String user, String password) throws SQLException
     {
         // Validate the parameters.
-        //@pw3 Add way to get old behavior allowing "" (!but also need to allow new behavior of allowing null is/passwd so customers can slowly migrate)
-        String secureCurrentUser = SystemProperties.getProperty (SystemProperties.JDBC_SECURE_CURRENT_USER); //@pw3
-        boolean isSecureCurrentUser = true;                                                                  //@pw3
-        //if system property or jdbc property is set to false then secure current user code is not used
-        //null value for system property means not specified...so true by default
-        if(((secureCurrentUser != null) && (Boolean.valueOf(secureCurrentUser).booleanValue() == false)) || !isSecureCurrentUser())            //@pw3
-            isSecureCurrentUser = false;                                                                      //@pw3
-            
-        boolean forcePrompt = false;     //@prompt
-        
-        //check if "".  
-        if ("".equals(user))                                              //@pw1
-        {                                                                 //@pw1
-            if(isSecureCurrentUser)//@pw3
-            {  //@pw3
-                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
-                forcePrompt = true;  //@prompt
-            }  //@pw3
-        }                                                                 //@pw1
-        if ("".equals(password))                                          //@pw1
-        {                                                                 //@pw1
-            if(isSecureCurrentUser)//@pw3
-            {  //@pw3
-                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
-                forcePrompt = true;  //@prompt
-            }  //@pw3
-        }                                                                 //@pw1
-        
-        //Next, hack for nulls to work on IBM i
-        //New security: replace null with "" to mimic old behavior to allow null logons...disallowing "" above.
-        if (user == null)                                                         //@pw1
-            user = "";                                                            //@pw1
-        if (password == null)                                                     //@pw1
-            password = "";                                                        //@pw1
-        
-        //check for *current
-        if (user.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
-        {                                                                 //@pw1
-            if(isSecureCurrentUser)//@pw3
-            {  //@pw3
-                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
-                forcePrompt = true;  //@prompt
-            }  //@pw3
-            
-        }                                                                 //@pw1
-        if (password.compareToIgnoreCase("*CURRENT") == 0)                //@pw1
-        {                                                                 //@pw1
-            if(isSecureCurrentUser)//@pw3
-            {  //@pw3
-                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
-                forcePrompt = true;  //@prompt
-            }  //@pw3
-        }                                                                 //@pw1
+        if (user == null)
+            throw new NullPointerException("user");
+        if (password == null)
+            throw new NullPointerException("password");
 
         AS400 as400Object;
 
@@ -681,10 +590,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         catch (PropertyVetoException pve)                                   //@C2A
         { /*ignore*/                                                        //@C2A
         }                                                                   //@C2A
-        
-        if(forcePrompt)                  //@prompt
-            as400Object.forcePrompt();   //@prompt
-        
         return getConnection(as400Object);                                  //@C2A
 
         //@C2D return getConnection(new AS400(getServerName(), user, password));
@@ -714,44 +619,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         connection.setSystem(as400);
         connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
 
-        log(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
+        log(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
         return connection;
-    }
-    
-    //@cc1
-    /**
-     * This method returns the concurrent access resolution setting.
-     * This method has no effect on IBM i V6R1 or earlier.
-     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-     * Setting this property to default exhibits the default behavior on the servers  
-     * i.e., the semantic applied for read 
-     * transactions to avoid locks will be determined by the server.          
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-     * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-     * ultimately determined by server. 
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-     * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-     * if enabled, and the server will wait for the commit or rollback of data in the process of
-     * being updated.  
-     * 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-     *   
-     * @return  The concurrent access resolution setting.    Possible return valuse:
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-     */
-    public int getConcurrentAccessResolution ()
-    {
-        return properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);
     }
 
     //@C8A
@@ -800,7 +669,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Returns the IBM i date format used in date literals within SQL statements.
+    *  Returns the i5/OS date format used in date literals within SQL statements.
     *  @return The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -822,7 +691,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Returns the IBM i date separator used in date literals within SQL statements.
+    *  Returns the i5/OS date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @return The date separator.
@@ -842,28 +711,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.DATE_SEPARATOR);
     }
 
-    //@DFA
     /**
-    *  Returns the decfloat rounding mode.
-    *  @return The decfloat rounding mode.
-    *   <p>Valid values include:
-    *   <ul>
-    *   <li>"half even" - default
-    *   <li>"half up" 
-    *   <li>"down" 
-    *   <li>"ceiling" 
-    *   <li>"floor" 
-    *   <li>"half down" 
-    *   <li>"up" 
-    *   </ul>
-    **/
-    public String getDecfloatRoundingMode()
-    {
-        return properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);
-    }
-     
-    /**
-    *  Returns the IBM i decimal separator used in numeric literals within SQL statements.
+    *  Returns the i5/OS decimal separator used in numeric literals within SQL statements.
     *  @return The decimal separator.
     *  <p>Valid values include:
     *  <ul>
@@ -878,18 +727,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.DECIMAL_SEPARATOR);
     }
 
-    //@igwrn
-    /**
-    *  Returns the ignore warnings property.
-    *  Specifies a list of SQL states for which the driver should not create warning objects.
-    *  @return The ignore warnings.
-    **/
-    public String getIgnoreWarnings()
-    {
-        return properties_.getString(JDProperties.IGNORE_WARNINGS);
-    }
-    
-    
     /**
     *  Returns the description of the data source.
     *  @return The description.
@@ -905,14 +742,14 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an IBM i Java Virtual Machine.
+    * environment is not an OS/400 or i5/OS Java Virtual
+    * Machine.
     *  <p>Valid values include:
     *  <ul>
     *  <li>"toolbox" (use the IBM Toolbox for Java JDBC driver)
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "toolbox".
-    *  Note:  Not supported in a connection pool.
     **/
     public String getDriver()
     {
@@ -921,7 +758,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Returns the amount of detail for error messages originating from
-    *  the IBM i system.
+    *  the i5/OS system.
     *  @return The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -931,7 +768,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Returns the IBM i system libraries to add to the server job's library list.
+    *  Returns the i5/OS system libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -965,7 +802,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Returns the timeout value in seconds.
     *  Note: This value is not used or supported.
-    *  The timeout value is determined by the IBM i system.
+    *  The timeout value is determined by the i5/OS system.
     *  @return the maximum time in seconds that this data source can wait while attempting to connect to a database. 
     **/
     public int getLoginTimeout()
@@ -998,22 +835,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getInt(JDProperties.METADATA_SOURCE);
     }
     
-    //@dup
-    /**                                                               
-     *  Indicates how to retrieve DatabaseMetaData.
-     *  If set to 0, database metadata will be retrieved through the ROI data flow.  
-     *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
-     *  The methods that currently are available through stored procedures are:
-     *  getColumnPrivileges
-     *  @return the metadata setting.
-     *  The default value is 1.
-     *  Note:  this method is the same as getMetaDataSource() so that it corresponds to the connection property name
-     **/
-    public int getMetadataSource()
-    {
-        return getMetaDataSource();
-    }
-    
     /**
     *  Returns the naming convention used when referring to tables.
     *  @return The naming convention.  Valid values include: "sql" (e.g. schema.table)
@@ -1026,7 +847,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Returns the base name of the SQL package.  Note that only the
-    *  first six characters are used to generate the name of the SQL package on the system.  
+    *  first seven characters are used to generate the name of the SQL package on the system.  
     *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
@@ -1066,7 +887,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Returns the library for the SQL package.  This property has no effect unless
     *  the extended dynamic property is set to true.
-    *  @return The SQL package library.  The default package library is "QGPL".
+    *  @return The SQL package library.  The default library is "QGPL".
     **/
     public String getPackageLibrary()
     {
@@ -1093,9 +914,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public Reference getReference() throws NamingException
     {
-    	
-    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.getReference"); 
-
         Reference ref = new Reference(this.getClass().getName(),
                                       "com.ibm.as400.access.AS400JDBCObjectFactory",
                                       null);
@@ -1114,7 +932,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (sockProps_.sendBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_SEND_BUFFER_SIZE, Integer.toString(sockProps_.sendBufferSize_)));
         if (sockProps_.soLingerSet_) ref.add(new StringRefAddr(SOCKET_LINGER, Integer.toString(sockProps_.soLinger_)));
         if (sockProps_.soTimeoutSet_) ref.add(new StringRefAddr(SOCKET_TIMEOUT, Integer.toString(sockProps_.soTimeout_)));
-        if (sockProps_.loginTimeoutSet_) ref.add(new StringRefAddr(SOCKET_LOGIN_TIMEOUT, Integer.toString(sockProps_.loginTimeout_))); //@st3
         if (sockProps_.tcpNoDelaySet_) ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, (sockProps_.tcpNoDelay_ ? "true" : "false")));
 
         // Add the data source properties.  (unique constant identifiers for storing in JNDI).
@@ -1144,7 +961,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Returns the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @return The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or i5/OS object description).
     *  The default value is "system".
     **/
     public String getRemarks()
@@ -1161,20 +978,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.SECONDARY_URL);
     }
 
-    //@dup
     /**
-     *  Returns the secondary URL.
-     *  @return The secondary URL.
-     *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
-     **/
-    public String getSecondaryURL()
-    {
-        return getSecondaryUrl();
-    }
-    
-     
-    /**
-    *  Returns the name of the IBM i system.
+    *  Returns the name of the AS400 server property.
     *  @return The system name.
     **/
     public String getServerName()
@@ -1222,58 +1027,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getInt(JDProperties.TRACE_SERVER);
     }
-    
-    //@dup
-    /**
-     *  Returns the level of tracing started on the JDBC server job.
-     *  If tracing is enabled, tracing is started when
-     *  the client connects to the system and ends when the connection
-     *  is disconnected.  Tracing must be started before connecting to
-     *  the system since the client enables system tracing only at connect time.
-     *  Trace data is collected in spooled files on the system.  Multiple
-     *  levels of tracing can be turned on in combination by adding
-     *  the constants and passing that sum on the set method.  For example,
-     *  <pre>
-     *  dataSource.setServerTraceCategories(AS400JDBCDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
-     *  </pre>
-     *  @return The tracing level.
-     *  <p>The value is a combination of the following:
-     *  <ul>
-     *  <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
-     *                               The numeric value of this constant is 2.
-     *  <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
-     *                         The numeric value of this constant is 4.
-     *  <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
-     *                           The numeric value of this constant is 8.
-     *  <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
-     *                         The numeric value of this constant is 16.
-     *  <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
-     *                             The numeric value of this constant is 32.
-     *  </ul>
-     *
-     *  <P>
-     *  Tracing the JDBC server job will use significant amounts of system resources.
-     *  Additional processor resource is used to collect the data, and additional
-     *  storage is used to save the data.  Turn on tracing only to debug
-     *  a problem as directed by IBM service.
-     *
-     *  Note:  this method is the same as getServerTraceCategories() so that it corresponds to the connection property name
-     **/
-     public int getServerTrace()
-     {
-         return getServerTraceCategories();
-     }
 
-     //@STIMEOUT
-     /**
-      * Gets the socket timeout option in milliseconds.
-      * @return The value of the socket timeout option.
-      **/
-     public int getSocketTimeout()
-     {
-         return getSoTimeout(); 
-     }
-      
     /**
     *  Returns how the system sorts records before sending them to the 
     *  client.
@@ -1399,23 +1153,11 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.QAQQINILIB);
     }
-    
-    //@dup
-    /**
-     *  Returns the QAQQINI library name.
-     *  @return The QAQQINI library name.
-     *  Note:  this method is the same as getQaqqiniLibrary() so that it corresponds to the connection property name
-     **/
-    public String getQaqqinilib()
-    {
-        return getQaqqiniLibrary();
-    }
-     
 
     //@540
     /**                                                               
-    *  Returns the goal the IBM i system should use with optimization of queries.  
-    *  @return the goal the IBM i system should use with optimization of queries.
+    *  Returns the goal the i5/OS system should use with optimization of queries.  
+    *  @return the goal the i5/OS system should use with optimization of queries.
     *  <p>Valid values include:
     *  <ul>
     *  <li>0 = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used</li>
@@ -1432,8 +1174,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@550
     /**
     * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
-    * Note, this setting is ignored when running to i5/OS V5R4 or earlier
-    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i.
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
     **/
@@ -1463,8 +1204,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     private void initializeTransient()
     {
-    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.initializeTransient"); 
-
         changes_ = new PropertyChangeSupport(this);
 
         if (isSecure_)            //@B4A  
@@ -1535,21 +1274,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public boolean isTrueAutoCommit()
     {
-        return properties_.getBoolean(JDProperties.TRUE_AUTO_COMMIT); //@true
+        return properties_.getBoolean(JDProperties.AUTO_COMMIT);
     }
-    
-    //@dup
-    /**
-     *  Indicates whether true auto commit support is used.
-     *  @return true if true auto commit support is used; false otherwise.
-     *  The default value is false.
-     *  Note:  this method is the same as isTrueAutoCommit() so that it corresponds to the connection property name
-     **/
-    public boolean isTrueAutocommit()
-    {
-        return isTrueAutoCommit();
-    }
-     
 
     //@K54
     /**
@@ -1562,28 +1288,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION);
     }
 
-    //@AC1
-    /**
-     *  Returns whether auto-commit mode is the default connection mode for new connections.
-     *  @return Auto commit.
-     *  The default value is true.
-     **/
-     public boolean isAutoCommit()
-     {
-         return properties_.getBoolean(JDProperties.AUTO_COMMIT);
-     }
-     
-    //@CE1
-    /**
-     *  Returns whether commit or rollback throws SQLException when autocommit is enabled.
-     *  @return Autocommit Exception.
-     *  The default value is false.
-     **/
-     public boolean isAutocommitException()
-     {
-         return properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION);
-     }
-     
     //@K24
     /**
     *  Indicates whether bidi implicit reordering is used.
@@ -1667,7 +1371,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @C3A
     /**
     *  Indicates whether the driver should request extended metadata from the
-    *  IBM i system.  If this property is set to true, the accuracy of the information 
+    *  i5/OS system.  If this property is set to true, the accuracy of the information 
     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -1678,7 +1382,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  For example, without this property turned on, isSearchable(int) will 
     *  always return true even though the correct answer may be false because 
     *  the driver does not have enough information from the system to make a judgment.  Setting 
-    *  this property to true forces the driver to get the correct data from the IBM i system.
+    *  this property to true forces the driver to get the correct data from the i5/OS system.
     *
     *  @return true if extended metadata will be requested; false otherwise.
     *  The default value is false.
@@ -1688,37 +1392,11 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getBoolean(JDProperties.EXTENDED_METADATA);
     }
-    
-    //@dup
-    /**
-     *  Indicates whether the driver should request extended metadata from the
-     *  IBM i system.  If this property is set to true, the accuracy of the information 
-     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
-     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
-     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
-     *  property set to true.  However, performance will be slower with this 
-     *  property on.  Leave this property set to its default (false) unless you
-     *  need more specific information from those methods.
-     *
-     *  For example, without this property turned on, isSearchable(int) will 
-     *  always return true even though the correct answer may be false because 
-     *  the driver does not have enough information from the system to make a judgment.  Setting 
-     *  this property to true forces the driver to get the correct data from the IBM i system.
-     *
-     *  @return true if extended metadata will be requested; false otherwise.
-     *  The default value is false.
-     *  Note:  this method is the same as isExtendedMetaData() so that it corresponds to the connection property name
-     **/
-
-    public boolean isExtendedMetadata()
-    {
-        return isExtendedMetaData();
-    }
 
 
     // @W1a
     /**
-    *  Indicates whether the IBM i system fully opens a file when performing a query.
+    *  Indicates whether the i5/OS system fully opens a file when performing a query.
     *  By default the system optimizes opens so they perform better.  In
     *  certain cases an optimized open will fail.  In some
     *  cases a query will fail when a database performance monitor
@@ -1731,17 +1409,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public boolean isFullOpen()
     {
         return properties_.getBoolean(JDProperties.FULL_OPEN);
-    }
-
-    //@dmy
-    /**
-    *  Indicates whether the temporary fix for JVM 1.6 is enabled.
-    *  @return true if enabled; false otherwise.
-    *  The default value is true.
-    **/
-    public boolean isJvm16Synchronize()
-    {
-        return properties_.getBoolean(JDProperties.JVM16_SYNCHRONIZE);
     }
 
     // @A1A
@@ -1782,7 +1449,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Indicates whether a subset of the SQL package information is cached in client memory.  
     *  Caching SQL packages locally
-    *  reduces the amount of communication to the IBM i system for prepares and describes.  This
+    *  reduces the amount of communication to the i5/OS system for prepares and describes.  This
     *  property has no effect unless the extended dynamic property is set to true.
     *  @return true if caching is used; false otherwise.
     *  The defalut value is false.
@@ -1820,7 +1487,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Indicates whether the user is prompted if a user name or password is
-    *  needed to connect to the IBM i system.  If a connection can not be made
+    *  needed to connect to the i5/OS system.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail throwing an exception.
     *  @return true if the user is prompted for signon information; false otherwise.
@@ -1861,7 +1528,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <P>
     *  If the password is saved, it is up to the application to protect
     *  the serialized form of the object because it contains all necessary
-    *  information to connect to the IBM i system.  The default is false.  It
+    *  information to connect to the i5/OS system.  The default is false.  It
     *  is a security risk to save the password with the rest of the
     *  properties so by default the password is not saved.  If the programmer
     *  chooses to accept this risk, call setSavePasswordWhenSerialized(true)
@@ -1882,7 +1549,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Indicates whether a Secure Socket Layer (SSL) connection is used to communicate
-    *  with the IBM i system.  SSL connections are only available when connecting to systems
+    *  with the i5/OS system.  SSL connections are only available when connecting to systems
     *  at V4R4 or later.
     *  @return true if Secure Socket Layer connection is used; false otherwise.
     *  The default value is false.
@@ -1892,15 +1559,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.SECURE);
     }
 
-    //@pw3
-    /**
-     *  Returns the secure current user setting.  True indicates to disallow "" and *current for user name and password.
-     *  @return The secure current user setting.
-     **/
-    public boolean isSecureCurrentUser()
-    {
-        return  properties_.getBoolean(JDProperties.SECURE_CURRENT_USER);
-    }
 
     /**
     *  Indicates whether a thread is used.
@@ -1950,18 +1608,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.TRANSLATE_BOOLEAN);
     }
      
-    
-    /**
-     *  Indicates whether blocking is used for update and delete operations
-     *  @return true if enabled; false otherwise.
-     *  The default value is false.
-     **/
-     public boolean isUseBlockUpdate()
-     {
-         return properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);
-     }
-
-
     /**
     *  Logs a message to the event log.
     *  @param message The message to log.
@@ -2042,53 +1688,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + access);  //@A8C
     }
- 
-      //@AC1
-      /**
-      *  Sets whether auto-commit mode is the default connection mode for new connections.
-      *  @param value
-      *  The default value is true.
-      **/
-      public void setAutoCommit(boolean value)
-      {
-          String property = "autoCommit";
-          Boolean oldValue = new Boolean(isAutoCommit());
-          Boolean newValue = new Boolean(value);
 
-          if (value)
-              properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
-          else
-              properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
-
-          changes_.firePropertyChange(property, oldValue, newValue);
-
-          if (JDTrace.isTraceOn()) 
-              JDTrace.logInformation (this, property + ": " + value);   
-      }
-     
-    //@CE1
-    /**
-     *  Sets whether commit or rollback throws SQLException when autocommit is enabled.
-     *  @param value
-     *  The default value is false.
-     **/
-     public void setAutocommitException(boolean value)
-     {
-         String property = "autocommitException";
-         Boolean oldValue = new Boolean(isAutocommitException());
-         Boolean newValue = new Boolean(value);
-
-         if (value)
-             properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, TRUE_);
-         else
-             properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, FALSE_);
-
-         changes_.firePropertyChange(property, oldValue, newValue);
-
-         if (JDTrace.isTraceOn()) 
-             JDTrace.logInformation (this, property + ": " + value);   
-     }
-     
     //@KBA
     /**
     *  Sets whether true auto commit support is used.
@@ -2102,26 +1702,14 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         Boolean newValue = new Boolean(value);
 
         if (value)
-            properties_.setString(JDProperties.TRUE_AUTO_COMMIT, TRUE_); //@true
+            properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
         else
-            properties_.setString(JDProperties.TRUE_AUTO_COMMIT, FALSE_); //@true
+            properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
 
         changes_.firePropertyChange(property, oldValue, newValue);
 
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + value);      
-    }
-    
-    //@dup
-    /**
-     *  Sets whether true auto commit support is used.
-     *  @param value true if true auto commit support should be used; false otherwise.
-     *  The default value is false.
-     *  Note:  this method is the same as setTrueAutoCommit() so that it corresponds to the connection property nameproperty name
-     **/
-    public void setTrueAutocommit(boolean value)
-    {
-        setTrueAutoCommit(value); 
     }
 
 
@@ -2165,7 +1753,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     //@B2A
     /**
-     *  Sets the output string type of bidi data. See <a href="BidiStringType.html">
+     *  Sets the output string type of bidi data, as defined by the CDRA (Character Data
+     *  Representation Architecture). See <a href="BidiStringType.html">
      *  BidiStringType</a> for more information and valid values.
      **/
     public void setBidiStringType(int bidiStringType)                          //@B3C
@@ -2190,8 +1779,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@K24
     /**
     *  Sets whether bidi implicit reordering is used.
-    *  In this version, the parameter is used to determine whether Bidi layout 
-    *  transformation should be applied to meta-data such as columns names.
     *  @param value true if implicit reordering should be used; false otherwise.
     *  The default value is true.
     **/
@@ -2258,7 +1845,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets the criteria for retrieving data from the IBM i system in
+    *  Sets the criteria for retrieving data from the i5/OS system in
     *  blocks of records.  Specifying a non-zero value for this property
     *  will reduce the frequency of communication to the system, and
     *  therefore increase performance.
@@ -2286,7 +1873,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets the block size in kilobytes to retrieve from the IBM i system and
+    *  Sets the block size in kilobytes to retrieve from the i5/OS system and
     *  cache on the client.  This property has no effect unless the block criteria
     *  property is non-zero.  Larger block sizes reduce the frequency of
     *  communication to the system, and therefore may increase performance.
@@ -2319,55 +1906,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + blockSize);  //@A8C
     }
 
-    //@cc1
-    /**
-     * This method sets concurrent access resolution.  This method overrides the setting of ConcurrentAccessResolution on the datasource or connection
-     * URL properties.  This method has no effect on
-     * IBM i V6R1 or earlier.
-     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-     * Setting this property to default exhibits the default behavior on the servers  
-     * i.e., the semantic applied for read 
-     * transactions to avoid locks will be determined by the server.          
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-     * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-     * ultimately determined by server. 
-     *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-     * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-     * if enabled, and the server will wait for the commit or rollback of data in the process of
-     * being updated.  
-     *   
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-     * 
-     *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-     */
-    public void setConcurrentAccessResolution (int concurrentAccessResolution)
-    {
-        String property = "concurrentAccessResolution";
 
-        Integer oldValue = new Integer(getConcurrentAccessResolution());
-        Integer newValue = new Integer(concurrentAccessResolution);
-
-        validateProperty(property, newValue.toString(), JDProperties.CONCURRENT_ACCESS_RESOLUTION);
-
-        properties_.setString(JDProperties.CONCURRENT_ACCESS_RESOLUTION, newValue.toString());
-
-        changes_.firePropertyChange(property, oldValue, newValue);
-
-        if (JDTrace.isTraceOn())
-            JDTrace.logInformation (this, property + ": " + concurrentAccessResolution );   
-    }
-    
     //@C8A
     /**
     *  Sets the cursor sensitivity to be requested from the database.  If the resultSetType is 
@@ -2594,38 +2133,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + dateSeparator);   //@A8C
     }
 
-    //@DFA
-    /**
-    *  Sets the decfloat rounding mode.
-    *  @param decfloatRoundingMode The decfloat rounding mode.
-    *   <p>Valid values include:
-    *   <ul>
-    *   <li>"half even" - default
-    *   <li>"half up" 
-    *   <li>"down" 
-    *   <li>"ceiling" 
-    *   <li>"floor" 
-    *   <li>"half down" 
-    *   <li>"up" 
-    *   </ul>
-    **/
-    public void setDecfloatRoundingMode(String decfloatRoundingMode)
-    {
-        String property = "decfloatRoundingMode";
-        if (decfloatRoundingMode == null)
-            throw new NullPointerException(property);
-        validateProperty(property, decfloatRoundingMode, JDProperties.DECFLOAT_ROUNDING_MODE);
-
-        String old = getDecfloatRoundingMode();
-
-        properties_.setString(JDProperties.DECFLOAT_ROUNDING_MODE, decfloatRoundingMode);
-
-        changes_.firePropertyChange(property, old, decfloatRoundingMode);
-
-        if (JDTrace.isTraceOn()) 
-            JDTrace.logInformation (this, property + ": " + decfloatRoundingMode);
-    }
-     
     /**
     *  Sets the decimal separator used in numeric literals within SQL 
     *  statements.
@@ -2655,27 +2162,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + decimalSeparator);    //@A8C
     }
 
-    //@igwrn
-    /**
-    *  Sets the ignore warnings property.
-    *  @param ignoreWarnings Specifies a list of SQL states for which the driver should not create warning objects.
-    **/
-    public void setIgnoreWarnings(String ignoreWarnings)
-    {
-        String property = "ignoreWarnings";
-        if (ignoreWarnings == null)
-            throw new NullPointerException(property);
- 
-        String old = getIgnoreWarnings();
-
-        properties_.setString(JDProperties.IGNORE_WARNINGS, ignoreWarnings);
-
-        changes_.firePropertyChange(property, old, ignoreWarnings);
-
-        if (JDTrace.isTraceOn())
-            JDTrace.logInformation (this, property + ": " + ignoreWarnings);
-    }
-    
     /**
     *  Sets the data source description.
     *  @param description The description.
@@ -2697,7 +2183,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets how the IBM i system sorts records before sending them to the client.
+    *  Sets how the i5/OS system sorts records before sending them to the client.
     *  @param sort The sort value.
     *  <p>Valid values include:
     *  <ul>
@@ -2713,15 +2199,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (sort == null)
             throw new NullPointerException(property);
 
-        //@JOB fix to allow "sort=job" but use default value
-        if(sort.equals("job"))                 //@JOB
-        {                                      //@JOB
-            if (JDTrace.isTraceOn())           //@JOB
-                JDTrace.logInformation (this, property + ": " + getSort() + " (warning: " + getSort() + " will be used since sort=job is not valid)");  //@JOB 
-            return; //return and allow default setting to be used                                                  //@JOB
-        }                                     //@JOB
-
-
         validateProperty(property, sort, JDProperties.SORT);
         String old = getSort();
 
@@ -2735,7 +2212,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the amount of detail to be returned in the message for errors
-    *  occurring on the IBM i system.
+    *  occurring on the i5/OS system.
     *  @param errors The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -2758,7 +2235,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Sets whether to use extended dynamic support.  Extended dynamic
     *  support provides a mechanism for caching dynamic SQL statements on
-    *  the IBM i system.  The first time a particular SQL statement is prepared, it is
+    *  the i5/OS system.  The first time a particular SQL statement is prepared, it is
     *  stored in an SQL package on the system.  
     *  If the package does not exist, it will be automatically created.
     *  On subsequent prepares of the
@@ -2788,10 +2265,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @C3A
     /**
     *  Sets whether the driver should request extended metadata from the
-    *  IBM i system.  This property is ignored when connecting to systems
+    *  i5/OS system.  This property is ignored when connecting to systems
     *  running OS/400 V5R1 and earlier. 
     *  If this property is set to true and connecting to a system running
-    *  OS/400 V5R2 or IBM i, the accuracy of the information 
+    *  OS/400 V5R2 or i5/OS, the accuracy of the information 
     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -2822,40 +2299,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "extendedMetaData: " + extendedMetaData);
     }
-    
-    //@dup
-    /**
-     *  Sets whether the driver should request extended metadata from the
-     *  IBM i system.  This property is ignored when connecting to systems
-     *  running OS/400 V5R1 and earlier. 
-     *  If this property is set to true and connecting to a system running
-     *  OS/400 V5R2 or IBM i, the accuracy of the information 
-     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
-     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
-     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
-     *  property set to true.  However, performance will be slower with this 
-     *  property on.  Leave this property set to its default (false) unless you
-     *  need more specific information from those methods.
-     *
-     *  For example, without this property turned on, isSearchable(int) will 
-     *  always return true even though the correct answer may be false because 
-     *  the driver does not have enough information from the system to make a judgment.  Setting 
-     *  this property to true forces the driver to get the correct data from the system.
-     *
-     *  @param extendedMetaData True to request extended metadata from the system, false otherwise.
-     *  The default value is false.
-     *  Note:  this method is the same as setExtendedMetaData() so that it corresponds to the connection property name
-     **/
-    public void setExtendedMetadata(boolean extendedMetaData)
-    {
-        setExtendedMetaData(extendedMetaData);
-    }
 
 
     // @W1a new method
     /**
     *  Sets whether to fully open a file when performing a query.
-    *  By default the IBM i system optimizes opens so they perform better.
+    *  By default the i5/OS system optimizes opens so they perform better.
     *  In most cases optimization functions correctly and improves
     *  performance.  Running a query repeatedly
     *  when a database performance monitor is turned on may fail
@@ -2929,29 +2378,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + value);      
     }
-    
-    //@dmy
-    /**
-    *  Indicates whether the temporary fix for JVM 1.6 is enabled.
-    *  @param value true if JVM 1.6 fix is enabled; false otherwise.
-    *  The default value is true.
-    **/
-    public void setJvm16Synchronize(boolean value)
-    {
-        String property = "jvm16 synchronize";
-        Boolean oldValue = new Boolean(isJvm16Synchronize());
-        Boolean newValue = new Boolean(value);
-
-        if (value)
-            properties_.setString(JDProperties.JVM16_SYNCHRONIZE, TRUE_);
-        else
-            properties_.setString(JDProperties.JVM16_SYNCHRONIZE, FALSE_);
-
-        changes_.firePropertyChange(property, oldValue, newValue);
-
-        if (JDTrace.isTraceOn()) 
-            JDTrace.logInformation (this, property + ": " + value);      
-    }
 
     // @A1A
     /**
@@ -3005,7 +2431,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Sets the maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
-    *  communication to the IBM i system.  Larger LOB thresholds will reduce
+    *  communication to the i5/OS system.  Larger LOB thresholds will reduce
     *  the frequency of communication to the system, but will download
     *  more LOB data, even if it is not used.  Smaller LOB thresholds may
     *  increase frequency of communication to the system, but will only
@@ -3039,9 +2465,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setLoginTimeout(int timeout) throws SQLException
     {
-        
-        //@STIMEOUT setSoTimeout(timeout * 1000);    //@K5A  setSoTimeout takes milliseconds as a parameter //@STIMEOUT separate login and socket timeout into two separtate properties
-        sockProps_.setLoginTimeout(timeout * 1000); //@st3
+        //This sets the socket timeout
+        setSoTimeout(timeout * 1000);                                                   //@K5A  setSoTimeout takes milliseconds as a parameter
         String property = "loginTimeout";                                               //@K5A
 
         Integer oldValue = new Integer(getLoginTimeout());                              //@K5A
@@ -3107,24 +2532,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + mds);
     }
     
-    
-    //@dup
-    /**                                                               
-     *  Sets how to retrieve DatabaseMetaData.
-     *  If set to 0, database metadata will be retrieved through the ROI data flow.  
-     *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
-     *  The methods that currently are available through stored procedures are:
-     *  getColumnPrivileges
-     *  @param mds The setting for metadata source
-     *  The default value is 1.
-     *  Note:  this method is the same as setMetaDataSource() so that it corresponds to the connection property name
-     **/
-    public void setMetadataSource(int mds)
-    {
-        setMetaDataSource(mds);
-    }
-     
-    
     /**
     *  Sets the naming convention used when referring to tables.
     *  @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
@@ -3148,7 +2555,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the base name of the SQL package.  Note that only the
-    *  first six characters are used to generate the name of the SQL package on the IBM i system.  
+    *  first seven characters are used to generate the name of the SQL package on the i5/OS system.  
     *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
@@ -3196,7 +2603,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Sets whether to cache a subset of the SQL package information in client memory.  
     *  Caching SQL packages locally
-    *  reduces the amount of communication to the IBM i system for prepares and describes.  This
+    *  reduces the amount of communication to the i5/OS system for prepares and describes.  This
     *  property has no effect unless the extended dynamic property is set to true.
     *  @param cache If caching is used; false otherwise.  The default value is false.
     **/
@@ -3301,7 +2708,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Sets the library for the SQL package.  This property has no effect unless
     *  the extended dynamic property is set to true.
-    *  @param packageLibrary The SQL package library.  The default package library is "QGPL".
+    *  @param packageLibrary The SQL package library.  The default library is "QGPL".
     **/
     public void setPackageLibrary(String packageLibrary)
     {
@@ -3326,7 +2733,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         as400_.setPassword(password);
         serialPWBytes_ = xpwConfuse(password);                  //@J3a
-        log(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
+        log(loader_.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
     }
 
     /**
@@ -3353,7 +2760,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets whether the user should be prompted if a user name or password is
-    *  needed to connect to the IBM i system.  If a connection can not be made
+    *  needed to connect to the i5/OS system.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail.
     *  @param prompt true if the user is prompted for signon information; false otherwise.
@@ -3696,14 +3103,14 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Sets the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @param remarks The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or i5/OS object description).
     *  The default value is "system".
     **/
     public void setRemarks(String remarks)
     {
         String property = "remarks";
         if (remarks == null)
-            throw new NullPointerException("remarks");
+            throw new NullPointerException(remarks);
         validateProperty(property, remarks, JDProperties.REMARKS);
 
         String old = getRemarks();
@@ -3741,7 +3148,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Sets the secondary URL to be used for a connection on the middle-tier's
     *  DriverManager in a multiple tier environment, if it is different than
     *  already specified.  This property allows you to use this driver to connect
-    *  to databases other than DB2 for IBM i. Use a backslash as an escape character
+    *  to databases other than DB2 for i5/OS. Use a backslash as an escape character
     *  before backslashes and semicolons in the URL.
     *  @param url The secondary URL.
     **/
@@ -3758,25 +3165,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, "secondaryUrl: " + url); //@A8C
     }
-    
-    //@dup
-    /**
-     *  Sets the secondary URL to be used for a connection on the middle-tier's
-     *  DriverManager in a multiple tier environment, if it is different than
-     *  already specified.  This property allows you to use this driver to connect
-     *  to databases other than DB2 for IBM i. Use a backslash as an escape character
-     *  before backslashes and semicolons in the URL.
-     *  @param url The secondary URL.
-     *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
-     **/
-    public void setSecondaryURL(String url)
-    {
-        setSecondaryUrl(url);
-    }
 
     /**
     *  Sets whether a Secure Socket Layer (SSL) connection is used to communicate
-    *  with the IBM i system.  SSL connections are only available when connecting to systems
+    *  with the i5/OS system.  SSL connections are only available when connecting to systems
     *  at V4R4 or later.
     *  @param secure true if Secure Socket Layer connection is used; false otherwise.
     *  The default value is false.
@@ -3808,32 +3200,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, "secure: " + secure);     //@A8C
     }
 
-    //@pw3
     /**
-     *  Sets whether to disallow "" and *current as user name and password.  
-     *  True indicates to disallow "" and *current for user name and password.
-     *  @param secureCurrentUser The secure current user setting.
-     **/
-    public void setSecureCurrentUser(boolean secureCurrentUser)
-    {
-        String property = "secureCurrentUser";
-        Boolean oldVal = new Boolean(isSecureCurrentUser());
-        Boolean newVal = new Boolean(secureCurrentUser);
-
-        if (secureCurrentUser)
-            properties_.setString(JDProperties.SECURE_CURRENT_USER, TRUE_);
-        else
-            properties_.setString(JDProperties.SECURE_CURRENT_USER, FALSE_);
-
-        changes_.firePropertyChange(property, oldVal, newVal);
-
-        if (JDTrace.isTraceOn()) 
-            JDTrace.logInformation (this, property + ": " + secureCurrentUser);  
-    }
-    
-    
-    /**
-    *  Sets the IBM i system name.
+    *  Sets the i5/OS system name.
     *  @param serverName The system name.
     **/
     public void setServerName(String serverName)
@@ -3865,7 +3233,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Enables tracing of the JDBC server job.
     *  If tracing is enabled, tracing is started when
-    *  the client connects to the IBM i system, and ends when the connection
+    *  the client connects to the i5/OS system, and ends when the connection
     *  is disconnected.  Tracing must be started before connecting to
     *  the system since the client enables tracing only at connect time.
     *
@@ -3912,48 +3280,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + traceCategories);
     }
-    
-    //@dup
-    /**
-     *  Enables tracing of the JDBC server job.
-     *  If tracing is enabled, tracing is started when
-     *  the client connects to the IBM i system, and ends when the connection
-     *  is disconnected.  Tracing must be started before connecting to
-     *  the system since the client enables tracing only at connect time.
-     *
-     *  <P>
-     *  Trace data is collected in spooled files on the system.  Multiple
-     *  levels of tracing can be turned on in combination by adding
-     *  the constants and passing that sum on the set method.  For example,
-     *  <pre>
-     *  dataSource.setServerTraceCategories(AS400JDBCDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
-     *  </pre>
-     *  @param traceCategories level of tracing to start.
-     *  <p>Valid values include:
-     *  <ul>
-     *  <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
-     *                               The numeric value of this constant is 2.
-     *  <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
-     *                         The numeric value of this constant is 4.
-     *  <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
-     *                           The numeric value of this constant is 8.
-     *  <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
-     *                         The numeric value of this constant is 16.
-     *  <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
-     *                             The numeric value of this constant is 32.
-     *  </ul>
-     *  <P>
-     *  Tracing the JDBC server job will use significant amounts of system resources.
-     *  Additional processor resource is used to collect the data, and additional
-     *  storage is used to save the data.  Turn on tracing only to debug
-     *  a problem as directed by IBM service.
-     *
-     * Note:  this method is the same as setServerTraceCategories() so that it corresponds to the connection property name
-     **/
-     public void setServerTrace(int traceCategories)
-     {
-         setServerTraceCategories(traceCategories);
-     }
+
+
 
 
     // @A2A
@@ -3962,7 +3290,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an IBM i Java Virtual Machine.
+    * environment is not an OS/400 or i5/OS Java Virtual
+    * Machine.
     * param driver The driver value.
     *  <p>Valid values include:
     *  <ul>
@@ -3970,7 +3299,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "toolbox".
-    *  Note:  Not supported in a connection pool.
     **/
     public void setDriver(String driver)
     {
@@ -3996,7 +3324,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <P>  
     *  If the password is saved, it is up to the application to protect
     *  the serialized form of the object because it contains all necessary
-    *  information to connect to the IBM i system.  The default is false.  It
+    *  information to connect to the i5/OS system.  The default is false.  It
     *  is a security risk to save the password with the rest of the
     *  properties so by default the password is not saved.  If the application
     *  programmer chooses to accept this risk, set this property to true
@@ -4044,7 +3372,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the library and file name of a sort sequence table stored on the
-    *  IBM i system.
+    *  i5/OS system.
     *  This property has no effect unless the sort property is set to "table".
     *  The default is an empty String ("").
     *  @param table The qualified sort table name.
@@ -4064,7 +3392,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets how the IBM i system treats case while sorting records.  This property 
+    *  Sets how the i5/OS system treats case while sorting records.  This property 
     *  has no effect unless the sort property is set to "language".
     *  @param sortWeight The sort weight.
     *  Valid values include: "shared" (upper- and lower-case characters are sorted as the
@@ -4212,7 +3540,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
 
     /**
-    *  Sets the IBM i system's transaction isolation.
+    *  Sets the i5/OS system's transaction isolation.
     *  @param transactionIsolation The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>
@@ -4296,29 +3624,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
     
 
-    /**
-     *  Indicates whether blocking should be used for updates and delete.
-     *  @param value true if blocking is used for updates and deletes.
-     *  The default value is false.
-     **/
-     public void setUseBlockUpdate(boolean value)
-     {
-         String property = JDProperties.DO_UPDATE_DELETE_BLOCKING_  ;
-         Boolean oldValue = new Boolean(isUseBlockUpdate());
-         Boolean newValue = new Boolean(value);
-
-         if (value)
-             properties_.setString(JDProperties.DO_UPDATE_DELETE_BLOCKING, TRUE_);
-         else
-             properties_.setString(JDProperties.DO_UPDATE_DELETE_BLOCKING, FALSE_);
-
-         changes_.firePropertyChange(property, oldValue, newValue);
-
-         if (JDTrace.isTraceOn()) 
-             JDTrace.logInformation (this, property + ": " + value);      
-     }
-
-    
     /**
     *  Sets the database user.
     *  @param user The user.
@@ -4487,19 +3792,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         sockProps_.setSoTimeout(milliseconds);
     }
 
-    //@STIMEOUT
-    /**
-     * This property enables/disables socket timeout with the
-     * specified value in milliseconds.  A timeout value must be
-     * greater than zero, a value of zero for this property indicates
-     * infinite timeout.
-     * @param milliseconds The socket timeout option value.
-     **/
-     public void setSocketTimeout(int milliseconds)
-     {
-         setSoTimeout(milliseconds);
-     }
-     
     /**
     * This property allows the turning on of the TCP no delay socket option.
     * @param noDelay The socket TCP no delay option value.
@@ -4513,8 +3805,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A - added support for sending statements in UTF-16 and storing them in a UTF-16 package
     /**
     * Gets the package CCSID property, which indicates the
-    * CCSID in which statements are sent to the IBM i system and
+    * CCSID in which statements are sent to the i5/OS system and
     * also the CCSID of the package they are stored in.
+    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
     * Default value: 13488
     * @return The value of the package CCSID property.
     **/
@@ -4522,28 +3815,13 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getInt(JDProperties.PACKAGE_CCSID);
     }
-    
-    //@dup
-    /**
-     * Gets the package CCSID property, which indicates the
-     * CCSID in which statements are sent to the IBM i system and
-     * also the CCSID of the package they are stored in.
-     * Default value: 13488
-     * @return The value of the package CCSID property.
-     * Note:  this method is the same as getPackageCCSID() so that it corresponds to the connection property name
-     **/
-    public int getPackageCcsid()
-    {
-        return getPackageCCSID();
-    }
 
     // @M0A
     /**
     * Sets the package CCSID property, which indicates the
-    * CCSID in which statements are sent to the IBM i system and
+    * CCSID in which statements are sent to the i5/OS system and
     * also the CCSID of the package they are stored in.
-    * Recommended values:  1200(UTF-16)  and 13488 (UCS-2).  
-    * See <a href="BidiStringType.html">BidiStringType</a> for Bidi considerations.
+    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
     * Default value: 13488
     * @param ccsid The package CCSID.
     **/
@@ -4564,22 +3842,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + ccsid);
     }
 
-    //@dup
-    /**
-     * Sets the package CCSID property, which indicates the
-     * CCSID in which statements are sent to the IBM i system and
-     * also the CCSID of the package they are stored in.
-     * Recommended values:  1200(UTF-16)  and 13488 (UCS-2).  
-     * See <a href="BidiStringType.html">BidiStringType</a> for Bidi considerations.
-     * Default value: 13488
-     * @param ccsid The package CCSID.
-     * Note:  this method is the same as setPackageCCSID() so that it corresponds to the connection property name
-     **/
-    public void setPackageCcsid(int ccsid)
-    {
-        setPackageCCSID(ccsid);
-    }
-     
     // @M0A - added support for 63 digit decimal precision
     /**
     * Gets the minimum divide scale property.  This property ensures the scale
@@ -4592,20 +3854,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
     }
 
-    /** 
-     * Gets the maximum block input rows.  This property indicates the
-     * number of rows sent to the database engine for a block insert
-     * operation.  Valid values: 1-32000.  32000 is default. 
-     * @return The maximum block input rows 
-     */
-    public int getMaximumBlockedInputRows() {
-    	return properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS); 
-    }
-    
     // @M0A
     /**
     * Gets the maximum precision property. This property indicates the 
-    * maximum decimal precision the IBM i system should use.
+    * maximum decimal precision the i5/OS system should use.
     * Valid values: 31 or 63.  31 is default.
     * @return The maximum precision.
     **/
@@ -4617,7 +3869,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A
     /**
     * Gets the maximum scale property.  This property indicates the
-    * maximum decimal scale the IBM i system should use.
+    * maximum decimal scale the i5/OS system should use.
     * Valid values: 0-63.  31 is default.
     * @return The maximum scale.
     **/
@@ -4650,40 +3902,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + scale);
     }
 
-    // @A6A 
-    /**
-     * Sets the maximum blocked input rows.  This property indicates the 
-     * maximum number of rows sent to the database engine for a blocked
-     * input operation.  Valid values:  1-32000.  32000 is the default
-     * @param maximumBlockedInputRows  The maximum number of input rows 
-     */
-    public void setMaximumBlockedInputRows(int maximumBlockedInputRows)
-    {
-        String property = "maximumBlockedInputRows"; 
-
-        Integer oldValue = new Integer(getMaximumBlockedInputRows());
-        Integer newValue = new Integer(maximumBlockedInputRows);
-
-        if (maximumBlockedInputRows < 0 || maximumBlockedInputRows > 32000) {
-        	throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        if (maximumBlockedInputRows == 0) {
-        	maximumBlockedInputRows = 32000; 
-        }
-
-        properties_.setString(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS, newValue.toString());
-
-        changes_.firePropertyChange(property, oldValue, newValue);
-
-        if (JDTrace.isTraceOn())
-            JDTrace.logInformation (this, property + ": " + maximumBlockedInputRows);
-    }
-    
-    
     // @M0A
     /**
     * Sets the maximum precision property. This property indicates the 
-    * maximum decimal precision the IBM i system should use.
+    * maximum decimal precision the i5/OS system should use.
     * Valid values: 31 or 63.  31 is default.
     * @param precision The maximum precision.
     **/
@@ -4707,7 +3929,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A
     /**
     * Sets the maximum scale property.  This property indicates the
-    * maximum decimal scale the IBM i system should use.
+    * maximum decimal scale the i5/OS system should use.
     * Valid values: 0-63.  31 is default.
     * @param scale The maximum scale.
     **/
@@ -4795,21 +4017,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + libraryName);  
     }
 
-    //@dup
-    /**
-     *  Sets the QAQQINI library name.  
-     *  @param libraryName The QAQQINI library name.
-     *  Note:  this method is the same as setQaqqiniLibrary() so that it corresponds to the connection property name
-     **/
-    public void setQaqqinilib(String libraryName)
-    {
-        setQaqqiniLibrary(libraryName);
-    }
-     
     /**                                                               
-    *  Sets the goal the IBM i system should use with optimization of queries.  
+    *  Sets the goal the i5/OS system should use with optimization of queries.  
     *  This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  
-    *  Note, this setting is ignored when running to V5R3 IBM i or earlier  
+    *  Note, this setting is ignored when running to V5R3 i5/OS or earlier  
     *  @param goal - the optimization goal 
     *  <p>Valid values include:
     *  <ul>
@@ -4837,8 +4048,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@550
     /**
     * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
-    * Note, this setting is ignored when running to i5/OS V5R4 or earlier
-    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i.
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
     * @param limit the storage limit (in megabytes)
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
@@ -4864,7 +4074,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@540
     /**                                                               
     *  Sets whether lock sharing is allowed for loosely coupled transaction branches.
-    *  Note, this setting is ignored when running to V5R3 IBM i or earlier.  
+    *  Note, this setting is ignored when running to V5R3 i5/OS or earlier.  
     *  @param lcs - the "loosely coupled support" setting 
     *  <p>Valid values include:
     *  <ul>
@@ -4911,32 +4121,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public String getToolboxTraceCategory()
     {
         return properties_.getString(JDProperties.TRACE_TOOLBOX);
-    }
-    
-    //@dup
-    /**
-     *  Returns the toolbox trace category.
-     *  @return The toolbox trace category.
-     *  <p>Valid values include:
-     *  <ul>
-     *    <li> "none" - The default value.
-     *    <li> "datastream"
-     *    <li> "diagnostic"
-     *    <li> "error"
-     *    <li> "information"
-     *    <li> "warning"
-     *    <li> "conversion"
-     *    <li> "proxy"
-     *    <li> "pcml"
-     *    <li> "jdbc"
-     *    <li> "all"
-     *    <li> "thread"
-     *  </ul>
-     *  Note:  this method is the same as getToolboxTraceCategory() so that it corresponds to the connection property name
-     **/
-    public String getToolboxTrace()
-    {
-        return getToolboxTraceCategory();
     }
 
     // @K2A
@@ -5008,34 +4192,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + traceCategory);
     }
 
-    //@dup
-    /**
-     * Sets the toolbox trace category, which indicates 
-     * what trace points and diagnostic messages should be logged.
-     * @param traceCategory The category option.
-     * <p>Valid values include:
-     * <ul>
-     *    <li> "none" 
-     *    <li> "datastream"
-     *    <li> "diagnostic"
-     *    <li> "error"
-     *    <li> "information"
-     *    <li> "warning"
-     *    <li> "conversion"
-     *    <li> "proxy"
-     *    <li> "pcml"
-     *    <li> "jdbc"
-     *    <li> "all"
-     *    <li> "thread"    
-     * </ul>
-     * The default value is "none".
-     * Note:  this method is the same as setToolboxTraceCategory() so that it corresponds to the connection property name
-     **/
-    public void setToolboxTrace(String traceCategory)
-    {
-        setToolboxTraceCategory(traceCategory);
-    }
-    
     /**
     *  Validates the property value.
     *  @param property The property name.
@@ -5048,21 +4204,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         {                                                      // @A7A
             DriverPropertyInfo[] info = properties_.getInfo();
             String[] choices = info[index].choices;
-                        
-            //Bidi-HCG start
-            //exception for "package ccsid" - it can accept any integer
-            if(index == JDProperties.PACKAGE_CCSID){            	            	            	
-            	try{            	
-            		int ccsid = Integer.valueOf(value).intValue();
-            		if(ccsid < 1)
-            			throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); 
-            		return;
-            	}catch(NumberFormatException e){
-            		throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);            		
-            	}
-            }                 
-            //Bidi-HCG end
-            
+
             boolean notValid = true;
             int current = 0;
             while (notValid && current < choices.length)
@@ -5078,13 +4220,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Serializes the IBM i system and user information.
+    *  Serializes the i5/OS system and user information.
     *  @param out The output stream.
     *  @exception IOException If a file I/O error occurs.
     **/
     private void writeObject(ObjectOutputStream out) throws IOException
     {
-    	Trace.log(Trace.INFORMATION, "AS400JDBCDataSource.writeObject"); 
         // @F0D String server = getServerName();
         // @F0D if (!server.equals(""))
         // @F0D     serialServerName_ = server;

@@ -7,7 +7,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2005-2010 International Business Machines Corporation and     
+// Copyright (C) 2005-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,37 +43,23 @@ import javax.naming.Context;
  This implementation of <tt>javax.sql.DataSource</tt> can be used to produce Connection objects that will automatically participate in connection pooling, and are managed by the Toolbox's built-in connection pooling manager.
 
  <p>
- A DataSource is a factory for connections to the physical data source that this DataSource object represents. 
- An alternative to the DriverManager facility, a DataSource object is the preferred means of getting a connection. 
- An object that implements the DataSource interface will typically be registered with a naming service based on the 
- Java Naming and Directory (JNDI) API.
+ A DataSource is a factory for connections to the physical data source that this DataSource object represents. An alternative to the DriverManager facility, a DataSource object is the preferred means of getting a connection. An object that implements the DataSource interface will typically be registered with a naming service based on the Java Naming and Directory (JNDI) API.
  <p>
- A DataSource object has properties that can be modified when necessary. For example, if the data source is moved to a 
- different system, the property for the system can be changed. The benefit is that because the data source's properties 
- can be changed, any code accessing that data source does not need to be changed.
+ A DataSource object has properties that can be modified when necessary. For example, if the data source is moved to a different system, the property for the system can be changed. The benefit is that because the data source's properties can be changed, any code accessing that data source does not need to be changed.
  <p>
- A driver that is accessed via a DataSource object does not register itself with the DriverManager. Rather, a DataSource o
- bject is retrieved though a lookup operation and then used to create a Connection object. With a basic implementation, 
- the connection obtained through a DataSource object is identical to a connection obtained through the DriverManager facility.
+ A driver that is accessed via a DataSource object does not register itself with the DriverManager. Rather, a DataSource object is retrieved though a lookup operation and then used to create a Connection object. With a basic implementation, the connection obtained through a DataSource object is identical to a connection obtained through the DriverManager facility.
  <p>
- <em>Caution:</em> To avoid the pitfalls of "double-managed" pools, do not use this class in conjunction with a separate 
- connection pool manager, such as that available in WebSphere.  When a separate pool manager is provided, 
- use {@link AS400JDBCDataSource AS400JDBCDataSource} instead.
+ <em>Caution:</em> To avoid the pitfalls of "double-managed" pools, do not use this class in conjunction with a separate connection pool manager, such as that available in WebSphere.  When a separate pool manager is provided, use {@link AS400JDBCDataSource AS400JDBCDataSource} instead.
 
  @see AS400JDBCManagedConnectionPoolDataSource
  @see AS400JDBCDataSource
  @see AS400JDBCConnectionPoolDataSource
  @see AS400JDBCXADataSource
  **/
-public class AS400JDBCManagedDataSource 
-/* ifdef JDBC40 */
-extends ToolboxWrapper
-/* endif */ 
-
+public class AS400JDBCManagedDataSource extends ToolboxWrapper //@pdc jdbc40
 implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
-	private static final long serialVersionUID = 1L;
-static final String copyright = "Copyright (C) 2005-2010 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
   private static final boolean DEBUG = false;
 
 
@@ -146,7 +132,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   transient private AS400JDBCManagedConnectionPoolDataSource cpds_;
 
   // Handles loading the appropriate resource bundle
-  // private static ResourceBundleLoader loader_;
+  private static ResourceBundleLoader loader_;
 
   private boolean dataSourceNameSpecified_;
   transient private JDConnectionPoolManager poolManager_;
@@ -216,7 +202,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Constructs an AS400JDBCManagedDataSource object to the specified <i>serverName</i>.
-   @param serverName The name of the IBM i system.
+   @param serverName The name of the i5/OS system.
    **/
   public AS400JDBCManagedDataSource(String serverName)
   {
@@ -227,7 +213,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Constructs an AS400JDBCManagedDataSource object with the specified signon information.
-   @param serverName The name of the IBM i system.
+   @param serverName The name of the i5/OS system.
    @param user The user id.
    @param password The user password.
    **/
@@ -247,7 +233,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Constructs an AS400JDBCManagedDataSource object with the specified signon information
-   to use for SSL communications with the IBM i system.
+   to use for SSL communications with the i5/OS system.
    @param serverName The name of the system.
    @param user The user id.
    @param password The user password.
@@ -534,7 +520,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400);  // Note: This also does an AS400.connectService() to the database host server.
 
-    if (JDTrace.isTraceOn() || log_ != null) logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));
+    if (JDTrace.isTraceOn() || log_ != null) logInformation(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));
     return connection;
   }
 
@@ -598,7 +584,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Returns the output string type of bidi data. See <a href="BidiStringType.html">
+   Returns the output string type of bidi data, as defined by the CDRA
+   (Character Data Representation Architecture). See <a href="BidiStringType.html">
    BidiStringType</a> for more information and valid values.  -1 will be returned
    if the value has not been set.
    **/
@@ -635,7 +622,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Returns the block size in kilobytes to retrieve from the IBM i system and
+   Returns the block size in kilobytes to retrieve from the i5/OS system and
    cache on the client.  This property has no effect unless the block criteria
    property is non-zero.  Larger block sizes reduce the frequency of
    communication to the system, and therefore may increase performance.
@@ -657,41 +644,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getInt(JDProperties.BLOCK_SIZE);
   }
 
-  //@cc1
-  /**
-   * This method returns the concurrent access resolution setting.
-   * This method has no effect on IBM i V6R1 or earlier.
-   * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-   * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-   * Setting this property to default exhibits the default behavior on the servers  
-   * i.e., the semantic applied for read 
-   * transactions to avoid locks will be determined by the server.          
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-   * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-   * ultimately determined by server. 
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-   * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-   * if enabled, and the server will wait for the commit or rollback of data in the process of
-   * being updated.  
-   *   
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-   * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-   *
-   * @return  The concurrent access resolution setting.    Possible return valuse:
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   */
-  public int getConcurrentAccessResolution ()
-  {
-      return properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);
-  }
 
   // method required by javax.sql.DataSource
   /**
@@ -720,6 +672,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       // this point.
       if (connection == null)
       {
+        // Future enhancement: Add a property to indicate whether we should return a non-pooled connection, or throw an exception.
         connection = createPhysicalConnection();
       }
     }
@@ -794,6 +747,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       // this point.
       if (connection == null)
       {
+        // Future enhancement: Add a property to indicate whether we should return a non-pooled connection, or throw an exception.
         connection = createPhysicalConnection(user, password);
       }
     }
@@ -854,7 +808,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     {
       if (JDTrace.isTraceOn() || log_ != null)
         logWarning("Connection pool is at or near capacity, so returning a non-pooled connection");
-      // Note: If the 'enforceMaxPoolSize' property were set to true, then JDConnectionPoolManager.getConnection() would have thrown an exception if the pool is full and no connection is available.  Since no exception was thrown, we can assume that the property is not set.
     }
 
     return connection;
@@ -967,26 +920,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getString(JDProperties.DATE_SEPARATOR);
   }
 
-  //@DFA
-  /**
-     Returns the decfloat rounding mode.
-     @return The decfloat rounding mode.
-    <p>Valid values include:
-    <ul>
-    <li>"half even" - default
-    <li>"half up" 
-    <li>"down" 
-    <li>"ceiling" 
-    <li>"floor" 
-    <li>"half down" 
-    <li>"up" 
-    </ul>
-   **/
-   public String getDecfloatRoundingMode()
-   {
-       return properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);
-   }
-   
   /**
    Returns the decimal separator used in numeric literals within SQL statements.
    @return The decimal separator.
@@ -1003,17 +936,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getString(JDProperties.DECIMAL_SEPARATOR);
   }
 
-  //@igwrn
-  /**
-  *  Returns the ignore warnings property.
-  *  Specifies a list of SQL states for which the driver should not create warning objects.
-  *  @return The ignore warnings.
-  **/
-  public String getIgnoreWarnings()
-  {
-      return properties_.getString(JDProperties.IGNORE_WARNINGS);
-  }
-  
   /**
    Returns the description of the data source.
    @return The description.
@@ -1028,7 +950,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    This property has no
    effect if the "secondary URL" property is set.
    This property cannot be set to "native" if the
-   environment is not an IBM i Java Virtual
+   environment is not an i5/OS Java Virtual
    Machine.
    <p>Valid values include:
    <ul>
@@ -1036,7 +958,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    <li>"native" (use the IBM Developer Kit for Java JDBC driver)
    </ul>
    The default value is "toolbox".
-   Note:  Not supported in a connection pool.
    **/
   public String getDriver()
   {
@@ -1045,7 +966,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Returns the amount of detail for error messages originating from
-   the IBM i system.
+   the i5/OS system.
    @return The error message level.
    Valid values include: "basic" and "full".  The default value is "basic".
    **/
@@ -1073,7 +994,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Returns the maximum LOB (large object) size in bytes that
    can be retrieved as part of a result set.  LOBs that are larger
    than this threshold will be retrieved in pieces using extra
-   communication to the IBM i system.  Larger LOB thresholds will reduce
+   communication to the i5/OS system.  Larger LOB thresholds will reduce
    the frequency of communication to the system, but will download
    more LOB data, even if it is not used.  Smaller LOB thresholds may
    increase frequency of communication to the system, but will only
@@ -1090,7 +1011,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Returns the timeout value in seconds.
    <br><i>Note: This value is not used or supported by the Toolbox JDBC driver.</i>
-   Rather, the timeout value is determined by the IBM i system.
+   Rather, the timeout value is determined by the i5/OS system.
    @return the maximum time in seconds that this data source can wait while attempting to connect to a database.
    **/
   public int getLoginTimeout()
@@ -1124,22 +1045,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       return properties_.getInt(JDProperties.METADATA_SOURCE);
   }
   
-  //@dup
-  /**                                                               
-   *  Indicates how to retrieve DatabaseMetaData.
-   *  If set to 0, database metadata will be retrieved through the ROI data flow.  
-   *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
-   *  The methods that currently are available through stored procedures are:
-   *  getColumnPrivileges
-   *  @return the metadata setting.
-   *  The default value is 1.
-   *  Note:  this method is the same as getMetaDataSource() so that it corresponds to the connection property name
-   **/
-  public int getMetadataSource()
-  {
-      return getMetaDataSource();
-  }
-  
 
   /**
    Returns the naming convention used when referring to tables.
@@ -1153,7 +1058,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Returns the base name of the SQL package.  Note that only the
-   first six characters are used to generate the name of the SQL package on the IBM i system.
+   first seven characters are used to generate the name of the SQL package on the i5/OS system.
    This property has no effect unless
    the extended dynamic property is set to true.  In addition, this property
    must be set if the extended dynamic property is set to true.
@@ -1194,7 +1099,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Returns the library for the SQL package.  This property has no effect unless
    the extended dynamic property is set to true.
-   @return The SQL package library.  The default package library is "QGPL".
+   @return The SQL package library.  The default library is "QGPL".
    **/
   public String getPackageLibrary()
   {
@@ -1239,7 +1144,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   //@550
     /**
     * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
-    * Note, this setting is ignored when running to i5/OS V5R4 or earlier
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
     **/
@@ -1308,7 +1213,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Returns the source of the text for REMARKS columns in ResultSets returned
    by DatabaseMetaData methods.
    @return The text source.
-   Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
+   Valid values include: "sql" (SQL object comment) and "system" (i5/OS object description).
    The default value is "system".
    **/
   public String getRemarks()
@@ -1324,19 +1229,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   {
     return properties_.getString(JDProperties.SECONDARY_URL);
   }
-  
-  
-  //@dup
-  /**
-   *  Returns the secondary URL.
-   *  @return The secondary URL.
-   *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
-   **/
-  public String getSecondaryURL()
-  {
-      return getSecondaryUrl();
-  }
-   
 
   /**
    Returns the value of the serverName property.
@@ -1351,7 +1243,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Returns the level of tracing started on the JDBC server job.
    If tracing is enabled, tracing is started when
-   the client connects to the IBM i system and ends when the connection
+   the client connects to the i5/OS system and ends when the connection
    is disconnected.  Tracing must be started before connecting to
    the system since the client enables tracing only at connect time.
    Trace data is collected in spooled files on the system.  Multiple
@@ -1386,61 +1278,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   {
     return properties_.getInt(JDProperties.TRACE_SERVER);
   }
-  
-  //@dup
-  /**
-   Returns the level of tracing started on the JDBC server job.
-   If tracing is enabled, tracing is started when
-   the client connects to the IBM i system and ends when the connection
-   is disconnected.  Tracing must be started before connecting to
-   the system since the client enables tracing only at connect time.
-   Trace data is collected in spooled files on the system.  Multiple
-   levels of tracing can be turned on in combination by adding
-   the constants and passing that sum on the set method.  For example,
-   <pre>
-   dataSource.setServerTraceCategories(AS400JDBCManagedDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCManagedDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
-   </pre>
-   @return The tracing level.
-   <p>The value is a combination of the following:
-   <ul>
-   <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
-   The numeric value of this constant is 2.
-   <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
-   The numeric value of this constant is 4.
-   <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
-   The numeric value of this constant is 8.
-   <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
-   The numeric value of this constant is 16.
-   <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
-   The numeric value of this constant is 32.
-   </ul>
-   *
-   <P>
-   Tracing the JDBC server job will use significant amounts of system resources.
-   Additional processor resource is used to collect the data, and additional
-   storage is used to save the data.  Turn on tracing only to debug
-   a problem as directed by IBM service.
-   *
-   *  Note:  this method is the same as getServerTraceCategories() so that it corresponds to the connection property name
-   **/
-   public int getServerTrace()
-   {
-       return getServerTraceCategories();
-   }
 
-   //@STIMEOUT
-   /**
-    * Gets the socket timeout option in milliseconds.
-    * @return The value of the socket timeout option.
-    **/
-   public long getSocketTimeout()
-   {
-       return getSoTimeout(); 
-   }
-    
-   
   /**
-   Returns how the IBM i system sorts records before sending them to the
+   Returns how the i5/OS system sorts records before sending them to the
    client.
    @return The sort value.
    <p>Valid values include:
@@ -1468,7 +1308,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Returns the library and file name of a sort sequence table stored on the
-   IBM i system.
+   i5/OS system.
    @return The qualified sort table name.
    **/
   public String getSortTable()
@@ -1477,7 +1317,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Returns how the IBM i system treats case while sorting records.
+   Returns how the i5/OS system treats case while sorting records.
    @return The sort weight.
    Valid values include: "shared" (upper- and lower-case characters are sorted as the
    same character) and "unique" (upper- and lower-case characters are sorted as
@@ -1528,7 +1368,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
 
   /**
-   Returns the IBM i system's transaction isolation.
+   Returns the i5/OS system's transaction isolation.
    @return The transaction isolation level.
    <p>Valid values include:
    <ul>
@@ -1552,18 +1392,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   {
     return properties_.getString(JDProperties.QAQQINILIB);
   }
-  
-  //@dup
-  /**
-   *  Returns the QAQQINI library name.
-   *  @return The QAQQINI library name.
-   *  Note:  this method is the same as getQaqqiniLibrary() so that it corresponds to the connection property name
-   **/
-  public String getQaqqinilib()
-  {
-      return getQaqqiniLibrary();
-  }
-   
 
   /**
    Returns the value of the 'user' property.
@@ -1571,8 +1399,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   public String getUser()
   {
-    //return properties_.getString(JDProperties.USER);  //PDD
-      return as400_.getUserId();  //@PDA if running on host, could be default id
+    return properties_.getString(JDProperties.USER);
   }
 
   /**                                                               
@@ -1604,9 +1431,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       logWarning("No datasource name was specified, so connections will not be pooled");
       return;
     }
-    synchronized(this) { /*@A7A */  
-        inUse_ = true;
-    }
+
+    inUse_ = true;
     if (poolManager_ == null)
     {
       try
@@ -1642,6 +1468,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     poolManagerInitialized_ = false;
     defaultConnectionPoolKey_ = null;
     connectionKeyNeedsUpdate_ = true;
+    inUse_ = false;
+
     if (isSecure_)
       as400_ = new SecureAS400();
     else
@@ -1703,10 +1531,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     }
     catch (PropertyVetoException pve) {} // will never happen
 
-    synchronized(this) {  //@A7A
-        inUse_ = false;
-    }
-
   }
 
   /**
@@ -1735,27 +1559,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (poolManager_ != null) poolManager_.invalidate(key);
   }
 
-   //@AC1
-   /**
-   *  Returns whether auto-commit mode is the default connection mode for new connections.
-   *  @return Auto commit.
-   *  The default value is true.
-   **/
-   public boolean isAutoCommit()
-   {
-       return properties_.getBoolean(JDProperties.AUTO_COMMIT);
-   }
-
-  //@CE1
-  /**
-   *  Returns whether commit or rollback throws SQLException when autocommit is enabled.
-   *  @return Autocommit Exception.
-   *  The default value is false.
-   **/
-   public boolean isAutocommitException()
-   {
-       return properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION);
-   }
 
   /**
    Indicates whether bidi implicit reordering is used.
@@ -1820,7 +1623,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Indicates whether extended dynamic support is used.  Extended dynamic
    support provides a mechanism for caching dynamic SQL statements on
-   the IBM i system.  The first time a particular SQL statement is prepared, it is
+   the i5/OS system.  The first time a particular SQL statement is prepared, it is
    stored in an SQL package on the system.
    If the package does not exist, it will be automatically created.
    On subsequent prepares of the
@@ -1836,7 +1639,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Indicates whether the driver should request extended metadata from the
-   IBM i system.  If this property is set to true, the accuracy of the information
+   i5/OS system.  If this property is set to true, the accuracy of the information
    that is returned from ResultSetMetaData methods getColumnLabel(int),
    isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
    In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this
@@ -1859,35 +1662,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
 
-  //@dup
   /**
-   *  Indicates whether the driver should request extended metadata from the
-   *  IBM i system.  If this property is set to true, the accuracy of the information 
-   *  that is returned from ResultSetMetaData methods getColumnLabel(int),
-   *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
-   *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
-   *  property set to true.  However, performance will be slower with this 
-   *  property on.  Leave this property set to its default (false) unless you
-   *  need more specific information from those methods.
-   *
-   *  For example, without this property turned on, isSearchable(int) will 
-   *  always return true even though the correct answer may be false because 
-   *  the driver does not have enough information from the system to make a judgment.  Setting 
-   *  this property to true forces the driver to get the correct data from the IBM i system.
-   *
-   *  @return true if extended metadata will be requested; false otherwise.
-   *  The default value is false.
-   *  Note:  this method is the same as isExtendedMetaData() so that it corresponds to the connection property name
-   **/
-
-  public boolean isExtendedMetadata()
-  {
-      return isExtendedMetaData();
-  }
-
-
-  /**
-   Indicates whether the IBM i system fully opens a file when performing a query.
+   Indicates whether the i5/OS system fully opens a file when performing a query.
    By default the system optimizes opens so they perform better.  In
    certain cases an optimized open will fail.  In some
    cases a query will fail when a database performance monitor
@@ -1927,22 +1703,11 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Used for checking state conditions.  The default is false.
    @return true if the pool is in use; false otherwise.
    **/
-  private synchronized final boolean isInUse()  // @A7C 
+  private final boolean isInUse()
   {
     return inUse_;
   }
 
-  //@dmy
-  /**
-  *  Indicates whether the temporary fix for JVM 1.6 is enabled.
-  *  @return true if enabled; false otherwise.
-  *  The default value is true.
-  **/
-  public boolean isJvm16Synchronize()
-  {
-      return properties_.getBoolean(JDProperties.JVM16_SYNCHRONIZE);
-  }
-  
   /**
    Indicates whether to delay closing cursors until subsequent requests.
    @return true to delay closing cursors until subsequent requests; false otherwise.
@@ -1969,7 +1734,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Indicates whether a subset of the SQL package information is cached in client memory.
    Caching SQL packages locally
-   reduces the amount of communication to the IBM i system for prepares and describes.  This
+   reduces the amount of communication to the i5/OS system for prepares and describes.  This
    property has no effect unless the extended dynamic property is set to true.
    @return true if caching is used; false otherwise.
    The defalut value is false.
@@ -2005,7 +1770,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Indicates whether the user is prompted if a user name or password is
-   needed to connect to the IBM i system.  If a connection can not be made
+   needed to connect to the i5/OS system.  If a connection can not be made
    without prompting the user, and this property is set to false, then an
    attempt to connect will fail throwing an exception.
    @return true if the user is prompted for signon information; false otherwise.
@@ -2031,7 +1796,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    <P>
    If the password is saved, it is up to the application to protect
    the serialized form of the object because it contains all necessary
-   information to connect to the IBM i system.  The default is false.  It
+   information to connect to the i5/OS system.  The default is false.  It
    is a security risk to save the password with the rest of the
    properties so by default the password is not saved.  If the programmer
    chooses to accept this risk, call setSavePasswordWhenSerialized(true)
@@ -2048,7 +1813,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Indicates whether a Secure Socket Layer (SSL) connection is used to communicate
-   with the IBM i system.  SSL connections are only available when connecting to systems
+   with the i5/OS system.  SSL connections are only available when connecting to systems
    at V4R4 or later.
    @return true if Secure Socket Layer connection is used; false otherwise.
    The default value is false.
@@ -2058,15 +1823,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getBoolean(JDProperties.SECURE);
   }
 
-  //@pw3
-  /**
-   *  Returns the secure current user setting.  True indicates to disallow "" and *current for user name and password.
-   *  @return The secure current user setting.
-   **/
-  public boolean isSecureCurrentUser()
-  {
-      return  properties_.getBoolean(JDProperties.SECURE_CURRENT_USER);
-  }
 
   /**
    Indicates whether a thread is used.
@@ -2124,21 +1880,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   public boolean isTrueAutoCommit()
   {
-    return properties_.getBoolean(JDProperties.TRUE_AUTO_COMMIT); //@true
+    return properties_.getBoolean(JDProperties.AUTO_COMMIT);
   }
 
-  //@dup
-  /**
-   *  Indicates whether true auto commit support is used.
-   *  @return true if true auto commit support is used; false otherwise.
-   *  The default value is false.
-   *  Note:  this method is the same as isTrueAutoCommit() so that it corresponds to the connection property name
-   **/
-  public boolean isTrueAutocommit()
-  {
-      return isTrueAutoCommit();
-  }
-  
 
   /**
    Logs an exception and message to the event log.
@@ -2236,37 +1980,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     // Note: The JDProperties.setString() logs the property change.
   }
 
-
-   //@AC1
-   /**
-   *  Sets whether auto-commit mode is the default connection mode for new connections.
-   *  @param value
-   *  The default value is true.
-   **/
-   public void setAutoCommit(boolean value)
-   {
-       if (value)
-           properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
-       else
-           properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
-
-   }
-   
-  //@CE1
-  /**
-   *  Sets whether commit or rollback throws SQLException when autocommit is enabled.
-   *  @param value
-   *  The default value is false.
-   **/
-   public void setAutocommitException(boolean value)
-   {
-       if (value)
-           properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, TRUE_);
-       else
-           properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, FALSE_);
-
-   }
-   
   /**
    Sets whether true auto commit support is used.
    @param value true if true auto commit support should be used; false otherwise.
@@ -2275,22 +1988,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   public void setTrueAutoCommit(boolean value)
   {
     if (value)
-      properties_.setString(JDProperties.TRUE_AUTO_COMMIT, TRUE_); //@true
+      properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
     else
-      properties_.setString(JDProperties.TRUE_AUTO_COMMIT, FALSE_); //@true
-  }
-  
-
-  //@dup
-  /**
-   *  Sets whether true auto commit support is used.
-   *  @param value true if true auto commit support should be used; false otherwise.
-   *  The default value is false.
-   *  Note:  this method is the same as setTrueAutoCommit() so that it corresponds to the connection property nameproperty name
-   **/
-  public void setTrueAutocommit(boolean value)
-  {
-      setTrueAutoCommit(value); 
+      properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
   }
 
 
@@ -2319,7 +2019,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Sets the output string type of bidi data. See <a href="BidiStringType.html">
+   Sets the output string type of bidi data, as defined by the CDRA (Character Data
+   Representation Architecture). See <a href="BidiStringType.html">
    BidiStringType</a> for more information and valid values.
    **/
   public void setBidiStringType(int bidiStringType)
@@ -2333,8 +2034,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets whether bidi implicit reordering is used.
-   In this version, the parameter is used to determine whether Bidi layout 
-   transformation should be applied to meta-data such as columns names.
    @param value true if implicit reordering should be used; false otherwise.
    The default value is true.
    **/
@@ -2373,7 +2072,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Sets the criteria for retrieving data from the IBM i system in
+   Sets the criteria for retrieving data from the i5/OS system in
    blocks of records.  Specifying a non-zero value for this property
    will reduce the frequency of communication to the system, and
    therefore increase performance.
@@ -2395,7 +2094,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Sets the block size in kilobytes to retrieve from the IBM i system and
+   Sets the block size in kilobytes to retrieve from the i5/OS system and
    cache on the client.  This property has no effect unless the block criteria
    property is non-zero.  Larger block sizes reduce the frequency of
    communication to the system, and therefore may increase performance.
@@ -2420,48 +2119,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     properties_.setString(JDProperties.BLOCK_SIZE, new Integer(blockSize).toString());
   }
-  
-  //@cc1
-  /**
-   * This method sets concurrent access resolution.  This method overrides the setting of ConcurrentAccessResolution on the datasource or connection
-   * URL properties.  This method has no effect on
-   * IBM i V6R1 or earlier.
-   * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-   * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-   * Setting this property to default exhibits the default behavior on the servers  
-   * i.e., the semantic applied for read 
-   * transactions to avoid locks will be determined by the server.          
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-   * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-   * ultimately determined by server. 
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-   * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-   * if enabled, and the server will wait for the commit or rollback of data in the process of
-   * being updated.  
-   * 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-   * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-   *   
-   *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   */
-  public void setConcurrentAccessResolution (int concurrentAccessResolution)
-  {
-      String property = "concurrentAccessResolution";
 
-      validateProperty(property, Integer.toString(concurrentAccessResolution), JDProperties.CONCURRENT_ACCESS_RESOLUTION);
-
-      properties_.setString(JDProperties.CONCURRENT_ACCESS_RESOLUTION, Integer.toString(concurrentAccessResolution));
-  }
-  
   /**
    Sets the cursor sensitivity to be requested from the database.  If the resultSetType is
    ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE, the value of this property
@@ -2504,7 +2162,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    This property is ignored when connecting to systems
    running V5R1 and earlier versions of OS/400.
    If a database name is specified it must exist in the relational
-   database directory on the IBM i system.  Use IBM i command WRKRDBDIRE
+   database directory on the i5/OS system.  Use i5/OS command WRKRDBDIRE
    to view the directory.
    The following criteria are used to determine
    which database is accessed:
@@ -2645,33 +2303,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     properties_.setString(JDProperties.DATE_SEPARATOR, dateSeparator);
   }
 
-  //@DFA
-  /**
-    Sets the decfloat rounding mode.
-    @param decfloatRoundingMode The decfloat rounding mode.
-     <p>Valid values include:
-     <ul>
-     <li>"half even" - default
-     <li>"half up" 
-     <li>"down" 
-     <li>"ceiling" 
-     <li>"floor" 
-     <li>"half down" 
-     <li>"up" 
-     </ul>
-  **/
-  public void setDecfloatRoundingMode(String decfloatRoundingMode)
-  {
-      String property = "decfloatRoundingMode";
-      if (decfloatRoundingMode == null)
-          throw new NullPointerException(property);
-      validateProperty(property, decfloatRoundingMode, JDProperties.DECFLOAT_ROUNDING_MODE);
-
-      getDecfloatRoundingMode();
-
-      properties_.setString(JDProperties.DECFLOAT_ROUNDING_MODE, decfloatRoundingMode);
-  }
-  
   /**
    Sets the decimal separator used in numeric literals within SQL
    statements.
@@ -2694,20 +2325,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     properties_.setString(JDProperties.DECIMAL_SEPARATOR, decimalSeparator);
   }
 
-  //@igwrn
-  /**
-  *  Sets the ignore warnings property.
-  *  @param ignoreWarnings Specifies a list of SQL states for which the driver should not create warning objects.
-  **/
-  public void setIgnoreWarnings(String ignoreWarnings)
-  {
-      String property = "ignoreWarnings";
-      if (ignoreWarnings == null)
-          throw new NullPointerException(property);
- 
-      properties_.setString(JDProperties.IGNORE_WARNINGS, ignoreWarnings);
-  }
-  
   /**
    Sets the data source description.
    @param description The description.
@@ -2723,7 +2340,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Sets how the IBM i system sorts records before sending them to the client.
+   Sets how the i5/OS system sorts records before sending them to the client.
    @param sort The sort value.
    <p>Valid values include:
    <ul>
@@ -2739,14 +2356,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (sort == null)
       throw new NullPointerException(property);
 
-    //@JOB fix to allow "sort=job" but use default value
-    if(sort.equals("job"))                 //@JOB
-    {                                      //@JOB
-        if (JDTrace.isTraceOn())           //@JOB
-            JDTrace.logInformation (this, property + ": " + getSort() + " (warning: " + getSort() + " will be used since sort=job is not valid)");  //@JOB 
-        return; //return and allow default setting to be used                                                  //@JOB
-    }                                     //@JOB
-    
     validateProperty(property, sort, JDProperties.SORT);
 
     properties_.setString(JDProperties.SORT, sort);
@@ -2754,7 +2363,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets the amount of detail to be returned in the message for errors
-   occurring on the IBM i system.
+   occurring on the i5/OS system.
    @param errors The error message level.
    Valid values include: "basic" and "full".  The default value is "basic".
    **/
@@ -2771,7 +2380,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Sets whether to use extended dynamic support.  Extended dynamic
    support provides a mechanism for caching dynamic SQL statements on
-   the IBM i system.  The first time a particular SQL statement is prepared, it is
+   the i5/OS system.  The first time a particular SQL statement is prepared, it is
    stored in an SQL package on the system.
    If the package does not exist, it will be automatically created.
    On subsequent prepares of the
@@ -2792,10 +2401,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets whether the driver should request extended metadata from the
-   IBM i system.  This property is ignored when connecting to systems
+   i5/OS system.  This property is ignored when connecting to systems
    running V5R1 and earlier versions of OS/400.
    If this property is set to true and connecting to a system running
-   V5R2 or later version of IBM i, the accuracy of the information
+   V5R2 or later version of i5/OS, the accuracy of the information
    that is returned from ResultSetMetaData methods getColumnLabel(int),
    isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
    In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this
@@ -2820,39 +2429,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
 
-
-  //@dup
-  /**
-   *  Sets whether the driver should request extended metadata from the
-   *  IBM i system.  This property is ignored when connecting to systems
-   *  running OS/400 V5R1 and earlier. 
-   *  If this property is set to true and connecting to a system running
-   *  OS/400 V5R2 or IBM i, the accuracy of the information 
-   *  that is returned from ResultSetMetaData methods getColumnLabel(int),
-   *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
-   *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
-   *  property set to true.  However, performance will be slower with this 
-   *  property on.  Leave this property set to its default (false) unless you
-   *  need more specific information from those methods.
-   *
-   *  For example, without this property turned on, isSearchable(int) will 
-   *  always return true even though the correct answer may be false because 
-   *  the driver does not have enough information from the system to make a judgment.  Setting 
-   *  this property to true forces the driver to get the correct data from the system.
-   *
-   *  @param extendedMetaData True to request extended metadata from the system, false otherwise.
-   *  The default value is false.
-   *  Note:  this method is the same as setExtendedMetaData() so that it corresponds to the connection property name
-   **/
-  public void setExtendedMetadata(boolean extendedMetaData)
-  {
-      setExtendedMetaData(extendedMetaData);
-  }
-
-
   /**
    Sets whether to fully open a file when performing a query.
-   By default the IBM i system optimizes opens so they perform better.
+   By default the i5/OS system optimizes opens so they perform better.
    In most cases optimization functions correctly and improves
    performance.  Running a query repeatedly
    when a database performance monitor is turned on may fail
@@ -2898,19 +2477,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       properties_.setString(JDProperties.HOLD_STATEMENTS, FALSE_);
   }
 
-  //@dmy
-  /**
-  *  Indicates whether the temporary fix for JVM 1.6 is enabled.
-  *  @param value true if JVM 1.6 fix is enabled; false otherwise.
-  *  The default value is true.
-  **/
-  public void setJvm16Synchronize(boolean value)
-  {
-      if (value)
-          properties_.setString(JDProperties.JVM16_SYNCHRONIZE, TRUE_);
-      else
-          properties_.setString(JDProperties.JVM16_SYNCHRONIZE, FALSE_);      
-  }
 
   /**
    Sets whether to delay closing cursors until subsequent requests.
@@ -2948,7 +2514,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Sets the maximum LOB (large object) size in bytes that
    can be retrieved as part of a result set.  LOBs that are larger
    than this threshold will be retrieved in pieces using extra
-   communication to the IBM i system.  Larger LOB thresholds will reduce
+   communication to the i5/OS system.  Larger LOB thresholds will reduce
    the frequency of communication to the system, but will download
    more LOB data, even if it is not used.  Smaller LOB thresholds may
    increase frequency of communication to the system, but will only
@@ -2972,13 +2538,13 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    A value of zero specifies that the timeout is the system default if one exists; otherwise it specifies that
    there is no timeout. The default value is initially zero.
    <br><i>Note: This value is not used or supported by the Toolbox JDBC driver.</i>
-   Rather, the timeout value is determined by the IBM i system.
+   Rather, the timeout value is determined by the i5/OS system.
    @param timeout The login timeout in seconds.
    **/
   public void setLoginTimeout(int timeout) throws SQLException
   {
     //This sets the socket timeout
-    //@STIMEOUT setSoTimeout(timeout * 1000); //@STIMEOUT separate login and socket timeout into two separtate properties
+    setSoTimeout(timeout * 1000);
 
     properties_.setString(JDProperties.LOGIN_TIMEOUT, Integer.toString(timeout));
   }
@@ -3023,23 +2589,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   }
   
-  //@dup
-  /**                                                               
-   *  Sets how to retrieve DatabaseMetaData.
-   *  If set to 0, database metadata will be retrieved through the ROI data flow.  
-   *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
-   *  The methods that currently are available through stored procedures are:
-   *  getColumnPrivileges
-   *  @param mds The setting for metadata source
-   *  The default value is 1.
-   *  Note:  this method is the same as setMetaDataSource() so that it corresponds to the connection property name
-   **/
-  public void setMetadataSource(int mds)
-  {
-      setMetaDataSource(mds);
-  }
 
-  
   /**
    Sets the naming convention used when referring to tables.
    @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
@@ -3057,7 +2607,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets the base name of the SQL package.  Note that only the
-   first six characters are used to generate the name of the SQL package on the IBM i system.
+   first seven characters are used to generate the name of the SQL package on the i5/OS system.
    This property has no effect unless
    the extended dynamic property is set to true.  In addition, this property
    must be set if the extended dynamic property is set to true.
@@ -3091,7 +2641,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Sets whether to cache a subset of the SQL package information in client memory.
    Caching SQL packages locally
-   reduces the amount of communication to the IBM i system for prepares and describes.  This
+   reduces the amount of communication to the i5/OS system for prepares and describes.  This
    property has no effect unless the extended dynamic property is set to true.
    @param cache True if caching is used; false otherwise.  The default value is false.
    **/
@@ -3156,7 +2706,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Sets the library for the SQL package.  This property has no effect unless
    the extended dynamic property is set to true.
-   @param packageLibrary The SQL package library.  The default package library is "QGPL".
+   @param packageLibrary The SQL package library.  The default library is "QGPL".
    **/
   public void setPackageLibrary(String packageLibrary)
   {
@@ -3187,7 +2737,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       connectionKeyNeedsUpdate_ = true;
       // Note: We deliberately do _not_ store the password into properties_.
     }
-    logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));
+    logInformation(loader_.getText("AS400_JDBC_DS_PASSWORD_SET"));
     logProperty(property, "***");
   }
 
@@ -3207,7 +2757,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets whether the user should be prompted if a user name or password is
-   needed to connect to the IBM i system.  If a connection can not be made
+   needed to connect to the i5/OS system.  If a connection can not be made
    without prompting the user, and this property is set to false, then an
    attempt to connect will fail.
    @param prompt true if the user is prompted for signon information; false otherwise.
@@ -3470,7 +3020,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   //@550
     /**
     * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
-    * Note, this setting is ignored when running to i5/OS V5R4 or earlier
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
     * @param limit - the storage limit (in megabytes)
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
@@ -3489,7 +3039,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Sets the source of the text for REMARKS columns in ResultSets returned
    by DatabaseMetaData methods.
    @param remarks The text source.
-   Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
+   Valid values include: "sql" (SQL object comment) and "system" (i5/OS object description).
    The default value is "system".
    **/
   public void setRemarks(String remarks)
@@ -3518,7 +3068,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Sets the secondary URL to be used for a connection on the middle-tier's
    DriverManager in a multiple tier environment, if it is different than
    already specified.  This property allows you to use this driver to connect
-   to databases other than DB2 for IBM i. Use a backslash as an escape character
+   to databases other than DB2 for i5/OS. Use a backslash as an escape character
    before backslashes and semicolons in the URL.
    @param url The secondary URL.
    **/
@@ -3529,26 +3079,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     properties_.setString(JDProperties.SECONDARY_URL, url);
   }
-  
-  //@dup
-  /**
-   *  Sets the secondary URL to be used for a connection on the middle-tier's
-   *  DriverManager in a multiple tier environment, if it is different than
-   *  already specified.  This property allows you to use this driver to connect
-   *  to databases other than DB2 for IBM i. Use a backslash as an escape character
-   *  before backslashes and semicolons in the URL.
-   *  @param url The secondary URL.
-   *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
-   **/
-  public void setSecondaryURL(String url)
-  {
-      setSecondaryUrl(url);
-  }
-  
 
   /**
    Sets whether a Secure Socket Layer (SSL) connection is used to communicate
-   with the IBM i system.  SSL connections are only available when connecting to systems
+   with the i5/OS system.  SSL connections are only available when connecting to systems
    at V4R4 or later.
    @param secure true if Secure Socket Layer connection is used; false otherwise.
    The default value is false.
@@ -3573,22 +3107,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       properties_.setString(JDProperties.SECURE, FALSE_);
   }
 
-
-  //@pw3
-  /**
-   *  Sets whether to disallow "" and *current as user name and password.  
-   *  True indicates to disallow "" and *current for user name and password.
-   *  @param secureCurrentUser The secure current user setting.
-   **/
-  public void setSecureCurrentUser(boolean secureCurrentUser)
-  {
-      if (secureCurrentUser)
-          properties_.setString(JDProperties.SECURE_CURRENT_USER, TRUE_);
-      else
-          properties_.setString(JDProperties.SECURE_CURRENT_USER, FALSE_);
-  }
-  
- 
   /**
    Sets the serverName property.
    @param serverName The system name.
@@ -3624,7 +3142,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Enables tracing of the JDBC server job.
    If tracing is enabled, tracing is started when
-   the client connects to the IBM i system, and ends when the connection
+   the client connects to the i5/OS system, and ends when the connection
    is disconnected.  Tracing must be started before connecting to
    the system since the client enables tracing only at connect time.
    *
@@ -3663,51 +3181,11 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Enables tracing of the JDBC server job.
-   If tracing is enabled, tracing is started when
-   the client connects to the IBM i system, and ends when the connection
-   is disconnected.  Tracing must be started before connecting to
-   the system since the client enables tracing only at connect time.
-   *
-   <P>
-   Trace data is collected in spooled files on the system.  Multiple
-   levels of tracing can be turned on in combination by adding
-   the constants and passing that sum on the set method.  For example,
-   <pre>
-   dataSource.setServerTraceCategories(AS400JDBCManagedDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCManagedDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
-   </pre>
-   @param traceCategories level of tracing to start.
-   <p>Valid values include:
-   <ul>
-   <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
-   The numeric value of this constant is 2.
-   <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
-   The numeric value of this constant is 4.
-   <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
-   The numeric value of this constant is 8.
-   <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
-   The numeric value of this constant is 16.
-   <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
-   The numeric value of this constant is 32.
-   </ul>
-   <P>
-   Tracing the JDBC server job will use significant amounts of system resources.
-   Additional processor resource is used to collect the data, and additional
-   storage is used to save the data.  Turn on tracing only to debug
-   a problem as directed by IBM service.
-   * Note:  this method is the same as setServerTraceCategories() so that it corresponds to the connection property name
-   **/
-  public void setServerTrace(int traceCategories)
-  {
-    setServerTraceCategories(traceCategories);
-  }
- 
-  /**
    Sets the JDBC driver implementation.
    This property has no
    effect if the "secondary URL" property is set.
    This property cannot be set to "native" if the
-   environment is not an IBM i Java Virtual
+   environment is not an i5/OS Java Virtual
    Machine.
    param driver The driver value.
    <p>Valid values include:
@@ -3716,7 +3194,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    <li>"native" (use the IBM Developer Kit for Java JDBC driver)
    </ul>
    The default value is "toolbox".
-   Note:  Not supported in a connection pool.
    **/
   public void setDriver(String driver)
   {
@@ -3735,7 +3212,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    <P>
    If the password is saved, it is up to the application to protect
    the serialized form of the object because it contains all necessary
-   information to connect to the IBM i system.  The default is false.  It
+   information to connect to the i5/OS system.  The default is false.  It
    is a security risk to save the password with the rest of the
    properties so by default the password is not saved.  If the application
    programmer chooses to accept this risk, set this property to true
@@ -3751,22 +3228,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     savePasswordWhenSerialized_ = savePassword;
 
-    logProperty(property, String.valueOf(savePasswordWhenSerialized_)); //@jvm13 Boolean.toString(savePasswordWhenSerialized_));
+    logProperty(property, Boolean.toString(savePasswordWhenSerialized_));
   }
 
-  //@STIMEOUT
-  /**
-   * This property enables/disables socket timeout with the
-   * specified value in milliseconds.  A timeout value must be
-   * greater than zero, a value of zero for this property indicates
-   * infinite timeout.
-   * @param milliseconds The socket timeout option value.
-   **/
-   public void setSocketTimeout(int milliseconds)
-   {
-       setSoTimeout(milliseconds);
-   }
-   
+
   /**
    Sets the three-character language id to use for selection of a sort sequence.
    This property has no effect unless the sort property is set to "language".
@@ -3783,7 +3248,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets the library and file name of a sort sequence table stored on the
-   IBM i system.
+   i5/OS system.
    This property has no effect unless the sort property is set to "table".
    The default is an empty String ("").
    @param table The qualified sort table name.
@@ -3797,7 +3262,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Sets how the IBM i system treats case while sorting records.  This property
+   Sets how the i5/OS system treats case while sorting records.  This property
    has no effect unless the sort property is set to "language".
    @param sortWeight The sort weight.
    Valid values include: "shared" (upper- and lower-case characters are sorted as the
@@ -3903,7 +3368,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
 
   /**
-   Sets the IBM i system's transaction isolation.
+   Sets the i5/OS system's transaction isolation.
    @param transactionIsolation The transaction isolation level.
    <p>Valid values include:
    <ul>
@@ -3989,7 +3454,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**                                                               
    Sets whether lock sharing is allowed for loosely coupled transaction branches.
-   Note, this setting is ignored when running to V5R3 IBM i or earlier.  
+   Note, this setting is ignored when running to V5R3 i5/OS or earlier.  
    @param lcs - the "XA loosely coupled support" setting 
    <p>Valid values include:
    <ul>
@@ -4072,7 +3537,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   public void setKeepAlive(boolean keepAlive)
   {
     sockProps_.setKeepAlive(keepAlive);
-    logProperty("keepAlive", String.valueOf(keepAlive)); //@jvm13 Boolean.toString(keepAlive));
+    logProperty("keepAlive", Boolean.toString(keepAlive));
   }
 
   /**
@@ -4146,44 +3611,26 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   public void setTcpNoDelay(boolean noDelay)
   {
     sockProps_.setTcpNoDelay(noDelay);
-    logProperty("tcpNoDelay", String.valueOf(noDelay)); //@jvm13 Boolean.toString(noDelay));
+    logProperty("tcpNoDelay", Boolean.toString(noDelay));
   }
 
   /**
    Gets the package CCSID property, which indicates the
-   CCSID in which statements are sent to the IBM i system and
+   CCSID in which statements are sent to the i5/OS system and
    also the CCSID of the package they are stored in.
-   Default value: 13488
+   Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
    @return The value of the package CCSID property.
    **/
   public int getPackageCCSID()
   {
     return properties_.getInt(JDProperties.PACKAGE_CCSID);
   }
-  
-
-  //@dup
-  /**
-   * Gets the package CCSID property, which indicates the
-   * CCSID in which statements are sent to the IBM i system and
-   * also the CCSID of the package they are stored in.  
-   * Default value: 13488
-   * @return The value of the package CCSID property.
-   * Note:  this method is the same as getPackageCCSID() so that it corresponds to the connection property name
-   **/
-  public int getPackageCcsid()
-  {
-      return getPackageCCSID();
-  }
-
 
   /**
    Sets the package CCSID property, which indicates the
-   CCSID in which statements are sent to the IBM i system and
+   CCSID in which statements are sent to the i5/OS system and
    also the CCSID of the package they are stored in.
-   Recommended values:  1200(UTF-16)  and 13488 (UCS-2).  
-   See <a href="BidiStringType.html">BidiStringType</a> for Bidi considerations.
-   Default value: 13488
+   Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
    @param ccsid The package CCSID.
    **/
   public void setPackageCCSID(int ccsid)
@@ -4195,23 +3642,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     properties_.setString(JDProperties.PACKAGE_CCSID, Integer.toString(ccsid));
   }
 
-  //@dup
-  /**
-   * Sets the package CCSID property, which indicates the
-   * CCSID in which statements are sent to the IBM i system and
-   * also the CCSID of the package they are stored in.
-   * Recommended values:  1200(UTF-16)  and 13488 (UCS-2).  
-   * See <a href="BidiStringType.html">BidiStringType</a> for Bidi considerations.
-   * Default value: 13488
-   * @param ccsid The package CCSID.
-   * Note:  this method is the same as setPackageCCSID() so that it corresponds to the connection property name
-   **/
-  public void setPackageCcsid(int ccsid)
-  {
-      setPackageCCSID(ccsid);
-  }
-  
-  
   /**
    Gets the minimum divide scale property.  This property ensures the scale
    of the result of decimal division is never less than its specified value.
@@ -4223,22 +3653,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
   }
 
-  /** 
-   * Gets the maximum block input rows.  This property indicates the
-   * number of rows sent to the database engine for a block insert
-   * operation.  Valid values: 1-32000.  32000 is default. 
-   * @return The maximum block input rows 
-   */
- public int getMaximumBlockedInputRows()
- {
-   return properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);
- }
-
-
-  
   /**
    Gets the maximum precision property. This property indicates the
-   maximum decimal precision the IBM i system should use.
+   maximum decimal precision the i5/OS system should use.
    Valid values: 31 or 63.  31 is default.
    @return The maximum precision.
    **/
@@ -4249,7 +3666,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Gets the maximum scale property.  This property indicates the
-   maximum decimal scale the IBM i system should use.
+   maximum decimal scale the i5/OS system should use.
    Valid values: 0-63.  31 is default.
    @return The maximum scale.
    **/
@@ -4272,29 +3689,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     properties_.setString(JDProperties.MINIMUM_DIVIDE_SCALE, Integer.toString(scale));
   }
-  
-
-  // @A6A 
-  /**
-   * Sets the maximum blocked input rows.  This property indicates the 
-   * maximum number of rows sent to the database engine for a blocked
-   * input operation.  Valid values:  1-32000.  32000 is the default
-   * @param maximumBlockedInputRows  The maximum number of input rows 
-   */
-
-  public void setMaximumBlockedInputRows(int maximumBlockedInputRows)
-  {
-    final String property = "maximumBlockedInputRows";
-
-    validateProperty(property, Integer.toString(maximumBlockedInputRows), JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);
-
-    properties_.setString(JDProperties.MAXIMUM_PRECISION, Integer.toString(maximumBlockedInputRows));
-  }
-
 
   /**
    Sets the maximum precision property. This property indicates the
-   maximum decimal precision the IBM i system should use.
+   maximum decimal precision the i5/OS system should use.
    Valid values: 31 or 63.  31 is default.
    @param precision The maximum precision.
    **/
@@ -4309,7 +3707,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Sets the maximum scale property.  This property indicates the
-   maximum decimal scale the IBM i system should use.
+   maximum decimal scale the i5/OS system should use.
    Valid values: 0-63.  31 is default.
    @param scale The maximum scale.
    **/
@@ -4371,17 +3769,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     properties_.setString(JDProperties.QAQQINILIB, libraryName);
   }
-  
-  //@dup
-  /**
-   *  Sets the QAQQINI library name.  
-   *  @param libraryName The QAQQINI library name.
-   *  Note:  this method is the same as setQaqqiniLibrary() so that it corresponds to the connection property name
-   **/
-  public void setQaqqinilib(String libraryName)
-  {
-      setQaqqiniLibrary(libraryName);
-  }
 
   /**
    Returns the toolbox trace category.
@@ -4406,34 +3793,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   {
     return properties_.getString(JDProperties.TRACE_TOOLBOX);
   }
-  
-
-  //@dup
-  /**
-   *  Returns the toolbox trace category.
-   *  @return The toolbox trace category.
-   *  <p>Valid values include:
-   *  <ul>
-   *    <li> "none" - The default value.
-   *    <li> "datastream"
-   *    <li> "diagnostic"
-   *    <li> "error"
-   *    <li> "information"
-   *    <li> "warning"
-   *    <li> "conversion"
-   *    <li> "proxy"
-   *    <li> "pcml"
-   *    <li> "jdbc"
-   *    <li> "all"
-   *    <li> "thread"
-   *  </ul>
-   *  Note:  this method is the same as getToolboxTraceCategory() so that it corresponds to the connection property name
-   **/
-  public String getToolboxTrace()
-  {
-      return getToolboxTraceCategory();
-  }
-
 
   /**
    Sets the toolbox trace category, which indicates
@@ -4465,35 +3824,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     properties_.setString(JDProperties.TRACE_TOOLBOX, traceCategory);
   }
 
-
-  //@dup
-  /**
-   * Sets the toolbox trace category, which indicates 
-   * what trace points and diagnostic messages should be logged.
-   * @param traceCategory The category option.
-   * <p>Valid values include:
-   * <ul>
-   *    <li> "none" 
-   *    <li> "datastream"
-   *    <li> "diagnostic"
-   *    <li> "error"
-   *    <li> "information"
-   *    <li> "warning"
-   *    <li> "conversion"
-   *    <li> "proxy"
-   *    <li> "pcml"
-   *    <li> "jdbc"
-   *    <li> "all"
-   *    <li> "thread"    
-   * </ul>
-   * The default value is "none".
-   * Note:  this method is the same as setToolboxTraceCategory() so that it corresponds to the connection property name
-   **/
-  public void setToolboxTrace(String traceCategory)
-  {
-      setToolboxTraceCategory(traceCategory);
-  }
-  
   /**
    Validates the property value.
    @param property The property name.
@@ -4507,20 +3837,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       DriverPropertyInfo[] info = properties_.getInfo();
       String[] choices = info[index].choices;
 
-      //Bidi-HCG start
-      //exception for "package ccsid" - it can accept any integer
-      if(index == JDProperties.PACKAGE_CCSID){            	            	            	
-      	try{            	
-      		int ccsid = Integer.valueOf(value).intValue();
-      		if(ccsid < 1)
-      			throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); 
-      		return;
-      	}catch(NumberFormatException e){
-      		throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);            		
-      	}
-      }                 
-      //Bidi-HCG end
-      
       boolean notValid = true;
       int current = 0;
       while (notValid && current < choices.length)
@@ -4536,7 +3852,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
-   Serializes the IBM i system and user information.
+   Serializes the i5/OS system and user information.
    @param out The output stream.
    @throws IOException If a file I/O error occurs.
    **/

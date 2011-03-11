@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ The AS400JDBCXADataSource class represents a factory for
 AS400JDBCXAConnection objects.
 
 <p>
-This support is only available when connecting to systems running OS/400 V5R1 or later, or IBM i.
+This support is only available when connecting to systems running OS/400 V5R1 or later ori5/OS.
 
 <p>The following example creates an AS400JDBCXADataSource 
 object and creates a connection to the database.
@@ -47,7 +47,7 @@ public class AS400JDBCXADataSource
 extends AS400JDBCDataSource  
 implements XADataSource
 {
-  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
 
@@ -66,7 +66,7 @@ Constructs a default AS400JDBCXADataSource object.
 /**
 Constructs an AS400JDBCXADataSource with the specified <i>serverName</i>.
 
-@param serverName The name of the IBM i system.
+@param serverName The name of the i5/OS system.
 **/
    public AS400JDBCXADataSource(String serverName)
    {
@@ -78,7 +78,7 @@ Constructs an AS400JDBCXADataSource with the specified <i>serverName</i>.
 /**
 Constructs an AS400JDBCXADataSource with the specified signon information.
    
-@param serverName The name of the IBM i system.
+@param serverName The name of the i5/OS system.
 @param user The user id.
 @param password The password.
 **/
@@ -91,9 +91,9 @@ Constructs an AS400JDBCXADataSource with the specified signon information.
 //@A1A
 /**
 Constructs an AS400JDBCXADataSource with the specified signon information 
-to use for SSL communications with the IBM i system.
+to use for SSL communications with the i5/OS system.
    
-@param serverName The name of the IBM i system.
+@param serverName The name of the i5/OS system.
 @param user The user id.
 @param password The password.
 @param keyRingName The key ring class name to be used for SSL communications with the system.
@@ -117,7 +117,7 @@ to use for SSL communications with the IBM i system.
 
 
 /**
-Returns an XA connection to IBM i.
+Returns an XA connection to i5/OS.
    
 @return An XA connection.
 @exception SQLException If a database error occurs.
@@ -132,7 +132,7 @@ Returns an XA connection to IBM i.
 
 
 /**
-Returns an XA connection to IBM i.
+Returns an XA connection to i5/OS.
 
 @param user The userid for the connection.
 @param password The password for the connection.
@@ -170,7 +170,11 @@ object when it is later retrieved from JNDI via an object factory.
       
       return ref;
    }
-
-
+   
+   //@pda jdbc40
+   protected String[] getValidWrappedList()
+   {
+       return new String[] {  "com.ibm.as400.access.AS400JDBCXADataSource", "javax.sql.XADataSource"  };
+   } 
 
 }

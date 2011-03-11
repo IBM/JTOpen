@@ -16,18 +16,13 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -35,33 +30,31 @@ import java.util.Calendar;
 final class SQLInteger
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private int                 truncated_;
     private int                 value_;
     private int                 scale_;                              // @A0A
     private BigDecimal          bigDecimalValue_ = null;             // @A0A
-    private int                 vrm_;                                //trunc3
 
-    SQLInteger(int vrm)          //@trunc3
+    SQLInteger()
     {
-        this(0, vrm);            //@trunc3
+        this(0);
     }
 
-    SQLInteger(int scale, int vrm)                      // @A0A //@trunc3
+    SQLInteger(int scale)                     // @A0A
     {
         truncated_          = 0;
         value_              = 0;
         scale_              = scale;                                      // @A0A
         if(scale_ > 0)                                                   // @C0A
             bigDecimalValue_    = new BigDecimal(Integer.toString(value_)); // @A0A
-        vrm_                = vrm;  //@trunc3
     }
 
     public Object clone()
     {
-        return new SQLInteger(scale_, vrm_);  //@trunc3
+        return new SQLInteger(scale_);
     }
 
     //---------------------------------------------------------//
@@ -131,11 +124,6 @@ implements SQLData
                 if(( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))
                 {
                     truncated_ = 4;                                                           // @D9c
-                    //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                    if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                    {                                                                    //@trunc3
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                    }                                                                    //@trunc3
                 }
                 value_ = (int) longValue;
             }
@@ -157,11 +145,6 @@ implements SQLData
                     {
                         // @P1a
                         truncated_ = 4;                                                    // @P1a
-                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                        {                                                                    //@trunc3
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                        }                                                                    //@trunc3
                     }                                                                      // @P1a
                     value_ = (int) doubleValue;                                          // @P1a  
                 }                                                                         // @P1a
@@ -515,14 +498,12 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -532,7 +513,7 @@ implements SQLData
         else                                
             return Integer.toString(value_);
     }
-/* ifdef JDBC40 */
+
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -542,14 +523,6 @@ implements SQLData
 
     //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

@@ -16,19 +16,14 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -44,12 +39,6 @@ initialize the data.  That is done via the set() methods.
 interface SQLData
 extends Cloneable
 {
-    //NATIVE_ARRAY is defined here for the array type received from zda.  But zda does not have a visible array type.
-    //zda uses a bit that flags if the stream is an array.
-    //So we just define it here as 10000.  This number is not important; it just needs to be different from other native type numbers.
-    //This is used in SQLDataFactory and other array related classes.
-    public static final short NATIVE_ARRAY = 10000; //@array 
-    
     public static final int UNDEFINED = 0;
     public static final int BIGINT = 1;
     public static final int BINARY = 2;
@@ -83,15 +72,12 @@ extends Cloneable
     public static final int VARCHAR = 30;
     public static final int VARCHAR_FOR_BIT_DATA = 31;
     public static final int VARGRAPHIC = 32;
-    public static final int NCLOB = 33;         //@PDA jdbc40 (jdbc40 just added here for info)
+    public static final int NCLOB = 33;         //@PDA jdbc40
     public static final int NCLOB_LOCATOR = 34; //@PDA jdbc40
     public static final int NCHAR = 35;         //@PDA jdbc40
     public static final int NVARCHAR = 36;      //@PDA jdbc40
     public static final int LONG_NVARCHAR = 37; //@pda jdbc40
-    public static final int DECFLOAT = 38;      //@DFA 
-    public static final int ARRAY = 39;         //@array
-    public static final int XML_LOCATOR = 40;   //@xml3
-    
+
     /**
     Returns a clone of the SQLData object.  Use this sparingly
     so that we minimize the number of copies.
@@ -234,7 +220,7 @@ extends Cloneable
     public abstract int getMinimumScale();
 
     /**
-    Returns the native IBM i identifier for the type.
+    Returns the native i5/OS identifier for the type.
     @return     the native type.
     **/
     public abstract int getNativeType();
@@ -518,10 +504,9 @@ extends Cloneable
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-/* ifdef JDBC40 */
     public abstract NClob getNClob()
     throws SQLException;
-/* endif */ 
+    
     //@PDA jdbc40
     /**
     Converts the data to String object.
@@ -539,10 +524,9 @@ extends Cloneable
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-/* ifdef JDBC40 */
     public abstract SQLXML getSQLXML()
     throws SQLException;
-/* endif */ 
+    
     
     //@PDA jdbc40
     /**
@@ -551,20 +535,9 @@ extends Cloneable
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-/* ifdef JDBC40 */
-    
     public abstract RowId getRowId()
     throws SQLException;
-/* endif */ 
     
-    //@array
-    /**
-    Converts (returns) the data to a java.sql.Array object.
-    @return     the result of the conversion.
-    @exception  SQLException    If the conversion is not
-                                required or not possible.
-    **/
-    public abstract Array getArray()
-    throws SQLException;
+
 
 }

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,34 +22,30 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.beans.PropertyVetoException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;      //@G4A JDBC 3.0
 import java.net.URL;                        //@G4A JDBC 3.0
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.DataTruncation;
 import java.sql.Date;
 import java.sql.DriverManager;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.PreparedStatement;
-/* endif */ 
-
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40 */
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -118,13 +114,10 @@ import java.util.Map;
 *    </li>
 *  </ul>
 **/
-public class AS400JDBCRowSet 
-/* ifdef JDBC40 */
-extends ToolboxWrapper
-/* endif */ 
+public class AS400JDBCRowSet extends ToolboxWrapper //@pdc jdbc40
 implements RowSet, Serializable             // @A3C
 {
-  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
 
@@ -132,7 +125,7 @@ implements RowSet, Serializable             // @A3C
 
 
 
-    static final String className_ = "AS400JDBCRowSet";
+    private static final String className_ = "AS400JDBCRowSet";
     private String command_;                        // The command used to create the result set.
     private String dataSourceName_;                 // The name of the data source.
     private boolean useDataSource_ = true;          // Whether the dataSource specified is used.
@@ -144,7 +137,7 @@ implements RowSet, Serializable             // @A3C
     private Connection connection_;             // The JDBC connection.
     private DataSource dataSource_;             // The dataSource used to make the connection.
     private AS400JDBCPreparedStatement statement_;       // The prepared statement. //@pdc jdbc40
-    private transient AS400JDBCResultSet resultSet_;      // The result set.  @G4C //@scan1
+    private AS400JDBCResultSet resultSet_;      // The result set.  @G4C
     private transient AS400JDBCRowSetEventSupport eventSupport_;    // RowSetListener support.  @A3C
     private Context context_ = null;  //@A1A    // The JNDI naming context which specifies how naming
     // and directory services are accessed.
@@ -396,7 +389,7 @@ implements RowSet, Serializable             // @A3C
                 if (JDTrace.isTraceOn ())
                 {
                     JDTrace.logInformation(this, "Cannot find JNDI data source.");
-                    ne.printStackTrace(DriverManager.getLogWriter());
+                    ne.printStackTrace(DriverManager.getLogStream());
                 }
                 throw new ExtendedIllegalStateException("dataSourceName", ExtendedIllegalStateException.OBJECT_CANNOT_BE_FOUND);  //@A2C
             }
@@ -569,12 +562,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 for IBM i does not support arrays.
+    *  DB2 for i5/OS does not support arrays.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (int columnIndex) throws SQLException
     {
@@ -584,12 +577,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 for IBM i does not support arrays.
+    *  DB2 for i5/OS does not support arrays.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (String columnName) throws SQLException
     {
@@ -903,7 +896,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native IBM i format.  This is not supported for
+    *  native i5/OS format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnIndex     The column index (1-based).
@@ -929,7 +922,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native IBM i format.  This is not supported for
+    *  native i5/OS format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnName  The column name.
@@ -1563,12 +1556,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 for IBM i does not support structured types.
+    *  DB2 for i5/OS does not support structured types.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (int columnIndex) throws SQLException
     {
@@ -1579,12 +1572,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 for IBM i does not support structured types.
+    *  DB2 for i5/OS does not support structured types.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (String columnName) throws SQLException
     {
@@ -2074,7 +2067,6 @@ implements RowSet, Serializable             // @A3C
     {
         eventSupport_ = new AS400JDBCRowSetEventSupport();
         changes_ = new PropertyChangeSupport(this); 
-        resultSet_ = null;  //@scan1
     }
 
     /**
@@ -3154,8 +3146,8 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Sets the type map to be used for distinct and structured types.
     *
-    *  Note: Distinct types are supported by DB2 for IBM i, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
-    *  behave as if they are the underlying type. Structured types are not supported by DB2 for IBM i. Consequently, this driver does not support the type map.
+    *  Note: Distinct types are supported by DB2 for i5/OS, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
+    *  behave as if they are the underlying type. Structured types are not supported by DB2 for i5/OS. Consequently, this driver does not support the type map.
     *
     *  @param map The type map.
     *  @exception SQLException If a database error occurs.
@@ -3245,12 +3237,12 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     @since Modification 5
     **/
     public void updateArray (int columnIndex, Array columnValue)
@@ -3264,12 +3256,12 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnName    The column name.
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
@@ -4102,7 +4094,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for IBM i, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4134,7 +4126,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for IBM i, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4165,7 +4157,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for IBM i, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4199,7 +4191,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for IBM i, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4250,13 +4242,14 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
        
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
+    @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     @since Modification 5
     **/
     public void updateRef (int columnIndex, Ref columnValue)
@@ -4270,13 +4263,14 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
        
     @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
+    @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException
@@ -4581,13 +4575,11 @@ implements RowSet, Serializable             // @A3C
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur ; or if a database access error occurs
      */
-/* ifdef JDBC40 */
     public void setNClob(int parameterIndex, NClob value) throws SQLException
     {
         validateStatement();
         statement_.setNClob(parameterIndex, value);
-    } 
-/* endif */ 
+    }
 
     //@pda jdbc40
     /**
@@ -4600,17 +4592,15 @@ implements RowSet, Serializable             // @A3C
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurs
      */
-/* ifdef JDBC40 */
     public void setNClob(String parameterName, NClob value) throws SQLException
     {
         validateStatement();
         statement_.setNClob(statement_.findParameterIndex(parameterName), value);
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     /**
-     * Sets the designated parameter to the given <code>String</code> object.
+     * Sets the designated paramter to the given <code>String</code> object.
      * The driver converts this to a SQL <code>NCHAR</code> or
      * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
      * (depending on the argument's
@@ -4631,7 +4621,7 @@ implements RowSet, Serializable             // @A3C
 
     //@pda jdbc40
     /**
-     * Sets the designated parameter to the given <code>String</code> object.
+     * Sets the designated paramter to the given <code>String</code> object.
      * The driver converts this to a SQL <code>NCHAR</code> or
      * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code>
      * @param parameterName the name of the column to be set
@@ -4656,13 +4646,11 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @throws SQLException if a database access error occurs
      */
-/* ifdef JDBC40 */
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
         validateStatement();
         statement_.setRowId(parameterIndex, x);
     }
-/* endif */ 
 
     //@pda jdbc40
     /**
@@ -4674,13 +4662,12 @@ implements RowSet, Serializable             // @A3C
     * @param x the parameter value
     * @throws SQLException if a database access error occurs
     */
-/* ifdef JDBC40 */
     public void setRowId(String parameterName, RowId x) throws SQLException
     {
         validateStatement();
         statement_.setRowId(statement_.findParameterIndex(parameterName), x);
     }
-/* endif */ 
+
     //@pda jdbc40
     /**
       * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
@@ -4689,19 +4676,18 @@ implements RowSet, Serializable             // @A3C
       * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
       * @throws SQLException if a database access error occurs, this method
       *  is called on a closed result set,
+      * the <code>java.xml.transform.Result</code>,
       *  <code>Writer</code> or <code>OutputStream</code> has not been closed
       * for the <code>SQLXML</code> object  or
       *  if there is an error processing the XML value.  The <code>getCause</code> method 
       *  of the exception may provide a more detailed exception, for example, if the 
       *  stream does not contain valid XML.
       */
-/* ifdef JDBC40 */
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
     {
         validateStatement();
         statement_.setSQLXML(parameterIndex, xmlObject);
     }
-/* endif */ 
 
     //@pda jdbc40
     /**
@@ -4711,23 +4697,22 @@ implements RowSet, Serializable             // @A3C
      * @param xmlObject a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs, this method
      *  is called on a closed result set,
+     * the <code>java.xml.transform.Result</code>,
      *  <code>Writer</code> or <code>OutputStream</code> has not been closed
      * for the <code>SQLXML</code> object  or
      *  if there is an error processing the XML value.  The <code>getCause</code> method 
      *  of the exception may provide a more detailed exception, for example, if the 
      *  stream does not contain valid XML.
      */
-/* ifdef JDBC40 */
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException
     {
         validateStatement();
         statement_.setSQLXML(statement_.findParameterIndex(parameterName), xmlObject);
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     /**
-     * Retrieves the holdability of this <code>RowSet</code> object
+     * Retrieves the holdability of this <code>ResultSet</code> object
      * @return  either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
      * The holdability is derived in this order of precedence:
        <ul>
@@ -4740,18 +4725,16 @@ implements RowSet, Serializable             // @A3C
        <code> cursor hold </code> 
        <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
        Full functionality of #1 and #2 requires OS/400 v5r2
-       or IBM i.  If connecting to OS/400 V5R1 or earlier, 
+       or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
        the value specified on these two methods will be ignored and the default holdability
        will be the value of #3.
      * @throws SQLException if a database error occurs
      */
-/* ifdef JDBC40 */
     public int getHoldability() throws SQLException
     {
         return resultSet_.getHoldability();
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     /**
      * Retrieves the value of the designated column in the current row 
@@ -4816,13 +4799,11 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public NClob getNClob(int columnIndex) throws SQLException
     {
         validateResultSet();
         return resultSet_.getNClob(columnIndex);
     }
-/* endif */ 
 
     //@pda jdbc40
     /**
@@ -4840,13 +4821,11 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public NClob getNClob(String columnLabel) throws SQLException
     {
         validateResultSet();
         return resultSet_.getNClob(columnLabel);
     }
-/* endif */ 
 
     //@pda jdbc40
     /**
@@ -4908,13 +4887,11 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public RowId getRowId(int columnIndex) throws SQLException
     {
         validateResultSet();
         return resultSet_.getRowId(columnIndex);
     }
-/* endif */ 
 
     //@pda jdbc40
     /**
@@ -4930,14 +4907,12 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public RowId getRowId(String columnLabel) throws SQLException
     {
         validateResultSet();
         return resultSet_.getRowId(columnLabel);
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     /**
      * Retrieves the value of the designated column in  the current row of
@@ -4950,20 +4925,18 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public SQLXML getSQLXML(int columnIndex) throws SQLException
     {
         validateResultSet();
         return resultSet_.getSQLXML(columnIndex);
     }
-/* endif */ 
 
     //@pda jdbc40
 
     /**
      * Retrieves the value of the designated column in  the current row of
      *  this <code>ResultSet</code> as a
- * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs 
@@ -4971,13 +4944,11 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public SQLXML getSQLXML(String columnLabel) throws SQLException
     {
         validateResultSet();
         return resultSet_.getSQLXML(columnLabel);
     }
-/* endif */ 
 
     //@pda jdbc40
     /**
@@ -5376,7 +5347,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
     {
         validateResultSet();
@@ -5384,7 +5354,7 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-/* endif */ 
+
 
     //@pda jdbc40
     /**
@@ -5404,7 +5374,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public void updateNClob(String columnLabel, NClob nClob) throws SQLException
     {
         validateResultSet();
@@ -5412,7 +5381,6 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-/* endif */ 
     
     
     //@pda jdbc40
@@ -5564,16 +5532,13 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public void updateRowId(int columnIndex, RowId x) throws SQLException
     {
         validateResultSet();
         resultSet_.updateRowId(columnIndex, x);
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
-    } 
-/* endif */ 
-    
+    }
 
     //@pda jdbc40
     /**
@@ -5591,7 +5556,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public void updateRowId(String columnLabel, RowId x) throws SQLException
     {
         validateResultSet();
@@ -5599,8 +5563,6 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-/* endif */ 
-    
 
     //@pda jdbc40
     /**
@@ -5626,7 +5588,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method 
      */
-/* ifdef JDBC40 */
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
     {
         validateResultSet();
@@ -5634,8 +5595,6 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-/* endif */ 
-    
 
     //@pda jdbc40
     /**
@@ -5661,7 +5620,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-/* ifdef JDBC40 */
     public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException
     {
         validateResultSet();
@@ -5669,7 +5627,6 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-/* endif */ 
 
     //@pda jdbc40
     protected String[] getValidWrappedList()

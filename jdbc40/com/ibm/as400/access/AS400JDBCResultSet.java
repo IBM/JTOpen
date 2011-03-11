@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,27 +25,18 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DataTruncation;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40 */
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
-/* ifdef JDBC40 */
-import java.sql.Types;
-/* endif */ 
 import java.util.Calendar;
 import java.util.Map;
 
@@ -127,7 +118,7 @@ index rather than accessing them by their name.
 //
 //    * Result sets from caller-issued selects.
 //    * Result sets created and returned from DatabaseMetaData.
-//    * Result sets generated on the IBM i system and mapped to
+//    * Result sets generated on the i5/OS system and mapped to
 //      a different format by DatabaseMetaData.
 //
 //    One solution would be to provide a different implementation
@@ -178,14 +169,10 @@ index rather than accessing them by their name.
 //    so the very example given in the spec does not work.  As a
 //    result, we must create a new default Calendar each time.
 //
-public class AS400JDBCResultSet 
-/* ifdef JDBC40 */
-extends ToolboxWrapper
-/* endif */ 
-
+public class AS400JDBCResultSet extends ToolboxWrapper //@pdc jdbc40
 implements ResultSet
 {
-    static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
     //New constants for JDBC 3.0.
@@ -205,7 +192,7 @@ implements ResultSet
     private PreparedStatement           deleteStatement_;
     private int                         fetchDirection_;
     private int                         fetchSize_;
-    private AS400JDBCStatementLock      internalLock_;      // @D1A @C7C
+    private Object                      internalLock_;      // @D1A
     private int                         maxRows_;
     private InputStream                 openInputStream_;
     private Reader                      openReader_;
@@ -216,14 +203,11 @@ implements ResultSet
     private AS400JDBCStatement          statement_;
     private int                         type_;
     private boolean[]                   updateNulls_;
-    private boolean[]                   updateDefaults_;    //@EIA
-    private boolean[]                   updateUnassigned_;  //@EIA
     private JDRow                       updateRow_;
     private boolean[]                   updateSet_;
     private boolean                     wasNull_;
     private boolean                     wasDataMappingError_;
-    boolean                             isMetadataResultSet = false; //@mdrs
-    private DBReplyRequestedDS          reply_ = null; 
+
 
     /*---------------------------------------------------------*/
     /*                                                         */
@@ -272,7 +256,7 @@ implements ResultSet
         deleteStatement_        = null;
         fetchDirection_         = fetchDirection;
         fetchSize_              = fetchSize;
-        internalLock_           = (statement != null) ? statement.internalLock_ : new AS400JDBCStatementLock();  // @D1A
+        internalLock_           = (statement != null) ? statement.internalLock_ : new Object();  // @D1A
         maxRows_                = maxRows;
         openInputStream_        = null;
         openReader_             = null;
@@ -316,12 +300,10 @@ implements ResultSet
             updateRow_              = new JDSimpleRow (row_, true);
             updateSet_              = new boolean[columnCount_];
             updateNulls_            = new boolean[columnCount_];
-            updateDefaults_         = new boolean[columnCount_];    //@EIA
-            updateUnassigned_       = new boolean[columnCount_];    //@EIA
             for(int i = 0; i < columnCount_; ++i)
             {
                 updateSet_[i]       = false;
-                updateNulls_[i]     = true;                       //@EIC not needed since updateSet[] is checked first //@EIC2 initialize all to null for insert row logic 
+                updateNulls_[i]     = true;
             }
         }
 
@@ -351,7 +333,6 @@ implements ResultSet
     @param  rowCache        The row cache.
     @param  catalog         The catalog.
     @param  cursorName      The cursor name.
-    @param  reply           Reply object that must be returned to pool when result set closed 
     
     @exception              SQLException    If an error occurs.
     **/
@@ -361,20 +342,12 @@ implements ResultSet
     //
     AS400JDBCResultSet (JDRowCache rowCache,
                         String catalog,
-                        String cursorName,
-                        AS400JDBCConnection con, 
-                        DBReplyRequestedDS reply)  //@in2
+                        String cursorName)
     throws SQLException
     {
         this (null, null, rowCache, catalog, cursorName, 0,
               TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY,
               FETCH_FORWARD, 0);
-
-    	this.reply_ = reply; 
-
-        //connection is needed in AS400JDBCResultsetMetadata.  connection is passed in from AS400JDBCDatabaseMetaData
-        if(con != null)         //@in2
-            connection_ = con;  //@in2
     }
 
 
@@ -408,9 +381,7 @@ implements ResultSet
         {
             for(int i = 0; i < columnCount_; ++i)
             {
-                updateNulls_[i]  = true;        //@IEC //@EIC2 
-                updateDefaults_[i] = false;      //@EIA
-                updateUnassigned_[i] = false;    //@EIA
+                updateNulls_[i]  = true;
                 updateSet_[i]    = false;
             }
         }
@@ -492,7 +463,6 @@ implements ResultSet
                 return;
 
             rowCache_.close ();
-            if (reply_ != null) { reply_.returnToPool(); reply_ = null; }
             closed_ = true;
             if(statement_ != null)
                 statement_.notifyClose ();
@@ -501,9 +471,6 @@ implements ResultSet
             if(deleteStatement_ != null)
                 deleteStatement_.close ();
 
-            if(isMetadataResultSet == true)  //@mdclose
-                statement_.close();          //@mdclose
-            
             if(JDTrace.isTraceOn())
                 JDTrace.logClose (this);
         }
@@ -520,10 +487,8 @@ implements ResultSet
     throws Throwable
     {
         try{
-            if(! closed_) {
-            	JDTrace.logInformation (this, "WARNING: Finalizer thread closing result set object.");
-            	close ();
-            }
+            if(! closed_)
+                close ();
         }
         catch(Exception e){
             //catch any exceptions and don't throw them
@@ -575,19 +540,7 @@ implements ResultSet
         synchronized(internalLock_)
         {                                            // @D1A
             checkOpen ();
-            
-            //@cur return value from cursor attribues if exists else return value as done in pre 550
-            if ( statement_ != null )                                            //@cur
-            {                                                                    //@cur
-                if( statement_.cursor_.getCursorAttributeUpdatable() == 0)       //@cur
-                    return ResultSet.CONCUR_READ_ONLY;                           //@cur
-                else if( statement_.cursor_.getCursorAttributeUpdatable() == 1)  //@cur
-                    return ResultSet.CONCUR_UPDATABLE;                           //@cur
-                else                                                             //@cur
-                    return concurrency_;                                         //@cur
-            }                                                                    //@cur
-            else                                                                 //@cur
-                return concurrency_;
+            return concurrency_;
         }
     }
 
@@ -703,21 +656,14 @@ implements ResultSet
     public Statement getStatement ()
     throws SQLException
     {
-        if(isMetadataResultSet)//@mdrs
-            return null;       //@mdrs
-        else                   //@mdrs
-            return statement_;
+        return statement_;
     }
 
 
 
     // JDBC 2.0
     /**
-    Returns the result set type.  If the statement requested a result set type 
-    ResultSet.TYPE_FORWARD_ONLY, then the result set type will be 
-    ResultSet.TYPE_FORWARD_ONLY.  Otherwise, the result set type may be a type
-    other than the requested type if the SQL statement that generated the 
-    result set specified a different cursor type when opening the cursor.  
+    Returns the result set type.
     
     @return The result set type. Valid values are:
                                     <ul>
@@ -725,7 +671,6 @@ implements ResultSet
                                       <li>TYPE_SCROLL_INSENSITIVE
                                       <li>TYPE_SCROLL_SENSITIVE
                                     </ul>
-    
     
     
     @exception SQLException If the result set is not open.
@@ -737,25 +682,7 @@ implements ResultSet
         synchronized(internalLock_)
         {                                            // @D1A
             checkOpen ();
-
-            // Always return FORWARD_ONLY if the application requested forward only
-            // If this logic changes, also change the similar logic in AS400JDBCStatement. @C4A
-            if (type_ == ResultSet.TYPE_FORWARD_ONLY) return ResultSet.TYPE_FORWARD_ONLY; 
-            
-            //@cur return value from cursor attributes if exists else return value as done in pre 550                                                               
-            if( statement_ != null )                                                     //@cur
-            {                                                                            //@cur
-                if(statement_.cursor_.getCursorAttributeScrollable() == 0)               //@cur
-                    return ResultSet.TYPE_FORWARD_ONLY;                                  //@cur
-                else if(statement_.cursor_.getCursorAttributeSensitive() == 0)           //@cur
-                    return ResultSet.TYPE_SCROLL_INSENSITIVE;                            //@cur
-                else if(statement_.cursor_.getCursorAttributeSensitive() == 1)           //@cur
-                    return ResultSet.TYPE_SCROLL_SENSITIVE;                              //@cur
-                else                                                                     //@cur
-                    return type_;                                                        //@cur
-            }                                                                            //@cur
-            else                                                                         //@cur
-                return type_;
+            return type_;
         }
     }
 
@@ -902,11 +829,11 @@ implements ResultSet
     throws SQLException
     {
         synchronized(internalLock_)
-        {                                            // @D1A //@cur
+        {                                            // @D1A
             if(((fetchDirection != FETCH_FORWARD)
                 && (fetchDirection != FETCH_REVERSE)
                 && (fetchDirection != FETCH_UNKNOWN))
-               || ((getType() == ResultSet.TYPE_FORWARD_ONLY)
+               || ((type_ == ResultSet.TYPE_FORWARD_ONLY)
                    && (fetchDirection != ResultSet.FETCH_FORWARD)))
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
@@ -1255,7 +1182,6 @@ implements ResultSet
         {
             first();
             previous();
-            positionFromLast_ = -1;//@GRA for returning correct value from getRow() after a select and insertRow()
         }
     }
 
@@ -1275,8 +1201,8 @@ implements ResultSet
     throws SQLException
     {
         checkOpen ();
-        
-        if((scrollable) && (getType() == TYPE_FORWARD_ONLY))  //@cur
+
+        if((scrollable) && (type_ == TYPE_FORWARD_ONLY))
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
         clearCurrentRow ();
@@ -2003,8 +1929,8 @@ implements ResultSet
         {                                            // @D1A
             // Initialization.
             beforePositioning (true);
-            //if((positionFromFirst_ == 0) || (positionFromLast_ == 0))  //@rel1 per javadoc, relative(1) <==> next()
-                //return false;
+            if((positionFromFirst_ == 0) || (positionFromLast_ == 0))
+                return false;
 
             // Handle max rows.
             if((maxRows_ > 0) && (positionFromFirst_ == -1))                // @E3a
@@ -2070,12 +1996,12 @@ implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as an Array object.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (int columnIndex)
     throws SQLException
@@ -2089,14 +2015,14 @@ implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as an Array object.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.getArray("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (String columnName)
     throws SQLException
@@ -2131,7 +2057,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getAsciiStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2188,7 +2114,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.getBigDecimal (-1);
-            testDataTruncation (columnIndex, data, false); //@trunc getBigDecimal(int) can set truncation_!=0, but we should not throw an SQLEception
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2253,7 +2179,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.getBigDecimal (scale);
-            testDataTruncation (columnIndex, data, false); //@trunc getBigDecimal(int) can set truncation_!=0, but we should not throw an SQLEception
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2315,7 +2241,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getBinaryStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2370,7 +2296,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Blob value = (data == null) ? null : data.getBlob ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2424,7 +2350,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             boolean value = (data == null) ? false : data.getBoolean ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2479,7 +2405,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             byte value = (data == null) ? 0 : data.getByte ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2518,7 +2444,7 @@ implements ResultSet
     
     <p>This can also be used to get values from columns 
     with other types.  The values are returned in their
-    native IBM i format.  This is not supported for
+    native i5/OS format.  This is not supported for
     result sets returned by a DatabaseMetaData object.
     
     @param  columnIndex     The column index (1-based).
@@ -2550,14 +2476,13 @@ implements ResultSet
                && (!(data.getSQLType() == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
                && (!(data.getSQLType() == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
                && (!(data.getSQLType() == SQLData.ROWID))                                  // @M0A
-               && (!(data.getSQLType() == SQLData.XML_LOCATOR))                                  //@xml3
                && (row_ instanceof JDServerRow))                                       // @C1A
                 value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
                                                                                         // @C1A
             else
             {                                                                      // @C1A
                 value = (data == null) ? null : data.getBytes ();                        // @C1C
-                testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+                testDataTruncation (columnIndex, data);
             }                                                                           // @C1A
             return value;
         }
@@ -2574,7 +2499,7 @@ implements ResultSet
     
     <p>This can also be used to get values from columns 
     with other types.  The values are returned in their
-    native IBM i format.  This is not supported for
+    native i5/OS format.  This is not supported for
     result sets returned by a DatabaseMetaData object.
     
     @param  columnName  The column name.
@@ -2619,7 +2544,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.getCharacterStream ();
             openReader_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2675,7 +2600,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Clob value = (data == null) ? null : data.getClob ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2760,7 +2685,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Date value = (data == null) ? null : data.getDate (calendar);
-            testDataTruncation (columnIndex, data, false); //@trunc getDate() can set truncation_!=0, but we should not throw an SQLEception
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2850,7 +2775,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             double value = (data == null) ? 0 : data.getDouble ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2905,7 +2830,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             float value = (data == null) ? 0 : data.getFloat ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -2960,7 +2885,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             int value = (data == null) ? 0 : data.getInt ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3015,7 +2940,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             long value = (data == null) ? 0 : data.getLong ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3077,7 +3002,7 @@ implements ResultSet
             }                                                                                        // @G5A
             return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
                                                    cursorName_, row_, 
-                                                   extendedDescriptors, convTable, connection_);                  // @G5A //@in1
+                                                   extendedDescriptors, convTable);                  // @G5A
         }
     }
 
@@ -3105,7 +3030,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Object value = (data == null) ? null : data.getObject ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3193,12 +3118,12 @@ implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as a Ref object.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
     
     @param  columnIndex   The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (int columnIndex)
     throws SQLException
@@ -3212,14 +3137,14 @@ implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as a Ref object.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.getRef("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (String columnName)
     throws SQLException
@@ -3252,7 +3177,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             short value = (data == null) ? 0 : data.getShort ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3305,7 +3230,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.getString ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3388,7 +3313,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Time value = (data == null) ? null : data.getTime (calendar);
-            testDataTruncation (columnIndex, data, false); //@trunc getTime() can set truncation_!=0, but we should not throw an SQLEception
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3508,7 +3433,7 @@ implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Timestamp value = (data == null) ? null : data.getTimestamp (calendar);
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3605,7 +3530,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getUnicodeStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -3672,8 +3597,8 @@ implements ResultSet
         // row.
         if(concurrency_ == CONCUR_UPDATABLE)
         {
-            if((updateSet_[columnIndex-1] == true)     //@EIC2 changed back to original logic.  For case of after insertrow is inserted, the updateSet[] is reset, but can still have non-null data.
-               || (positionInsert_ == true))               
+            if((updateSet_[columnIndex-1] == true)
+               || (positionInsert_ == true))
             {
                 wasNull_ = updateNulls_[columnIndex-1];
                 wasDataMappingError_ = false;
@@ -3690,13 +3615,10 @@ implements ResultSet
 
         //@KBL if a locator is used, tell the statement associated with it
         SQLData sqlData = row_.getSQLType(columnIndex);             //@KBL
-        int sqlType = sqlData.getSQLType();  //@xml3
-        if((sqlType == SQLData.CLOB_LOCATOR ||          //@KBL
-             sqlType == SQLData.BLOB_LOCATOR ||          //@KBL
-             sqlType == SQLData.DBCLOB_LOCATOR ||        //@KBL   //@pdc jdbc40
-             sqlType == SQLData.NCLOB_LOCATOR ||                 //@pda jdbc40
-             sqlType == SQLData.XML_LOCATOR) 
-             && statement_ != null) //@mdrs2                  //@xml3
+        if(sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||          //@KBL
+           sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||          //@KBL
+           sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||        //@KBL   //@pdc jdbc40
+           sqlData.getSQLType() == SQLData.NCLOB_LOCATOR)                    //@pda jdbc40
             statement_.setAssociatedWithLocators(true);             //@KBL
 
         if(wasNull_ || wasDataMappingError_)
@@ -3713,9 +3635,8 @@ implements ResultSet
     
     @param  columnIndex   The column index (1-based).
     @param  data         The data that was read, or null for SQL NULL.
-    @param  exceptionOnTrunc Flag to notify method whether or not to throw an SQLException when there is truncation.
     **/
-    private void testDataTruncation (int columnIndex, SQLData data, boolean exceptionOnTrunc) throws SQLException //@trunc
+    private void testDataTruncation (int columnIndex, SQLData data)
     {
         if(wasDataMappingError_)
         {
@@ -3727,12 +3648,6 @@ implements ResultSet
             int truncated = data.getTruncated ();
             if(truncated > 0)
             {
-                //if 610 and number data type and called on certain getX() methods, then throw SQLException
-                //if 610, follow Native driver to thow exc if data is text and getX() is a number type getter method.
-                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm610)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
-                {                                                                    //@trunc
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
-                }                                                                    //@trunc
                 int actualSize = data.getActualSize ();
                 postWarning (new DataTruncation (columnIndex, false, true,
                                                  actualSize, actualSize - truncated));
@@ -3937,10 +3852,6 @@ implements ResultSet
                     Object columnValue = updateRow_.getSQLData (i+1).getObject ();
                     if(updateNulls_[i])
                         insertStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
-                    else if(updateDefaults_[i])                                                         //@EIA
-                        ((AS400JDBCPreparedStatement)insertStatement).setDB2Default(++columnsSet2);     //@EIA
-                    else if(updateUnassigned_[i])                                                       //@EIA
-                        ((AS400JDBCPreparedStatement)insertStatement).setDB2Unassigned(++columnsSet2);  //@EIA
                     else
                         insertStatement.setObject (++columnsSet2, columnValue);                
                     updateSet_[i] = false;
@@ -4048,7 +3959,7 @@ implements ResultSet
     @since Modification 5
     **/
     private void testDataTruncation2 (int columnIndex, SQLData data)
-    throws SQLException                                                               // @D5A //@trunc
+    throws DataTruncation                                                               // @D5A
     {
         if(data != null)
         {
@@ -4067,12 +3978,12 @@ implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of a column as an Array object.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     @since Modification 5
     **/
     public void updateArray (int columnIndex, Array columnValue)
@@ -4086,14 +3997,14 @@ implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of a column as an Array object.
-    DB2 for IBM i does not support arrays.
+    DB2 for i5/OS does not support arrays.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateArray("\"MixedCase\"", columnValue).
     
     @param  columnName   The column name.
     @param  columnValue  The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
@@ -4341,7 +4252,7 @@ implements ResultSet
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public void updateBoolean (int columnIndex, boolean columnValue)
@@ -4376,7 +4287,7 @@ implements ResultSet
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public void updateBoolean (String columnName, boolean columnValue)
@@ -4463,7 +4374,7 @@ implements ResultSet
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
     // does not support that.
     //
     public void updateByte (int columnIndex, byte columnValue)
@@ -4497,7 +4408,7 @@ implements ResultSet
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
     // does not support that.
     //
     public void updateByte (String columnName, byte columnValue)
@@ -4946,7 +4857,7 @@ implements ResultSet
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
     // does not support that until V4R5.
     //
     public void updateLong (int columnIndex, long columnValue)
@@ -4984,7 +4895,7 @@ implements ResultSet
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
     // does not support that until V4R5.
     //
     public void updateLong (String columnName, long columnValue)
@@ -5045,121 +4956,13 @@ implements ResultSet
 
 
 
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Default.
-    @param  columnIndex  The column index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDB2Default(int columnIndex) throws SQLException
-    {
-         updateValueExtendedIndicator (columnIndex, 1);  //1 is default    
-    }
-
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Default.  Same as updateDB2Default.
-    @param  columnIndex  The column index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDBDefault(int columnIndex) throws SQLException
-    {
-         updateDB2Default(columnIndex);   
-    }
-    
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Default.
-    @param  columnName  The column name.
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDB2Default(String columnName) throws SQLException
-    {
-        updateDB2Default (findColumn (columnName));  
-    }
-    
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Default.  Same as updateDB2Default.
-    @param  columnName  The column name.
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDBDefault(String columnName) throws SQLException
-    {
-        updateDB2Default (findColumn (columnName));  
-    }
-   
-    
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Unassigned.
-    @param  columnIndex  The column index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDB2Unassigned(int columnIndex) throws SQLException
-    {                                          
-        updateValueExtendedIndicator (columnIndex, 2);  //2 is unassigned
-    }
-
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Unassigned.  Same as updtaeDB2Unassigned.
-    @param  columnIndex  The column index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDBUnassigned(int columnIndex) throws SQLException
-    {                                          
-        updateDB2Unassigned(columnIndex);
-    }
-    
-
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Unassigned.
-    @param  columnName  The column name.
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDB2Unassigned(String columnName) throws SQLException
-    {                                          
-        updateDB2Unassigned (findColumn (columnName));  
-    }
-
-
-    //@EIA 550 extended indicator defaults
-    /**
-    Updates a column in the current row to the SQL Unassigned.  Same as updateDB2Unassigned.
-    @param  columnName  The column name.
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void updateDBUnassigned(String columnName) throws SQLException
-    {                                          
-        updateDB2Unassigned (findColumn (columnName));  
-    }
-
-    
     // JDBC 2.0
     /**
     Updates a column in the current row using an Object value.
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 for IBM i, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     
@@ -5194,7 +4997,7 @@ implements ResultSet
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 for IBM i, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     To perform a case-sensitive search use a quoted String
@@ -5228,7 +5031,7 @@ implements ResultSet
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 for IBM i, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     
@@ -5260,12 +5063,7 @@ implements ResultSet
         if(scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
-/* ifdef JDBC40 */
-        if (columnValue instanceof SQLXML)                   //@xmlspec
-            updateSQLXML(columnIndex, (SQLXML)columnValue);  //@xmlspec
-        else
-/* endif */ 
-            updateValue (columnIndex, columnValue, null, scale); //@P0C
+        updateValue (columnIndex, columnValue, null, scale); //@P0C
     }
 
 
@@ -5276,7 +5074,7 @@ implements ResultSet
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 for IBM i, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     To perform a case-sensitive search use a quoted String
@@ -5313,13 +5111,13 @@ implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of an SQL REF output parameter as a Ref value.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
        
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     @since Modification 5
     **/
     public void updateRef (int columnIndex, Ref columnValue)
@@ -5333,7 +5131,7 @@ implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of an SQL REF output parameter as a Ref value.
-    DB2 for IBM i does not support structured types.
+    DB2 for i5/OS does not support structured types.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateRef("\"MixedCase\"", columnValue).
        
@@ -5341,7 +5139,7 @@ implements ResultSet
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException
@@ -5410,7 +5208,7 @@ implements ResultSet
                     {
                         // @K1A
                         convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
-                        String columnName = extendedDescriptors.getColumnDescriptors(i+1, convTable).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel //@SS1
+                        String columnName = extendedDescriptors.getColumnDescriptors(i+1).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel
                         if(columnName != null) {
                             if (((AS400JDBCConnection)connection_).getVRM() < JDUtilities.vrm540) { //@DELIMa
                               buffer.append(JDUtilities.stripOuterDoubleQuotes(columnName));  // if pre-V5R4, just strip outer quotes (no double-up necessary)
@@ -5455,10 +5253,6 @@ implements ResultSet
                         Object columnValue = updateRow_.getSQLData (i+1).getObject ();
                         if(updateNulls_[i] == true)
                             updateStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
-                        else if(updateDefaults_[i])                                                         //@EIA
-                            ((AS400JDBCPreparedStatement)updateStatement).setDB2Default(++columnsSet2);     //@EIA
-                        else if(updateUnassigned_[i])                                                       //@EIA
-                            ((AS400JDBCPreparedStatement)updateStatement).setDB2Unassigned(++columnsSet2);  //@EIA
                         else
                             updateStatement.setObject (++columnsSet2, columnValue);                    
                     }
@@ -5560,10 +5354,7 @@ implements ResultSet
     {
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-    	
-        //if(columnIndex <= columnCount_ && columnIndex > 0) //@pdc
-        //    columnValue = AS400BidiTransform.convertDataToHostCCSID(columnValue, (AS400JDBCConnection) connection_,	((JDServerRow) row_).getCCSID(columnIndex));	//Bidi-HCG
-    	
+
         updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
 
@@ -5757,12 +5548,10 @@ implements ResultSet
             int columnIndex0 = columnIndex - 1;
 
             //@G7A If the data is a locator, then set its handle.
-            int sqlType = sqlData.getSQLType();  //@xml3
-            if(columnValue != null && (sqlType == SQLData.CLOB_LOCATOR ||
-                    sqlType == SQLData.BLOB_LOCATOR ||
-                    sqlType == SQLData.DBCLOB_LOCATOR ||
-                    sqlType == SQLData.NCLOB_LOCATOR ||  //@pda jdbc40
-                    sqlType == SQLData.XML_LOCATOR))                   //@xml3
+            if(columnValue != null && (sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                                       sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                                       sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||
+                                       sqlData.getSQLType() == SQLData.NCLOB_LOCATOR ))  //@pda jdbc40
             {     //@G8C                                              //@G7A
                 statement_.setAssociatedWithLocators(true);   //@KBL
                 try
@@ -5784,7 +5573,7 @@ implements ResultSet
                 {
                     /*ignore*/
                 }                                                                                  //@G7A
-/* ifdef JDBC40 */
+                
                 try                                                                              //@PDA jdbc40 -  following upon existing design
                 {                                                                                 //@PDA jdbc40
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@PDA jdbc40
@@ -5792,33 +5581,19 @@ implements ResultSet
                 }                                                                                  //@PDA jdbc40
                 catch(ClassCastException cce)                                                     //@PDA jdbc40
                 {
-                    // ignore
+                    /*ignore*/
                 }            
-                try                                                                              //@olddesc
-                {                                                                                 //@olddesc
-                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@olddesc
-                    sqlDataAsLocator.setHandle (((AS400JDBCSQLXMLLocator)columnValue).getHandle()); //@olddesc
-                }                                                                                 //@olddesc
-                catch(ClassCastException cce)                                                    //@olddesc
-                {
-                    // ignore
-                }    
-/* endif */ 
             }
 
             if(columnValue != null)
                 sqlData.set (columnValue, calendar, scale);
             updateNulls_[columnIndex0] = (columnValue == null);
-            updateDefaults_[columnIndex0] = false;    //@EIA
-            updateUnassigned_[columnIndex0] = false;  //@EIA
             updateSet_[columnIndex0] = true;
 
             if(dataTruncation_)                                    // @B2A
                 testDataTruncation2 (columnIndex, sqlData);         // @B2C
         }
     }
-
-
 
 
     //@PDA jdbc40
@@ -5836,46 +5611,25 @@ implements ResultSet
        <code> cursor hold </code> 
        <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
        Full functionality of #1 and #2 requires OS/400 v5r2
-       or IBM i.  If connecting to OS/400 V5R1 or earlier, 
+       or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
        the value specified on these two methods will be ignored and the default holdability
        will be the value of #3.
      * @throws SQLException if a database error occurs
      */
     public int getHoldability() throws SQLException
     {
+        //use host server functionality later when support is added
         synchronized(internalLock_)
         {
             checkOpen ();
-            
-            //@cur return value from cursor attribues if exists else return value as done in pre 550                                                               
-            if( statement_ != null )                                                     //@cur
-            {                                                                            //@cur
-                int vrm = 0;                                                             //@cur3
-                if(connection_ != null)                                                  //@cur3
-                    vrm = ((AS400JDBCConnection)connection_).getVRM();                   //@cur3
-                if(statement_.cursor_.getCursorAttributeHoldable() == 0 
-                        &&  (vrm <= JDUtilities.vrm610 
-                             || (vrm >= JDUtilities.vrm710 && statement_.cursor_.getCursorIsolationLevel() != 0)))                  //@cur //@cur3 *none is always hold
-                    return ResultSet.CLOSE_CURSORS_AT_COMMIT;                            //@cur
-                else if(statement_.cursor_.getCursorAttributeHoldable() == 1 
-                        || (vrm >= JDUtilities.vrm710 && statement_.cursor_.getCursorIsolationLevel() == 0))            //@cur //@cur3
-                    return ResultSet.HOLD_CURSORS_OVER_COMMIT;                           //@cur
-                else                                                                     //@cur
-                {                                                                        //@cur
-                    //not able to get from cursor attrs from hostserver
-                    if((statement_.resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
-                            (statement_.resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT))
-                    {
-                        return statement_.resultSetHoldability_;    
-                    } 
-                }
-            }                                                                            //@cur
-            
-            //if above cannot determine holdability, then do best guess
-            if(connection_ instanceof AS400JDBCConnection && connection_ != null)        //@cur
-                return ((AS400JDBCConnection) connection_).getHoldability();             //@cur  CAST needed for JDK 1.3 
-            else                                                                         //@cur
-                return ResultSet.CLOSE_CURSORS_AT_COMMIT;                                //@cur (if no statment exists for this, then safest is to return close at commit to prevent cursor reuse errors)
+    
+            if((statement_.resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
+               (statement_.resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT))
+            {
+ 
+                return statement_.resultSetHoldability_;    
+            }  
+            return connection_.getHoldability();
         }
     }
 
@@ -5892,7 +5646,7 @@ implements ResultSet
      * @return a <code>java.io.Reader</code> object that contains the column
      * value; if the value is SQL <code>NULL</code>, the value returned is
      * <code>null</code> in the Java programming language.
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @exception SQLException if a database access error occurs
      */
     public Reader getNCharacterStream(int columnIndex) throws SQLException
@@ -5902,7 +5656,7 @@ implements ResultSet
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.getNCharacterStream ();
             openReader_ = value;
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -5930,30 +5684,29 @@ implements ResultSet
 
 
     //@pda jdbc40
-     /**
-      * Retrieves the value of the designated column in the current row
-      * of this <code>ResultSet</code> object as a <code>NClob</code> object
-      * in the Java programming language.
-      *
-      * @param columnIndex
-      * @return a <code>NClob</code> object representing the SQL 
-      *         <code>NCLOB</code> value in the specified column
-      * @exception SQLException if the driver does not support national
-      *         character sets;  if the driver can detect that a data conversion
-      *  error could occur; or if a database access error occurss
-      */
-/* ifdef JDBC40 */
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return a <code>NClob</code> object representing the SQL 
+     *         <code>NCLOB</code> value in the specified column
+     * @exception SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurss
+     */
     public NClob getNClob(int columnIndex) throws SQLException
     {
         synchronized(internalLock_)
         {                      
             SQLData data = getValue (columnIndex);
             NClob value = (data == null) ? null : data.getNClob ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
-/* endif */ 
+
 
     //@pda jdbc40
     /**
@@ -5968,12 +5721,11 @@ implements ResultSet
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurs
      */
-/* ifdef JDBC40 */
     public NClob getNClob(String columnName) throws SQLException
     {
         return getNClob (findColumn (columnName));
     }
-/* endif */ 
+
 
     //@pda jdbc40
     /**
@@ -5984,7 +5736,7 @@ implements ResultSet
      * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> columns.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
      * @exception SQLException if a database access error occurs 
@@ -5995,7 +5747,7 @@ implements ResultSet
         {                                          
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.getNString ();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
@@ -6032,19 +5784,16 @@ implements ResultSet
      *     value returned is <code>null</code>
      * @throws SQLException if a database access error occurs
      */
-/* ifdef JDBC40 */
     public RowId getRowId(int columnIndex) throws SQLException
     {
         synchronized(internalLock_)
         {                                                    
             SQLData data = getValue (columnIndex);
             RowId value = (data == null) ? null : data.getRowId();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
-/* endif */ 
-    
 
 
     //@pda jdbc40
@@ -6058,34 +5807,31 @@ implements ResultSet
      *     value returned is <code>null</code>
      * @throws SQLException if a database access error occurs
      */
-/* ifdef JDBC40 */
     public RowId getRowId(String columnName) throws SQLException
     {
         return getRowId(findColumn (columnName));
     }
-/* endif */ 
+
 
     //@pda jdbc40
     /**
      * Retrieves the value of the designated column in  the current row of
      *  this <code>ResultSet</code> as a
      * <code>java.sql.SQLXML</code> object in the Java programming language.
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs
      */
-/* ifdef JDBC40 */
     public SQLXML getSQLXML(int columnIndex) throws SQLException
     {
         synchronized(internalLock_)
         {    
             SQLData data = getValue (columnIndex);
             SQLXML value = (data == null) ? null : data.getSQLXML();
-            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
+            testDataTruncation (columnIndex, data);
             return value;
         }
     }
-/* endif */ 
 
 
     //@pda jdbc40
@@ -6097,13 +5843,10 @@ implements ResultSet
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs
      */
-/* ifdef JDBC40 */
     public SQLXML getSQLXML(String columnName) throws SQLException
     {
         return getSQLXML(findColumn (columnName));
     }
-/* endif */ 
-    
 
 
 
@@ -6115,19 +5858,17 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second 2, ...
      * @param nClob the value for the column to be updated
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurs
      */
-/* ifdef JDBC40 */
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
     {
         updateValue (columnIndex, nClob, null, -1);
     }
-/* endif */ 
-    
+
     //@PDA jdbc40
     /**
      * Updates the designated column with a <code>java.sql.NClob</code> value.
@@ -6142,14 +5883,11 @@ implements ResultSet
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; or if a database access error occurs
      */
-/* ifdef JDBC40 */
     public void updateNClob(String columnName, NClob nClob) throws SQLException
     {
         updateNClob (findColumn (columnName), nClob);
         
     }
-/* endif */ 
-    
 
     //@pda jdbc40
     /**
@@ -6161,7 +5899,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second 2, ...
      * @param nString the value for the column to be updated
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -6201,17 +5939,14 @@ implements ResultSet
      * the <code>updateRow</code> or <code>insertRow</code> methods are called 
      * to update the database.
      * 
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second 2, ...
      * @param x the column value
      * @throws SQLException if a database access occurs 
      */
-/* ifdef JDBC40 */
     public void updateRowId(int columnIndex, RowId x) throws SQLException
     {
         updateValue (columnIndex, x, null, -1);
     }
-/* endif */ 
-    
 
     //@pda jdbc40
     /**
@@ -6225,12 +5960,11 @@ implements ResultSet
      * @param x the column value
      * @throws SQLException if a database access occurs 
      */
-/* ifdef JDBC40 */
     public void updateRowId(String columnName, RowId x) throws SQLException
     {
         updateRowId (findColumn (columnName), x);
     }
-/* endif */ 
+
 
     //@pda jdbc40
     /**
@@ -6240,39 +5974,15 @@ implements ResultSet
      * row. The updater methods do not update the underlying database; instead 
      * the <code>updateRow</code> or <code>insertRow</code> methods are called 
      * to update the database.
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second 2, ...
      * @param xmlObject the value for the column to be updated
      * @throws SQLException if a database access error occurs
      */
-/* ifdef JDBC40 */
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
     {
-        //@xmlspec special handling of blob/clob column types
-        if(xmlObject == null)                                                      //@xmlspec3
-        {                                                                          //@xmlspec3
-            updateValue (columnIndex, xmlObject, null, -1);                        //@xmlspec3
-            return;                                                                //@xmlspec3
-        }                                                                          //@xmlspec3
-        
-        int sqlDataType; 
-        if(updateRow_ != null) //@nulltype
-            sqlDataType = updateRow_.getSQLData (columnIndex).getType();                     //@xmlspec  //@nulltype
-        else  
-            sqlDataType = Types.SQLXML;  //@nulltype dummy type so processing continues
-        
-        
-        switch(sqlDataType) {                                                      //@xmlspec
-            case Types.CLOB:                                                       //@xmlspec
-                updateCharacterStream(columnIndex, xmlObject.getCharacterStream());//@xmlspec
-                break;                                                             //@xmlspec
-            case Types.BLOB:                                                       //@xmlspec
-                updateBinaryStream(columnIndex,  xmlObject.getBinaryStream());     //@xmlspec
-                break;                                                             //@xmlspec
-            default:                                                               //@xmlspec
-                updateValue (columnIndex, xmlObject, null, -1); 
-        }
+        updateValue (columnIndex, xmlObject, null, -1); 
     }
-/* endif */ 
+
 
     //@pda jdbc40
     /**
@@ -6287,12 +5997,10 @@ implements ResultSet
      * @param xmlObject the column value
      * @throws SQLException if a database access occurs 
      */
-/* ifdef JDBC40 */
     public void updateSQLXML(String columnName, SQLXML xmlObject) throws SQLException
     {
         updateSQLXML(findColumn(columnName), xmlObject);
     }
-/* endif */ 
     
     //@pda jdbc40
     protected String[] getValidWrappedList()
@@ -6309,7 +6017,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
@@ -6361,7 +6069,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value     
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
@@ -6421,7 +6129,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
@@ -6483,7 +6191,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
@@ -6543,7 +6251,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
      * @exception SQLException if a database access error occurs,
@@ -6610,7 +6318,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs, 
@@ -6677,7 +6385,7 @@ implements ResultSet
       * update the underlying database; instead the <code>updateRow</code> or
       * <code>insertRow</code> methods are called to update the database.
       *
-      * @param columnIndex
+      * @param columnIndex the first column is 1, the second 2, ...
       * @param reader An object that contains the data to set the parameter value to.
       * @param length the number of characters in the parameter data.
       * @throws SQLException if the driver does not support national
@@ -6747,7 +6455,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateAsciiStream</code> which takes a length parameter.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -6808,7 +6516,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateBinaryStream</code> which takes a length parameter.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value     
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -6868,7 +6576,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateBlob</code> which takes a length parameter.     
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
@@ -6928,7 +6636,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateCharacterStream</code> which takes a length parameter.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -6992,7 +6700,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateClob</code> which takes a length parameter.
      *     
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -7060,7 +6768,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateNCharacterStream</code> which takes a length parameter.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
@@ -7129,7 +6837,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateNClob</code> which takes a length parameter.
      *
-     * @param columnIndex
+     * @param columnIndex the first column is 1, the second 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @throws SQLException if the columnIndex is not valid; 
     * if the driver does not support national
@@ -7183,57 +6891,14 @@ implements ResultSet
    
  
 
-    //@EIA new method
-    /**
-    Updates a column for the specified index, and performs all
-    appropriate validation.
-    
-    Note: this is the same type of method as updateValue() above, but we
-    have no way to pass in the special values without hacking some sort
-    of flag string for the value, and that seemed to be a messy and slow
-    way to do this.
-    
-    @param  columnIndex   The column index (1-based).
-    @param  columnValue   The parameter 1="default" or 2="unassigned".
-                      
-    
-    @exception  SQLException    If the result set is not open,
-                                the result set is not updatable,
-                                the cursor is not positioned on a row,
-                                the column index is not valid, or the
-                                requested conversion is not valid.
-    **/
-    private void updateValueExtendedIndicator (int columnIndex, int columnValue)
-    throws SQLException
-    {
-        synchronized(internalLock_)
-        {                                          
-            beforeUpdate ();
-
-            // Check that there is a current row.
-            if((positionValid_ == false) && (positionInsert_ == false))
-                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
-
-            // Validate The column index.
-            if((columnIndex < 1) || (columnIndex > columnCount_))
-                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
-            // Set the update value.  If there is a type mismatch,
-            // set() with throw an exception.
-           
-            int columnIndex0 = columnIndex - 1;
-            
-            updateNulls_[columnIndex0] = false;
-            updateDefaults_[columnIndex0] = columnValue == 1 ? true: false;     
-            updateUnassigned_[columnIndex0] =  columnValue == 2 ? true: false;   
-            updateSet_[columnIndex0] = true;
-
-                 
-        }
-    }
+ 
+  
+ 
 
 
  
+  
+
+
+   
 }
-
-

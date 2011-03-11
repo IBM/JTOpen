@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2006-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,9 +19,7 @@ import java.io.Writer;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Clob;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
 import java.sql.SQLException;
 
 
@@ -34,11 +32,10 @@ transaction.
 **/
 class JDNClobProxy
 extends AbstractProxyImpl
-/* ifdef JDBC40 */
 implements NClob
-/* endif */ 
 {
-  
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+
 
   // Copied from JDError:
   private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
@@ -152,8 +149,11 @@ implements NClob
     public Writer setCharacterStream (long pos)
     throws SQLException
     {
-     
-        try 
+        // Avoid dragging in JDError
+        //@K1D throw new SQLException (
+        //@K1D                       AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+        //@K1D                       EXC_FUNCTION_NOT_SUPPORTED, -99999);
+        try              //@K1A
         {
             JDWriterProxy newWriter = new JDWriterProxy ();
             return (JDWriterProxy) connection_.callFactoryMethod (pxId_, "setCharacterStream", 

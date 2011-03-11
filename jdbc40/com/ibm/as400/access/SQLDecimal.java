@@ -19,26 +19,21 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLDecimal
 implements SQLData
-{
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+{ 
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private.
     private static final BigDecimal default_ = BigDecimal.valueOf(0); // @C2A
@@ -50,10 +45,10 @@ implements SQLData
     private static final BigDecimal INTEGER_MIN_VALUE = BigDecimal.valueOf(Integer.MIN_VALUE);
     private static final BigDecimal LONG_MAX_VALUE = BigDecimal.valueOf(Long.MAX_VALUE);
     private static final BigDecimal LONG_MIN_VALUE = BigDecimal.valueOf(Long.MIN_VALUE);
-    static final BigDecimal FLOAT_MAX_VALUE = new BigDecimal(Float.MAX_VALUE);
-    static final BigDecimal FLOAT_MIN_VALUE = new BigDecimal(Float.MIN_VALUE);
-    static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
-    static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(Double.MIN_VALUE);
+    private static final BigDecimal FLOAT_MAX_VALUE = new BigDecimal(Float.MAX_VALUE);
+    private static final BigDecimal FLOAT_MIN_VALUE = new BigDecimal(Float.MIN_VALUE);
+    private static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
+    private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(Double.MIN_VALUE);
 
     private SQLConversionSettings   settings_;
     private int                     precision_;
@@ -479,7 +474,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        String stringRep = JDUtilities.bigDecimalToPlainString(value_); //@big java 1.5 support
+        String stringRep = value_.toString();
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
             return stringRep;
@@ -526,15 +521,13 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
         String string = getNString();
         return new AS400JDBCNClob(string, string.length());
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -548,7 +541,7 @@ implements SQLData
             + settings_.getDecimalSeparator()
             + stringRep.substring(decimal+1);
     }
-/* ifdef JDBC40 */
+
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -558,13 +551,6 @@ implements SQLData
 
     //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,18 +16,13 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -35,7 +30,7 @@ import java.util.Calendar;
 final class SQLReal
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -126,16 +121,16 @@ implements SQLData
             value_ = ((Number) object).floatValue();  // @D9c
 
             // Get the whole number portion of that value.
-            //long value = (long) value_;               // @D9c //@bigdectrunc change to follow native driver
+            long value = (long) value_;               // @D9c
 
             // Get the original value as a long.  This is the
             // largest precision we can test for for a truncation.
-            //long truncTest = ((Number) object).longValue();  // @D9c //@bigdectrunc  
+            long truncTest = ((Number) object).longValue();  // @D9c
 
             // If they are not equal, then we truncated significant
             // data from the original value the user wanted us to insert.
-            //if(truncTest != value)     // @D9c //@bigdectrunc 
-                //truncated_ = 1;  //@bigdectrunc 
+            if(truncTest != value)     // @D9c
+                truncated_ = 1;
         }
 
 
@@ -345,17 +340,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(value_ > Byte.MAX_VALUE || value_ < Byte.MIN_VALUE)      //@trunc
-        {                                                           //@trunc
-            if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)//@trunc
-            {                                                       //@trunc
-                truncated_ = 3;                                     //@trunc
-            }                                                       //@trunc
-            else                                                    //@trunc
-            {                                                       //@trunc
-                truncated_ = 1;                                     //@trunc
-            }                                                       //@trunc
-        }                                                           //@trunc
         return(byte) value_;
     }
 
@@ -405,12 +389,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-
-        if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)              //@trunc
-        {                                                                         //@trunc
-            truncated_ = 4;                                                       //@trunc
-        }                                                                         //@trunc
-               
         return(int) value_;
     }
 
@@ -418,10 +396,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(value_ > Long.MAX_VALUE || value_ < Long.MIN_VALUE)                    //@trunc
-        {                                                                         //@trunc
-            truncated_ = 8;                                                       //@trunc
-        }                                                                         //@trunc  
         return(long) value_;
     }
 
@@ -436,10 +410,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)    //@trunc
-        {                                                           //@trunc
-            truncated_ = 2;                                         //@trunc
-        }                                                           //@trunc
         return(short) value_;
     }
 
@@ -486,14 +456,12 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -508,8 +476,6 @@ implements SQLData
             + stringRep.substring(decimal+1);
     }
 
-/* ifdef JDBC40 */
-
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -519,14 +485,6 @@ implements SQLData
 
     //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

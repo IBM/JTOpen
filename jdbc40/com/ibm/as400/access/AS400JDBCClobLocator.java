@@ -15,14 +15,12 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.sql.Clob;
 import java.sql.SQLException;
-
 
 // Note: This code in this class requires understanding of bit manipulation
 // and sign extension. Do not attempt to rework this code if you do not
@@ -49,6 +47,8 @@ transaction.
 **/
 public class AS400JDBCClobLocator implements Clob
 {
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+
   protected ConvTable converter_;       //@pdc jdbc40
   JDLobLocator locator_;
 
@@ -59,14 +59,13 @@ public class AS400JDBCClobLocator implements Clob
   private int cacheOffset_;
   private static final char[] INIT_CACHE = new char[0];
 
-  //private int truncate_ = -1;
+  private int truncate_ = -1;
   protected int maxLength_; // The max length in LOB-characters. See JDLobLocator.  //@pdc jdbc40
-  private boolean isXML_ = false;      //@xml3 true if this data originated from a native XML column type
 
   /**
-  Constructs an AS400JDBCClobLocator object.  The data for the
+  Constructs an AS400JDBCClob object.  The data for the
   CLOB will be retrieved as requested, directly from the
-  IBM i system, using the locator handle.
+  i5/OS system, using the locator handle.
   
   @param  locator             The locator.
   @param  converter           The text converter.
@@ -79,27 +78,9 @@ public class AS400JDBCClobLocator implements Clob
     savedScale_ = savedScale;
     maxLength_ = locator_.getMaxLength();
   }
-  
-  //@xml3 new constructor
-  /**
-  Constructs an AS400JDBCClobLocator object.  The data for the
-  CLOB will be retrieved as requested, directly from the
-  IBM i system, using the locator handle.
-  If this clob has a source of a columne of type XML, then any getX method that returns xml as string will trim the xml declaration.
-  
-  @param  locator             The locator.
-  @param  converter           The text converter.
-  @param  savedObject         Input data
-  @param  savedScale          Inpuat scale of data
-  @param  isXML               Flag that stream is from an XML column type (needed to strip xml declaration)
-  **/
-  AS400JDBCClobLocator(JDLobLocator locator, ConvTable converter, Object savedObject, int savedScale, boolean isXML)
-  {
-    this(locator, converter, savedObject, savedScale);
-    isXML_ = isXML;
-  }
 
- 
+
+
   /**
   Returns the entire CLOB as a stream of ASCII characters.
   
@@ -109,16 +90,11 @@ public class AS400JDBCClobLocator implements Clob
   **/
   public InputStream getAsciiStream() throws SQLException
   {
-    //Following Native, throw HY010 after free() has been called.  Note:  NullPointerException if synchronized(null-ref)
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       try
       {
-        //@xml3 if xml column, remove xml declaration via ConvTableReader
-        return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_), 819); // ISO 8859-1.  //@xml3
+        return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_), 819); // ISO 8859-1.
       }
       catch (UnsupportedEncodingException e)
       {
@@ -139,15 +115,11 @@ public class AS400JDBCClobLocator implements Clob
   **/
   public Reader getCharacterStream() throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       try
       {
-        //@xml3 if xml column, remove xml declaration via ConvTableReader
-        return new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_); //@xml3
+        return new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_);
       }
       catch (UnsupportedEncodingException e)
       {
@@ -164,11 +136,8 @@ Returns the handle to this CLOB locator in the database.
 
 @return             The handle to this locator in the databaes.
 **/
-  int getHandle()throws SQLException //@free called from rs.updateValue(), which in turn will throw exc back to rs.updateX() caller
+  int getHandle()
   {
-      if(locator_ == null)//@free
-          JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     return locator_.getHandle();
   }
 
@@ -187,9 +156,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public String getSubString(long position, int length) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -202,32 +168,9 @@ Returns the handle to this CLOB locator in the database.
       if (lengthToUse < 0) return "";
       if (lengthToUse > length) lengthToUse = length;
 
-     
-     
-      //@xml4 if xml column, remove xml declaration via ConvTableReader
-      if(isXML_)
-      {
-          ConvTableReader r = null;
-    	  try{
-    		  r = new ConvTableReader(new AS400JDBCInputStream( locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_); //@xml4
-    		  r.skip(offset);                     //@xml4 ConvTableReader will already have skipped XML header if column is XML type
-    		  return r.read(lengthToUse);         //@xml4
-    	  }
-    	  catch ( Exception e)
-    	  {
-    		  JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-    		  return null;
-    	  }
-    	  finally{
-    	      try{
-    	          if (r != null ) r.close();
-    	      }catch(Exception ee){}
-    	  }
-      }
-      
-      DBLobData data = locator_.retrieveData(offset, lengthToUse); 
-      int actualLength = data.getLength();                          
-      return converter_.byteArrayToString(data.getRawBytes(), data.getOffset(), actualLength); 
+      DBLobData data = locator_.retrieveData(offset, lengthToUse);
+      int actualLength = data.getLength();
+      return converter_.byteArrayToString(data.getRawBytes(), data.getOffset(), actualLength);
     }
   }
 
@@ -242,9 +185,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public long length() throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       return locator_.getLength();
@@ -295,9 +235,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public long position(String pattern, long position) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -346,9 +283,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public long position(Clob pattern, long position) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -398,9 +332,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public OutputStream setAsciiStream(long position) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -433,9 +364,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public Writer setCharacterStream(long position) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -460,9 +388,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public int setString(long position, String stringToWrite) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -514,9 +439,6 @@ Returns the handle to this CLOB locator in the database.
    **/
   public int setString(long position, String string, int offset, int lengthOfWrite) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       int clobOffset = (int)position-1;
@@ -559,9 +481,6 @@ Returns the handle to this CLOB locator in the database.
   **/
   public void truncate(long lengthOfCLOB) throws SQLException
   {
-    if(locator_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
     synchronized(locator_)
     {
       int length = (int)lengthOfCLOB;
@@ -569,8 +488,7 @@ Returns the handle to this CLOB locator in the database.
       {
         JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
-      //truncate_ = length;
-
+      truncate_ = length;
       // The host server does not currently provide a way for us
       // to truncate the temp space used to hold the locator data,
       // so we just keep track of it ourselves.  This should work,
@@ -582,10 +500,11 @@ Returns the handle to this CLOB locator in the database.
     }
   }
   
-   //@PDA 550
+  
+  // @PDA jdbc40
   /**
    * This method frees the <code>Clob</code> object and releases the
-   * resources that it holds. The object is invalid once the
+   * resources the resources that it holds. The object is invalid once the
    * <code>free</code> method is called. If <code>free</code> is called
    * multiple times, the subsequent calls to <code>free</code> are treated
    * as a no-op.
@@ -593,20 +512,9 @@ Returns the handle to this CLOB locator in the database.
    * @throws SQLException
    *             if an error occurs releasing the Clob's resources
    */
-  public void free() throws SQLException //@sync
+  public synchronized void free() throws SQLException
   {
-      if(locator_ == null)
-          return;  //no-op
-      
-      synchronized(locator_) //@sync
-      {   
-          locator_.free();
- 
-          locator_  = null;  //@pda make objects available for GC
-          converter_ = null;
-          savedObject_ = null;
-          cache_ = null;
-      }
+      locator_.free();
   }
 
   // @PDA jdbc40
@@ -628,36 +536,33 @@ Returns the handle to this CLOB locator in the database.
    *             greater than the number of characters in the
    *             <code>Clob</code>
    */
-  public Reader getCharacterStream(long pos, long length) throws SQLException //@sync
+  public synchronized Reader getCharacterStream(long pos, long length) throws SQLException
   {
-      if(locator_ == null)//@free
-          JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-
-      synchronized(locator_) //@sync
-      {   
-          if (pos < 1 || (pos - 1 + length) > locator_.getMaxLength() || length < 0 )  //@pdc change parm check like getSubString
-          {
-              JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-          }
-          Reader r = null;
-
-          try
-          {
-              //@xml3 if xml column, remove xml declaration via ConvTableReader
-              r = new ConvTableReader(new AS400JDBCInputStream( locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_); //@xml3
-              r.skip(pos); 
-              return r;
-          }
-          catch (UnsupportedEncodingException e)
-          {
-              JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-              return null;
-          }
-          catch (IOException e)
-          {
-              JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-              return null;
-          }
+      if (length < 0 || length > locator_.getMaxLength())
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+      Reader r = null;
+ 
+      synchronized(locator_)
+      {
+        try
+        {
+          r = new ConvTableReader(new AS400JDBCInputStream( locator_), converter_.getCcsid(), converter_.bidiStringType_);
+          r.skip(pos); 
+          return r;
+        }
+        catch (UnsupportedEncodingException e)
+        {
+          JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+          return null;
+        }
+        catch (IOException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
+       
       }
   }
   

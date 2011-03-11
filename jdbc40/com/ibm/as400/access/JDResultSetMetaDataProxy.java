@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,12 +27,12 @@ class JDResultSetMetaDataProxy
 extends AbstractProxyImpl
 implements ResultSetMetaData
 {
-  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   // Private data.
  
-  JDConnectionProxy       jdConnection_;
+  private JDConnectionProxy       jdConnection_;
                                   // The associated JDBC Connection object.
 
 
@@ -255,7 +255,7 @@ implements ResultSetMetaData
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] { "java.sql.ResultSetMetaData" }; //@pdc user cannot cast to AS400JDBCResultSetMetaData
+        return new String[] { "com.ibm.as400.access.AS400JDBCResultSet", "java.sql.ResultSet" };
     } 
   
 }

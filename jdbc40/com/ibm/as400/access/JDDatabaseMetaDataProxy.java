@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,7 @@ package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
-/* ifdef JDBC40 */
 import java.sql.RowIdLifetime;
-/* endif */ 
 import java.sql.SQLException;
 
 
@@ -26,7 +24,7 @@ class JDDatabaseMetaDataProxy
 extends AbstractProxyImpl
 implements java.sql.DatabaseMetaData
 {
-  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -167,7 +165,7 @@ implements java.sql.DatabaseMetaData
     }
     
     //@PDA jdbc40
-    Object callMethodRtnObj(String methodName, Class[] argClasses, Object[] argValues) throws SQLException
+    private Object callMethodRtnObj(String methodName, Class[] argClasses, Object[] argValues) throws SQLException
     {
         try
         {
@@ -843,7 +841,7 @@ implements java.sql.DatabaseMetaData
     }
 
 
-    boolean isCatalogValid (String catalog)
+    private boolean isCatalogValid (String catalog)
     throws SQLException
     {
       return callMethodRtnBool ("isCatalogValid",
@@ -1508,7 +1506,7 @@ implements java.sql.DatabaseMetaData
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] { "java.sql.DatabaseMetaData" };
+        return new String[] { "com.ibm.as400.access.AS400JDBCDatabaseMetaData", "java.sql.DatabaseMetaData" };
     } 
   
 
@@ -1519,20 +1517,19 @@ implements java.sql.DatabaseMetaData
     }
 
     
-    //@PDA 550
+    //@PDA jdbc40
     public ResultSet getClientInfoProperties() throws SQLException
     {
         return callMethodRtnRSet("getClientInfoProperties");
     }
 
-/* ifdef JDBC40 */
 
     //@PDA jdbc40
     public RowIdLifetime getRowIdLifetime() throws SQLException
     {
         return (RowIdLifetime) callMethodRtnObj("getRowIdLifetime");
     }
-/* endif */ 
+
 
     //@PDA jdbc40
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException
@@ -1552,7 +1549,14 @@ implements java.sql.DatabaseMetaData
         return callMethodRtnBool("supportsStoredFunctionsUsingCallSyntax");
     }
 
-    //@pdd removde getFunctionParameters.  It was renamed to getFunctionColumns()
+
+    //@PDA jdbc40
+    public ResultSet getFunctionParameters(String catalog, String schemaPattern, String functionNamePattern, String parameterNamePattern) throws SQLException
+    {
+        return callMethodRtnRSet ("getFunctionParameters",
+                new Class[] { String.class, String.class, String.class, String.class },
+                new Object[] { catalog, schemaPattern, functionNamePattern, parameterNamePattern });
+    }
 
     //@PDA jdbc40
     public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException
@@ -1562,13 +1566,12 @@ implements java.sql.DatabaseMetaData
                 new Object[] { catalog, schemaPattern, functionNamePattern });
     }
     
-    //@pda 550
+    //@pda jdbc40
     public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException
     { 
         return callMethodRtnRSet ("getFunctionColumns",
                 new Class[] { String.class, String.class, String.class, String.class },
                 new Object[] { catalog, schemaPattern, functionNamePattern, columnNamePattern });
     }
-
 
 }

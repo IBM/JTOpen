@@ -13,9 +13,8 @@
 
 package com.ibm.as400.access;
 
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
+
 
 /**
  * The AS400JDBCNClob class provides access to character large objects. The data
@@ -24,16 +23,14 @@ import java.sql.NClob;
 
 //@PDA jdbc40 new class
 
-public class AS400JDBCNClob extends AS400JDBCClob 
-/* ifdef JDBC40 */
-   implements NClob
-/* endif */ 
+public class AS400JDBCNClob extends AS400JDBCClob implements NClob
 {
-  
+    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
+
 
     /**
      * Constructs an AS400JDBCNClob object. The data is contained in the String.
-     * No further communication with the IBM i system is necessary.
+     * No further communication with the i5/OS system is necessary.
      * 
      * @param data
      *            The NClob data.
@@ -45,13 +42,6 @@ public class AS400JDBCNClob extends AS400JDBCClob
         super(data, maxLength);
     }
 
-    /**
-     * Constructs an AS400JDBCNClob object. The data is contained in the char array.
-     * No further communication with the IBM i system is necessary.
-     * 
-     * @param data
-     *            The NClob data.
-     */
     AS400JDBCNClob(char[] data)
     {
         super(data);

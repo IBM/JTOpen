@@ -13,9 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -27,21 +24,15 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40 */
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -64,14 +55,9 @@ For example, if the input parameter has SQL type INTEGER, then the
 caller must call setInt() to set the IN parameter value.  If
 arbitrary type conversions are required, then use setObject() with
 a target SQL type.
-
-<p>For method that sets parameters, the application should not modify the parameter
-   value until after the execute completes.  Modifying a value
-   between the setXXXX method and the execute method may result in unpredictable
-   behavior. 
 **/
 //
-// Implementation notes:  
+// Implementation notes:
 //
 // 1. See implementation note in AS400JDBCStatement.java about
 //    "private protected" methods.
@@ -86,7 +72,7 @@ a target SQL type.
 //    Of course in that case we are always mapping the caller's parameter
 //    indices to the database's indices by decrementing by 1 as needed.
 //
-// @G8c  
+// @G8c
 // 3. If there is a return value (ie ?=call xxxx) and the parameter
 //    index is 1 then return data for the return value (always an Integer).
 //    If not, decrement the parm index by one because internally the return
@@ -96,7 +82,7 @@ a target SQL type.
 //
 public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements PreparedStatement
 {
-    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
     private boolean             dataTruncation_;        // @B5A
@@ -104,19 +90,14 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     boolean             executed_;              // private protected
     private boolean             outputParametersExpected_;
     int                 parameterCount_;        // private protected
-    int                 parameterInputCount_;        // private protected //@array4
     boolean             batchExecute_;          // private protected            @G9A
     private int[]               parameterLengths_;
     private int[]               parameterOffsets_;
     private boolean[]           parameterNulls_;
-    private boolean[]           parameterDefaults_;    //@EIA
-    private boolean[]           parameterUnassigned_;  //@EIA
     private String[]            parameterNames_; //@pda jdbc40
-    //@re-prep move to statement JDServerRow    JDServerRow         parameterRow_;          // private protected
+    JDServerRow         parameterRow_;          // private protected
     Vector              batchParameterRows_;    // private protected            @G9A
     private int                 parameterTotalSize_;
-    private int                 indicatorTotalSize_; //@array Used with array containing data only.  Is total size of all indicators (including array element indicators)
-    private int                 headerTotalSize_; //@array Used to calculate size of stream header
     boolean[]           parameterSet_;          // private protected
     private boolean             prepared_;
     private JDServerRow         resultRow_;
@@ -129,103 +110,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private static final int LOCATOR_UNKNOWN = -1;
     private static final int LOCATOR_NOT_FOUND = 0;
     private static final int LOCATOR_FOUND = 1;
-    
-    private static final short INDICATOR_NULL = -1;        //@EIA
-    private static final short INDICATOR_DEFAULT = -5;     //@EIA
-    private static final short INDICATOR_UNASSIGNED = -7;  //@EIA
-    private boolean isjvm16Synchronizer;//@dmy
-    private static boolean isjvm16SynchronizerStatic;//@dmy
-    
-    static {
-    	// Changed 2/21/2011 to not use unless the JDBC.jvm16Synchronize property is true.  @C6A
-    	
- /*  
-   Here is some information from service about this error. 
 
-Yes, this trace code was added for a very ugly issue that showed up when customers started moving to Java 6. 
-While trying to debug it, we found that the trace points ended up changing the behavior, so they were 
-altered to trace to a dummy stream so that it would workaround Sun's bug.  
-The CPS discussion item was 7LXN87. 
-
-Here's the contents of our KB doc on the issue:
-
-Abstract	
-A problem with the Sun HotSpot Server in the 1.6 JDK causes a variety of errors.
-
-Problem Summary:
-A problem was introduced into the version 1.6 JDK (Java Development Kit) and 
-JRE (Java Runtime Environment) from Sun.  The problem was introduced somewhere between
- update number 7 and update 12, which can cause a number of problems.  Java version 1.6.0_7 works; 
-however, version 1.6.0_12 produces the errors.  The problem is specific to the HotSpot Server which is 
-something like an optimizing compiler that is designed to provide the best operating speed for long-running 
-applications similar to a Web server.  The problem seems to always manifest itself by 'removing' parameters 
-that had been bound to a statement.  However, it is not possible to know that this has occurred without 
-tracing the application.  The outward symptoms are exceptions which will vary depending on what data is 
-missing.  The common errors that have been reported are as follows:
-
-SQLException: Descriptor index not valid
-CPD4374  -  Field HVR000n and value N not compatible.    <-- where N might a variety of different numbers
-SQL0302  -  Conversion error on host variable or parameter *N.  <-- where n might a variety of different numbers
-SQL0406  -  Conversion error on assignment to column N.  <-- where N might a variety of different numbers
-
-Resolution:
-The problem has been reported to Sun; however, at this time, no fix is available from them.  
-We have found three ways to circumvent the problem:
-
-1.  Do not use JDK 1.6.
-2.	  Use JVM property -client (this turns off performance code in Sun Hotspot).
-3.  Use JVM property  -XX:CompileCommand=exclude,com/ibm/as400/access/AS400JDBCPreparedStatement,commonExecuteBefore (more selectively, turn off part of Hotspot).
-4.	 Use the latest version of jt400.jar (currently 6.6).  Additional trace points that were added while searching for the source of the problem appear to have changed the Hotspot behavior.
-
-
-
-Update 2/24/2011.  This was probably a problem with the buffer synchonization.  Before JTOpen 7.1, a flag 
-was set to indicate that a buffer was available.  This flag did not utilize any synchronization.  In JTOpen 7.1, 
-the buffer management code was restructure to used synchronzation. 
-
-A recreate for the original problem was found.  It failed using the JTOpen 6.4 jar.  We then used a jar
-with the change the set the default isjvm16SynchronizerStatic to false and set the default
-value of the property to false.  The problem did not occur with the jar file. 
-*/ 
-    	
-    	
-    	
-        //Temporary fix for jvm 1.6 memroy stomp issue. (remove //@dmy code when jvm issue is resolved)
-        //This fix will just trace a few extra traces to a dummy stream
-        //if system property or jdbc property is set to false then extra trace is not executed
-        //null value for system property means not specified...so true by default
-        String jvm16Synchronize = SystemProperties.getProperty (SystemProperties.JDBC_JVM16_SYNCHRONIZE); //@dmy
-        isjvm16SynchronizerStatic = false;  //@dmy //false by default  @C6C
-        if((jvm16Synchronize != null) && (Boolean.valueOf(jvm16Synchronize.trim()).booleanValue() == true)) {
-            try{                                                    //@dmy
-                Class.forName("java.sql.SQLXML");                   //@dmy
-                isjvm16SynchronizerStatic = true;                        //@dmy
-            }catch(Exception e){                                    //@dmy
-                isjvm16SynchronizerStatic = false;                        //@dmy
-            }        	
-        
-        } else { 
-        		   //@dmy    
-            isjvm16SynchronizerStatic = false;  //@dmy
-        }
-        
-    }
-    // @C6C  -- Changed to remove the dummy PrimWriter.  The dummy PrintWriter uses a 
-    // 16k buffer of storage.  This causes storage problems when a lot of statements are 
-    // cached. Instead we'll use the write(byte[]) method instead of the buffered print writer
-    //                
-    //@dmy private dummy outputstream
-    OutputStream dummyOutputStream = new OutputStream() {
-        int b1 = 0;
-        public synchronized void write(int b) throws IOException {  b1 = b; }
-        	
-    };
-    
-    // Any method that can deal with extremely large data values must be prepared
-    // to deal with them in blocks instead of as one giant unit.  This value is
-    // used to determine the size of each block.  Eventually, we might externalize
-    // this value so that users can set it as they see fit.
-    static final int LOB_BLOCK_SIZE = 1000000; //@pdc Match Native JDBC Driver for IBM i
+    static final int LOB_BLOCK_SIZE = 262144;
 
     /**
     Constructs an AS400JDBCPreparedStatement object.
@@ -269,35 +155,21 @@ value of the property to false.  The problem did not occur with the jar file.
                prefetch, packageCriteria, resultSetType,
                resultSetConcurrency, resultSetHoldability, autoGeneratedKeys);
 
-                                                   //@dmy
-        //Temporary fix for jvm 1.6 memroy stomp issue. (remove //@dmy code when jvm issue is resolved)
-        //This fix will just trace a few extra traces to a dummy stream
-        //if system property or jdbc property is set to false then extra trace is not executed
-        //null value for system property means not specified...so true by default
-        isjvm16Synchronizer = isjvm16SynchronizerStatic; 
-        if( connection_.getProperties().getBoolean(JDProperties.JVM16_SYNCHRONIZE))    //@dmy    
-            isjvm16Synchronizer = true;  //@dmy@C6C
-
-        
         batchExecute_               = false;                                        // @G9A
         outputParametersExpected_   = outputParametersExpected;
         parameterCount_             = sqlStatement.countParameters();
-        parameterInputCount_        = 0;  //@array4 calculate while we prepare
         parameterLengths_           = new int[parameterCount_];
         parameterNulls_             = new boolean[parameterCount_];
-        parameterDefaults_          = new boolean[parameterCount_];          //@EIA
-        parameterUnassigned_        = new boolean[parameterCount_];          //@EIA
         parameterOffsets_           = new int[parameterCount_];
         parameterSet_               = new boolean[parameterCount_];
         sqlStatement_               = sqlStatement;
         useReturnValueParameter_    = sqlStatement.hasReturnValueParameter();       // @F2A
 
         if(useReturnValueParameter_)                                               // @F2A
-            returnValueParameter_   = new SQLInteger(connection_.getVRM());                             // @F2A  //@trunc3
+            returnValueParameter_   = new SQLInteger();                             // @F2A
 
         if(JDTrace.isTraceOn())
         {                                                  // @D1A @F2C
-        	JDTrace.logInformation (this, "isjvm16Synchronizer="+isjvm16Synchronizer);  // @C6A
             JDTrace.logInformation (this, "Preparing [" + sqlStatement_ + "]");     // @D1A
             if(useReturnValueParameter_)                                           // @F2A
                 JDTrace.logInformation(this, "Suppressing return value parameter (?=CALL)"); // @F2A
@@ -357,13 +229,7 @@ value of the property to false.  The problem did not occur with the jar file.
                 if(!parameterNulls_[i])
                 {
                   //@KBD  SQLData sqlData = parameterRow_.getSQLData(i+1);
-                  //For default and unassigned extended indicator values, we use Byte to contain the indicator flag
-                  if(parameterDefaults_[i])                          //@EIA
-                      parameters[i] = new Byte("1");  //default      //@EIA
-                  else if(parameterUnassigned_[i])                   //@EIA
-                      parameters[i] = new Byte("2");  //unassigned   //@EIA
-                  else                                               //@EIA
-                      parameters[i] = sqlData.getObject();
+                  parameters[i] = sqlData.getObject();
                   //@KBD  if(containsLocator_ == LOCATOR_UNKNOWN)
                   //@KBD  { 
                   //@KBD    int sqlType = sqlData.getSQLType();
@@ -383,10 +249,7 @@ value of the property to false.  The problem did not occur with the jar file.
                     if (sqlType == SQLData.CLOB_LOCATOR ||          //@KBA
                         sqlType == SQLData.BLOB_LOCATOR ||          //@KBA
                         sqlType == SQLData.DBCLOB_LOCATOR ||        //@KBA  //@pdc jdbc40
-/* ifdef JDBC40 */
-                        sqlType == SQLData.NCLOB_LOCATOR ||                 //@pda jdbc40
-/* endif */ 
-                        sqlType == SQLData.XML_LOCATOR)                     //@xml3
+                        sqlType == SQLData.NCLOB_LOCATOR)                   //@pda jdbc40
                     {                                               //@KBA
                         containsLocator_ = LOCATOR_FOUND;           //@KBA
                     }                                               //@KBA
@@ -460,61 +323,24 @@ value of the property to false.  The problem did not occur with the jar file.
 
             parameterMarkerDataFormat.setConsistencyToken (1);
             parameterMarkerDataFormat.setRecordSize (parameterTotalSize_);
-            
-            if(isjvm16Synchronizer) {
-            	try { 
-                dummyOutputStream.write(("!!!changeDescriptor:  totalParameterLength_ = " + parameterTotalSize_).getBytes());  //@dmy@C6C
-            	} catch (Exception e) { 
-            		
-            	}
-            } 
-            
             for(int i = 0; i < parameterCount_; ++i)
             {
                 SQLData sqlData = parameterRow_.getSQLData (i+1);
 
                 parameterMarkerDataFormat.setFieldDescriptionLength (i);
-                if(sqlData.getNativeType() == SQLData.NATIVE_ARRAY)    //@array
-                {                                                      //@array
-                    int arrayLen =  ((SQLArray)sqlData).getArrayCount();                              //@array
-                    if(arrayLen > 0)                                                                  //@array
-                        parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]/arrayLen);  //@array
-                    else                                                                              //@array
-                        parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]);           //@array
-                }                                                                                     //@array
-                else                                                                                  //@array
-                {
-                    parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]);
-                }
+                parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]);
                 parameterMarkerDataFormat.setFieldCCSID (i, parameterRow_.getCCSID (i+1));
 
                 parameterMarkerDataFormat.setFieldNameLength (i, 0);
                 parameterMarkerDataFormat.setFieldNameCCSID (i, 0);
                 parameterMarkerDataFormat.setFieldName (i, "", connection_.converter_); //@P0C
 
-                //@array (arrays sent in as the element type and zda will know they are arrays)
-                if(sqlData.getNativeType() == SQLData.NATIVE_ARRAY)    //@array
-                {                                                      //@array
-                    parameterMarkerDataFormat.setFieldSQLType (i,
-                                                       (short) (((SQLArray)sqlData).getElementNativeType() | 0x0001));  //@array
-                }                                                       //@array
-                else
-                {
-                    parameterMarkerDataFormat.setFieldSQLType (i,
-                                                               (short) (sqlData.getNativeType() | 0x0001));
-                }
-                
+                parameterMarkerDataFormat.setFieldSQLType (i,
+                                                           (short) (sqlData.getNativeType() | 0x0001));
                 parameterMarkerDataFormat.setFieldScale (i,
                                                          (short) sqlData.getScale());
                 parameterMarkerDataFormat.setFieldPrecision (i,
                                                              (short) sqlData.getPrecision());
-                if(isjvm16Synchronizer) {
-                	try { 
-                    dummyOutputStream.write(("!!!changeDescriptor:  Parameter " + (i+1) + " length = " + parameterLengths_[i]).getBytes()); //@C6C
-                	} catch (Exception e) { 
-                		
-                	}
-                }
             }
 
             connection_.send (request2, descriptorHandle_);
@@ -528,15 +354,7 @@ value of the property to false.  The problem did not occur with the jar file.
         }
         finally
         { //@P0C
-            
-            if(isjvm16Synchronizer){
-            	if (request2 != null) { 
-            		try { 
-                dummyOutputStream.write(("!!!changeDescriptor.inUser_(false): request2-id=" +  request2.hashCode()).getBytes()); //@C6C
-            		} catch (Exception e) {}; 
-            	}
-            }
-            if(request2 != null) { request2.returnToPool(); request2= null; } //@P0C
+            if(request2 != null) request2.inUse_ = false; //@P0C
         }
     }
 
@@ -562,8 +380,6 @@ value of the property to false.  The problem did not occur with the jar file.
             {
                 // @E1D parameterLengths_[i]    = 0;
                 parameterNulls_[i]      = false;
-                parameterDefaults_[i]      = false;   //@EIA
-                parameterUnassigned_[i]    = false;   //@EIA
                 // @E1D parameterOffsets_[i]    = 0;
                 parameterSet_[i]        = false;
             }
@@ -615,14 +431,7 @@ value of the property to false.  The problem did not occur with the jar file.
                 }
                 finally
                 { //@P0C
-                    if(isjvm16Synchronizer) {
-                    	try { 
-                        dummyOutputStream.write(("!!!close.inUser_(false): request-id=" +  request.hashCode()).getBytes()); // @C6C
-                    	} catch (Exception e) { 
-                    		
-                    	}
-                    }
-                    if(request != null) { request.returnToPool();  request = null; } //@P0C
+                    if(request != null) request.inUse_ = false; //@P0C
                 }
 
                 descriptorHandle_ = 0;
@@ -708,8 +517,6 @@ value of the property to false.  The problem did not occur with the jar file.
 
                 if(parameterRow_.isOutput(i+1))    //  @K2A
                     outputExpected_ = true;        //  @K2A
-                if(parameterRow_.isInput(i+1))      //@array4
-                    parameterInputCount_ ++;        //@array4
             }
             if(!outputExpected_)                   //  @K2A
                 outputParametersExpected_ = false; //  @K2A
@@ -723,51 +530,13 @@ value of the property to false.  The problem did not occur with the jar file.
                 // We just use the information that came in the parameter
                 // marker format from reply for the prepare.
                 parameterTotalSize_ = 0;
-                indicatorTotalSize_ = 0;   //@array
-                headerTotalSize_ = 2; //@array start with 2 since column count is 2 bytes 
                 for(int i = 0; i < parameterCount_; ++i)
-                {       
-                    if(!parameterRow_.containsArray_ || parameterRow_.isInput(i+1)) //@array4
-                    {
-                        SQLData sqlData = parameterRow_.getSQLData(i+1);    //@array
-                        int arrayLen = 1;  //@array 1 by default so size can be multiplied for non arrays also
-                        // boolean arrayIndicatorSet = false; //@array
-                        if(sqlData.getType() == java.sql.Types.ARRAY)       //@array
-                        {
-                            arrayLen = ((SQLArray)sqlData).getArrayCount();    //@array
-                            if (parameterNulls_[i] || parameterDefaults_[i] || parameterUnassigned_[i])  //@array
-                                headerTotalSize_ += 4; //@array space for x9911ffff 
-                            else
-                                headerTotalSize_ += 12;  //@array (array column requires 12 bytes in header x9911) //@array2
-                        }
-                        else
-                        {
-                            //non array value
-                            headerTotalSize_ += 8;  //@array (assuming row has array.  x9912 is length 8)
-                        }
-                        //@array set input (to host) array lengths of data
-                        //@array if null array or 0 length array, then data length is 0
-                        parameterLengths_[i] = parameterRow_.getLength (i+1) * arrayLen;  //@array 0, 1, or more datatype-length blocks 
-                        parameterOffsets_[i] = parameterTotalSize_;
-                        parameterTotalSize_ += parameterLengths_[i];
+                {
+                    parameterLengths_[i] = parameterRow_.getLength (i+1);
+                    parameterOffsets_[i] = parameterTotalSize_;
+                    parameterTotalSize_ += parameterLengths_[i];
+                }
 
-                        indicatorTotalSize_ += (arrayLen*2);//@array
-                    }
-                    
-                    if(isjvm16Synchronizer) {
-                    try {
-                        dummyOutputStream.write(("!!!commonExecuteBefore:  Parameter " + (i+1) + " length = " + parameterLengths_[i] ).getBytes()); //@C6C
-						
-					} catch (Exception e) {
-					}	
-                    }
-                }
-                if(isjvm16Synchronizer) { 
-                    try {
-                    dummyOutputStream.write(("!!!commonExecuteBefore:  totalParameterLength_ = " + parameterTotalSize_).getBytes());  //@C6C
-					} catch (Exception e) {
-					}
-                }
                 changeDescriptor();
             }
 
@@ -800,12 +569,7 @@ value of the property to false.  The problem did not occur with the jar file.
                         // This is the amount of space for all of the rows' data and indicators        @G9A
                         DBData parameterMarkerData;
                         int rowCount = batchExecute_ ? batchParameterRows_.size() : 1;
-                        //@array create new x382f here if parms contain array
-                        if(parameterRow_.containsArray_)  //@array
-                        {                                 //@array
-                            parameterMarkerData = new DBVariableData(parameterInputCount_, 2, headerTotalSize_, indicatorTotalSize_, parameterTotalSize_); //@array x382f codepoint //@array4
-                        }                                 //@array
-                        else if(connection_.useExtendedFormats ())
+                        if(connection_.useExtendedFormats ())
                         {
                             parameterMarkerData = new DBExtendedData(rowCount, parameterCount_, 2, parameterTotalSize_);
                         }
@@ -838,81 +602,18 @@ value of the property to false.  The problem did not occur with the jar file.
                                 // @G1 -- zero out the comm buffer if the parameter marker is null.
                                 //        If the buffer is not zero'ed out old data will be sent to
                                 //        the system possibily messing up a future request.
-                                if((batchExecute_ && (parameters[i] == null || parameters[i] instanceof Byte)) ||               // @G9A //@EIC
-                                   (!batchExecute_ && (parameterNulls_[i] || parameterDefaults_[i] || parameterUnassigned_[i])))              // @B9C @G9C  //@EIC
+                                if((batchExecute_ && parameters[i] == null) ||               // @G9A
+                                   (!batchExecute_ && parameterNulls_[i]))             // @B9C @G9C
                                 {
-                                    short indicatorValue = INDICATOR_NULL;                  //@EIA
-                                    if( batchExecute_ )                                     //@EIA
-                                    {                                                       //@EIA
-                                        if( parameters[i] == null )                         //@EIA
-                                            indicatorValue = INDICATOR_NULL;                //@EIA
-                                        else if( ((Byte)parameters[i]).byteValue() == 1 )   //@EIA
-                                            indicatorValue = INDICATOR_DEFAULT;             //@EIA
-                                        else if( ((Byte)parameters[i]).byteValue() == 2 )   //@EIA
-                                            indicatorValue = INDICATOR_UNASSIGNED;          //@EIA
-                                    }                                                       //@EIA
-                                    else                                                    //@EIA
-                                    {                                                       //@EIA
-                                        if( parameterNulls_[i] )                            //@EIA
-                                            indicatorValue = INDICATOR_NULL;                //@EIA
-                                        else if( parameterDefaults_[i] )                    //@EIA
-                                            indicatorValue = INDICATOR_DEFAULT;             //@EIA
-                                        else if ( parameterUnassigned_[i] )                 //@EIA
-                                            indicatorValue = INDICATOR_UNASSIGNED;          //@EIA
-                                    }                                                       //@EIA
-                                    
-                                    SQLData sqlData = parameterRow_.getSQLType(i+1);                   //@array
- 
-                                    //@array Don't set indicator here for null array, since setting header below will set it
-                                    if(sqlData.getType() != java.sql.Types.ARRAY)                   
-                                        parameterMarkerData.setIndicator(rowLoop, i, indicatorValue);    // @G1a @G9C @EIC
-                                    
-                                    //@array only zero-out data on non-arrays
-                                    //If the whole array is null, then we do not even include blank data in the stream since a null array has space for values (just 0X9911ffff in header of 0X382f)
-                                    if(sqlData.getType() != java.sql.Types.ARRAY)  //@array
-                                    {
-                                        byte[] parameterData = parameterMarkerData.getRawBytes();           // @G1a
-                                        int parameterDataOffset = rowDataOffset + parameterOffsets_[i];   // @G1a
-                                        int parameterDataLength = parameterLengths_[i] + parameterDataOffset;
-                                        for(int z=parameterDataOffset; z < parameterDataLength; parameterData[z++] = 0x00);
-                                    }
-                                    
-                                    //@array If the row contains an array, then we must also set the columnInfo in stream header
-                                    if(parameterRow_.containsArray_ && parameterRow_.isInput(i+1)) //@array //@array4
-                                    {                                                         //@array
-                                        int arrayLen = -1;                                   //@array
-                                        int elementType = -1;                                //@array
-                                        int size = -1;                                       //@array
-                                        if(sqlData.getType() == java.sql.Types.ARRAY)        //@array
-                                        {                                                    //@array
-                                            arrayLen = ((SQLArray)sqlData).getArrayCount();  //@array
-                                            elementType = ((SQLArray)sqlData).getElementNativeType(); //@array
-                                            size = parameterRow_.getLength(i+1);             //@array  
-                                        }                                                       //@array
-                                        ((DBVariableData)parameterMarkerData).setHeaderColumnInfo(i, (short)sqlData.getNativeType(), (short)indicatorValue, (short)elementType, size, (short)arrayLen); //@array
-                                    }                                                        //@array
+                                    parameterMarkerData.setIndicator(rowLoop, i, (short) -1);    // @G1a @G9C
+                                    byte[] parameterData = parameterMarkerData.getRawBytes();           // @G1a
+                                    int parameterDataOffset = rowDataOffset + parameterOffsets_[i];   // @G1a
+                                    int parameterDataLength = parameterLengths_[i] + parameterDataOffset;
+                                    for(int z=parameterDataOffset; z < parameterDataLength; parameterData[z++] = 0x00);
                                 }
                                 else
                                 {
-                                    SQLData sqlData = parameterRow_.getSQLType(i+1);                   //@array
-                                    if(!parameterRow_.containsArray_ || parameterRow_.isInput(i+1)) //@array4
-                                    {
-                                        //Setting array null value here for elements inside of array)
-                                        if(sqlData.getType() == java.sql.Types.ARRAY )   //@array
-                                        {                                                                  //@array 
-                                            //iterate through elements and set null indicators.  Array as a whole null is not set here (see above)
-                                            for (int e = 0 ; e < ((SQLArray)sqlData).getArrayCount() ; e++) //@array 
-                                            {                                                        //@array 
-                                                if(((SQLArray)sqlData).isElementNull(e))             //@array 
-                                                    parameterMarkerData.setIndicator(0, i, -1);      //@array 
-                                                else                                                 //@array 
-                                                    parameterMarkerData.setIndicator(0, i, 0);       //@array 
-                                            }                                                        //@array 
-                                        }else
-                                        {
-                                            parameterMarkerData.setIndicator(rowLoop, i, (short) 0);     // @G9C
-                                        }
-                                    }
+                                    parameterMarkerData.setIndicator(rowLoop, i, (short) 0);     // @G9C
                                     ConvTable ccsidConverter = connection_.getConverter (parameterRow_.getCCSID (i+1)); //@P0C
 
                                     // Convert the data to bytes into the parameter marker data.    // @BAA
@@ -933,41 +634,18 @@ value of the property to false.  The problem did not occur with the jar file.
                                         setValue(i+1, parameters[i], null, -1);
                                     }
 
-                                    //SQLData sqlData = parameterRow_.getSQLType(i+1);                        // @BAC @P0C @G9C //@array move above
+                                    SQLData sqlData = parameterRow_.getSQLType(i+1);                        // @BAC @P0C @G9C
 
                                     try
                                     {
-                                        if(!parameterRow_.containsArray_ || parameterRow_.isInput(i+1)) //@array4 (if array then only send input parm data)
-                                        { 
-                                            //@CRS - This is the only place convertToRawBytes is ever called.
-                                            sqlData.convertToRawBytes(parameterMarkerData.getRawBytes(), rowDataOffset + parameterOffsets_[i], ccsidConverter);
-                                            if(ccsidConverter.getCcsid() == 5035) //@trnc this is not caught at setX() time
-                                                testDataTruncation(i+1, sqlData); //@trnc
-                                        }
-                                        
-                                        //@array If the row contains an array, then we must also set the columnInfo in stream header
-                                        if(parameterRow_.containsArray_ && parameterRow_.isInput(i+1)) //@array //@array4
-                                        {                                                         //@array
-                                            //Set the stream header info for each column in addition to data in rawbytes above.
-                                            int arrayLen = -1;                                   //@array
-                                            int elementType = -1;                                //@array
-                                            int size = parameterRow_.getLength(i+1);             //@array
-                                            if(sqlData.getType() == java.sql.Types.ARRAY)        //@array
-                                            {                                                    //@array
-                                                arrayLen = ((SQLArray)sqlData).getArrayCount();  //@array
-                                                elementType = ((SQLArray)sqlData).getElementNativeType(); //@array
-                                            }                                                    //@array
-                                            ((DBVariableData)parameterMarkerData).setHeaderColumnInfo(i, (short)sqlData.getNativeType(), (short)0, (short)elementType, size, (short)arrayLen); //@array
-                                        }                                                        //@array
-                                        
+                                        //@CRS - This is the only place convertToRawBytes is ever called.
+                                        sqlData.convertToRawBytes(parameterMarkerData.getRawBytes(), rowDataOffset + parameterOffsets_[i], ccsidConverter);
                                     }
                                     catch(SQLException e)
                                     {
                                         if(e.getSQLState().trim().equals("HY000"))      //AN INTERNAL DRIVER ERROR
                                         {
                                             //Check error to see if it was thrown from another error
-                                            if(parameterRow_.containsArray_) //@array always use prepare/describe lengths
-                                                throw e;                     //@array
                                             if(e.getMessage().indexOf("Change Descriptor") != -1){
                                                 correctLength = sqlData.getPrecision();                     // @BAA
                                             }
@@ -1216,16 +894,16 @@ value of the property to false.  The problem did not occur with the jar file.
             int numSuccessful = 0; // Number of successfully executed statements in the batch.
 
             boolean canBatch = true;
-            //boolean notInsert = false; //@blksql
+            boolean notInsert = false;
 
             try
             {
                 // Only INSERTs can be batched, UPDATE statements must still be done one at a time.
-                //if(!(sqlStatement_.isInsert_)) //@blksql
-                //{
-                //    canBatch = false;
-                //    notInsert = true;
-                //}
+                if(!(sqlStatement_.isInsert_))
+                {
+                    canBatch = false;
+                    notInsert = true;
+                }
 
                 if(!(sqlStatement_.canBatch()))
                 {
@@ -1268,21 +946,17 @@ value of the property to false.  The problem did not occur with the jar file.
                 // Execute.
                 if(canBatch)
                 {
-                	int maximumBlockedInputRows = connection_.getMaximumBlockedInputRows(); 
                     Enumeration list = batch_.elements();
                     int count = 0;                                //@K1A   Added support for allowing more than 32000 SQL Statements to be batched and run
-                    int totalUpdateCount = 0;  /* @A4A*/ 
                     while (list.hasMoreElements())                
                     {
                         batchParameterRows_.add(list.nextElement());
                         count++;                                    //@K1A
-                        if(count == maximumBlockedInputRows && list.hasMoreElements())//@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
+                        if(count == 32000 && list.hasMoreElements())//@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
                         {                                           //@K1A
                             if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");  //@K1A
                             commonExecute(sqlStatement_, resultRow_);        //@K1A
-                            totalUpdateCount += updateCount_;    /* @A4A*/
                             batchParameterRows_.clear();                     //@K1A
-                            
                             if (resultSet_ != null)                          //@K1A
                             {                                                //@K1A
                                 closeResultSet(JDCursor.REUSE_YES);          //@K1A
@@ -1293,7 +967,6 @@ value of the property to false.  The problem did not occur with the jar file.
                     }
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");
                     commonExecute(sqlStatement_, resultRow_);
-                    totalUpdateCount += updateCount_;      /* @A4A*/
                     batchParameterRows_.clear();
                     if(resultSet_ != null)
                     {
@@ -1301,23 +974,13 @@ value of the property to false.  The problem did not occur with the jar file.
                         JDError.throwSQLException(this, JDError.EXC_CURSOR_STATE_INVALID);
                     }
                     numSuccessful = batchSize;
-                    // The host server does not currently report the update counts for each statement in
-                    // the batch.  We use -2 here because that is the constant for Statement.SUCCESS_NO_INFO
-                    // as of JDBC 3.0 and JDK 1.4. When we change to build against JDK 1.4 instead of 1.3,
-                    // we can change this to use the actual constant.
-                    // However, if the total number of updated rows is the same as the batch size then
-                    // we can set each of the update counts to 1.    @A4A
-                    
-                    // Only set the count to one if the statement is an insert statement.  
-                    // The logic in JDSQLStatement only allows in insert to be batched if it is of the 
-                    // form insert ... VALUES(?,?,?) ... Any other form will not be batched  
-                    int updateCount = -2; 
-                    if ( batchSize == totalUpdateCount && sqlStatement_.isInsert_) {
-                    	updateCount = 1; 
-                    }
                     for(int i=0; i<batchSize; ++i)
                     {
-                        updateCounts[i] = updateCount;
+                        // The host server does not currently report the update counts for each statement in
+                        // the batch.  We use -2 here because that is the constant for Statement.SUCCESS_NO_INFO
+                        // as of JDBC 3.0 and JDK 1.4. When we change to build against JDK 1.4 instead of 1.3,
+                        // we can change this to use the actual constant.
+                        updateCounts[i] = -2;
                     }
                 }
                 else
@@ -1357,7 +1020,7 @@ value of the property to false.  The problem did not occur with the jar file.
                     //  If autocommit is on and we are running under *NONE, then rowsInserted_ contains the number  //@550
                     //  of inserts that executed successfully before the error.  rowsInserted_ is set from the      //@550
                     //  the value in SQLERRD3.  If autocommit is running under an isolation level other than *NONE, //@550 
-                    //  or autocommit is off, no rows are committed.  Thus rowsInserted_ will be zero.               //@550
+                    //  or autocommit is off, no rows are commited.  Thus rowsInserted_ will be zero.               //@550
                     //  Since we don't have any update counts for each statement, use Statement.SUCCESS_NO_INFO     //@550
                     //@550D counts = new int[] { rowsInserted_};
                     counts = new int[rowsInserted_];                                                                //@550 batch update support
@@ -1602,7 +1265,7 @@ value of the property to false.  The problem did not occur with the jar file.
             }                                                                                              // @G6A
             return new AS400JDBCResultSetMetaData (connection_.getCatalog (),
                                                    resultSetConcurrency_, cursor_.getName (), resultRow_,
-                                                   extendedDescriptors, convTable, connection_);  //@in1                       // @G6A
+                                                   extendedDescriptors, convTable);                        // @G6A
         }
     }
 
@@ -1891,30 +1554,18 @@ value of the property to false.  The problem did not occur with the jar file.
 
     // JDBC 2.0
     /**
-    Sets an input parameter to an Array value.  DB2 for IBM i
-    only supports arrays in stored procedures.
+    Sets an input parameter to an Array value.  DB2 for i5/OS
+    does not support arrays.
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
   
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public void setArray (int parameterIndex, Array parameterValue)
     throws SQLException
     {
-        //@array new support
-        if(JDTrace.isTraceOn())
-        {
-            JDTrace.logInformation (this, "setArray()");         
-            if(parameterValue == null)  
-                JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL"); 
-            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: Array type " + parameterValue.getBaseTypeName()); 
-        }
-
-        if(!sqlStatement_.isProcedureCall())                                     //@array
-            JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID); //@array
-
-        setValue (parameterIndex, parameterValue, null, -1);
+        JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
     }
 
 
@@ -1989,14 +1640,10 @@ value of the property to false.  The problem did not occur with the jar file.
                 try
                 {
                     // If the data is a locator, then set its handle.
-                    int sqlType = sqlData.getSQLType();  //@xml3
-                    if(sqlType == SQLData.CLOB_LOCATOR ||
-                       sqlType == SQLData.BLOB_LOCATOR ||
-                       sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-/* ifdef JDBC40 */
-                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
-/* endif */ 
-                       sqlType == SQLData.XML_LOCATOR)                      //@xml3
+                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                        sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -2018,8 +1665,6 @@ value of the property to false.  The problem did not occur with the jar file.
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
-            parameterDefaults_[parameterIndex-1] = false;   //@EIA
-            parameterUnassigned_[parameterIndex-1] = false; //@EIA
             parameterSet_[parameterIndex-1] = true;
 
         }
@@ -2067,9 +1712,6 @@ value of the property to false.  The problem did not occur with the jar file.
     reads the data from the stream as needed until no more bytes
     are available.  The driver converts this to an SQL VARBINARY
     value.
-    
-    <br>If a parameter is set using setBinaryStream, then the parameter  
-        must be reset prior to the second execute of the PreparedStatement object.  
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
@@ -2132,10 +1774,7 @@ value of the property to false.  The problem did not occur with the jar file.
                 {
                   SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                   sqlDataAsLocator.setHandle (parameterRow_.getFieldLOBLocatorHandle (parameterIndex));
-                  // Don't convert immediately to Bytes.  This causes memory problems with Large lobs @B3A
-	              //  sqlData.set (JDUtilities.streamToBytes(parameterValue, length), null, length);//@set1 allow setX one time and reuse execute() without having to reset stream
                   sqlData.set (parameterValue, null, length); // @J0M hacked this to use the scale parm for the length
-	              
                 }
                 else
                 {
@@ -2147,8 +1786,6 @@ value of the property to false.  The problem did not occur with the jar file.
               // Parameters can be null; you can call one of the set methods to null out a
               // field of the database.
               parameterNulls_[parameterIndex-1] = (parameterValue == null);
-              parameterDefaults_[parameterIndex-1] = false;   //@EIA
-              parameterUnassigned_[parameterIndex-1] = false; //@EIA
               parameterSet_[parameterIndex-1] = true;
         
             }
@@ -2210,7 +1847,7 @@ value of the property to false.  The problem did not occur with the jar file.
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public void setBoolean (int parameterIndex, boolean parameterValue)
@@ -2242,7 +1879,7 @@ value of the property to false.  The problem did not occur with the jar file.
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
     // does not support that.
     //
     public void setByte (int parameterIndex, byte parameterValue)
@@ -2360,19 +1997,15 @@ value of the property to false.  The problem did not occur with the jar file.
             {
 
                 // If the data is a locator, then set its handle.
-                int sqlType = sqlData.getSQLType();  //@xml3
-                if(sqlType == SQLData.CLOB_LOCATOR ||
-                   sqlType == SQLData.BLOB_LOCATOR ||
-                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
-                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
+                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                    sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
                 {
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                    // Go back to reading the stream at execute time. 
                     sqlData.set(parameterValue, null, length); // @J0M hacked this to use the scale parameter for the length
-                    // sqlData.set(JDUtilities.readerToString(parameterValue, length), null, -1); //@pdc length is incorrect for double-byte chars.  Use a slower, but correct method, until we can create a real ConvTableReader
                 }
                 else
                 {
@@ -2384,8 +2017,6 @@ value of the property to false.  The problem did not occur with the jar file.
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
-            parameterDefaults_[parameterIndex-1] = false;   //@EIA
-            parameterUnassigned_[parameterIndex-1] = false; //@EIA
             parameterSet_[parameterIndex-1] = true;
 
         }
@@ -2503,74 +2134,8 @@ value of the property to false.  The problem did not occur with the jar file.
         setValue (parameterIndex, parameterValue, calendar, -1);
     }
 
-    //@EIA 550 extended indicator defaults
-    /**
-    Sets an input parameter to the default value
-    @param  parameterIndex  The parameter index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void setDB2Default(int parameterIndex) throws SQLException
-    {
-    	 if(JDTrace.isTraceOn())
-         {                                         
-             JDTrace.logInformation (this, "setDB2Default()");            
-             JDTrace.logInformation (this, "parameter index: " + parameterIndex);
-         }                                                                 
 
-         setValueExtendedIndicator(parameterIndex, 1); //1 is default
-         
-    }
-    
-    //@EIA 550 extended indicator defaults
-    /**
-    Sets an input parameter to the default value.  This is a the same as setDB2Default.
-    @param  parameterIndex  The parameter index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void setDBDefault(int parameterIndex) throws SQLException
-    {
-        setDB2Default(parameterIndex);         
-    }
-    
-    //@EIA 550 extended indicator defaults
-    /**
-    Sets an input parameter to unassigned
-    @param  parameterIndex  The parameter index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void setDB2Unassigned(int parameterIndex) throws SQLException
-    {
-        if(JDTrace.isTraceOn())
-        {                                         
-            JDTrace.logInformation (this, "setDB2Unassigned()");            
-            JDTrace.logInformation (this, "parameter index: " + parameterIndex);
-        }                                                                 
 
-        setValueExtendedIndicator(parameterIndex, 2); //2 is unassigned
-    	
-    }
-
-    
-    //@EIA 550 extended indicator defaults
-    /**
-    Sets an input parameter to unassigned.  This is a the same as setDB2Unassigned.
-    @param  parameterIndex  The parameter index (1-based).
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid, the parameter
-                                is not an input parameter.
-    **/
-    public void setDBUnassigned(int parameterIndex) throws SQLException
-    {
-        setDB2Unassigned(parameterIndex); //2 is unassigned   
-    }
-
-    
     /**
     Sets an input parameter to a Java double value.  The driver
     converts this to an SQL DOUBLE value.
@@ -2611,7 +2176,7 @@ value of the property to false.  The problem did not occur with the jar file.
     // Note:  The JDBC 1.22 specification states that this
     //        method should set an SQL FLOAT value.  However,
     //        all tables map float to REAL.  Otherwise,
-    //        nothing is symmetrical and certain INOUT
+    //        nothing is symetrical and certain INOUT
     //        parameters do not work.
     //
     public void setFloat (int parameterIndex, float parameterValue)
@@ -2671,7 +2236,7 @@ value of the property to false.  The problem did not occur with the jar file.
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
     // does not support that until V4R5.
     //
     public void setLong (int parameterIndex, long parameterValue)
@@ -2721,7 +2286,7 @@ value of the property to false.  The problem did not occur with the jar file.
     }
 
 
-    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to IBM i.
+    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to i5/OS.
     /**
     Sets an input parameter to SQL NULL.
   
@@ -2751,7 +2316,7 @@ value of the property to false.  The problem did not occur with the jar file.
     this to a value of an SQL type, depending on the type of the
     specified value.  The JDBC specification defines a standard
     mapping from Java types to SQL types.  In the cases where a
-    SQL type is not supported by DB2 for IBM i, the
+    SQL type is not supported by DB2 for i5/OS, the
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     <br>If proxy support is in use, the Object must be serializable.
@@ -2881,11 +2446,6 @@ value of the property to false.  The problem did not occur with the jar file.
 
         if(scale < 0)
             JDError.throwSQLException (this, JDError.EXC_SCALE_INVALID);
-/* ifdef JDBC40 */
-        if (parameterValue instanceof SQLXML)                   //@xmlspec
-            setSQLXML(parameterIndex, (SQLXML)parameterValue);  //@xmlspec
-        else
-/* endif */ 
 
         setValue (parameterIndex, parameterValue, null, scale); //@P0C
     }
@@ -2894,13 +2454,13 @@ value of the property to false.  The problem did not occur with the jar file.
 
     // JDBC 2.0
     /**
-    Sets an input parameter to a Ref value.  DB2 for IBM i
+    Sets an input parameter to a Ref value.  DB2 for i5/OS
     does not support structured types.
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
   
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public void setRef (int parameterIndex, Ref parameterValue)
     throws SQLException
@@ -2962,10 +2522,7 @@ value of the property to false.  The problem did not occur with the jar file.
                 JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + parameterValue.length());  // @H1A
             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
         }                                                                  // @H1A
-        //if(parameterIndex <= parameterCount_ && parameterIndex > 0) //@pdc
-        //parameterValue = AS400BidiTransform.convertDataToHostCCSID(parameterValue, connection_,		//Bidi-HCG
-        //		parameterRow_.getCCSID (parameterIndex));											//Bidi-HCG 
-                     
+
         setValue (parameterIndex, parameterValue, null, -1); // @B7C @P0C
     }
 
@@ -3189,14 +2746,10 @@ value of the property to false.  The problem did not occur with the jar file.
                 try
                 {
                     // If the data is a locator, then set its handle.
-                    int sqlType = sqlData.getSQLType();  //@xml3
-                    if(sqlType == SQLData.CLOB_LOCATOR ||
-                       sqlType == SQLData.BLOB_LOCATOR ||
-                       sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-/* ifdef JDBC40 */
-                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
-/* endif */ 
-                       sqlType == SQLData.XML_LOCATOR)                      //@xml3
+                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                        sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -3218,8 +2771,6 @@ value of the property to false.  The problem did not occur with the jar file.
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
-            parameterDefaults_[parameterIndex-1] = false;   //@EIA
-            parameterUnassigned_[parameterIndex-1] = false; //@EIA
             parameterSet_[parameterIndex-1] = true;
 
         }
@@ -3279,7 +2830,6 @@ value of the property to false.  The problem did not occur with the jar file.
   **/
     void setValue(int parameterIndex, Object parameterValue, Calendar calendar, int scale) throws SQLException
     {
-        
         synchronized(internalLock_)
         {                                            // @F1A
             checkOpen();
@@ -3315,10 +2865,7 @@ value of the property to false.  The problem did not occur with the jar file.
                 if((sqlType == SQLData.CLOB_LOCATOR ||
                     sqlType == SQLData.BLOB_LOCATOR ||
                     sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-/* ifdef JDBC40 */
-                    sqlType == SQLData.NCLOB_LOCATOR ||                   //@pda jdbc40
-/* endif */ 
-                    sqlType == SQLData.XML_LOCATOR))                      //@xml3
+                    sqlType == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
                 {                                                        // @B6A
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));   // @B6A
@@ -3334,64 +2881,10 @@ value of the property to false.  The problem did not occur with the jar file.
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.                                                                                            // @B6A
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
-            parameterDefaults_[parameterIndex-1] = false;    //@EIA 
-            parameterUnassigned_[parameterIndex-1] = false;  //@EIA 
             parameterSet_[parameterIndex-1] = true;
         }
     }
 
-    //@EIA new method
-    /**
-    Sets an input parameter value for the specified index,
-    and performs all appropriate validation when the value is one of the
-    valid Extended Indicator values: default or unassigned.
-    
-    Note: this is the same type of method as setValue() above, but we
-    have no way to pass in the special values without hacking some sort
-    of flag string for the value, and that seemed to be a messy and slow
-    way to do this.
-  
-    @param  parameterIndex  The parameter index (1-based).
-    @param  parameterValue  The parameter 1="default" or 2="unassigned".
-  
-    @exception  SQLException    If the statement is not open,
-                                the index is not valid or
-                                the parameter is not an input
-                                parameter.
-    **/
-    void setValueExtendedIndicator(int parameterIndex, int parameterValue) throws SQLException
-    {
-        synchronized(internalLock_)
-        {                                          
-            checkOpen();
-
-            // Check if the parameter index refers to the return value parameter.          
-            // This is an OUT parameter, so sets are not allowed.  If its not              
-            // parameter index 1, then decrement the parameter index, since we             
-            // are "faking" the return value parameter.                                   
-            if(useReturnValueParameter_)
-            {                                             
-                if(parameterIndex == 1)                                                 
-                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID); 
-                else                                                                   
-                    --parameterIndex;                                                   
-            }
-
-            // Validate the parameter index.
-            if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-            {
-                JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-            }
-
-            // Check that the parameter is an input parameter.
-            if(!parameterRow_.isInput(parameterIndex)) JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
-
-            parameterNulls_[parameterIndex-1] = false;
-            parameterDefaults_[parameterIndex-1] = parameterValue == 1 ? true: false;     
-            parameterUnassigned_[parameterIndex-1] =  parameterValue == 2 ? true: false;   
-            parameterSet_[parameterIndex-1] = true;
-        }
-    }
 
 
     /**
@@ -3407,25 +2900,18 @@ value of the property to false.  The problem did not occur with the jar file.
     @param  index   The index (1-based).
     @param  data    The data that was written or null for SQL NULL.
     **/
-    private void testDataTruncation(int parameterIndex, SQLData data) throws SQLException //@trunc
+    private void testDataTruncation(int parameterIndex, SQLData data) throws DataTruncation
     {
         if(data != null && (dataTruncation_ || !data.isText()))
         {
             // The SQLData object determined if data was truncated as part of the setValue() processing.
             int truncated = data.getTruncated ();
             if(truncated > 0)
-            {                
+            {
                 int actualSize = data.getActualSize ();
-                //boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same as native (only select is read) //@trunc //@pdc match native
-                DataTruncation dt = new DataTruncation(parameterIndex, true, false, actualSize + truncated, actualSize); //@pdc jdbc40 //@trunc //@pdc match native
+                DataTruncation dt = new DataTruncation(parameterIndex, true, false, actualSize + truncated, actualSize);
 
-                //if 610 and number data type, then throw DataTruncation
-                //if text, then use old code path and post/throw DataTruncation
-                if((connection_.getVRM() >= JDUtilities.vrm610) && (data.isText() == false))   //@trunc2
-                {                                                                    //@trunc2
-                    throw dt;                                                        //@trunc2
-                }                                                                    //@trunc2
-                else if((sqlStatement_ != null) && (sqlStatement_.isSelect()) && (!sqlStatement_.isSelectFromInsert()))       //@trunc2 //@selins1
+                if((sqlStatement_ != null) && (sqlStatement_.isSelect()))
                 {
                     postWarning(dt);
                 }
@@ -3447,7 +2933,7 @@ value of the property to false.  The problem did not occur with the jar file.
   
     @exception  SQLException    If the SQL type is not compatible.
     **/
-     void testSQLType(int sqlType, int parameterIndex)
+    private void testSQLType(int sqlType, int parameterIndex)
     throws SQLException
     {
         int parameterType = parameterRow_.getSQLType(parameterIndex).getType(); //@P0C
@@ -3466,12 +2952,6 @@ value of the property to false.  The problem did not occur with the jar file.
         }
     }
 
-    //@GKA
-    // Returns the JDServerRow object associated with this statement.
-    JDServerRow getResultRow()
-    {
-        return resultRow_;
-    }
 
    
     //@PDA jdbc40
@@ -3480,12 +2960,11 @@ value of the property to false.  The problem did not occur with the jar file.
      * driver converts this to a SQL <code>ROWID</code> value when it sends it
      * to the database
      *
-     * @param parameterIndex 
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the parameter value
      * @throws SQLException if a database access error occurs
      *
      */
-/* ifdef JDBC40 */
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -3499,7 +2978,7 @@ value of the property to false.  The problem did not occur with the jar file.
 
         setValue (parameterIndex, x, null, -1);
     }
-/* endif */ 
+ 
     //@PDA jdbc40
     /**
      * Sets the designated paramter to the given <code>String</code> object.
@@ -3509,7 +2988,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * size relative to the driver's limits on <code>NVARCHAR</code> values)
      * when it sends it to the database.
      *
-     * @param parameterIndex
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
      * @param value the parameter value
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -3535,7 +3014,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * <code>Reader</code> reads the data till end-of-file is reached. The
      * driver does the necessary conversion from Java character format to
      * the national character set in the database.
-     * @param parameterIndex
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
      * @param value the parameter value
      * @param length the number of characters in the parameter data.
      * @throws SQLException if the driver does not support national
@@ -3558,13 +3037,12 @@ value of the property to false.  The problem did not occur with the jar file.
     /**
      * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
      * SQL <code>NCLOB</code> value when it sends it to the database.
-     * @param parameterIndex
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
      * @param value the parameter value
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur ; or if a database access error occurs
      */
-/* ifdef JDBC40 */
      public void setNClob(int parameterIndex, NClob value) throws SQLException
      {
 
@@ -3579,14 +3057,13 @@ value of the property to false.  The problem did not occur with the jar file.
          }         
          setClob(parameterIndex, value);
      }
-/* endif */ 
-     
+
      //@PDA jdbc40
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
-     * @param parameterIndex
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
      * @throws SQLException if parameterIndex does not correspond to a parameter
@@ -3608,10 +3085,11 @@ value of the property to false.  The problem did not occur with the jar file.
 
      //@PDA jdbc40
     /**
-     * Sets the designated parameter to an <code>InputStream</code> object.  The inputStream must contain  the number
+     * Sets the designated parameter to a <code>InputStream</code> object.  The inputstream must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
-     * @param parameterIndex
+     * @param parameterIndex index of the first parameter is 1,
+     * the second is 2, ...
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
@@ -3638,7 +3116,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
-     * @param parameterIndex
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
      * @throws SQLException if parameterIndex does not correspond to a parameter
@@ -3664,22 +3142,15 @@ value of the property to false.  The problem did not occur with the jar file.
      //@PDA jdbc40
      /**
       * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. 
-      * @param parameterIndex
+      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
       * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
       * @throws SQLException if a database access error occurs
       */
-/* ifdef JDBC40 */
      public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
      {
          if(JDTrace.isTraceOn())
          {              
-             int len;  
-            
-             if(xmlObject == null)
-                 len = 0;
-             else 
-                 len = xmlObject.getString().length();  //no length() method yet in jdbc.
-                     
+             int len = xmlObject.getString().length();  //no length() method yet in jdbc.
              JDTrace.logInformation (this, "setSQLXML()");                  
              if(xmlObject == null)                                   
                  JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  
@@ -3688,27 +3159,9 @@ value of the property to false.  The problem did not occur with the jar file.
              else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + len); 
          }                                                                
 
-         //@xmlspec special handling of blob/clob column types
-         if(xmlObject == null)                                                      //@xmlspec3
-         {                                                                          //@xmlspec3
-             setValue (parameterIndex, xmlObject, null, -1);                        //@xmlspec3
-             return;                                                                //@xmlspec3
-         }                                                                          //@xmlspec3
-         SQLData sqlData = parameterRow_.getSQLType(parameterIndex);                //@xmlspec
-         int sqlDataType = sqlData.getType();                                       //@xmlspec
-         switch(sqlDataType) {                                                      //@xmlspec
-             case Types.CLOB:                                                       //@xmlspec
-                 setCharacterStream(parameterIndex, xmlObject.getCharacterStream());//@xmlspec
-                 break;                                                             //@xmlspec
-             case Types.BLOB:                                                       //@xmlspec
-                 setBinaryStream(parameterIndex,  xmlObject.getBinaryStream());     //@xmlspec
-                 break;                                                             //@xmlspec
-             default:                                                               //@xmlspec
-                 setValue (parameterIndex, xmlObject, null, -1);
-         }
+         setValue (parameterIndex, xmlObject, null, -1);
      }
-/* endif */ 
-    
+
 
     //@pda jdbc40
     protected String[] getValidWrappedList()
@@ -3731,7 +3184,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the Java input stream that contains the ASCII parameter value
      * @param length the number of bytes in the stream 
      * @exception SQLException if a database access error occurs or 
@@ -3755,7 +3208,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the java input stream which contains the binary parameter value
      * @param length the number of bytes in the stream 
      * @exception SQLException if a database access error occurs or 
@@ -3780,7 +3233,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param reader the <code>java.io.Reader</code> object that contains the 
      *        Unicode data
      * @param length the number of characters in the stream 
@@ -3846,10 +3299,8 @@ value of the property to false.  The problem did not occur with the jar file.
             parameterNames_ = new String[parameterCount_];
 
             // Cache all the parm names and numbers.
-            Statement s = null; //@scan1
-            ResultSet rs = null; //@scan1
-            try{
-            s = connection_.createStatement();
+
+            Statement s = connection_.createStatement();
             String catalogSeparator = "";                                                           //@74A Added a check for the naming used.  Need to use separator appropriate to naming.
             if (connection_.getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))  //@74A
                 catalogSeparator = ".";                                                             //@74A
@@ -3869,19 +3320,18 @@ value of the property to false.  The problem did not occur with the jar file.
                 }
                 else // using system naming
                 {
-                  // Retrieve the library list from the IBM i - Use ROI Retrieve Library List.
+                  // Retrieve the library list from the i5/OS - Use ROI Retrieve Library List.
                   ResultSet rs1 = JDUtilities.getLibraries(this, connection_, null, true);
                   Vector libListV = new Vector();
                   while(rs1.next()) {
                     libListV.addElement(rs1.getString(1));
                   }
-                  rs1.close(); //@SS
                   String[] libList = new String[libListV.size()];
                   libListV.toArray(libList);
 
                   // Get a result set that we can scroll forward/backward through.
                   Statement s1 = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                  rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
+                  ResultSet rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
                                   + catalogSeparator
                                   + "SYSPROCS WHERE ROUTINE_NAME='"
                                   + unquote(sqlStatement_.getProcedure())
@@ -3904,15 +3354,13 @@ value of the property to false.  The problem did not occur with the jar file.
                       }
                     }
                   }
-                  rs.close(); //@SS
-                  s1.close(); //@SS
                   if(!found)    // none of the libraries in our library list contain a stored procedure that we are looking for
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);
                 }
               }
             }
 
-            rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
+            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
                                           "' AND ROUTINE_NAME = '" + unquote(sqlStatement_.getProcedure()) + //@DELIMc
                                           "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
 
@@ -3921,7 +3369,6 @@ value of the property to false.  The problem did not occur with the jar file.
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL);
 
             String specificName = rs.getString(1);
-            rs.close(); //@SS
 
             rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2" + catalogSeparator + "SYSPARMS WHERE " + //@74A
                                 " SPECIFIC_NAME = '" + unquoteNoUppercase(specificName) + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); //@DELIMc
@@ -3939,14 +3386,7 @@ value of the property to false.  The problem did not occur with the jar file.
                 else if(!caseSensitive && colName.equalsIgnoreCase(parameterName))
                     returnParm = colInd;
             }
-            }finally //@scan1
-            {
-                if(rs != null) //@scan1
-                    rs.close(); //@SS
-                if(s != null)  //@scan1
-                    s.close();  //@SS
-            }
-            
+    
             // If the number of parm names didn't equal the number of parameters, throw
             // an exception (INTERNAL).
             if(count != parameterCount_) {
@@ -4007,22 +3447,27 @@ value of the property to false.  The problem did not occur with the jar file.
             SQLData sqlData = parameterRow_.getSQLType(parameterIndex);
             if(x != null)
             {
-                // If the data is a locator, then set its handle.
-                int sqlType = sqlData.getSQLType();  //@xml3
-                if(sqlType == SQLData.CLOB_LOCATOR ||
-                   sqlType == SQLData.BLOB_LOCATOR ||
-                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
-                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
+                try
                 {
-                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
-                    sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                    if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                    sqlData.set(x, null, -2);//new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE), null, -2); //@readerlen -2 flag to read all of reader bytes
+                    // If the data is a locator, then set its handle.
+                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                        sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
+                    {
+                        SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
+                        sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                        if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                        sqlData.set(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE), null, -1);
+                    }
+                    else
+                    {
+                        sqlData.set (JDUtilities.readerToString(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE)), null, -1);
+                    }
                 }
-                else
+                catch(UnsupportedEncodingException uee)
                 {
-                    sqlData.set(x, null, -2);//sqlData.set (JDUtilities.readerToString(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE)), null, -1); //@readerlen -2 flag to read all of reader bytes
+                    /* do nothing */
                 }
 
                 testDataTruncation (parameterIndex, sqlData);
@@ -4048,7 +3493,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the Java input stream that contains the ASCII parameter value
      * @exception SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if a database access error occurs or 
@@ -4078,7 +3523,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the java input stream which contains the binary parameter value
      * @exception SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if a database access error occurs or 
@@ -4105,7 +3550,8 @@ value of the property to false.  The problem did not occur with the jar file.
      * the driver may have to do extra work to determine whether the parameter
      * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      *
-     * @param parameterIndex
+     * @param parameterIndex index of the first parameter is 1,
+     * the second is 2, ...
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @throws SQLException if parameterIndex does not correspond to a parameter
@@ -4162,17 +3608,15 @@ value of the property to false.  The problem did not occur with the jar file.
             {
 
                 // If the data is a locator, then set its handle.
-                int sqlType = sqlData.getSQLType();  //@xml3
-                if(sqlType == SQLData.CLOB_LOCATOR ||
-                   sqlType == SQLData.BLOB_LOCATOR ||
-                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
-                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
+                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                    sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
                 {
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                    sqlData.set(reader, null, -2); //@readerlen -2 flag to read all of reader chars
+                    sqlData.set(reader, null, -1); // @J0M hacked this to use the scale parameter for the length
                 }
                 else
                 {
@@ -4207,7 +3651,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * it might be more efficient to use a version of 
      * <code>setCharacterStream</code> which takes a length parameter. 
      *
-     * @param parameterIndex
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param reader the <code>java.io.Reader</code> object that contains the 
      *        Unicode data
      * @exception SQLException if parameterIndex does not correspond to a parameter
@@ -4241,7 +3685,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * it might be more efficient to use a version of 
      * <code>setClob</code> which takes a length parameter.
      *
-     * @param parameterIndex
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @throws SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if a database access error occurs; this method is called on
@@ -4277,7 +3721,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * it might be more efficient to use a version of 
      * <code>setNCharacterStream</code> which takes a length parameter.
      *      
-     * @param parameterIndex
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
      * @param value the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if the driver does not support national
@@ -4310,7 +3754,7 @@ value of the property to false.  The problem did not occur with the jar file.
      * it might be more efficient to use a version of 
      * <code>setNClob</code> which takes a length parameter.
      *
-     * @param parameterIndex
+     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @throws SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; 

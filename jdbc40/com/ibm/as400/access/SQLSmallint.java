@@ -16,18 +16,13 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -35,34 +30,31 @@ import java.util.Calendar;
 final class SQLSmallint
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private int                 truncated_;
     private short               value_;
     private int                 scale_;                             // @A0A
     private BigDecimal          bigDecimalValue_ = null;            // @A0A
-    private int                 vrm_;                               //@trunc3
-    
 
-    SQLSmallint(int vrm) //@trunc3
+    SQLSmallint()
     {
-        this(0, vrm); //@trunc3
+        this(0);
     }
 
-    SQLSmallint(int scale, int vrm)                   // @A0A  //@trunc3
+    SQLSmallint(int scale)                     // @A0A
     {
         truncated_          = 0;
         value_              = 0;
         scale_              = scale;                                      // @A0A
         if(scale_ > 0)                                                   // @C0A
             bigDecimalValue_    = new BigDecimal(Short.toString(value_)); // @A0A
-        vrm_        = vrm;  //@trunc3
     }
 
     public Object clone()
     {
-        return new SQLSmallint(scale_, vrm_);  //@trunc
+        return new SQLSmallint(scale_);
     }
 
     //---------------------------------------------------------//
@@ -131,11 +123,6 @@ implements SQLData
                 if(( intValue > Short.MAX_VALUE ) || ( intValue < Short.MIN_VALUE ))
                 {
                     truncated_ = 6;
-                    //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                    if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                    {                                                                    //@trunc3
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                    }                                                                    //@trunc3
                 }
                 value_ = (short) intValue;                                                // @D9c
             }
@@ -157,11 +144,6 @@ implements SQLData
                     {
                         // @P1a
                         truncated_ = 6;                                                    // @P1a
-                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                        {                                                                    //@trunc3
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                        }                                                                    //@trunc3
                     }                                                                      // @P1a
                     value_ = (short) doubleValue;                                          // @P1a  
                 }                                                                         // @P1a
@@ -236,15 +218,8 @@ implements SQLData
 
     //@F1A JDBC 3.0
     public String getJavaClassName()
-    { 
-        /* smallints are Integers from jdbc 4.0 spec: 
-        Note � The JDBC 1.0 specification defined the Java object mapping for the
-        SMALLINT and TINYINT JDBC types to be Integer. The Java language did not
-        include the Byte and Short data types when the JDBC 1.0 specification was
-        finalized. The mapping of SMALLINT and TINYINT to Integer is maintained to
-        preserve backwards compatibility.*/  
-        //this corresponds to getObject() also
-        return "java.lang.Integer"; //@int
+    {
+        return "java.lang.Short";
     }
 
     public String getLiteralPrefix()
@@ -506,14 +481,13 @@ implements SQLData
         return null;
     }
     
-/* ifdef JDBC40 */
     //@pda jdbc40
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -523,7 +497,7 @@ implements SQLData
         else                                       
             return Short.toString(value_);         
     }
-/* ifdef JDBC40 */
+
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -533,13 +507,6 @@ implements SQLData
 
     //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

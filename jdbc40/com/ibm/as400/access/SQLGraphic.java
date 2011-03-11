@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,18 +20,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -40,7 +35,7 @@ import java.net.URL;
 final class SQLGraphic
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -48,21 +43,19 @@ implements SQLData
     private int                     truncated_;
     private String                  value_;
     private String                  originalValue_;
-    private int                     ccsid_; //@cca1
 
-    SQLGraphic(int maxLength, SQLConversionSettings settings, int ccsid)  //@cca1
+    SQLGraphic(int maxLength, SQLConversionSettings settings)
     {
         settings_       = settings;
         maxLength_      = maxLength;
         truncated_      = 0;
         value_          = "";
         originalValue_  = "";
-        ccsid_          = ccsid;  //@cca1
     }
 
     public Object clone()
     {
-        return new SQLGraphic(maxLength_, settings_, ccsid_); //@cca1
+        return new SQLGraphic(maxLength_, settings_);
     }
 
     //---------------------------------------------------------//
@@ -173,13 +166,11 @@ implements SQLData
             Clob clob = (Clob)object;
             value = clob.getSubString(1, (int)clob.length());
         }
-/* ifdef JDBC40 */
         else if(object instanceof SQLXML) //@PDA jdbc40 
         {    
             SQLXML xml = (SQLXML)object;
             value = xml.getString();
-        }   
-/* endif */ 
+        }     
 
         if(value == null)
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -227,10 +218,7 @@ implements SQLData
 
     public int getDisplaySize()
     {
-        if(ccsid_ == 65535)    //@bingra
-            return maxLength_; //@bingra
-        else
-            return maxLength_ / 2;
+        return maxLength_ / 2;
     }
 
     public String getJavaClassName()
@@ -295,8 +283,6 @@ implements SQLData
 
     public String getTypeName()
     {
-        if( ccsid_ == 13488 || ccsid_ == 1200)  //@cca1
-            return "NCHAR";  //@cca1 same as native
         return "GRAPHIC";
     }
 
@@ -462,11 +448,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLDate.stringToDate(getString(), settings_, calendar);
     }
 
@@ -580,11 +561,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLTime.stringToTime(getString(), settings_, calendar);
     }
 
@@ -592,11 +568,6 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
-        }
         return SQLTimestamp.stringToTimestamp(getString(), calendar);
     }
 
@@ -632,7 +603,6 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0;
@@ -642,8 +612,7 @@ implements SQLData
         String string = getNString();
         return new AS400JDBCNClob(string, string.length());
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -660,42 +629,34 @@ implements SQLData
         } 
     }
 
-/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
-        //
-        //truncated_ = 0;
-        //try
-        //{
-        //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
-        //}
-        //catch(NumberFormatException nfe)
-        //{
+        /*
+        truncated_ = 0;
+        try
+        {
+            return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
+        }
+        catch(NumberFormatException nfe)
+        {
             // this string contains non-hex characters
-        //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-        //    return null;
-        //}
-        
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
+        */
         //decided this is of no use
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
+    //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
     {
         //This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         truncated_ = 0;
         return new AS400JDBCSQLXML(getString().toCharArray());     
-    }
-/* endif */ 
-   
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
     }
 }
 

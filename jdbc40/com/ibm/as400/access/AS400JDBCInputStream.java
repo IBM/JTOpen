@@ -15,9 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.IOException;
-/* ifdef JDBC40 */
 import java.sql.DriverManager;
-/* endif */ 
 import java.sql.SQLException;
 
 
@@ -40,7 +38,7 @@ transaction.
 //
 class AS400JDBCInputStream extends InputStream
 {
-  static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   private boolean         closed_;
   private JDLobLocator    locator_;
@@ -245,7 +243,8 @@ exception is thrown.
     {
       throw new ExtendedIllegalArgumentException("start", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    if ((length < 0) || (start + length > data.length))//@pdc locator_.retrieveData(,len) does not fail if len is greater that available length
+
+    if ((length < 0) || (start + length > data.length) || (start + length > length_)) //@pdc jdbc40
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -284,8 +283,8 @@ exception is thrown.
     {
       if (JDTrace.isTraceOn())
       {
-        JDTrace.logInformation(this, "Error in read" + e.getMessage()); //@pdc
-        //@pdd e.printStackTrace(DriverManager.getLogStream());
+        JDTrace.logInformation(this, "Error in read");
+        e.printStackTrace(DriverManager.getLogStream());
         closed_ = true;                                   
       }
       throw new IOException(e.getMessage());             

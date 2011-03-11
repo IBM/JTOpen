@@ -16,18 +16,13 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 */
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -35,7 +30,7 @@ import java.util.Calendar;
 final class SQLDouble
 implements SQLData
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -115,8 +110,19 @@ implements SQLData
         else if(object instanceof Number)
         {
             // Set the value to the right type.
-            //@bigdectrunc change to follow native driver
-            value_ = ((Number) object).doubleValue();   
+            value_ = ((Number) object).doubleValue();
+
+            // Get the whole number portion of that value.
+            long value = (long) value_;                      // @D9a
+
+            // Get the original value as a long.  This is the
+            // largest precision we can test for for a truncation.
+            long truncTest = ((Number) object).longValue();  // @D9a
+
+            // If they are not equal, then we truncated significant
+            // data from the original value the user wanted us to insert.
+            if(truncTest != value)                          // @D9a
+                truncated_ = 1;                              // @D9a
         }
 
         else if(object instanceof Boolean)
@@ -386,10 +392,8 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(Double.isInfinite(value_))    //@tr3a
-            truncated_ = 0;              //@tr3a
-        else if(value_ > Float.MAX_VALUE || value_ < -Float.MAX_VALUE)  //@trunc min_val is a posative number. //Float.MIN_VALUE)  //@tr3c
-        {         
+        if(value_ > Float.MAX_VALUE || value_ < Float.MIN_VALUE)
+        {
             truncated_ = 4;
         }
         return(float) value_;
@@ -486,14 +490,12 @@ implements SQLData
     }
     
     //@pda jdbc40
-/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-/* endif */ 
-    
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -508,7 +510,6 @@ implements SQLData
             + stringRep.substring(decimal+1);
     }
 
-/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -518,14 +519,6 @@ implements SQLData
 
     //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-/* endif */ 
-    
-    // @array
-    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

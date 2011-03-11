@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,21 +17,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
-/* ifdef JDBC40 */
 import java.sql.ClientInfoStatus;
-/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-/* ifdef JDBC40 */
 import java.sql.NClob;
-/* endif */ 
 import java.sql.PreparedStatement;
-/* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
 import java.sql.SQLXML;
-/* endif */ 
 import java.sql.Savepoint;   
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -43,17 +37,18 @@ import java.util.Map;
 import java.util.Properties;
 
 
+
 class JDConnectionProxy
 extends AbstractProxyImpl
 implements Connection
 {
-  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
   // Private data.
  
   private JDDatabaseMetaDataProxy metaData_;
-  AS400 as400PublicClassObj_; // Prevents garbage collection.
+  private AS400 as400PublicClassObj_; // Prevents garbage collection.
 
 
     // Copied from JDError:
@@ -131,20 +126,18 @@ implements Connection
     }
   }
 
-
-  //@PDA 550
-  private Object callMethodRtnObj(String methodName, Class[] argClasses, Object[] argValues) throws SQLException
-  {
-      try
-      {
-          return connection_.callMethod(pxId_, methodName, argClasses, argValues).getReturnValue();
-      } catch (InvocationTargetException e)
-      {
-          throw rethrow1(e);
-      }
-  }
-
-
+    //@PDA jdbc40
+    private Object callMethodRtnObj(String methodName, Class[] argClasses, Object[] argValues) throws SQLException
+    {
+        try
+        {
+            return connection_.callMethod(pxId_, methodName, argClasses, argValues).getReturnValue();
+        } catch (InvocationTargetException e)
+        {
+            throw rethrow1(e);
+        }
+    }
+  
   public void clearWarnings ()
     throws SQLException
   {
@@ -238,41 +231,6 @@ implements Connection
   }
 
 
-  //@cc1
-  /**
-   * This method returns the concurrent access resolution setting.
-   * This method has no effect on IBM i V6R1 or earlier.
-   * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-   * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-   * Setting this property to default exhibits the default behavior on the servers  
-   * i.e., the semantic applied for read 
-   * transactions to avoid locks will be determined by the server.          
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-   * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-   * ultimately determined by server. 
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-   * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-   * if enabled, and the server will wait for the commit or rollback of data in the process of
-   * being updated.  
-   *   
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-   * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-   * 
-   * @return  The concurrent access resolution setting.    Possible return valuse:
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   */
-  public int getConcurrentAccessResolution ()  throws SQLException
-  {
-      return ((Integer)callMethodRtnObj ("getConcurrentAccessResolution")).intValue();
-  }
 
 // JDBC 3.0
     public int getHoldability ()
@@ -569,44 +527,6 @@ implements Connection
   }
 
 
-  //@cc1
-  /**
-   * This method sets concurrent access resolution.  This method overrides the setting of ConcurrentAccessResolution on the datasource or connection
-   * URL properties.  This changes the setting for this connection only.  This method has no effect on
-   * IBM i V6R1 or earlier.
-   * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-   * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-   * Setting this property to default exhibits the default behavior on the servers  
-   * i.e., the semantic applied for read 
-   * transactions to avoid locks will be determined by the server.          
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
-   * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-   * ultimately determined by server. 
-   *
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
-   * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
-   * if enabled, and the server will wait for the commit or rollback of data in the process of
-   * being updated.  
-   *   
-   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-   * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-   * 
-   *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
-   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   */
-  public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
-  {  
-      callMethod ("setConcurrentAccessResolution",
-              new Class[] { Integer.TYPE},
-              new Object[] { new Integer(concurrentAccessResolution)});
-  }
 
 // JDBC 3.0
     public void setHoldability (int holdability)
@@ -646,7 +566,7 @@ implements Connection
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
           synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogWriter ());
+            e.printStackTrace (DriverManager.getLogStream ());
           }
         }
         throw new SQLException (
@@ -657,7 +577,7 @@ implements Connection
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
           synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogWriter ());
+            e.printStackTrace (DriverManager.getLogStream ());
           }
         }
         throw new SQLException (
@@ -761,7 +681,7 @@ implements Connection
   //@pda jdbc40
   protected String[] getValidWrappedList()
   {
-      return new String[] {  "java.sql.Connection"  };
+      return new String[] {  "com.ibm.as400.access.AS400JDBCConnection", "java.sql.Connection"  };
   } 
   
 
@@ -820,7 +740,10 @@ implements Connection
    * generates a <code>SQLException</code>, the value specified was not set on the 
    * connection.
    * <p>
-   * The following client info properties are supported in Toobox for Java.  
+   * The following are standard client info properties.  Drivers are not 
+   * required to support these properties however if the driver supports a 
+   * client info property that can be described by one of the standard 
+   * properties, the standard property name should be used.
    * <p>
    * <ul>
    * <li>ApplicationName  -   The name of the application currently utilizing 
@@ -831,8 +754,6 @@ implements Connection
    *                          in establishing the connection.</li>
    * <li>ClientHostname   -   The hostname of the computer the application 
    *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
    * </ul>
    * <p>
    * @param name      The name of the client info property to set 
@@ -844,13 +765,7 @@ implements Connection
    *          setting the client info value on the database server.
    * <p>
    */
-  public void setClientInfo(String name, String value) 
-/* ifdef JDBC40 */
-    throws SQLClientInfoException
-/* endif */ 
-/* ifndef JDBC40 
-   throws SQLException 
- endif */ 
+  public void setClientInfo(String name, String value) throws SQLClientInfoException
     {
         try
         {
@@ -859,7 +774,6 @@ implements Connection
                     new Object[] { name, value });
         } catch (SQLException e)
         {
-/* ifdef JDBC40 */
             //may be SQLException or SQLClientInfoException
             if(e instanceof SQLClientInfoException)
                 throw (SQLClientInfoException)e;
@@ -872,14 +786,10 @@ implements Connection
                 SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
                 throw clientIE;
             }
-/* endif */ 
-/* ifndef JDBC40 
-	throw e;
- endif */ 
         }
     }
 
-  // @PDA 550 client info
+  // @PDA jdbc40
   /**
    * Sets the value of the connection's client info properties. The
    * <code>Properties</code> object contains the names and values of the
@@ -899,38 +809,18 @@ implements Connection
    * properties to be set atomically. For those databases, one or more
    * properties may have been set before the error occurred.
    * <p>
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
-   * <p>
+   * 
    * @param properties
    *            the list of client info properties to set
    *            <p>
-   * @throws SQLException
+   * @throws ClientInfoException
    *             if the database server returns an error while setting the
    *             clientInfo values on the database server
    *             <p>
    * @see java.sql.Connection#setClientInfo(String, String)
    *      setClientInfo(String, String)
    */
-  public void setClientInfo(Properties properties) 
-/* ifdef JDBC40 */
-  throws SQLClientInfoException
-/* endif */ 
-/* ifndef JDBC40 
-  throws SQLException
- endif */ 
+  public void setClientInfo(Properties properties) throws SQLClientInfoException
   {
       try
       {
@@ -939,7 +829,6 @@ implements Connection
                   new Object[] { properties });
       }catch(SQLException e)
       {
-/* ifdef JDBC40 */
           //may be SQLException or SQLClientInfoException
           if(e instanceof SQLClientInfoException)
               throw (SQLClientInfoException)e;
@@ -958,14 +847,10 @@ implements Connection
               SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
               throw clientIE;
           }
-/* endif */ 
-/* ifndef JDBC40 
-          	throw e; 
- endif */ 
       }
   }
 
-  //@PDA 550 client info
+  //@PDA jdbc40
   /**
    * Returns the value of the client info property specified by name.  This 
    * method may return null if the specified client info property has not 
@@ -975,21 +860,6 @@ implements Connection
    * <p>
    * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
    * method to determine the client info properties supported by the driver.
-   * <p>
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
    * <p>
    * @param name      The name of the client info property to retrieve
    * <p>
@@ -1007,27 +877,12 @@ implements Connection
               new Object[] { name });
   }
 
-  //@PDA 550 client info
+  //@PDA jdbc40
   /**
    * Returns a list containing the name and current value of each client info 
    * property supported by the driver.  The value of a client info property 
    * may be null if the property has not been set and does not have a 
    * default value.
-   * <p>
-   * The following client info properties are supported in Toobox for Java.  
-   * <p>
-   * <ul>
-   * <li>ApplicationName  -   The name of the application currently utilizing 
-   *                          the connection</li>
-   * <li>ClientUser       -   The name of the user that the application using 
-   *                          the connection is performing work for.  This may 
-   *                          not be the same as the user name that was used 
-   *                          in establishing the connection.</li>
-   * <li>ClientHostname   -   The hostname of the computer the application 
-   *                          using the connection is running on.</li>
-   * <li>ClientAccounting -   Client accounting information.</li>
-   * <li>ClientProgramID  -   The client program identification.</li>
-   * </ul>
    * <p>
    * @return  A <code>Properties</code> object that contains the name and current value of 
    *          each of the client info properties supported by the driver.  
@@ -1073,38 +928,36 @@ implements Connection
   }
 
   //@PDA jdbc40
-   /**
-    * Constructs an object that implements the <code>NClob</code> interface. The object
-    * returned initially contains no data.  The <code>setAsciiStream</code>,
-    * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
-    * be used to add data to the <code>NClob</code>.
-    * @return An object that implements the <code>NClob</code> interface
-    * @throws SQLException if an object that implements the
-    * <code>NClob</code> interface can not be constructed.
-    *
-    */
-/* ifdef JDBC40 */
+  /**
+   * Constructs an object that implements the <code>NClob</code> interface. The object
+   * returned initially contains no data.  The <code>setAsciiStream</code>,
+   * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+   * be used to add data to the <code>NClob</code>.
+   * @return An object that implements the <code>NClob</code> interface
+   * @throws SQLException if an object that implements the
+   * <code>NClob</code> interface can not be constructed.
+   *
+   */
   public NClob createNClob() throws SQLException
   {
       return (NClob) callMethodRtnObj("createNClob");
   }
-/* endif */ 
+
   //@PDA jdbc40
-   /**
-    * Constructs an object that implements the <code>SQLXML</code> interface. The object
-    * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
-    * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
-    * object.
-    * @return An object that implements the <code>SQLXML</code> interface
-    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
-    * be constructed
-    */
-/* ifdef JDBC40 */
+  /**
+   * Constructs an object that implements the <code>SQLXML</code> interface. The object
+   * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
+   * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+   * object.
+   * @return An object that implements the <code>SQLXML</code> interface
+   * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+   * be constructed
+   */
   public SQLXML createSQLXML() throws SQLException
   {
       return (SQLXML) callMethodRtnObj("createSQLXML");
   }
-/* endif */ 
+  
   //@PDA jdbc40
   /**
    * Factory method for creating Array objects.
@@ -1143,31 +996,4 @@ implements Connection
               new Class[] { String.class, Object[].class },
               new Object[] { typeName, attributes });
   }
-  
-  //@pd2 add missing proxy method.  This is needed for various testcases that use jobid.
-  /**
-  Returns the job identifier of the host server job corresponding to this connection.
-  Every JDBC connection is associated with a host server job on the IBM i system.  The
-  format is:
-  <ul>
-    <li>10 character job name
-    <li>10 character user name
-    <li>6 character job number
-  </ul>
-  
-  <p>Note: Since this method is not defined in the JDBC Connection interface,
-  you typically need to cast a Connection object to JDConnectionProxy in order
-  to call this method:
-  <blockquote><pre>
-  String serverJobIdentifier = ((JDConnectionProxy)connection).getServerJobIdentifier();
-  </pre></blockquote>
-  
-  @return The server job identifier, or null if not known.
-  **/
-  public String getServerJobIdentifier() throws SQLException          // @pd2
-  {                                                                   // @pd2
-      return (String) callMethodRtnObj("getServerJobIdentifier");     // @pd2
-  }                                                                   // @pd2
-
-  
 }

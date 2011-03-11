@@ -14,9 +14,7 @@
 package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
-/* ifdef JDBC40 */
 import java.sql.RowId;
-/* endif */ 
 
 //@PDA jdbc40 new class
 
@@ -27,12 +25,10 @@ transaction.
 **/
 class JDRowIdProxy
 extends AbstractProxyImpl
-/* ifdef JDBC40 */
 implements RowId
-/* endif */ 
-
 {
- 
+  private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
+  
   // Copied from JDError:
   private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
@@ -43,7 +39,7 @@ implements RowId
       return (byte[]) connection_.callMethod (pxId_, "getBytes").getReturnValue();
     }
     catch (InvocationTargetException e) {
-    
+      //throw JDConnectionProxy.rethrow1 (e);
         return null;  //interface does not throw SQLException as of current version
     }
   }
@@ -55,7 +51,7 @@ implements RowId
             return (String) connection_.callMethod (pxId_, "toString").getReturnValue();
           }
           catch (InvocationTargetException e) {
-             
+            //throw JDConnectionProxy.rethrow1 (e);
               return null;  //interface does not throw SQLException as of current version
           }
     }
@@ -68,7 +64,7 @@ implements RowId
                     new Object[] { obj }, false).getReturnValueBoolean();
           }
           catch (InvocationTargetException e) {
-             
+              //throw JDConnectionProxy.rethrow1 (e);
               return false;  //interface does not throw SQLException as of current version
           }
     }
@@ -79,7 +75,7 @@ implements RowId
             return connection_.callMethod(pxId_, "hashCode").getReturnValueInt();
           }
           catch (InvocationTargetException e) {
-               
+              //throw JDConnectionProxy.rethrow1 (e);
               return 0;  //interface does not throw SQLException as of current version
           }
     }
