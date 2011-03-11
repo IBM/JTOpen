@@ -1,0 +1,557 @@
+Manifest-Version: 1.0
+
+Name: com/ibm/as400/access/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.access
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/access/list/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.access.list
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/data/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.data
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/micro/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.micro
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/resource/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.resource
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/security/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.security
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/security/auth/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.security.auth
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.util
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/commtrace/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.util.commtrace
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/html/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.util.html
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/servlet/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.util.servlet
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: utilities/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 7.1.0.5
+Specification-Vendor: IBM Corporation
+Implementation-Title: utilities
+Implementation-Version: JTOpen 7.4
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/access/AFPResource.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AFPResourceList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400Array.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400CertificateUserProfileUtil.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400CertificateUtil.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400CertificateVldlUtil.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400ConnectionPool.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400File.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400FileRecordDescription.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400FTP.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400JDBCConnectionPool.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400JDBCConnectionPoolDataSource.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400JDBCDataSource.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400JDBCRowSet.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400JDBCXADataSource.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/AS400Structure.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/BaseDataQueue.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/CharacterDataArea.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/ClusteredHashTable.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/ClusteredHashTableEntry.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/Command.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/CommandCall.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/CommandList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/ConnectionPool.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/DataArea.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/DataQueueAttributes.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/DataQueue.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/DecimalDataArea.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/EnvironmentVariable.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/EnvironmentVariableList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/FTP.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/IFSFile.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/IFSFileInputStream.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/IFSFileOutputStream.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/IFSRandomAccessFile.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/IFSTextFileInputStream.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/IFSTextFileOutputStream.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/JavaApplicationCall.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/Job.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/JobList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/JobLog.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/KeyedDataQueue.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/KeyedFile.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/LocalDataArea.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/LogicalDataArea.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/MessageFile.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/MessageQueue.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/NetServer.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/NetServerFileShare.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/NetServerPrintShare.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/OutputQueue.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/OutputQueueList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/PanelGroup.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/Printer.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/PrinterFile.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/PrinterFileList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/PrinterList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/PrintObject.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/PrintObjectList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/ProductLicense.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/ProgramCall.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/ProgramParameter.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/QSYSObjectPathName.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/Record.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/RecordFormat.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SecureAS400.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SequentialFile.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/ServiceProgramCall.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SpooledFileList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SystemPool.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SystemStatus.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SystemValue.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SystemValueGroup.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/SystemValueList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/User.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/UserList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/UserSpace.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/WriterJobList.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/Resource.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/ResourceList.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RIFSFile.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RIFSFileList.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RJavaProgram.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RJob.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RJobList.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RJobLog.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RMessageQueue.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RPrinter.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RPrinterList.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RSoftwareResource.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RUser.class
+Java-Bean: True
+
+Name: com/ibm/as400/resource/RUserList.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/BidiOrdering.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ButtonFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/CheckboxFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/FileFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/FileListElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/FileTreeElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/FormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/GridLayoutFormPanel.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HiddenFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLAlign.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLApplet.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLForm.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLHead.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLHeading.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLHyperlink.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLImage.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLList.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLListItem.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLMeta.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLParameter.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLServlet.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTable.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableCaption.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableCell.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableHeader.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableRow.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTagAttributes.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLText.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTree.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTreeElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ImageFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/LabelFormElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/LineLayoutFormPanel.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/OrderedList.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/OrderedListItem.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/PasswordFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/RadioFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/RadioFormInputGroup.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ResetFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/SelectFormElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/SelectOption.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/SubmitFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/TextAreaFormElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/TextFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ToggleFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/UnorderedList.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/UnorderedListItem.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ListMetaData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ListRowData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/RecordFormatMetaData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/RecordListRowData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ResourceListRowData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ServletHyperlink.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/SQLResultSetMetaData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/SQLResultSetRowData.class
+Java-Bean: True
+
+Name: com/ibm/as400/security/auth/AS400Credential.class
+Java-Bean: True
+
+Name: com/ibm/as400/security/auth/AS400Principal.class
+Java-Bean: True
+
+Name: com/ibm/as400/security/auth/ProfileHandleCredential.class
+Java-Bean: True
+
+Name: com/ibm/as400/security/auth/ProfileTokenCredential.class
+Java-Bean: True
+
+Name: com/ibm/as400/security/auth/UserProfilePrincipal.class
+Java-Bean: True
+

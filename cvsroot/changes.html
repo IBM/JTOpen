@@ -1,0 +1,1377 @@
+<HTML>
+<HEAD>
+<TITLE>JTOpen CHANGES</TITLE>
+</HEAD>
+<BODY>
+<H2>IBM Toolbox for Java - JTOpen version</H2>
+<PRE>
+Copyright (C) 1997-2011 International Business Machines Corporation and
+others. All rights reserved.
+
+File: CHANGES
+Last updated: February 23, 2011
+The term "JTOpen" refers to the open source software product
+"IBM Toolbox for Java" plus any additional enhancements provided by
+the open source community. JTOpen, which is supported by IBM and
+governed by the IBM Public License, as well as its Java source code,
+is contained in the open source repository located off of:
+<A HREF="http://sourceforge.net/projects/jt400">http://sourceforge.net/projects/jt400</A>.
+
+The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
+"IBM Toolbox for Java" which is supported by IBM and can be obtained from the
+IBM Toolbox for Java web site:
+<A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
+</PRE>
+<!-- On 2011-01-11: cvs log -rJTOpen_7_2:JTOpen_7_3 -N -d>2010-11-30 -->
+<!-- On 2010-11-22: cvs log -rJTOpen_7_1:JTOpen_7_2 -N -d>2010-08-25 -->
+<!-- On 2010-08-25: cvs log -rJTOpen_7_0:JTOpen_7_1 -N -d>2010-05-12 -->
+<!-- On 2010-05-12: cvs log -rJTOpen_6_7:JTOpen_7_0 -N -d>2010-01-27 -->
+<!-- On 2010-01-19: cvs log -rJTOpen_6_6:JTOpen_6_7 -N -d>2009-08-27 -->
+<!-- On 2009-08-25: cvs log -rJTOpen_6_5_1:JTOpen_6_6 -N -d>2009-05-05 -->
+<!-- On 2009-05-05: cvs log -rJTOpen_6_4:JTOpen_6_5 -N -d>2008-12-08 -->
+<!-- On 2008-12-08: cvs log -rJTOpen_6_3:JTOpen_6_4 -N -d>2008-08-13 -->
+<!-- On 2008-08-13: cvs log -rJTOpen_6_2:JTOpen_6_3 -N -d>2008-04-25 -->
+<!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d>2007-12-14 -->
+
+<H4>Known deficiencies</H4>
+<PRE>
+Several Toolbox methods have parameters or return values that are of type Date,
+Calendar, or GregorianCalendar. Some of these methods assume that the client
+Java application is running in the same time zone as the IBM i server.
+This behavior is long-standing, and will be corrected in a future Toolbox release.
+
+The constructor for the RFML component's primary class (RecordFormatDocument)
+fails on Sun's 1.4.2 JVM and on IBM's "Classic" i5/OS 1.4.2 JVM,
+with the following error:
+    org.xml.sax.SAXNotRecognizedException
+    Feature: http://apache.org/xml/features/continue-after-fatal-error
+
+Several classes in deprecated package com.ibm.as400.vaccess are known to
+fail to serialize when running in Java 6 JVMs.  These classes include:
+    AS400DetailsPane
+    AS400ExplorerPane
+    AS400ListPane
+    VActionAdapter
+</PRE>
+
+
+<HR>
+<H3>Contents</H3>
+<A HREF="#73">Fixes and enhancements in JTOpen 7.3</A><BR>
+<A HREF="#72">Fixes and enhancements in JTOpen 7.2</A><BR>
+<A HREF="#71">Fixes and enhancements in JTOpen 7.1</A><BR>
+<A HREF="#70">Fixes and enhancements in JTOpen 7.0</A><BR>
+<A HREF="#67">Fixes and enhancements in JTOpen 6.7</A><BR>
+<A HREF="#66">Fixes and enhancements in JTOpen 6.6</A><BR>
+<A HREF="#65_1">Fixes and enhancements in JTOpen 6.5.1</A><BR>
+<A HREF="#65">Fixes and enhancements in JTOpen 6.5</A><BR>
+<A HREF="#64">Fixes and enhancements in JTOpen 6.4</A><BR>
+<A HREF="#63">Fixes and enhancements in JTOpen 6.3</A><BR>
+<A HREF="#62">Fixes and enhancements in JTOpen 6.2</A><BR>
+<A HREF="#61">Fixes and enhancements in JTOpen 6.1</A><BR>
+<A HREF="#60">Fixes and enhancements in JTOpen 6.0</A><BR>
+<A HREF="#54">Fixes and enhancements in JTOpen 5.4</A><BR>
+<A HREF="#53">Fixes and enhancements in JTOpen 5.3</A><BR>
+<A HREF="#52">Fixes and enhancements in JTOpen 5.2</A><BR>
+<A HREF="#51_1">Fixes and enhancements in JTOpen 5.1.1</A><BR>
+<A HREF="#51">Fixes and enhancements in JTOpen 5.1</A><BR>
+<A HREF="#50">Fixes and enhancements in JTOpen 5.0</A><BR>
+<A HREF="#49">Fixes and enhancements in JTOpen 4.9</A><BR>
+<A HREF="#48">Fixes and enhancements in JTOpen 4.8</A><BR>
+<A HREF="#47">Fixes and enhancements in JTOpen 4.7</A><BR>
+<A HREF="#46">Fixes and enhancements in JTOpen 4.6</A><BR>
+<A HREF="#45_1">Fixes and enhancements in JTOpen 4.5.1</A><BR>
+<A HREF="#45">Fixes and enhancements in JTOpen 4.5</A><BR>
+<A HREF="#44">Fixes and enhancements in JTOpen 4.4</A><BR>
+<A HREF="#43_1">Fixes and enhancements in JTOpen 4.3.1</A><BR>
+<A HREF="#43">Fixes and enhancements in JTOpen 4.3</A><BR>
+<A HREF="#42">Fixes and enhancements in JTOpen 4.2</A><BR>
+<A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
+<A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
+<P>
+
+<HR>
+<H3><A NAME="73">Fixes and enhancements in JTOpen 7.3</A> <i>(released 2011-02-23)</i></H3>
+<PRE>
+
+- <i>Various:</i> Code Cleanup 
+- <i>Various:</i>  Trace enhancements 
+- IFSFile : Clarified that IFSFile.getFreeSpace() returns Long.MAX_VALUE if storage limit is 'no maximum'. 
+- QSYSObjectPathName :  Fixed bug: IASP is forgotten by setLibraryName(), setMemberName(), setObjectName(), setObjectType(). 
+- JDBC:  Clarify Javadoc for setBinaryStream. 
+- JDBC:  Delay reading of Binary Stream until Execute 
+- JDBC:  Fix Statement.setQueryTimeout(0) for first set 
+- JDBC:  Fix leaking DBStorage objects 
+- JDBC:  For autogenerated keys use NEW TABLE instead of FINAL TABLE 
+
+</PRE>
+<HR>
+<H3><A NAME="72">Fixes and enhancements in JTOpen 7.2</A> <i>(released 2010-11-30)</i></H3>
+<PRE>
+
+- <i>Various:</i> Javadoc enhancements.  Improved code comments.
+- <i>Various:</i> Improved error tracing and trace messages. 
+- <i>Various:</i> Code cleanup.
+- <i>Various:</i> Fix Vetoable for JDK 1.6
+- <i>Various:</i> Fixed bug when requested list is very large.  Corrected semantics of 'listOffset' parameter in listXXX() methods of classes HistoryList, JobList, JobLog, MessageQueue, ObjectList, and UserList. Consolidated common code into ListUtilities. 
+
+- AS400:  Password Cache Fixes 
+- AS400:  In getCcsid(), make an effort to arrive at a CCSID value other than 0 or 65535.
+- AS400: Added method getTimeZone(), and deprecated getSystemTimeZone(). 
+- AS400File: In AS400FileRecordDescription.addFieldDescription(), set additional keyword values: ALIAS, REFFIL, REFFLD, REFFMT, REFLIB, COLHDG. 
+- AS400File:  Added missing code, to obtain value for CURRENT_NUMBER_OF_RECORDS.
+- AS400File: When creating physical file via CRTPF, default MBR() to *FILE rather than *FIRST.
+- AS400File: Added methods to get/set REFFIL, REFLIB, and REFFMT. 
+- CommandLine: Added new method: CommandLineArgument.isOptionSpecified().
+- CommandLine: Exploit class 'CommandLineArguments' to parse the command-line invocation options.
+- Connection: If NoRouteToHostException in getSocketConnection(), retry to 'ipv6-localhost'. 
+- ConnectionPool: Added method AS400ConnectionPool.removeFromPool(AS400). (jlee-oss)
+- ConnectionPool: Added property: enforceMaxPoolSize. (jlee-oss)
+- Data: DAMRI: Added DATA_LENGTH_OUT_OF_RANGE. Enhanced other messages. 
+- Datatypes:  Fixed bug in AS400UnsignedBin8.toBytes(Object,byte[],int).
+- Datatypes:  Added constant: AS400DataType.TYPE_TIME. Deprecated constant: AS400DataType.TYPE_TIME_OF_DAY. 
+- Datatypes: Added methods to AS400Timestamp: toDate() and toTimestamp(). Added internal support for \*DTS format. (jlee-oss)
+- Datatypes: Exploit the AS400Timestamp class's new \*DTS support, when parsing \*DTS fields. 
+- Datatypes: Throw IllegalArgumentException if bad format specified on constructor for Date or Time.
+- Data conversion: Added constructors and methods to support new type converters (AS400Bin1, AS400UnsignedBin1, AS400UnsignedBin8). 
+- Data conversion: Adding mappings for additional regions.
+- JavaApplication: Trace a suggestion to check for firewalls, if error in JavaApplicationCall.run(). 
+- JavaProgram: Check for IBM i VRM higher than 7.1.   
+- JDBC: Use SoftReferences to avoid out of memory exception. 
+- JDBC: Clarify javadoc:  Only six characters of the SQL package name are used. 
+- JDBC: Update javadoc for maximum blocked input rows.
+- JDBC: Fix autogenerated key interfaces for AS400JDBCConnectionHandle.
+- JDBC: Scope Locators to cursor for *NONE isolation
+- IFS: Restored original behavior of IFSFile.exists(): Return false if profile is denied access. 
+- Pcml: Enhancements to support exploitation by PCML.
+- Pcml: Added support for new data types.
+- RemoteCommand: When forcing a disconnect because of an error, swallow any exceptions incurred during the attempt to disconnect. 
+- RemoteCommand: Disregard override CCSID value of 65535.
+- SpooolFile: Fixed bug in SpooledFileList.getStartTimeFilter().
+- System: Added property: SystemProperties.throwSAXExceptionIfParseError.
+- UDFS: Added methods to set and query the UDFS 'preferred storage unit' attribute. 
+- UDFS:  Corrected typographical code bug. 
+- User: If invalid profile name specified on constructor, trace a warning but don't throw exception.
+
+
+</PRE>
+
+
+
+<HR>
+<H3><A NAME="71">Fixes and enhancements in JTOpen 7.1</A> <i>(released 2010-08-27)</i></H3>
+<PRE>
+- <i>Various:</i> Added or improved error messages and trace messages.
+- <i>Various:</i> Javadoc enhancements.  Improved code comments.
+- <i>Various:</i> Code cleanup.
+- <i>Various:</i> Removed unused variables.
+- Connection pool: Added support for connection pool pretesting.
+- Connection pool: If the returned connection didn't originate in this pool, disconnect it.
+- Connection pool: Remove connection from list before disconnecting services.
+- Connection: AS400ThreadedServer: Trace use of thread.interrupt.
+- Connection: AS400: Added method getSystemTimeZone().
+- Connection: Added new property: fallbackCCSID. (Contributed by Tim Hurman.)
+- Connection: Cleanup native method loading.
+- Data conversion: AS400BidiTransform: Eliminated method convertDataToHostCCSID().
+- Data conversion: Added data converters for IBM i data types: date, time, timestamp, signed bin1, unsigned bin1, unsigned bin8.
+- Data conversion: Bidi: When deciding ST5 versus ST10, consider user profile CCSID and whether system is V5R1.
+- FTP: FTPThread: Put the wait() into a loop.
+- IFS: FileAttributes: Deprecated misspelled method getJounalingStartTime(); replaced it with getJournalingStartTime().
+- JDBC: AS400JDBCSQLXML: Fixed "unsigned byte" problem.
+- JDBC: AS400JDBCStatement: Correct interrupted thread statement leak.
+- JDBC: Correct setting of JDBC cursor hold properties.
+- JDBC: AS400JDBCResultSetMetaData: Fix isAutoIncrement() when extended metadata is off.
+- JDBC: AS400JDBCStatement: Fix execute() to return syntax error from database engine.
+- JDBC: Fix XML type info for pre JDBC 4.0.
+- JDBC: Fix buffer pooling.
+- JDBC: Fix missing method exception in JDError.
+- JDBC: Handle comma as decimal float separator.
+- Message: AS400Message.getText() and .load(): If returned text is blank, but substitution data is non-blank, copy substitution data to text.
+- Permission: PermissionAccess: Don't uppercase file name for /QOpenSys file system.
+- Ping: AS400JPing: Added pingAllServices(). Call Thread.interrupt() instead of Thread.stop(). Trace socket properties when pinging DDM server.
+- Print: Fixed bug uppercasing special character '@'.
+- Product license: Added trace statements.
+- RLA: Added constants to class DDMTerm.
+- RLA: Added trace message when parsing DDM reply data stream.
+- Save file: SaveFileEntry: Added hashCode() method.
+- Trace: Correct NPE when changing tracing.
+- User space: Added new UserSpace native methods.
+</PRE>
+
+<HR>
+<H3><A NAME="70">Fixes and enhancements in JTOpen 7.0</A> <i>(released 2010-05-14)</i></H3>
+<PRE>
+- <i>Various:</i> Added or improved error messages and trace messages.
+- <i>Various:</i> Javadoc enhancements.  Improved code comments.
+- Data conversion: Refined the default behaviors for Bidi conversion.
+- Connection pool: Improved tracing of connection pool management events.
+- Connection: Added PASE-specific native methods with unique names, to eliminate socket errors due to PASE/ILE ambiguity.
+- Connection: Catch AccessControlException during static initialization of AS400Credential.
+- Connection: Eliminated limitation on getJobs() method, regarding the RECORDACCESS service.
+- Connection: Enabled AS400.generateToken() methods to work with proxy server.
+- Connection: Improved tracing of authentication scheme.
+- Data area: Enabled/fixed read(byte[]) methods when running in proxy mode.
+- Data conversion: Added BIDI_STRING_TYPE_NONE (-1) as a value for JDBC property 'bidi string type'.
+- Data conversion: Changed default Bidi string type from 'Implicit LTR' to 'Implicit Contextual LTR'.
+- Data conversion: Eliminated method AS400BidiTransform.convertDataToHostCCSID().
+- Data conversion: Eliminated unused internal method in AS400DecFloat.
+- Data conversion: Fixed NullPointerException in AS400BidiTransform.convertDataFromHostCCSID().
+- Data conversion: If host CCSID is 13488 or 1200, default to a Bidi 'string type' of 5.
+- Data conversion: If throw NumberFormatException (for packed or zoned decimal), trace field bytes.
+- Data conversion: Modified CharConverter(ccsid,system) to tolerate null-valued 'system' argument.
+- Data conversion: Refined determination of default 'string type': Consider whether the system's default CCSID is a Bidi CCSID.
+- Data conversion: Reset value of BidiStringType.DEFAULT to original value of 0 (which now maps to ST5).
+- Date conversion: Don't trace stack-trace of NullPointerException from TimeZone.getTimeZone().
+- IFS: Fix bug in IFSFileEnumeration.nextElement(), observed in /QNTC.
+- IFS: Fixed several proxy methods to call correct rethrowX() method.
+- JDBC: Added "use block update" connection property.
+- JDBC: Added 'maximum blocked input rows' connection property.
+- JDBC: Allow DatabaseMetaData.getFunctions() call to V5R4.
+- JDBC: Buffer synchronization fixes.
+- JDBC: Code cleanup.
+- JDBC: Correct JDUtilities.streamToBytes().
+- JDBC: Correct syntax error for Insert statement.
+- JDBC: Fix to not return array out of bounds exception when bad char data is converted.
+- JDBC: Fix update counts for batched insert statements.
+- JDBC: JDBC40 single source restructure.
+- JDBC: Minimize buffer usage for blocked insert.
+- Job: Fixed bug: Job.loadInformation() doesn't clear cached 'job status' value.
+- NetServer: Tolerate blanks values returned for 'encrypted password' and 'logon type'.
+- NetServer: Updated with new API fields that were added in V6R1.
+- Proxy: Changed an 'error' trace message to 'diagnostic'.
+- Proxy: Made CredentialVault and its subclasses Serializable, to fix ProxyServer problem introduced in JTOpen 6.7.
+- RLA: Commented-out unused methods in DDMRequestDataStream.
+- RLA: Performance improvement in KeyedFile.readNextEqual() and readPreviousEqual().
+- Spooled file: Removed non-public attributes from javadoc for SpooledFile.sendTCP() method.
+- Trace: If we created our PrintWriter internally (based on a file), close it when replacing it.
+- Trace: Incorporate systemName/jobName in receiver thread names, for more useful traces.
+- User: Added new method: User.refresh().
+- User: Check for (and reject) user profile name '*NONE'.
+</PRE>
+
+<HR>
+<H3><A NAME="67">Fixes and enhancements in JTOpen 6.7</A> <i>(released 2010-02-05)</i></H3>
+<PRE>
+- <i>Various:</i> Added and improved error messages and trace messages.
+- <i>Various:</i> Corrected html tags.
+- <i>Various:</i> Fixes for potential bugs identified by static analysis.
+- <i>Various:</i> Javadoc enhancements.  Improved code comments.
+- Admin: Declared class SystemProperties as 'public', to allow access from test drivers and other Toolbox packages.
+- Connection pool: Added trace message to indicate maintenance daemon ending.
+- Connection pool: In ConnectionPool and AS400ConnectionPool, added new methods setCCSID() and getCCSID().
+- Connection pool: Improved tracing of pool management events.
+- Connection: Added method getUserId(forceRefresh) to AS400.
+- Connection: Added new method: AS400.connectToPort().
+- Connection: Ensure that failure during attempt to connect, doesn't leave connection in inconsistent state.
+- Connection: In AS400 class, improved tracing of authentication scheme.
+- Connection: In AS400 class, loosen definition of 'numeric profile name' when implicitly prepending 'Q' to profile name.
+- Connection: In AS400ThreadedServer, if SocketException during disconnect(), trace a 'diagnostic' instead of an 'error'.
+- Data conversion: In CharConverter, added checks for null-valued arguments.
+- Data conversion: Added more complete Bidi support.
+- Date conversion: If unable to determine server time zone, assume same as client.
+- IFS: Added new constructor IFSFile(IFSFile directory,String filename).
+- IFS: In IFSFileDescriptor, changed lock object from a Boolean to an Object.
+- JDBC: Added more complete Bidi support.
+- JDBC: Change XML trim of declaration to match Native driver.
+- JDBC: Fix Array max size of element data.
+- JDBC: Fix SQL array and non-array types in same output parm procedure.
+- JDBC: Fix SQL array of decimals to handle null elements.
+- JDBC: Fix XML DOM source for non-locators.
+- JDBC: Fix XML declaration trim when using SQLXML interface.
+- JDBC: Fix XML offset of stream.
+- JDBC: Fix XML UTF-8 chars of more than 1 byte in length.
+- JDBC: Fix bugs in SQL arrays when elements are null or length of zero.
+- JDBC: Fix for array of dates.
+- JDBC: Fix setting the binary stream once and re-executing SQL statement.
+- JDBC: Fix update of XML in result set.
+- JDBC: In AS400JDBCArrayResultSet, fix for missing variable.
+- JDBC: In AS400JDBCResultSet, fix XML update after update to null value.
+- JDBC: Make JDSQLTokenizer eligible for garbage collection after use.
+- JDBC: Updated 'database name' property description.
+- JDBC: XML ascii stream fix.
+- JDBC: XML declaration fix.
+- JDBC: Zero out varchars of length less than 256 for RLE compression.
+- NetServer: Corrected commitChanges(fileShare) to not assume that the share pathname is specified in Unicode.
+- Object description: In ObjectDescription, added new constructor. Consolidated data members.
+- PCML: Eliminated StringIndexOutOfBoundsException in PcmlMessageLog.
+- Permission: Added a clone() method to UserPermission.
+- Permission: Correctly handle embedded quotes in paths.
+- Permission: Eliminated 'Cloneable' designation on Permission class.
+- Product license: Added a readObj() method to ProductLicense.
+- Product: Product.isInstalled(): If product isn't installed, avoid logging CPF0C1F.
+- QSYS object types: Protect internal representation by returning copy of array.
+- QSYSObjectPathName: Added new method: toQualifiedObjectName().
+- Save file: Added equals() and toString() methods to SaveFileEntry.
+- Trace: Added method toHexString(byte) to Trace.
+- Trace: Added support for dynamic tracing.
+</PRE>
+
+<HR>
+<H3><A NAME="66">Fixes and enhancements in JTOpen 6.6</A> <i>(released 2009-09-11)</i></H3>
+<PRE>
+- <i>Various:</i> Eliminated trace calls that were redundant with thrown exceptions.
+- <i>Various:</i> Improved construction of InternalErrorExceptions.
+- <i>Various:</i> For threadsafe API's and CL's, perform internal calls on-thread when allowed by properties.
+- <i>Various:</i> Javadoc enhancements.
+- Beans: Corrected EventSetDescriptor argument, to eliminate ExceptionInInitializerError on some JVMs.
+- Build: Include JarMaker classes in jt400Native.jar
+- Command call, Program call: Restore cross-version serializability between old/new releases of JTOpen.
+- Command call: Refined processing of threadSafe property.
+- Connection: Added system property: AS400.guiAvailable.
+- Connection: Don't print stack trace if class NativeVersion not found.
+- Connection: In setGSS* methods, clear any prior signon info.
+- Connection: New infrastructure to support use of auto-renewing Profile Tokens.
+- Connection: Normalized trace calls. Eliminated trace calls that were redundant with thrown exceptions.
+- Connection: Re-enable Toolbox native PASE code.
+- Data conversion: (AS400Structure) Made defaultValue_ non-static. Synchronized access to elements_ and defaultValue_. Throw ExtendedIllegalArgumentException instead of ArrayIndexOutOfBoundsException.
+- Date conversion: Made 'public' the DateTimeConverter.timeZoneForSystem() method.
+- IFS: Added IFSFile methods: getParentFile(), getPathPointedTo(), and isSourcePhysicalFile().
+- IFS: For default IFSFile objects, changed getParent() to return null instead of "/".  Side effect: For default VIFSFile and VIFSDirectory objects, getParentDirectory() will now return null instead of "/".
+- IFS: Renamed some internal methods for better maintainability.
+- IFS: Support new File methods introduced in Java 6.0.
+- JDBC: Add stronger date, time, and timestamp validation.
+- JDBC: Add wrapper methods around set/update Default to match JCC's new names.
+- JDBC: Allow JDBC connection properties to propagate to Native JDBC driver.
+- JDBC: Change lob locator block size to 1MB for Stream input.
+- JDBC: Corrected an empty-string comparison in initializeAS400().
+- JDBC: Fix AS400JDBCResultSet.updateSQLXML to handle null values.
+- JDBC: Fix JDBC 4.0 XML internal encoding check.
+- JDBC: Fix SQL Array output parm index.
+- JDBC: Fix for XML with no declaration to default to UTF-8.
+- JDBC: Fix for setting an SQLXML object into a Blob/Clob column.
+- JDBC: Fix in CallableStatement.getArray method to support SQL Arrays.
+- JDBC: Fix metadata statement leak.
+- JDBC: Fix to SQL Array output parm filtering.
+- JDBC: Fix to XML zero length stream.
+- JDBC: Fix to double-byte clob when reader/stream length is not specified.
+- JDBC: Fix to multi-row merge.
+- JDBC: Fix update and set SQLXML for null data.
+- JDBC: Fix updateSQLXML for null data.
+- JDBC: Handle JDBC readers and input streams with length not specified.
+- JDBC: Multi-row update support.
+- JDBC: New XML message.
+- JDBC: New functionality for XML and Array support.
+- JDBC: Port of new XML code to JDBC 3.0.
+- JDBC: Remove incorrect catch block.
+- JDBC: Remove some references to old versions and rename IBM i.
+- JDBC: Separate login timeout property from socket time out.
+- JDBC: Trim XML encoding when PS.setString() is used.
+- JDBC: XML binary stream fix to not trim off XML declaration.
+- JDBC: XML double-byte/single-byte when CCSID does not match conversion bug fix.
+- JDBC: XML fix to account for byte order mark in UTF-15be string.
+- JarMaker: Added component: PCML. Rearranged constants for better readability. Renamed some private constants.
+- Object description: Improved performance of refresh(). Exploit QUSROBJD format OBJD0100.
+- Permission: Added new Permission constructor with 'followLinks' parameter. Added isFollowSymbolicLinks().
+- Permission: Improved messages in some thrown exceptions.
+- Product: Eliminated 'NullPointerException: featureID' along certain paths.
+- Program call: (ServiceProgramCall) Added check for more than 7 parameters.
+- Program call: Added new method: suggestThreadSafe().
+- Program call: Added new streamlined runProgram() method.
+- Program call: Added static utility method getDefaultThreadSafety().
+- QSYS object types: Added new type: SQLXSR.
+- RFML: Added clarifying comment.
+- Security: Added checks for null keyRingName.
+- Trace: Added new variation of printByteArray().
+- Trace: Tolerate null arguments in log() methods.
+- User space: Call UserSpace API's on-thread by default.
+- User space: Respect setting of 'mustUseSockets' property when calling programs internally.
+- User: Changed User.exists() method to call CHKOBJ instead of QSYRUSRI.
+</PRE>
+
+<HR>
+<H3><A NAME="65_1">Fixes and enhancements in JTOpen 6.5.1</A> <i>(released 2009-05-20)</i></H3>
+<PRE>
+- Connection: Re-enable default on-thread execution of ProfileToken calls. (Added 2009-06-05)
+- Data area:  Fixed breakage in JTOpen 6.5: NoClassDefFoundError on Sun JVM's.
+- Print:      Fixed breakage in JTOpen 6.5: NoClassDefFoundError on Sun JVM's.
+- User space: Fixed breakage in JTOpen 6.5: NoClassDefFoundError on Sun JVM's.
+</PRE>
+
+<HR>
+<H3><A NAME="65">Fixes and enhancements in JTOpen 6.5</A> <i>(released 2009-05-08)</i></H3>
+<PRE>
+- INCOMPATIBLE CHANGE:
+  The getJob() method is eliminated from classes CommandCall and ProgramCall.
+  Applications that reference this method will no longer compile or execute.
+  Use method getServerJob() instead.
+
+- BEHAVIOR CHANGE:
+  Formerly, when running natively on IBM i, by default the Toolbox looked-up
+  the designated thread-safety of CL commands, and called thread-safe CL's
+  on-thread to optimize performance.
+  Similarly, when running natively on IBM i, by default the Toolbox called
+  certain IBM i API's "on-thread" (in the job of the JVM) if the API's were
+  known to be thread-safe.
+  This introduced problems where successive CL's and programs would be called
+  in 2 different jobs (on-thread versus off-thread).
+  The new default is to simply call all CL's and programs via the Remote
+  Command Host Server.
+  To restore the previous CommandCall behavior, set Java system property:
+  com.ibm.as400.access.CommandCall.threadSafe=lookup
+  To instruct the Toolbox to call all programs on-thread, set the property:
+  com.ibm.as400.access.ProgramCall.threadSafe=true
+  However, setting threadSafe=true is not advised unless your application
+  is known to call only thread-safe programs.
+
+- <i>Various:</i> Changes to support modified default command thread-safety behavior.
+- <i>Various:</i> Javadoc updates.
+- <i>Various:</i> Renamed private constant names and variables for better readability.
+- <i>Various:</i> Enhancements suggested by static analysis:
+                  - Added hashCode() methods.
+                  - Eliminated redundant String.toString() calls.
+                  - Eliminated unnecessary null-checks.
+                  - Eliminated unused variables.
+                  - Improved synchronization.
+                  - Ensure that opened streams get closed.
+                  - Streamlined try/catch logic.
+                  - Trace all caught exceptions.
+- Build: Added JPing to jt400Native.jar
+- Command call: Removed method getJob(). Method was deprecated on 2003-01-22.
+- Command call: Added tracing to track on/off-thread calls, and CL thread-safety lookups.
+- Command call: Eliminated default thread-safety lookup when calling CL commands natively.
+- Command call: Changed trace category of the 'on/off thread toggle' message to DIAGNOSTIC.
+- Connection pool: Tolerate null password on constructor.
+- Connection: Relaxed definition of 'numeric password' when prepending 'Q'.
+- Connection: Added trace messages.
+- Connection: Added method: AS400.isConnectionAlive(service).
+- Connection: Check for null, before dereferencing listeners.
+- Connection: Fix PASE socket close(), so it is not called twice.
+- Connection: Fix PASE socket pair leak.
+- Connection: Temporarily disable PASE optimizations until socket issues can be resolved.
+- Connection: Fix native library load when running with multiple war files and classloaders.
+- Connection: Made 'public' the method AS400.canUseNativeOptimizations().
+- IFS: Added methods to FileAttributes: containsTemporaryObjects() and isTemporaryObject().
+- IFS: Added static getFreeSpace() method.
+- IFS: For IFSFile.getSubtype(): Retrieve codepage of extended attribute values.
+- IFS: Trace the returned extended attribute values.
+- JDBC: Add 'skip locks' option to concurrent access property.
+- JDBC: Add new JDBC 4.0 flag for sysibm stored procedure metadata source.
+- JDBC: Fix AS400JDBCDriver.connect() with clone set to false.
+- JDBC: Fix JDBC 4.0 getHoldability() method to check for isolation level of *NONE.
+- JDBC: Fix ResultSet.updateRow() method when CCSID is not known.
+- JDBC: Fix commit/rollback to not close cursors when isolation level is *none.
+- JDBC: Fix erroneous NullPointerException in JDBC trace.
+- JDBC: Fix for 'fetch direct' only if cursor is read-only and insensitive.
+- JDBC: Fix for JDBC Graphic datatype length with ccsid 65535.
+- JDBC: Fix getIsolation() method to return *none if it is really *none.
+- JDBC: Fix isAutoIncrement() method to close correct PreparedStatement.
+- JDBC: Fix to get updated date info in getVersionColumns() method.
+- JDBC: Fix to search 'system' part of library list when calling stored procedures.
+- JDBC: Fix truncation error when inserting large BigDecimal into double column.
+- JDBC: Fix truncation error when setting BigDecimal in float/real columns.
+- JDBC: Fix when to prevent incorrect NullPointerException while trace is on.
+- JDBC: Temporary workaround for known Sun Hotspot 1.6 JIT defect.
+- JarMaker: Generate digests correctly. Close all streams when done.
+- JavaApplicationCall: Added trace call.
+- Job: Added method: commitChanges(boolean mustStayOnThread).
+- Message: Eliminate NullPointerException if load() called on internally-created AS400Message.
+- Print: Added getAFPInputStream.  Deprecated getInputACIPMergedStream.
+- Print: Enhance Error Diagnosis.
+- Print: Throw exception if fail to connect to Print Server.
+- Program call: Added new method: ServiceProgramCall.setAlignOn16Bytes().
+- Program call: Removed method getJob(). Method was deprecated on 2003-01-22.
+- Proxy: Eliminated calls to System.gc() and runFinalizersOnExit().
+- RLA: Added method: getLibraryName()
+- Trace: Added error message in logLoadPath().
+- Trace: Added method: log(int,String,String).
+- Trace: Check for null argument in new log() method.
+- Trace: Made the printByteArray() methods package-scoped.
+</PRE>
+
+<HR>
+<H3><A NAME="64">Fixes and enhancements in JTOpen 6.4</A> <i>(released 2008-12-12)</i></H3>
+<PRE>
+- <i>Various:</i> Javadoc updates.
+- <i>Various:</i> Enhancements suggested by static analysis.
+- Command call: Log a warning if sequential calls switch between on-thread and off-thread.
+- Connection pool: Enhance AS400ConnectionPool to support ProfileTokenCredentials.
+- Connection pool: Fix pool maintenance daemon so as to disconnect active connections,
+  only when a connection exceeds its maxUseTime limit.
+- Connection: Added method AS400.isConnectionAlive().
+- Connection: Fix bug in portmapper port.
+- Data conversion: Eliminated possible arithmetic overflow.
+- Data conversion: Fix JTOpen bug 2120228: ConvTableJavaMap is not appropriately synchronized.
+- Data conversion: Resynchronized with updated system converter tables.
+- Date conversion: Optional parameters for QWCCVTDT only valid for V5R3 and beyond.
+- Date conversion: Streamlined design, based on assumption that all dates are in timezone of system.
+- FTP: Check for null-valued changes_, vetos_ before referencing.
+- FTP: Improved synchronization.  Ensure that streams always get closed.
+- FTP: Tolerate delimiters other than '|' in EPSV response.
+- JDBC: Add Currently Committed support.
+- JDBC: Add code to make use of hostserver's fetch-direct function.
+- JDBC: Add property "secure current user" to allow JDBC connections with "" or *current when running on the IBM i host.
+- JDBC: Documentation rename of "default schema/library" to "default SQL schema".
+- JDBC: Fix AS400JDBCResultSetMetadata.isAutoIncrement() method to get more accurate information.
+- JDBC: Fix bug in delimited schema in connection URL.
+- JDBC: Fix bug in getCatalogSeparator being able to access connection.
+- JDBC: Fix bug in getMoreResults(int) so that CLOSE_CURRENT_RESULT does not throw exception.
+- JDBC: Fix bug when locators are freed more than once.
+- JDBC: Fix for connection property "driver=native" when hostname is localhost.
+- JDBC: Fix for quoted schema names in URL.
+- JDBC: Fix misc resources that are opened but not closed properly.
+- JDBC: Fix stored procedure flavor of AS400JDBCDatabaseMetaData resultset.getStatement() so it returns null per JDBC spec.
+- JDBC: Fix typo in secure current user description.
+- JDBC: Fix when using userid in URL and using connection property driver.
+- JDBC: Force signon GUI dialog to display when id/password are "" or "*current".
+- JarMaker: Recognize -xsd as abbreviation for -excludeSomeDependencies.
+- JarMaker: If not JDBC or RLA, don't follow dependencies from ClassDecoupler.
+- JarMaker: Verify number of bytes skipped. Call readUnsignedShort() instead of readShort().
+- Message file: Added FIRST and NEXT options to getMessage() methods. (Enhancement submitted by David Gibbs.)
+- Micro edition: Modified skipBytes() to return actual number of bytes skipped.
+- PCML: Added more PCML trace points.
+- PTF: Added 'get' methods for creationDate and serverIPLRequired.
+- QSYSObjectPathName: Added static non-public validatePath() method.
+- RLA: Added parameter validation and more tracing.
+- RLA: Set field description text.  Removed 'serializable' designation.  Added check for no records returned from DSPFFD.
+- System pool: Eliminated 2 obsolete non-public constructors. Added parameter validation.
+- System status: Exploit new SystemPool constructors.
+- Trace: In finalize(), close all writers (except when they're built on System.out).
+- User: Added getters/setters for userExpirationAction, userExpirationDate, userExpirationInterval, userEntitlementRequired.
+- User: Additional fixes not included in the associated PTF's: Serializability bug, and NullPointerException in new utility method 'isBlanks'.
+- User space: Improved synchronization.
+</PRE>
+
+<HR>
+<H3><A NAME="63">Fixes and enhancements in JTOpen 6.3</A> <i>(released 2008-08-29)</i></H3>
+<PRE>
+- <i>Various:</i> Javadoc updates.
+- <i>Admin:</i> Updated this file (changes.html) so component names are consistent.
+- Command call: Changed scope of getThreadSafetyProperty() from private to package. 
+- Command call: Refined tracking of missing V5R4 PTF for QCDRCMDI (SI29629).
+- Connection pool: Fix bug to reuse connections which have a maxLifetime of 0.
+- Connection: Added AS400 properties: mustAddLanguageLibrary, mustUseSuppliedProfile.
+- Connection: Added AS400 properties: mustUseSockets, mustUseNetSockets, threadUsed.
+- Connection: Ensure that the socket never gets left open.
+- Connection: Fix code so that applets do not get AccessControlException.
+- Connection: Only try to load PASE library when on V6R1 or higher.
+- Connection: Fix for JTOpen bug 2039039: Set another timeout when opening a socket connection.
+- Data area: Honor setting of threadSafe property.
+- Data conversion: Modification to handling of Date convert(*CURRENT) to adjust to local time.
+- Data conversion: Added method AS400DataType.getJavaType().
+- Data conversion: Regenerated conversion tables for CCSIDs 835 and 4931.
+- JDBC: Add support for getSQLXML on Blob columns, for consistency with native JDBC driver.
+- JDBC: Allow userid/password in URL to override blanks in parameters.
+- JDBC: Fix ResultSet navigation for various relative scrolling.
+- JDBC: Fix cast exception for DBClob when written as a locator. 
+- JDBC: Fix double JDBC driver registration with DriverManager.registerDriver().
+- JDBC: Fix generated keys truncation. 
+- JDBC: Fix lob locator update and retrieval from AS400JDBCResultSet. 
+- JDBC: Fix logic so that ResultSet.relative(1) is same as ResultSet.next().
+- JDBC: Fix long schema bug in library list.
+- JDBC: Fix stream helper method.
+- JDBC: Fix server trace bug.
+- JDBC: Fix typo in byteLength variable.
+- JDBC: Get database metadata from SYSIBM stored procedures if "metadata source" property is set to 1.
+- JDBC: Ignore Warnings to allow users to specify list of SQL states to cause JDBC to ignore and not issue warnings. 
+- JDBC: Misc XML fixes to not rely on external parsers.
+- JDBC: More resultset cursor navigation fixes for various abnormal scrolling. 
+- JDBC: Prohibit accidental JDBC Connection with userid or password of "". 
+- JDBC: Use connection property "translate hex" value in the algorithm to generate extended dynamic sql package name.
+- Messages: Added new MessageFile.getMessage() method, with additional CCSID parameters. 
+- NetServer: Deprecated class; use ISeriesNetServer instead.
+- Object description: Fixed StringIndexOutOfBoundsException.
+- Object description: New method ObjectDescription.getObjectLockList(). 
+- PTF: Added constants to represent new V6R1 status values.
+- Print: Added method Printer.setAttributes(), to match functionality of RPrinter. 
+- RLA: Changes to verifyS38MSGRM() to better handle ClassCastException.
+- System pool: Added 2 constructors, and isValidNameForSharedPool().
+- System pool: Eliminated logic errors.  Strip trailing blanks from returned String-valued attributes. 
+- System value: Enhanced javadoc and code comments. 
+- Trace: Add more tracing for invalid passwords.
+- Trace: Added tracing of connection ID.
+- Trace: Skip stack trace for "Class com.ibm.as400.access.Properties not found".
+- Trace: If incorrect reply datastream header: Trace bytes, and disregard stream. 
+- Trace: Streamlined trace messages for 'GSSToken not available' and non-fatal ClassNotFoundException.
+- User: Add getObjectsOwned() method.
+</PRE>
+
+<HR>
+<H3><A NAME="62">Fixes and enhancements in JTOpen 6.2</A> <i>(released 2008-04-30)</i></H3>
+<PRE>
+- <i>Various:</i> Javadoc updates.
+- <i>Various:</i> Corrected EventSetDescriptor argument, to eliminate IntrospectionException on some JVMs.
+- Build: Fix for JTOpen bug 1924271: In build.xml, specify encoding for javac calls.
+- Build: Removed JDBC version designation.
+- Command call: When running programs/commands natively, set secondary language directory to match client locale.
+- Connection pool: Check for connection expiration when connection returned to pool.
+- Connection pool: Use SoftReference to eliminate circular reference and potential memory leak.
+- Connection pool: Added diagnostic trace for when an active but expired JDBC connection is closed.
+- Connection: Added null pointer check in AS400.getJobs().
+- Connection: Corrected misspelled constant name.
+- Connection: Use socket timeout when connecting if running in Java 1.4 or higher.
+- Data area: Added methods to read/write unconverted bytes.
+- Data conversion: Added setters and getters for numeral shaping, Bidi expand alef.
+- Data conversion: Eliminated possible ArrayIndexOutOfBoundsException in ConvTableReader.fillCache(), for example when incorrect data CCSID is specified.
+- Data conversion: Made the Mlog class non-public.
+- IFS: Modifications for IFSFile.clearCachedAttributes() to clear all cached attributes.
+- IFS: Enable operation on files larger than 2 gigabytes: IFSFileOutputStreamImplRemote.write(), IFSRandomAccessFile.seek().
+- IFS: Updates to IFSFile.java and IFSJavaFile.java for symbolic link objects.
+- JDBC: Add text "Connection.rollback()" to "autocommit exception" property description.
+- JDBC: Add text "rollback" to "autocommit exception" property description and javadoc.
+- JDBC: AS400JDBCDriver: Added JDBC version indicator.
+- JDBC: Auto-commit property.
+- JDBC: Beginning with Version 6 Release 1 of i5/OS, you must have *JOBCTL special authority for setQueryTimeout().
+- JDBC: Change to not use sql package cache if the statement contains a lob since it could be a lob or lob locator on other connections.
+- JDBC: Close statements to avoid statement leak.
+- JDBC: Fix error when Statement.setMaxRows(count) is same number of rows in a resultset.
+- JDBC: Fix for setCharacterStream to take into account multi-byte chars.
+- JDBC: Fix for time when hour is 24 and minute is not 00.
+- JDBC: Fix to signal truncation of data in CCSID 5035.
+- JDBC: Get timeout property from DriverManager.getLoginTimeout.
+- JDBC: Implementation of Decfloat SNaN.
+- JDBC: Login timeout added to DriverManager properties.
+- JDBC: Login timeout in milliseconds.
+- JDBC: Make the 'autocommit exception' property effective for rollback.
+- JDBC: XA Connection fixed to close cursor after commit.
+- JDBC: Starting in V6R1, user must have *JOBCTL special authority to use query storage limit.
+- JDBC: Starting in JDK 1.5, for numeric and decimal column types, exploit BigDecimal.toPlainString().
+- NetServer: Fix for IseriesNetServer.java for authority check IOSYSCFG to include groups that a user belongs to.
+- Permission: Changes due to regression test. Permission.java
+- Permission: Updates to process QSYS IASP objects: Permission, PermissionAccessQSYS, and QSYSObjectPathName.
+- Print: Fix for JTOpen bug 1551918: PrintObjectList: openSynchronously() twice.
+- RLA: Fix for JTOpen bug 1847680: Introspection of Record fails due to bad RecordBeanInfo.java. Original problem reported in JTOpen bug 1779593: Correct EventSet for VetoablePropertyChange.
+- Trace: Added tracing of connection ID.
+- Trace: Added tracing of load source.
+- Trace: Fix for JTOpen bug 1889391: Synchronized access to static variable SimpleDateFormat.
+- Trace: Limit redundant checks for multiple Toolbox versions.
+- Utilities: AboutToolbox: Added check for supported JDBC version.
+</PRE>
+
+<HR>
+<H3><A NAME="61">Fixes and enhancements in JTOpen 6.1</A> <i>(released 2008-01-04)</i></H3>
+<PRE>
+- <i>Various:</i>  Javadoc updates.
+- AS400:  Eliminate swallowed NullPointerException.
+- AS400:  If no Properties class found, trace a Diagnostic instead of a Warning.
+- Command call:  Add support to follow proxy command chain. Exploit PTF if V5R4.
+- IFS:  Correctly recognize QSYS objects, particularly PRTF objects.
+- IFS:  Eliminate double close requests from finalizer.
+- JDBC:  Add check for closed resultset when checking holdability.
+- JDBC:  Client Functional Level update.
+- JDBC:  Fix for cursor holdability of stored procedures.
+- JDBC:  Fix timestamp so that 24:00 on day n does not advance to 24:00 on day n+1.
+- JDBC:  Fix to ignore some warnings when sqlState starts with 00 or 02.
+- JDBC:  Get scroll type from cursor attrs if exist.
+- JDBC:  Match Native driver truncation on future releases when PreparedStatement.setString() is used.
+- JDBC:  Method JDLobLocator.free() not supported on V5R4 or earlier releases of System i.
+- JDBC:  NVARCHAR length fix.
+- JDBC:  Return "NCHAR"  and "NVARCHAR" from getTypeName() for CCSIDs 13488 and 1200.
+- JDBC:  Return first occurrence of column when calling ResultSet.findColumn(String) when there are more than one column with same name.
+- JDBC:  Update getDatabaseMajorVersion and getDatabaseMinorVersion to reflect actual versions from host server.
+- JDBC:  isReadOnly method fix.
+- JDBC:  Fix for non-capitalized schema names in getProcedureColumns method.
+- JDBC:  Fix storesMixedCaseQuotedIdentifiers method to return false.
+- JDBC:  Do not re-use stale variables in reply datastream objects.
+- PCML:  Fix for JTOpen bug 1778759 - set the global isXPCML variable.
+- Permissions:  Permissions.commit() sensitivity of DLO object.
+- Print:  Add additional supported CPI values to SCS5553Writer.
+- RLA:  Add Note to readNextEqual() methods regarding locking.
+- RLA:  Change to ignore *NONE keys in addKeyFieldDescription().
+- RLA:  Corrected field length calculation for DBCS VARCHAR and VARGRAPHIC fields.
+- RLA:  Fix for JTOpen bug 1796143 - Writing to a multiple format file fails.
+- System pool:  Improve handling of shared pools.
+- Vaccess: Deprecated last remaining un-deprecated class in package <tt>com.ibm.as400.vaccess</tt>: AS400JDBCDataSourcePane.
+</PRE>
+
+<HR>
+<H3><A NAME="60">Fixes and enhancements in JTOpen 6.0</A> <i>(released 2007-08-20)</i></H3>
+<PRE>
+- Connection pool:  Added a check to verify connection is not in use when checking the max lifetime and removing a connection from the pool.
+- Data area:  Fix for JTOpen bug 1737692 - allow users to write data containing single-quote characters.
+- Data conversion:  Updated various converter tables.
+- FTP:  Add support for EPSV and EPRT.
+- IFS:  Updated getCanonicalPath() to remove '.' and '..' from paths.
+- IFS:  Updated listObjectAttrs() to see if a file handle has already been opened.
+- IFS:  Replaced get32bit() call which was treating 4-byte byte stream fields as signed with BinaryConverter methods.
+- IFS:  Changes to IFSFile.enumerateFiles() to better handle when objects are filtered.
+- IFS:  Updated to search by restart name if accessing QSYS.LIB in an IASP.
+- JarMaker:  Updated AS400ToolboxJarMaker to extend ToolboxJarMaker.
+- JDBC:  Added various getters/setters to AS400JDBCDataSource to match URL style properties.
+- JDBC:  Added getServerJobIdentifier() to JDConnectionProxy.
+- JDBC:  Return names in DatabaseMetaData.getPrimaryKeys() instead of null.
+- JDBC:  Added new class AS400JDBCStatementListener.
+- JDBC:  Fix error when Double value is infinity and getFloat(x) is called.
+- JDBC:  Updated read/write flag for DataTruncation warnings and exceptions.
+- JDBC:  Updated DataSource getUser() method to retrieve user from AS400 object.
+- JDBC:  Added check for closed cursor in absolute method.
+- JDBC:  Updated setPoolable() method name in JDStatementProxy.
+- JDBC:  Allow delimited libraries in library list.
+- JDBC:  Updated DatabaseMetaData.getProcedures() to return correct procedure name.
+- JDBC:  Allow rollback to throw XAException on a non-zero return code.
+- JDBC:  Added "variable field compression" connection property.
+- JDBC:  Added statement listener support.
+- JDBC:  Throw exception on Connection.commit() if auto-commit is enabled.
+- JDBC:  Fix performace related bug that caused ResultSet not to close after cursor was implicitly closed.
+- JDBC:  Use SQLState instead of SQLCode for flag of errors/warnings.
+- JDBC:  Retrieve cursor attributes from a stored procedure.
+- Job list:  Fix for JTOpen Bug 1728765 - allow more than one value for the selection criteriat that are suppose to allow multiple values.
+- Job log:  Added the ability to retrieve all attributes for a message.
+- Job log:  Updated javadoc to list attributes that can be accessed for a QueuedMessage object.
+- Object description:  Modified exists() method to handle CPF9811 message.
+- ObjectList:  Fix for JTOpen Bug 1725312 - fix to allocate correct storage amount for getObjects().
+- ObjectList:  Updated javadoc for getObject() to indicate that the listOffset parameter may be greater than "or equal to" zero.
+- ObjectList:  Updated addObjectAuthorityCritiria() to enforce documented interface restrictions.
+- QueuedMessage:  Added the ability to retrieve all attributes for a Job Log message.
+- System pool:  Added the ability to set the "system-related pool identifier".
+- System status:  Added the ability to set the "system-related pool identifier".
+- Trace:  Fix to ensure tracing is off if a category is not set.
+</PRE>
+
+<HR>
+<H3><A NAME="54">Fixes and enhancements in JTOpen 5.4</A> <i>(released 2007-04-18)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated iSeries and server references in comments, text.
+- <i>Various:</i>  Javadoc updates.
+- Connection: Support new messages from sign-on server.
+- Connection: Added additional change password return codes.
+- Data conversion:  Fix array out of bounds error so we throw SQLException back with single character input.
+- File:  Fixed record cache so that positionCursor() works regardless of the blocking factor.   
+- IFS:  Updatated javadoc for list, listFiles and enumerateFiles methods.
+- IFS:  Updated to throw an exception if access is denied to a directory and to search by restart name if accessing QSYS.LIB in an IASP.
+- JDBC:  Added Close on EOF support.
+- JDBC:  Added support for setting client information. 
+- JDBC:  Added support to turn on/off database host server tracing.
+- JDBC:  Allow sort=job to not throw exception, but use default.
+- JDBC:  Added stored procedure support for getIndexInfo. 
+- JDBC:  Added support for stored procedure result sets date and time format.
+- JDBC:  ResultSet.getRow() fix to return correct number after inserting new rows.
+- JDBC:  Updated data truncation exception support.
+- JDBC:  Strip out comments in statements greater than 2M in V5R4.
+- JDBC:  Added query storage limit connection property.
+- NetServer:  Fix to createPrintShare().
+- NetServer:  Fixed bug in parameter validation in setTextConversionEnablement()
+- Object description:  Added support to list objects in an auxiliary storage pool (ASP) and to get the object descriptions.
+- Object description:  Added support for returning the asp device name on the path.
+- ObjectList:  Added support to list objects in an auxiliary storage pool (ASP) and to get the object descriptions.
+- Permissions:  Updated setDataAuthority() for *AUTL.
+- Permissions:  Changes to allow DLOPermission to work with the QDLS root folder.
+- Print:  Retrieving invalid spooled file attributes.
+- Product:  Changes so that when running natively user space will use sockets instead of native method calls. 
+- PTF:  Changes so that when running natively user space will use sockets instead of native method calls. 
+- QSYSObjectPathName:  Fix parsing of eszett and other 1 to N uppercasing characters.
+- Save file:  Changes so that when running natively user space will use sockets instead of native method calls. 
+- Security: Support new messages from sign-on server.
+- Security: Added additional change password return codes.
+- Spooled file:  Retrieving invalid spooled file attributes.
+- User space:  Changes so that when running natively user space will use sockets instead of native method calls to avoid error indicating that JT4PTF and JT4USRSPC user space could not be found.
+</PRE>
+
+<HR>
+<H3><A NAME="53">Fixes and enhancements in JTOpen 5.3</A> <i>(released 2006-12-18)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated iSeries and server references in comments, text.
+- <i>Various:</i>  Javadoc updates.
+- Build:  Fixed various build warnings for JDK 1.5.
+- Connection:  Allow GSS credential to change.
+- Data area: Provide more useful exception information.
+- IFS:  Fixed bug that made IFSFile.setCCSID() a no-op.
+- JDBC:  Only send/update sort sequence if not set to default (hex).
+- JDBC:  Added query storage limit support.
+- JDBC:  Fixed JTOpen 1292204 - Garbage Collector impacts JDBC connection pool activity.
+- JDBC:  Added default column value support.
+- JDBC:  Updated max columns in group by support.
+- JDBC:  Updated query optimize goal documentation.
+- JDBC:  Fixed batch update support to use the correct information in a BatchUpdateException.
+- JDBC:  Various performance improvements.
+- JDBC:  Fix to allow a forward-only sensitive cursor.
+- NetServer:  Corrected behavior of getTextConversionEnablement()
+- PCML:  Provide more useful exception information, especially when PCML source document not found.
+- Program call:  Provide more useful exception information.
+- System resource:  Provide more useful exception information.
+- UDFS:  Added new classes IFSIoctlRep, IFSIoctlReq, and UDFS for user-defined file system support.
+</PRE>
+
+<HR>
+<H3><A NAME="52">Fixes and enhancements in JTOpen 5.2</A> <i>(released 2006-08-28)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated iSeries and server references in comments, text.
+- <i>Various:</i>  Updated javadoc and property descriptions.
+- Build:  Updated for new cvs server access.
+- Build:  Updated for changes to the J2ME Toolkit. 
+- Data conversion:  Enhanced trace messages.
+- Data conversion:  Fixed recently introduced inconsistency with java.io.Reader.
+- IFS:  Added new classes ErrnoException, FileAttributes, and ObjectReferences.
+- IFS:  Eliminated compareTo(Object) method for JDK 1.5 compatibility.
+- IFS:  Better handling of 'access denied errors.
+- IFS:  Fixed JTOpen bug 1481835: Tolerate zero-length writes and reads. 
+- JDBC:  Fixed 'thread used' property to propagate it to AS400 object.
+- JDBC:  Various performance changes.
+- JDBC:  Updated client functional level.
+- JDBC:  Added 'metadata source' connection property.
+- JDBC:  Fix so convertFromRawBytes() is not called unexpectedly when using addBatch() with CallableStatement objects.
+- JDBC:  Fixed bug in USA time format.
+- JDBC:  Added clonable support to AS400JDBCDataSource.
+- JDBC:  Various tracing improvements.
+- JDBC:  Changes to not block data if a sensitive cursor is being used.
+- JDBC:  Close generated keys result set if Statement.close() is closed or if the statement is re-executed.
+- Object description:  Fixed bug where Boolean attributes are sometimes reported as Strings. 
+- Object description:  Fix ClassCastException retrieving SAVE_SIZE.
+- Open list:  Renamed 'enum' variable.
+- PCML:  Removed performance bottleneck by un-synchronizing a method.
+- PCML:  Close opened streams in 'finally' clause.
+- PCML:  Allow leftmost bit to be on for byte field init values.
+- PCML:  Improved error messages. 
+- Print:  CPU performance fix due to recursive paint events in SpooledFileViewer.
+- RFML:  Close opened streams in 'finally' clause.
+- PTF group:  Updated for Native support.
+- System value:  Various updates.
+- Trace:  Updated for JDK 1.5 misbehavior in LogManager.getLogger().
+</PRE>
+
+<HR>
+<H3><A NAME="51_1">Fixes and enhancements in JTOpen 5.1.1</A> <i>(released 2006-04-26)</i></H3>
+<PRE>
+- System pool:  Fixed incorrect ObjectDoesNotExistException from SystemPool objects generated from SystemStatus.
+- Trace:  Added milliseconds to timestamps.
+</PRE>          
+          
+<HR>
+<H3><A NAME="51">Fixes and enhancements in JTOpen 5.1</A> <i>(released 2006-04-19)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated javadoc and code comments.
+- Connection:  Avoided potential StringIndexOutOfBoundsException in trace.  
+- Connection:  Added new properties to prevent use of current user and Unix domain sockets.
+- Connection:  Improved warning messages.
+- Connection pool:  Fixed JTOpen Bug 1459369:  Added support to terminate maintenance thread when pool is closed.
+- Data conversion:  Enhanced Bidi support.
+- FTP:  Added support so FTP datastreams use CRLF.
+- IFS:  Added new IFSFile methods:  setSorted() and getOwnerName().
+- IFS:  Un-deprecated classes IFSTextFileInputStream and IFSTextFileOutputStream.
+- IFS:  Added support for files larger than 2 gigabytes.  This support is only available when running to V6R1 or higher.
+- JarMaker:  Deprecated class AS400ToolboxJarMaker; replaced by ToolboxJarMaker.
+- JDBC:  Added new classes AS400JDBCManagedConnectionPoolDataSource and AS400JDBCManagedDataSource. 
+- JDBC:  Added self-managed pooling JDBC datasource.
+- JDBC:  Added new AS400JDBCDataSource method:  setProperties().
+- JDBC:  Added new 'translate boolean' connection property.
+- JDBC:  Various performance updates when searching for a field by field name.
+- JDBC:  Reset auto commit and the isolation level to the auto commit and isolation level being used before xa_start after xa_end is called.
+- JDBC:  Fix to calculate length correctly for a double-byte clob locator.
+- Object description:  Return LAST_USED_DATE as a Date type.
+- Program call:  Fix for JTOpen bug 1426019:  Document library list behavior.
+- RFML:  Added 'keyfield' attribute to RFML data element.
+- System pool:  Added additional properties.
+- System status:  Added additional properties.
+- Trace:  Do not map THREAD category to a Java logging level.
+</PRE>              
+              
+<HR>
+<H3><A NAME="50">Fixes and enhancements in JTOpen 5.0</A> <i>(released 2006-01-16)</i></H3>
+<PRE>
+- <i>Various:</i> Eliminated potential NullPointerExceptions.
+- Build: Include the AboutToolbox class in the native JAR.
+- Data conversioon:  Updated mappings for certain characters.
+- JDBC:  Added delimited name support. 
+- JDBC:  Added 'XA loosely coupled support', 'keepAlive', 'sendBufferSize', and 'receiveBufferSize' connection properties.
+- JDBC:  Eliminated possible hang in AS400JDBCConnection.cancel().
+- JDBC:  Updated DatabaseMetaData.getMaxTablesInSelect() to return correct value by release.
+- JDBC:  Added support for ALIAS table types.
+- Job:  Eliminated possible division-by-zero error.
+- RFML:  Eliminated possible division-by-zero error.
+</PRE>  
+  
+<HR>
+<H3><A NAME="49">Fixes and enhancements in JTOpen 4.9</A> <i>(released 2005-10-28)</i></H3>
+<PRE>
+- <i>Various:</i> J2SE 5.0 compatibility: Added append() method, required by Appendable; renamed variables named 'enum'.
+- <i>Various:</i> Updated javadoc and code comments.
+- Build: Removed Unix domain sockets from jt400.jar
+- Build: Removed flawed check in build.xml for existence of 'cvs.exe'.
+- Connection: Fixed JTOpen bug 1224014: PasswordExpirationDate inexact when NOMAX.
+- Data conversion: Add Euro and Circled R.
+- Data queue: Fixed garbage in sender information.
+- FTP: Eliminated hang in get() if file member not found.
+- IFS: Fixed 'File In Use' error from IFSFileReader and IFSFileWriter.
+- IFS: Handle reading more that 16 megabytes of data.
+- JDBC: Accept 'Character' instance as argument to PreparedStatement.setObject() when setting CHAR column.
+- JDBC: Added 'char' to list returned by DatabaseMetaData.getStringFunctions().
+- JDBC: Added support in AS400JDBCInputStream for mark/reset.
+- JDBC: Avoid possible deadlock in AS400JDBCConnectionHandle.finalizer(). 
+- JDBC: Check for null column descriptors in ResultSetMetaData.
+- JDBC: Improved handling of delimited names.
+- JDBC: Improved handling of return codes 438 and 443 from stored procedures.
+- JDBC: Added 'ALIAS' to reported list of supported table type.
+- JarMaker: Updated dependency list for 'IFS' component.
+- Job list: Fixed JobList sort list field lengths.
+- Message queue: Fixed divide by zero when list empty.
+- Message queue: Fixed reply type in receive method.
+- PCML: Corrected error message in case of insufficient input data.
+- Print: Allow SpooledFile constucted with 5 attribute to behave like 8 attribute constructed if server version/release supports additional attributes.
+- Print: Do not output SVF or SHF at start of each page unless application specifically sets by using method setHorizontalFormat() and setVerticalFormat().
+- Print: Fixes to ISeriesPrinter and SpooledFileOpenList.
+- QSYSObjectPathName: Selectively uppercase characters when composing *NAME values.
+- RFML: Eliminated inaccurate precalculation of required byte array length.
+- RLA: Improved description text in NumberFormatExceptions from AS400PackedDecimal and AS400ZonedDecimal.
+- Trace: Added support for Java logging (JSR 47).
+- User space: Added trace for file server QTEMP.
+</PRE>
+
+<HR>
+<H3><A NAME="48">Fixes and enhancements in JTOpen 4.8</A> <i>(released 2005-06-20)</i></H3>
+<PRE>
+- <i>Various:</i> Call setThreadSafe() only if threadsafe property not set.
+- <i>Various:</i> Javadoc fixes and enhancements.
+- <i>Various:</i> Native method updates.
+- Data conversion: Additional Bidi transform options.
+- IFS: Tolerate quotes within filenames.
+- JDBC: Added support for 2 MB SQL Statements, 128 byte column names, database host server trace, and added the query optimize goal property.
+- JDBC: Allow TMRESUME on a start() request if the server supports it.
+- JDBC: Allow a Timestamp to be retrieved from a TIME field.
+- JDBC: Allow extended column descriptors to be returned for a stored procedure result set.
+- JDBC: Allow retrieval of Aliases on a call to DatabaseMetaData.getTables().
+- JDBC: Catch ExtendedIllegalArgumentException from AS400PackedDecimal.toBytes() or AS400ZonedDecimal.toBytes(); convert to an SQLException.
+- JDBC: Catch StringIndexOutOfBoundsException when constructing a BigDecimal with a String.
+- JDBC: Changed the Internal Driver Error to a Data Type Mismatch error in convertToRawBytes().
+- JDBC: Fixed JTOpen Bug 1150395. Page backwards using relative() through a result set.
+- JDBC: Fixed JTOpen Bug 1155804. Improved collection pool cleanup logic.
+- JDBC: Pass the result set type to JDServerRowCache.
+- JDBC: Removed the literal space from the strip function.
+- JDBC: Reset data lengths and offsets based on the server format, if VLC compression was not used on a subsequent fetch.
+- JDBC: Retrieve the most recently used connection from the pool.
+- JDBC: Return VARCHAR for the Type Name and 12 for the type for a Long Varchar.
+- JDBC: Send a zero length package name when we ask for a normal prepare.
+- JDBC: Send empty Package name code point when doing a normal prepare and extended dynamic support is requested.
+- JDBC: Turn auto-commit back on and set the commitment control parser option when an XA transaction is ended.
+- Job: Added JOB_LOG_OUTPUT property.
+- Job list: Joblist.load() hangs with certain selection criteria.
+- Message queue: Fixed overflow in calculating receiver variable size.
+- Print: Added print attribute ATTR_PUBINF.
+- QSYS object types: Added new and missing object types.
+- RLA: Added Record.getFieldAsBytes() methods.
+- Resource: Deprecated package <tt>com.ibm.as400.resource</tt>
+- System status: Added getters for 4 additional properties.
+- System status: Added method getProcessorSharingAttribute().
+- System value: Corrected data type for QTHDRSCAFN.
+- Utilities: Deprecated class <tt>utilities.AS400ToolboxInstaller</tt>
+- Vaccess: Deprecated package <tt>com.ibm.as400.vaccess</tt>
+</PRE>
+
+<HR>
+<H3><A NAME="47">Fixes and enhancements in JTOpen 4.7</A> <i>(released 2005-02-25)</i></H3>
+<PRE>
+- <i>Various:</i> Deleted unnecessary static "Copyright" string.
+- <i>Various:</i> Javadoc updates, including those reported by Jack Woehr.
+- Connection: Added SecureAS400 constructor that takes a profile token.
+- Connection: Added pluggable signon handler (SignonHandler).
+- Connection: Attempt to detect and warn if multiple Toolbox versions on path.
+- IFS: Deprecated confusing IFSRandomAccessFile constructor, added a better one.
+- JDBC: Added a connect method.
+- JDBC: Added support for variable length field compression.
+- JDBC: Check for null SocketProperties before setting it on the AS400 object.
+- JDBC: Do not resend isolation level if it is same as current value.
+- JDBC: Fixed JTOpen Bug 4034. Use job CCSID if column label CCSID is 65535.
+- JDBC: Fixed JTOpen Bug 4121.  See if command contains "SELECT" after uppercasing.
+- JDBC: Fixed JTOpen Bug 4148. Always close PreparedStatement used to update row.
+- JDBC: Make sure serverCommitMode_ always maps to the JDBC isolation level.
+- JDBC: Output DISTINCT for TYPE_NAME of distinct column in DatabaseMetaData.getColumns().
+- JDBC: Return column name from data format when there is no column label.
+- JDBC: Send new isolation level for XA transactions.
+- JDBC: Throw SQLException when convert to raw bytes, except in some cases.
+- JavaApplicationCall: Added getCommandCall().
+- Job: Fixed JTOpen bug 1143395. Update max library list size.
+- Job: Throw exception when read-only value is specified on setValue().
+- Message queue: Retrieve user's message queue instead of assuming default path.
+- Object description: Added new method getValueAsString().
+- Permission: Preserve leading/trailing blanks in filename.
+- Print: Add ATTR_AUTOEND to attribute list.
+- Print: Added getInputStream() that takes a PrintParameterList as a parameter.
+- Print: Clarified that certain attributes are only available when a Writer is active to the Printer.
+- Print: Method getAttributeName(): Add AT_READ_BUFFERS_SEQ.
+- RFML: Fixed ArrayIndexOutOfBoundsException in RecordFormatDocument.toByteArray().
+- RFML: Improved error message when RFML doc is missing header.
+- RFML: Relocated excess-input check in setValues().
+- RLA: Enable authentication to DDM server with a profile token.
+- Security: CPF3C3C message from ProfileTokenCredential.
+- Subsystem: Added Subsystem class.
+</PRE>
+
+<HR>
+<H3><A NAME="46">Fixes and enhancements in JTOpen 4.6</A> <i>(released 2004-10-25)</i></H3>
+<PRE>
+- <i>Various:</i> Updated OS/400 and AS/400 references in comments, text.
+- <i>Various:</i> Minor documentation updates.
+- <i>Various:</i> Removed private getCopyright() method.
+- Build: Updated readme to refer to build.xml.
+- Build: Updated JDK level check in build.xml.
+- Connection: Fixed localhost IllegalStateException. (AS400)
+- Call stack: Added new class CallStackEntry.
+- Data conversion: Fix mixed byte buffering problem. (ConvTableReader)
+- FTP: Use separate thread to monitor ServerSocket when in "active" mode.
+- IFS: Throw IOException instead of ClosedChannelException. (IFSFileInputStream)
+- IFS: Changed name of directory created by IFSFileSystemView.createNewFolder().
+- JDBC: Added check for locators when batching.
+- JDBC: Set the socket properties on AS400 object before getting a connection.
+- JDBC: Minor performance improvement. (JDProperties)
+- JDBC: Added "rollback cursor hold" property to hold a cursor over a rollback.
+- PCML: Eliminated performance bottleneck in PcmlDocument.
+- Permission: Fixed filename character conversion bug.
+- Print: Fixed JTOpen bugs 3686 and 3694.  NullPointerException when holding spooled file that is completed.
+- Print: Added spooled file attributes ATTR_JOBCCSID, ATTR_JOBCCSID.
+- Print: Spooled file save/restore.
+- RLA: Synchronized incrementation of DCLNAME. (AS400FileImplRemote)
+- User: Added setters to User class.
+- User: Added V5R3 "local password management" property.
+- User: Added ability to filter by name in UserList.
+</PRE>
+
+<HR>
+<H3><A NAME="45_1">Fixes and enhancements in JTOpen 4.5.1 <i>(not announced publicly)</i></A></H3>
+<PRE>
+- <i>Various:</i> Updated OS/400 and AS/400 references in comments, text.
+- <i>Various:</i> Added serialVersionUID where missing.
+- Connection: Added ability to specify NLV on AS400.setLocale().
+- Connection: Clarified javadoc for AS400.setLocale() method.
+- Connection: Specified units for get/set methods of SocketProperties class.
+- IFS: Added new classes IFSFileReader and IFSFileWriter.
+- IFS: Upgraded IFSFileSystemView class to work with newer JDK's.
+- IFS: Corrected behavior of IFSJavaFile.isAbsolute().
+- JDBC: Fixed JTOpen Bug 4025.  Accommodate *LIBL not included in list_ array.
+- JDBC: Fixed JTOpen Bug 4013.  Don't ignore "thread used" connection property.
+- JDBC: Clarified javadoc: "cursor hold" only applies to commits, not rollbacks.
+- JDBC: Added more toolbox trace support to data source interface.
+- JDBC: Fixed proxy tracing.
+- PCML: Added method ProgramCallDocument.serialize(OutputStream).
+- Print: Added PrintObject attributes ATTR_DATE_END and ATTR_TIME_END.
+- Save file: Added new component to represent "save files".
+- Security: Removed unnecessary serializability from AS400Certificate* classes.
+- System value: Added new system values.
+</PRE>
+
+<HR>
+<H3><A NAME="45">Fixes and enhancements in JTOpen 4.5</A> <i>(released 2004-08-06)</i></H3>
+<PRE>
+- Data conversion: Tolerate multiple versions of Toolbox in classpath (ConvTable1200).
+- FTP: Added support for active mode.
+- IFS: Improved error messages in IFSFileImplRemote.
+- IFS: Added method IFSFile.setCCSID().
+- IFS: Fixed behavior of IFSFile.getFreeSpace().
+- JDBC: Added new LOB locator support.
+- JDBC: Added option to not fully close statement until transaction boundary.
+- Job: Added method Job.loadInformation(attributes).
+- Object description: Don't automatically uppercase library & object names.
+</PRE>
+
+<HR>
+<H3><A NAME="44">Fixes and enhancements in JTOpen 4.4</A> <i>(released 2004-06-30)</i></H3>
+<PRE>
+- CommandHelpRetriever: Use relative column widths on syntax summary table.
+- Connection: Decoupled JDBC and DDM from AS400 object, to improve effectiveness of AS400ToolboxJarMaker.
+- Connection pool: Added getSystemNames(), getUsers(system), and getConnectedUsers(system).
+- Connection pool: Fixed JTOpen Bug 3384.  (AS400ConnectionPool unnecessarily creates objects)
+- Connection pool: Fixed JTOpen Bug 3863.  (NullPointerException when connection returned to pool)
+- Data conversion: Fixed tables for CCSIDs 424, 862, 1200.
+- Data conversion: Added ability to return Double objects instead of BigDecimal objects on toObject() calls.
+- Data conversion: Allow BidiStringType.None as valid value.
+- Data queue: Fixed proxy delete() method.
+- Documentation: Various javadoc fixes, additions, and enhancements.
+- IFS: Fixed JTOpen Bug 3722. (ClassCastException in IFSFileDescriptorImplRemote)
+- IFS: Added IFSFile methods setPatternMatching(), getPatternMatching().
+- JDBC: Miscellaneous minor enhancements.
+- JDBC: Fixed JTOpen Bug 3605.  (Cleanup after failed creation of prepared stmt)
+- JDBC: Fixed JTOpen Bug 3655.  (AS400JDBCConnectionPool.fill())
+- JDBC: Fixed JTOpen Bug 3801.  (Check for null values from DatabaseMetaData.getTables())
+- JDBC: Fixed JTOpen Bug 3818.  (Normalize DATE milliseconds)
+- JDBC: Additional tracing activation method.
+- JDBC: Performance improvement in SQL statement parsing.
+- JDBC: Return "" for base table name if no column descriptors are returned.
+- List: Check the 'list status indicator' returned by QGY* API's.
+- Message queue: Fixed RMessageQueue string buffer problem.
+- NetServer: Added getters to ISeriesNetServer for pending attribute values.
+- PCML: Added ProgramCallDocument.getProgramCall().
+- RLA: Performance improvements.
+- RFML: Fixed JTOpen Bug 3953.  (Deserializing RecordFormatDocument)
+- System value: Improved handling of invalid QDATE values.
+</PRE>
+
+<HR>
+<H3><A NAME="43_1">Fixes and enhancements in JTOpen 4.3.1</A> <i>(released 2004-04-27)</i></H3>
+<PRE>
+- Build: Removed unnecessary -R option on checkout commands in build.xml.
+- Connection: Added ability to pass GSS Credential to system object.
+- FTP: Update lastMessage value more consistently.
+- JDBC: Fixed bug that caused reduced performance and memory leakage.
+- PCML: Removed unnecessary Xalan runtime dependency in PcmlSAXParser.
+</PRE>
+
+<HR>
+<H3><A NAME="43">Fixes and enhancements in JTOpen 4.3</A> <i>(released 2004-04-02)</i></H3>
+<PRE>
+- Build: Added BidiConversionProperties to proxy jar.
+- Build: Added SystemProperties.class to jt400Servlet.jar.
+- CommandHelpRetriever: Added generateHTMLBytes() method.
+- CommandHelpRetriever: Set charset to UTF-8 instead of ISO-8859-1.
+- CommandHelpRetriever: Javadoc for generateHTML() now indicates the charset is UTF-8.
+- Data conversion: Added constant BidiStringType.NONE.
+- Data conversion: Fixed possible thread-safety issue with Bidi conversion.
+- Data conversion: Various fixes and enhancements related to Bidi conversion.
+- Data conversion: Added class BidiConversionProperties.
+- Documentation: Various javadoc fixes, additions, and enhancements.
+- IFS: Fixed bug in IFSFile.mkdirs().
+- JDBC: DatabaseMetaData.getColumns(): Allow CHAR()/VARCHAR() FOR BIT DATA to be displayed instead of CHAR/VARCHAR.
+- JDBC: Added check for server functional level before setting Ctl timeout and lock wait.
+- JDBC: Added method AS400JDBCDriver.connect(AS400 system, boolean clone).
+- JDBC: Catch exceptions in the finalize() methods in AS400JDBCStatement and AS400JDBCResultSet.
+- JDBC: Allow binary string constants in the form of x'1234' and X'1234'.
+- JDBC: Treat the first character in an odd-length String or char[] as the lower nibble of a byte instead of the last character.
+- JDBC: Avoid optimization problem with JDK 1.3 BigDecimal.compareTo() method.
+- JDBC: AS400JDBCResultSet.updateRow() now uses the base column name instead of the column label.
+- JDBC: Changed SQLDBClobLocator.writeToServer() to use number of characters instead of number of bytes for the start offset.
+- JDBC: Changed autoCommit to trueAutoCommit to align with connection string property "true auto commit".
+- JDBC: JDBCProperties: Changed "bidirectional string type" to "bidi string type".
+- JDBC: SQLResultSetTableModel: Removed beforeFirst() call since stored procedures might not return a scrollable cursor if one is requested.
+- JDBC: AS400JDBCResultSet now returns null if a data mapping error occurs.
+- JDBC: SQLResultSetTableModel will now output "++++++++++++++" when a data mapping error occurs.
+- JDBC: Use BidiConversionProperties class instead on only Bidi string type.
+- JDBC: Added two connection properties "bidi implicit reordering" and "bidi numeric ordering".
+- Job: Return -1 on getQueuePriority() if job's status is *OUTQ.
+- Job list: Trace a warning message if there are open enumerations returned by a JobList and the JobList is being closed.
+- Job list: Invalidate all JobEnumerations created from a JobList which has been closed.
+- Object description: Tolerate additional error message in exists().
+- Print: Formdef is now handled on the server.
+- Print: Maintain lowercase for certain attributes.
+- Print: Retrieve AT_SYS_DRV_PGM attribute.  Added ATTR_CHR_RTT_CMDS attribute.
+- RFML: Rethrow IOException as SAXException on call to DefaultHandler.resolveEntity(), for compatibility with the IBM JDK.
+- RLA: Handle *NONE key field names in logical files.
+- Spooled file: Retrieve ATTR_CHR_RTT_CMDS attribute.
+- Spooled file: Don't retrieve ATTR_DATE_END or ATTR_TIME_END.
+- User space: *SYSTEM domain was being sent to the server as *SYSTFM on a create().
+</PRE>
+
+<HR>
+<H3><A NAME="42">Fixes and enhancements in JTOpen 4.2</A> <i>(released 2003-12-23)</i></H3>
+<PRE>
+- Build: Created task to insert copyright strings into JTOpen-built class files.
+- Build: Added copyright strings to binary class files in CVS.
+- Build: Added an IdentityToken stub since we currently cannot ship EIM with JTOpen.
+- Connection: Support EIM "identity tokens" for authentication.
+- Connection: Added serialVersionUID to SocketProperties.
+- Connection: Added AS400.setDDMRDB() method to set the IASP/RDB to use for record-level access (RLA).
+- Connection: Added AS400.getSocketProperties().
+- Connection pool: Fixed bug #3727 - Don't synchronize the entire pool in order to get one connection out.
+- Connection pool: Added socket properties.
+- Connection pool: Allow null password.
+- Connection pool: Set thread name on maintenance thread.
+- Connection pool: Don't start maintenance thread if threadUsed is false.
+- Data conversion: Added another variant of CharConverter.byteArrayToString() and stringToByteArray().
+- Data conversion: Enhanced Bidi algorithms.
+- Data conversion: Directly support CCSID 1208 (UTF-8).
+- Data queue: Updates to allow user to write to a data queue without having read authority.
+- HTML: Properly allow multiple options to be selected in a SelectFormElement.
+- IFS: Fixed list attribute calls on files larger than 2 gigabytes.
+- IFS: Changed VRM check.
+- JDBC: Added a JDBC trace category; log to the Toolbox trace, log stream, and log writer separately.
+- JDBC: Changed major driver version to 6.0.
+- JDBC: Allow read-only sensitive cursors.
+- JDBC: Changed exception text for data type mismatches on date, time, and timestamp types.
+- JDBC: Support scrollable stored procedure result sets when the server does.
+- JDBC: Get the long table names when calling getExportedKeys().
+- JDBC: Support new auto-commit and commit levels provided by server.
+- JDBC: Updated cursor sensitivity handling; use asensitive cursors as default for ResultSet.TYPE_SCROLL_SENSITIVE.
+- JDBC: Added NTS support.
+- JDBC: Use underlying column name when updating a row that has a column with an alias.
+- JDBC: Minor performance improvements in statement batching.
+- Job: Do not allow ELAPSED statistics constants to be retrievable attributes on JobList.
+- NetServer: Deprecated NetServer* classes; replaced with new ISeriesNetServer* classes.
+- NetServer: Added KERBEROS_OR_PASSWORDS authentication method constant.
+- Open list: Added IPP attribute, job system name filter, and date filter to SpooledFileOpenList.
+- Open list: Change STATUS_PRINTING constant for SpooledFileOpenList to match what the API expects (*PRINTER).
+- Open list: Fixed null job system name on items in SpooledFileOpenList.
+- Open list: Status filter on SpooledFileOpenList should have been a String array.
+- PCML: Updated class loading scheme so PCML files can be found under Websphere and Eclipse.
+- Permission: Updated the way object names and CL command strings are treated to handle NLS issues.
+- Permission: Changed thread-safe settings on underlying CL commands so that they will work natively.
+- Permission: Added setPrimaryGroup().
+- Permission: Support Unicode object path names when the server does.
+- Print: Added PrintObject.getSingleAttribute() methods.
+- Product: Fixed user space error when calling getPTFs() natively.
+- Program call: Fixed no program object with no message option.
+- Proxy: Fixed ArrayIndexOutOfBoundsException in ProgramCall.
+- PTF: Return message help of "None" for a status of NOT_LOADED.
+- PTF: Fixed isPreReq() and isCoReq().
+- Resource: Deprecated this package in favor of function in the access package.
+- RLA: Updated record format field names to match output from DSPFFD.
+- User: Added exists().
+- User space: Updated to create with optimum alignment.
+- Utilities: Added comment that specifies column widths for CommandHelpRetriever.
+- Vaccess: Fix for checkboxes in AS400JDBCDataSourcePaneGUI under JDK 1.4.
+</PRE>
+
+<HR>
+<H3><A NAME="41">Fixes and enhancements in JTOpen 4.1</A> <i>(released 2003-08-13)</i></H3>
+<PRE>
+- Build: Include build directory in src.zip.
+- Build: Added xpcml.xsd to jt400.jar and jt400Native.jar
+- Build: Added com.ibm.as400.access.list package.
+- Build: Use old StringBuffer.append() method in RJobLog and HTMLDocument for compatibility with JDK 1.3.
+- Comm trace: Added reverse.
+- Connection: Open sourced AS400ImplRemote.
+- Connection: Support extra GSS/Kerberos option of authentication for portlet environment.
+- Connection: Catch socket properties exceptions when tracing is active.
+- Connection pool: Moved inner classes to their own external definitions, to avoid possible JIT errors.
+- Connection pool: Check for null in AS400JDBCConnectionPool.setDataSource().
+- Connection pool: Ensure AS400 object is connected when it is retrieved from the pool.
+- Data areas: Cleaned up implementation of subclass delete() methods.
+- Data conversion: Added NLV mapping for zh_CN.
+- Data conversion: Added getInstanceType() methods to AS400DataType classes for performance.
+- Data conversion: Added CCSID 17584 (subset of 1200).
+- Data conversion: Removed _en and _en_US resource bundles, they were a performance hit and are not needed.
+- Data conversion: Added localeToNLV() methods on NLS class.
+- Data conversion: Fixed AS400Text.toBytes() for CCSIDs 13488 and 61952.
+- Data conversion: Made BinaryConverter.bytesToString() and stringToBytes() public.
+- Directory entries: Default to USER_PROFILE, "*" when no selection IDs are added.
+- Environment variables: Fixed problems with service program call.
+- FTP: Use APPE instead of APPEND to work with non-OS/400 FTP servers.
+- HTML: Throw exception if listener is null on form and table converters.
+- IFS: Added copyTo() functionality.
+- IFS: Added isSymbolicLink().
+- Javadoc: Added doc-files subdirectories and updated references in all source parts.
+- Javadoc: Added CCSID list and component list documentation, linked to from utilities.AS400ToolboxJarMaker.
+- Javadoc: Minor updates to micro JDBC driver.
+- Javadoc: Added example to JobList.addJobSelectionCriteria().
+- Javadoc: Minor fixes to FTP classes.
+- JDBC: Minor description string updates to AS400JDBCDataSourcePaneGUI.
+- JDBC: Post data truncation warning when the database has a mapping error.
+- JDBC: Perform case insensitive search for parameter indices to match the JDBC spec.
+- JDBC: Pad with correct space character in CLOBs.
+- JDBC: Fixed string index in CLOBs when locators are used.
+- JDBC: Added loginTimeout and serverTraceCategories properties to data source.
+- JDBC: Fixed translateHex property in data source.
+- JDBC: Added materialized query table support.
+- JDBC: Added static cursor support.
+- JDBC: Throw data type mismatch when length on setBinaryStream() is greater than the stream length, except on locators.
+- JDBC: Throw data truncation when length on setBinaryStream() is greater than the column size.
+- JDBC: ResultSetMetaData.getTableName() now calls getBaseTableName().
+- JDBC: Changed how cursor sensitivity is used.
+- JDBC: Changed how output parameters are registered and retrieved.
+- JDBC: Fixed proxy support for BLOBs and CLOBs.
+- JDBC: Alias VARBIN and BINARY VARYING to VARBINARY.
+- JDBC: Changed radix from decimal (10) to binary (2) on double, float, and real columns.
+- JDBC: Support setting a URL for char and graphic columns.
+- JDBC: Changed setBytes() to expect byte[].class instead of Byte.class.
+- JDBC: Added proxy support for ParameterMetaData.
+- JDBC: Set table name from first SELECT FROM TABLE only, in the case of a subquery.
+- JDBC: Changes to how the default schema is added to the library list.
+- Job: Return empty array when JobList length is 0.
+- Messages: Added option to get the user who sent the message as well as the initial user of the job. 
+- Messages: Fixed MessageFile.replaceText() to use the correct indices.
+- Messages: Support more than 10 messages returned from a remote command or API call.
+- NetServer: Added new ISeriesNetServer classes to replace the ones that relied on PCML/Resource framework.
+- Object: Only call API on-thread if Toolbox property is set.
+- Object: Added ObjectDescription.exists().
+- Open list: Added new package com.ibm.as400.access.list.
+- Open list: Added SpooledFileOpenList classes to use in place of regular SpooledFile classes for performance.
+- PCML: Added support to PCML for XPCML, using XML schemas.
+- PCML: Updated xsl and xsd definitions.
+- PCML: Removed dependency on XML parser when using serialized PCML.
+- PCML: Handle extendable elements in XPCML.
+- PCML: Handle non-qualified transform file name.
+- PCML: Support PCML/XPCML documents via an InputStream.
+- Print: Added ISeriesPrinter class to use remote command server instead of network print server for performance.
+- Print: Added more print attributes to print classes such as AFPResource and SpooledFile.
+- PTF: Added getRelationship(), fixed pre-req and co-req methods.
+- User: Added more constants.
+- Utilities: Added AboutToolbox class to utilities package, to determine which version of jt400.jar is used.
+- Utilities: Handle old and new tags in gencmddoc.
+</PRE>
+
+<HR>
+<H3><A NAME="40">Fixes and enhancements in JTOpen 4.0</A> <i>(released 2003-04-30)</i></H3>
+<PRE>
+- Build: Compile with JDK 1.4 to eliminate dependencies, target JDK 1.1.
+- Build: Updated manifest files with new JTOpen version number.
+- Build: Removed PDML task; separated native optimization classes.
+- Build: Added class files to repository to avoid SSLight as a build requirement.
+- Build: Require JDK 1.4.1 to avoid javadoc and ToolboxME errors.
+- Build: Changed SQLData classes to use a getter instead of overridden static to avoid Jikes issues.
+- Build: Various javadoc fixes to pacify JDK 1.4.1 javadoc tool.
+- Build: Removed calls to StringBuffer.append(StringBuffer) to avoid Sun compatibility issue across JDK levels.
+- Command: Add product library to library list before refreshing panel group information.
+- Command: Separated getXMLXXX() methods so as not to rely on system command information.
+- Command call: Deprecated getJob() in favor of getServerJob().
+- Connection pool: Changed ConnectionListEvent.getSource() to always return an AS400 object.
+- Connection pool: Added synchronization; throw exception if PooledConnection is in use.
+- Data conversion: CCSID 1200 is now UTF-16; CCSID 1202 is now little endian UCS-2.
+- Data conversion: Fixed ArrayIndexOutOfBoundsException in ConvTableReader.
+- Data conversion: Bidi strings are now padded before conversion algorithm is applied, instead of after.
+- Data conversion: Changed packed and zoned decimals to have 63-digit maximum instead of 31.
+- Directory entry: Fixed getMailServiceLevel().
+- HTML: Support XSL-FO tags.
+- HTML: Added FileListElement.list(HTMLTableConverter) method.
+- Javadoc: Removed reference to AS400snameFormatter from CharConverter class.
+- Javadoc: Fixed PTF.getIPLRequired().
+- Javadoc: Fixed AS400ToolboxJarMaker link to Job class.
+- Javadoc: Updated SpooledFile.
+- Javadoc: Added javadoc regarding QTEMP.LIB to IFSFile.
+- Javadoc: Corrected javadoc for DirectoryEntry.getCountry().
+- Javadoc: Generate javadoc for com.ibm.as400.util.commtrace package.
+- Javadoc: Handle com.ibm.as400.security.auth package.
+- Javadoc: Fixed example in DirectoryEntryList.
+- JDBC: Update counts now return SUCCESS_NO_INFO on a blocked insert.
+- JDBC: Support ROWID column type.
+- JDBC: Performance improvement to SQLData types - use integer type instead of instanceof.
+- JDBC: Adjusted minimum divide scale property.
+- JDBC: Binary types now support Strings of hexadecimal characters.
+- JDBC: Workaround for JIT bug in JDk 1.3 while parsing SQL statements.
+- JDBC: Changed to report correct maximum precision for various data types according to SQL Reference.
+- JDBC: Changed Blob and Clob datastreams to use new host server truncation codepoint for writing.
+- JDBC: Changed behavior of mixed case column names to ignore case unless surrounded by quotes.
+- JDBC: Fixed NullPointerException in ResultSet.getBytes().
+- JDBC: Changed DatabaseMetaData.supportsResultSetType() to return TYPE_SCROLL_INSENSITIVE.
+- JDBC: Fixed data truncation bugs and warnings.
+- JDBC: Removed limitation of 32K statements in batch.
+- JDBC: Added AS400JDBCConnectionHandle.getServerJobIdentifier().
+- JDBC: Trace LOB locator handles.
+- JDBC: Support retrieving base table name for each column.
+- JDBC: Allow length on setXXX(InputStream) methods to differ from actual amount of data in InputStream.
+- JDBC: Added QAQQINI library name property.
+- JDBC: Handle statements with missing closing parenthetical mark.
+- JDBC: Additional tracing for server attributes.
+- JDBC: Do extra validation of decimal position and scale properties.
+- JDBC: Support 63-digit decimal precision; use UTF-16 for default client encoding.
+- JDBC: Fixed typecast and max/min value bugs in SQLBigint.
+- JDBC: Support unencoded passwords in a data source Reference object.
+- JDBC: PreparedStatement now remains useable after a batch execute.
+- JDBC: Trace property no longer turns off Toolbox trace when set to its default.
+- JDBC: Handle scientific notation numbers that have no decimal point.
+- JDBC: Properly calculate stream length for Unicode Readers.
+- JDBC: Trace object ID in SQLExceptions.
+- JDBC: Fixes for erroneous commas in SQL statements.
+- JDBC: Many fixes for LOB support.
+- JDBC: Work around Brazil time zone issue.
+- JDBC: Issue warning when 1000 open statements are reached per connection.
+- JDBC: AS400JDBCDataSource can now be constructed with an AS400 object.
+- JDBC: Ensure LOB classes do not break JDBC 1.0 clients.
+- JDBC: Literal prefix for binary strings changed to "X'" instead of "'".
+- JDBC: Fixed DatabaseMetaData.supportsTransactionIsolationLevel().
+- JDBC: Use 819 (ISO) instead of 13488 (UCS-2) in toAsciiStream().
+- JDBC: LOB locators now write to the server when necessary.
+- JDBC: Correctly handle LOB locators when executing batch statements.
+- JDBC: Added "toolbox trace" property.
+- JDBC: Fixed issues with running to a Toolbox ProxyServer.
+- JDBC: Added properties for package CCSID, min divide scale, max precision, and max scale.
+- JDBC: Avoid rounding errors when parsing big integers.
+- JDBC: Issue data truncation warning on a read.
+- Job log: Added writeMessage(boolean onThread).
+- Messages: Updated tracing; avoid NullPointerException in AS400Message.getPath().
+- Panel group: Changed help identifier constructor to not throw an exception if library/object name is blank.
+- Panel group: Mark QUHRHLPT API as threadsafe.
+- PCML: (Bug #3538) Use context class loader to avoid issues in Websphere.
+- PCML: Serializing a PCML file now uses a BufferedOutputStream.
+- Print: Extra message information added.
+- Program call: Deprecated getJob() in favor of getServerJob().
+- QSYS object types: Support TIMZON and PDFMAP.
+- Security: Refreshed codebase from Toolbox LPP; open sourced.
+- Security: Changes to authentication token generation.
+- Servlet: Support XSL-FO tags.
+- System value: Support QTHDRSCAFN and QTHDRSCADJ.
+- User: Updated javadoc and synchronization in UserList.
+- User space: Added constants; allow *USER.
+- Utilities: Support specifying alternate panel group to retrieve help text in CommandHelpRetriever.
+- Utilities: CommandHelpRetriever now generates UIM template source.
+- Utilities: Changed space character generation in CommandHelpRetriever.
+- Utilities: Gracefully handle CPF6250 messages in CommandHelpRetriever.
+- Utilities: Fixed unnecessary dependencies on the JDBC classes by the AS400 object in JarMaker.
+- Utilities: Made CommandHelpRetriever's output directory non-static.
+</PRE>
+<HR>
+</BODY>
+</HTML>
