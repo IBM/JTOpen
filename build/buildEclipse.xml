@@ -206,11 +206,13 @@
   <property name="jdbc40source" value="${basedir}/../jdbc40"/>
   <property name="source-jdbc40" value="${basedir}/../jdbc40"/>
   <property name="source-jdbc40-combined" value="${build}/jdbc40-combined"/>
-  <property name="source-contrib" value="${build}/contrib"/>
-  <property name="source-micro" value="${build}/micro"/>
+  <property name="source-contrib" value="${basedir}/../contrib"/>
+  <property name="source-micro" value="${basedir}/../micro"/>
+  <property name="source-include" value="${basedir}/../include"/>
   <property name="dist" value="${build}/dist14"/>
   <property name="dist6" value="${build}/dist6"/>
   <property name="include" value="${build}/include"/>
+  <property name="includecvs" value=""/>
   <property name="stubs" value="${build}/stubs"/> <!-- stubs are classes we need for compiling, but we don't ship. -->
   <property name="javadoc" value="${build}/javadoc"/>
   <property name="javadoc6" value="${build}/javadoc6"/>
@@ -392,7 +394,7 @@
       <exclude name="com/ibm/as400/micro/StatementHandler.java"/>
       
       <bootclasspath>
-        <pathelement path="${include}/midpapi10.jar:${include}/cldcapi10.jar:${include}"/>
+        <pathelement path="${include}/midpapi10.jar:${include}/cldcapi10.jar:${source-include}"/>
       </bootclasspath>
     </javac>
   </target>      
@@ -409,6 +411,7 @@
     <mkdir dir="${javadoc6}"/>
     <!-- mkdir dir="${include}"/ -->
     <mkdir dir="${output}"/>
+  	<mkdir dir="${output6}"/>
     <mkdir dir="${output-micro}"/>
     <mkdir dir="${output-micro-verified}"/>
     <mkdir dir="${bin}"/>
@@ -507,7 +510,7 @@
 	
   <target name="jar-jt400Micro" depends="init,compile-micro,micro-preverify">
     <jar jarfile="${dist}/jt400Micro.jar" manifest="jt400Micro_manifest.txt">
-      <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
+      <fileset dir="${output-micro-verified}" includesfile="${basedir}/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
     <checksum file="${dist}/jt400Micro.jar"/>
@@ -543,9 +546,9 @@
   
   <target name="jar-jt400Proxy" depends="init,compile">
     <jar jarfile="${dist}/jt400Proxy.jar" manifest="jt400Proxy_manifest.txt">
-      <fileset dir="${output}" includesfile="${build}/build/proxy.includes"/>
-      <fileset dir="${include}" includesfile="${build}/build/proxy.includes"/>
-      <fileset dir="${source}" includesfile="${build}/build/proxy.includes"/>
+      <fileset dir="${output}" includesfile="${basedir}/proxy.includes"/>
+      <fileset dir="${include}" includesfile="${basedir}/proxy.includes"/>
+      <fileset dir="${source}" includesfile="${basedir}/proxy.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
     <checksum file="${dist}/jt400Proxy.jar"/>
@@ -782,7 +785,7 @@
 	    <copy tofile="${build}/build/META-INF/services/java.sql.Driver" 
 	          overwrite="yes"  
 	          preservelastmodified="yes"
-	          file="${build}/build/java.sql.Driver" />
+	          file="${basedir}/../build/java.sql.Driver" />
 
 	    
 	  </target>

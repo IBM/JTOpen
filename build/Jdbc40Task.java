@@ -142,7 +142,7 @@ public class Jdbc40Task extends MatchingTask
       File inputFile  = new File(srcDir_+"/"+filename);
       File outputFile = new File(destDir_+"/"+filename); 
       
-      PrintWriter writer = new PrintWriter(outputFile); 
+      PrintWriter writer = new PrintWriter(new FileWriter(outputFile)); 
       BufferedReader reader = new BufferedReader(new FileReader(inputFile)); 
       
       int state = STATE_NONE; 
