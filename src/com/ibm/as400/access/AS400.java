@@ -2021,7 +2021,7 @@ public class AS400 implements Serializable
              IOException,
              ObjectDoesNotExistException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting time zone");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting time zone for System");
         if (timezone_ == null) {
           timezone_ = DateTimeConverter.timeZoneForSystem(this);
         }
@@ -2029,6 +2029,30 @@ public class AS400 implements Serializable
         return timezone_;
     }
 
+    /** 
+     * Returns the timezone of the IBM i, if available.  If the timezone is not available, 
+     * then the default timezone for the client will be return.  
+     * @param as400   System to get the timezone from
+     * @return  The timezone of the IBM i if available. 
+     */
+    public static TimeZone getDefaultTimeZone(AS400 system) { 
+      TimeZone timeZone = null; 
+      if (system != null) { 
+        try { 
+        timeZone = system.getTimeZone();
+        } catch (Exception e) {  
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception obtaining timezone ", e); 
+        }
+      }
+      if (timeZone == null) { 
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Defaulting to local timezone");
+        timeZone = TimeZone.getDefault(); 
+      }
+
+      return timeZone; 
+    }
+      
+    
     /**
      Returns the user ID.  The user ID returned may be set as a result of the constructor, or it may be what the user typed in at the sign-on prompt.
      @return  The user ID, or an empty string ("") if not set.
