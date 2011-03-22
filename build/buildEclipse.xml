@@ -190,7 +190,7 @@
   <property name="userid" value="eberhard"/>
   <property name="password" value="XXXXX"/>
   <property name="v7r2server"  value="minibld2.rchland.ibm.com"/>
-  <property name="v7r1server"  value="lp08ut23.rchland.ibm.com"/>
+  <property name="v7r1server"  value="lp01ut18.rchland.ibm.com"/>
   <property name="v6r1server1" value="fowgai2.rchland.ibm.com"/>          
   <property name="v6r1server2" value="rchaptf2.rchland.ibm.com"/>       
   <property name="v5r4server"  value="lp03ut5.rchland.ibm.com"/>
@@ -223,8 +223,8 @@
 
   <property name="build.sysclasspath" value="ignore"/>
   
-  <property name="doclink" value="http://java.sun.com/j2se/1.4.2/docs/api/"/>
-  <property name="doclink6" value="http://java.sun.com/javase/6/docs/api/"/>
+  <property name="doclink" value="http://download.oracle.com/javase/1.4.2/docs/api/"/>
+  <property name="doclink6" value="http://download.oracle.com/javase/6/docs/api/"/>
     
   <property name="show-progress" value="false"/>
 
@@ -381,6 +381,9 @@
            target="1.1">
       <include name="com/ibm/as400/micro/*.java"/>
       <include name="java/sql/*.java"/>
+      <include name="java/math/*.java"/>
+      <include name="java/net/*.java"/>
+      <include name="java/util/*.java"/>
       
       <!-- These classes only belong in the ME server, not the client. -->
       <exclude name="com/ibm/as400/micro/ConnectionHandler.java"/>
@@ -453,7 +456,7 @@
     // Target: jar
     ///////////////////////////////////////////////////////////////////////////-->
   	
-  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jt4006"/>
+  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jt4006,jar-jt400Native6"/>
 
   <!-- Note that the utilities package is now included in the jt400.jar. -->  
   <target name="jar-jt400" depends="init,compile,pcml,copyright">
@@ -505,6 +508,34 @@
 
 	    </jar>
 	    <checksum file="${dist6}/jt400.jar"/>
+	  </target>
+
+	  <target name="jar-jt400Native6" depends="init,compile6,pcml6,copyright6">
+	    <jar jarfile="${dist6}/jt400Native.jar" manifest="jt400Native_manifest.txt">
+	      <fileset dir="${output6}">
+	        <patternset>
+	            <!-- Exclude everything in the 'utilities' package except the AboutToolbox class. -->
+	            <exclude name="utilities/*Installer*"/>
+	            <!-- <exclude name="utilities/*JarMaker*"/> -->
+	            <!-- <exclude name="utilities/*JPing*"/> -->
+	            <exclude name="utilities/*RunJava*"/>
+	            <exclude name="utilities/*.properties"/>
+	            <exclude name="com/ibm/as400/vaccess/**"/>
+	        </patternset>
+	      </fileset>
+	      <fileset dir="${include}">
+	        <patternset>
+	            <include name="com/ibm/as400/**"/>
+	            <exclude name="com/ibm/as400/vaccess/**"/>
+	            <exclude name="**/*.java"/>
+	        </patternset>
+	      </fileset>
+	      <fileset dir="${source}"
+	               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl,**/*.xsd"
+	               excludes="com/ibm/as400/vaccess/**"/>
+	      <fileset dir="${build}" includes="license.html"/>
+	    </jar>
+	    <checksum file="${dist6}/jt400Native.jar"/>
 	  </target>
 
 	
@@ -893,6 +924,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+			  <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
      </target>
@@ -930,6 +962,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+			  <include name="jt400Native.jar"/>
 		    </fileset>
 		  </sftp>
      </target>
@@ -968,6 +1001,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+			  <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
      </target>
@@ -980,8 +1014,22 @@ Available Ant targets for the JTOpen build script include:
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftpv6r1" depends="jar">
 	  	<!-- V6R1 server --> 
+	  <ftp server="${v6r1server1}"
+	       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
+	       userid="${userid}"
+	       password="${password}"
+	       passive="yes"
+	       depends="no"
+	  	   verbose="yes"
+	       binary="yes">
+	    <fileset dir="${dist}">
+	      <include name="jt400.jar"/>
+	      <include name="jt400Servlet.jar"/>
+	    </fileset>
+	  </ftp>
+
 		  <ftp server="${v6r1server1}"
-		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib"
 		       userid="${userid}"
 		       password="${password}"
 		       passive="yes"
@@ -989,7 +1037,6 @@ Available Ant targets for the JTOpen build script include:
 		  	   verbose="yes"
 		       binary="yes">
 		    <fileset dir="${dist}">
-		      <include name="jt400.jar"/>
 		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
@@ -1004,10 +1051,11 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+			  <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
 		  <ftp server="${v6r1server2}"
-		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
+		       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
 		       userid="${userid}"
 		       password="${password}"
 		       passive="yes"
@@ -1016,10 +1064,24 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist}">
 		      <include name="jt400.jar"/>
+		      <include name="jt400Servlet.jar"/>
+		    </fileset>
+		  </ftp>
+
+		  <ftp server="${v6r1server2}"
+		       remotedir="/QIBM/proddata/OS400/jt400/lib"
+		       userid="${userid}"
+		       password="${password}"
+		       passive="yes"
+		       depends="no"
+		  	   verbose="yes"
+		       binary="yes">
+		    <fileset dir="${dist}">
 		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
 
+	  	
 		  <ftp server="${v6r1server2}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
 		       userid="${userid}"
@@ -1030,6 +1092,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+			  <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
      </target>
@@ -1067,6 +1130,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+			  <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
 	  	
@@ -1107,6 +1171,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
 
@@ -1135,6 +1200,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
 	  	
@@ -1162,6 +1228,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
 	  	
@@ -1189,6 +1256,7 @@ Available Ant targets for the JTOpen build script include:
 		       binary="yes">
 		    <fileset dir="${dist6}">
 		      <include name="jt400.jar"/>
+		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
 	  	
