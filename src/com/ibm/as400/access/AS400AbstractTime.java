@@ -17,6 +17,7 @@ import java.io.CharConversionException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.Hashtable;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -51,9 +52,10 @@ public abstract class AS400AbstractTime implements AS400DataType
   private transient SimpleDateFormat dateFormatter_;
   private transient CharConverter charConverter_;
 
-  private static SimpleDateFormat dateFormatterXSD_;       // used by AS400Date
-  private static SimpleDateFormat timeFormatterXSD_;       // used by AS400Time
-  private static SimpleDateFormat timestampFormatterXSD_;  // used by AS400Timestamp
+  // Hashtables of SimpleDateFormat keyed by TimeZone
+  private static Hashtable hashDateFormatterXSD_ = null ;       // used by AS400Date
+  private static Hashtable hashTimeFormatterXSD_ = null ;       // used by AS400Time
+  private static Hashtable hashTimestampFormatterXSD_ = null ;  // used by AS400Timestamp
 
   // Map of 'century' digit values to Date objects that specify that start of each century.
   private transient java.util.Date[] centuryMap_;
@@ -63,14 +65,31 @@ public abstract class AS400AbstractTime implements AS400DataType
   private Character separator_;
   private boolean separatorHasBeenSet_ = false;  // indicates whether separator was explicitly set by the application
 
+  private TimeZone timeZone_ = null;             // We need to know the timezone
+
+  
+  /**
+  Constructs an AS400AbstractTime object that uses the default GMT time zone.  Hide this constructor from applications.
+  **/
+ AS400AbstractTime()
+ {
+   this.timeZone_ = TIMEZONE_GMT; 
+ }
+
+
+  
   /**
    Constructs an AS400AbstractTime object.  Hide this constructor from applications.
    **/
-  AS400AbstractTime()
+  AS400AbstractTime(TimeZone timeZone)
   {
+    this.timeZone_ = timeZone; 
   }
 
 
+  public TimeZone getTimeZone() {
+    return timeZone_; 
+  }
   // Implements method of interface AS400DataType.
   /**
    Creates a new AS400AbstractTime object that is identical to the current instance.
@@ -132,11 +151,13 @@ public abstract class AS400AbstractTime implements AS400DataType
   {
     if (calendar_ == null)
     {
+     
+      TimeZone timezone = getTimeZone(); 
       if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "AS400AbstractTime.getCalendar(): Setting internal timezone to " + TIMEZONE_GMT);
+        Trace.log(Trace.DIAGNOSTIC, "AS400AbstractTime.getCalendar(): Setting internal timezone to " + timezone);
       }
 
-      calendar_ = new GregorianCalendar(TIMEZONE_GMT, LOCALE_DEFAULT);
+      calendar_ = new GregorianCalendar(timezone, LOCALE_DEFAULT);
     }
     return calendar_;
   }
@@ -340,7 +361,7 @@ public abstract class AS400AbstractTime implements AS400DataType
   {
     if (dateFormatter_ == null) {
       dateFormatter_ = new SimpleDateFormat(patternFor(format_, separator_));
-      dateFormatter_.setTimeZone(TIMEZONE_GMT);
+      dateFormatter_.setTimeZone(getTimeZone());
     }
     return dateFormatter_;
   }
@@ -360,51 +381,84 @@ public abstract class AS400AbstractTime implements AS400DataType
 
 
   // Utility method used by AS400Date.
-  static SimpleDateFormat getDateFormatterXSD()
+  static SimpleDateFormat getDateFormatterXSD(TimeZone timezone)
   {
-    if (dateFormatterXSD_ == null) {
+    if (hashDateFormatterXSD_ == null) {
       synchronized (AS400Date.class)
       {
-        if (dateFormatterXSD_ == null) {
-          dateFormatterXSD_ = new SimpleDateFormat(DATE_PATTERN_XSD);
-          dateFormatterXSD_.setTimeZone(TIMEZONE_GMT);
+        if (hashDateFormatterXSD_ == null) {
+           hashDateFormatterXSD_ = new Hashtable();
         }
       }
     }
-    return dateFormatterXSD_;
+    SimpleDateFormat dateFormatterXSD = (SimpleDateFormat) hashDateFormatterXSD_.get(timezone); 
+    if (dateFormatterXSD == null) {
+      synchronized (AS400Date.class)
+      {
+        dateFormatterXSD = (SimpleDateFormat) hashDateFormatterXSD_.get(timezone); 
+        if (dateFormatterXSD == null) {
+          dateFormatterXSD = new SimpleDateFormat(DATE_PATTERN_XSD);
+          dateFormatterXSD.setTimeZone(timezone);
+          hashDateFormatterXSD_.put(timezone, dateFormatterXSD); 
+        }
+      }
+    }
+    return dateFormatterXSD;
   }
 
 
   // Utility method used by AS400Time.
-  static SimpleDateFormat getTimeFormatterXSD()
+  static SimpleDateFormat getTimeFormatterXSD(TimeZone timeZone)
   {
-    if (timeFormatterXSD_ == null) {
+    if (hashTimeFormatterXSD_ == null) {
       synchronized (AS400Time.class)
       {
-        if (timeFormatterXSD_ == null) {
-          timeFormatterXSD_ = new SimpleDateFormat(TIME_PATTERN_XSD);
-          timeFormatterXSD_.setTimeZone(TIMEZONE_GMT);
+        if (hashTimeFormatterXSD_ == null) {
+           hashTimeFormatterXSD_ = new Hashtable();
         }
       }
     }
-    return timeFormatterXSD_;
+    SimpleDateFormat timeFormatterXSD = (SimpleDateFormat) hashTimeFormatterXSD_.get(timeZone); 
+    if (timeFormatterXSD == null) {
+      synchronized (AS400Time.class)
+      {
+        timeFormatterXSD = (SimpleDateFormat) hashTimeFormatterXSD_.get(timeZone);
+        if (timeFormatterXSD == null) {
+          timeFormatterXSD = new SimpleDateFormat(TIME_PATTERN_XSD);
+          timeFormatterXSD.setTimeZone(timeZone);
+          hashTimeFormatterXSD_.put(timeZone, timeFormatterXSD); 
+        }
+      }
+    }
+    return timeFormatterXSD;
   }
 
 
   // Utility method used by AS400Timestamp.
-  static SimpleDateFormat getTimestampFormatterXSD()
+  static SimpleDateFormat getTimestampFormatterXSD(TimeZone timeZone)
   {
-    if (timestampFormatterXSD_ == null) {
+    if (hashTimestampFormatterXSD_ == null) {
       synchronized (AS400Timestamp.class)
       {
-        if (timestampFormatterXSD_ == null) {
-          timestampFormatterXSD_ = new SimpleDateFormat(TIMESTAMP_PATTERN_XSD);
-          // Note: We deal with "nanoseconds" elsewhere, in the AS400Timestamp class.
-          timestampFormatterXSD_.setTimeZone(TIMEZONE_GMT);
+        if (hashTimestampFormatterXSD_ == null) {
+           hashTimestampFormatterXSD_ = new Hashtable();
         }
       }
     }
-    return timestampFormatterXSD_;
+    SimpleDateFormat timestampFormatterXSD = (SimpleDateFormat) hashTimestampFormatterXSD_.get(timeZone); 
+    if (timestampFormatterXSD == null) {
+      synchronized (AS400Timestamp.class)
+      {
+        timestampFormatterXSD = (SimpleDateFormat) hashTimestampFormatterXSD_.get(timeZone); 
+        if (timestampFormatterXSD == null) {
+          timestampFormatterXSD = new SimpleDateFormat(TIMESTAMP_PATTERN_XSD);
+          // Note: We deal with "nanoseconds" elsewhere, in the AS400Timestamp class.
+          timestampFormatterXSD.setTimeZone(timeZone);
+          hashTimestampFormatterXSD_.put(timeZone, timestampFormatterXSD); 
+        }
+      }
+    }
+    return timestampFormatterXSD;
   }
 
 
