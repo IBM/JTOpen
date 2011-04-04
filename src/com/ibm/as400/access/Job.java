@@ -21,12 +21,9 @@ import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  Represents a job on the IBM i server.  In order to access a job, the system and either the job name, user name, and job number or internal job identifier need to be set.  A valid and sufficient combination of these must be set before getting or setting any of the job's attributes.
@@ -5124,7 +5121,7 @@ public class Job implements Serializable
     private synchronized AS400Timestamp getTimestampConverter(int format)
     {
       if (timestampConverter_ == null) {
-        timestampConverter_ = new AS400Timestamp();
+        timestampConverter_ = new AS400Timestamp(AS400.getDefaultTimeZone(system_));
         timestampConverter_.setFormat(format);
       }
       else if (format != timestampConverter_.getFormat()) {

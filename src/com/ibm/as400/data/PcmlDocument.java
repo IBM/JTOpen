@@ -34,14 +34,11 @@ import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
-import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ProgramCall;
 
 
-import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;                                   // @C1A
-import java.io.SequenceInputStream;
 
 import java.io.PrintWriter;                                         //@E1A
 import java.io.OutputStream;                                        //@E1A
@@ -49,15 +46,9 @@ import com.ibm.as400.access.Trace;                                  //@E1A
 
 import java.net.UnknownHostException;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
 
 import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.MissingResourceException;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.TimeZone;
 
 import com.ibm.as400.access.BinaryConverter;
 //import sun.misc.BASE64Encoder;                                     //@E1A
@@ -100,9 +91,10 @@ class PcmlDocument extends PcmlDocRoot
     private static AS400Float8        m_Float8 = new AS400Float8();
     private static AS400PackedDecimal m_Packed_15_5 = new AS400PackedDecimal(15, 5);
     private static AS400ZonedDecimal  m_Zoned_15_5 = new AS400ZonedDecimal(15, 5);
-    private static AS400Date          m_Date       = new AS400Date();
-    private static AS400Time          m_Time       = new AS400Time();
-    private static AS400Timestamp     m_Timestamp  = new AS400Timestamp();
+    // We can't have static versions of these, since they all depend on the timezone of the system. 
+    //private static AS400Date          m_Date       = new AS400Date();
+    //private static AS400Time          m_Time       = new AS400Time();
+    // private static AS400Timestamp     m_Timestamp  = new AS400Timestamp();
 
     private long   correlationID_ = 0;                       // @C8A
 
@@ -402,47 +394,51 @@ class PcmlDocument extends PcmlDocRoot
                 }
 
             case PcmlData.DATE:
-              if (dateFormat == null ||
-                  (dateFormat.equals("ISO") &&  // default date format
-                   (dateSeparator == null || dateSeparator.equals(DEFAULT_DATE_SEPARATOR))))
-              {
-                return m_Date;
-              }
-              else  // create a date converter
+              //
+              // We can't use a static one because that assumes the timezone is known. 
+              //if (dateFormat == null ||
+              //    (dateFormat.equals("ISO") &&  // default date format
+              //     (dateSeparator == null || dateSeparator.equals(DEFAULT_DATE_SEPARATOR))))
+              //{
+              //  return m_Date;
+              //}
+              //else  // create a date converter
               {
                 int format = AS400Date.toFormat(dateFormat);
                 // Note: The format value is validated in PcmlData.checkAttributes().
                 if (dateSeparator == null) {
-                  return new AS400Date(format); // assume the default separator
+                  return new AS400Date(getTimeZone(), format); // assume the default separator
                 }
                 else
                 {  // Convert the separator name ('comma', 'hyphen', etc) to a character.
-                  return new AS400Date(format,separatorAsChar(dateSeparator));
+                  return new AS400Date(getTimeZone(), format, separatorAsChar(dateSeparator));
                 }
               }
 
             case PcmlData.TIME:
-              if (timeFormat == null ||
-                  (timeFormat.equals("ISO") &&  // default time format
-                   (timeSeparator == null || timeSeparator.equals(DEFAULT_TIME_SEPARATOR))))
-              {
-                return m_Time;
-              }
-              else  // create a time converter
+              // We can't use a static one because that assumes the timezone is known. 
+              //if (timeFormat == null ||
+              //    (timeFormat.equals("ISO") &&  // default time format
+              //     (timeSeparator == null || timeSeparator.equals(DEFAULT_TIME_SEPARATOR))))
+              //{
+              //  return m_Time;
+              //}
+              //else  // create a time converter
               {
                 int format = AS400Time.toFormat(timeFormat);
                 // Note: The format value is validated in PcmlData.checkAttributes().
                 if (timeSeparator == null) {
-                  return new AS400Time(format); // assume the default separator
+                  return new AS400Time(getTimeZone(), format); // assume the default separator
                 }
                 else
                 {  // Convert the separator name ('comma', 'hyphen', etc) to a character.
-                  return new AS400Time(format,separatorAsChar(timeSeparator));
+                  return new AS400Time(getTimeZone(), format,separatorAsChar(timeSeparator));
                 }
               }
 
             case PcmlData.TIMESTAMP:
-              return m_Timestamp;
+              
+              return new AS400Timestamp(getTimeZone()); 
 
             default:
                 throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , "*"} );
@@ -599,7 +595,7 @@ class PcmlDocument extends PcmlDocRoot
      Returns the ProgramCall object that was used in the most recent invocation of {@link #callProgram() callProgram()}.
      @return The ProgramCall object; null if callProgram has not been called.
      **/
-    ProgramCall getProgramCall()
+    synchronized ProgramCall getProgramCall()
     {
       return ( m_pcmlProgram == null ? null : m_pcmlProgram.getProgramCall() );
     }
@@ -2283,7 +2279,7 @@ class PcmlDocument extends PcmlDocRoot
         {
             // Get the value of the data node and print out as a string
             String strVal="";
-            String tempVal="";
+            // String tempVal="";
             Object objVal;
 
             int[] indices = new int[1];
@@ -2314,13 +2310,13 @@ class PcmlDocument extends PcmlDocRoot
                      if (objVal != null)
                      {
                        if (objVal instanceof java.sql.Date) {
-                         strVal = AS400Date.toXsdString(objVal);
+                         strVal = AS400Date.toXsdString(objVal, getTimeZone());
                        }
                        else if (objVal instanceof java.sql.Time) {
-                         strVal = AS400Time.toXsdString(objVal);
+                         strVal = AS400Time.toXsdString(objVal, getTimeZone());
                        }
                        else if (objVal instanceof java.sql.Timestamp) {
-                         strVal = AS400Timestamp.toXsdString(objVal);
+                         strVal = AS400Timestamp.toXsdString(objVal, getTimeZone());
                        }
                        else {
                          strVal = objVal.toString();
@@ -2834,6 +2830,7 @@ class PcmlDocument extends PcmlDocRoot
     }
  }
 
-
-
+  public TimeZone getTimeZone() {
+    return AS400.getDefaultTimeZone(getAs400());
+  }
 }

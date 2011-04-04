@@ -77,7 +77,10 @@ import java.util.EventListener;
  /QSYS.LIB/CRTLIB.CMD
  /QSYS.LIB/ACCOUNTS.FILE/PAYABLE.MBR
  </pre>
- <p>In an integrated file system path name, special values, such as <i>*ALL</i>, that begin with an asterisk are not depicted with an asterisk but with leading and trailing percent signs (<i>%ALL%</i>). In the integrated file system, an asterisk is a wildcard character.  The following special values are recognized by this class:
+ <p>In an integrated file system path name, special values, such as <i>*ALL</i>, that begin with an asterisk are 
+ not depicted with an asterisk but with leading and trailing percent signs (<i>%ALL%</i>). 
+ In the integrated file system, an asterisk is a wildcard character.  
+ The following special values are recognized by this class:
  <pre>
  Library name: %ALL%(*ALL), %ALLUSR%(*ALLUSR), %CURLIB%(*CURLIB), %LIBL%(*LIBL), %USRLIBL%(*USRLIBL)
  Object name:  %ALL%(*ALL)

@@ -533,7 +533,7 @@ public class QueuedMessage extends AS400Message implements Serializable
             case 302:
                 setText((String)value);
                 break;
-            case 401: 
+      case 401: 
 	        messageHelp_ = (String)value; 
                 break;
 	    case 402:
@@ -542,7 +542,7 @@ public class QueuedMessage extends AS400Message implements Serializable
 	    case 403:
                 messageHelpReplacementandFormat_ = (String)value; 
 	        break; 
-            case 404:
+      case 404:
                 setHelp((String)value);
                 break;
             case 501:

@@ -569,7 +569,9 @@
     </xs:sequence>
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
+    <!-- The number of elements in the array. -->
     <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attribute name="dateFormat" type="dateFormatType" />
     <xs:attribute name="dateSeparator" type="dateSeparatorType"/>
   </xs:complexType>
@@ -605,7 +607,9 @@
     </xs:sequence>
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
+    <!-- The number of elements in the array. -->
     <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attribute name="timeFormat" type="timeFormatType" />
     <xs:attribute name="timeSeparator" type="timeSeparatorType"/>
   </xs:complexType>
@@ -636,6 +640,7 @@
     <xs:sequence>
       <xs:element name="i" type="timestampElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
+    <!-- The number of elements in the array. -->
     <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
     <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>

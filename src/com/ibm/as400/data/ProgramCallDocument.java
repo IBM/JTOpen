@@ -35,7 +35,6 @@ import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.io.ByteArrayOutputStream;                       //@E1A
 import java.io.ByteArrayInputStream;                        //@E1A
-import java.io.BufferedInputStream;                         //@E1A
 import java.io.OutputStream;                                //@E1A
 import java.io.InputStreamReader;                           //@E1A
 import java.io.LineNumberReader;                            //@E1A
@@ -385,7 +384,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
      */
     public static void main(String[] args)
     {
-		PcmlDocument pd = null;;
+		PcmlDocument pd = null;
 
         System.setErr(System.out);
         final String errMsg = SystemResourceFinder.format(DAMRI.PCD_ARGUMENTS);
@@ -1430,16 +1429,22 @@ public class ProgramCallDocument implements Serializable, Cloneable
       }
       catch (ParseException pe)
       {
+          if (Trace.isTraceErrorOn())                         
+            pe.printStackTrace(Trace.getPrintWriter());       
           pe.reportErrors();
           throw new PcmlException(pe);
       }
       catch (PcmlSpecificationException pse)
       {
+        if (Trace.isTraceErrorOn())                         
+          pse.printStackTrace(Trace.getPrintWriter());       
           pse.reportErrors();
           throw new PcmlException(pse);
       }
       catch (RuntimeException e)
       {
+        if (Trace.isTraceErrorOn())                         
+          e.printStackTrace(Trace.getPrintWriter());       
         Throwable cause = e.getCause();
         if (cause instanceof PcmlSpecificationException)
         {
@@ -1505,8 +1510,15 @@ public class ProgramCallDocument implements Serializable, Cloneable
         }
         finally
         {
-          if (in != null) try { in.close(); } catch (Exception e) {}
-          if (is != null) try { is.close(); } catch (Exception e) {}
+          if (in != null) try { in.close(); } catch (Exception e) {
+            if (Trace.isTraceErrorOn())                        
+              e.printStackTrace(Trace.getPrintWriter());      
+          }
+          if (is != null) try { is.close(); } catch (Exception e) {
+            if (Trace.isTraceErrorOn())                        
+              e.printStackTrace(Trace.getPrintWriter());      
+            
+          }
         }
 
         return pd;
@@ -1551,9 +1563,21 @@ public class ProgramCallDocument implements Serializable, Cloneable
         }
         finally
         {
-          if (in != null)   try { in.close(); } catch (Exception e) {}
-          if (gzis != null) try { gzis.close(); } catch (Exception e) {}
-          if (is != null)   try { is.close(); } catch (Exception e) {}
+          if (in != null)   try { in.close(); } catch (Exception e) { 
+            if (Trace.isTraceErrorOn())                        
+              e.printStackTrace(Trace.getPrintWriter());      
+
+          }
+          if (gzis != null) try { gzis.close(); } catch (Exception e) {
+            if (Trace.isTraceErrorOn())                        
+              e.printStackTrace(Trace.getPrintWriter());      
+
+          }
+          if (is != null)   try { is.close(); } catch (Exception e) {
+            if (Trace.isTraceErrorOn())                        
+              e.printStackTrace(Trace.getPrintWriter());      
+
+          }
         }
 
         return pd;

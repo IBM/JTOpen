@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import com.ibm.as400.access.*;
@@ -82,7 +83,7 @@ class RfmlRecordFormat extends PcmlDocNode
     /**
      Composes a list of FieldDescription objects representing the specified node and its children.
      **/
-    private static void addFieldDescriptions(PcmlDocNode node, Vector fieldDescriptions, Vector keyFields, Vector namesAlreadyUsed, String preferredFieldName) throws XmlException    // @A1c added arg
+    private static void addFieldDescriptions(PcmlDocNode node, Vector fieldDescriptions, Vector keyFields, Vector namesAlreadyUsed, String preferredFieldName, TimeZone timeZone) throws XmlException    // @A1c added arg
     {
       boolean typeIsStruct = false;  // We set this to true if current node is <struct> or <data type="struct">.    // @A1a
       String fieldName = null;                // @A1c
@@ -261,7 +262,7 @@ class RfmlRecordFormat extends PcmlDocNode
               AS400ByteArray convByte = new AS400ByteArray(fieldLength);
               fieldDesc = new HexFieldDescription(convByte, fieldName);
               if (initValue != null) {
-                Object convertedValue = PcmlDataValues.convertValue(initValue, PcmlData.BYTE, fieldLength, 0, dNode.getNameForException()); // @A1a
+                Object convertedValue = PcmlDataValues.convertValue(initValue, PcmlData.BYTE, fieldLength, 0, dNode.getNameForException(), timeZone); // @A1a
                 ((HexFieldDescription)fieldDesc).setDFT((byte[])convertedValue); // @A1a
                 // Note: We could alternatively use Arrays.fill().  However, java.util.Arrays is new in Java2.
               }
@@ -274,17 +275,17 @@ class RfmlRecordFormat extends PcmlDocNode
               String separatorName = dNode.getDateSeparator();
               String format = dNode.getDateFormat();
               AS400Date convDate;
-              if (format == null) convDate = new AS400Date();
+              if (format == null) convDate = new AS400Date(timeZone);
               else {
                 int formatInt = AS400Date.toFormat(format);
-                if (separatorName == null) convDate = new AS400Date(formatInt);
-                else convDate = new AS400Date(formatInt, separatorAsChar(separatorName));
+                if (separatorName == null) convDate = new AS400Date(timeZone, formatInt);
+                else convDate = new AS400Date(timeZone, formatInt, separatorAsChar(separatorName));
               }
               fieldDesc = new DateFieldDescription(convDate, fieldName);
               if (initValue != null) {
                 // We require the 'init=' value to be specified in standard XML Schema 'date' format.
                 // Normalize it to match the field's specified DDS format.
-                String initValueNormalized = convDate.toString(AS400Date.parseXsdString(initValue));
+                String initValueNormalized = convDate.toString(AS400Date.parseXsdString(initValue, timeZone));
                 ((DateFieldDescription)fieldDesc).setDFT(initValueNormalized);
               }
               if (format != null) {
@@ -302,17 +303,17 @@ class RfmlRecordFormat extends PcmlDocNode
               String separatorName = dNode.getTimeSeparator();
               String format = dNode.getTimeFormat();
               AS400Time convTime;
-              if (format == null) convTime = new AS400Time();
+              if (format == null) convTime = new AS400Time(timeZone);
               else {
                 int formatInt = AS400Time.toFormat(format);
-                if (separatorName == null) convTime = new AS400Time(formatInt);
-                else convTime = new AS400Time(formatInt, separatorAsChar(separatorName));
+                if (separatorName == null) convTime = new AS400Time(timeZone, formatInt);
+                else convTime = new AS400Time(timeZone, formatInt, separatorAsChar(separatorName));
               }
               fieldDesc = new TimeFieldDescription(convTime, fieldName);
               if (initValue != null) {
                 // We require the 'init=' value to be specified in standard XML Schema 'time' format.
                 // Normalize it to match the field's specified DDS format.
-                String initValueNormalized = convTime.toString(AS400Time.parseXsdString(initValue));
+                String initValueNormalized = convTime.toString(AS400Time.parseXsdString(initValue, timeZone));
                 ((TimeFieldDescription)fieldDesc).setDFT(initValueNormalized);
               }
               if (format != null) {
@@ -327,12 +328,13 @@ class RfmlRecordFormat extends PcmlDocNode
             // Node is <data type="timestamp">.
           case (PcmlData.TIMESTAMP) :
             {
-              AS400Timestamp convTimestamp = new AS400Timestamp();
+            
+              AS400Timestamp convTimestamp = new AS400Timestamp(timeZone);
               fieldDesc = new TimestampFieldDescription(convTimestamp, fieldName);
               if (initValue != null) {
                 // We require the 'init=' value to be specified in standard XML Schema 'timestamp' format.
                 // Normalize it to match the field's expected DDS format.
-                String initValueNormalized = convTimestamp.toString(AS400Timestamp.parseXsdString(initValue));
+                String initValueNormalized = convTimestamp.toString(AS400Timestamp.parseXsdString(initValue, timeZone));
                 ((TimestampFieldDescription)fieldDesc).setDFT(initValueNormalized);
               }
               break;
@@ -406,7 +408,7 @@ class RfmlRecordFormat extends PcmlDocNode
         while (children.hasMoreElements())
         {
           PcmlDocNode child = (PcmlDocNode) children.nextElement();
-          addFieldDescriptions(child, fieldDescriptions, keyFields, namesAlreadyUsed, nameForChild);       // @A1c
+          addFieldDescriptions(child, fieldDescriptions, keyFields, namesAlreadyUsed, nameForChild, timeZone);       // @A1c
         }
       }
     }
@@ -638,7 +640,7 @@ class RfmlRecordFormat extends PcmlDocNode
       // Note: We ignore the "count" attribute.  Regardless of what value is specified in <data count=xxx>, we will generate a single FieldDescription for the node.
 
       // Recursively compose FieldDescription objects representing this node and its child nodes.
-      addFieldDescriptions(this, fieldDescriptions, keyFields, namesAlreadyUsed, null);   // @A1c
+      addFieldDescriptions(this, fieldDescriptions, keyFields, namesAlreadyUsed, null, AS400.getDefaultTimeZone(getAs400()));   // @A1c
 
       RecordFormat recordFormat = new RecordFormat(getName());
       for (int i=0; i < fieldDescriptions.size(); ++i)

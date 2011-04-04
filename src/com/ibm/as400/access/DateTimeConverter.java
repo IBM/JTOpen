@@ -583,7 +583,12 @@ public class DateTimeConverter
              IOException,
              ObjectDoesNotExistException
   {
+	  
+	// Using the UTC offset does not properly account for the use of daylight savings time.  We use
+    // the qtimezone value to adjust for those systems that use daylight savings time. 
+	//   
     // To obtain a standard ID for the time zone, simply concatenate "GMT" and the QUTCOFFSET value.
+	
     String utcOffset = null;
     try
     {
@@ -669,6 +674,8 @@ public class DateTimeConverter
   **/
   private static class DateTime17Format extends RecordFormat
   {
+    private static final long serialVersionUID = 1L;
+
     DateTime17Format(AS400 system)
     {
       int ccsid = system.getCcsid();

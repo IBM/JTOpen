@@ -16,7 +16,6 @@ package com.ibm.as400.data;
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400Date;
 import com.ibm.as400.access.AS400Time;
-import com.ibm.as400.access.AS400Timestamp;
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.ProgramParameter;                       // @B1A
 import com.ibm.as400.access.BidiStringType;                         // @C9A
@@ -28,6 +27,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 class PcmlData extends PcmlDocNode
 {
@@ -362,12 +362,20 @@ class PcmlData extends PcmlDocNode
 
             // If the current dimension is more recent
             // than the dimension of the data, we need to
-            // trow away all data at this and deeper dimensions
+            // throw away all data at this and deeper dimensions
             // because it is stale.
             // In other words, the count= value was changed for this dimension
             // and we need to throw away all the values stored.
             if ( myDimensionTimestamps[i] > v.getTimestamp() )
             {
+            	// Note:  For CPS discussion 8CDSG2 this code is causing a problem when the array is defined using 
+            	//        a variable that is also returned. 
+            	//    <program name="PCMLTST" path="/QSYS.LIB/PMR49262.LIB/PCMLTST.PGM">
+                //       <data name="ARY" type="char" length="100" count="COUNT" usage="inputoutput" />
+                //       <data name="COUNT" type="int" length="4" precision="32" usage="inputoutput" />
+                //    </program>
+            	// In this case, the dimension timestamp is really new, but v.getTimestamp() returns something low. 
+            	// 
                 v.redimension(myDimensions[i]);
             }
 
@@ -1948,7 +1956,8 @@ class PcmlData extends PcmlDocNode
             default:
               try
               {
-                PcmlDataValues.convertValue((Object) getInit(), getDataType(), getLength(), getPrecision(), getNameForException());
+                TimeZone serverTimeZone = getDoc().getTimeZone(); 
+                PcmlDataValues.convertValue((Object) getInit(), getDataType(), getLength(), getPrecision(), getNameForException(), serverTimeZone);
               }
               catch (Exception e)
               {

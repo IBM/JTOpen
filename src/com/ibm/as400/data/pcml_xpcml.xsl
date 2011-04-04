@@ -43,7 +43,7 @@
  <xpcml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation='xpcml.xsd' >
 
-          <xsl:attribute name="version">4.0</xsl:attribute>
+          <xsl:attribute name="version">6.0</xsl:attribute>
     <xsl:apply-templates/>
   </xpcml>
 </xsl:template>
@@ -539,6 +539,92 @@
      </xsl:choose>
     </xsl:if>
   </xsl:if>
+  
+  <xsl:if test="@type='date'">
+    <xsl:choose>
+      <xsl:when test="@count and @count != '0' ">
+      <arrayOfDateParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:call-template name="dateAttributes"/> 
+         <xsl:if test="@init">
+            <xsl:variable name="count" select="@count"/>
+            <xsl:call-template name="writeArrayElements">
+              <xsl:with-param name="countVal" select="$count" />
+              <xsl:with-param name="val" select="@init"  />
+            </xsl:call-template>
+         </xsl:if>
+      </arrayOfDateParm>
+      </xsl:when>
+      <xsl:otherwise>
+      <dateParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:call-template name="dateAttributes"/> 
+         <xsl:if test="@init">
+            <xsl:value-of select="@init"/>
+         </xsl:if>
+         
+      </dateParm>
+      </xsl:otherwise>
+     </xsl:choose>
+  </xsl:if>
+  
+  <xsl:if test="@type='time'">
+    <xsl:choose>
+      <xsl:when test="@count and @count != '0' ">
+      <arrayOfTimeParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:call-template name="timeAttributes"/> 
+         <xsl:if test="@init">
+            <xsl:variable name="count" select="@count"/>
+            <xsl:call-template name="writeArrayElements">
+              <xsl:with-param name="countVal" select="$count" />
+              <xsl:with-param name="val" select="@init"  />
+            </xsl:call-template>
+         </xsl:if>
+      </arrayOfTimeParm>
+      </xsl:when>
+      <xsl:otherwise>
+      <timeParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:call-template name="timeAttributes"/> 
+         <xsl:if test="@init">
+            <xsl:value-of select="@init"/>
+         </xsl:if>
+         
+      </timeParm>
+      </xsl:otherwise>
+     </xsl:choose>
+  </xsl:if>
+  
+  <xsl:if test="@type='timestamp'">
+    <xsl:choose>
+      <xsl:when test="@count and @count != '0' ">
+      <arrayOfTimestampParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:if test="@init">
+            <xsl:variable name="count" select="@count"/>
+            <xsl:call-template name="writeArrayElements">
+              <xsl:with-param name="countVal" select="$count" />
+              <xsl:with-param name="val" select="@init"  />
+            </xsl:call-template>
+         </xsl:if>
+      </arrayOfTimestampParm>
+      </xsl:when>
+      <xsl:otherwise>
+      <timestampParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:if test="@init">
+            <xsl:value-of select="@init"/>
+         </xsl:if>
+         
+      </timestampParm>
+      </xsl:otherwise>
+     </xsl:choose>
+  </xsl:if>
+  
+  
+  
+  
   <xsl:if test="@type='struct'">
     <xsl:choose>
       <xsl:when test="@count and @count != '0' ">
@@ -589,6 +675,34 @@
         </xsl:attribute>
     </xsl:if>
   </xsl:template>
+
+  <xsl:template name="dateAttributes">
+     <xsl:if test="@dateformat">  <!-- the parm has a 'dateFormat' attribute -->
+        <xsl:attribute name="dateFormat">
+          <xsl:value-of select="@dateformat"/>
+        </xsl:attribute>
+     </xsl:if>
+     <xsl:if test="@dateseparator">  <!-- the parm has a 'dateFormat' attribute -->
+        <xsl:attribute name="dateSeparator">
+          <xsl:value-of select="@dateseparator"/>
+        </xsl:attribute>
+     </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="timeAttributes">
+     <xsl:if test="@timeformat">  <!-- the parm has a 'timeformat' attribute -->
+        <xsl:attribute name="timeFormat">
+          <xsl:value-of select="@timeformat"/>
+        </xsl:attribute>
+     </xsl:if>
+     <xsl:if test="@timeseparator">  <!-- the parm has a 'timeseparatorformat' attribute -->
+         <xsl:attribute name="timeSeparator">
+            <xsl:value-of select="@timeseparator"/>
+         </xsl:attribute>
+     </xsl:if>
+  </xsl:template>
+
+
 
 <xsl:template name="writeArrayElements">
   <xsl:param name="countVal"></xsl:param>

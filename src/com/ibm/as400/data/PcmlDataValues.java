@@ -33,6 +33,7 @@ import java.io.Serializable;                                        // @C1A
 
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 class PcmlDataValues extends Object implements Serializable         // @C1C
 {
@@ -195,7 +196,9 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         // Convert to the Java type needed -- errors may occur.
         else 
         {
-            m_value = convertValue(v, getDataType(), getLength(), getPrecision(), getNameForException());
+           // Determine the timezone
+          TimeZone timeZone = m_owner.getDoc().getTimeZone(); 
+            m_value = convertValue(v, getDataType(), getLength(), getPrecision(), getNameForException(), timeZone);
         }
         // Update the value timestamp
         m_valueTs = m_owner.getDoc().getCorrelationID();
@@ -777,7 +780,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     //
     // This is implemented as a static method so it can be used
     // to verify the init= attribute after parsing the pcml document tags.
-    public static Object convertValue(Object newVal, int dataType, int dataLength, int dataPrecision, String nodeNameForException) throws PcmlException 
+    public static Object convertValue(Object newVal, int dataType, int dataLength, int dataPrecision, String nodeNameForException, TimeZone serverTimeZone) throws PcmlException 
     {
         Object convertedVal = null;
         
@@ -1077,7 +1080,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
               if (newVal instanceof String) 
               {
                 // Parse XML Schema-style date value: yyyy-mm-dd
-                convertedVal = AS400Date.parseXsdString((String)newVal);
+                convertedVal = AS400Date.parseXsdString((String)newVal, serverTimeZone);
               }
               else 
               {
@@ -1096,7 +1099,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
               if (newVal instanceof String) 
               {
                 // Parse XML Schema-style time value: hh:mm:ss
-                convertedVal = AS400Time.parseXsdString((String)newVal);
+                convertedVal = AS400Time.parseXsdString((String)newVal, serverTimeZone);
               }
               else 
               {
@@ -1115,7 +1118,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
               if (newVal instanceof String) 
               {
                 // Parse XML Schema-style timestamp value: yyyy-MM-ddTHH:mm:ss.SSSSSSSSS
-                convertedVal = AS400Timestamp.parseXsdString((String)newVal);
+                convertedVal = AS400Timestamp.parseXsdString((String)newVal, serverTimeZone);
               }
               else 
               {
