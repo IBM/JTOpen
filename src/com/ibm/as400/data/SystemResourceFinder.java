@@ -68,26 +68,55 @@ class SystemResourceFinder
     return m_headerLineCount;
   }
 
-
+  /** 
+   * Helper method to trace the use of a class loader
+   * @param loader
+   */
+  private static void traceLoader(ClassLoader loader) {
+    if (Trace.isTraceOn())  {
+      Trace.log(Trace.PCML, "SystemResourceFinder loader is "+loader+")");
+    }
+  }
   /**
    * Helper method used to try loading from all 3 of our class loaders.
   **/
   private static final InputStream loadResource(String docPath)
   {
+    if (Trace.isTraceOn()) {
+      Trace.log(Trace.PCML, "SystemResourceFinder.loadResource("+docPath+")");
+    }
+
     InputStream stream = null;
     
     ClassLoader loader = getLoader1();
-    if (loader != null) stream = loader.getResourceAsStream(docPath);
-    if (stream != null) return new BufferedInputStream(stream);
+    if (loader != null) {
+      if (Trace.isTraceOn()) { traceLoader(loader); }
+      stream = loader.getResourceAsStream(docPath);
+      if (stream != null)  {
+        if (Trace.isTraceOn()) { Trace.log(Trace.PCML, "SystemResourceFinder.loadResource found "+docPath); }
+        return new BufferedInputStream(stream);
+      }
+    }
 
     loader = getLoader2();
-    if (loader != null) stream = loader.getResourceAsStream(docPath);
-    if (stream != null) return new BufferedInputStream(stream);
+    if (loader != null) {
+      if (Trace.isTraceOn()) { traceLoader(loader); }
+      stream = loader.getResourceAsStream(docPath);
+      if (stream != null) {
+        if (Trace.isTraceOn()) { Trace.log(Trace.PCML, "SystemResourceFinder.loadResource found "+docPath); }
+        return new BufferedInputStream(stream);
+      }
+    }
 
     loader = getLoader3();
-    if (loader != null) stream = loader.getResourceAsStream(docPath);
-    if (stream != null) return new BufferedInputStream(stream);
-    
+    if (loader != null) { 
+      if (Trace.isTraceOn()) { traceLoader(loader); }
+      stream = loader.getResourceAsStream(docPath); 
+      if (stream != null) {
+        if (Trace.isTraceOn()) { Trace.log(Trace.PCML, "SystemResourceFinder.loadResource found "+docPath); }
+        return new BufferedInputStream(stream);
+      }
+    }
     return null;
   }
 
