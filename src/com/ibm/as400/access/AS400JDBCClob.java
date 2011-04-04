@@ -225,7 +225,7 @@ Returns the position at which a pattern is found in the CLOB.
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-    }
+    } else { 
 
     char[] charPattern = pattern.toCharArray();
     int end = data_.length - charPattern.length;
@@ -236,8 +236,9 @@ Returns the position at which a pattern is found in the CLOB.
       while (j < charPattern.length && data_[i+j] == charPattern[j]) ++j;
       if (j == charPattern.length) return i+1;
     }
-
+    }
     return -1;
+    
   }
 
 
@@ -265,7 +266,7 @@ Returns the position at which a pattern is found in the CLOB.
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-    }
+    } else { 
 
     int patternLength = (int)pattern.length();
     if (patternLength > data_.length || patternLength < 0) return -1;
@@ -279,6 +280,7 @@ Returns the position at which a pattern is found in the CLOB.
       int j = 0;
       while (j < charPattern.length && data_[i+j] == charPattern[j]) ++j;
       if (j == charPattern.length) return i+1;
+    }
     }
     return -1;
   }
@@ -328,7 +330,7 @@ Returns the position at which a pattern is found in the CLOB.
   @exception SQLException If there is an error accessing the CLOB or if the position
   specified is greater than the length of the CLOB.
   **/
-  public Writer setCharacterStream(long position) throws SQLException
+  public synchronized Writer setCharacterStream(long position) throws SQLException
   {      
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
