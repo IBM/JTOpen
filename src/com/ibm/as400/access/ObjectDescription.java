@@ -1262,7 +1262,7 @@ public class ObjectDescription
     private synchronized AS400Timestamp getTimestampConverter(int format)
     {
       if (timestampConverter_ == null) {
-        timestampConverter_ = new AS400Timestamp();
+        timestampConverter_ = new AS400Timestamp(AS400.getDefaultTimeZone(system_));
         timestampConverter_.setFormat(format);
       }
       else if (format != timestampConverter_.getFormat()) {
