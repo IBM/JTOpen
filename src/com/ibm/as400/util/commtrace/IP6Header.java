@@ -156,8 +156,8 @@ public class IP6Header extends Header {
 				nextheaderh,
 				};
 
-		String next= printnext(filter);
-		if (next == "") { // The header didn't pass the filter
+		String next1= printnext(filter);
+		if (next1 == "") { // The header didn't pass the filter
 			return "";
 		} else {
 			return Formatter.jsprintf(
@@ -186,7 +186,7 @@ public class IP6Header extends Header {
 				+ ": {2}\n",
 			args)
 			+ printHexHeader()
-			+ next;
+			+ next1;
 		}
 	}
 
