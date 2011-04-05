@@ -301,7 +301,7 @@ If mark() has not been called, repositions to the beginning of the stream.
 @exception IOException      If an input/output error occurs.
 @see #mark(int)
 **/
-  public void reset() throws IOException
+  public synchronized void reset() throws IOException
   {
     offset_ = mark_;
   }

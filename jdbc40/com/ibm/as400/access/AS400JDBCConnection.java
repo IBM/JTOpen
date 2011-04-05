@@ -1623,9 +1623,10 @@ implements Connection
         }
 
         //verify there is a column name  specified in the array
-        if(columnNames == null || columnNames.length == 0)
+        if(columnNames == null || columnNames.length == 0) {
             JDError.throwSQLException(JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
+            return "";  /* doesnt really return because exception is thrown */ 
+        } else { 
         //wrapper the statement with a select xxx from final table where xxx is replaced with the appropriate column(s)
         // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
         // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will 
@@ -1641,6 +1642,7 @@ implements Connection
         selectFrom.append(")");
 
         return selectFrom.toString();
+        }
     }
 
     //@GKA
@@ -2645,7 +2647,7 @@ implements Connection
             }                                                                               // @EAA
 
             request.setBasedOnORSHandle (0);                 // @DAC @EKC
-            DBReplyRequestedDS reply = null;
+            // DBReplyRequestedDS reply = null;
 
             if (dataCompression_ == DATA_COMPRESSION_RLE_)
             {                                // @ECA

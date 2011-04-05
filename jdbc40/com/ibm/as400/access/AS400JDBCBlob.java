@@ -218,7 +218,7 @@ Returns the position at which a pattern is found in the BLOB.
   @exception SQLException If there is an error accessing the BLOB or if the position
   specified is greater than the length of the BLOB.
   **/
-  public OutputStream setBinaryStream(long position) throws SQLException
+  public synchronized OutputStream setBinaryStream(long position) throws SQLException
   {    
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free

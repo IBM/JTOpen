@@ -259,7 +259,12 @@ implements SQLXML
                     {
                         try{
                             is.close();
-                        }catch(Exception e){ }
+                        }catch(Exception e){
+                          if(JDTrace.isTraceOn())
+                          {
+                              JDTrace.logException(this, "is.close() exception", e); 
+                          }
+                        }
                     }
                 }
                 if (bytes.length < 4)
@@ -479,10 +484,20 @@ implements SQLXML
                 {
                     try{                        
                         stream.close();
-                    }catch(Exception e){ }
+                    }catch(Exception e){ 
+                      if(JDTrace.isTraceOn())
+                      {
+                          JDTrace.logException(this, "stream.close() exception", e); 
+                      }
+                    }
                     try{                        
                         reader.close();
-                    }catch(Exception e){ }
+                    }catch(Exception e){ 
+                      if(JDTrace.isTraceOn())
+                      {
+                          JDTrace.logException(this, "reader.close() exception", e); 
+                      }
+                    }
                 }
                 s = sb.toString();
 
@@ -618,10 +633,21 @@ implements SQLXML
                                 {
                                     try{
                                         byteArrayInputStream.close();
-                                    }catch(Exception e){ }
+                                    }catch(Exception e){ 
+                                      if(JDTrace.isTraceOn())
+                                      {
+                                          JDTrace.logException(this, "byteArayInputStream.close() exception", e); 
+                                      }
+                                    }
                                     try{
                                         reader.close();
-                                    }catch(Exception e){ }
+                                    }catch(Exception e){ 
+                                      if(JDTrace.isTraceOn())
+                                      {
+                                          JDTrace.logException(this, "reader.close() exception", e); 
+                                      }
+                                      
+                                    }
                                 }
 
                             } else
@@ -713,7 +739,7 @@ implements SQLXML
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not readable.
      */
-    public InputStream getBinaryStream() throws SQLException
+    public synchronized InputStream getBinaryStream() throws SQLException
     {
         InputStream is = null;
         switch (lobType) 
