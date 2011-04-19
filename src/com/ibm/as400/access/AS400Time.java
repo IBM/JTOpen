@@ -100,7 +100,9 @@ public class AS400Time extends AS400AbstractTime
 
 
   /**
-   Constructs an AS400Time object.  This uses the GMT time zone 
+   Constructs an AS400Time object.  This uses the GMT time zone. 
+   The timezone is used when converting from a string to a "Time" object. 
+   The time object will use the timezone of the current JVM. 
    Format {@link #FORMAT_ISO FORMAT_ISO} and separator '.' are used.
    **/
   public AS400Time()
@@ -401,7 +403,9 @@ public AS400Time(int format)
   // Overrides method of superclass.  This allows us to be more specific in the javadoc.
   /**
    Converts the specified Java object into IBM i format in the specified byte array.
-   @param javaValue The object corresponding to the data type.  It must be an instance of {@link java.sql.Time java.sql.Time}.  The range of valid values is {@link #MIN_VALUE MIN_VALUE} through {@link #MAX_VALUE MAX_VALUE}.  Year, month, day-of-month, and fractional seconds are disregarded.
+   @param javaValue The object corresponding to the data type.  It must be an instance of {@link java.sql.Time java.sql.Time}.  
+   The range of valid values is {@link #MIN_VALUE MIN_VALUE} through {@link #MAX_VALUE MAX_VALUE}.  
+   Year, month, day-of-month, and fractional seconds are disregarded.
    @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
    @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
    @return Eight (8), the number of bytes in the IBM i representation of the data type.
@@ -417,7 +421,7 @@ public AS400Time(int format)
    @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
    @param offset The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
    @return a {@link java.sql.Time java.sql.Time} object, representing the number of milliseconds into the day.
-   The reference time zone for the object is GMT.
+   The reference time zone for the object is the timezone specified on the constructor. 
    **/
   public Object toObject(byte[] as400Value, int offset)
   {
@@ -428,10 +432,13 @@ public AS400Time(int format)
   }
 
 
+
+
   // Implements abstract method of superclass.
   /**
    Converts the specified Java object into a String representation that is consistent with the format of this data type.
-   @param javaValue The object corresponding to the data type. This must be an instance of {@link java.sql.Time java.sql.Time}, and must be within the range representable by this data type.  Any timezone context is disregarded.
+   @param javaValue The object corresponding to the data type. This must be an instance of {@link java.sql.Time java.sql.Time}, 
+   and must be within the range representable by this data type.  Any timezone context is disregarded.
    @return A String representation of the specified value, formatted appropriately for this data type.
    **/
   public String toString(Object javaValue)
@@ -451,7 +458,7 @@ public AS400Time(int format)
    Converts a string representation of a time, to a Java object.
    @param source A time value expressed as a string in the format specified for this AS400Time object.
    @return A {@link java.sql.Time java.sql.Time} object representing the specified time.
-   The reference time zone for the object is GMT.
+  The reference timezone is the timezone specified for the object.
    **/
   public java.sql.Time parse(String source)
   {
@@ -461,10 +468,8 @@ public AS400Time(int format)
       SimpleDateFormat formatter = getDateFormatter(); 
       java.util.Date dateObj = formatter.parse(source);
       long milliseconds = dateObj.getTime(); 
-      // Localize this to a time within the current day. 
-      long now = System.currentTimeMillis(); 
-      now = MILLISECONDS_IN_A_DAY * (now / MILLISECONDS_IN_A_DAY); 
-      java.sql.Time time = new java.sql.Time(now + milliseconds); // argument is "milliseconds into day" 
+      java.sql.Time time = new java.sql.Time(milliseconds); // argument is "milliseconds into day" 
+      // Convert to the base time type. 
       return time; 
     }
     catch (Exception e) {
@@ -503,11 +508,8 @@ public AS400Time(int format)
     {
       java.util.Date simpleDateObj = getTimeFormatterXSD(timeZone).parse(source);
       long milliseconds = simpleDateObj.getTime(); 
-      // Localize this to a time within the current day. 
-      long now = System.currentTimeMillis(); 
-      now = MILLISECONDS_IN_A_DAY * (now / MILLISECONDS_IN_A_DAY); 
-      
-      return new java.sql.Time(now + milliseconds);
+      java.sql.Time returnTime = new java.sql.Time(milliseconds);  
+      return returnTime; 
     }
     catch (ParseException e) {
       // Assume that the exception is because we got bad input.

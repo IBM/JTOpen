@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Hashtable; //@CAA
 import java.util.TimeZone; //@A1A
 
 
@@ -560,6 +561,121 @@ public class DateTimeConverter
     return systemTimeZone_;
   }
 
+  // 
+  // These are the values shipped with the system. 
+  // See http://publib.boulder.ibm.com/infocenter/iseries/v7r1m0/index.jsp?topic=/rzati/rzatitimezone.htm
+  // @CAA
+  static String iTimeZoneTojavaTimeZoneMapping[][] = {
+    {"Q0000UTC","UTC"},
+    {"Q0000GMT","GMT"},
+    {"Q0000GMT2","Europe/London"},
+    {"Q000GMT3","Europe/London"},
+    {"QN0100UTCS","GMT-1"},
+    {"QN0200UTCS","GMT-2"},
+    {"QN0300UTCS","GMT-3"},
+    {"QN0300UTC2","America/Sao_Paulo"},
+    {"QN0330NST","America/St_Johns"},
+    {"QN0330NST2","America/St_Johns"},
+    {"QN0330NST3","America/St_Johns"},
+    {"QN0330NST4","America/St_Johns"},
+    {"QN0400UTCS","GMT-4"},
+    {"QN0400AST","Atlantic/Bermuda"},
+    {"QN0400AST2","Atlantic/Bermuda"},
+    {"QN0400CLT","America/Santiago"},
+    {"QN0400UTC2","America/Caracas"},
+    {"QN0500UTCS","GMT-5"},
+    {"QN0500EST","America/New_York"},
+    {"QN0500EST2","GMT-5"},
+    {"QN0500EST3","America/New_York"},
+    {"QN0600UTCS","GMT-6"},
+    {"QN0600CST","America/Chicago"},
+    {"QN0600CST2","America/Chicago"},
+    {"QN0600CST3","America/Mexico_City"},
+    {"QN0600S","America/Chicago"},
+    {"QN0700UTCS","GMT-7"},
+    {"QN0700MST","America/Denver"},
+    {"QN0700MST2","America/Phoenix"},
+    {"QN0700MST3","America/Denver"},
+    {"QN0700MST4","America/Mazatlan"},
+    {"QN0700T","America/Denver"},
+    {"QN0800UTCS","GMT-8"},
+    {"QN0800PST","America/Los_Angeles"},
+    {"QN0800PST2","America/Los_Angeles"},
+    {"QN0800PST3","America/Tijuana"},
+    {"QN0800U","America/Los_Angeles"},
+    {"QN0900UTCS","GMT-9"},
+    {"QN0900AST","America/Anchorage"},
+    {"QN0900AST2","America/Anchorage"},
+    {"QN1000UTCS","GMT-10"},
+    {"QN1000HAST","America/Adak"},
+    {"QN1000HAS2","America/Adak"},
+    {"QN1000HST","Pacific/Honolulu"},
+    {"QN1100UTCS","GMT-11"},
+    {"QN1200UTCS","GMT-12"},
+    {"QP1245UTCS","Pacific/Chatham"},
+    {"QP1245UTC2","Pacific/Chatham"},
+    {"QP1200UTCS","GMT+12"},
+    {"QP1200NZST","Pacific/Auckland"},
+    {"QP1200NZS2","Pacific/Auckland"},
+    {"QP1200NZS3","Pacific/Auckland"},
+    {"QP1100UTCS","GMT+11"},
+    {"QP1000UTCS","GMT+10"},
+    {"QP1000AEST","Australia/Sydney"},
+    {"QP1000AES2","Australia/Sydney"},
+    {"QP0930ACST","Australia/Adelaide"},
+    {"QP0930ACS2","Australia/Adelaide"},
+    {"QP0900UTCS","GMT+9"},
+    {"QP0900JST","Asia/Tokyo"},
+    {"QP0900KST","Asia/Seoul"},
+    {"QP0900WIT","Asia/Jayapura"},
+    {"QP0800UTCS","GMT+8"},
+    {"QP0800AWST","Australia/Perth"},
+    {"QP0800AWS2","Australia/Perth"},
+    {"QP0800AWS3","Australia/Perth"},
+    {"QP0800BST","Asia/Shanghai"},
+    {"QP0800JIST","Asia/Hong_Kong"},
+    {"QP0800WITA","Asia/Ujung_Pandang"},
+    {"QP0700UTCS","GMT+7"},
+    {"QP0700WIB","Asia/Jakarta"},
+    {"QP0600UTCS","GMT+6"},
+    {"QP0600UTC2","Asia/Almaty"},
+    {"QP0600UTC3","Asia/Almaty"},
+    {"QP0530IST","Asia/Calcutta"},
+    {"QP0500UTCS","GMT+5"},
+    {"QP0500UTC2","Asia/Aqtobe"},
+    {"QP0500UTC3","Asia/Aqtobe"},
+    {"QP0400UTCS","GMT+4"},
+    {"QP0400UTC2","Asia/Aqtau"},
+    {"QP0400UTC3","Asia/Aqtau"},
+    {"QP0300MSK","Europe/Moscow"},
+    {"QP0300UTCS","GMT+3"},
+    {"QP0200UTCS","GMT+2"},
+    {"QP0200EET","Europe/Tallinn"},
+    {"QP0200EET2","GMT+2"},
+    {"QP0200EET3","Europe/Tallinn"},
+    {"QP0200SAST","Africa/Johannesburg"},
+    {"QP0100UTCS","GMT+1"},
+    {"QP0100CET","Europe/Zurich"},
+    {"QP0100CET2","Europe/Zurich"},
+    {"QP0100CET3","Europe/Zurich"},
+    {"QP0100CET4","Europe/Zurich"},
+
+  };
+  
+  static Hashtable iTimeZoneToJavaTimeZoneHash = null; 
+  /**
+   * Returns the name of the java timezone corresponding to the IBM i timezone. 
+   */
+  static String iTimeZoneToJavaTimeZone(String iTimeZone) {
+    iTimeZone = iTimeZone.toUpperCase(); 
+    if (iTimeZoneToJavaTimeZoneHash == null) {
+      iTimeZoneToJavaTimeZoneHash = new Hashtable(); 
+      for (int i = 0; i < iTimeZoneTojavaTimeZoneMapping.length; i++) { 
+        iTimeZoneToJavaTimeZoneHash.put(iTimeZoneTojavaTimeZoneMapping[i][0],iTimeZoneTojavaTimeZoneMapping[i][1]); 
+      }
+    }
+    return (String) iTimeZoneToJavaTimeZoneHash.get(iTimeZone); 
+  }
 
   /**
    * Returns a TimeZone object to represent the time zone for the specified system.
@@ -585,8 +701,21 @@ public class DateTimeConverter
   {
 	  
 	// Using the UTC offset does not properly account for the use of daylight savings time.  We use
-    // the qtimezone value to adjust for those systems that use daylight savings time. 
+    // the QTIMZON value to adjust for those areas that use daylight savings time. 
 	//   
+    try {
+      SystemValue sv = new SystemValue(system, "QTIMZON");
+      String iTimeZone = (String)sv.getValue();  // returns a value such as "-0500"
+      String javaTimeZoneName = iTimeZoneToJavaTimeZone(iTimeZone); 
+      if (javaTimeZoneName != null) { 
+          return TimeZone.getTimeZone(javaTimeZoneName);
+      }
+    } catch (Exception e) { 
+      // Log the exception and continue 
+      Trace.log(Trace.ERROR, e);
+    }
+    
+    // If the new method does not work, fall back to the old method of getting the timezone. 
     // To obtain a standard ID for the time zone, simply concatenate "GMT" and the QUTCOFFSET value.
 	
     String utcOffset = null;

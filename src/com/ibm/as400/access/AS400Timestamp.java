@@ -327,9 +327,12 @@ public class AS400Timestamp extends AS400AbstractTime
    Creates a new java.util.Date object representing the Timestamp's nominal value, in the context of the 
    specified time zone.
    That is, the timestamp is re-interpreted as if its reference context were the specified time zone.
+   This assume that the current timestamp is represented in GMT. 
+
    <p>For example, if <tt>timestamp</tt> represents "2000-01-01-00.00.00.000000 <b>GMT</b>", 
    and <tt>timezone</tt> specifies CST, then this method will return a java.util.Date object 
    representing "2000-01-01-00.00.00.000000 <b>CST</b>".
+   
    <p>Note that java.util.Date has <i>milliseconds</i> precision, whereas java.sql.Timestamp has 
    <i>nanoseconds</i> precision. When converting from Timestamp to Date, nanoseconds are rounded to the nearest millisecond.
    @param timestamp The timestamp object.
@@ -337,6 +340,7 @@ public class AS400Timestamp extends AS400AbstractTime
    @return A Date object representing the same nominal timestamp value as represented by 
    <tt>timestamp</tt>, with time zone context <tt>timezone</tt>.
    **/
+  
   public java.util.Date toDate(java.sql.Timestamp timestamp, TimeZone timezone)
   {
     if (timestamp == null) throw new NullPointerException("timestamp");
@@ -344,7 +348,7 @@ public class AS400Timestamp extends AS400AbstractTime
 
     // We assume that the default/implied contextual timezone of all Timestamp objects is the server timezone
     // This is certainly the case for all Timestamp objects created by this class.
-    if (timezone.equals(getTimeZone())) return (Date)timestamp;
+    if (timezone.equals(AS400AbstractTime.TIMEZONE_GMT)) return (Date)timestamp;
 
     long millisSince1970 = timestamp.getTime();
     int nanosIntoSecond  = timestamp.getNanos();
@@ -363,7 +367,7 @@ public class AS400Timestamp extends AS400AbstractTime
       dateObj = getCalendar().getTime();  // this object is based the server time zone 
     }
 
-    String dateAsString = getDateFormatterWithMillis(getTimeZone()).format(dateObj);
+    String dateAsString = getDateFormatterWithMillis(AS400AbstractTime.TIMEZONE_GMT).format(dateObj);
 
     // Create a new Date object in the desired timezone, representing the same timestamp string expression as above.
 
