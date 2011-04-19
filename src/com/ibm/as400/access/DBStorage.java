@@ -122,14 +122,42 @@ public synchronized void reclaim(int length) {
 /**
  * Set the inUse_ flags so that the storage can be returned to the pool
  */
-public synchronized void returnToPool() {
+public void returnToPool() {
 	// Fill the array with garbage before it is reused. 
 	// This is to catch the case where the array is still being 
 	// used but has been returned to the pool. 
 	// if (data_ != null) {
 	//   Arrays.fill(data_, (byte) 0xeb); 
 	// }
-	inUse_ = false; 
+  
+  // Don't hold the lock when returning to the pool.  The return to the pool
+  // is just to adjust the hints.  If we hold the lock, then there is a possibility for
+  // deadlock, with the stacks looking like the following. @C9
+  // 
+  // "WebContainer : 1935" (TID:0x000000012C8CFF00, sys_thread_t:0x00000001240C7E48, state:B, native ID:0x00000000002B20C7) prio=5
+  //   at com/ibm/as400/access/DBStorage.canUse(DBStorage.java:148(Compiled Code))
+  //   at com/ibm/as400/access/DBStoragePool.getUnusedStorage(DBStoragePool.java:142(Compiled Code))
+  //   at com/ibm/as400/access/DBBaseRequestDS.write(DBBaseRequestDS.java:958(Compiled Code))
+  //   at com/ibm/as400/access/AS400ThreadedServer.send(AS400ThreadedServer.java:446(Compiled Code))
+  //   at com/ibm/as400/access/AS400ThreadedServer.sendAndReceive(AS400ThreadedServer.java:480(Compiled Code))
+  //   at com/ibm/as400/access/AS400JDBCConnection.sendAndReceive(AS400JDBCConnection.java:2903(Compiled Code))
+  //   at com/ibm/as400/access/AS400JDBCStatement.commonExecute(AS400JDBCStatement.java:902(Compiled Code))
+  //   at com/ibm/as400/access/AS400JDBCPreparedStatement.executeUpdate(AS400JDBCPreparedStatement.java:1406(Compiled Code))
+  // 
+  // "WebContainer : 1946" (TID:0x000000013E411700, sys_thread_t:0x00000001277E8F28, state:B, native ID:0x00000000001AC079) prio=5
+  //   at com/ibm/as400/access/DBStoragePool.returned(DBStoragePool.java:181(Compiled Code))
+  //   at com/ibm/as400/access/DBStorage.returnToPool(DBStorage.java:132(Compiled Code))
+  //   at com/ibm/as400/access/DBBaseRequestDS.write(DBBaseRequestDS.java:1007(Compiled Code))
+  //   at com/ibm/as400/access/AS400ThreadedServer.send(AS400ThreadedServer.java:446(Compiled Code))
+  //   at com/ibm/as400/access/AS400ThreadedServer.sendAndReceive(AS400ThreadedServer.java:480(Compiled Code))
+  //   at com/ibm/as400/access/AS400JDBCConnection.sendAndReceive(AS400JDBCConnection.java:2903(Compiled Code))
+  //   at com/ibm/as400/access/AS400JDBCStatement.commonExecute(AS400JDBCStatement.java:902(Compiled Code))
+  //   at com/ibm/as400/access/AS400JDBCPreparedStatement.executeUpdate(AS400JDBCPreparedStatement.java:1406(Compiled Code))
+  //
+  
+  synchronized (this) { 
+	   inUse_ = false; 
+  }
 	if (id_>= 0) { 
 	  pool_.returned(id_);   //@B5A
 	}
