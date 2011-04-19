@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.TimeZone;
 import java.util.Vector;
 
 /**
@@ -342,7 +343,12 @@ public class SystemStatus implements Serializable
         byte[] currentDateAndTime = new byte[8];
         System.arraycopy(receiverVariables_[0], 8, currentDateAndTime, 0, 8);
         AS400Timestamp conv = getTimestampConverter(FORMAT_DTS);  // field is in *DTS format
-        return conv.toDate(conv.toTimestamp(currentDateAndTime), system_.getTimeZone());
+        // 
+        // Note.  The conv.toTimestamp method assumes that the reference timezone is GMT.  This is then
+        // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
+        // 
+
+        return conv.toDate(conv.toTimestamp(currentDateAndTime), TimeZone.getDefault());
     }
 
     /**

@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 /**
  Represents a job on the IBM i server.  In order to access a job, the system and either the job name, user name, and job number or internal job identifier need to be set.  A valid and sufficient combination of these must be set before getting or setting any of the job's attributes.
@@ -3639,7 +3640,12 @@ public class Job implements Serializable
     private Date getAsSystemDate(int key) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         AS400Timestamp conv = getTimestampConverter(FORMAT_DTS);  // field is in *DTS format
-        return conv.toDate(conv.toTimestamp((byte[])getValue(key)), system_.getTimeZone());
+        // 
+        // Note.  The conv.toTimestamp method assumes that the reference timezone is GMT.  This is then
+        // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
+        // 
+
+        return conv.toDate(conv.toTimestamp((byte[])getValue(key)), TimeZone.getDefault());
     }
 
     /**

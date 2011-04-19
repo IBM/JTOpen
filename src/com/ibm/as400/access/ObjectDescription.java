@@ -1156,7 +1156,13 @@ public class ObjectDescription
     {
       byte[] b = (byte[])o; // system timestamp
       AS400Timestamp conv = getTimestampConverter(FORMAT_DTS);  // field is in *DTS format
-      return conv.toDate(conv.toTimestamp(b), system_.getTimeZone());
+      // 
+      // Note.  The conv.toTimestamp method assumes that the reference timezone is GMT.  This is then
+      // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
+      // 
+
+    
+      return conv.toDate(conv.toTimestamp(b), TimeZone.getDefault());
     }
     return null;
   }
