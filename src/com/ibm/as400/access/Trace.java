@@ -210,6 +210,7 @@ public class Trace implements Runnable
   static boolean traceJDBC_;                            // @D5A
   static boolean tracePCML_;
 
+  static boolean showChars_ = false; 
   private static int mostRecentTracingChange_;  // either 0 (no action), TURNED_TRACE_OFF, or TURNED_TRACE_ON
   private static final int TURNED_TRACE_ON = 1;
   private static final int TURNED_TRACE_OFF = 2;
@@ -553,6 +554,13 @@ public class Trace implements Runnable
     String categories = SystemProperties.getProperty(SystemProperties.TRACE_CATEGORY);
     if (categories0 == null || categories != null) setTraceCategories(categories);
 
+    // 
+    // Determine if characters should be shown in trace
+    // 
+    String showCharsString = SystemProperties.getProperty(SystemProperties.TRACE_SHOW_CHARS); 
+    if (showCharsString !=null && showCharsString.equalsIgnoreCase("true")) {
+      showChars_ = true; 
+    }
     // Load and apply the trace file system property.
     String file = SystemProperties.getProperty (SystemProperties.TRACE_FILE);
     if (file != null)
@@ -1096,6 +1104,12 @@ public class Trace implements Runnable
   // space between bytes.
   static void printByteArray(PrintWriter pw, byte[] data, int offset, int length)
   {
+    StringBuffer ebcdicInfo = null;
+    StringBuffer asciiInfo  = null; 
+    if (showChars_) {
+      ebcdicInfo = new StringBuffer();
+      asciiInfo  = new StringBuffer(); 
+    }
     if (data == null) {
       pw.println("(null)");
       return;
@@ -1105,14 +1119,46 @@ public class Trace implements Runnable
     {
       pw.print(toHexString(data[offset]));
       pw.print(" ");
-
-      if ((i & 0x0F ) == 0x0F)
-      {
+      if (ebcdicInfo != null && asciiInfo !=null ) {
+        ebcdicInfo.append(toEbcdicString(data[offset])); 
+        asciiInfo.append(toAsciiString(data[offset])); 
+        
+      }
+      if ((i & 0x0F ) == 0x0F) {
+          if (ebcdicInfo != null && asciiInfo !=null) { 
+            pw.print(" | "); 
+           pw.print(ebcdicInfo.toString());
+           pw.print(" | "); 
+           pw.print(asciiInfo.toString()); 
+           pw.print(" |"); 
+           ebcdicInfo.setLength(0); 
+           asciiInfo.setLength(0);
+         }
         pw.println();  // start a new line
       }
     }
     if (((length - 1) & 0x0F) != 0x0F)
     {
+       if (ebcdicInfo != null && asciiInfo !=null) {
+         int extraPad = length % 16; 
+         for (int i = extraPad; i < 16; i++) {
+           pw.print("   "); 
+         }
+         
+         pw.print(" | "); 
+         pw.print(ebcdicInfo.toString());
+         for (int i = extraPad; i < 16; i++) {
+           pw.print(" "); 
+         }
+         pw.print(" | "); 
+         pw.print(asciiInfo.toString()); 
+         for (int i = extraPad; i < 16; i++) {
+           pw.print(" "); 
+         }
+         pw.print(" |"); 
+         ebcdicInfo.setLength(0); 
+         asciiInfo.setLength(0); 
+       }
       // Finish the line of data.
       pw.println();
     }
@@ -1187,6 +1233,73 @@ public class Trace implements Runnable
     return HEX_BYTE_ARRAY[0x00FF & b];
   }
 
+  
+  // Hexadecimal string representations of all possible values for a single byte.
+  private static final String[] ASCII_BYTE_ARRAY = new String[]
+  {
+  /*00*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*10*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*20*/  " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", 
+  /*30*/  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", 
+  /*40*/  "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", 
+  /*50*/  "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", 
+  /*60*/  "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", 
+  /*70*/  "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ".", 
+  /*80*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*90*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*a0*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*b0*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*c0*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*d0*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*e0*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+  /*f0*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."
+  };
+
+  /**
+  Returns a string representation of the byte argument, as 1 ascii digits.
+  @param b A byte to be converted to a string.
+  @return The 1-digit ascii string representation of the byte argument.
+  **/
+ public static final String toAsciiString(byte b)
+ {
+   return ASCII_BYTE_ARRAY[0x00FF & b];
+ }
+
+
+  // Hexadecimal string representations of all possible values for a single byte.
+  private static final String[] EBCDIC_BYTE_ARRAY = new String[]
+  {
+    /*00*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+    /*10*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+    /*20*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+    /*30*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+    /*40*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "[", ".", "<", "(", "+", "!", 
+    /*50*/  "&", ".", ".", ".", ".", ".", ".", ".", ".", ".", "]", "$", "*", ")", ";", "^", 
+    /*60*/  "-", "/", ".", ".", ".", ".", ".", ".", ".", ".", "|", ",", "%", "_", ">", "?", 
+    /*70*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", "`", ":", "#", "@", "'", "=", "\"", 
+    /*80*/  ".", "a", "b", "c", "d", "e", "f", "g", "h", "i", ".", ".", ".", ".", ".", ".", 
+    /*90*/  ".", "j", "k", "l", "m", "n", "o", "p", "q", "r", ".", ".", ".", ".", ".", ".", 
+    /*a0*/  ".", ".", "s", "t", "u", "v", "w", "x", "y", "z", ".", ".", ".", ".", ".", ".", 
+    /*b0*/  ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 
+    /*c0*/  "{", "A", "B", "C", "D", "E", "F", "G", "H", "I", ".", ".", ".", ".", ".", ".", 
+    /*d0*/  "}", "J", "K", "L", "M", "N", "O", "P", "Q", "R", ".", ".", ".", ".", ".", ".", 
+    /*e0*/  "\\", ".", "S", "T", "U", "V", "W", "X", "Y", "Z", ".", ".", ".", ".", ".", ".", 
+    /*f0*/  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", ".", ".", ".", ".", "."
+  };
+
+  /**
+  Returns a string representation of the byte argument, as 1 ebcdic digits.
+  @param b A byte to be converted to a string.
+  @return The 1-digit ebcdic string representation of the byte argument.
+  **/
+ public static final String toEbcdicString(byte b)
+ {
+   return EBCDIC_BYTE_ARRAY[0x00FF & b];
+ }
+
+
+
+  
 
   /**
    Returns a string representation of the byte-array argument, as a sequence of hexadecimal digits.

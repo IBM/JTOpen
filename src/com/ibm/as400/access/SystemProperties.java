@@ -144,6 +144,19 @@ public class SystemProperties
     public static final String TRACE_CATEGORY   = ACCESS_PREFIX + "Trace.category";
            static final String TRACE_CATEGORIES = ACCESS_PREFIX + "Trace.categories"; // catch misspellings
 
+  /**
+   * Specifies whether trace should also display the characters associated with the trace information. 
+   * <ul>
+   * <li>Property name: com.ibm.as400.access.Trace.showChars
+   * <li>Values/syntax: <tt>true</tt>, <tt>false</tt><br>
+   * <li>Default: false
+   * <li>Overridden by: Nothing
+   * </ul>
+   **/
+  public static final String TRACE_SHOW_CHARS = ACCESS_PREFIX + "Trace.showChars";
+           
+           
+           
     /**
      Specifies the file to which the {@link Trace Trace} class writes output.
      <ul>
