@@ -69,7 +69,8 @@ public abstract class AS400AbstractTime implements AS400DataType
 
   
   /**
-  Constructs an AS400AbstractTime object that uses the default GMT time zone.  Hide this constructor from applications.
+  Constructs an AS400AbstractTime object that uses the default GMT time zone.  
+  Hide this constructor from applications.
   **/
  AS400AbstractTime()
  {

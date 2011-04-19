@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  Represents a user profile object on the system.
@@ -1075,7 +1076,13 @@ public class User implements Serializable
                 if (isNullOrBlanks(passwordExpireDateBytes_)) return null;
 
                 AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
-                passwordExpireDate_ = conv.toDate(conv.toTimestamp(passwordExpireDateBytes_), system_.getTimeZone());
+
+                // 
+                // Note.  The conv.toTimestamp method assumes that the reference timezone is GMT.  This is then
+                // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
+                // 
+
+                passwordExpireDate_ = conv.toDate(conv.toTimestamp(passwordExpireDateBytes_), TimeZone.getDefault());
             }
             catch (Exception e)
             {
@@ -1153,7 +1160,13 @@ public class User implements Serializable
                 if (isNullOrBlanks(passwordLastChangedDateBytes_)) return null;
 
                 AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
-                passwordLastChangedDate_ = conv.toDate(conv.toTimestamp(passwordLastChangedDateBytes_), system_.getTimeZone());
+                
+                // In this case, the conv.toTimestamp method assumes that the timezone is in GMT.  This is then
+                // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
+                // 
+                
+                passwordLastChangedDate_ = conv.toDate(conv.toTimestamp(passwordLastChangedDateBytes_), 
+                      TimeZone.getDefault()); 
             }
             catch (Exception e)
             {
@@ -1419,7 +1432,12 @@ public class User implements Serializable
           if (isNullOrBlanks(userExpirationDateBytes_)) return null;
 
           AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
-          userExpirationDate_ = conv.toDate(conv.toTimestamp(userExpirationDateBytes_), system_.getTimeZone());
+          // Note.  The conv.toTimestamp method assumes that the reference timezone is GMT
+          // In this case, the conv.toTimestamp method assumes that the timezone is in GMT.  This is then
+          // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
+          // 
+
+          userExpirationDate_ = conv.toDate(conv.toTimestamp(userExpirationDateBytes_), TimeZone.getDefault());
         }
         catch (Exception e)
         {
