@@ -669,6 +669,8 @@
              command="checkout -P -A" package="license.html" dest="${build}"/>
     <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="readme.html" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="changes.html" dest="${build}"/>
   </target>
 
 
