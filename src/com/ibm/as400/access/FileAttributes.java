@@ -1807,7 +1807,7 @@ x'01' QP0L_UDFS_PREFERRED_STORAGE_UNIT_SSD: Solid state drive storage media is p
                 Trace.log(Trace.ERROR, "Get attributes was not successful, errno:", errno);
                 throw new ErrnoException(system_, errno);
             }
-            int bufferSizeNeeded = BinaryConverter.byteArrayToInt(parameters[2].getOutputData(), 0);
+            int bufferSizeNeeded = BinaryConverter.byteArrayToInt(parameters[4].getOutputData(), 0);//@D1 Using buffer size parameter 4, not parameter 2.
             if (bufferSizeProvided < bufferSizeNeeded)
             {
                 repeatRun = true;
