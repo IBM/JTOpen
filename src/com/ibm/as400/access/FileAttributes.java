@@ -1776,19 +1776,19 @@ x'01' QP0L_UDFS_PREFERRED_STORAGE_UNIT_SSD: Solid state drive storage media is p
         int bufferSizeProvided = 2048;
         ProgramParameter[] parameters = new ProgramParameter[]
         {
-            // Qlg_Path_Name_T *Path_Name
+            // 0 - Qlg_Path_Name_T *Path_Name
             new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, createPathName()),
-            // Qp0l_AttrTypes_List_t *Attr_Array_ptr
+            // 1 - Qp0l_AttrTypes_List_t *Attr_Array_ptr
             new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, new byte[4]),
-            // char *Buffer_ptr
+            // 2 - char *Buffer_ptr
             new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, bufferSizeProvided),
-            // uint Buffer_Size_Provided
+            // 3 - uint Buffer_Size_Provided
             new ProgramParameter(ProgramParameter.PASS_BY_VALUE, BinaryConverter.intToByteArray(bufferSizeProvided)),
-            // uint *Buffer_Size_Needed_ptr
+            // 4 - uint *Buffer_Size_Needed_ptr
             new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, 4),
-            // uint *Num_Bytes_Returned_ptr
+            // 5 - uint *Num_Bytes_Returned_ptr
             new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, 4),
-            // uint Follow_Symlnk
+            // 6 - uint Follow_Symlnk
             new ProgramParameter(ProgramParameter.PASS_BY_VALUE, BinaryConverter.intToByteArray(followSymbolicLink_ ? 1 : 0))
         };
 

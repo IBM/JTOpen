@@ -131,6 +131,7 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @C8   20110322  PCML Date/Time/Timestamp fixes 
 // @C9   20110405  Deadlock in DBStoragePool 
 // @CA   20110418  More timezone fixes.
+// @D1   20110513  FileAttributes.getAttributes fails when returned data is larger than 2048 bytes.           
 //--------------------------------------------------------------------
 
 
