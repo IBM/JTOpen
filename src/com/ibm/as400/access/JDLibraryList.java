@@ -28,22 +28,36 @@ class JDLibraryList
 
 
 
-  private static final String        LIBL_         = "*LIBL";
+  public static final String        LIBL_         = "*LIBL";
+  public static final String     USRLIBL_         = "*USRLIBL";   /*@D2A*/ 
+
 
   private char[]                  indicators_;
   private String                  defaultSchema_;
   private String[]                   list_;
+  private String                  libListType_;                                    /*@D2A*/ 
 
 
+  /**
+  Constructor.
 
+  @param  list                The list of libraries.
+  @param  defaultSchema       The default SQL schema.
+  @param  naming              The naming convention.
+  **/
+
+  JDLibraryList (String list, String defaultSchema, String naming) {
+    this(list, defaultSchema, naming, null); 
+  }
 /**
 Constructor.
 
 @param  list                The list of libraries.
 @param  defaultSchema       The default SQL schema.
 @param  naming              The naming convention.
+@param  libListType         The type of library list to work with (e.g. *LIBL or *USRLIBL). Default is *LIBL.
 **/
-  JDLibraryList (String list, String defaultSchema, String naming) // @C1C
+  JDLibraryList (String list, String defaultSchema, String naming, String libListType) // @C1C @D2A added library list type
   {
     boolean startsWithComma = false;                              // @E2a
     String incomingList = list;
@@ -105,6 +119,19 @@ Constructor.
     list_ = null;
     int liblPosition = -1;
 
+      //Store the library list type, make sure we have a lib list       //@D2A
+      //to work with                                                    //@D2A
+      if(libListType != null && libListType.length() > 0){              //@D2A
+          if(libListType.equals(LIBL_) || libListType.equals(USRLIBL_)){//@D2A
+              libListType_ = libListType;                               //@D2A
+          }else{                                                        //@D2A
+              libListType_ = LIBL_;                                     //@D2A
+          }                                                             //@D2A
+      }else{                                                            //@D2A
+          //Work with the *LIBL                                         //@D2A
+          libListType = LIBL_;                                          //@D2A
+      }                                                                 //@D2A
+
     // If a list is specified, then construct the
     // internal list array.
     if (list.length() != 0)
@@ -127,7 +154,7 @@ Constructor.
       }
 
       // Determine if the *LIBL token is included.
-      boolean includesLibl = (list.toUpperCase().indexOf (LIBL_) != -1);
+        boolean includesLibl = (list.toUpperCase().indexOf (libListType_) != -1);     /*@D2C*/
 
       // Parse the list into tokens.
       StringTokenizer tokenizer = new StringTokenizer (list, " ,:;", true);  //@delim2
@@ -168,7 +195,7 @@ Constructor.
         // the first occurence.  The system will
         // return an error later if it occurs
         // more than once.
-        if (token.equalsIgnoreCase (LIBL_))
+          if (token.equalsIgnoreCase (libListType_))            /*@D2C*/
         {
           if (liblPosition == -1)
             liblPosition = i;
