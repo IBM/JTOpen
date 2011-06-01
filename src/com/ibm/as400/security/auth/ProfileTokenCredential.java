@@ -383,7 +383,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *    The token bytes; null if not set.
     *
     */
-    public byte[] getToken() {
+    public synchronized byte[] getToken() {
         if (token_ != null)
             return primitiveGetToken();
         return null;
@@ -419,6 +419,9 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     */
     public int hashCode() {
+        if (true) {
+          return super.hashCode(); 
+        }
         int hash = 104473;
         if (token_ != null) {
             // Obtain unencrypted form as common base for comparison
@@ -596,6 +599,16 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     */
     private byte[] primitiveGetToken() {
+      if (Trace.isTraceOn()) { 
+        Trace.log(Trace.INFORMATION,
+            "ProfileTokenCredential@"+
+            Integer.toHexString(this.hashCode())+
+            " getPrimitiveToken called");
+        if (!noRefresh) { 
+           // Log the location so we can determine why this is called without refresh tokens locked
+           // Trace.log(Trace.INFORMATION, new Exception("getPrimitedTokenCalled"));
+        }
+      }
         return decode(addr_, mask_, token_);
     }
 
@@ -668,8 +681,28 @@ public final class ProfileTokenCredential extends AS400Credential
     *        If a parameter value is out of range.
     *
     */
-    public void refresh(int type, int timeoutInterval) 
+    public synchronized void refresh(int type, int timeoutInterval) 
             throws AS400SecurityException {
+      //@D3 - Start The current thread (Refresh Agent thread) is blocked when it receives the message not refreshing. 
+      while(noRefresh){
+        if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION,
+                    "ProfileTokenCredential@"+
+                    Integer.toHexString(this.hashCode())+
+                    " refresh stuck because of noRefresh"); 
+
+        try {
+          wait();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      if (Trace.isTraceOn())
+        Trace.log(Trace.INFORMATION,
+                  "ProfileTokenCredential@"+
+                  Integer.toHexString(this.hashCode())+
+                  " refresh called"); 
+      //@D3 - End
         // Check permissions
         checkAuthenticationPermission("refreshCredential");
         // Check status
@@ -698,7 +731,9 @@ public final class ProfileTokenCredential extends AS400Credential
         firePropertyChange("token", old, bytes);
         if (Trace.isTraceOn())
             Trace.log(Trace.INFORMATION,
-                new StringBuffer("Credential refreshed with type "
+                new StringBuffer("ProfileTokenCredential@"+
+                  Integer.toHexString(this.hashCode())+
+                  " Credential refreshed with type "
                         ).append(type
                         ).append(" and timeoutInterval = "
                         ).append(timeoutInterval
@@ -782,7 +817,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        to the current state.
     *
     */
-    public void setToken(byte[] bytes) throws PropertyVetoException {
+    public synchronized void setToken(byte[] bytes) throws PropertyVetoException {
         // Validate state
         validatePropertyChange("token");
 
@@ -1357,4 +1392,37 @@ public final class ProfileTokenCredential extends AS400Credential
         super.validateProperties();
         validatePropertySet("token", getToken());
     }
+    
+    //@D3A - Start
+    
+    /**
+     * Block the thread to refresh profile token credential.
+     */
+    public synchronized void preventRefresh() throws InterruptedException {
+      if (Trace.isTraceOn())
+        Trace.log(Trace.INFORMATION,
+                  "ProfileTokenCredential@"+
+                  Integer.toHexString(this.hashCode())+
+                  " preventRefresh"); 
+
+      noRefresh = true;
+    }
+   
+    private boolean noRefresh = false;
+    
+    /**
+     * Notify the wait thread to refresh profile token credential. 
+     */
+    public synchronized void allowRefresh() {
+      if (Trace.isTraceOn())
+        Trace.log(Trace.INFORMATION,
+                  "ProfileTokenCredential@"+
+                  Integer.toHexString(this.hashCode())+
+                  " allowRefresh"); 
+
+      noRefresh = false;
+      notify();
+    }
+    
+    //@D3A - End
 }

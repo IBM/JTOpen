@@ -1153,9 +1153,27 @@ public class AS400 implements Serializable
         }
 
         chooseImpl();
-        signon(service == AS400.SIGNON);
-        impl_.connect(service);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
+
+        //@D3A - Start 
+        // Before the thread to connect server, block the thread to refresh profile token credential.
+        if (credVault_ instanceof ProfileTokenVault) { 
+          ((ProfileTokenVault) credVault_).preventRefresh();
+        }
+        //@D3A - End
+        
+        //@D3C - Start 
+        try { 
+          signon(service == AS400.SIGNON);
+        
+          impl_.connect(service);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
+        } finally { 
+          // After the thread to connect server, notify the thread to refresh profile token credential.
+          if (credVault_ instanceof ProfileTokenVault) { 
+            ((ProfileTokenVault) credVault_).allowRefresh();
+          }
+        }
+        //@D3C - Start 
     }
 
     /**

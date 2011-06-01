@@ -71,6 +71,18 @@ RefreshAgent(AS400Credential target, int refreshInterval, int maxRefreshes) {
 	setTarget(target);
 	setRefreshInterval(refreshInterval);
 	setMaxRefreshes(maxRefreshes);
+	//@D3A - Start Set readable name for refreshing thread.
+	String className = target.getClass().getName(); 
+	int dotIndex = className.lastIndexOf('.'); 
+	if (dotIndex >= 0) {
+	  className = className.substring(dotIndex+1); 
+	}
+	try { 
+	   this.setName("Refresh"+className); 
+	} catch (Exception e) {
+	  // Ignore any exception when setting name 
+	}
+	 //@D3A - End
 }
 /**
  * Invoked when a service has been connected

@@ -47,7 +47,8 @@ class ProfileTokenVault extends CredentialVault implements Cloneable, Serializab
    */
   protected ProfileTokenVault(ProfileTokenCredential existingCredential) {
     super();
-    encodedCredential_ = store(existingCredential.getToken());
+    //encodedCredential_ = store(existingCredential.getToken());
+    storeProfileTokenCredential(existingCredential);
   }
 
   /**
@@ -68,5 +69,54 @@ class ProfileTokenVault extends CredentialVault implements Cloneable, Serializab
   protected int getType() {
     return AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN;
   }
+  
+  public void storeProfileTokenCredential(ProfileTokenCredential credential) {
+    this.profileTokenCrendential_ = credential; //@D3C cache profile token credential in a vault
+  }
+  
+  private ProfileTokenCredential profileTokenCrendential_;
 
+  //@D3A - Start
+  /**
+   * Retrieves unencoded credential from a vault
+   */
+  protected synchronized byte[] getClearCredential() {
+    if (profileTokenCrendential_!=null){
+      encodedCredential_ = store(profileTokenCrendential_.getToken());
+      return resolve(encodedCredential_);
+    } else {
+      return super.getClearCredential();
+    }
+  }
+  
+  /**
+   * Block the thread to refresh profile token credential from the vault.
+   */
+  public void preventRefresh() {
+    if (profileTokenCrendential_!=null){
+      try {
+        profileTokenCrendential_.preventRefresh();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+  
+  /**
+   * Notify the wait thread to refresh profile token credential from the vault.
+   */
+  public void allowRefresh() {
+    if (profileTokenCrendential_!=null){
+      profileTokenCrendential_.allowRefresh();
+    }
+  }
+  
+  /**
+   * Queries the vault to see if it contains a profile token credential.
+   */
+  protected boolean isEmpty() {
+    return (profileTokenCrendential_ == null);
+  }
+  
+  //@D3A - End
 }
