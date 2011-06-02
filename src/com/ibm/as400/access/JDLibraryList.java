@@ -129,7 +129,7 @@ Constructor.
           }                                                             //@D2A
       }else{                                                            //@D2A
           //Work with the *LIBL                                         //@D2A
-          libListType = LIBL_;                                          //@D2A
+          libListType_ = LIBL_;                                         //@D2A
       }                                                                 //@D2A
 
     // If a list is specified, then construct the
@@ -154,7 +154,7 @@ Constructor.
       }
 
       // Determine if the *LIBL token is included.
-        boolean includesLibl = (list.toUpperCase().indexOf (libListType_) != -1);     /*@D2C*/
+      boolean includesLibl =   (list.toUpperCase().indexOf (libListType_) != -1);     /*@D2C*/
 
       // Parse the list into tokens.
       StringTokenizer tokenizer = new StringTokenizer (list, " ,:;", true);  //@delim2
