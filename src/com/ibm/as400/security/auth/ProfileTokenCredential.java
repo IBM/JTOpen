@@ -419,9 +419,6 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     */
     public int hashCode() {
-        if (true) {
-          return super.hashCode(); 
-        }
         int hash = 104473;
         if (token_ != null) {
             // Obtain unencrypted form as common base for comparison
