@@ -95,6 +95,7 @@ class ProfileTokenVault extends CredentialVault implements Cloneable, Serializab
   public void preventRefresh() {
     if (profileTokenCrendential_!=null){
       try {
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "ProfileTokenVault preventRefresh called");
         profileTokenCrendential_.preventRefresh();
       } catch (InterruptedException e) {
         e.printStackTrace();
@@ -107,6 +108,7 @@ class ProfileTokenVault extends CredentialVault implements Cloneable, Serializab
    */
   public void allowRefresh() {
     if (profileTokenCrendential_!=null){
+      if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "ProfileTokenVault allowRefresh called");
       profileTokenCrendential_.allowRefresh();
     }
   }
