@@ -1157,6 +1157,7 @@ public class AS400 implements Serializable
         //@D3A - Start 
         // Before the thread to connect server, block the thread to refresh profile token credential.
         if (credVault_ instanceof ProfileTokenVault) { 
+          if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Before service connected, block the thread of refreshing profile token credential");
           ((ProfileTokenVault) credVault_).preventRefresh();
         }
         //@D3A - End
@@ -1170,6 +1171,7 @@ public class AS400 implements Serializable
         } finally { 
           // After the thread to connect server, notify the thread to refresh profile token credential.
           if (credVault_ instanceof ProfileTokenVault) { 
+            if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "After service connected, notify the thread of refreshing profile token credential");
             ((ProfileTokenVault) credVault_).allowRefresh();
           }
         }
