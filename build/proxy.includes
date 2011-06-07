@@ -66,6 +66,13 @@ com/ibm/as400/access/SocketContainer.class
 com/ibm/as400/access/SocketProperties.class
 com/ibm/as400/access/StoppableThread.class
 com/ibm/as400/access/SystemProperties.class
+#-- Needed by AS400 object Added 5/25/2011
+com/ibm/as400/access/CredentialVault.class
+com/ibm/as400/access/PasswordVault.class
+com/ibm/as400/access/ProfileTokenVault.class
+com/ibm/as400/access/ManagedProfileTokenVault.class
+com/ibm/as400/access/IdentityTokenVault.class
+com/ibm/as400/access/GSSTokenVault.class
 
 #---------------------------------------------------
 # Command call
@@ -181,6 +188,9 @@ com/ibm/as400/access/JDTrace.class
 com/ibm/as400/access/SerializableInputStream.class
 com/ibm/as400/access/SerializableReader.class
 com/ibm/as400/access/ToolboxWrapper.class
+# Additional classes added 5/26/2011
+com/ibm/as400/access/AS400JDBCDataSource.class
+com/ibm/as400/access/AS400JDBCRowSet.class
 
 #---------------------------------------------------
 # Print
