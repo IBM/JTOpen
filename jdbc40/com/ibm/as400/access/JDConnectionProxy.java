@@ -31,14 +31,15 @@ import java.sql.PreparedStatement;
 /* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
 import java.sql.SQLXML;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.concurrent.Executor;
 /* endif */ 
 import java.sql.Savepoint;   
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Struct;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -1168,6 +1169,46 @@ implements Connection
   {                                                                   // @pd2
       return (String) callMethodRtnObj("getServerJobIdentifier");     // @pd2
   }                                                                   // @pd2
+
+/* ifdef JDBC40 */
+ 
+  // JDBC 4.1
+  public void abort(Executor executor) throws SQLException {
+    callMethod("abort",
+        new Class[] {Executor.class},
+        new Object[] {executor}); 
+  }
+
+  // JDBC 4.1
+  public void setNetworkTimeout(Executor executor, int milliseconds)
+      throws SQLException {
+    callMethod ("setNetworkTimeout",
+        new Class[] { Executor.class, Integer.class },
+        new Object[] { executor, new Integer(milliseconds) });
+    
+  }
+
+/* endif */ 
+  
+  // JDBC 4.1
+  public int getNetworkTimeout() throws SQLException {
+    return ((Integer)callMethodRtnObj ("getNetworkTimeout")).intValue();
+  }
+
+  // JDBC 4.1
+  public String getSchema() throws SQLException {
+    return ((String)callMethodRtnObj ("getSchema"));
+  }
+
+
+  // JDBC 4.1
+  public void setSchema(String schema) throws SQLException {
+    callMethod ("setSchema",
+        new Class[] { String.class },
+        new Object[] { schema });
+  
+  }
+
 
   
 }

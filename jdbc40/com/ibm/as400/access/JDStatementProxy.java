@@ -563,4 +563,16 @@ implements java.sql.Statement
     {
         return callMethodRtnBool ("isPoolable");
     }
+    
+    // JDBC 4.1
+    public void closeOnCompletion() throws SQLException {
+      callMethod("closeOnCompletion"); 
+      
+    }
+
+    // JDC 4.1
+    public boolean isCloseOnCompletion() throws SQLException {
+      return callMethodRtnBool("isCloseOnCompletion"); 
+    }
+
 }

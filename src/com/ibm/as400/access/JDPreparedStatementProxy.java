@@ -980,4 +980,30 @@ implements PreparedStatement
             throw new SQLException (e.getMessage ());
         }
     }
+    
+    
+    public void setDBDefault(int parameterIndex) throws SQLException
+    {
+        setDB2Default(parameterIndex);         
+    }
+
+    public void setDB2Default(int parameterIndex) throws SQLException {
+        callMethod("setDB2Default", 
+            new Class[] { Integer.TYPE},
+            new Object[] { new Integer (parameterIndex)}); 
+    }
+
+    public void setDB2Unassigned(int parameterIndex) throws SQLException {
+      callMethod("setDB2Unassigned", 
+          new Class[] { Integer.TYPE},
+          new Object[] { new Integer (parameterIndex)}); 
+    }
+    
+    public void setDBUnassigned(int parameterIndex) throws SQLException
+    {
+        setDB2Unassigned(parameterIndex); //2 is unassigned   
+    }
+    
+    
+    
 }

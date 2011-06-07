@@ -2438,4 +2438,39 @@ implements ResultSet
         updateNClob(findColumn (columnLabel), reader);
     }
 
+
+
+    public void updateDB2Default(int columnIndex) throws SQLException
+    {
+      callMethod ("updateDB2Default",
+          new Class[] { Integer.TYPE },
+          new Object[] { new Integer (columnIndex) });
+ 
+    }
+
+    public void updateDBDefault(int columnIndex) throws SQLException
+    {
+         updateDB2Default(columnIndex);   
+    }
+
+    
+    
+    
+/* ifdef JDBC40 
+
+    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+
+    public <T> T getObject(String columnLabel, Class<T> type)
+        throws SQLException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+endif */ 
+    
+    
 }

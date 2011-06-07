@@ -1570,5 +1570,22 @@ implements java.sql.DatabaseMetaData
                 new Object[] { catalog, schemaPattern, functionNamePattern, columnNamePattern });
     }
 
+    // JDBC 4.1
+    public boolean generatedKeyAlwaysReturned() throws SQLException {
+      return callMethodRtnBool("generatedKeyAlwaysReturned");
+    }
+
+
+      // JDBC 4.1
+    public ResultSet getPseudoColumns(String catalog, String schemaPattern,
+        String tableNamePattern, String columnNamePattern)
+    throws SQLException {
+      return callMethodRtnRSet ("getPseudoColumns",
+          new Class[] { String.class, String.class, String.class, String.class },
+          new Object[] { catalog, schemaPattern, tableNamePattern, columnNamePattern });
+
+    }
+
+
 
 }

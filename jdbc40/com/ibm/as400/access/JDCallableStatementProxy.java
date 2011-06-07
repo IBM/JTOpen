@@ -1734,4 +1734,23 @@ implements CallableStatement
         }    
     }
     
+/* ifdef JDBC40 */
+
+    // JDBC 4.1
+    public <T> T getObject(int parameterIndex, Class<T> type)
+        throws SQLException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    // JDBC 4.1
+ 
+    public <T> T getObject(String parameterName, Class<T> type)
+        throws SQLException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+/* endif */ 
+    
 }

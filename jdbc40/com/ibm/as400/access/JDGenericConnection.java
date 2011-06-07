@@ -29,6 +29,7 @@ import java.sql.NClob;
 import java.sql.PreparedStatement;
 /* ifdef JDBC40 */
 import java.sql.SQLXML;
+import java.util.concurrent.Executor;
 /* endif */ 
 import java.sql.Savepoint; //@A1A
 import java.sql.SQLException;
@@ -37,6 +38,7 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
+
 
 
 class JDGenericConnection
@@ -904,5 +906,38 @@ implements Connection
       return ((AS400JDBCConnection)actualConnection_).createStruct(typeName, attributes);
   }
   
+
+/* ifdef JDBC40 */
+  // JDBC 4.1
+  public void abort(Executor executor) throws SQLException {
+    
+    ((AS400JDBCConnection)actualConnection_).abort(executor); 
+  }
+/* endif */ 
+  
+  // JDBC 4.1
+  public int getNetworkTimeout() throws SQLException {
+    return ((AS400JDBCConnection)actualConnection_).getNetworkTimeout(); 
+    
+  }
+
+  // JDBC 4.1
+  public String getSchema() throws SQLException {
+    return ((AS400JDBCConnection)actualConnection_).getSchema(); 
+  }
+
+  public void setSchema(String schema) throws SQLException {
+    ((AS400JDBCConnection)actualConnection_).setSchema(schema); 
+  }
+
+/* ifdef JDBC40 */
+  // JDBC 4.1
+  public void setNetworkTimeout(Executor executor, int milliseconds)
+      throws SQLException {
+    ((AS400JDBCConnection)actualConnection_).setNetworkTimeout(executor, milliseconds); 
+    
+  }
+/* endif */ 
+
   
 }
