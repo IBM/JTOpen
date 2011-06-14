@@ -49,6 +49,7 @@ import java.util.Properties;
 import java.util.Vector;
 /* ifdef JDBC40 */
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Executor;
 /* endif */ 
 
 
@@ -209,7 +210,7 @@ implements Connection
     static final ConvTable      unicodeConverter_ = new ConvTable13488();              // @E3A @P0C
     ConvTable      packageCCSID_Converter = null; //Bidi-HCG
     int                         vrm_;                           // @D0A @E10c
-
+    private int correlationID_ = 0;         //@D2A - only used for multiple receives
     // declare the user-supplied value for server trace.  The constants for
     // the definition of each bit in the bit map are defined in Trace.java
     private int                         traceServer_ = 0;               // @j1a
@@ -407,7 +408,7 @@ implements Connection
     {
         synchronized(cancelLock_)
         {
-            if (cancelling_)
+            while (cancelling_)
             {
                 try
                 {
@@ -2943,6 +2944,87 @@ implements Connection
     }
 
 
+    //@D2A
+    DBReplyRequestedDS sendAndMultiReceive (DBBaseRequestDS request)
+    throws SQLException
+    {
+        checkCancel();                                                                      // @E8A
+        checkOpen();      // @W1a
+
+        DBReplyRequestedDS reply = null;
+
+        try
+        {
+            request.setBasedOnORSHandle (0);                 // @DAC @EKC
+
+            if (dataCompression_ == DATA_COMPRESSION_RLE_)
+            {                                // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
+                request.compress();                                                         // @ECA
+            }                                                                               // @ECA
+
+            DataStream actualRequest;                                                       // @E5A
+            synchronized(heldRequestsLock_)
+            {                                               // @E5A
+                if (heldRequests_ != null)                                                  // @E5A
+                    actualRequest = new DBConcatenatedRequestDS(heldRequests_, request);    // @E5A
+                else                                                                        // @E5A
+                    actualRequest = request;                                                // @E5A
+                heldRequests_ = null;                                                       // @E5A
+                //D2A- allowed correlation ID to be stored and used on multiple receive calls                                                      
+                correlationID_ = server_.send(actualRequest);
+                reply = (DBReplyRequestedDS)server_.receive(correlationID_);
+            }                                                                               // @E5A
+
+            reply.parse(dataCompression_);                                                  // @E5A
+                                                       // @DAC
+
+            if (DEBUG_COMM_TRACE_ > 0)
+            {
+                debug (request);
+                debug (reply);
+            }
+        }
+        // @J5D catch (ConnectionDroppedException e) {                              // @C1A
+        // @J5D    server_ = null;                                                  // @D8
+        // @J5D    request.freeCommunicationsBuffer();                              // @EMa
+        // @J5D    JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE, e);      // @C1A
+        // @J5D }                                                                   // @C1A
+        catch (IOException e)
+        {                                             // @J5A
+            server_ = null;                                                  // @J5A
+            //@P0D request.freeCommunicationsBuffer();                              // @J5A
+            JDError.throwSQLException (this, JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
+        }                                                                   // @J5A
+        catch (Exception e)
+        {
+            //@P0D request.freeCommunicationsBuffer();                              // @EMa
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
+        }
+
+        return(DBReplyRequestedDS) reply;
+    }
+    
+    //@DA2 - sew added new receive method.
+    DBReplyRequestedDS receiveMoreData()
+    throws SQLException{
+        DBReplyRequestedDS reply = null;
+        try{
+            if(correlationID_ > 0){
+                synchronized(heldRequestsLock_)
+                { 
+                    reply = (DBReplyRequestedDS)server_.receive(correlationID_);
+                }
+                reply.parse(dataCompression_);
+            }
+        }catch (Exception e)
+        {
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
+        }
+        return reply;
+    }
+
 
     // @E4C
     /**
@@ -5160,6 +5242,53 @@ implements Connection
 	public int getMaximumBlockedInputRows() { 
 		return maximumBlockedInputRows_; 
 	}
+
+/* ifdef JDBC40 */
+  public void abort(Executor executor) throws SQLException {
+    // TODO JDBC41 Auto-generated method stub
+    
+  }
+/* endif */ 
+	
+
+
+  public int getNetworkTimeout() throws SQLException {
+    // TODO JDBC41 Auto-generated method stub
+    return 0;
+  }
+
+
+  /**
+   * Get the name of the current schema.
+   */    
+  public String getSchema() throws SQLException {
+    Statement s = createStatement(); 
+    ResultSet rs = s.executeQuery("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1"); 
+    rs.next();
+    String schema = rs.getString(1);
+    rs.close();
+    s.close();
+    return schema; 
+  }
+
+
+/* ifdef JDBC40 */
+  public void setNetworkTimeout(Executor executor, int milliseconds)
+      throws SQLException {
+    // TODO JDBC41 Auto-generated method stub
+    
+  }
+/* endif */ 
+
+  /* 
+   *  Set the name of the current scheam 
+   */
+  public void setSchema(String schema) throws SQLException {
+    PreparedStatement ps = prepareStatement("SET CURRENT SCHEMA ? "); 
+  
+  }
+
+
 
 
 }
