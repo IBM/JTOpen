@@ -222,7 +222,8 @@ public class JDMRI extends ListResourceBundle
       { "CONCURRENT_ACCESS_RESOLUTION_DESC", "Specifies whether \"currently committed\" access is used on the connection."}, //@cc1
       { "JVM16_SYNCHRONIZE_DESC", "Specifies whether to enable temporary workaround fix for JVM 1.6."}, //@dmy
       { "SOCKET_TIMEOUT_DESC", "Specifies the socket timeout value in milliseconds."}, //@STIMEOUT
-      { "MAXIMUM_BLOCKED_INPUT_ROWS_DESC", "Specifies the maximum number of rows to be sent to the database engine when using a blocked insert or update operation." }, 
+      { "MAXIMUM_BLOCKED_INPUT_ROWS_DESC", "Specifies the maximum number of rows to be sent to the database engine when using a blocked insert or update operation." },
+      { "QUERY_TIMEOUT_MECHANISM", "Specifies the method used to implement the query timeout"},
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

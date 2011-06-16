@@ -108,7 +108,7 @@ implements Statement
     int                     numberOfResults_;    // private protected
     int                     positionOfSyntaxError_;    //@F10A
     boolean                 prefetch_;    // private protected
-    private     int                     queryTimeout_;
+    int                     queryTimeout_;                /*@D4A*/ 
     private     boolean                 queryTimeoutSet_ = false;  /*@B2A*/ 
     AS400JDBCResultSet      resultSet_;    // private protected
     private     int                     rowCountEstimate_;    // @ECA
@@ -142,6 +142,11 @@ implements Statement
     private DBReplyRequestedDS execImmediateReply = null; 
     private DBReplyRequestedDS normalPrepareReply = null;    
     private DBReplyRequestedDS getMoreResultsReply = null;   
+
+    protected boolean queryRunning_;    // Used to determine whether or not we need to track}
+                                        // a QueryCancelThread.  @D4A
+    protected AS400JDBCQueryCancelThread cancelThread_;    /*@D4A*/
+
 
     
     /**
@@ -701,8 +706,13 @@ implements Statement
                               JDServerRow resultRow)    // private protected
     throws SQLException
     {
+      try { 
         cancelled_ = false;
 
+        /*@D4A*/
+        if (connection_.isQueryTimeoutMechanismCancel()) {
+          startCancelThread(); 
+        }
         // If the statement is not immediately executable, then
         // we still need to do the execute.  Otherwise, the execute
         // was already done as part of the prepare.
@@ -1174,6 +1184,13 @@ implements Statement
                                         "Row count estimate = " + rowCountEstimate_);    // @ECA
             }
         }
+      } finally {
+         /*@D4A*/
+        if (connection_.isQueryTimeoutMechanismCancel()) {
+          endCancelThread();
+        }
+
+      }
     }
 
 
@@ -1234,10 +1251,16 @@ implements Statement
     JDServerRow commonPrepare (JDSQLStatement sqlStatement)    // private protected
     throws SQLException
     {
+      JDServerRow resultRow = null;
+      try {
+        /*@D4A*/
+        if (connection_.isQueryTimeoutMechanismCancel()) {
+          startCancelThread(); 
+        }
+
         cancelled_ = false;
 
         connection_.checkAccess (sqlStatement);
-        JDServerRow resultRow = null;
         nameOverride_ = "";
 
         // Check for DRDA connect or disconnect.  @B1A
@@ -1767,7 +1790,12 @@ implements Statement
                     lastPrepareContainsLocator_ = true;    // @B2A
             }    // @B2A
         }    // @B2A
-
+      } finally {
+         /*@D4A*/
+        if (connection_.isQueryTimeoutMechanismCancel()) {
+          endCancelThread();
+        }
+      }
         return resultRow;
     }
 
@@ -3995,4 +4023,72 @@ implements Statement
         return new String[] {  "com.ibm.as400.access.AS400JDBCStatement", "java.sql.Statement" };
     }
 
+    // jdbc41
+    public void closeOnCompletion() throws SQLException {
+      // TODO JDBC41 Auto-generated method stub
+      
+    }
+
+
+    // jdbc41
+    public boolean isCloseOnCompletion() throws SQLException {
+      // TODO JDBC41 Auto-generated method stub
+      return false;
+    }
+
+    /*@D4A*/ 
+    /**
+    Handles the work involved in supporting a setQueryTimeout option with the cancel property set. .
+   
+    **/
+        protected void startCancelThread()
+        {
+            // Start a cancel thread if there is a query running and a timeout value has been
+            // specified.
+            if (queryTimeoutSet_ && queryTimeout_ != 0) {
+
+                // We only are going to allow the query timeout to effect queries.
+                // Set a flag that a query is running.
+
+
+                    queryRunning_ = true;
+
+                    // Create a thread to do the cancel if needed.  Start the thread.
+                    cancelThread_ = new AS400JDBCQueryCancelThread(this);
+
+                    // Uncommented this @A7A ..
+                    // this is needed to prevent job from hanging if the extra threads
+                    // we started don't end.
+                    //
+                    cancelThread_.setDaemon(true);
+
+                    cancelThread_.start();
+            }
+        }
+
+
+
+    /*@D4A*/ 
+    /**
+     * endTheCancelThread
+    **/
+        protected void endCancelThread()
+        {
+            // Deal with the cancel thread at this point.
+            if (queryTimeout_ != 0) {
+
+                    // Set the flag saying the query is no longer running.
+                    queryRunning_ = false;
+
+                    // Detach the thread from the statement.
+                    cancelThread_.statement_ = null;
+
+                    // Interrupt the thread so that it wakes up and dies.
+                    cancelThread_.interrupt();
+            }
+        }
+
+
+    
+    
 }
