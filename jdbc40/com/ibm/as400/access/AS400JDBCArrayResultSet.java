@@ -4221,9 +4221,32 @@ implements ResultSet
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "updateSQLXML");
     }
 /* endif */ 
+    
+
+        // jdbc4.1
+/* ifdef JDBC40 */
+    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    }
+/* endif */ 
+
+    // jdbc4.1
+/* ifdef JDBC40 */
+    public <T> T getObject(String columnLabel, Class<T> type)
+        throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    } 
+/* endif */ 
+
+    
     protected String[] getValidWrappedList()
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCArrayResultSet",  "java.sql.ResultSet" };
     } 
 
+
+    
+    
 }

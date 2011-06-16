@@ -7233,7 +7233,25 @@ implements ResultSet
     }
 
 
+
+/* ifdef JDBC40 */
+    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    }
+/* endif */ 
+
+/* ifdef JDBC40 */
+
+    public <T> T getObject(String columnLabel, Class<T> type)
+        throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    }
+/* endif */ 
+
  
+    
 }
 
 

@@ -20,6 +20,10 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+/* ifdef JDBC40 */
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
+/* endif */ 
 import java.util.Properties;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -131,6 +135,10 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @C8   20110322  PCML Date/Time/Timestamp fixes 
 // @C9   20110405  Deadlock in DBStoragePool 
 // @CA   20110418  More timezone fixes.
+// @D1   20110513  FileAttributes.getAttributes fails when returned data is larger than 2048 bytes.       
+// @D2   20010531  User library list updates
+// @D3   20110601  Profile token or identity token is not valid when getting pooled connection while token is automatically refreshed.
+// @D4   201106014 JDBC: query timeout mechanism property
 //--------------------------------------------------------------------
 
 
@@ -1466,7 +1474,11 @@ implements java.sql.Driver
 	{
 		return DRIVER_NAME_;	// @D0C
 	}
-
-
+/* ifdef JDBC40 */
+  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    // TODO JDBC40 Auto-generated method stub
+    return null;
+  }
+/* endif */ 
 
 }

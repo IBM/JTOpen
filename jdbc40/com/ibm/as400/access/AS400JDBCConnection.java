@@ -253,6 +253,10 @@ implements Connection
 	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
 	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A 
 
+	protected final static int QUERY_TIMEOUT_QQRYTIMLMT = 0; 
+	protected final static int QUERY_TIMEOUT_CANCEL     = 0; 
+  
+	private int queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT; 
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -3397,6 +3401,16 @@ implements Connection
         // a JDBC property.                                                                                     //@k2A
         qaqqiniLibrary_ = properties_.getString(JDProperties.QAQQINILIB);                                       //@K2A
 
+        
+        String queryTimeoutMechanismString = properties_.getString(JDProperties.QUERY_TIMEOUT_MECHANISM);
+        if (queryTimeoutMechanismString != null) {
+          queryTimeoutMechanismString = queryTimeoutMechanismString.trim().toLowerCase();
+          if (queryTimeoutMechanismString.equals(JDProperties.QUERY_TIMEOUT_MECHANISM_CANCEL)) {
+            queryTimeoutMechanism_ = QUERY_TIMEOUT_CANCEL; 
+          } else {
+            queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT; 
+          }
+        }
         //@A3D
         // Initialize the conversation.
         //open ();
@@ -5245,7 +5259,7 @@ implements Connection
 
 /* ifdef JDBC40 */
   public void abort(Executor executor) throws SQLException {
-    // TODO JDBC41 Auto-generated method stub
+    // TODO TODOJDBC41 Auto-generated method stub
     
   }
 /* endif */ 
@@ -5253,7 +5267,7 @@ implements Connection
 
 
   public int getNetworkTimeout() throws SQLException {
-    // TODO JDBC41 Auto-generated method stub
+    // TODO TODOJDBC41 Auto-generated method stub
     return 0;
   }
 
@@ -5262,6 +5276,7 @@ implements Connection
    * Get the name of the current schema.
    */    
   public String getSchema() throws SQLException {
+   // TODO TODOJDBC41
     Statement s = createStatement(); 
     ResultSet rs = s.executeQuery("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1"); 
     rs.next();
@@ -5288,6 +5303,9 @@ implements Connection
   
   }
 
+  protected boolean isQueryTimeoutMechanismCancel() {
+    return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL; 
+  }
 
 
 

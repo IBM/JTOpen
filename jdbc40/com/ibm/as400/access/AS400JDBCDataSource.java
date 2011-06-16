@@ -24,9 +24,14 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+/* ifdef JDBC40 */
+import java.sql.SQLFeatureNotSupportedException;
+/* endif */ 
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;                          // @J3a
+import java.util.logging.Logger;
+
 import javax.sql.DataSource;                      // JDBC2.0 std-ext
 import javax.naming.NamingException;              // JNDI
 import javax.naming.Reference;                    // JNDI
@@ -1440,6 +1445,22 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public int getQueryStorageLimit()
     {
         return properties_.getInt(JDProperties.QUERY_STORAGE_LIMIT);
+    }
+
+   /*@D4A*/
+    /**                                                               
+    *  Returns the mechanism used to implement query timeout. 
+    *  @return the mechanism used to implement query timeout.
+    *  <p>Valid values include:
+    *  <ul>
+    *  <li>qqrytimlmt = The QQRYTIMLMT will be used. 
+    *  <li>cancel     = A long running statement will be cancelled.
+    *  </ul>
+    *  The default value is 0.
+    **/
+    public String getQueryTimeoutMechanism()
+    {
+        return properties_.getString(JDProperties.QUERY_TIMEOUT_MECHANISM);
     }
 
     //@540
@@ -4861,6 +4882,37 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + limit);
     }
 
+   /*@D4A*/
+    /**
+     * Sets the query timeout mechanism property, which indicates how
+     * the toolbox will enforce the query timeout specified on the statement. 
+     * @param timeoutMechanism The timeout mechanism to use. 
+     * <p>Valid values include:
+     * <ul>
+     *   <li>"qqrytimlmt" (QQRTIMLMT will be used)
+     *   <li>"cancel" (cancel will be used)
+     * </ul>
+     * The default value is "character".
+     **/
+     public void setQueryTimeoutMechanism(String timeoutMechanism)
+     {
+         String property = "queryTimeoutMechanism";
+
+         String oldOption = getQueryTimeoutMechanism();
+         String newOption = timeoutMechanism;
+
+         validateProperty(property, newOption, JDProperties.QUERY_TIMEOUT_MECHANISM);
+
+         properties_.setString(JDProperties.QUERY_TIMEOUT_MECHANISM, newOption);
+
+         changes_.firePropertyChange(property, oldOption, newOption);
+
+         if (JDTrace.isTraceOn())
+             JDTrace.logInformation (this, property + ": " + timeoutMechanism);
+     }
+
+    
+    
     //@540
     /**                                                               
     *  Sets whether lock sharing is allowed for loosely coupled transaction branches.
@@ -5195,6 +5247,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCDataSource", "javax.sql.DataSource" };
     } 
-
-
+/* ifdef JDBC40 */
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    } 
+/* endif */ 
+    
+    
 }

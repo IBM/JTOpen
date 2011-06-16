@@ -4410,4 +4410,21 @@ implements CallableStatement
         setNClob(findParameterIndex(parameterName), reader);
     }
     
+    
+/* ifdef JDBC40 */
+    public <T> T getObject(int parameterIndex, Class<T> type)
+        throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    }
+/* endif */ 
+
+/* ifdef JDBC40 */
+    public <T> T getObject(String parameterName, Class<T> type)
+        throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    }
+/* endif */ 
+    
 }

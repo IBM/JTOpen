@@ -23,10 +23,17 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+/* ifdef JDBC40 */
+import java.sql.SQLFeatureNotSupportedException;
+/* endif */ 
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;
+/* ifdef JDBC40 */
+import java.util.logging.Logger;
+/* endif */ 
+
 import javax.sql.DataSource;
 import javax.naming.NamingException;
 import javax.naming.Reference;
@@ -1236,6 +1243,24 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getInt(JDProperties.QUERY_OPTIMIZE_GOAL);
   }
 
+  /* @D4A */ 
+  /**                                                               
+   *  Returns the mechanism used to implement query timeout. 
+   *  @return the mechanism used to implement query timeout.
+   *  <p>Valid values include:
+   *  <ul>
+   *  <li>qqrytimlmt = The QQRYTIMLMT will be used. 
+   *  <li>cancel     = A long running statement will be cancelled.
+   *  </ul>
+   *  The default value is 0.
+   **/
+   public String getQueryTimeoutMechanism()
+   {
+       return properties_.getString(JDProperties.QUERY_TIMEOUT_MECHANISM);
+   }
+
+  
+  
   //@550
     /**
     * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
@@ -3467,6 +3492,35 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     properties_.setString(JDProperties.QUERY_OPTIMIZE_GOAL, Integer.toString(goal));
   }
 
+  /* @D4A*/ 
+  /**
+   * Sets the query timeout mechanism property, which indicates how
+   * the toolbox will enforce the query timeout specified on the statement. 
+   * @param timeoutMechanism The timeout mechanism to use. 
+   * <p>Valid values include:
+   * <ul>
+   *   <li>"qqrytimlmt" (QQRTIMLMT will be used)
+   *   <li>"cancel" (cancel will be used)
+   * </ul>
+   * The default value is "character".
+   **/
+   public void setQueryTimeoutMechanism(String timeoutMechanism)
+   {
+       String property = "queryTimeoutMechanism";
+
+       String newOption = timeoutMechanism;
+
+       validateProperty(property, newOption, JDProperties.QUERY_TIMEOUT_MECHANISM);
+
+       properties_.setString(JDProperties.QUERY_TIMEOUT_MECHANISM, newOption);
+
+
+       if (JDTrace.isTraceOn())
+           JDTrace.logInformation (this, property + ": " + timeoutMechanism);
+   }
+
+  
+
   //@550
     /**
     * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
@@ -4640,4 +4694,11 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       return new String[] {  "com.ibm.as400.access.AS400JDBCManagedDataSource", "javax.sql.DataSource" };
   } 
 
+/* ifdef JDBC40 */
+  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    // TODO TODOJDBC41 Auto-generated method stub
+    return null;
+  } 
+/* endif */ 
+  
 }
