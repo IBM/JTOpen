@@ -161,10 +161,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              SOCKET_TIMEOUT              = 81; //@STIMEOUT
     static final int              DO_UPDATE_DELETE_BLOCKING  = 82;  //@A2A
     static final int              MAXIMUM_BLOCKED_INPUT_ROWS = 83;  //@A6A
+    static final int              QUERY_TIMEOUT_MECHANISM    = 84; 
     
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 84;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 85;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -215,6 +216,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String PROMPT_                 = "prompt";
     private static final String PROXY_SERVER_           = "proxy server";           // @A3A
     //private static final String PROXY_SERVER_SECURE_    = "proxy server secure";    // @A3A
+    private static final String QUERY_TIMEOUT_MECHANISM_  = "query timeout mechanism";
     private static final String REMARKS_                = "remarks";
     static final String SECONDARY_URL_                  = "secondary URL";          // @A3A
     private static final String SECURE_                 = "secure";
@@ -461,6 +463,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         CONCURRENTACCESS_WAIT_FOR_OUTCOME = "2"; //@cc1
     static final String         CONCURRENTACCESS_SKIP_LOCKS = "3"; //@cc1
 
+    static final String         QUERY_TIMEOUT_MECHANISM_CANCEL="cancel"; 
+    static final String         QUERY_TIMEOUT_MECHANISM_QQRYTIMLMT="qqrytimlmt"; 
     
     
     // Static data.
@@ -1395,6 +1399,15 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[5]  = "32000";
        defaults_[i]  = "32000";
 
+       // Query timeout mechanism
+       i = QUERY_TIMEOUT_MECHANISM;
+       dpi_[i] = new DriverPropertyInfo(QUERY_TIMEOUT_MECHANISM_, "");
+       dpi_[i].description = "QUERY_TIMEOUT_MECHANISM_DESC";
+       dpi_[i].required    = false;
+       dpi_[i].choices     = new String[2];
+       dpi_[i].choices[0]  = QUERY_TIMEOUT_MECHANISM_QQRYTIMLMT;
+       dpi_[i].choices[1]  = QUERY_TIMEOUT_MECHANISM_CANCEL;
+       defaults_[i]        = QUERY_TIMEOUT_MECHANISM_QQRYTIMLMT;
 
         
     }
