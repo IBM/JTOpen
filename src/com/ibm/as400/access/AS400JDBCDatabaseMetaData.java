@@ -7908,4 +7908,22 @@ endif */
     }
   
 
+    // JDBC 4.1
+    public boolean generatedKeyAlwaysReturned() throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return false;
+    }
+
+
+
+    // JDBC 4.1
+    public ResultSet getPseudoColumns(String catalog, String schemaPattern,
+        String tableNamePattern, String columnNamePattern)
+        throws SQLException {
+      // TODO TODOJDBC41 Auto-generated method stub
+      return null;
+    }
+    
+
+    
 }

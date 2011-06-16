@@ -37,6 +37,9 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties; //@pda client info
+/*ifdef JDBC40
+import java.util.concurrent.Executor;
+endif */ 
 
 /**
 *  The AS400JDBCConnectionHandle class represents an AS400JDBCConnection object
@@ -2003,5 +2006,44 @@ endif */
      endif */ 
         connection_.setDBHostServerTrace(trace);
     }
+    
+
+    /* ifdef JDBC40 
+      public void abort(Executor executor) throws SQLException {
+        validateConnection();
+        connection_.abort(executor);         
+      }
+    endif */
+      
+
+
+      public int getNetworkTimeout() throws SQLException {
+              validateConnection();
+          return connection_.getNetworkTimeout(); 
+      }
+
+
+
+      public String getSchema() throws SQLException {
+        validateConnection(); 
+        return connection_.getSchema(); 
+      }
+
+
+    /* ifdef JDBC40 
+      public void setNetworkTimeout(Executor executor, int milliseconds)
+          throws SQLException {
+          validateConnection(); 
+          connection_.setNetworkTimeout(executor, milliseconds); 
+        
+      }
+    endif */
+
+
+      public void setSchema(String schema) throws SQLException {
+	     validateConnection(); 
+	     connection_.setSchema(schema);
+      }
+    
     
 }
