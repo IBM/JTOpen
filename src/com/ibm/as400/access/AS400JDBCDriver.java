@@ -137,7 +137,8 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @CA   20110418  More timezone fixes.
 // @D1   20110513  FileAttributes.getAttributes fails when returned data is larger than 2048 bytes.       
 // @D2   20010531  User library list updates
-// @D3   20110601  Profile token or identity token is not valid when getting pooled connection while token is automatically refreshed.     
+// @D3   20110601  Profile token or identity token is not valid when getting pooled connection while token is automatically refreshed.
+// @D4   201106014 JDBC: query timeout mechanism property
 //--------------------------------------------------------------------
 
 

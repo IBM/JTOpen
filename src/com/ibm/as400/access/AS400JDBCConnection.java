@@ -253,6 +253,10 @@ implements Connection
 	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
 	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A 
 
+	protected final static int QUERY_TIMEOUT_QQRYTIMLMT = 0; 
+	protected final static int QUERY_TIMEOUT_CANCEL     = 0; 
+  
+	private int queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT; 
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -408,7 +412,7 @@ implements Connection
     {
         synchronized(cancelLock_)
         {
-            if (cancelling_)
+            while (cancelling_)
             {
                 try
                 {
@@ -3397,6 +3401,16 @@ implements Connection
         // a JDBC property.                                                                                     //@k2A
         qaqqiniLibrary_ = properties_.getString(JDProperties.QAQQINILIB);                                       //@K2A
 
+        
+        String queryTimeoutMechanismString = properties_.getString(JDProperties.QUERY_TIMEOUT_MECHANISM);
+        if (queryTimeoutMechanismString != null) {
+          queryTimeoutMechanismString = queryTimeoutMechanismString.trim().toLowerCase();
+          if (queryTimeoutMechanismString.equals(JDProperties.QUERY_TIMEOUT_MECHANISM_CANCEL)) {
+            queryTimeoutMechanism_ = QUERY_TIMEOUT_CANCEL; 
+          } else {
+            queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT; 
+          }
+        }
         //@A3D
         // Initialize the conversation.
         //open ();
@@ -5245,7 +5259,7 @@ endif */
 
 /* ifdef JDBC40 
   public void abort(Executor executor) throws SQLException {
-    // TODO JDBC4 Auto-generated method stub
+    // TODO JDBC41 Auto-generated method stub
     
   }
 endif */
@@ -5253,32 +5267,45 @@ endif */
 
 
   public int getNetworkTimeout() throws SQLException {
-    // TODO JDBC4 Auto-generated method stub
+    // TODO JDBC41 Auto-generated method stub
     return 0;
   }
 
 
-
+  /**
+   * Get the name of the current schema.
+   */    
   public String getSchema() throws SQLException {
-    // TODO JDBC4 Auto-generated method stub
-    return null;
+   // TODO JDBC41
+    Statement s = createStatement(); 
+    ResultSet rs = s.executeQuery("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1"); 
+    rs.next();
+    String schema = rs.getString(1);
+    rs.close();
+    s.close();
+    return schema; 
   }
 
 
 /* ifdef JDBC40 
   public void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException {
-    // TODO JDBC4 Auto-generated method stub
+    // TODO JDBC41 Auto-generated method stub
     
   }
 endif */
 
-
+  /* 
+   *  Set the name of the current scheam 
+   */
   public void setSchema(String schema) throws SQLException {
-    // TODO JDBC4 Auto-generated method stub
-    
+    PreparedStatement ps = prepareStatement("SET CURRENT SCHEMA ? "); 
+  
   }
 
+  protected boolean isQueryTimeoutMechanismCancel() {
+    return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL; 
+  }
 
 
 
