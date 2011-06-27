@@ -3905,7 +3905,8 @@ implements Statement
 
                 if(rpbQueryTimeoutChanged_)    //@EFA
                 {
-                    if(queryTimeout_ > 0)
+                   // Don't set the query timeout in the request if using the cancel query timeout mechanism @D4C
+                    if(queryTimeout_ > 0 && !connection_.isQueryTimeoutMechanismCancel())
                         request.setQueryTimeout (queryTimeout_);
                     else
                         request.setQueryTimeout (-1);
