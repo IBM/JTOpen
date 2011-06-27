@@ -619,8 +619,8 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             PropertyDescriptor queryTimeoutMechanism = new PropertyDescriptor("queryTimeoutMechanism", beanClass, "getQueryTimeoutMechanism", "setQueryTimeoutMechanism");
             queryTimeoutMechanism.setBound(true);                                                                        
             queryTimeoutMechanism.setConstrained(false);                                                                 
-            queryTimeoutMechanism.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSLATE_HEX"));                
-            queryTimeoutMechanism.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_HEX_DESC"));                
+            queryTimeoutMechanism.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QUERY_TIMEOUT_MECHANISM"));                
+            queryTimeoutMechanism.setShortDescription(AS400JDBCDriver.getResource("QUERY_TIMEOUT_MECHANISM_DESC"));                
 
             
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
