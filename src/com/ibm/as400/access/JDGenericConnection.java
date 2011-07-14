@@ -915,11 +915,12 @@ implements Connection
   }
 endif */ 
   
-  // JDBC 4.1
+/* ifdef JDBC40 
   public int getNetworkTimeout() throws SQLException {
     return ((AS400JDBCConnection)actualConnection_).getNetworkTimeout(); 
     
   }
+endif */ 
 
   // JDBC 4.1
   public String getSchema() throws SQLException {
