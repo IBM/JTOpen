@@ -138,7 +138,10 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @D1   20110513  FileAttributes.getAttributes fails when returned data is larger than 2048 bytes.       
 // @D2   20010531  User library list updates
 // @D3   20110601  Profile token or identity token is not valid when getting pooled connection while token is automatically refreshed.
-// @D4   201106014 JDBC: query timeout mechanism property
+// @D4   20110614 JDBC: query timeout mechanism property
+// @D5   20110704  Handle ClassCastException in NPConversation.makeRequest()
+// @D6   20110714  JDBC:  Correct Connection.isValid()
+// @D7   20110714  JDBC:  Initial JDBC 4.1 changes
 //--------------------------------------------------------------------
 
 
