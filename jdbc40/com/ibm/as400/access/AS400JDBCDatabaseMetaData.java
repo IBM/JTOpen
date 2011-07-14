@@ -7909,19 +7909,94 @@ implements DatabaseMetaData
   
 
     // JDBC 4.1
+    /**
+     * Retrieves whether a generated key will always be returned if the column name(s) or index(es) 
+     * specified for the auto generated key column(s) are valid and the statement succeeds. 
+     * @return true if so; false otherwise
+     * @exception SQLException - if a database access error occurs
+     */
+
     public boolean generatedKeyAlwaysReturned() throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
       return false;
     }
 
 
 
     // JDBC 4.1
+    /**
+     * Retrieves a description of the pseudo or hidden columns available in a given table within the specified 
+     * catalog and schema. Pseudo or hidden columns may not always be stored within a table and are not 
+     * visible in a ResultSet unless they are specified in the query's outermost SELECT list. Pseudo or hidden 
+     * columns may not necessarily be able to be modified. If there are no pseudo or hidden columns, an empty 
+     * ResultSet is returned. 
+     * <p>Only column descriptions matching the catalog, schema, table and column name criteria are returned. 
+     * They are ordered by TABLE_CAT,TABLE_SCHEM, TABLE_NAME and COLUMN_NAME. 
+     * <p>Each column description has the following columns: 
+     * <ol>
+     * <li>TABLE_CAT String => table catalog (may be null) 
+     * <li>TABLE_SCHEM String => table schema (may be null) 
+     * <li>TABLE_NAME String => table name 
+     * <li>COLUMN_NAME String => column name 
+     * <li>DATA_TYPE int => SQL type from java.sql.Types 
+     * <li>COLUMN_SIZE int => column size. 
+     * <li>DECIMAL_DIGITS int => the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable. 
+     * <li>NUM_PREC_RADIX int => Radix (typically either 10 or 2) 
+     * <li>COLUMN_USAGE String => The allowed usage for the column. The value returned will correspond to the enum name returned by PseudoColumnUsage.name() 
+     * <li>REMARKS String => comment describing column (may be null) 
+     * <li>CHAR_OCTET_LENGTH int => for char types the maximum number of bytes in the column 
+     * <li>IS_NULLABLE String => ISO rules are used to determine the nullability for a column. 
+     * <ul>
+     * <li>YES --- if the column can include NULLs 
+     * <li>NO --- if the column cannot include NULLs 
+     * <li>empty string --- if the nullability for the column is unknown 
+     * </ul>
+     * </ol>
+     * <p> The COLUMN_SIZE column specifies the column size for the given column. For numeric data, this is the 
+     * maximum precision. For character data, this is the length in characters. For datetime datatypes, 
+     * this is the length in characters of the String representation (assuming the maximum allowed precision of the 
+     * fractional seconds component). For binary data, this is the length in bytes. For the ROWID datatype, 
+     * this is the length in bytes. Null is returned for data types where the column size is not applicable.
+     *
+     * @param catalog - a catalog name; must match the catalog name as it is stored in the database; 
+     * "" retrieves those without a catalog; null means that the catalog name should not be used to narrow the search
+     * @param schemaPattern - a schema name pattern; must match the schema name as it is stored in the database; 
+     * "" retrieves those without a schema; null means that the schema name should not be used to narrow the search
+     * @param tableNamePattern - a table name pattern; must match the table name as it is stored in the database
+     * @param columnNamePattern - a column name pattern; must match the column name as it is stored in the database
+     * @return  ResultSet - each row is a column description
+     * @exception  SQLException - if a database access error occurs
+     * @see PseudoColumnUsage
+     */ 
+    
     public ResultSet getPseudoColumns(String catalog, String schemaPattern,
         String tableNamePattern, String columnNamePattern)
         throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+
+      //
+      // TODO TODOJDBC41
+      //
+      connection_.checkOpen();
+      
+      CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLCOLUMNS  ( ?, ?, ?, ?, ?)");
+      
+      cstmt.setString(1, normalize(catalog));
+      cstmt.setString(2, normalize(schemaPattern));
+      cstmt.setString(3, normalize(tableNamePattern));
+      cstmt.setString(4, normalize(columnNamePattern));
+/* ifdef JDBC40 */
+      cstmt.setObject(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp //@ver
+/* endif */ 
+/* ifndef JDBC40 
+      cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
+ endif */ 
+      cstmt.execute();//@mdrs
+      ResultSet rs = cstmt.getResultSet();  //@mdrs
+      if(rs != null)                        //@mdrs
+          ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+      else
+          cstmt.close(); //@mdrs2
+      
+      return rs;  //@mdrs
     }
     
 

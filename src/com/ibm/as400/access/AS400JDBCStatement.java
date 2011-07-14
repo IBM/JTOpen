@@ -89,6 +89,7 @@ implements Statement
     private     int                     blockSize_;
     private     boolean                 cancelled_;
     private     boolean                 closed_;
+    private     boolean                 closeOnCompletion_;  //@D7A
     AS400JDBCConnection     connection_;    // private protected
     JDCursor                cursor_;    // private protected
     private     String                  cursorDefaultName_;
@@ -3527,10 +3528,15 @@ implements Statement
         // The result set is close, so we can close the cursor.
         if(! cursor_.isClosed ())
         {
-            if(numberOfResults_ > 1)
+            if(numberOfResults_ > 1) {
                 cursor_.close (JDCursor.REUSE_RESULT_SET);
-            else
+            } else {
+               // Only one result set.   
                 cursor_.close (JDCursor.REUSE_YES);
+                if (closeOnCompletion_) { //@D7A
+                  this.close(); 
+                }
+            }
         }
     }
 
@@ -4024,17 +4030,29 @@ implements Statement
         return new String[] {  "com.ibm.as400.access.AS400JDBCStatement", "java.sql.Statement" };
     }
 
-    // jdbc41
+    // jdbc41 @D7A
+    /**
+     * Specifies that this Statement will be closed when all its dependent result sets are closed. 
+     * If execution of the Statement does not produce any result sets, this method has no effect. 
+     * <p>Note: Multiple calls to closeOnCompletion do not toggle the effect on this Statement. 
+     * However, a call to closeOnCompletion does effect both the subsequent execution of statements, 
+     * and statements that currently have open, dependent, result sets.
+     * @throws SQLException - if this method is called on a closed Statement
+     */
+    
     public void closeOnCompletion() throws SQLException {
-      // TODO JDBC41 Auto-generated method stub
-      
+      checkOpen(); 
+      closeOnCompletion_ = true; 
     }
+/**
+ * Returns a value indicating whether this Statement will be closed when all its dependent result sets are closed.
+ * @return true if the Statement will be closed when all of its dependent result sets are closed; false otherwise
+ * @throws SQLException - if this method is called on a closed Statement
+ */
 
-
-    // jdbc41
+    // jdbc41 @D7A
     public boolean isCloseOnCompletion() throws SQLException {
-      // TODO JDBC41 Auto-generated method stub
-      return false;
+      return closeOnCompletion_; 
     }
 
     /*@D4A*/ 

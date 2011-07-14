@@ -2017,10 +2017,12 @@ endif */
       
 
 
+    /* ifdef JDBC40 
       public int getNetworkTimeout() throws SQLException {
               validateConnection();
           return connection_.getNetworkTimeout(); 
       }
+    endif */
 
 
 
