@@ -21,6 +21,7 @@ import java.sql.CallableStatement;
 /* ifdef JDBC40 */
 import java.sql.ClientInfoStatus;
 import java.sql.SQLClientInfoException;
+import java.sql.SQLPermission; 
 /* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
@@ -183,6 +184,7 @@ implements Connection
     private String                      catalog_;
     boolean                     checkStatementHoldability_ = false;     // @F3A  //@XAC
     private boolean                     closing_;            // @D4A
+    private boolean                     aborted_ = false;  // @D7A
             ConvTable                   converter_; //@P0C
     private int                         dataCompression_            = -1;               // @ECA
     private JDDataSourceURL             dataSourceUrl_;
@@ -544,7 +546,25 @@ implements Connection
             JDTrace.logClose (this);
     }
 
+    /*
+     * handle the processing of the abort.   @D7A
+     */
+void handleAbort() {
+  closing_ = true;
+  // partial close (moved rollback and closing of all the statements).    
+  try {
+    pseudoClose();
+  } catch (SQLException e) {
+    // Just ignore and continue 
+  }
 
+  // Disconnect from the system.
+  if (server_ != null)
+  {
+      as400_.disconnectServer (server_);
+      server_ = null;
+  }
+}
 
     // @E4C
     /**
@@ -1485,6 +1505,8 @@ implements Connection
     public boolean isClosed ()
     throws SQLException
     {
+        if (aborted_) return true;  /*@D7A*/ 
+        
         if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact IBM i system
 
         if (server_ == null)                        // @EFC
@@ -4567,8 +4589,7 @@ implements Connection
      *                      the timeout period expires before the operation 
      *                      completes, this method returns false.  A value of 
      *                      0 indicates a timeout is not applied to the 
-     *                      database operation.  Note that currently the timeout
-     *                      value is not used.
+     *                      database operation. 
      * <p>
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if a database access error occurs.
@@ -4581,6 +4602,11 @@ implements Connection
         int errorClass = 0; 
         int returnCode = 0; 
         ReentrantLock lock = new ReentrantLock();
+
+       // Return exception if timeout is less than 0.. @D6A 
+        if (timeout < 0) {
+               JDError.throwSQLException( this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        } 
 
         try 
         { 
@@ -4599,6 +4625,7 @@ implements Connection
                         Thread.sleep(timeout * 1000);
                         lock.lockInterruptibly(); //lock, so only one thread can call interrupt
                         otherThread.interrupt();
+                        lock.unlock(); 
                         
                     }catch(InterruptedException ie)
                     { 
@@ -4616,10 +4643,16 @@ implements Connection
                     this.lock = lock;
                 } 
             };
-            
-            CommTimer timer = new CommTimer( Thread.currentThread(), timeout, lock); //pass in ref to main thread so timer can interrupt if blocked on IO
-            Thread t = new  Thread(timer);
-            t.start(); //sleeps for timeout and then interrupts main thread if it is still blocked on IO
+
+            CommTimer timer = null; 
+            Thread t = null; 
+
+            // Only use timeout if > 0.  @D6A 
+            if (timeout > 0) { 
+              timer = new CommTimer( Thread.currentThread(), timeout, lock); //pass in ref to main thread so timer can interrupt if blocked on IO
+              t = new  Thread(timer);
+              t.start(); //sleeps for timeout and then interrupts main thread if it is still blocked on IO
+            }
             
             try
             {
@@ -4627,12 +4660,19 @@ implements Connection
                 reply = sendAndReceive(request); 
 
                 lock.lockInterruptibly(); //lock, so only one thread can call interrupt
-                t.interrupt(); //stop timer thread
+                if (t != null) t.interrupt(); //stop timer thread @D6C
+                lock.unlock(); 
                 errorClass = reply.getErrorClass(); 
                 returnCode = reply.getReturnCode();
              
-            }catch(Exception ex)
-            {
+            } catch(Exception ex) {
+             try { 
+                // Make sure timeout thread is stopped @D6A
+                lock.lockInterruptibly(); //lock, so only one thread can call interrupt
+                if (t != null) t.interrupt(); //stop timer thread
+                lock.unlock(); 
+             } catch (Exception ex2) {
+             }    
                 //interruptedException is wrapped in sqlException
                 //if exception occurs, just return false since connection is not valid
                 //this happens if timer ends before sendAndReceive returns
@@ -5257,28 +5297,83 @@ implements Connection
 		return maximumBlockedInputRows_; 
 	}
 
+    /**
+     * Terminates an open connection. Calling abort results in:
+     * <ul>
+     * <li> The connection marked as closed
+     * <li>   Closes any physical connection to the database
+     * <li>   Releases resources used by the connection
+     * <li>   Insures that any thread that is currently accessing the connection will 
+     * <li> 	either progress to completion or throw an SQLException. 
+     * </ul>
+     * <p>
+     * Calling abort marks the connection closed and releases any resources. 
+     * Calling abort on a closed connection is a no-op.
+     * <p>It is possible that the aborting and releasing of the resources that are 
+     * 	held by the connection can take an extended period of time. 
+     * 	When the abort method returns, the connection will have been marked as closed 
+     * 	and the Executor that was passed as a parameter to abort may still be executing 
+     * 	tasks to release resources.
+     * <p>
+     * This method checks to see that there is an SQLPermission object before 
+     * 	allowing the method to proceed. If a SecurityManager exists and its 
+     * 	checkPermission method denies calling abort, this method throws a 
+     * 	java.lang.SecurityException.
+    	* @param executor The Executor implementation which will be used by abort.
+      * @throws  SQLException - if a database access error occurs or the executor is null
+      * @throws  SecurityException - if a security manager exists and its checkPermission 
+      *	method denies calling abort
+     */
 /* ifdef JDBC40 */
   public void abort(Executor executor) throws SQLException {
     // TODO TODOJDBC41 Auto-generated method stub
+
+    // Check for authority 
+    SecurityManager security = System.getSecurityManager();
+    if (security != null) {
+         SQLPermission sqlPermission = new SQLPermission("callAbort"); 
+         security.checkPermission(sqlPermission);
+    }    
     
+    // Calling on a close connection is a no-op 
+      if (server_ == null)  {
+         return; 
+      }
+    
+    // 
+    // Mark the connection as aborted.  Any call to closed will see that it is closed. 
+    //
+    aborted_ = true; 
+    
+    //
+    // Prepare and start the executor to clean everything up.
+    //
+    Runnable runnable = new AS400JDBCConnectionAbortRunnable(this); 
+    
+    executor.execute(runnable);   
   }
 /* endif */ 
 	
 
 
-  public int getNetworkTimeout() throws SQLException {
-    // TODO TODOJDBC41 Auto-generated method stub
-    return 0;
-  }
-
-
   /**
-   * Get the name of the current schema.
+   * Retrieves this <code>Connection</code> object's current schema name.
+   * @return  the current schema name or null if there is none
+   * @throws  SQLException if a database access error occurs or this method is called on a closed connection
    */    
   public String getSchema() throws SQLException {
-   // TODO TODOJDBC41
+    
+    
     Statement s = createStatement(); 
-    ResultSet rs = s.executeQuery("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1"); 
+    String query; 
+    boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
+    if (SQLNaming) { 
+       query = "SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1";
+    } else {
+      query = "SELECT CURRENT SCHEMA FROM SYSIBM/SYSDUMMY1";
+    }
+    
+    ResultSet rs = s.executeQuery(query); 
     rs.next();
     String schema = rs.getString(1);
     rs.close();
@@ -5287,22 +5382,119 @@ implements Connection
   }
 
 
+    /**
+     * Retrieves the number of milliseconds the driver will wait for a database request to complete. If the limit is exceeded, a SQLException is thrown.
+     * @return The current timeout limit in milliseconds; zero means there is no limit
+     * @throws SQLException - if a database access error occurs or this method is called on a closed Connection
+     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+     * @since JTOpen 7.X
+     * @see setNetworkTimeout(java.util.concurrent.Executor, int)
+     */
+/* ifdef JDBC40 */
+  public int getNetworkTimeout() throws SQLException {
+    // TODO TODOJDBC41 Auto-generated method stub
+    return 0;
+  }
+/* endif */ 
+
+    /**
+     * Sets the maximum period a Connection or objects created from the Connection will wait for the database to 
+     * reply to any one request. If any request remains unanswered, the waiting method will return with a 
+     * SQLException, and the Connection or objects created from the Connection will be marked as closed. 
+     * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods, 
+     * will result in a SQLException. 
+     *<p>Note: This method is intended to address a rare but serious condition where network partitions can 
+     * cause threads issuing JDBC calls to hang uninterruptedly in socket reads, until the OS TCP-TIMEOUT 
+     * (typically 10 minutes). This method is related to the abort() method which provides an administrator 
+     * thread a means to free any such threads in cases where the JDBC connection is accessible to the 
+     * administrator thread. The setNetworkTimeout method will cover cases where there is no administrator 
+     * thread, or it has no access to the connection. This method is severe in it's effects, and should be 
+     * given a high enough value so it is never triggered before any more normal timeouts, 
+     * such as transaction timeouts. 
+     * <p>JDBC driver implementations may also choose to support the setNetworkTimeout method to impose 
+     * a limit on database response time, in environments where no network is present. 
+     *<p>Drivers may internally implement some or all of their API calls with multiple internal driver-database 
+     * transmissions, and it is left to the driver implementation to determine whether the limit will be 
+     *  applied always to the response to the API call, or to any single request made during the API call. 
+     *<p>This method can be invoked more than once, such as to set a limit for an area of JDBC code, 
+     * and to reset to the default on exit from this area. Invocation of this method has no impact on 
+     * already outstanding requests. 
+     *<p>The Statement.setQueryTimeout() timeout value is independent of the timeout value specified in 
+     * setNetworkTimeout. If the query timeout expires before the network timeout then the statement execution 
+     * will be canceled. If the network is still active the result will be that both the statement and connection 
+     * are still usable. However if the network timeout expires before the query timeout or if the statement timeout 
+     * fails due to network problems, the connection will be marked as closed, any resources held by the connection 
+     * will be released and both the connection and statement will be unusable. 
+     *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks 
+     * the connection closed and releases any resources held by the connection. 
+     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed. 
+     * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method 
+     * throws a java.lang.SecurityException.
+     *@param executor - The Executor implementation which will be used by setNetworkTimeout.
+     *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the 
+     * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second. 
+     * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of 
+     * 0 indicates that there is not timeout for database operations.
+     * @throws  SQLException - if a database access error occurs, this method is called on a closed connection, 
+     *  the executor is null, or the value specified for seconds is less than 0.
+     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling 
+     *  setNetworkTimeout.
+     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+     * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int), 
+     *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
+  
 /* ifdef JDBC40 */
   public void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException {
     // TODO JDBC41 Auto-generated method stub
+
+    // Check for authority 
+    SecurityManager security = System.getSecurityManager();
+    if (security != null) {
+         SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout"); 
+         security.checkPermission(sqlPermission);
+    }    
+    
+    // Calling on a close connection is a no-op 
+    checkOpen ();
+    
+    
+    
     
   }
 /* endif */ 
 
-  /* 
-   *  Set the name of the current scheam 
+  /** 
+   *Sets the given schema name to access.
+   *<p>
+   * Calling setSchema has no effect on previously created or prepared Statement objects. 
+   * For the toolbox driver, the DBMS prepare operation takes place immediately when the 
+   * Connection method prepareStatement or prepareCall is invoked. 
+   * For maximum portability, setSchema should be called before a Statement is created or prepared.
+   *
+   * @param schema The name of the schema to use for the connection
+   * @throws SQLException If a database access error occurs or this method is 
+   * called on a closed connection
+   * 
    */
   public void setSchema(String schema) throws SQLException {
+    checkOpen ();
     PreparedStatement ps = prepareStatement("SET CURRENT SCHEMA ? "); 
-  
+    if (schema.length() > 0 && schema.charAt(0) == '"') {
+      // If delimited name pass as is
+    } else {
+      // Name is not delimited, make sure it is upper case
+      schema = schema.toUpperCase(); 
+    }
+    ps.setString(1, schema);
+    ps.executeUpdate(); 
+    ps.close(); 
   }
 
+  /**
+   * Is SQL cancel used for the query timeout mechanism
+   * @return true if cancel will be used as the query timeout mechanism
+   */
   protected boolean isQueryTimeoutMechanismCancel() {
     return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL; 
   }
