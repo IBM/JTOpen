@@ -140,6 +140,21 @@ implements DatabaseMetaData
     static final int MAX_LOB_LENGTH           = 2147483646;      //@xml3
 
 
+    static int javaVersion = 0; 
+    static {
+    	String javaVersionString = System.getProperty("java.version"); 
+    	if (javaVersionString != null) {
+    	    int dotIndex = javaVersionString.indexOf('.'); 
+    	    if (dotIndex > 0) {
+    	      int secondDotIndex = javaVersionString.indexOf('.', dotIndex+1);
+    	      if (secondDotIndex > 0) {
+    	        String firstDigit = javaVersionString.substring(0,dotIndex); 
+    	        String secondDigit = javaVersionString.substring(dotIndex+1, secondDotIndex); 
+    	        javaVersion = Integer.parseInt(firstDigit)*10 + Integer.parseInt(secondDigit); 
+    	      }
+    	    }
+    	} 
+    } 
 
     /**
     Constructs an AS400JDBCDatabaseMetaData object.
@@ -1024,7 +1039,12 @@ implements DatabaseMetaData
             cs.setString(3, normalize(tablePattern));
             cs.setString(4, normalize(columnPattern));
 /* ifdef JDBC40 */
-            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
+            // Use 4.1 if JDBC version is 4.1
+            if (javaVersion > 16) { 
+              cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.1';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
+            } else { 
+              cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
+            }
 /* endif */ 
 /* ifndef JDBC40 
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
@@ -7977,7 +7997,7 @@ implements DatabaseMetaData
       //
       connection_.checkOpen();
       
-      CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLCOLUMNS  ( ?, ?, ?, ?, ?)");
+      CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLPSEUDOCOLUMNS  ( ?, ?, ?, ?, ?)");
       
       cstmt.setString(1, normalize(catalog));
       cstmt.setString(2, normalize(schemaPattern));
