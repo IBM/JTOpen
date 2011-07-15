@@ -72,11 +72,13 @@ final class DBDSPool
   static boolean monitor = false;                                                                                 //@B5A
 
   static { 
-	  String noPoolingProperty = System.getProperty("com.ibm.as400.access.noDBReplyPooling"); 
+    // NOTE:  We must use SystemProperties.getProperty to read the property.  Otherwise
+    //        an exception may be thrown if the application is not allowed to read properties.  @D8C 
+	  String noPoolingProperty = SystemProperties.getProperty("com.ibm.as400.access.noDBReplyPooling");  /*@D8C*/ 
 	  if (noPoolingProperty != null) { 
 		  noDBReplyPooling = true; 
 	  }
-    String monitorProperty = System.getProperty("com.ibm.as400.access.DBDSPool.monitor");                 //@B5A
+    String monitorProperty = SystemProperties.getProperty("com.ibm.as400.access.DBDSPool.monitor");    //@B5A@D8C
   	  if (monitorProperty != null) { 
   		  monitor = true; 
   	  }
