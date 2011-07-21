@@ -256,6 +256,9 @@ class PortMapper
 
         //pmSocket.connect(hostAddr, timeout); //fyi, PortMapper will not load and gets NoClassDefFoundError in jvm1.3 due to SocketAddress parameter type, must use reflection below
         boolean done = false;
+        // Retry 3 times if get a bindException
+        int bindExceptionRetries = 3;
+        long bindExceptionRetrySleepTime=100; 
         while (!done)  // up to two tries
         {
           try
@@ -274,7 +277,24 @@ class PortMapper
             Trace.log(Trace.ERROR, e);
             Throwable e2 = e.getTargetException();
             if (e2 != null) Trace.log(Trace.ERROR, e2);
-            if(e2 instanceof IOException)
+            // If we get a java.net.BindException then too many of the sockets are still reserved.
+            // I've only see this when testing.  Retry three times if this occurs. 
+            // 
+            if (e2 instanceof java.net.BindException) {
+              if (bindExceptionRetries > 0) {
+                // try again 
+                bindExceptionRetries--; 
+                try {
+                  Thread.sleep(bindExceptionRetrySleepTime); 
+                  bindExceptionRetrySleepTime = bindExceptionRetrySleepTime * 2; 
+                } catch (Exception sleepException) { 
+                  
+                }
+                done = false; 
+              } else {
+                 throw (java.net.BindException) e2; 
+              }
+            } else if(e2 instanceof IOException)
             {
               //Here is the actual timeout or network exceptions that we throw back to caller
               throw (IOException) e2;
