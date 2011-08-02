@@ -198,5 +198,12 @@ Constructs a JDMappedRowCache object.
 
 
 
+    /* @D9A Allow warnings to be reflected on result set object */ 
+    public void setResultSet(AS400JDBCResultSet resultSet) {
+        fromCache_.setResultSet(resultSet); 
+    }
+
+
+
 }
 

@@ -326,4 +326,8 @@ implements JDRowCache
         else
             reposition(false);
     }
+
+    public void setResultSet(AS400JDBCResultSet resultSet) {
+      // Not used
+    }
 }

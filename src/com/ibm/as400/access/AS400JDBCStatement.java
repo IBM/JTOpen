@@ -3549,6 +3549,10 @@ implements Statement
     **/
     void postWarning (SQLWarning sqlWarning)
     {
+        if (JDTrace.isTraceOn ())           {
+           JDTrace.logInformation(this, "postWarning("+sqlWarning+")");                
+        }
+
         if(sqlWarning_ == null)
             sqlWarning_ = sqlWarning;
         else

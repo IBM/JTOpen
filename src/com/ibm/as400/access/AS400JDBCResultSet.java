@@ -285,7 +285,9 @@ implements ResultSet
         wasDataMappingError_    = false;
 
         columnCount_            = row_.getFieldCount ();
-
+        
+        /* @D9A Make sure that warning are provided to this result set object */ 
+        rowCache_.setResultSet(this); 
         rowCache_.open ();
 
         // If no connection or SQL statement was provided,
@@ -7115,6 +7117,7 @@ endif */
     /**
      * Updates the designated column using the given <code>Reader</code>
      * 
+     * <p>
      * The data will be read from the stream
      * as needed until end-of-stream is reached.  The JDBC driver will
      * do any necessary conversion from UNICODE to the database char format.
@@ -7227,13 +7230,28 @@ endif */
             updateDefaults_[columnIndex0] = columnValue == 1 ? true: false;     
             updateUnassigned_[columnIndex0] =  columnValue == 2 ? true: false;   
             updateSet_[columnIndex0] = true;
-
                  
         }
     }
 
 
-
+//JDBC40DOC /**
+//JDBC40DOC  * Retrieves the value of the designated column in the current row of this ResultSet object and will convert 
+//JDBC40DOC  * from the SQL type of the column to the requested Java data type, if the conversion is supported. 
+//JDBC40DOC  * If the conversion is not supported or null is specified for the type, a SQLException is thrown. 
+//JDBC40DOC  *
+//JDBC40DOC  *    <p>At a minimum, an implementation must support the conversions defined in Appendix B, Table B-3 and 
+//JDBC40DOC  *    conversion of appropriate user defined SQL types to a Java type which implements SQLData, 
+//JDBC40DOC  *    or Struct. Additional conversions may be supported and are vendor defined.
+//JDBC40DOC  *
+//JDBC40DOC  *    @param columnIndex - the first column is 1, the second is 2, ...
+//JDBC40DOC  *    @param type - Class representing the Java data type to convert the designated column to.
+//JDBC40DOC  *    @returns  an instance of type holding the column value
+//JDBC40DOC  *    @exception  SQLException - if conversion is not supported, type is null or another error occurs. 
+//JDBC40DOC  *    The getCause() method of the exception may provide a more detailed exception, for example, if a conversion error occurs
+//JDBC40DOC  *    @exception  SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+//JDBC40DOC  */
+    
 /* ifdef JDBC40 
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
       // TODO TODOJDBC41 Auto-generated method stub
@@ -7241,12 +7259,24 @@ endif */
     }
 endif */
 
+//JDBC40DOC /**
+//JDBC40DOC  * Retrieves the value of the designated column in the current row of this ResultSet object and will convert from the 
+//JDBC40DOC  * SQL type of the column to the requested Java data type, if the conversion is supported. If the conversion is 
+//JDBC40DOC  * not supported or null is specified for the type, a SQLException is thrown. 
+//JDBC40DOC  * <p> At a minimum, an implementation must support the conversions defined in Appendix B, Table B-3 and conversion of 
+//JDBC40DOC  * appropriate user defined SQL types to a Java type which implements SQLData, or Struct. Additional conversions may be 
+//JDBC40DOC  * supported and are vendor defined.
+//JDBC40DOC  *@param columnLabel - the label for the column specified with the SQL AS clause. If the SQL AS clause was not specified, then the label is the name of the column
+//JDBC40DOC  *@param type - Class representing the Java data type to convert the designated column to.
+//JDBC40DOC  *@returns  an instance of type holding the column value
+//JDBC40DOC  *@exception  SQLException - if conversion is not supported, type is null or another error occurs. The getCause() method of the exception may provide a more detailed exception, for example, if a conversion error occurs
+//JDBC40DOC  *@exception SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+//JDBC40DOC  */   
 /* ifdef JDBC40 
 
     public <T> T getObject(String columnLabel, Class<T> type)
         throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+         return getObject (findColumn (columnLabel), type); 
     }
 endif */
 

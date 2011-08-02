@@ -228,5 +228,10 @@ Positions the cursor to a relative row number.
 		throws SQLException;
 
 
+    /*
+     * Set the result set to be used for reporting warnings. @D9A
+     */
+    public abstract void setResultSet(AS400JDBCResultSet resultSet); 
+
 
 }

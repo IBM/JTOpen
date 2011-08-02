@@ -31,6 +31,7 @@ implements JDRowCache
 
   // Private data.
   private int                     blockingFactor_;
+  private AS400JDBCResultSet      resultSet_;  // @D9A Provide warnings to this result set
   private AS400JDBCConnection     connection_;
   private boolean                 empty_; //empty_ is not cache empty but resultset returning 0 rows "empty"; thats why it is only set once
   private boolean                 emptyChecked_;
@@ -354,10 +355,21 @@ Fetches a block of data from the system.
         else if (errorClass != 0)
         {                                                                                // @D1a
            // JDError.throwSQLException (connection_, id_, errorClass, returnCode);      // @D1d
-           if (returnCode < 0)                                                           // @D1a
+           if (returnCode < 0)    {                                                      // @D1a
               JDError.throwSQLException (connection_, id_, errorClass, returnCode);      // @D1a
-           else                                                                          // @D1a
-              connection_.postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode)); // @D1a
+           } else  {                                                                     // @D1a
+              // Post the warning to the resultSet, not the connection @D9A
+             if (resultSet_ != null) { 
+               resultSet_.postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode)); // @D1a
+             } else {
+               if (JDTrace.isTraceOn ())           {
+                 JDTrace.logInformation(connection_, "posting warning to connection");                
+               }
+               connection_.postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode)); // @D1a
+             }
+             
+           }
+           
         }                                                                                // @D1a
 
         // Extract data from the row.
@@ -942,5 +954,13 @@ Sets the fetch size.
   protected void finalize() throws Throwable {
 		super.finalize();
         if (fetchReply != null) { fetchReply.returnToPool(); fetchReply=null; } 
+  }
+
+  /*
+   * Set the result set to be used for reporting warnings.  @D9A
+   * This is typically called in the constructor of the result set. 
+   */
+  public void setResultSet(AS400JDBCResultSet resultSet) {
+    resultSet_      = resultSet; 
   }
 }
