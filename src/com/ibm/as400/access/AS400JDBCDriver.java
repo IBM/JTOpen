@@ -144,6 +144,7 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @D7   20110714  JDBC:  Initial JDBC 4.1 changes
 // @D8   20110715  Fix reading of com.ibm.as400.access.noDBReplyPooling and com.ibm.as400.access.DBDSPool.monitor properties
 // @D9   20110802  JDBC: Add fetch warning to result set object. 
+// @DA   20110810  JDBC: Fix bug where clearParameters() causes executeBatch() failure. 
 //--------------------------------------------------------------------
 
 
