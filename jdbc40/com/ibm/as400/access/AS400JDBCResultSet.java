@@ -285,7 +285,9 @@ implements ResultSet
         wasDataMappingError_    = false;
 
         columnCount_            = row_.getFieldCount ();
-
+        
+        /* @D9A Make sure that warning are provided to this result set object */ 
+        rowCache_.setResultSet(this); 
         rowCache_.open ();
 
         // If no connection or SQL statement was provided,
