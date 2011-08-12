@@ -156,7 +156,7 @@ Marks the current position in the stream.
 @param readLimit    The read limit.
 @see #reset()
 **/
-  public void mark(int readLimit)
+  public synchronized void mark(int readLimit)
   {
     mark_ = offset_;
   }

@@ -256,7 +256,7 @@ implements Connection
 	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A 
 
 	protected final static int QUERY_TIMEOUT_QQRYTIMLMT = 0; 
-	protected final static int QUERY_TIMEOUT_CANCEL     = 0; 
+	protected final static int QUERY_TIMEOUT_CANCEL     = 1; 
   
 	private int queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT; 
     /**
@@ -835,10 +835,10 @@ void handleAbort() {
         if (DEBUG_COMM_TRACE_ >= 2)
             reply.dump (System.out);
 
-        int returnCode = ((DBReplyRequestedDS) reply).getReturnCode();
 
         if (DEBUG_COMM_TRACE_ >= 1)
         {
+            int returnCode = ((DBReplyRequestedDS) reply).getReturnCode();
             int errorClass = ((DBReplyRequestedDS) reply).getErrorClass();
             if ((errorClass != 0) || (returnCode != 0))
                 System.out.println ("Server error = " + errorClass + ":"

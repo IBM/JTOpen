@@ -106,7 +106,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     int                 parameterCount_;        // private protected
     int                 parameterInputCount_;        // private protected //@array4
     boolean             batchExecute_;          // private protected            @G9A
-    private boolean executingBatchedStatement_ = false;  // Flag to prevent clearParameters from causing execute exception
+    private boolean executingBatchedStatement_ = false;  // Flag to prevent clearParameters from causing execute exception @DAA
     private int[]               parameterLengths_;
     private int[]               parameterOffsets_;
     private boolean[]           parameterNulls_;
@@ -698,7 +698,7 @@ value of the property to false.  The problem did not occur with the jar file.
             // The parameter were validated during addBatch. 
             // If we attempt to validate, this will fail when 
             // clearParameters is called immediately before executeBatch().
-            // Problem reported via CPS 8KLGCZ August 2011
+            // Problem reported via CPS 8KLGCZ August 2011 @DAA
       if (!executingBatchedStatement_) {
         // Validate each parameters. If a parameter is not an
         // input parameter, then it is okay for it not to have been
@@ -1286,9 +1286,9 @@ value of the property to false.  The problem did not occur with the jar file.
                         if(count == maximumBlockedInputRows && list.hasMoreElements())//@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
                         {                                           //@K1A
                             if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");  //@K1A
-                            executingBatchedStatement_ = true; 
+                            executingBatchedStatement_ = true;   /*@DAA*/ 
                             commonExecute(sqlStatement_, resultRow_);        //@K1A
-                            executingBatchedStatement_ = false; 
+                            executingBatchedStatement_ = false; /*@DAA*/
                             totalUpdateCount += updateCount_;    /* @A4A*/
                             batchParameterRows_.clear();                     //@K1A
                             
@@ -1307,9 +1307,9 @@ value of the property to false.  The problem did not occur with the jar file.
                     // the commonExecute fails because it doesn't think the parameters are set.
                     // Set a flag that we are doing server side batching. 
                     //
-                    executingBatchedStatement_ = true; 
+                    executingBatchedStatement_ = true; /*@DAA*/
                     commonExecute(sqlStatement_, resultRow_);
-                    executingBatchedStatement_ = false; 
+                    executingBatchedStatement_ = false; /*@DAA*/
                     
                     totalUpdateCount += updateCount_;      /* @A4A*/
                     batchParameterRows_.clear();
@@ -1347,10 +1347,10 @@ value of the property to false.  The problem did not occur with the jar file.
                     while(list.hasMoreElements())
                     {
                         batchParameterRows_.addElement(list.nextElement());
-                        // Indicate we are batching to prevent clearParameter 
+                        // Indicate we are batching to prevent clearParameter /*@DAA*/
                         executingBatchedStatement_ = true; 
                         commonExecute(sqlStatement_, resultRow_);
-                        executingBatchedStatement_ = false; 
+                        executingBatchedStatement_ = false;  /*@DAA*/
                         batchParameterRows_.removeAllElements();
                         if(resultSet_ != null)
                         {
@@ -1394,7 +1394,7 @@ value of the property to false.  The problem did not occur with the jar file.
                     System.arraycopy(updateCounts, 0, counts, 0, numSuccessful);
                 }
                 BatchUpdateException batchUpdateException = new BatchUpdateException(e.getMessage(), e.getSQLState(), e.getErrorCode(), counts);
-                // Attempt to set the cause, ignoring any failures (i.e. in Pre JDK 1.4) 
+                // Attempt to set the cause, ignoring any failures (i.e. in Pre JDK 1.4) /*@DAA*/
                 try {
                   batchUpdateException.initCause(e); 
                 }catch (Exception e2) {} 

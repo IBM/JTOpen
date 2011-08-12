@@ -3060,7 +3060,7 @@ implements Statement
                     getMoreResultsReply = connection_.sendAndReceive (request, id_);    //@P0C
 
                     // Gather information from the reply.
-                    DBReplySQLCA sqlca = getMoreResultsReply.getSQLCA ();
+                    // DBReplySQLCA sqlca = getMoreResultsReply.getSQLCA ();
                     DBDataFormat dataFormat = getMoreResultsReply.getDataFormat ();
                     if(this instanceof AS400JDBCCallableStatement)	// @550A
                     	dataFormat.setCSRSData(true);				// @550A

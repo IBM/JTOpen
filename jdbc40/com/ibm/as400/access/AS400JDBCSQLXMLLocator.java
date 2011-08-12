@@ -110,7 +110,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCSQLXML
 
     @return             The handle to this locator in the databaes.
     **/
-    int getHandle()throws SQLException  
+    synchronized int getHandle()throws SQLException  
     {
          
         if(clobLocatorValue_ != null)
