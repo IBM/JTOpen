@@ -192,7 +192,7 @@ Returns the length of the CLOB.
 
 @exception SQLException     If an error occurs.
 **/
-  public long length() throws SQLException
+  public synchronized long length() throws SQLException
   {
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free

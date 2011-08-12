@@ -27,6 +27,7 @@ import java.util.Vector;                            // @D0A
 
 
 
+
 // @E4C
 /**
 The AS400JDBCDatabaseMetaData class provides information
@@ -309,7 +310,14 @@ implements DatabaseMetaData
     {
         // We return an empty result set because this is not supported by our driver
         Statement statement = connection_.createStatement();
-        return statement.executeQuery("SELECT VARCHAR('1', 128) AS TYPE_CAT, " +
+
+        // TODO:  Add this to all methods
+        if (statement instanceof AS400JDBCStatement) {
+          AS400JDBCStatement stmt= (AS400JDBCStatement) statement; 
+          stmt.closeOnCompletion(); 
+        }
+
+        ResultSet rs = statement.executeQuery("SELECT VARCHAR('1', 128) AS TYPE_CAT, " +
                                       "VARCHAR('2', 128)  AS TYPE_SCHEM, " +
                                       "VARCHAR('3', 128)  AS TYPE_NAME, " +
                                       "VARCHAR('4', 128)  AS ATTR_NAME, " +
@@ -332,6 +340,8 @@ implements DatabaseMetaData
                                       "SMALLINT(21)       AS SOURCE_DATA_TYPE " + 
                                       "FROM QSYS2" + getCatalogSeparator() + 
                                       "SYSTYPES WHERE 1 = 2 FOR FETCH ONLY ");
+        
+        return rs; 
     }
 
 
