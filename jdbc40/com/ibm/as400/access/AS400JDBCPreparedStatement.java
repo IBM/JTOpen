@@ -694,12 +694,6 @@ value of the property to false.  The problem did not occur with the jar file.
             // Close the result set before executing again.
             closeResultSet (JDCursor.REUSE_YES);
 
-            // We don't need to validate the parameters if executing a batched statement.
-            // The parameter were validated during addBatch. 
-            // If we attempt to validate, this will fail when 
-            // clearParameters is called immediately before executeBatch().
-            // Problem reported via CPS 8KLGCZ August 2011 @DAA
-      if (!executingBatchedStatement_) {
         // Validate each parameters. If a parameter is not an
         // input parameter, then it is okay for it not to have been
         // set. However, if an input parameter was not set,
@@ -707,20 +701,30 @@ value of the property to false.  The problem did not occur with the jar file.
         boolean outputExpected_ = false; // @K2A We do not want to increment our
                                          // row index in commonExecuteAfter() if
                                          // there are no output parameters
-        for (int i = 0; i < parameterCount_; ++i) {
+      for (int i = 0; i < parameterCount_; ++i) {
+
+        // We don't need to validate the parameters if executing a batched
+        // statement.
+        // The parameter were validated during addBatch.
+        // If we attempt to validate, this will fail when
+        // clearParameters is called immediately before executeBatch().
+        // Problem reported via CPS 8KLGCZ August 2011 @DAA
+        if (!executingBatchedStatement_) {
+
           if (!parameterSet_[i] && parameterRow_.isInput(i + 1)) {
             JDError.throwSQLException(this,
                 JDError.EXC_PARAMETER_COUNT_MISMATCH);
           }
-
-          if (parameterRow_.isOutput(i + 1)) // @K2A
-            outputExpected_ = true; // @K2A
-          if (parameterRow_.isInput(i + 1)) // @array4
-            parameterInputCount_++; // @array4
         }
+        if (parameterRow_.isOutput(i + 1)) // @K2A
+          outputExpected_ = true; // @K2A
+        if (parameterRow_.isInput(i + 1)) // @array4
+          parameterInputCount_++; // @array4
+      }
+      
         if (!outputExpected_) // @K2A
           outputParametersExpected_ = false; // @K2A
-      }
+      
             // Create the descriptor if needed.  This should only
             // be done once (on the first execute for the prepared
             // statement).
