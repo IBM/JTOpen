@@ -1084,7 +1084,13 @@ class AS400ImplRemote implements AS400Impl
 
             // Obtain the job identifier for the connection.
             ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
-            jobString = converter.byteArrayToString(jobBytes);
+            //@Bidi-HCG3 jobString = converter.byteArrayToString(jobBytes);                        
+            //@Bidi-HCG3 start
+            //Perform Bidi transformation for data only
+            jobString = AS400BidiTransform.SQL_statement_reordering(jobString, bidiStringType, converter.table_.bidiStringType_);
+            //this is a trick to prevent Bidi transformation
+            jobString = converter.byteArrayToString(jobBytes, 0, jobBytes.length, converter.table_.bidiStringType_);
+            //@Bidi-HCG3 end
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
         }
         catch (IOException e)
@@ -2294,8 +2300,10 @@ class AS400ImplRemote implements AS400Impl
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:", signonInfo_.serverCCSID);
                     DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
                 }
-                ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
-                signonJobString_ = converter.byteArrayToString(signonJobBytes_);
+                ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);                
+                //@Bidi-HCG3 signonJobString_ = converter.byteArrayToString(signonJobBytes_);
+                signonJobString_ = converter.byteArrayToString(signonJobBytes_, 0, signonJobBytes_.length, BidiStringType.DEFAULT);//Bidi-HCG3
+                
                 signonServer_.setJobString(signonJobString_);
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server job:", signonJobString_);
             }
@@ -3404,4 +3412,23 @@ class AS400ImplRemote implements AS400Impl
         Cn[55] = hold[2];
         Cn[56] = hold[3];
     }
+    //@Bidi-HCG3 start    
+    private int bidiStringType = BidiStringType.DEFAULT;
+    
+    /**
+     * Sets bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public void setBidiStringType(int bidiStringType){
+    	this.bidiStringType = bidiStringType;
+    }
+    
+    /**
+     * Returns bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public int getBidiStringType(){
+    	return bidiStringType;
+    }      
+    //@Bidi-HCG3 end    
 }

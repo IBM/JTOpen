@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
 
 class AS400ImplNative
 {

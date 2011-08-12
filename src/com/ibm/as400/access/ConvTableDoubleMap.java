@@ -19,7 +19,21 @@ abstract class ConvTableDoubleMap extends ConvTable
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     char[] toUnicode_ = null;
+    char[][] toUnicodeSurrogate_ = null; 
     char[] fromUnicode_ = null;
+
+    
+    // Constructor.
+    ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode, char[][] toUnicodeSurrogateMapping) {
+      this(ccsid, toUnicode, fromUnicode); 
+      toUnicodeSurrogate_ = new char[65535][]; 
+      for (int i = 0; i < toUnicodeSurrogateMapping.length; i++) {
+        char[] pair = new char[2]; 
+        pair[0] = toUnicodeSurrogateMapping[i][1]; 
+        pair[1] = toUnicodeSurrogateMapping[i][2]; 
+        toUnicodeSurrogate_[0xffff & (int) toUnicodeSurrogateMapping[i][0]] = pair; 
+      }
+    }
 
     // Constructor.
     ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode)
@@ -107,12 +121,38 @@ abstract class ConvTableDoubleMap extends ConvTable
     final String byteArrayToString(byte[] buf, int offset, int length, BidiConversionProperties properties)
     {
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
-        char[] dest = new char[length / 2];
+        // Length could be twice as long because of surrogates
+        char[] dest = new char[length ];
+        int to = 0; 
         for (int i = 0; i < length / 2; ++i)
         {
             try
-            {
-                dest[i] = toUnicode_[((0x00FF & buf[(i * 2) + offset]) << 8) + (0x00FF & buf[(i * 2) + 1 + offset])];
+            { 
+              int fromIndex = ((0x00FF & buf[(i * 2) + offset]) << 8) + (0x00FF & buf[(i * 2) + 1 + offset]); 
+                dest[to] = toUnicode_[fromIndex];
+                // Check if surrogate lookup needed. 
+                if (dest[to] == 0xD800) {
+                  if (toUnicodeSurrogate_ != null) {
+                    char[] surrogates = toUnicodeSurrogate_[fromIndex];
+                    if (surrogates != null) {
+                      dest[to] = surrogates[0];
+                      to++;
+                      dest[to] = surrogates[1];
+                      to++;
+                    } else { 
+                      // surrogate not defined, replace with sub
+                      dest[to] = dbSubUnic_; 
+                      to++; 
+                    }
+                  } else {
+                    // Not handling surrogates, replace with sub
+                    dest[to] = dbSubUnic_; 
+                    to++; 
+                  }
+                } else {
+                  // Single character.  Increment counter; 
+                  to++; 
+                }
             }
             catch(ArrayIndexOutOfBoundsException aioobe)
             {
@@ -124,7 +164,7 @@ abstract class ConvTableDoubleMap extends ConvTable
             }
         }
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
-        return String.copyValueOf(dest);
+        return String.copyValueOf(dest,0,to);
     }
 
     // Perform a Unicode to AS/400 CCSID conversion.

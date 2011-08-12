@@ -13,7 +13,7 @@
 
 package com.ibm.as400.access;
 
-import java.io.UnsupportedEncodingException;
+import java.io.UnsupportedEncodingException; 
 
 /**
  Provides character set conversion between Java String objects and IBM i code pages.
@@ -300,7 +300,8 @@ public class AS400Text implements AS400DataType
                     Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid_);
                     throw new ExtendedIllegalArgumentException("ccsid (" + ccsid_ + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
                 }
-            }
+            }            
+            
             if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "AS400Text object initialized, encoding: " + encoding_ + ", CCSID: " + ccsid_ + ", system: " + system_ + ", table: " + tableImpl_);
         }
     }
@@ -337,14 +338,27 @@ public class AS400Text implements AS400DataType
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset)
     {
-        if (AS400BidiTransform.isBidiCcsid(getCcsid()))
-        {
-            return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(AS400BidiTransform.getStringType(ccsid_)));
-        }
-        else
-        {
-            return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(BidiStringType.DEFAULT));
-        }
+//        if (AS400BidiTransform.isBidiCcsid(getCcsid()))
+//        {
+//            return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(AS400BidiTransform.getStringType(ccsid_)));
+//        	
+//        }
+//        else
+//        {
+//            return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(BidiStringType.DEFAULT));
+//        }
+    	
+    	//@Bidi-HCG3 start    	
+    	if(system_ != null){
+    		if(!system_.bidiAS400Text)  {
+    			//this will disable Bidi conversion
+    			return toBytes(javaValue, serverValue, offset, 
+    					new BidiConversionProperties(AS400BidiTransform.getStringType(system_.getCcsid())));
+    					}
+    	} 
+    	
+    	return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(getSystemBidiType()));
+    	//@Bidi-HCG3 end    	
     }
 
     /**
@@ -499,7 +513,9 @@ public class AS400Text implements AS400DataType
             throw new NullPointerException("serverValue");
         }
         setTable(); // Make sure the table is set.
-        return tableImpl_.byteArrayToString(serverValue, 0, length_);
+        
+        //@Bidi-HCG3 return tableImpl_.byteArrayToString(serverValue, 0, length_);        
+        return tableImpl_.byteArrayToString(serverValue, 0, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
     }
 
     /**
@@ -517,7 +533,9 @@ public class AS400Text implements AS400DataType
             throw new NullPointerException("serverValue");
         }
         setTable(); // Make sure the table is set.
-        return tableImpl_.byteArrayToString(serverValue, offset, length_);
+        
+        //@Bidi-HCG3 return tableImpl_.byteArrayToString(serverValue, offset, length_);        
+        return tableImpl_.byteArrayToString(serverValue, offset, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
     }
 
     /**
@@ -550,5 +568,15 @@ public class AS400Text implements AS400DataType
         }
         setTable(); // Make sure the table is set
         return tableImpl_.byteArrayToString(serverValue, offset, length_, properties);
+    }
+        
+    private int getSystemBidiType(){	//@Bidi-HCG3
+    	//return 4;
+    	
+    	if(system_ == null)
+    		return BidiStringType.DEFAULT;
+    	else
+    		return system_.getBidiStringType();
+    		
     }
 }

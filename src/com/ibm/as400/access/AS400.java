@@ -1069,6 +1069,7 @@ public class AS400 implements Serializable
             impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_, mustAddLanguageLibrary_);
             propertiesFrozen_ = true;
         }
+        impl_.setBidiStringType(this.getBidiStringType());				//@Bidi-HCG3        
     }
 
     /**
@@ -1497,7 +1498,9 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job CCSID.");
         chooseImpl();
         signon(false);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID:", signonInfo_.serverCCSID);
+        if (Trace.traceOn_) {
+          Trace.log(Trace.DIAGNOSTIC, "Job CCSID:", signonInfo_.serverCCSID);
+        }
         return signonInfo_.serverCCSID;
     }
 
@@ -4108,4 +4111,29 @@ public class AS400 implements Serializable
     {
         forcePrompt_ = true;
     }
+    
+    //@Bidi-HCG3 start    
+    private int bidiStringType = BidiStringType.DEFAULT;
+    
+    /**
+     * Sets bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public void setBidiStringType(int bidiStringType){
+    	this.bidiStringType = bidiStringType;
+    }
+    
+    /**
+     * Returns bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public int getBidiStringType(){
+    	return bidiStringType;
+    }       
+    
+    /**
+     * Determines whether Bidi processing should occur in AS400Text.toBytes() method     
+     */
+    public boolean bidiAS400Text = false;
+    //@Bidi-HCG3 end
 }

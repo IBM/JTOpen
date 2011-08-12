@@ -57,20 +57,20 @@ import java.sql.SQLException;
  **/
 public class AS400BidiTransform
 {
-    private static final int ST1 = 1;
-    private static final int ST2 = 2;
-    private static final int ST3 = 3;
-    private static final int ST4 = 4;
-    private static final int ST5 = 5;
-    private static final int ST6 = 6;
-    private static final int ST7 = 7;
-    private static final int ST8 = 8;
-    private static final int ST9 = 9;
-    private static final int ST10 = 10;
-    private static final int ST11 = 11;
-    private static final int ST12 = 12;
-    private static final int ST13 = 13;
-    private static final int ST14 = 14;
+    static final int ST1 = 1;
+    static final int ST2 = 2;
+    static final int ST3 = 3;
+    static final int ST4 = 4;
+    static final int ST5 = 5;
+    static final int ST6 = 6;
+    static final int ST7 = 7;
+    static final int ST8 = 8;
+    static final int ST9 = 9;
+    static final int ST10 = 10;
+    static final int ST11 = 11;
+    static final int ST12 = 12;
+    static final int ST13 = 13;
+    static final int ST14 = 14;
 
     private static final int[][] CCSID_TABLE =
     {
@@ -420,7 +420,7 @@ public class AS400BidiTransform
     }
 
     //Bidi-HCG1
-    private static int getStringTypeM(int ccsid){
+    static int getStringTypeM(int ccsid){
     	if(ccsid == 13488 || ccsid == 1200)
     		return ST5;
     	else

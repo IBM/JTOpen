@@ -24,11 +24,6 @@ abstract class ConvTableMixedMap extends ConvTable
     ConvTableSingleMap sbTable_ = null; // The single-byte portion of this mixed-byte table.
     ConvTableDoubleMap dbTable_ = null; // The double-byte portion of this mixed-byte table.
 
-    private static final byte sbSubChar_ =  0x003F;  // Single-byte EBCDIC substitution character.
-    private static final char dbSubChar_ = '\uFEFE'; // Double-byte EBCDIC substitution character.
-    private static final char sbSubUnic_ = '\u001A'; // Single-byte Unicode substitution character.
-    private static final char dbSubUnic_ = '\uFFFD'; // Double-byte Unicode substitution character.
-    private static final char euro_ = '\u20AC'; // Euro character.
 
     static final byte shiftOut_ = 0x0E; // Byte used to shift-out of single byte mode.
     static final byte shiftIn_ = 0x0F;  // Byte used to shift-in to single byte mode.

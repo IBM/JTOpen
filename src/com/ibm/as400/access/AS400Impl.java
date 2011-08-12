@@ -65,4 +65,19 @@ interface AS400Impl
     void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary);
     // Sign-on to system.
     SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException;
+    
+    //@Bidi-HCG3 start        
+    /**
+     * Sets bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public void setBidiStringType(int bidiStringType);
+    
+    /**
+     * Returns bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public int getBidiStringType();        
+    //@Bidi-HCG3 end
+
 }

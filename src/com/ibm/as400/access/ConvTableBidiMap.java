@@ -59,8 +59,10 @@ abstract class ConvTableBidiMap extends ConvTable
         //    properties.setBidiStringType(bidiStringType_);
         //}
         //abt.setBidiConversionProperties(properties);
-        abt.setJavaStringType(properties.getBidiStringType());//Bidi-HCG
-
+        abt.setBidiConversionProperties(properties);						//@Bidi-HCG3
+        abt.setJavaStringType(properties.getBidiStringType());				//@Bidi-HCG
+        abt.setAS400StringType(AS400BidiTransform.getStringType(ccsid_));	//@Bidi-HCG3
+        
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string (before java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
 
         String destString = abt.toJavaLayout(String.copyValueOf(dest));
@@ -103,7 +105,9 @@ abstract class ConvTableBidiMap extends ConvTable
     		Trace.log(Trace.CONVERSION, "Converting string to byte array (before java layout was applied) for ccsid: " + ccsid_, 
     				ConvTable.dumpCharArray(source.toCharArray()));
     	AS400BidiTransform abt = new AS400BidiTransform(ccsid_);
-    	abt.setJavaStringType(properties.getBidiStringType());    	
+    	abt.setBidiConversionProperties(properties);						//@Bidi-HCG3
+    	abt.setJavaStringType(properties.getBidiStringType());
+    	abt.setAS400StringType(AS400BidiTransform.getStringType(ccsid_));	//@Bidi-HCG3
     	source = abt.toAS400Layout(source);
     	//Bidi-HCG2 end
     	

@@ -317,4 +317,24 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         }
     }
 
+    //@Bidi-HCG3 start    
+    private int bidiStringType = BidiStringType.DEFAULT;
+    
+    /**
+     * Sets bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public void setBidiStringType(int bidiStringType){
+    	this.bidiStringType = bidiStringType;
+    }
+    
+    /**
+     * Returns bidi string type of the connection. 
+     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     */
+    public int getBidiStringType(){
+    	return bidiStringType;
+    }
+    //@Bidi-HCG3 end
+    
 }

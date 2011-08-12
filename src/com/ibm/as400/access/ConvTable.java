@@ -26,10 +26,16 @@ abstract class ConvTable
     final static char ric_ = '\uFFFE';  // Used for decompression.
     final static char hbic_ = '\u0000';  // Used for decompression.
     final static char pad_ = '\u0000';  // Used for decompression.
+    final static byte sbSubChar_ =  0x003F;  // Single-byte EBCDIC substitution character.
+    final static char dbSubChar_ = '\uFEFE'; // Double-byte EBCDIC substitution character.
+    final static char sbSubUnic_ = '\u001A'; // Single-byte Unicode substitution character.
+    final static char dbSubUnic_ = '\uFFFD'; // Double-byte Unicode substitution character.
+    final static char euro_ = '\u20AC'; // Euro character.
 
     String encoding_;
     int ccsid_ = -1;
     int bidiStringType_ = BidiStringType.DEFAULT;
+    int clientBidiStringType = BidiStringType.DEFAULT;	//@Bidi-HCG3
 
     // The highest number of all our supported CCSIDs.  There's no point in making the pool larger than it needs to be.  We only have a handful of CCSIDs in the 62000 range, so we could use a smaller number to save space and those CCSIDs outside the range just wouldn't get cached.  However, 61952 is used extensively, so we might as well max it out.
     private static final int LARGEST_CCSID = 62251;
@@ -308,6 +314,10 @@ abstract class ConvTable
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Successfully loaded conversion table for ccsid: " + ccsid);
         converterPool_.put(className, newTable);
         if (ccsid <= LARGEST_CCSID) ccsidPool_[ccsid] = newTable;
+        
+        if(system != null)											//@Bidi-HCG3        
+        	newTable.clientBidiStringType = system.getBidiStringType();//@Bidi-HCG3
+        
         return newTable;
     }
 

@@ -414,7 +414,13 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         {
             return runCommandOffThread(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
         }
-        return runCommandOffThread(converter_.stringToByteArray(command), messageOption, 0);
+        //@Bidi-HCG3 return runCommandOffThread(converter_.stringToByteArray(command), messageOption, 0);
+        //@Bidi-HCG3 start
+        //Perform Bidi transformation for data only
+        command = AS400BidiTransform.SQL_statement_reordering(command, system_.getBidiStringType(), converter_.table_.bidiStringType_);
+        //this is a trick to prevent Bidi transformation        
+        return runCommandOffThread(converter_.stringToByteArray(command, new BidiConversionProperties(converter_.table_.bidiStringType_)), messageOption, 0);
+        //@Bidi-HCG3 end
     }
 
     // @param commandAsBytes The command to be executed, as a sequence of EBCDIC bytes
