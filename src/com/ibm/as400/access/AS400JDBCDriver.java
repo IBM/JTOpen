@@ -146,6 +146,7 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 // @D9   20110802  JDBC: Add fetch warning to result set object. 
 // @DA   20110810  JDBC: Fix bug where clearParameters() causes executeBatch() failure. 
 // @Bidi-HCG3 20110812  Updated BIDI support 
+// @D10  20110815  Program Call: query timeout mechanism property
 //--------------------------------------------------------------------
 
 

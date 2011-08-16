@@ -126,6 +126,9 @@ public class ProgramCall implements Serializable
     AS400 system_ = null;
     // The full IFS path name of the program.
     String program_ = "";
+    
+    // Job of current program call
+    Job job_ = null;//@D10
     // The library that contains the program.
     String library_ = "";
     // The name of the program.
@@ -157,7 +160,111 @@ public class ProgramCall implements Serializable
     transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
     // List of vetoable change event bean listeners.
     transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
+    
+    private int timeOut_ = 0;//@D10
+    
+    private boolean running_ = false;//@D10
+    
+    private boolean cancelling_ = false;//@D10
+    
+    private ProgramCallCancelThread cancelThread_;//@D10
+    
+    private Object cancelLock_ = new CancelLock();//@D10
+    private class CancelLock extends Object implements java.io.Serializable {};//@D10
+    
+   //@D10A - Start
+   /**
+    * Sets a valid time to run the program
+    * @param timeOut the valid time in sec
+    */
+    public void setTimeOut(int timeOut) {
+      timeOut_ = timeOut;
+    }
+    
+    /**
+     * Gets a valid time
+     * @return the valid time in sec
+     */
+    public int getTimeout() {
+      return timeOut_;
+    }
+    
+    /**
+     * Check if the program is still running
+     * @return true if the program is still running, otherwise return false
+     */
+    public boolean isRunning() {
+       return running_;
+    }
+    
+    /**
+     * End program call if the time exceeds the specified time
+     */
+    public void cancel() {
+      synchronized(cancelLock_) {
+        cancelling_ = true;
+        if (Trace.traceOn_)
+          Trace.log(Trace.INFORMATION, "Cancelling program " + this.getProgram());
+        try {
+          Job job = new Job (new AS400(this.system_), job_.getName(), job_.getUser(), job_.getNumber());
+          job.end(0);
+        } catch (Exception e) {
+          // Do nothing
+          if (Trace.traceOn_)
+            Trace.log(Trace.INFORMATION, "Cancelling program " + this.getProgram(), e);
+        }  finally {
+          cancelling_ = false;
+          cancelLock_.notifyAll();
+        }
+      }
+    }
 
+    private void startCancelThread() {
+        // Start a cancel thread if there is a program running and a timeout value has been specified.
+        if (timeOut_ != 0) {
+
+               // Set a flag that a program is running.
+
+                running_ = true;
+
+                // Create a thread to do the cancel if needed.  Start the thread.
+                cancelThread_ = new ProgramCallCancelThread(this);
+
+                cancelThread_.setDaemon(true);
+
+                cancelThread_.start();
+        }
+    }
+    
+    private void endCancelThread() {
+      // Deal with the cancel thread at this point.
+      if (timeOut_ != 0) {
+
+              // Set the flag saying the program is no longer running.
+              running_ = false;
+
+              // Create a thread to do the cancel if needed.  Start the thread.
+              cancelThread_.programCall_ = null;
+
+              // Interrupt the thread so that it wakes up and dies.
+              cancelThread_.interrupt();
+
+      }
+  }
+    
+    private void checkCancel() {
+      synchronized(cancelLock_) {
+        while(cancelling_){
+          try {
+            cancelLock_.wait();
+          } catch(InterruptedException e) {
+            // Ignore
+          }
+        }
+      }
+    }
+    
+    //@D10A - End
     /**
      Constructs a ProgramCall object.  The system, program, and parameters must be set before using any method requiring a connection to the system.
      **/
@@ -177,7 +284,6 @@ public class ProgramCall implements Serializable
         if (system == null) {
             throw new NullPointerException("system");
         }
-
         system_ = system;
         checkThreadSafetyProperty();
     }
@@ -604,57 +710,70 @@ public class ProgramCall implements Serializable
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Running program: " + program_);
-        if (program_.length() == 0)
-        {
-            Trace.log(Trace.ERROR, "Attempt to run before setting program.");
-            throw new ExtendedIllegalStateException("program", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
 
-        // Validate that all the program parameters have been set.
-        for (int i = 0; i < parameterList_.length; ++i)
-        {
-            if (parameterList_[i] == null)
-            {
-                throw new ExtendedIllegalArgumentException("parameterList[" + i + "] (" + parameterList_[i] + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-            }
-        }
+      
+      if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Running program: " + program_);
+      if (program_.length() == 0)
+      {
+          Trace.log(Trace.ERROR, "Attempt to run before setting program.");
+          throw new ExtendedIllegalStateException("program", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
 
-        chooseImpl();
+      // Validate that all the program parameters have been set.
+      for (int i = 0; i < parameterList_.length; ++i)
+      {
+          if (parameterList_[i] == null)
+          {
+              throw new ExtendedIllegalArgumentException("parameterList[" + i + "] (" + parameterList_[i] + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+          }
+      }
 
-        // Run the program.
-        try
-        {
-            boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafetyValue_, messageOption_);
-            // Retrieve the messages.
-            messageList_ = impl_.getMessageList();
-            // Set our system object into each of the messages.
-            if (system_ != null)
-            {
-                for (int i = 0; i < messageList_.length; ++i)
-                {
-                    messageList_[i].setSystem(system_);
-                }
-            }
+      chooseImpl();
 
-            // Fire action completed event.
-            if (actionCompletedListeners_ != null) fireActionCompleted();
-            return result;
-        }
-        catch (ObjectDoesNotExistException e)
-        {
-            // Retrieve the messages.
-            messageList_ = impl_.getMessageList();
-            // Set our system object into each of the messages.
-            if (system_ != null)
-            {
-                for (int i = 0; i < messageList_.length; ++i)
-                {
-                    messageList_[i].setSystem(system_);
-                }
-            }
-            throw e;
-        }
+      // Run the program.
+      try
+      {   
+        //@D10C - Start
+            job_ = this.getServerJob();
+            checkCancel();
+            startCancelThread();
+            boolean  result = impl_.runProgram(library_, name_, parameterList_, threadSafetyValue_, messageOption_);
+            // We treat it as a normal case
+            endCancelThread();
+        //@D10C - End
+          // Retrieve the messages.
+          messageList_ = impl_.getMessageList();
+          // Set our system object into each of the messages.
+          if (system_ != null)
+          {
+              for (int i = 0; i < messageList_.length; ++i)
+              {
+                  messageList_[i].setSystem(system_);
+              }
+          }
+
+          // Fire action completed event.
+          if (actionCompletedListeners_ != null) fireActionCompleted();
+          return result;
+      }
+      
+      catch (ObjectDoesNotExistException e)
+      {
+          // Retrieve the messages.
+          messageList_ = impl_.getMessageList();
+          // Set our system object into each of the messages.
+          if (system_ != null)
+          {
+              for (int i = 0; i < messageList_.length; ++i)
+              {
+                  messageList_[i].setSystem(system_);
+              }
+          }
+          throw e;
+      }
+      
+      
+    
     }
 
     /**
@@ -852,4 +971,6 @@ public class ProgramCall implements Serializable
     {
         return "ProgramCall (system: " + system_ + " program: " + program_ + "):" + super.toString();
     }
+    
+   
 }
