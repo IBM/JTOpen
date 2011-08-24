@@ -31,7 +31,7 @@ public class ExtendedIOException extends IOException
   private int rc_;  // Return code associated with this exception
 
   //  Handles loading the appropriate resource bundle
-  private static ResourceBundleLoader loader_;
+  // private static ResourceBundleLoader loader_;
    
   // Return code values used by this class. 
   // If a value is added here, it must also be added to MRI.properties,
@@ -215,7 +215,7 @@ public class ExtendedIOException extends IOException
   ExtendedIOException(int returnCode)
   {
     // Create the message
-    super(loader_.getText(getMRIKey(returnCode)));
+    super(ResourceBundleLoader.getText(getMRIKey(returnCode)));
     rc_ =  returnCode;        
    
   }
@@ -232,7 +232,7 @@ public class ExtendedIOException extends IOException
   ExtendedIOException(String objectName, int returnCode)
   {
     // Create the message
-    super(objectName + ": " + loader_.getText(getMRIKey(returnCode)));
+    super(objectName + ": " + ResourceBundleLoader.getText(getMRIKey(returnCode)));
     rc_ =  returnCode;
  
   }
@@ -250,7 +250,7 @@ public class ExtendedIOException extends IOException
   ExtendedIOException(String objectName, int returnCode, int errno)
   {
     // Create the message
-    super(objectName + ": " + loader_.getText(getMRIKey(returnCode)) + " (errno: " + errno + ")");
+    super(objectName + ": " + ResourceBundleLoader.getText(getMRIKey(returnCode)) + " (errno: " + errno + ")");
     rc_ =  returnCode;
  
   }
@@ -344,6 +344,15 @@ public class ExtendedIOException extends IOException
      return rc_;		
   }
 
+  /**
+   * Update the exception, so that when it prints the return code.
+   * It will then be visible without needing to see the trace.  
+   * See CPS 8B5S2H and CPS 8KMAN8
+   */
+  public String toString() {
+    String returnString = super.toString() + " rc="+rc_; 
+    return returnString; 
+  }
  
 
 } // End of ExtendedIOException class
