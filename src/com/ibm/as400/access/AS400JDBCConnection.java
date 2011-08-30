@@ -550,6 +550,13 @@ implements Connection
      * handle the processing of the abort.   @D7A
      */
 void handleAbort() {
+  
+  // Cancel any existing statement.
+  try { 
+     cancel(0); 
+  } catch (SQLException e ) { 
+        // Ingore any errors     
+  }
   closing_ = true;
   // partial close (moved rollback and closing of all the statements).    
   try {
@@ -5304,7 +5311,7 @@ endif */
   //JDBC40DOC     * <li>   Closes any physical connection to the database
   //JDBC40DOC     * <li>   Releases resources used by the connection
   //JDBC40DOC     * <li>   Insures that any thread that is currently accessing the connection will 
-  //JDBC40DOC     * <li> 	either progress to completion or throw an SQLException. 
+  //JDBC40DOC     *      	either progress to completion or throw an SQLException. 
   //JDBC40DOC     * </ul>
   //JDBC40DOC     * <p>
   //JDBC40DOC     * Calling abort marks the connection closed and releases any resources. 
@@ -5326,8 +5333,12 @@ endif */
   //JDBC40DOC     */
 /* ifdef JDBC40 
   public void abort(Executor executor) throws SQLException {
-    // TODO TODOJDBC41 Auto-generated method stub
 
+    // Check for null executor
+    if (executor == null) {
+         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+    } 
+    
     // Check for authority 
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -5336,7 +5347,7 @@ endif */
     }    
     
     // Calling on a close connection is a no-op 
-      if (server_ == null)  {
+      if (aborted_ || (server_ == null))  {
          return; 
       }
     
@@ -5455,7 +5466,7 @@ endif */
          security.checkPermission(sqlPermission);
     }    
     
-    // Calling on a close connection is a no-op 
+    // Calling on a closed connection is a no-op 
     checkOpen ();
     
     
