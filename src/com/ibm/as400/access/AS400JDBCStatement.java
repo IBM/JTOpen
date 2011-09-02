@@ -3533,10 +3533,12 @@ implements Statement
             } else {
                // Only one result set.   
                 cursor_.close (JDCursor.REUSE_YES);
-                if (closeOnCompletion_) { //@D7A
-                  this.close(); 
-                }
             }
+        }
+
+        // Close statement if closeOnCompletion_ and all results have been processed. 
+        if (closeOnCompletion_ && numberOfResults_ <= 1) { // @D7A
+          this.close(); 
         }
     }
 
