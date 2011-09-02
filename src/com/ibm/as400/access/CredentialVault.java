@@ -27,6 +27,18 @@ abstract class CredentialVault implements Cloneable, Serializable
   static java.util.Random rng = new java.util.Random();
 
   /** The credential, which is always encoded before being stored */
+  /* Note:  This may be null if this is a ProfileToken that can be refreshed */
+  /* Any subclass that does not set this must implement the following methods */
+  /*  clone 
+   *  isEmpty
+   *  getClearCredential
+   *  storeEncodedUsingExternalSeeds
+   *  storeEncodedUsingInternalSeeds
+   *  disposeOfCredential
+   *  decode
+   *  trace
+   */
+  
   protected byte[] encodedCredential_;
 
   /**
@@ -51,6 +63,8 @@ abstract class CredentialVault implements Cloneable, Serializable
    */
   protected CredentialVault(byte[] credential)
   {
+    if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "CredentialVault(byte[] credential) called");
+
     if (credential == null) {
       encodedCredential_ = null;
     }
@@ -72,6 +86,8 @@ abstract class CredentialVault implements Cloneable, Serializable
    */
   public Object clone()
   {
+    if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "CredentialVault clone called");
+
     CredentialVault vaultClone;
     try {
       vaultClone = (CredentialVault)super.clone();
@@ -145,6 +161,8 @@ abstract class CredentialVault implements Cloneable, Serializable
    * @return The unencoded credential from the vault.
    */
   protected synchronized byte[] getClearCredential() {
+    if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "CredentialVault.getClearCredential called");
+
     // Make sure we have a credential to give them.
     if (isEmpty()) {
       Trace.log(Trace.ERROR, "Credential vault is empty");
@@ -163,6 +181,7 @@ abstract class CredentialVault implements Cloneable, Serializable
    */
   protected synchronized void storeEncodedUsingExternalSeeds(byte[] firstSeed, byte[] secondSeed)
   {
+    if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "CredentialVault.storedEncodedUsingExternalSeeds called");
     // If the credential was already encoded using externally-supplied seeds, then we must not encode it again.
     if (externalSeedsWereUsed_) {
       Trace.log(Trace.ERROR, "Called storeEncodedUsingExternalSeeds() when credential was already encoded using external seeds.");
@@ -188,6 +207,7 @@ abstract class CredentialVault implements Cloneable, Serializable
    */
   protected synchronized void storeEncodedUsingInternalSeeds(byte[] firstSeed, byte[] secondSeed)
   {
+    if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "CredentialVault.storedEncodedUsingInternalSeeds called");
     // If the credential was not encoded using externally-supplied seeds, then we cannot decode it.
     if (!externalSeedsWereUsed_) {
       Trace.log(Trace.ERROR, "Called storeEncodedUsingInternalSeeds() when credential was not previously encoded using external seeds.");
@@ -206,6 +226,7 @@ abstract class CredentialVault implements Cloneable, Serializable
    * Disposes of the credential, thus emptying the vault.
    */
   protected void disposeOfCredential() {
+    if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "CredentialVault.disposeOfCredential called");
     encodedCredential_ = null;
   }
 
@@ -388,4 +409,6 @@ abstract class CredentialVault implements Cloneable, Serializable
 
     return sb.toString();
   }
+  
+  
 }
