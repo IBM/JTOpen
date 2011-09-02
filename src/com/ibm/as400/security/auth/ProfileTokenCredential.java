@@ -194,7 +194,7 @@ public final class ProfileTokenCredential extends AS400Credential
     private int type_ = TYPE_SINGLE_USE;
     private int timeoutInterval_ = 3600;
     private final static int MAX_USERPROFILE_LENGTH = 10;
-    private final static int MAX_PASSWORD_LENGTH = 128;
+    final static int MAX_PASSWORD_LENGTH = 128;
 
     /**
     ID indicating a single use token.
@@ -413,6 +413,12 @@ public final class ProfileTokenCredential extends AS400Credential
     }
 
     /**
+     * Returns the hashcode for the super class @E1A
+     */
+    public int superHashCode() { 
+      return super.hashCode(); 
+    }
+    /**
     * Returns a hash code for this credential.
     *
     * @return a hash code for this credential.
@@ -599,7 +605,7 @@ public final class ProfileTokenCredential extends AS400Credential
       if (Trace.isTraceOn()) { 
         Trace.log(Trace.INFORMATION,
             "ProfileTokenCredential@"+
-            Integer.toHexString(this.hashCode())+
+            Integer.toHexString(this.superHashCode())+   // Note: Calling this.hashCode causes recursion @E1C 
             " getPrimitiveToken called");
         if (!noRefresh) { 
            // Log the location so we can determine why this is called without refresh tokens locked
