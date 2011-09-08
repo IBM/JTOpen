@@ -42,6 +42,7 @@ public class QueuedMessage extends AS400Message implements Serializable
     private String message_ = "";
     private String messageHelp_ = "";
     private String messageHelpReplacement_ = "";
+    private String messageHelpFormat_ = "";
     private String messageHelpReplacementandFormat_ = "";
     private String senderType_ = "";
     private String sendingModuleName_ = "";
@@ -161,12 +162,20 @@ public class QueuedMessage extends AS400Message implements Serializable
         return messageHelpReplacement_.trim();
     }
     /**
-     Returns the message help for the message listed, including the replacement data and the formatting characters. If an impromptu message is listed, this field contains the impromptu message text.
-     @return The m7essage help for the message listed, including the replacement data and the formatting characters or an empty string if not set.
+     Returns the message help for the message listed, including the replacement data but without formatting characters. If an impromptu message is listed, this field contains the impromptu message text.
+     @return The message help for the message listed, including the replacement data but without formatting characters or an empty string if not set.
      **/
-    public String getMessageHelpReplacementandFormat()
+    public String getMessageHelpFormat()
     {
-        return messageHelpReplacementandFormat_.trim();
+        return messageHelpFormat_.trim();
+    }
+    /**
+    Returns the message help for the message listed, including the replacement data and the formatting characters. If an impromptu message is listed, this field contains the impromptu message text.
+    @return The message help for the message listed, including the replacement data and the formatting characters or an empty string if not set.
+    **/
+    public String getMessageHelpReplacementandFormat()
+     {
+         return messageHelpReplacementandFormat_.trim();
     }
     /**
      Returns the type of the sender (whether it is a program or procedure).
@@ -540,9 +549,11 @@ public class QueuedMessage extends AS400Message implements Serializable
                 messageHelpReplacement_ = (String)value; 
 	        break; 
 	    case 403:
-                messageHelpReplacementandFormat_ = (String)value; 
+	                messageHelpFormat_ = (String)value;
+//                messageHelpReplacementandFormat_ = (String)value; 
 	        break; 
       case 404:
+                messageHelpReplacementandFormat_ = (String)value;
                 setHelp((String)value);
                 break;
             case 501:
