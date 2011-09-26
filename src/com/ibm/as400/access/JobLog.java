@@ -23,8 +23,11 @@ import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Vector;
 /**
- Represents a job log on the system.  This class is used to get a list of messages in a job log or to write messages to a job log.
- <p>QueuedMessage objects have many attributes.  Only some of these attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values can be set on QueuedMessage objects returned in a list of job log messages:
+ Represents a job log on the system.  This class is used to get a list of messages in a job log or to write 
+ messages to a job log.
+ <p>QueuedMessage objects have many attributes.  Only some of these attribute values are set, depending on 
+ how a QueuedMessage object is created.  The following is a list of attributes whose values can be set on 
+ QueuedMessage objects returned in a list of job log messages:
  <ul>
  <li>0101 Alert option
  <li>0201 Replacement data or impromptu message text
@@ -212,12 +215,14 @@ public class JobLog implements Serializable
 
     /**
      Adds a message attribute that will be retrieved for each joblog.  This method allows 
-     the Joblog objects that are retrieved from this Joblog list to have some of their message attributes choosen by
+     the Joblog objects that are retrieved from this Joblog list to have some of their message attributes chosen by
      the caller.
      <p>The list of message attributes is maintained internally even when this JobList is closed and re-used.  
      To start over with a new set of job attributes to retrieve, 
-     call {@link #clearAttributesToRetrieve clearAttributesToRetrieve()}. This will set all attributes to null including the default attributes. 
-     @param  attribute  The message attribute to retrieve.  Possible values are all joblog attributes in the api document for the Open List of Job Log Messages (QGYOLJBL) API.
+     call {@link #clearAttributesToRetrieve clearAttributesToRetrieve()}. This will set all attributes to null 
+              including the default attributes. 
+     @param  attribute  The message attribute to retrieve.  Possible values are all joblog attributes in the 
+         api document for the Open List of Job Log Messages (QGYOLJBL) API.
      **/
     public void addAttributeToRetrieve(int attribute) throws IOException 
     {

@@ -224,7 +224,7 @@ implements ResultSet
     private boolean                     wasDataMappingError_;
     boolean                             isMetadataResultSet = false; //@mdrs
     private DBReplyRequestedDS          reply_ = null; 
-
+    private Class                       byteArrayClass_ = null; 
     /*---------------------------------------------------------*/
     /*                                                         */
     /* MISCELLANEOUS METHODS.                                  */
@@ -7252,33 +7252,138 @@ endif */
 //JDBC40DOC  *    @exception  SQLFeatureNotSupportedException - if the JDBC driver does not support this method
 //JDBC40DOC  */
     
+/*  
+    public <T> T getObject(int columnIndex, Class<T> type) 
+ */
+    public Object getObject(int columnIndex, Class type) 
+   
+    throws SQLException {
+      // Throw exception if type is null 
+      if (type == null) {
+        JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+      }
+      if (byteArrayClass_ == null) {
+        byte[] byteArray = new byte[1]; 
+        byteArrayClass_ = byteArray.getClass(); 
+      }
+      // Use the appropriate method to get the correct data type.
+      // After checking for string, we check for classes in the 
+      // order specified in Table B-6 of the JDBC 4.0 specification
+      // 
+      if (type == java.lang.String.class ) {
+        return getString(columnIndex); 
+      } else if (type == java.lang.Byte.class){
+        byte b = getByte(columnIndex); 
+        if (b == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Byte(b);
+        }
+      } else if (type == java.lang.Short.class){
+        short s = getShort(columnIndex); 
+        if (s == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Short(s);
+        }
+      } else if (type == java.lang.Integer.class){
+        int i = getInt(columnIndex); 
+        if (i == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Integer(i);
+        }
+      } else if (type == java.lang.Long.class){
+        long l = getLong(columnIndex); 
+        if (l == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Long(l);
+        }
+      } else if (type == java.lang.Float.class){
+        float f = getFloat(columnIndex);
+        if (f == 0 && wasNull()) { 
+          return null;  
+        } else { 
+        return new Float(f);
+        }
+      } else if (type == java.lang.Double.class){
+        double d = getDouble(columnIndex); 
+        if (d == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Double(d);
+        }
+      } else if (type == java.math.BigDecimal.class){
+        return getBigDecimal(columnIndex); 
+      } else if (type == java.lang.Boolean.class) {
+        boolean b = getBoolean(columnIndex);
+        if (b == false && wasNull()) { 
+          return null;  
+        } else { 
+          return new Boolean (b);
+        }
+        
+      } else if (type == java.sql.Date.class){
+        return getDate(columnIndex); 
+      } else if (type == java.sql.Time.class){
+        return getTime(columnIndex); 
+      } else if (type == java.sql.Timestamp.class){
+        return getTimestamp(columnIndex); 
+      } else if (type == byteArrayClass_){
+        return getBytes(columnIndex);
+      } else if (type == InputStream.class){
+        return getBinaryStream(columnIndex); 
+      } else if (type == Reader.class){
+        return getCharacterStream(columnIndex); 
+      } else if (type == Clob.class){
+        return getClob(columnIndex);
+      } else if (type == Blob.class){
+        return getBlob(columnIndex);
+      } else if (type == Array.class){
+        return getArray(columnIndex);
+      } else if (type == Ref.class){
+        return getRef(columnIndex);
+      } else if (type == URL.class){
+        return getURL(columnIndex);
 /* ifdef JDBC40 
-    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
-    }
+      } else if (type == NClob.class){
+        return getNClob(columnIndex);
+      } else if (type == RowId.class){
+        return getRowId(columnIndex);
+      } else if (type == SQLXML.class){
+        return getSQLXML(columnIndex);
 endif */
+      } else if (type == Object.class){
+        return getObject(columnIndex);
+      }
 
-//JDBC40DOC /**
-//JDBC40DOC  * Retrieves the value of the designated column in the current row of this ResultSet object and will convert from the 
-//JDBC40DOC  * SQL type of the column to the requested Java data type, if the conversion is supported. If the conversion is 
-//JDBC40DOC  * not supported or null is specified for the type, a SQLException is thrown. 
-//JDBC40DOC  * <p> At a minimum, an implementation must support the conversions defined in Appendix B, Table B-3 and conversion of 
-//JDBC40DOC  * appropriate user defined SQL types to a Java type which implements SQLData, or Struct. Additional conversions may be 
-//JDBC40DOC  * supported and are vendor defined.
-//JDBC40DOC  *@param columnLabel - the label for the column specified with the SQL AS clause. If the SQL AS clause was not specified, then the label is the name of the column
-//JDBC40DOC  *@param type - Class representing the Java data type to convert the designated column to.
-//JDBC40DOC  *@returns  an instance of type holding the column value
-//JDBC40DOC  *@exception  SQLException - if conversion is not supported, type is null or another error occurs. The getCause() method of the exception may provide a more detailed exception, for example, if a conversion error occurs
-//JDBC40DOC  *@exception SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-//JDBC40DOC  */   
-/* ifdef JDBC40 
+      JDError.throwSQLException (JDError.EXC_DATA_TYPE_INVALID);
+      return null; 
+    }
 
+/**
+ * Retrieves the value of the designated column in the current row of this ResultSet object and will convert from the 
+ * SQL type of the column to the requested Java data type, if the conversion is supported. If the conversion is 
+ * not supported or null is specified for the type, a SQLException is thrown. 
+ * <p> At a minimum, an implementation must support the conversions defined in Appendix B, Table B-3 and conversion of 
+ * appropriate user defined SQL types to a Java type which implements SQLData, or Struct. Additional conversions may be 
+ * supported and are vendor defined.
+ *@param columnLabel - the label for the column specified with the SQL AS clause. If the SQL AS clause was not specified, then the label is the name of the column
+ *@param type - Class representing the Java data type to convert the designated column to.
+ *@returns  an instance of type holding the column value
+ *@exception  SQLException - if conversion is not supported, type is null or another error occurs. The getCause() method of the exception may provide a more detailed exception, for example, if a conversion error occurs
+ *@exception SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+ */
+    
+/* 
     public <T> T getObject(String columnLabel, Class<T> type)
-        throws SQLException {
-         return getObject (findColumn (columnLabel), type); 
-    }
-endif */
+    
+ */
+    public Object getObject(String columnLabel, Class type)
+    throws SQLException {
+      return getObject (findColumn (columnLabel), type); 
+ }
 
  
     

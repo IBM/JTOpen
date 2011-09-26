@@ -582,6 +582,8 @@ public class BinaryConverter
   }
 
   // Helper method to convert a String in hex into its corresponding byte array.
+  // Called only by HexReaderInputStream
+  // length is the length of the string
   static final int stringToBytes(char[] hex, int offset, int length, final byte[] b, int boff)
   {
     if (hex.length == 0) return 0;
@@ -600,7 +602,8 @@ public class BinaryConverter
     //@KBD   offset += 2;
     //@KBD   length -= 2;
     //@KBD }
-    for (int i=0; i<b.length; ++i)
+    // Fixed loop condition to be length / 2 not b.length
+    for (int i=0; i< length / 2; ++i)
     {
       final int j = i*2;
       final int c1 = 0x00FFFF & hex[j+offset];
@@ -626,6 +629,6 @@ public class BinaryConverter
         }
       }
     }
-    return b.length;
+    return length / 2;
   }
 }

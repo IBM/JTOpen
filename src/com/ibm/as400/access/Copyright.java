@@ -64,6 +64,7 @@ package com.ibm.as400.access;
 //@Bidi-HCG3 20110812  Updated BIDI support 
 //@D10  20110815  Program Call: query timeout mechanism property
 //@E1   20110902  ProfileTokenValue:  Fix bug when profileTokenCredential not used
+//@E2   20110926  JDBC: Additional JDBC 4.1 changes 
 //
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
@@ -72,12 +73,12 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
-    public static String version   = "Open Source Software, JTOpen 7.5, codebase 5770-SS1 V7R1M0.05 2011/09/02 @E1";  // As of V7R1: JC1 is merged into SS1 Option 3
+    public static String version   = "Open Source Software, JTOpen 7.6, codebase 5770-SS1 V7R1M0.06 2011/09/26 @E2";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9; // ex: "9" indicates V7R1
-    static final int    MINOR_VERSION = 6; // ex: "1" indicates PTF #1 
-                                           //Note: JTOpen 7.5 is synching with ptf 9.6
-    static final String DRIVER_LEVEL  = "07010006"; //(ex: 07010006 -> V7R1M0 PTF#5) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final int    MINOR_VERSION = 7; // ex: "1" indicates PTF #1 
+                                           //Note: JTOpen 7.6 is synching with ptf 9.7
+    static final String DRIVER_LEVEL  = "07010007"; //(ex: 07010007 -> V7R1M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
     
 }

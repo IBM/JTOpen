@@ -80,6 +80,8 @@ implements CallableStatement
     //private String[]            parameterNames_; //@PDD jdbc40 move to preparedStatement 
     private int                 maxToLog_ = 10000;        // Log value of parameter markers up to this length // @G7A
 
+    private Object byteArrayClass_;
+
     /**
     Constructs an AS400JDBCCallableStatement object.
     
@@ -4411,20 +4413,119 @@ implements CallableStatement
     }
     
     
-    /* ifdef JDBC40 
-    public <T> T getObject(int parameterIndex, Class<T> type)
+    public Object getObject(int parameterIndex, Class type)
         throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
-    }
+      // Throw exception if type is null 
+      if (type == null) {
+        JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+      }
+      if (byteArrayClass_ == null) {
+        byte[] byteArray = new byte[1]; 
+        byteArrayClass_ = byteArray.getClass(); 
+      }
+      // Use the appropriate method to get the correct data type.
+      // After checking for string, we check for classes in the 
+      // order specified in Table B-6 of the JDBC 4.0 specification
+      // 
+      if (type == java.lang.String.class ) {
+        return getString(parameterIndex); 
+      } else if (type == java.lang.Byte.class){
+        byte b = getByte(parameterIndex); 
+        if (b == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Byte(b);
+        }
+      } else if (type == java.lang.Short.class){
+        short s = getShort(parameterIndex); 
+        if (s == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Short(s);
+        }
+      } else if (type == java.lang.Integer.class){
+        int i = getInt(parameterIndex); 
+        if (i == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Integer(i);
+        }
+      } else if (type == java.lang.Long.class){
+        long l = getLong(parameterIndex); 
+        if (l == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Long(l);
+        }
+      } else if (type == java.lang.Float.class){
+        float f = getFloat(parameterIndex);
+        if (f == 0 && wasNull()) { 
+          return null;  
+        } else { 
+        return new Float(f);
+        }
+      } else if (type == java.lang.Double.class){
+        double d = getDouble(parameterIndex); 
+        if (d == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Double(d);
+        }
+      } else if (type == java.math.BigDecimal.class){
+        return getBigDecimal(parameterIndex); 
+      } else if (type == java.lang.Boolean.class) {
+        boolean b = getBoolean(parameterIndex);
+        if (b == false && wasNull()) { 
+          return null;  
+        } else { 
+          return new Boolean (b);
+        }
+        
+      } else if (type == java.sql.Date.class){
+        return getDate(parameterIndex); 
+      } else if (type == java.sql.Time.class){
+        return getTime(parameterIndex); 
+      } else if (type == java.sql.Timestamp.class){
+        return getTimestamp(parameterIndex); 
+      } else if (type == byteArrayClass_){
+        return getBytes(parameterIndex);
+      } else if (type == InputStream.class){
+        Blob b = getBlob(parameterIndex); 
+        return b.getBinaryStream(); 
+      } else if (type == Reader.class){
+        return getCharacterStream(parameterIndex); 
+      } else if (type == Clob.class){
+        return getClob(parameterIndex);
+      } else if (type == Blob.class){
+        return getBlob(parameterIndex);
+      } else if (type == Array.class){
+        return getArray(parameterIndex);
+      } else if (type == Ref.class){
+        return getRef(parameterIndex);
+      } else if (type == URL.class){
+        return getURL(parameterIndex);
+/* ifdef JDBC40 
+      } else if (type == NClob.class){
+        return getNClob(parameterIndex);
+      } else if (type == RowId.class){
+        return getRowId(parameterIndex);
+      } else if (type == SQLXML.class){
+        return getSQLXML(parameterIndex);
 endif */
+      } else if (type == Object.class){
+        return getObject(parameterIndex);
+      }
 
-    /* ifdef JDBC40 
-    public <T> T getObject(String parameterName, Class<T> type)
-        throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+      JDError.throwSQLException (JDError.EXC_DATA_TYPE_INVALID);
+      return null; 
     }
-endif */
+
+    public Object getObject(String parameterName, Class type)
+        throws SQLException {
+      return getObject(findParameterIndex(parameterName), type); 
+    }
+    
+    
+    
     
 }
