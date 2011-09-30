@@ -78,9 +78,13 @@ implements SQLData
             // else if(format.equalsIgnoreCase(JDProperties.TIME_FORMAT_USA)) {
             if(calendar == null) 
             {
-                calendar = Calendar.getInstance(); //@P0A
+                calendar = AS400Calendar.getGregorianInstance(); //@P0A
                 calendar.setLenient(false); //@dat1
             }
+            else {
+              calendar = AS400Calendar.getConversionCalendar(calendar); 
+            }
+
             switch(settings.getTimeFormat())
             {                                          // @A0A
                 case SQLConversionSettings.TIME_FORMAT_USA:                                                  // @A0A
@@ -153,7 +157,11 @@ implements SQLData
     {
         StringBuffer buffer = new StringBuffer();
         String separator = dataFormat.getTimeSeparator();
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.setTime(t);
 
         int hour = calendar.get(Calendar.HOUR_OF_DAY);  // @E3A
@@ -323,9 +331,13 @@ implements SQLData
     {
         if(calendar == null) 
         {
-            calendar = Calendar.getInstance(); //@P0A
+            calendar = AS400Calendar.getGregorianInstance(); //@P0A
             calendar.setLenient(false); //@dat1
         }
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         if(object instanceof String)
         {
             stringToTime((String) object, settings_, calendar);
@@ -569,7 +581,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
         return new Time(calendar.getTime().getTime());
@@ -586,7 +598,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
         Time t = new Time(calendar.getTime().getTime());
@@ -597,7 +609,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A  
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         // @F2A
         // You are supposed to normalize the time to the epoch,
         // not set its extra fields to 0.  This produces totally different
@@ -629,7 +645,11 @@ implements SQLData
 
         //@54A
         truncated_  = 0;                                                                //@54A
-        if(calendar == null) calendar = Calendar.getInstance();                         //@54A
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance();                         //@54A
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);               //@54A
         calendar.set(Calendar.MILLISECOND, 0);                                          //@54A
         Timestamp ts = new Timestamp(calendar.getTime().getTime());                     //@54A
@@ -666,7 +686,7 @@ implements SQLData
     public String getNString() throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
         Time t = new Time(calendar.getTime().getTime());

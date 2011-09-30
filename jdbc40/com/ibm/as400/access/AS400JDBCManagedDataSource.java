@@ -4696,8 +4696,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
 /* ifdef JDBC40 */
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-    // TODO TODOJDBC41 Auto-generated method stub
-    return null;
+  throw new SQLFeatureNotSupportedException(); 
+   
   } 
 /* endif */ 
   

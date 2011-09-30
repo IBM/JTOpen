@@ -85,9 +85,13 @@ implements SQLData
 
             if(calendar == null)
             {
-                calendar = Calendar.getInstance(); // @F5A
+                calendar = AS400Calendar.getGregorianInstance(); // @F5A
                 calendar.setLenient(false); //@dat1
             }
+            else {
+              calendar = AS400Calendar.getConversionCalendar(calendar); 
+            }
+
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(5, 7)) - 1);
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(8, 10)));
@@ -151,7 +155,11 @@ implements SQLData
         // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, while we output timestamps like 2100-01-02 03:45:56.000000. The first is apparently the ISO standard while ours follows Java's Timestamp.toString() method. This was pointed out by a user who noticed that although he gets a timestamp from our database in one format, he can't put it back in the database in that same format. 
         // @F6A Change back to old format because of service issue.
         StringBuffer buffer = new StringBuffer();
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.setTime(ts);
         
         int hour = calendar.get(Calendar.HOUR_OF_DAY);  //@tim2
@@ -267,9 +275,13 @@ implements SQLData
     {
         if(calendar == null)
         {
-            calendar = Calendar.getInstance(); // @F5A
+            calendar = AS400Calendar.getGregorianInstance(); // @F5A
             calendar.setLenient(false); //@dat1
         }
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         if(object instanceof String)
         {
             Timestamp ts = stringToTimestamp((String) object, calendar);
@@ -485,7 +497,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 16;
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);      //@KBA  added per JTOpen Bug 3818.  According to java.sql.Date, the milliseconds also need to be 'normalized' to zero.
         return new Date(calendar.getTime().getTime());
@@ -523,7 +539,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         Timestamp ts = new Timestamp (calendar.getTime().getTime());
         ts.setNanos(nanos_);
@@ -541,7 +557,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         Timestamp ts = new Timestamp (calendar.getTime().getTime());
         ts.setNanos(nanos_);
@@ -552,7 +568,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 18;
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.set(0, 0, 0, hour_, minute_, second_);
         return new Time(calendar.getTime().getTime());
     }
@@ -561,7 +581,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         Timestamp ts = new Timestamp(calendar.getTime().getTime());
         ts.setNanos(nanos_);
@@ -597,7 +621,7 @@ implements SQLData
     public String getNString() throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         Timestamp ts = new Timestamp (calendar.getTime().getTime());
         ts.setNanos(nanos_);

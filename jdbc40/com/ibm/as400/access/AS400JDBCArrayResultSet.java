@@ -13,9 +13,11 @@
 package com.ibm.as400.access;
 
 
+import java.io.InputStream;
+import java.io.Reader;
 import java.net.MalformedURLException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.net.URL;
+import java.sql.*; 
  
 //@array new class
 /** AS400JDBCArrayResultSet is a JDBC ResultSet that contains Array data.  This is a client-side only object.  This is used to navigating through
@@ -61,6 +63,7 @@ implements ResultSet
 
  
     private java.util.Calendar calendar_;
+    private Class byteArrayClass_;
     static final private int WAS_NULL_UNSET = 0;
     static final private int WAS_NULL = 1;
     static final private int WAS_NOT_NULL = 2;
@@ -4223,22 +4226,121 @@ implements ResultSet
 /* endif */ 
     
 
-        // jdbc4.1
+     public Object getObject(int columnIndex, Class type) throws SQLException {
+      
+       // Throw exception if type is null 
+       if (type == null) {
+         JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+       }
+       if (byteArrayClass_ == null) {
+         byte[] byteArray = new byte[1]; 
+         byteArrayClass_ = byteArray.getClass(); 
+       }
+       // Use the appropriate method to get the correct data type.
+       // After checking for string, we check for classes in the 
+       // order specified in Table B-6 of the JDBC 4.0 specification
+       // 
+       if (type == java.lang.String.class ) {
+         return getString(columnIndex); 
+       } else if (type == java.lang.Byte.class){
+         byte b = getByte(columnIndex); 
+         if (b == 0 && wasNull()) { 
+           return null;  
+         } else { 
+           return new Byte(b);
+         }
+       } else if (type == java.lang.Short.class){
+         short s = getShort(columnIndex); 
+         if (s == 0 && wasNull()) { 
+           return null;  
+         } else { 
+           return new Short(s);
+         }
+       } else if (type == java.lang.Integer.class){
+         int i = getInt(columnIndex); 
+         if (i == 0 && wasNull()) { 
+           return null;  
+         } else { 
+           return new Integer(i);
+         }
+       } else if (type == java.lang.Long.class){
+         long l = getLong(columnIndex); 
+         if (l == 0 && wasNull()) { 
+           return null;  
+         } else { 
+           return new Long(l);
+         }
+       } else if (type == java.lang.Float.class){
+         float f = getFloat(columnIndex);
+         if (f == 0 && wasNull()) { 
+           return null;  
+         } else { 
+         return new Float(f);
+         }
+       } else if (type == java.lang.Double.class){
+         double d = getDouble(columnIndex); 
+         if (d == 0 && wasNull()) { 
+           return null;  
+         } else { 
+           return new Double(d);
+         }
+       } else if (type == java.math.BigDecimal.class){
+         return getBigDecimal(columnIndex); 
+       } else if (type == java.lang.Boolean.class) {
+         boolean b = getBoolean(columnIndex);
+         if (b == false && wasNull()) { 
+           return null;  
+         } else { 
+           return new Boolean (b);
+         }
+         
+       } else if (type == java.sql.Date.class){
+         return getDate(columnIndex); 
+       } else if (type == java.sql.Time.class){
+         return getTime(columnIndex); 
+       } else if (type == java.sql.Timestamp.class){
+         return getTimestamp(columnIndex); 
+       } else if (type == byteArrayClass_){
+         return getBytes(columnIndex);
+       } else if (type == InputStream.class){
+         return getBinaryStream(columnIndex); 
+       } else if (type == Reader.class){
+         return getCharacterStream(columnIndex); 
+       } else if (type == Clob.class){
+         return getClob(columnIndex);
+       } else if (type == Blob.class){
+         return getBlob(columnIndex);
+       } else if (type == Array.class){
+         return getArray(columnIndex);
+       } else if (type == Ref.class){
+         return getRef(columnIndex);
+       } else if (type == URL.class){
+         return getURL(columnIndex);
 /* ifdef JDBC40 */
-    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
-    }
+       } else if (type == NClob.class){
+         return getNClob(columnIndex);
+       } else if (type == RowId.class){
+         return getRowId(columnIndex);
+       } else if (type == SQLXML.class){
+         return getSQLXML(columnIndex);
 /* endif */ 
+       } else if (type == Object.class){
+         return getObject(columnIndex);
+       }
 
-    // jdbc4.1
-/* ifdef JDBC40 */
-    public <T> T getObject(String columnLabel, Class<T> type)
+       JDError.throwSQLException (JDError.EXC_DATA_TYPE_INVALID);
+       return null; 
+
+       
+       
+    }
+
+
+    public Object  getObject(String columnLabel, Class type)
         throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+      
+      return getObject(findColumnX (columnLabel), type);
     } 
-/* endif */ 
 
     
     protected String[] getValidWrappedList()

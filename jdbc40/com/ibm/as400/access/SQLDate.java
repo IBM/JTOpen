@@ -84,10 +84,11 @@ implements SQLData
             // Ignore.  This just means the value is not NULL.
         }
 
-        if(calendar == null) 
-        {
-            calendar = Calendar.getInstance(); //@P0A
+        if(calendar == null) {
+            calendar = AS400Calendar.getGregorianInstance(); //@P0A
             calendar.setLenient(false); //@dat1
+        } else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
         }
         
         try
@@ -201,7 +202,13 @@ implements SQLData
     {
         StringBuffer buffer = new StringBuffer();
         String separator = dataFormat.getDateSeparator();
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+        if(calendar == null) { calendar = AS400Calendar.getGregorianInstance(); //@P0A
+        
+        }
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.setTime(d);
 
         // @F3D Note: No matter what format is being used, ensure that exactly 10 characters are in the buffer.
@@ -296,7 +303,7 @@ implements SQLData
             case SQLConversionSettings.DATE_FORMAT_JULIAN:                      // yy/ddd
                 year_ = twoDigitYearToFour((rawBytes[offset+0] & 0x0f) * 10
                                            + (rawBytes[offset+1] & 0x0f));
-                Calendar calendar = Calendar.getInstance();
+                Calendar calendar = AS400Calendar.getGregorianInstance();
                 calendar.clear();
                 calendar.set(Calendar.YEAR, year_);
                 calendar.set(Calendar.DAY_OF_YEAR,
@@ -403,9 +410,13 @@ implements SQLData
     {
         if(calendar == null) 
         {
-            calendar = Calendar.getInstance(); //@P0A
+            calendar = AS400Calendar.getGregorianInstance(); //@P0A
             calendar.setLenient(false); //@dat1
         }
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         if(object instanceof String)
         {
             stringToDate((String) object, settings_, calendar);
@@ -625,7 +636,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) calendar = Calendar.getInstance();  
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance();  
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return new Date(calendar.getTime().getTime());
@@ -677,7 +692,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();  
+        Calendar calendar = AS400Calendar.getGregorianInstance();  
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         Date d = new Date(calendar.getTime().getTime());
@@ -695,7 +710,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A  
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         Timestamp ts = new Timestamp(calendar.getTime().getTime());
@@ -740,7 +759,7 @@ implements SQLData
     public String getNString() throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance();  
+        Calendar calendar = AS400Calendar.getGregorianInstance();  
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         Date d = new Date(calendar.getTime().getTime());

@@ -257,6 +257,11 @@ final class SQLDBClobLocator implements SQLLocator
     
     private void writeToServer() throws SQLException
     {
+      // Use try/finally block to make sure savedObject_ = null after writing to the server.    
+      // This is the same behavior as in SQLClobLocator and fixes a bug 
+      // passing DBCLOB's as INOUT parameters where the saveObject_ was returned instead 
+      // of the output value). 
+      try { 
         Object object = savedObject_;
         if(object instanceof String)
         {
@@ -487,6 +492,9 @@ final class SQLDBClobLocator implements SQLLocator
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
+      } finally { 
+        savedObject_ = null; 
+      }
     }
 
     //---------------------------------------------------------//

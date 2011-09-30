@@ -465,8 +465,12 @@ implements SQLData
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
+            calendar = AS400Calendar.getGregorianInstance(); //@dat1
         }
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
+        }
+
         return SQLDate.stringToDate(getString(), settings_, calendar);
     }
 
@@ -583,7 +587,10 @@ implements SQLData
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
+            calendar = AS400Calendar.getGregorianInstance(); //@dat1
+        }
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
         }
         return SQLTime.stringToTime(getString(), settings_, calendar);
     }
@@ -595,7 +602,10 @@ implements SQLData
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
-            calendar = Calendar.getInstance(); //@dat1
+            calendar = AS400Calendar.getGregorianInstance(); //@dat1
+        }
+        else {
+          calendar = AS400Calendar.getConversionCalendar(calendar); 
         }
         return SQLTimestamp.stringToTimestamp(getString(), calendar);
     }

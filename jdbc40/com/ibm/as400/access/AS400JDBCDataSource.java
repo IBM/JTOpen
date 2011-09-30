@@ -5249,8 +5249,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     } 
 /* ifdef JDBC40 */
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+    throw new SQLFeatureNotSupportedException(); 
+      
     } 
 /* endif */ 
     

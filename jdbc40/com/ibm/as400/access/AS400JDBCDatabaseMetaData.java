@@ -8002,9 +8002,6 @@ implements DatabaseMetaData
         String tableNamePattern, String columnNamePattern)
         throws SQLException {
 
-      //
-      // TODO TODOJDBC41
-      //
       connection_.checkOpen();
       
       CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLPSEUDOCOLUMNS  ( ?, ?, ?, ?, ?)");

@@ -1401,7 +1401,7 @@ value of the property to false.  The problem did not occur with the jar file.
                 // Attempt to set the cause, ignoring any failures (i.e. in Pre JDK 1.4) /*@DAA*/
                 try {
                   batchUpdateException.initCause(e); 
-                }catch (Exception e2) {} 
+                }catch ( java.lang.NoSuchMethodError e2) {} 
                 
                 throw batchUpdateException; 
             }

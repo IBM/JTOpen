@@ -80,6 +80,8 @@ implements CallableStatement
     //private String[]            parameterNames_; //@PDD jdbc40 move to preparedStatement 
     private int                 maxToLog_ = 10000;        // Log value of parameter markers up to this length // @G7A
 
+    private Object byteArrayClass_;
+
     /**
     Constructs an AS400JDBCCallableStatement object.
     
@@ -384,8 +386,14 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.ARRAY)
+                switch(registeredTypes_[parameterIndex-1]) {
+                case Types.ARRAY:
+                case Types.JAVA_OBJECT:
+                  break;
+                  default:
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    
+                }
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -466,8 +474,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.NUMERIC && registeredTypes_[parameterIndex-1] != Types.DECIMAL)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -540,8 +547,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.NUMERIC && registeredTypes_[parameterIndex-1] != Types.DECIMAL)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1] ); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -625,8 +631,13 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.BLOB)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        switch (registeredTypes_[parameterIndex - 1]) {
+        case Types.BLOB:
+        case Types.JAVA_OBJECT:
+          break;
+        default:
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -716,10 +727,7 @@ implements CallableStatement
 
                 // make sure the registered type is valid for this get method
                 // 16 is the value of Types.BOOLEAN added for JDK 1.4
-                if(registeredTypes_[parameterIndex-1] != Types.SMALLINT &&
-                   registeredTypes_[parameterIndex-1] != Types.TINYINT &&
-                   registeredTypes_[parameterIndex-1] != 16)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -816,8 +824,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.SMALLINT && registeredTypes_[parameterIndex-1] != Types.TINYINT)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -993,9 +1000,16 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.CLOB)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
+                switch (registeredTypes_[parameterIndex - 1]) {
+                  case Types.CLOB:
+                  case 2011: /* nclob */ 
+                  case Types.JAVA_OBJECT:
+                    break; 
+                    default:
+                      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+  
+                }
+                    
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
             }
@@ -1041,7 +1055,7 @@ implements CallableStatement
     public Date getDate(int parameterIndex)
     throws SQLException
     {
-        return getDate(parameterIndex, Calendar.getInstance());
+        return getDate(parameterIndex, AS400Calendar.getGregorianInstance());
     }
 
     // JDBC 2.0
@@ -1103,8 +1117,19 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.DATE)
+                // Changed 9/29/2011 for JDBC 4.1 
+                // The getter method says this can be used again several type other than Types.DATE
+                switch(registeredTypes_[parameterIndex-1]) {
+                  case Types.DATE:
+                  case Types.CHAR:
+                  case Types.VARCHAR:
+                  case Types.LONGVARCHAR:
+                  case Types.TIMESTAMP:
+                  case Types.JAVA_OBJECT:
+                  break; 
+                  default: 
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                }
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1211,8 +1236,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.DOUBLE && registeredTypes_[parameterIndex-1] != Types.FLOAT)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1296,8 +1320,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.REAL && registeredTypes_[parameterIndex-1] != Types.FLOAT)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]);
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1380,10 +1403,7 @@ implements CallableStatement
                 if(registered_[parameterIndex-1] == false)
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
-                // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.INTEGER)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
             }
@@ -1476,16 +1496,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(connection_.getVRM() >= JDUtilities.vrm450)
-                {
-                    if(registeredTypes_[parameterIndex-1] != Types.BIGINT)
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                }
-                else
-                {
-                    if(registeredTypes_[parameterIndex-1] != Types.INTEGER)
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                }
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1747,9 +1758,8 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.SMALLINT)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]);
+                
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
             }
@@ -1881,7 +1891,7 @@ implements CallableStatement
     public Time getTime(int parameterIndex)
     throws SQLException
     {
-        return getTime(parameterIndex, Calendar.getInstance());
+        return getTime(parameterIndex, AS400Calendar.getGregorianInstance());
     }
 
     // JDBC 2.0
@@ -1944,8 +1954,20 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.TIME)
+                // Changed 9/29/2011 for JDBC 4.1 
+                // The getter method says this can be used again several type other than Types.Time
+
+                switch(registeredTypes_[parameterIndex-1]) {
+                  case Types.TIME:
+                  case Types.CHAR:
+                  case Types.VARCHAR:
+                  case Types.LONGVARCHAR:
+                  case Types.TIMESTAMP:
+                  case Types.JAVA_OBJECT:
+                  break;
+                  default: 
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                }
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -2016,7 +2038,7 @@ implements CallableStatement
     public Timestamp getTimestamp(int parameterIndex)
     throws SQLException
     {
-        return getTimestamp(parameterIndex, Calendar.getInstance());
+        return getTimestamp(parameterIndex, AS400Calendar.getGregorianInstance());
     }
 
     // JDBC 2.0
@@ -2079,8 +2101,22 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.TIMESTAMP)
+                // Changed 9/29/2011 for JDBC 4.1 
+                // The getter method says this can be used again several type other than Types.TIMESTAMP
+                switch(registeredTypes_[parameterIndex-1]){
+                
+                  case Types.TIMESTAMP:
+                  case Types.CHAR:
+                  case Types.VARCHAR:
+                  case Types.LONGVARCHAR:
+                  case Types.TIME:
+                  case Types.DATE:
+                  case Types.JAVA_OBJECT:
+                     break;
+                  default:
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    
+                }
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -2149,68 +2185,67 @@ implements CallableStatement
                                 the statement was not executed or
                                 the requested conversion is not valid.
     **/
-    public URL getURL(int parameterIndex)
-    throws SQLException
-    {
-        synchronized(internalLock_)
-        {
-            checkOpen();
+    public URL getURL(int parameterIndex) throws SQLException {
+    synchronized (internalLock_) {
+      checkOpen();
 
-            SQLData data = null;
+      SQLData data = null;
 
-            // Check if the parameter index refers to the return value parameter.
-            // If it is not parameter index 1, then decrement the parameter index,
-            // since we are "faking" the return value parameter.
-            if(useReturnValueParameter_ && parameterIndex == 1)
-            {
-                if(!returnValueParameterRegistered_)
-                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+      // Check if the parameter index refers to the return value parameter.
+      // If it is not parameter index 1, then decrement the parameter index,
+      // since we are "faking" the return value parameter.
+      if (useReturnValueParameter_ && parameterIndex == 1) {
+        if (!returnValueParameterRegistered_)
+          JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
-                data = returnValueParameter_;
-            }
-            else
-            {
-                if(useReturnValueParameter_)
-                {
-                    --parameterIndex;
-                }
-
-                // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
-                // Check that the parameter is an output parameter.
-                if(! parameterRow_.isOutput(parameterIndex))
-                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
-
-                // Verify that the output parameter is registered.
-                if(registered_[parameterIndex-1] == false)
-                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
-
-                // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.CHAR && 
-                   registeredTypes_[parameterIndex-1] != Types.VARCHAR && 
-                   registeredTypes_[parameterIndex-1] != Types.DATALINK)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
-                // Get the data and check for SQL NULL.
-                data = getValue(parameterIndex);
-            }
-
-            String value = (data == null) ? null : data.getString();
-            testDataTruncation(parameterIndex, data);
-
-            try
-            {
-                return new java.net.URL(value);
-            }
-            catch(MalformedURLException e)
-            {
-                JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID, e);
-                return null;
-            }
+        data = returnValueParameter_;
+      } else {
+        if (useReturnValueParameter_) {
+          --parameterIndex;
         }
+
+        // Validate the parameter index.
+        if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
+          JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+
+        // Check that the parameter is an output parameter.
+        if (!parameterRow_.isOutput(parameterIndex))
+          JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+        // Verify that the output parameter is registered.
+        if (registered_[parameterIndex - 1] == false)
+          JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+        // make sure the registered type is valid for this get method
+        switch (registeredTypes_[parameterIndex - 1]) {
+        case Types.CHAR:
+        case Types.VARCHAR:
+        case Types.DATALINK:
+        case Types.JAVA_OBJECT:
+          break;
+        default:
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
+
+        // Get the data and check for SQL NULL.
+        data = getValue(parameterIndex);
+      }
+
+      String value = (data == null) ? null : data.getString();
+      testDataTruncation(parameterIndex, data);
+      if (value != null) {
+        try {
+          return new java.net.URL(value);
+        } catch (MalformedURLException e) {
+          JDError
+              .throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID, e);
+          return null;
+        }
+      } else {
+        return null;
+      }
     }
+  }
 
     //@G4A  JDBC 3.0
     /**
@@ -3465,8 +3500,14 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                if(registeredTypes_[parameterIndex-1] != Types.CLOB)
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                switch(registeredTypes_[parameterIndex-1]) {
+                   case Types.CLOB:
+                   case Types.NCLOB :
+                   case Types.JAVA_OBJECT:
+                     break;
+                   default:
+                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                }
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -4411,20 +4452,156 @@ implements CallableStatement
     }
     
     
-/* ifdef JDBC40 */
-    public <T> T getObject(int parameterIndex, Class<T> type)
+    public Object getObject(int parameterIndex, Class type)
         throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
-    }
+      // Throw exception if type is null 
+      if (type == null) {
+        JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+      }
+      if (byteArrayClass_ == null) {
+        byte[] byteArray = new byte[1]; 
+        byteArrayClass_ = byteArray.getClass(); 
+      }
+      // Use the appropriate method to get the correct data type.
+      // After checking for string, we check for classes in the 
+      // order specified in Table B-6 of the JDBC 4.0 specification
+      // 
+      if (type == java.lang.String.class ) {
+        return getString(parameterIndex); 
+      } else if (type == java.lang.Byte.class){
+        byte b = getByte(parameterIndex); 
+        if (b == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Byte(b);
+        }
+      } else if (type == java.lang.Short.class){
+        short s = getShort(parameterIndex); 
+        if (s == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Short(s);
+        }
+      } else if (type == java.lang.Integer.class){
+        int i = getInt(parameterIndex); 
+        if (i == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Integer(i);
+        }
+      } else if (type == java.lang.Long.class){
+        long l = getLong(parameterIndex); 
+        if (l == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Long(l);
+        }
+      } else if (type == java.lang.Float.class){
+        float f = getFloat(parameterIndex);
+        if (f == 0 && wasNull()) { 
+          return null;  
+        } else { 
+        return new Float(f);
+        }
+      } else if (type == java.lang.Double.class){
+        double d = getDouble(parameterIndex); 
+        if (d == 0 && wasNull()) { 
+          return null;  
+        } else { 
+          return new Double(d);
+        }
+      } else if (type == java.math.BigDecimal.class){
+        return getBigDecimal(parameterIndex); 
+      } else if (type == java.lang.Boolean.class) {
+        boolean b = getBoolean(parameterIndex);
+        if (b == false && wasNull()) { 
+          return null;  
+        } else { 
+          return new Boolean (b);
+        }
+        
+      } else if (type == java.sql.Date.class){
+        return getDate(parameterIndex); 
+      } else if (type == java.sql.Time.class){
+        return getTime(parameterIndex); 
+      } else if (type == java.sql.Timestamp.class){
+        return getTimestamp(parameterIndex); 
+      } else if (type == byteArrayClass_){
+        return getBytes(parameterIndex);
+      } else if (type == InputStream.class){
+        Blob b = getBlob(parameterIndex); 
+        if (b == null) {
+          return b; 
+        } else { 
+          return b.getBinaryStream();
+        }
+      } else if (type == Reader.class){
+        return getCharacterStream(parameterIndex); 
+      } else if (type == Clob.class){
+        return getClob(parameterIndex);
+      } else if (type == Blob.class){
+        return getBlob(parameterIndex);
+      } else if (type == Array.class){
+        return getArray(parameterIndex);
+      } else if (type == Ref.class){
+        return getRef(parameterIndex);
+      } else if (type == URL.class){
+        return getURL(parameterIndex);
+/* ifdef JDBC40 */
+      } else if (type == NClob.class){
+        return getNClob(parameterIndex);
+      } else if (type == RowId.class){
+        return getRowId(parameterIndex);
+      } else if (type == SQLXML.class){
+        return getSQLXML(parameterIndex);
 /* endif */ 
+      } else if (type == Object.class){
+        return getObject(parameterIndex);
+      }
 
-/* ifdef JDBC40 */
-    public <T> T getObject(String parameterName, Class<T> type)
-        throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+      JDError.throwSQLException (JDError.EXC_DATA_TYPE_INVALID);
+      return null; 
     }
-/* endif */ 
+
+    public Object getObject(String parameterName, Class type)
+        throws SQLException {
+      return getObject(findParameterIndex(parameterName), type); 
+    }
+    
+    /*
+     * Validate that the registered type is valid for getNumeric type conversions.
+     * Previously, getInt, ...., could only get used against a type registered as INT.   
+     * @param registeredType
+     */
+    private void validateNumericRegisteredType(int registeredType) throws SQLException { 
+      // make sure the registered type is valid for this get method
+      // Assuming that the compatibility should be the same as the get methods, 
+      // the following registered types are allowed.
+      // Updated 9/29/2011 as part of JDBC 4.1 updates to allow getObject(x,java.lang.Integer) to work. 
+      switch(registeredType) {
+        case Types.TINYINT:
+        case Types.SMALLINT:
+        case Types.INTEGER:
+        case Types.BIGINT:
+        case Types.REAL:
+        case Types.FLOAT:
+        case Types.DOUBLE:
+        case Types.DECIMAL:
+        case Types.NUMERIC:
+        case Types.BIT:
+        case Types.BOOLEAN:
+        case Types.CHAR:
+        case Types.VARCHAR:
+        case Types.LONGVARCHAR:
+        case Types.JAVA_OBJECT:
+          /* types are good */ 
+          break; 
+        default:
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      }
+      }
+
+
+
     
 }
