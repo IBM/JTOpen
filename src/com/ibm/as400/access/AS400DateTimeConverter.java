@@ -187,7 +187,7 @@ public class AS400DateTimeConverter
         try
         {
             Record record = recordFormat.getNewRecord(out);
-            Calendar dateTime = Calendar.getInstance();
+            Calendar dateTime = AS400Calendar.getGregorianInstance();
             dateTime.clear();
             dateTime.set (
                 Integer.parseInt(((String)record.getField("year")).trim()),// year
@@ -216,7 +216,7 @@ public class AS400DateTimeConverter
     public static byte[] getByteArray(Date date,String format)
     {
         Trace.log(Trace.INFORMATION,"getByteArray");
-        Calendar dateTime=Calendar.getInstance();
+        Calendar dateTime=AS400Calendar.getGregorianInstance();
         dateTime.setTime(date);
 
         RecordFormat recordFormat=new RecordFormat();
