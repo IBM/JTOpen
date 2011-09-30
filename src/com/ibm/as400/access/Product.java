@@ -1157,7 +1157,7 @@ public class Product
       Date statusDate = null;
       if (d.trim().length() == 13)
       {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = AS400Calendar.getGregorianInstance();
         cal.clear();
         cal.set(Integer.parseInt(d.substring(0,3)) + 1900, // year
                 Integer.parseInt(d.substring(3,5))-1,     // month is zero based
@@ -1691,7 +1691,7 @@ public class Product
       Date releaseDate = null;
       if (d.trim().length() == 6)
       {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = AS400Calendar.getGregorianInstance();
         cal.clear();
         cal.set(Integer.parseInt(d.substring(0,2)) + (y2k ? 2000 : 1900), // year
                 Integer.parseInt(d.substring(2,4))-1,      // month is zero based

@@ -148,7 +148,7 @@ implements JDRow
     {
         SQLData toData = toRow_.getSQLData (index);
         toData.set (fieldMaps_[index-1].getValue (fromRow_),
-                    Calendar.getInstance (), -1);
+                    AS400Calendar.getGregorianInstance (), -1);
 
         // @A0A
         // Added code to trim the data if it is of SQLChar

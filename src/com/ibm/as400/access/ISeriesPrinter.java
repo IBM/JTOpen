@@ -1067,7 +1067,7 @@ public class ISeriesPrinter implements Serializable
     {
         if (!refreshed_) refresh();
         if (spooledFileCreationDate_ == null || spooledFileCreationDate_.length() == 0) return null;
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = AS400Calendar.getGregorianInstance();
         cal.clear();
         cal.set(Integer.parseInt(spooledFileCreationDate_.substring(0, 3)) + 1900, // Year.
                 Integer.parseInt(spooledFileCreationDate_.substring(3, 5)) - 1, // Month is zero based.

@@ -1776,7 +1776,7 @@ public class User implements Serializable
         String previousSignon = conv.byteArrayToString(data, 18, 13); // Note: This time value is relative to the system's local time zone, not UTC.
         if (previousSignon.trim().length() > 0)
         {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = AS400Calendar.getGregorianInstance();
             cal.clear();
             cal.set(Calendar.YEAR, 1900 + Integer.parseInt(previousSignon.substring(0, 3)));
             cal.set(Calendar.MONTH, Integer.parseInt(previousSignon.substring(3, 5)) - 1);

@@ -504,7 +504,7 @@ public class DateTimeConverter
   {
     if (calendar_ == null) {
       // Create a Calendar object, based in the system's time zone.
-      calendar_ = Calendar.getInstance(getSystemTimeZone());
+      calendar_ = AS400Calendar.getGregorianInstance(getSystemTimeZone());
     }
     else calendar_.clear();
     return calendar_;
@@ -518,7 +518,7 @@ public class DateTimeConverter
 //  {
 //    if (calendarGMT_ == null) {
 //      // Create a Calendar object, based in the GMT time zone.
-//      calendarGMT_ = Calendar.getInstance(TimeZone.getTimeZone("GMT-0"));
+//      calendarGMT_ = AS400Calendar.getGregorianInstance(TimeZone.getTimeZone("GMT-0"));
 //    }
 //    else calendarGMT_.clear();
 //    return calendarGMT_;

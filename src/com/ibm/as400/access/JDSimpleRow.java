@@ -112,7 +112,7 @@ implements JDRow
     void setData (Object[] data)
     throws SQLException
     {
-        Calendar calendar = Calendar.getInstance ();
+        Calendar calendar = AS400Calendar.getGregorianInstance ();
         for(int i = 0; i < sqlData_.length; ++i)
             sqlData_[i].set (data[i], calendar, -1);
     }

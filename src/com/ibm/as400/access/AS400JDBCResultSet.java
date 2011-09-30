@@ -168,7 +168,7 @@ index rather than accessing them by their name.
 //    methods that take calendar parameters and some that don't.
 //    The methods that do not take calendar parameters are supposed
 //    to use the default calendar (retrieved using
-//    Calendar.getInstance()).
+//    AS400Calendar.getGregorianInstance()).
 //
 //    At first thought, I tried to create one static calendar
 //    object to share for the entire JDBC driver, thinking that
@@ -2724,7 +2724,7 @@ implements ResultSet
     public Date getDate (int columnIndex)
     throws SQLException
     {
-        //@P0D return getDate (columnIndex, Calendar.getInstance ());
+        //@P0D return getDate (columnIndex, AS400Calendar.getGregorianInstance ());
         return internalGetDate(columnIndex, null); //@P0A
     }
 
@@ -2748,7 +2748,7 @@ implements ResultSet
     public Date getDate (String columnName)
     throws SQLException
     {
-        //@P0D return getDate (findColumn (columnName), Calendar.getInstance ());
+        //@P0D return getDate (findColumn (columnName), AS400Calendar.getGregorianInstance ());
         return internalGetDate(findColumn(columnName), null); //@P0A
     }
 
@@ -3353,7 +3353,7 @@ implements ResultSet
     public Time getTime (int columnIndex)
     throws SQLException
     {
-        //@P0D return getTime (columnIndex, Calendar.getInstance ());
+        //@P0D return getTime (columnIndex, AS400Calendar.getGregorianInstance ());
         return internalGetTime(columnIndex, null); //@P0A
     }
 
@@ -3377,7 +3377,7 @@ implements ResultSet
     public Time getTime (String columnName)
     throws SQLException
     {
-        //@P0D return getTime (findColumn (columnName), Calendar.getInstance ());
+        //@P0D return getTime (findColumn (columnName), AS400Calendar.getGregorianInstance ());
         return internalGetTime(findColumn(columnName), null); //@P0A
     }
 
@@ -3473,7 +3473,7 @@ implements ResultSet
     public Timestamp getTimestamp (int columnIndex)
     throws SQLException
     {
-        //@P0D return getTimestamp (columnIndex, Calendar.getInstance ());
+        //@P0D return getTimestamp (columnIndex, AS400Calendar.getGregorianInstance ());
         return internalGetTimestamp(columnIndex, null); //@P0A
     }
 
@@ -3497,7 +3497,7 @@ implements ResultSet
     public Timestamp getTimestamp (String columnName)
     throws SQLException
     {
-        //@P0D return getTimestamp (findColumn (columnName), Calendar.getInstance ());
+        //@P0D return getTimestamp (findColumn (columnName), AS400Calendar.getGregorianInstance ());
         return internalGetTimestamp(findColumn(columnName), null); //@P0A
     }
 

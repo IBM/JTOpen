@@ -1116,7 +1116,7 @@ public class PTF
     if (!loaded_) refresh(100);
 
     TimeZone tz = DateTimeConverter.timeZoneForSystem(system_);
-    Calendar dateTime = Calendar.getInstance(tz);
+    Calendar dateTime = AS400Calendar.getGregorianInstance(tz);
     dateTime.clear();
 
     // CYYMMDDHHMMSS format.
@@ -1532,7 +1532,7 @@ public class PTF
     // Parse the date
     if (d.trim().length() == 13)
     {
-      Calendar cal = Calendar.getInstance();
+      Calendar cal = AS400Calendar.getGregorianInstance();
       cal.clear();
       cal.set(Integer.parseInt(d.substring(0,3)) + 1900, // year
               Integer.parseInt(d.substring(3,5))-1,     // month is zero based

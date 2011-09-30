@@ -1132,14 +1132,14 @@ public class ObjectDescription
       switch (str.length())
       {
         case 7:
-          Calendar c = Calendar.getInstance();
+          Calendar c = AS400Calendar.getGregorianInstance();
           c.clear();
           c.set(Integer.parseInt(str.substring(0,3)) + 1900,// year
                 Integer.parseInt(str.substring(3,5))-1,     // month is zero based
                 Integer.parseInt(str.substring(5,7)));      // day
           return c.getTime();
         case 13:
-          c = Calendar.getInstance();
+          c = AS400Calendar.getGregorianInstance();
           c.clear();
           c.set(Integer.parseInt(str.substring(0,3)) + 1900,// year
                 Integer.parseInt(str.substring(3,5))-1,     // month is zero based

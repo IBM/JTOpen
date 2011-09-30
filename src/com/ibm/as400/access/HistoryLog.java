@@ -668,7 +668,7 @@ public class HistoryLog
     
     private Date stringToDate(String date, String time){
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
 
         int centuryAndYear = Integer.parseInt(date.substring(0,3));
     	int month   = Integer.parseInt(date.substring(3,5));
@@ -695,7 +695,7 @@ public class HistoryLog
      */
     private String dateToString(Date date){
     	StringBuffer buffer = new StringBuffer(13);
-    	Calendar calendar = Calendar.getInstance();
+    	Calendar calendar = AS400Calendar.getGregorianInstance();
     	calendar.setTime(date);
     	int year = calendar.get(Calendar.YEAR);
     	buffer.append((year<2000) ? '0' : '1');

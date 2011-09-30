@@ -560,7 +560,7 @@ public class JavaProgram implements Serializable
         // Parse the "file change" date
         if (d.trim().length() == 13)
         {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = AS400Calendar.getGregorianInstance();
             cal.clear();
             cal.set(Integer.parseInt(d.substring(0,3)) + 1900, // year
                 Integer.parseInt(d.substring(3,5))-1,     // month is zero-based
@@ -578,7 +578,7 @@ public class JavaProgram implements Serializable
         //Parse the "Java program creation" date
         if (d.trim().length() == 13)
         {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = AS400Calendar.getGregorianInstance();
             cal.clear();
             cal.set(Integer.parseInt(d.substring(0,3)) + 1900, // year
                 Integer.parseInt(d.substring(3,5))-1,     // month is zero-based

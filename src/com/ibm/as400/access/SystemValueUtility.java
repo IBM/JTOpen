@@ -105,7 +105,7 @@ class SystemValueUtility
             {
                 // Need to parse the String into a Date object, API format is CYYMMDD.
                 String stringValue = value.toString();
-                Calendar cal = Calendar.getInstance();
+                Calendar cal = AS400Calendar.getGregorianInstance();
                 cal.set(1900 + (100 * Integer.parseInt(stringValue.substring(0, 1))) + Integer.parseInt(stringValue.substring(1, 3)), Integer.parseInt(stringValue.substring(3, 5)) - 1, Integer.parseInt(stringValue.substring(5, 7)));
                 value = new java.sql.Date(cal.getTime().getTime());
             }
@@ -113,7 +113,7 @@ class SystemValueUtility
             {
                 // Need to parse the String into a Date object, API format is HHMMSSXXX.
                 String stringValue = value.toString();
-                Calendar cal = Calendar.getInstance();
+                Calendar cal = AS400Calendar.getGregorianInstance();
                 cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(stringValue.substring(0, 2)));
                 cal.set(Calendar.MINUTE, Integer.parseInt(stringValue.substring(2, 4)));
                 cal.set(Calendar.SECOND, Integer.parseInt(stringValue.substring(4, 6)));
@@ -338,7 +338,7 @@ class SystemValueUtility
 
                     case SystemValueList.TYPE_DATE:
                         // Get date information.
-                        Calendar dateTime = Calendar.getInstance();
+                        Calendar dateTime = AS400Calendar.getGregorianInstance();
                         dateTime.clear();
                         dateTime.setTime((java.util.Date)value);
 

@@ -3612,7 +3612,7 @@ public class Job implements Serializable
     {
         String str = (String)getValue(key);
 
-        Calendar dateTime = Calendar.getInstance();
+        Calendar dateTime = AS400Calendar.getGregorianInstance();
         dateTime.clear();
 
         Date date = null;
@@ -4412,7 +4412,7 @@ public class Job implements Serializable
     {
         if (cachedChanges_ != null && (cachedChanges_.contains(SCHEDULE_DATE) || cachedChanges_.contains(SCHEDULE_TIME)))
         {
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = AS400Calendar.getGregorianInstance();
             calendar.clear();
             String scheduleDate = (String)cachedChanges_.get(SCHEDULE_DATE);
             if (scheduleDate != null)
@@ -5958,7 +5958,7 @@ public class Job implements Serializable
     // Helper method.  Used to convert a user-specified Date object into a String for our internal table.
     private void setAsDate(int key, Date val)
     {
-        Calendar dateTime = Calendar.getInstance();
+        Calendar dateTime = AS400Calendar.getGregorianInstance();
         dateTime.setTime(val);
 
         StringBuffer buf = new StringBuffer();
@@ -7029,7 +7029,7 @@ public class Job implements Serializable
         // Use SCHEDULE_DATE and SCHEDULE_TIME to set it.
         // Use SCHEDULE_DATE_GETTER to retrieve it.
 
-        Calendar dateTime = Calendar.getInstance();
+        Calendar dateTime = AS400Calendar.getGregorianInstance();
         dateTime.clear();
         dateTime.setTime(scheduleDate);
 

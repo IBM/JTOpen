@@ -527,7 +527,7 @@ public class AS400Message implements Serializable
         timeSent_ = null;
         return;
       }
-      date_ = Calendar.getInstance();
+      date_ = AS400Calendar.getGregorianInstance();
       date_.clear();
       if (dateSent_ != null && dateSent_.trim().length() > 0)
       {
