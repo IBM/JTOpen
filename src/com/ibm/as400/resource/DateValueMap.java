@@ -14,6 +14,7 @@
 package com.ibm.as400.resource;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Calendar;
 import com.ibm.as400.access.DateTimeConverter;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
@@ -176,7 +177,7 @@ Converts a Date to a String in the format CYYMMDDHHMMSS.
 **/
     private static String dateToString13(Date date)
     {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.setTime(date);
         StringBuffer buffer13 = new StringBuffer(13);
         int year13 = calendar.get(Calendar.YEAR);
@@ -201,7 +202,7 @@ Converts a String in the format CYYMMDDHHMMSS to a Date
     {
         int length = string13.length();
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
 
         // If the date is all blanks or if it is a special
         // value, then return a date with all zeros.

@@ -13,6 +13,7 @@
 
 package com.ibm.as400.vaccess;
 
+import com.ibm.as400.access.AS400Calendar;
 import com.ibm.as400.access.SpooledFile;
 import com.ibm.as400.access.PrintObject;
 import com.ibm.as400.access.PrintParameterList;
@@ -70,7 +71,7 @@ implements VPropertiesPane, ItemListener, ActionListener
 
     // Static data.
     private static  DateFormat  dateFormat_     = DateFormat.getDateTimeInstance ();
-    private static  Calendar    calendar_       = Calendar.getInstance ();
+    private static  Calendar    calendar_       = AS400Calendar.getGregorianInstance ();
     private static final int    supportedVRM_   = 0X00040100; // @A2A
 
     // MRI

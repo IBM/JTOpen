@@ -14,6 +14,7 @@
 package com.ibm.as400.resource;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Calendar;
 import com.ibm.as400.access.CommandCall;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
@@ -2386,7 +2387,7 @@ The Date value is converted using the default Java locale.
 
     private static Date computeSpecialDate(int second)
     {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(Calendar.YEAR, 1970);
         calendar.set(Calendar.MONTH, 0);
         calendar.set(Calendar.DAY_OF_MONTH, 0);

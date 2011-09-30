@@ -227,7 +227,7 @@ public abstract class OpenList implements Serializable
     // public Date getCreationDate()
     // {
     //     if (creationDate_ == null) return null;
-    //     Calendar c = Calendar.getInstance();
+    //     Calendar c = AS400Calendar.getGregorianInstance();
     //     c.clear();
     //     c.set(Integer.parseInt(creationDate_.substring(0,2)) + 1900,  // Year.
     //           Integer.parseInt(creationDate_.substring(2,4)) - 1,  // Month is zero based.

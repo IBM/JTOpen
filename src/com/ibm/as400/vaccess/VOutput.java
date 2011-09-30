@@ -14,6 +14,7 @@
 package com.ibm.as400.vaccess;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Calendar;
 import com.ibm.as400.access.SpooledFile;
 import com.ibm.as400.access.PrintObject;
 import com.ibm.as400.access.QSYSObjectPathName;
@@ -142,7 +143,7 @@ Property identifier for the user comment.
     private static final String jobValueText_     = ResourceLoader.getPrintText ("JOB_VALUE");
     private static final String notAssignedText_  = ResourceLoader.getPrintText ("NOT_ASSIGNED");
     private static final String groupText_        = ResourceLoader.getPrintText ("GROUP");
-    private static Calendar     calendar_         = Calendar.getInstance ();
+    private static Calendar     calendar_         = AS400Calendar.getGregorianInstance ();
 
     // private data.
     private VAction[]           actions_            = null;

@@ -16,6 +16,7 @@ package com.ibm.as400.access.list;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.ibm.as400.access.AS400Calendar;
 import com.ibm.as400.access.QSYSObjectPathName;
 
 /**
@@ -301,7 +302,7 @@ public class SpooledFileListItem
     public Date getCreationDate()
     {
         if (dateOpened_ == null) return null;
-        Calendar c = Calendar.getInstance();
+        Calendar c = AS400Calendar.getGregorianInstance();
         c.clear();
         c.set(Integer.parseInt(dateOpened_.substring(0, 3)) + 1900, // Year.
               Integer.parseInt(dateOpened_.substring(3, 5)) - 1, // Month is zero based.

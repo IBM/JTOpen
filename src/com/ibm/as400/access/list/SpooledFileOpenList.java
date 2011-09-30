@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Calendar;
 import com.ibm.as400.access.AS400Exception;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.BinaryConverter;
@@ -826,7 +827,7 @@ public class SpooledFileOpenList extends OpenList
     // Helper method that fills in EBCDIC bytes in the format CYYMMDDHHMMSS.
     private static final void formatOS400DateString(Date d, byte[] data, int offset)
     {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = AS400Calendar.getGregorianInstance();
         cal.clear();
         cal.setTime(d);
 
