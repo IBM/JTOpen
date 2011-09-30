@@ -260,6 +260,7 @@ public class Main implements Runnable {
     password_ = password; 
     try { 
        connection_ = DriverManager.getConnection(url_, userid_, password_);
+       variables.put("CON", connection_); 
     } catch (SQLException ex ) {
       System.out.println("Unable to connect to "+url_+" using "+userid_); 
       throw ex; 
@@ -299,6 +300,7 @@ public class Main implements Runnable {
         connection_.close();
       }
       connection_ = null;
+      variables.remove("CON"); 
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -407,6 +409,8 @@ public class Main implements Runnable {
         && thisConnectPassword.equals(poolPassword)
         && (connectUrl.equals(poolUrl))) {
       connection_ = poolConnection;
+      variables.put("CON", connection_); 
+
     } else {
       if (poolConnection != null) {
         String key = poolUserId + "." + poolPassword + "." + poolUrl;
@@ -420,6 +424,7 @@ public class Main implements Runnable {
           + connectUrl;
       connection_ = (Connection) connectionPool.get(key);
       if (connection_ != null) {
+        variables.put("CON", connection_); 
 
         if (debug_)
           System.out.println("Retrieved connection from pool for " + key);
@@ -434,6 +439,7 @@ public class Main implements Runnable {
           connection_ = DriverManager.getConnection(connectUrl,
               thisConnectUserId, thisConnectPassword);
         }
+        variables.put("CON", connection_); 
 
       }
       poolConnection = connection_;
@@ -1374,6 +1380,8 @@ public class Main implements Runnable {
             connection_.close();
           }
           connection_ = null;
+          variables.remove("CON"); 
+
         }
 
       } else if (upcaseCommand.startsWith("CHARACTERDETAILS")) {
@@ -3993,6 +4001,7 @@ public class Main implements Runnable {
     return arrayParameter;
   }
 
+  
   void handleSqlarrayParm(PreparedStatement cstmt, String thisParm, int parm,
       PrintStream out) throws SQLException {
     try {
@@ -4095,6 +4104,7 @@ public class Main implements Runnable {
                 parameter[i] = new BigDecimal(s);
               }
             }
+            
             if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "DECIMAL"));
             } else {
