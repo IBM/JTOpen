@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 abstract class SocketContainer
 {
@@ -24,4 +25,6 @@ abstract class SocketContainer
     abstract void close() throws IOException;
     abstract InputStream getInputStream() throws IOException;
     abstract OutputStream getOutputStream() throws IOException;
+    abstract void setSoTimeout(int timeout) throws SocketException; 
+    abstract int  getSoTimeout() throws SocketException; 
 }

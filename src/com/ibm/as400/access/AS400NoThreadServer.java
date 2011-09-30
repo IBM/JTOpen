@@ -16,12 +16,13 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketException;
 import java.util.Hashtable;
 import java.util.Vector;
 
 class AS400NoThreadServer extends AS400Server
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private AS400ImplRemote system_;
     private int service_;
@@ -239,5 +240,14 @@ class AS400NoThreadServer extends AS400Server
         {
             Trace.log(Trace.ERROR, "Socket close failed.", e);
         }
+    }
+
+    int getSoTimeout() throws SocketException {
+      return socket_.getSoTimeout(); 
+    }
+
+    void setSoTimeout(int timeout) throws SocketException {
+      socket_.setSoTimeout(timeout); 
+      
     }
 }

@@ -24,7 +24,8 @@ class SocketContainerUnix2 extends SocketContainer
     private int[] sd_; // [0] is normal descriptor, [1] is additionally needed for close()
     private boolean closed_ = false;
     private Object lock_ = new Object();
-
+    private int timeout_ = 0; /* timeout in milliseconds */ 
+    
     void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
     {
         int serverNumber = 0;
@@ -465,5 +466,14 @@ class SocketContainerUnix2 extends SocketContainer
         {
             SocketContainerUnix2.this.close();
         }
+    }
+
+    int getSoTimeout() throws SocketException {
+      return timeout_;
+    }
+
+    void setSoTimeout(int timeout) throws SocketException {
+      timeout_ = timeout; 
+     
     }
 }

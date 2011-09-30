@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -50,4 +51,14 @@ class SocketContainerJSSE extends SocketContainer
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerJSSE: getOutputStream");
         return sslSocket_.getOutputStream();
     }
+
+    
+    int getSoTimeout() throws SocketException {
+      return sslSocket_.getSoTimeout(); 
+    }
+
+    void setSoTimeout(int timeout) throws SocketException {
+      sslSocket_.setSoTimeout(timeout); 
+    }
+
 }

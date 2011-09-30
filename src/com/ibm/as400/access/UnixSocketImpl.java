@@ -27,7 +27,8 @@ class UnixSocketImpl
     }
 
     FileDescriptor fd;
-
+    int timeout_ = 0; 
+    
     UnixSocketImpl()
     {
     }
@@ -83,4 +84,13 @@ class UnixSocketImpl
     private native int socketAvailable() throws IOException;
     private native void socketCreate(int serverNumber) throws IOException;
     private native void socketClose() throws IOException;
+
+    public int getSoTimeout() {
+      return timeout_; 
+    }
+    
+    public void setSoTimeout(int timeout) {
+      timeout_ = timeout;
+      // TODO JDBC41.  Make sure timeout is reflected on streams 
+    }
 }

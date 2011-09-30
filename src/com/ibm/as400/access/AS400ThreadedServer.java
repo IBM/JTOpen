@@ -492,4 +492,12 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         }
         return exchangeAttrReply_;
     }
+
+    int getSoTimeout() throws SocketException {
+      return socket_.getSoTimeout(); 
+    }
+
+    void setSoTimeout(int timeout) throws SocketException {
+      socket_.setSoTimeout(timeout);
+    }
 }

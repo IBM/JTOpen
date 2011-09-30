@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.Hashtable;
 
 // A class representing an IBM i server job.
@@ -118,4 +119,6 @@ abstract class AS400Server
     abstract void send(DataStream requestStream, int correlationId) throws IOException;
     abstract DataStream receive(int correlationId) throws IOException, InterruptedException;
     abstract void forceDisconnect();
+    abstract void setSoTimeout(int timeout) throws SocketException; 
+    abstract int  getSoTimeout()  throws SocketException; 
 }

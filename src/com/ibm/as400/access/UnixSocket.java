@@ -42,4 +42,12 @@ class UnixSocket
     {
         impl.close();
     }
+
+    public int getSoTimeout() {
+      return impl.getSoTimeout(); 
+    }
+
+    public void setSoTimeout(int timeout) {
+      impl.setSoTimeout(timeout); 
+    }
 }

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 class SocketContainerUnix extends SocketContainer
 {
@@ -67,5 +68,16 @@ class SocketContainerUnix extends SocketContainer
     OutputStream getOutputStream() throws IOException
     {
         return usocket_.getOutputStream();
+    
     }
+    
+    
+    int getSoTimeout() throws SocketException {
+      return usocket_.getSoTimeout(); 
+    }
+
+    void setSoTimeout(int timeout) throws SocketException {
+      usocket_.setSoTimeout(timeout); 
+    }
+
 }
