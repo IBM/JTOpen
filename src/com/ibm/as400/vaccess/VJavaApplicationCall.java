@@ -685,7 +685,7 @@ public class  VJavaApplicationCall extends JComponent
     **/
     private void processJavaCommand()
     {
-        Properties prop = new Properties(); ;
+        Properties prop = new Properties(); 
         String javaAppName = "" ;
         String classPath  = "";
         Vector param = new Vector();

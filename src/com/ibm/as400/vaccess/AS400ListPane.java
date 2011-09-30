@@ -595,7 +595,7 @@ Implements the VActionContext interface.
             // provide a ListCellEditor.
             return null;
         }
-    };
+    }
 
 
 
@@ -626,7 +626,7 @@ Implements the VPane interface.
             AS400ListPane.this.setRoot (root);
         }
 
-    };
+    }
 
 
 

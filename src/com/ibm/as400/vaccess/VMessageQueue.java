@@ -1028,7 +1028,7 @@ Listens for events and adjusts the children accordingly.
                     System.arraycopy (oldDetailsChildren, index + 1,
                         detailsChildren_, index, count - index - 1);
                     --loaded_; // @B1A
-                };
+                }
 
             }
 

@@ -1358,7 +1358,7 @@ Listens for events and adjusts the children accordingly.
                     System.arraycopy (oldDetailsChildren, index + 1,
                         detailsChildren_, index, count - index - 1);
                   }
-                };
+                }
 
                 // If its a directory, then remove from the tree children.
                 if (object instanceof VIFSDirectory) {

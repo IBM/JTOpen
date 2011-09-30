@@ -733,7 +733,7 @@ Implements the VActionContext interface.
 
             return tree_.getCellEditor ();
         }
-    };
+    }
 
 
 
@@ -764,7 +764,7 @@ Implements the VPane interface.
         {
             AS400TreePane.this.setRoot (root);
         }
-    };
+    }
 
 }
 

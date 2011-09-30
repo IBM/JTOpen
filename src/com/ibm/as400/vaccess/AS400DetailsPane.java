@@ -749,7 +749,7 @@ Implements the VActionContext interface.
             table_.editCellAt (rowIndex, columnIndex);
             return column.getCellEditor();
         }
-    };
+    }
 
 
 
@@ -779,7 +779,7 @@ Implements the VPane interface.
         {
             AS400DetailsPane.this.setRoot (root);
         }
-    };
+    }
 
 
 
