@@ -1438,10 +1438,10 @@ endif */
 	{
 		return DRIVER_NAME_;	// @D0C
 	}
-	/*ifdef JDBC40 
+	
+/*ifdef JDBC40 
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-    // TODO JDBC40 Auto-generated method stub
-    return null;
+    throw new SQLFeatureNotSupportedException(); 
   }
 endif */
 

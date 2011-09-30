@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -5392,21 +5393,71 @@ endif */
     return schema; 
   }
 
+   /**
+    * Sets the maximum period a Connection or objects created from the Connection will wait for the database to 
+    * reply to any one request. If any request remains unanswered, the waiting method will return with a 
+    * SQLException, and the Connection or objects created from the Connection will be marked as closed. 
+    * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods, 
+    * will result in a SQLException. 
+    * 
+    *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket. 
+    *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks 
+    * the connection closed and releases any resources held by the connection. 
+    *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed. 
+    * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method 
+    * throws a java.lang.SecurityException.
+    *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the 
+    * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second. 
+    * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of 
+    * 0 indicates that there is not timeout for database operations.
+   * @throws SQLException 
+    * @throws  SQLException - if a database access error occurs, this method is called on a closed connection, 
+    *  or the value specified for seconds is less than 0.
+    * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling 
+    *  setNetworkTimeout.
+    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+    * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int), 
+    *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
+    */ 
+  
+   public void setNetworkTimeout(int timeout) throws SQLException {
 
-//JDBC40DOC    /**
-//JDBC40DOC     * Retrieves the number of milliseconds the driver will wait for a database request to complete. If the limit is exceeded, a SQLException is thrown.
-//JDBC40DOC     * @return The current timeout limit in milliseconds; zero means there is no limit
-//JDBC40DOC     * @throws SQLException - if a database access error occurs or this method is called on a closed Connection
-//JDBC40DOC     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-//JDBC40DOC     * @since JTOpen 7.X
-//JDBC40DOC     * @see setNetworkTimeout(java.util.concurrent.Executor, int)
-//JDBC40DOC     */
 /* ifdef JDBC40 
-  public int getNetworkTimeout() throws SQLException {
-    // TODO TODOJDBC41 Auto-generated method stub
-    return 0;
-  }
+
+     SecurityManager security = System.getSecurityManager();
+     if (security != null) {
+          SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout"); 
+          security.checkPermission(sqlPermission);
+     }    
 endif */
+     
+     // Calling on a closed connection is a no-op 
+     checkOpen ();
+     
+     try {
+      server_.setSoTimeout(timeout);
+    } catch (SocketException e) {
+        // TODO throw exception 
+    } 
+   }
+
+   /**
+    * Retrieves the number of milliseconds the driver will wait for a database request to complete. If the limit is exceeded, a SQLException is thrown.
+    * @return The current timeout limit in milliseconds; zero means there is no limit
+    * @throws SQLException - if a database access error occurs or this method is called on a closed Connection
+    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+    * @since JTOpen 7.X
+    * @see setNetworkTimeout(java.util.concurrent.Executor, int)
+    */
+  public int getNetworkTimeout() throws SQLException {
+    try {
+      return server_.getSoTimeout();
+    } catch (SocketException e) {
+      // TODO Fixup ths exception.  
+      JDError.throwSQLException(JDError.EXC_INTERNAL, e); 
+      return 0; 
+    } 
+  }
 
 //JDBC40DOC    /**
 //JDBC40DOC     * Sets the maximum period a Connection or objects created from the Connection will wait for the database to 

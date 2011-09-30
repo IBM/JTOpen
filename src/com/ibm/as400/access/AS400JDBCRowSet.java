@@ -7377,20 +7377,17 @@ implements RowSet, Serializable             // @A3C
         eventSupport_.fireRowChanged(new RowSetEvent(this));   
     }
 
-/* ifdef JDBC40
-    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+    public Object getObject(int columnIndex, Class type) throws SQLException {
+      validateResultSet();
+      return resultSet_.getObject(columnIndex, type);
     }
-endif */
 
-/* ifdef JDBC40
-    public <T> T getObject(String columnLabel, Class<T> type)
+    public Object getObject(String columnLabel, Class type)
         throws SQLException {
-      // TODO TODOJDBC41 Auto-generated method stub
-      return null;
+      validateResultSet();
+        return resultSet_.getObject(columnLabel, type);
+
     }
-endif */
 
     
     
