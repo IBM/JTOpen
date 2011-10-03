@@ -30,7 +30,12 @@ public class AS400Calendar {
    public static Calendar getGregorianInstance() {
      Calendar returnCalendar = Calendar.getInstance(); 
      boolean isGregorian = (returnCalendar  instanceof GregorianCalendar);
-     boolean isBuddhist  = (returnCalendar  instanceof BuddhistCalendar); 
+     boolean isBuddhist = false; 
+     try { 
+         isBuddhist  = (returnCalendar  instanceof BuddhistCalendar);
+     } catch (java.lang.NoClassDefFoundError ncdfe) { 
+       // Just ignore if class cannot be found 
+     }
      
      if (isGregorian && (! isBuddhist)) {
         // Calendar is gregorian, but not buddhist
@@ -56,8 +61,13 @@ public class AS400Calendar {
    public static Calendar getGregorianInstance(java.util.TimeZone timezone) {
      Calendar returnCalendar = Calendar.getInstance(timezone); 
      boolean isGregorian = (returnCalendar  instanceof GregorianCalendar);
-     boolean isBuddhist  = (returnCalendar  instanceof BuddhistCalendar); 
-     
+     boolean isBuddhist = false; 
+     try {
+       isBuddhist = (returnCalendar  instanceof BuddhistCalendar); 
+     } catch (java.lang.NoClassDefFoundError ncdfe) { 
+       // Just ignore if class cannot be found 
+     }
+
      if (isGregorian && (! isBuddhist)) {
         // Calendar is gregorian, but not buddhist
         return returnCalendar;  
@@ -84,7 +94,14 @@ public class AS400Calendar {
       return getGregorianInstance(); 
     } else {
       boolean isGregorian = (calendar instanceof GregorianCalendar);
-      boolean isBuddhist = (calendar instanceof BuddhistCalendar);
+      
+      boolean isBuddhist = false; 
+      try { 
+        isBuddhist =  (calendar instanceof BuddhistCalendar);
+      } catch (java.lang.NoClassDefFoundError ncdfe) { 
+        // Just ignore if class cannot be found 
+      }
+
 
       if (isGregorian && (!isBuddhist)) {
         // Calendar is gregorian, but not buddhist
