@@ -339,12 +339,15 @@ implements CallableStatement
     // JDBC 2.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
-    DB2 for IBM i does not support arrays.
     
     @param  parameterIndex  The parameter index (1-based).
-    @return                 The parameter value or 0 if the value is SQL NULL.
+    @return                 The parameter value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException   If the statement is not open,
+                                the index is not valid, the index is
+                                not registered as an output parameter,
+                                the statement was not executed, or
+                                the requested conversion is not valid.
     **/
     public Array getArray(int parameterIndex)
     throws SQLException
@@ -400,7 +403,7 @@ implements CallableStatement
             }
 
             Array value = (data == null) ? null : data.getArray();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -413,7 +416,12 @@ implements CallableStatement
     @param  parameterName   The parameter name.
     @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the index is
+                                not registered as an output parameter,
+                                the statement was not executed, or
+                                the requested conversion is not valid.
+                                
     **/
     public Array getArray(String parameterName)
     throws SQLException
@@ -481,7 +489,7 @@ implements CallableStatement
             }
 
             BigDecimal value = (data == null) ? null : data.getBigDecimal(-1);
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -554,7 +562,7 @@ implements CallableStatement
             }
 
             BigDecimal value = (data == null) ? null : data.getBigDecimal(scale);
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -644,7 +652,7 @@ implements CallableStatement
             }
 
             Blob value = (data == null) ? null : data.getBlob();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -734,7 +742,7 @@ implements CallableStatement
             }
 
             boolean value = (data == null) ? false : data.getBoolean();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -831,7 +839,7 @@ implements CallableStatement
             }
 
             byte value = (data == null) ? 0 : data.getByte();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -923,7 +931,7 @@ implements CallableStatement
             }
 
             byte[] value = (data == null) ? null : data.getBytes();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -1015,7 +1023,7 @@ implements CallableStatement
             }
 
             Clob value = (data == null) ? null : data.getClob();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -1136,7 +1144,7 @@ implements CallableStatement
             }
 
             Date value = (data == null) ? null : data.getDate(calendar);
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -1243,7 +1251,7 @@ implements CallableStatement
             }
 
             double value = (data == null) ? 0 : data.getDouble();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -1327,7 +1335,7 @@ implements CallableStatement
             }
 
             float value = (data == null) ? 0 : data.getFloat();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -1409,7 +1417,7 @@ implements CallableStatement
             }
 
             int value = (data == null) ? 0 : data.getInt();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -1503,7 +1511,7 @@ implements CallableStatement
             }
 
             long value = (data == null) ? 0 : data.getLong();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -1598,7 +1606,7 @@ implements CallableStatement
             if(data == null)
                 return null;
             Object value = (data == null) ? null : data.getObject();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -1765,7 +1773,7 @@ implements CallableStatement
             }
 
             short value = (data == null) ? 0 : data.getShort();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, true);
             return value;
         }
     }
@@ -1850,7 +1858,7 @@ implements CallableStatement
             }
 
             String value = (data == null) ? null : data.getString();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -1974,7 +1982,7 @@ implements CallableStatement
             }
 
             Time value = (data == null) ? null : data.getTime(calendar);
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -2123,7 +2131,7 @@ implements CallableStatement
             }
 
             Timestamp value = (data == null) ? null : data.getTimestamp(calendar);
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -2232,7 +2240,7 @@ implements CallableStatement
       }
 
       String value = (data == null) ? null : data.getString();
-      testDataTruncation(parameterIndex, data);
+      testDataTruncation(parameterIndex, data, false);
       if (value != null) {
         try {
           return new java.net.URL(value);
@@ -3222,8 +3230,11 @@ implements CallableStatement
     
     @param  parameterIndex  The parameter index (1-based).
     @param  data            The data that was read, or null for SQL NULL.
+    @param  exceptionOnTrunc Flag to notify method whether or not to throw an SQLException when there is truncation.
+                             numeric types should always throw exception on truncation.  This was added because
+                             we now support getMethods for compatible types.  
     **/
-    private void testDataTruncation(int parameterIndex, SQLData data)
+    private void testDataTruncation(int parameterIndex, SQLData data, boolean exceptionOnTrunc) throws SQLException
     {
         if(wasDataMappingError_)
         {
@@ -3233,8 +3244,12 @@ implements CallableStatement
         if(data != null)
         {
             int truncated = data.getTruncated();
+
             if(truncated > 0)
             {
+              if((exceptionOnTrunc == true))   {                                                                    //@trunc
+                  JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+              }                                                                    //@trunc
                 int actualSize = data.getActualSize();
                 postWarning(new DataTruncation(parameterIndex, true, true, actualSize, actualSize - truncated));
             }
@@ -3333,7 +3348,7 @@ implements CallableStatement
             }
 
             Reader value = (data == null) ? null : data.getCharacterStream();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -3417,7 +3432,7 @@ implements CallableStatement
             }
 
             Reader value = (data == null) ? null : data.getNCharacterStream();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -3514,7 +3529,7 @@ implements CallableStatement
             }
 
             NClob value = (data == null) ? null : data.getNClob();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -3606,7 +3621,7 @@ implements CallableStatement
             }
 
             String value = (data == null) ? null : data.getNString();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -3695,7 +3710,7 @@ implements CallableStatement
             }
 
             RowId value = (data == null) ? null : data.getRowId();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
@@ -3776,7 +3791,7 @@ implements CallableStatement
             }
 
             SQLXML value = (data == null) ? null : data.getSQLXML();
-            testDataTruncation(parameterIndex, data);
+            testDataTruncation(parameterIndex, data, false);
             return value;
         }
     }
