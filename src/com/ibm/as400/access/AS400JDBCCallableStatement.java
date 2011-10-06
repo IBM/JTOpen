@@ -3247,8 +3247,10 @@ implements CallableStatement
 
             if(truncated > 0)
             {
-              if((exceptionOnTrunc == true))   {                                                                    //@trunc
-                  JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+              if((exceptionOnTrunc == true))   {  //@trunc
+                  if (data.getOutOfBounds()) { 
+                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+                  }
               }                                                                    //@trunc
                 int actualSize = data.getActualSize();
                 postWarning(new DataTruncation(parameterIndex, true, true, actualSize, actualSize - truncated));

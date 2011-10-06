@@ -45,6 +45,7 @@ implements SQLData
     private SQLConversionSettings   settings_;
     private int			    dateFormat_;	// @550A
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private int                     year_;
     private int                     month_;
     private int                     day_;
@@ -52,7 +53,7 @@ implements SQLData
     SQLDate(SQLConversionSettings settings, int dateFormat)
     {
         settings_   = settings;
-        truncated_  = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         year_       = 0;
         month_      = 0;
         day_        = 0;
@@ -553,6 +554,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -562,7 +567,7 @@ implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -620,14 +625,14 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(getString());
     }
 
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String string = getString();
         return new AS400JDBCClob(string, string.length());
     }
@@ -635,7 +640,7 @@ implements SQLData
     public Date getDate(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance();  
         else {
           calendar = AS400Calendar.getConversionCalendar(calendar); 
@@ -677,7 +682,7 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return getDate(null);
     }
 
@@ -691,7 +696,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         Calendar calendar = AS400Calendar.getGregorianInstance();  
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -709,7 +714,7 @@ implements SQLData
     public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A  
         else {
           calendar = AS400Calendar.getConversionCalendar(calendar); 
@@ -725,7 +730,7 @@ implements SQLData
     public InputStream  getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -741,7 +746,7 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(getNString());
     }
     
@@ -750,7 +755,7 @@ implements SQLData
 
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;                                     //@pda
+        truncated_ = 0; outOfBounds_ = false;                                      //@pda
         String string = getString();                        //@pda
         return new AS400JDBCNClob(string, string.length()); //@pda
     }
@@ -758,7 +763,7 @@ implements SQLData
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         Calendar calendar = AS400Calendar.getGregorianInstance();  
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);

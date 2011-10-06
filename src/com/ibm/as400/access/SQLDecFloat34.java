@@ -71,6 +71,8 @@ final class SQLDecFloat34 implements SQLData {
        
     private int truncated_;
     
+    private boolean outOfBounds_; 
+    
     String specialValue_ = null; //since BigDecimal cannot hold "Infinity", "-Infinity" or "NaN", store them here as string
 
     private AS400DecFloat typeConverter_;
@@ -88,7 +90,7 @@ final class SQLDecFloat34 implements SQLData {
     SQLDecFloat34( SQLConversionSettings settings, int vrm, JDProperties properties) {
         settings_ = settings;
         precision_ = 34;
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         roundingModeStr = properties.getString(JDProperties.DECFLOAT_ROUNDING_MODE);
         typeConverter_ = new AS400DecFloat(precision_);
         value_ = default_;  
@@ -204,7 +206,7 @@ final class SQLDecFloat34 implements SQLData {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
 
         //Round by mode if necessary.         
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //if one of the special values, then no need to check truncation
         if(specialValue_ != null)
@@ -229,7 +231,7 @@ final class SQLDecFloat34 implements SQLData {
         //@pdd     truncated_ += digits;
         //@pdd }
         //@pdd else                                                             
-        //@pdd     truncated_ = 0;  // No left side truncation, report nothing       
+        //@pdd     truncated_ = 0; outOfBounds_ = false;   // No left side truncation, report nothing       
         //@pdd                      // (even if there was right side truncation).     
  
         value_ = AS400DecFloat.roundByMode(bigDecimal, 34, roundingModeStr);
@@ -324,6 +326,9 @@ final class SQLDecFloat34 implements SQLData {
     public int getTruncated() {
         return truncated_;
     }
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -337,7 +342,7 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     public BigDecimal getBigDecimal(int scale) throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //NaN, Infinity, -Infinity
         //remove this when BigDecimal supports Nan, Inf, -Inf
@@ -373,7 +378,7 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     public boolean getBoolean() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
@@ -386,7 +391,7 @@ final class SQLDecFloat34 implements SQLData {
     public byte getByte() throws SQLException {
         //this code is similar to SQLDouble, and then in inner iff, it is like
         // SQLDecimal
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
@@ -404,14 +409,15 @@ final class SQLDecFloat34 implements SQLData {
                 if (value_.compareTo(INTEGER_MAX_VALUE) > 0 || value_.compareTo(INTEGER_MIN_VALUE) < 0) {
                     if (value_.compareTo(LONG_MAX_VALUE) > 0 || value_.compareTo(LONG_MIN_VALUE) < 0) {
                         truncated_ = 15;  //16 bytes - 1;
+                        outOfBounds_=true;
                     } else {
-                        truncated_ = 7;
+                        truncated_ = 7; outOfBounds_=true;
                     }
                 } else {
-                    truncated_ = 3;
+                    truncated_ = 3; outOfBounds_=true;
                 }
             } else {
-                truncated_ = 1;
+                truncated_ = 1; outOfBounds_=true;
             }
         }
         return value_.byteValue();
@@ -438,7 +444,7 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     public double getDouble() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
@@ -453,13 +459,14 @@ final class SQLDecFloat34 implements SQLData {
         
         if (value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0) {
             truncated_ = 8;  //16 bytes - 8;
+            outOfBounds_=true;
         }
 
         return value_.doubleValue();
     }
 
     public float getFloat() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
@@ -475,15 +482,16 @@ final class SQLDecFloat34 implements SQLData {
         if (value_.compareTo(FLOAT_MAX_VALUE) > 0 || value_.compareTo(FLOAT_MIN_VALUE) < 0) {
             if (value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0) {
                 truncated_ = 12;  //16 bytes - 4;
+                outOfBounds_=true;
             } else {
-                truncated_ = 4;
+                truncated_ = 4; outOfBounds_=true;
             }
         }
         return value_.floatValue();
     }
 
     public int getInt() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         //NaN, Infinity, -Infinity
         //remove this when Integer supports Nan, Inf, -Inf
@@ -494,8 +502,9 @@ final class SQLDecFloat34 implements SQLData {
         if (value_.compareTo(INTEGER_MAX_VALUE) > 0 || value_.compareTo(INTEGER_MIN_VALUE) < 0) {
             if (value_.compareTo(LONG_MAX_VALUE) > 0 || value_.compareTo(LONG_MIN_VALUE) < 0) {
                 truncated_ = 12;  //16 bytes - 4;
+                outOfBounds_=true;
             } else {
-                truncated_ = 4;
+                truncated_ = 4; outOfBounds_=true;
             }
         }
 
@@ -503,7 +512,7 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     public long getLong() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //NaN, Infinity, -Infinity
         //remove this when Long supports Nan, Inf, -Inf
@@ -514,12 +523,13 @@ final class SQLDecFloat34 implements SQLData {
         if( value_.compareTo(LONG_MAX_VALUE) > 0 || value_.compareTo(LONG_MIN_VALUE) < 0)
         {
             truncated_ = 8;  //16 bytes - 8;
+            outOfBounds_=true;
         }
         return value_.longValue();
     }
 
     public Object getObject() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //NaN, Infinity, -Infinity
         //in this case, return String object instead of throwing exception
@@ -532,7 +542,7 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     public short getShort() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
@@ -543,11 +553,14 @@ final class SQLDecFloat34 implements SQLData {
             if (value_.compareTo(INTEGER_MAX_VALUE) > 0 || value_.compareTo(INTEGER_MIN_VALUE) < 0) {
                 if (value_.compareTo(LONG_MAX_VALUE) > 0 || value_.compareTo(LONG_MIN_VALUE) < 0) {
                     truncated_ = 14;  //16 bytes - 2;
+                    outOfBounds_=true;
                 } else {
                     truncated_ = 6;
+                    outOfBounds_=true;
                 }
             } else {
                 truncated_ = 2;
+                outOfBounds_=true;
             }
         }
 
@@ -555,7 +568,7 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     public String getString() throws SQLException {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
@@ -640,7 +653,7 @@ final class SQLDecFloat34 implements SQLData {
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){

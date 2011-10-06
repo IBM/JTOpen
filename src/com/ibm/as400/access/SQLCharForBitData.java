@@ -45,6 +45,7 @@ implements SQLData
     private SQLConversionSettings   settings_;
     private int                     maxLength_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private AS400ByteArray          typeConverter_;
     private byte[]                  value_;
 
@@ -52,7 +53,7 @@ implements SQLData
     {
         settings_       = settings;
         maxLength_      = maxLength;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         typeConverter_  = new AS400ByteArray(maxLength);
         value_          = new byte[maxLength];
     }
@@ -281,17 +282,17 @@ implements SQLData
             byte[] newValue = new byte[maxLength_];
             System.arraycopy(value_, 0, newValue, 0, valueLength);
             value_ = newValue;
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
         }
         else if(valueLength > maxLength_)
         {
             byte[] newValue = new byte[maxLength_];
             System.arraycopy(value_, 0, newValue, 0, maxLength_);
             value_ = newValue;
-            truncated_ = valueLength - maxLength_;
+            truncated_ = valueLength - maxLength_; outOfBounds_ = false; 
         }
         else
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
     }
 
     //---------------------------------------------------------//
@@ -402,6 +403,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -411,7 +416,7 @@ implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -440,7 +445,7 @@ implements SQLData
     public InputStream getBinaryStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -451,7 +456,7 @@ implements SQLData
     public Blob getBlob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -487,7 +492,7 @@ implements SQLData
         }
         else
         {
-            // @B1D truncated_ = 0;
+            // @B1D truncated_ = 0; outOfBounds_ = false; 
             return value_;
         }
     }
@@ -495,7 +500,7 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -506,7 +511,7 @@ implements SQLData
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
@@ -552,7 +557,7 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -569,7 +574,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -594,7 +599,7 @@ implements SQLData
     public InputStream getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -615,7 +620,7 @@ implements SQLData
     //@PDA jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -626,7 +631,7 @@ implements SQLData
     /* ifdef JDBC40 
     public NClob getNClob() throws SQLException
     {        
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
@@ -637,7 +642,7 @@ implements SQLData
     //@PDA jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.

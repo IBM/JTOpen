@@ -47,13 +47,14 @@ final class SQLRowID implements SQLData
     private SQLConversionSettings   settings_;
     private int                     length_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private byte[]                  value_;
 
     SQLRowID(SQLConversionSettings settings)
     {
         settings_       = settings;
         length_         = 0;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         value_          = default_;
     }
 
@@ -155,6 +156,7 @@ final class SQLRowID implements SQLData
                     value_ = newValue;
                 }
                 truncated_ = objectLength - value_.length;
+                outOfBounds_ = false;
             }
             else
             {
@@ -199,6 +201,7 @@ final class SQLRowID implements SQLData
                     stream.close(); //@scan1
                     
                     truncated_ = objectLength - value_.length;
+                    outOfBounds_ = false; 
                 }
                 catch(ExtendedIOException eie)
                 {
@@ -243,9 +246,10 @@ final class SQLRowID implements SQLData
             System.arraycopy(value_, 0, newValue, 0, 40);
             value_ = newValue;
             truncated_ = valueLength - 40;
+            outOfBounds_ = false;
         }
         else
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
 
         length_ = value_.length;
     }
@@ -360,6 +364,9 @@ final class SQLRowID implements SQLData
     {
         return truncated_;
     }
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -370,7 +377,7 @@ final class SQLRowID implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         try
@@ -394,7 +401,7 @@ final class SQLRowID implements SQLData
     public InputStream getBinaryStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return new ByteArrayInputStream(getBytes());
@@ -403,7 +410,7 @@ final class SQLRowID implements SQLData
     public Blob getBlob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         byte[] bytes = getBytes();
@@ -427,7 +434,7 @@ final class SQLRowID implements SQLData
     public byte[] getBytes()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec. 
         int maxFieldSize = settings_.getMaxFieldSize();
@@ -444,7 +451,7 @@ final class SQLRowID implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
@@ -453,7 +460,7 @@ final class SQLRowID implements SQLData
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         String string = BinaryConverter.bytesToHexString(getBytes());
@@ -498,7 +505,7 @@ final class SQLRowID implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         /* ifdef JDBC40 
@@ -519,7 +526,7 @@ final class SQLRowID implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return BinaryConverter.bytesToHexString(getBytes());
@@ -542,7 +549,7 @@ final class SQLRowID implements SQLData
     public InputStream getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         try
@@ -559,7 +566,7 @@ final class SQLRowID implements SQLData
     //@PDA jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
@@ -570,7 +577,7 @@ final class SQLRowID implements SQLData
     
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         String string = BinaryConverter.bytesToHexString(getBytes());
@@ -580,7 +587,7 @@ final class SQLRowID implements SQLData
     //@PDA jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return BinaryConverter.bytesToHexString(getBytes());
@@ -593,7 +600,7 @@ final class SQLRowID implements SQLData
     {
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCRowId(getBytes());
     }
 

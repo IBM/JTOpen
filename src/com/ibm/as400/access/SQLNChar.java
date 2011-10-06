@@ -46,13 +46,14 @@ implements SQLData
     private SQLConversionSettings   settings_;
     private int                     maxLength_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private String                  value_;
 
     SQLNChar(int maxLength, SQLConversionSettings settings)
     {
         settings_       = settings;
         maxLength_      = maxLength;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";  
     }
 
@@ -168,15 +169,16 @@ implements SQLData
             for(int i = valueLength; i < exactLength; ++i)           
                 buffer.append(c);                                   
             value_ = buffer.toString();
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
         }
         else if(valueLength > exactLength)
         {                                                           
             value_ = value_.substring(0, exactLength);             
-            truncated_ = valueLength - exactLength;                  
+            truncated_ = valueLength - exactLength; 
+            outOfBounds_ = false;
         }
         else
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
     }
 
     //---------------------------------------------------------//
@@ -296,6 +298,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -305,7 +311,7 @@ implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -328,12 +334,13 @@ implements SQLData
             {
                 if(scale >= bigDecimal.scale())
                 {
-                    truncated_ = 0;
+                    truncated_ = 0; outOfBounds_ = false; 
                     return bigDecimal.setScale(scale);
                 }
                 else
                 {
                     truncated_ = bigDecimal.scale() - scale;
+                    outOfBounds_ = false;
                     return bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
                 }
             }
@@ -350,14 +357,14 @@ implements SQLData
     public InputStream getBinaryStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new HexReaderInputStream(new StringReader(getString()));
     }
 
     public Blob getBlob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -373,7 +380,7 @@ implements SQLData
     public boolean getBoolean()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // If value equals "true", "false", "1", or "0", then return the
         // corresponding boolean, otherwise an empty string is
@@ -387,15 +394,17 @@ implements SQLData
     public byte getByte()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
             //return(new Double(getString().trim())).byteValue();           //@trunc
             Double doubleValue  = new Double (value_.trim ());              //@trunc
             double d = doubleValue.doubleValue();                           //@trunc
-            if(d > Byte.MAX_VALUE || d < Byte.MIN_VALUE)                    //@trunc
+            if(d > Byte.MAX_VALUE || d < Byte.MIN_VALUE)  {                  //@trunc
                 truncated_ = 1;                                             //@trunc
+                outOfBounds_ = true;
+            }
 
             return doubleValue.byteValue ();                                //@trunc
         }
@@ -409,7 +418,7 @@ implements SQLData
     public byte[] getBytes()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -425,7 +434,7 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
@@ -435,7 +444,7 @@ implements SQLData
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
@@ -446,7 +455,7 @@ implements SQLData
     public Date getDate(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         if(calendar == null) //@dat1
         {
@@ -462,7 +471,7 @@ implements SQLData
     public double getDouble()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -478,7 +487,7 @@ implements SQLData
     public float getFloat()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -494,7 +503,7 @@ implements SQLData
     public int getInt()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -502,8 +511,10 @@ implements SQLData
             Double doubleValue  = new Double (value_.trim ());     //@trunc
             double d = doubleValue.doubleValue();                  //@trunc 
 
-            if( d > Integer.MAX_VALUE || d < Integer.MIN_VALUE)    //@trunc    
+            if( d > Integer.MAX_VALUE || d < Integer.MIN_VALUE) {    //@trunc    
                 truncated_ = 1;                                    //@trunc
+                outOfBounds_ = true;
+            }
                  
             return doubleValue.intValue ();                        //@trunc
         }
@@ -517,7 +528,7 @@ implements SQLData
     public long getLong()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -525,8 +536,10 @@ implements SQLData
             Double doubleValue  = new Double (value_.trim ()); //@trunc
             double d = doubleValue.doubleValue();              //@trunc
 
-            if( d > Long.MAX_VALUE || d < Long.MIN_VALUE)      //@trunc
+            if( d > Long.MAX_VALUE || d < Long.MIN_VALUE) {     //@trunc
                 truncated_ = 1;                                //@trunc
+                outOfBounds_ = true;
+            }
 
             return doubleValue.longValue ();                   //@trunc
         }
@@ -548,7 +561,7 @@ implements SQLData
     public short getShort()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -556,8 +569,10 @@ implements SQLData
             Double doubleValue  = new Double (value_.trim ());               //@trunc
             double d = doubleValue.doubleValue();                            //@trunc
 
-            if( d > Short.MAX_VALUE || d < Short.MIN_VALUE)                  //@trunc      
+            if( d > Short.MAX_VALUE || d < Short.MIN_VALUE)   {              //@trunc      
                 truncated_ = 1;                                              //@trunc
+                outOfBounds_ = true;
+            }
 
             return doubleValue.shortValue ();                                //@trunc
         }
@@ -587,7 +602,7 @@ implements SQLData
     public Time getTime(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
@@ -602,7 +617,7 @@ implements SQLData
     public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
@@ -617,7 +632,7 @@ implements SQLData
     public InputStream getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -641,7 +656,7 @@ implements SQLData
 
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getNString(), since it will
         // handle truncating to the max field size if needed.
@@ -651,7 +666,7 @@ implements SQLData
 /* ifdef JDBC40 
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getNString(), since it will
         // handle truncating to the max field size if needed.
@@ -679,7 +694,7 @@ endif */
     public RowId getRowId() throws SQLException
     {
         
-        //truncated_ = 0;
+        //truncated_ = 0; outOfBounds_ = false; 
         //try
         //{
         //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
@@ -702,7 +717,7 @@ endif */
     {
         //This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCSQLXML(getString().toCharArray());     
     }
 endif */ 

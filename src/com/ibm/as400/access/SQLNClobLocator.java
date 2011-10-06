@@ -43,6 +43,7 @@ final class SQLNClobLocator implements SQLLocator
     private JDLobLocator            locator_;
     private int                     maxLength_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private int                     columnIndex_;
     private String                  value_; //@loch //Note that value_ is not used as the output for a ResultSet.getX() call.  We Get the value from a call to the JDLocator (not from value_) and not from the savedObject_, unless resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
 
@@ -60,7 +61,7 @@ final class SQLNClobLocator implements SQLLocator
         id_             = id;
         locator_        = new JDLobLocator(connection, id, maxLength, false);
         maxLength_      = maxLength;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         settings_       = settings;
         converter_      = converter;
         columnIndex_    = columnIndex;
@@ -124,6 +125,7 @@ final class SQLNClobLocator implements SQLLocator
         {
             String s = (String)object;
             truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
+            outOfBounds_ = false;
         } 
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if( !(object instanceof Reader) &&
@@ -631,6 +633,10 @@ final class SQLNClobLocator implements SQLLocator
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -640,14 +646,14 @@ final class SQLNClobLocator implements SQLLocator
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             if(savedObject_ != null)//@loch
             {                       //@loch
                 //get value from RS.updateX(value)
                 doConversion();     //@loch
-                truncated_ = 0;     //@loch
+                truncated_ = 0; outOfBounds_ = false;      //@loch
                 return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));//@loch
             }                       //@loch
             
@@ -670,14 +676,14 @@ final class SQLNClobLocator implements SQLLocator
     public InputStream getBinaryStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             if(savedObject_ != null)//@loch
             {                       //@loch
                 //get value from RS.updateX(value)
                 doConversion();     //@loch
-                truncated_ = 0;     //@loch
+                truncated_ = 0; outOfBounds_ = false;      //@loch
                 return new HexReaderInputStream(new StringReader(value_)); //@loch
             }                       //@loch
             
@@ -693,7 +699,7 @@ final class SQLNClobLocator implements SQLLocator
     public Blob getBlob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             byte[] bytes = BinaryConverter.stringToBytes(getString());
@@ -724,7 +730,7 @@ final class SQLNClobLocator implements SQLLocator
     public byte[] getBytes()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return BinaryConverter.stringToBytes(getString());
@@ -740,14 +746,14 @@ final class SQLNClobLocator implements SQLLocator
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             if(savedObject_ != null)//@loch
             {                       //@loch
                 //get value from RS.updateX(value)
                 doConversion();     //@loch
-                truncated_ = 0;     //@loch
+                truncated_ = 0; outOfBounds_ = false;      //@loch
                 return new StringReader(value_); //@loch
             }                       //@loch
             
@@ -763,12 +769,12 @@ final class SQLNClobLocator implements SQLLocator
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(savedObject_ != null)//@loch
         {                       //@loch
             //get value from RS.updateX(value)
             doConversion();     //@loch
-            truncated_ = 0;     //@loch
+            truncated_ = 0; outOfBounds_ = false;      //@loch
             return new AS400JDBCClob(value_, maxLength_); //@loch
         }                       //@loch
         
@@ -813,7 +819,7 @@ final class SQLNClobLocator implements SQLLocator
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // getObject is used by AS400JDBCPreparedStatement for batching, so we save off our InputStream
         // inside the AS400JDBCNClobLocator. Then, when convertToRawBytes() is called, the writeToServer()
         // code checks the AS400JDBCNClobLocator's saved InputStream... if it exists, then it writes the
@@ -841,7 +847,7 @@ final class SQLNClobLocator implements SQLLocator
         {                       //@loch
             //get value from RS.updateX(value)
             doConversion();     //@loch
-            truncated_ = 0;     //@loch
+            truncated_ = 0; outOfBounds_ = false;      //@loch
             return value_;      //@loch
         }                       //@loch
         
@@ -849,7 +855,7 @@ final class SQLNClobLocator implements SQLLocator
         String value = converter_.byteArrayToString(data.getRawBytes(),
                                                     data.getOffset(),
                                                     data.getLength());
-        truncated_ = 0; //@pda jdbc40 make consistent with other SQLData Clob classes
+        truncated_ = 0; outOfBounds_ = false;  //@pda jdbc40 make consistent with other SQLData Clob classes
         return value;
     }
 
@@ -870,14 +876,14 @@ final class SQLNClobLocator implements SQLLocator
     public InputStream getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             if(savedObject_ != null)//@loch
             {                       //@loch
                 //get value from RS.updateX(value)
                 doConversion();     //@loch
-                truncated_ = 0;     //@loch
+                truncated_ = 0; outOfBounds_ = false;      //@loch
                 return new ReaderInputStream(new StringReader(value_), 13488); //@loch
             }                       //@loch
         
@@ -894,13 +900,13 @@ final class SQLNClobLocator implements SQLLocator
 
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         if(savedObject_ != null)//@loch
         {                       //@loch
             //get value from RS.updateX(value)
             doConversion();     //@loch
-            truncated_ = 0;     //@loch
+            truncated_ = 0; outOfBounds_ = false;      //@loch
             return new StringReader(value_);  //@loch
         }                       //@loch
         
@@ -918,13 +924,13 @@ final class SQLNClobLocator implements SQLLocator
 /* ifdef JDBC40 
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         if(savedObject_ != null)//@loch
         {                       //@loch
             //get value from RS.updateX(value)
             doConversion();     //@loch
-            truncated_ = 0;     //@loch
+            truncated_ = 0; outOfBounds_ = false;      //@loch
             return new AS400JDBCNClob(value_, maxLength_); //@loch
         }                       //@loch
         
@@ -935,13 +941,13 @@ endif */
    
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         
         if(savedObject_ != null)//@loch
         {                       //@loch
             //get value from RS.updateX(value)
             doConversion();     //@loch
-            truncated_ = 0;     //@loch
+            truncated_ = 0; outOfBounds_ = false;      //@loch
             return value_;      //@loch
         }                       //@loch
 
@@ -956,7 +962,7 @@ endif */
     public RowId getRowId() throws SQLException
     {
         
-        //truncated_ = 0;
+        //truncated_ = 0; outOfBounds_ = false; 
         //try
         //{
          //   return new AS400JDBCRowId(BinaryConverter.stringToBytes(getString()));
@@ -977,12 +983,12 @@ endif */
 
     public SQLXML getSQLXML() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(savedObject_ != null)//@loch
         {                       //@loch
             //get value from RS.updateX(value)
             doConversion();     //@loch
-            truncated_ = 0;     //@loch
+            truncated_ = 0; outOfBounds_ = false;      //@loch
             return new AS400JDBCSQLXML(value_, maxLength_); //@loch
         }                       //@loch
         return new AS400JDBCSQLXML( getString().toCharArray() );        

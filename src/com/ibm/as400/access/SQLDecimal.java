@@ -59,6 +59,7 @@ implements SQLData
     private int                     precision_;
     private int                     scale_;
     private int                     truncated_;
+    private boolean                 outOfBounds_;
     private AS400PackedDecimal      typeConverter_;
     private BigDecimal              value_;
     private JDProperties            properties_;   // @M0A - added JDProperties so we can get the scale & precision
@@ -73,7 +74,7 @@ implements SQLData
         settings_       = settings;
         precision_      = precision;
         scale_          = scale;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         typeConverter_  = new AS400PackedDecimal(precision_, scale_);
         value_          = default_; // @C2C
         vrm_            = vrm;         // @M0A
@@ -156,7 +157,7 @@ implements SQLData
         // need to report it.  If we truncate on the left side, then we report the    @E2A
         // number of truncated digits on both ends...this will make the dataSize      @E2A
         // and transferSize make sense on the resulting DataTruncation.               @E2A
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         int otherScale = bigDecimal.scale();
         if(otherScale > scale_)
             truncated_ += otherScale - scale_;
@@ -170,7 +171,7 @@ implements SQLData
             value_ = SQLDataFactory.truncatePrecision(value_, digits);
         }
         else                                                               // @E2A
-            truncated_ = 0;  // No left side truncation, report nothing       @E2A
+            truncated_ = 0; outOfBounds_ = false;   // No left side truncation, report nothing       @E2A
                              // (even if there was right side truncation).    @E2A
     }
 
@@ -293,6 +294,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -302,7 +307,7 @@ implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
@@ -317,7 +322,7 @@ implements SQLData
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(scale >= 0)
         {
             if(scale >= value_.scale())
@@ -351,19 +356,20 @@ implements SQLData
     public boolean getBoolean()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return(value_.compareTo(BigDecimal.valueOf(0)) != 0);
     }
 
     public byte getByte()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_.compareTo(BYTE_MAX_VALUE) > 0 || value_.compareTo(BYTE_MIN_VALUE) < 0)
         {
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 1;
+            outOfBounds_=true;
         }
         return(byte) value_.byteValue();
     }
@@ -378,14 +384,14 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(getString());
     }
 
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String string = getString();
         return new AS400JDBCClob(string, string.length());
     }
@@ -400,7 +406,7 @@ implements SQLData
     public double getDouble()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         double d = value_.doubleValue();    //@KBA
         //@KBD will never occur with current precision of 63
         //@KBD if(value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0)
@@ -409,6 +415,7 @@ implements SQLData
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 8;
+            outOfBounds_=true;
         }
         return d; //@KBC value_.doubleValue();
     }
@@ -416,7 +423,7 @@ implements SQLData
     public float getFloat()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         float f = value_.floatValue();  //@KBA
         //@KBD changed in order to avoid optimization problem in JRE 1.3
         //@KBD if(value_.compareTo(FLOAT_MAX_VALUE) > 0 || value_.compareTo(FLOAT_MIN_VALUE) < 0)
@@ -425,6 +432,7 @@ implements SQLData
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 4;
+            outOfBounds_=true;
         }
         return f;   //@KBC value_.floatValue();
     }
@@ -432,12 +440,13 @@ implements SQLData
     public int getInt()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_.compareTo(INTEGER_MAX_VALUE) > 0 || value_.compareTo(INTEGER_MIN_VALUE) < 0)
         {
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 4;
+            outOfBounds_=true;
         }
         return value_.intValue();
     }
@@ -445,12 +454,13 @@ implements SQLData
     public long getLong()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_.compareTo(LONG_MAX_VALUE) > 0 || value_.compareTo(LONG_MIN_VALUE) < 0)
         {
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 8;
+            outOfBounds_=true;
         }
         return value_.longValue();
     }
@@ -458,19 +468,20 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return value_;
     }
 
     public short getShort()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_.compareTo(SHORT_MAX_VALUE) > 0 || value_.compareTo(SHORT_MIN_VALUE) < 0)
         {
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 2;
+            outOfBounds_=true;
         }
         return(short) value_.shortValue();
     }
@@ -478,7 +489,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String stringRep = JDUtilities.bigDecimalToPlainString(value_); //@big java 1.5 support
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
@@ -506,7 +517,7 @@ implements SQLData
     public InputStream  getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
@@ -521,7 +532,7 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(getNString());
     }
     
@@ -529,7 +540,7 @@ implements SQLData
     /* ifdef JDBC40 
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String string = getNString();
         return new AS400JDBCNClob(string, string.length());
     }
@@ -538,7 +549,7 @@ implements SQLData
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String stringRep = value_.toString();
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)

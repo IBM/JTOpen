@@ -45,6 +45,8 @@ implements SQLData
     private SQLConversionSettings   settings_;
     private int                     maxLength_;
     private int                     truncated_;
+    private boolean outOfBounds_ = false; 
+
     private AS400ByteArray          typeConverter_;
     private byte[]                  value_;
 
@@ -52,7 +54,8 @@ implements SQLData
     {
         settings_       = settings;
         maxLength_      = maxLength;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false;
+       
         typeConverter_  = new AS400ByteArray(maxLength);
         value_          = new byte[maxLength];
     }
@@ -283,7 +286,7 @@ implements SQLData
             byte[] newValue = new byte[maxLength_];
             System.arraycopy(value_, 0, newValue, 0, valueLength);
             value_ = newValue;
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
         }
         else if(valueLength > maxLength_)
         {
@@ -293,7 +296,7 @@ implements SQLData
             truncated_ = valueLength - maxLength_;
         }
         else
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
     }
 
     //---------------------------------------------------------//
@@ -400,6 +403,10 @@ implements SQLData
     public int getTruncated()
     {
         return truncated_;
+    }
+
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
     }
 
     //---------------------------------------------------------//
