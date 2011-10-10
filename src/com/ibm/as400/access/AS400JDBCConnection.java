@@ -456,7 +456,7 @@ implements Connection
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
-        if (server_ == null)
+        if (aborted_ || (server_ == null))
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
     }
 
@@ -5400,7 +5400,8 @@ endif */
     * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods, 
     * will result in a SQLException. 
     * 
-    *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket. 
+    *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket.
+    *<p>Currently, setting the network timeout is only supported when the "thread used" property is false.  
     *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks 
     * the connection closed and releases any resources held by the connection. 
     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed. 
@@ -5430,14 +5431,36 @@ endif */
           security.checkPermission(sqlPermission);
      }    
 endif */
+
      
+     // Make sure that the THREAD_USED property is false. The default is true
+     String threadUsedProperty = properties_.getString(JDProperties.THREAD_USED); 
+
+     if (threadUsedProperty == null) {
+         if (timeout > 0 ) { 
+           JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED); 
+         }
+     } else {
+        if (threadUsedProperty.equalsIgnoreCase("true")) {
+          if (timeout > 0 ) { 
+            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED); 
+          }          
+        }
+     }
+     
+     
+     // Make sure value is not negative
+     if (timeout < 0) { 
+       JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+     }
+
      // Calling on a closed connection is a no-op 
      checkOpen ();
      
      try {
       server_.setSoTimeout(timeout);
     } catch (SocketException e) {
-        // TODO throw exception 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e); 
     } 
    }
 
@@ -5450,11 +5473,12 @@ endif */
     * @see setNetworkTimeout(java.util.concurrent.Executor, int)
     */
   public int getNetworkTimeout() throws SQLException {
+    checkOpen ();
+    
     try {
       return server_.getSoTimeout();
     } catch (SocketException e) {
-      // TODO Fixup ths exception.  
-      JDError.throwSQLException(JDError.EXC_INTERNAL, e); 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e); 
       return 0; 
     } 
   }
@@ -5510,6 +5534,16 @@ endif */
       throws SQLException {
     // TODO JDBC41 Auto-generated method stub
 
+     // Make sure value is not negative
+     if (milliseconds < 0) { 
+        JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+     }
+
+    // Check for null executor
+    if (executor == null) {
+         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+    } 
+
     // Check for authority 
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -5517,11 +5551,13 @@ endif */
          security.checkPermission(sqlPermission);
     }    
     
-    // Calling on a closed connection is a no-op 
     checkOpen ();
-    
-    
-    
+
+    try { 
+       server_.setSoTimeout(milliseconds); 
+    } catch (java.net.SocketException socketException) { 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, socketException); 
+    }
     
   }
 endif */
