@@ -5400,7 +5400,8 @@ void handleAbort() {
     * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods, 
     * will result in a SQLException. 
     * 
-    *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket. 
+    *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket.
+    *<p>Currently, setting the network timeout is only supported when the "thread used" property is false.  
     *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks 
     * the connection closed and releases any resources held by the connection. 
     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed. 
@@ -5430,6 +5431,23 @@ void handleAbort() {
           security.checkPermission(sqlPermission);
      }    
 /* endif */ 
+
+     
+     // Make sure that the THREAD_USED property is false. The default is true
+     String threadUsedProperty = properties_.getString(JDProperties.THREAD_USED); 
+
+     if (threadUsedProperty == null) {
+         if (timeout > 0 ) { 
+           JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED); 
+         }
+     } else {
+        if (threadUsedProperty.equalsIgnoreCase("true")) {
+          if (timeout > 0 ) { 
+            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED); 
+          }          
+        }
+     }
+     
      
      // Make sure value is not negative
      if (timeout < 0) { 
