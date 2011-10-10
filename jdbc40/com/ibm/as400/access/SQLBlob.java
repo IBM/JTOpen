@@ -45,6 +45,8 @@ final class SQLBlob implements SQLData
 
     private int maxLength_;
     private int truncated_;
+    private boolean outOfBounds_ = false; 
+
     private byte[] value_ = default_;
     private Object savedObject_; // This is our byte[] or InputStream or whatever that we save to convert to bytes until we really need to.
     private int scale_ = -1; // This is our length.
@@ -98,7 +100,7 @@ final class SQLBlob implements SQLData
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
             }
             object = bytes;
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
         }
         else if(object instanceof Reader)
         {
@@ -441,6 +443,10 @@ final class SQLBlob implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -452,7 +458,7 @@ final class SQLBlob implements SQLData
     {
         if(savedObject_ != null) doConversion();
 
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(value_)));
@@ -475,7 +481,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new ByteArrayInputStream(value_);
     }
 
@@ -483,7 +489,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCBlob(value_, maxLength_);
     }
 
@@ -505,7 +511,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return value_;
     }
 
@@ -513,7 +519,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(BinaryConverter.bytesToHexString(value_));
     }
 
@@ -521,7 +527,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String string = BinaryConverter.bytesToHexString(value_);
         return new AS400JDBCClob(string, string.length());
     }
@@ -565,7 +571,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCBlob(value_, maxLength_);
     }
 
@@ -580,7 +586,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return BinaryConverter.bytesToHexString(value_);
     }
 
@@ -602,7 +608,7 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -619,7 +625,7 @@ final class SQLBlob implements SQLData
     public Reader getNCharacterStream() throws SQLException
     {
         if(savedObject_ != null) doConversion();  //@pdc
-        truncated_ = 0;                           //@pdc
+        truncated_ = 0; outOfBounds_ = false;                            //@pdc
         return new StringReader(BinaryConverter.bytesToHexString(value_));  //@pdc
     }
 
@@ -629,7 +635,7 @@ final class SQLBlob implements SQLData
     public NClob getNClob() throws SQLException
     {        
         if(savedObject_ != null) doConversion();  //@pdc
-        truncated_ = 0;//@pdc
+        truncated_ = 0; outOfBounds_ = false; //@pdc
         String string = BinaryConverter.bytesToHexString(value_); //@pdc
         return new AS400JDBCNClob(string, string.length());  //@pdc
     }
@@ -638,7 +644,7 @@ final class SQLBlob implements SQLData
     public String getNString() throws SQLException
     {
         if(savedObject_ != null) doConversion();      //@pdc
-        truncated_ = 0;                               //@pdc
+        truncated_ = 0; outOfBounds_ = false;                                //@pdc
         return BinaryConverter.bytesToHexString(value_); //@pdc
     }
 /* ifdef JDBC40 */
@@ -654,7 +660,7 @@ final class SQLBlob implements SQLData
    public SQLXML getSQLXML() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         //String string = BinaryConverter.bytesToHexString(value_); //@xml2
         return new AS400JDBCSQLXML(value_, maxLength_); //@xml2
         //return new AS400JDBCSQLXML(string, string.length());  //@xml2

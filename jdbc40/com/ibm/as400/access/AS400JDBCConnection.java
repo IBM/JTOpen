@@ -456,7 +456,7 @@ implements Connection
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
-        if (server_ == null)
+        if (aborted_ || (server_ == null))
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
     }
 
@@ -5431,13 +5431,18 @@ void handleAbort() {
      }    
 /* endif */ 
      
+     // Make sure value is not negative
+     if (timeout < 0) { 
+       JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+     }
+
      // Calling on a closed connection is a no-op 
      checkOpen ();
      
      try {
       server_.setSoTimeout(timeout);
     } catch (SocketException e) {
-        // TODO throw exception 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e); 
     } 
    }
 
@@ -5450,11 +5455,12 @@ void handleAbort() {
     * @see setNetworkTimeout(java.util.concurrent.Executor, int)
     */
   public int getNetworkTimeout() throws SQLException {
+    checkOpen ();
+    
     try {
       return server_.getSoTimeout();
     } catch (SocketException e) {
-      // TODO Fixup ths exception.  
-      JDError.throwSQLException(JDError.EXC_INTERNAL, e); 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e); 
       return 0; 
     } 
   }
@@ -5510,6 +5516,16 @@ void handleAbort() {
       throws SQLException {
     // TODO JDBC41 Auto-generated method stub
 
+     // Make sure value is not negative
+     if (milliseconds < 0) { 
+        JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+     }
+
+    // Check for null executor
+    if (executor == null) {
+         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+    } 
+
     // Check for authority 
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
@@ -5517,11 +5533,13 @@ void handleAbort() {
          security.checkPermission(sqlPermission);
     }    
     
-    // Calling on a closed connection is a no-op 
     checkOpen ();
-    
-    
-    
+
+    try { 
+       server_.setSoTimeout(milliseconds); 
+    } catch (java.net.SocketException socketException) { 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, socketException); 
+    }
     
   }
 /* endif */ 

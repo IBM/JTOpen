@@ -299,6 +299,14 @@ extends Cloneable
     @return the number of bytes truncated by the last conversion
     **/
     public abstract int getTruncated();
+    
+    /**
+     * Returns true if the last conversion of this piece of
+     * data was out of bounds of the range of the requested
+     * datatype.  This will only happen when requesting
+     * conversion to a numeric type.  
+     */
+    public abstract boolean getOutOfBounds(); 
 
     //---------------------------------------------------------//
     //                                                         //

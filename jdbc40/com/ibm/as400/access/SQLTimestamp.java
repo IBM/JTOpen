@@ -42,6 +42,7 @@ implements SQLData
     // Private data.
     private SQLConversionSettings   settings_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private int                     year_;
     private int                     month_;
     private int                     day_;
@@ -53,7 +54,7 @@ implements SQLData
     SQLTimestamp(SQLConversionSettings settings)
     {
         settings_   = settings;
-        truncated_  = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         year_       = 0;
         month_      = 0;
         day_        = 0;
@@ -423,6 +424,9 @@ implements SQLData
     {
         return truncated_;
     }
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -497,6 +501,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 16;
+        outOfBounds_ = false;
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
           calendar = AS400Calendar.getConversionCalendar(calendar); 
@@ -538,7 +543,7 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         Timestamp ts = new Timestamp (calendar.getTime().getTime());
@@ -556,7 +561,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         Timestamp ts = new Timestamp (calendar.getTime().getTime());
@@ -568,6 +573,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 18;
+        outOfBounds_ = false; 
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
           calendar = AS400Calendar.getConversionCalendar(calendar); 
@@ -580,7 +586,7 @@ implements SQLData
     public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
           calendar = AS400Calendar.getConversionCalendar(calendar); 
@@ -620,7 +626,7 @@ implements SQLData
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         Timestamp ts = new Timestamp (calendar.getTime().getTime());

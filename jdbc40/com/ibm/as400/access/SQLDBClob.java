@@ -44,6 +44,7 @@ final class SQLDBClob implements SQLData
     private int                     maxLength_;                 // Max length of field, in bytes.       @E3C
     private SQLConversionSettings   settings_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private String                  value_;
     private Object savedObject_; // This is our byte[] or InputStream or whatever that we save to convert to bytes until we really need to.
 
@@ -54,7 +55,7 @@ final class SQLDBClob implements SQLData
         length_         = 0;
         maxLength_      = maxLength;
         settings_       = settings;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";
     }
 
@@ -129,6 +130,7 @@ final class SQLDBClob implements SQLData
             String s = (String)object;
             int byteLength = s.length() * 2; //@selins1
             truncated_ = (byteLength > maxLength_ ? byteLength-maxLength_ : 0); //@selins1
+            outOfBounds_ = false; 
         } else if( !(object instanceof Reader) &&
                 !(object instanceof InputStream) &&
                 (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob))
@@ -238,10 +240,11 @@ final class SQLDBClob implements SQLData
             {
                 value_ = value_.substring(0, maxLength_);
                 truncated_ = valueLength - maxLength_;
+                outOfBounds_ = false; 
             }
             else
             {
-                truncated_ = 0;
+                truncated_ = 0; outOfBounds_ = false; 
             }
 
             length_ = value_.length();
@@ -359,6 +362,10 @@ final class SQLDBClob implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -369,7 +376,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
@@ -392,7 +399,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new HexReaderInputStream(new StringReader(value_));
     }
 
@@ -400,7 +407,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new AS400JDBCBlob(BinaryConverter.stringToBytes(value_), maxLength_);
@@ -431,7 +438,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return BinaryConverter.stringToBytes(value_);
@@ -448,7 +455,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(value_);
     }
 
@@ -456,7 +463,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCClob(value_, maxLength_);
     }
 
@@ -499,7 +506,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCClob(value_, maxLength_);
     }
 
@@ -514,7 +521,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return value_;     
     }
 
@@ -536,7 +543,7 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ReaderInputStream(new StringReader(value_), 13488);
@@ -553,7 +560,7 @@ final class SQLDBClob implements SQLData
     public Reader getNCharacterStream() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(value_);
     }
     
@@ -563,7 +570,7 @@ final class SQLDBClob implements SQLData
     public NClob getNClob() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCNClob(value_, maxLength_);
     }
 /* endif */ 
@@ -571,7 +578,7 @@ final class SQLDBClob implements SQLData
     public String getNString() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return value_;     
     }
 
@@ -582,7 +589,7 @@ final class SQLDBClob implements SQLData
     {
         
         //if(savedObject_ != null) doConversion();
-        //truncated_ = 0;
+        //truncated_ = 0; outOfBounds_ = false; 
         //try
         //{
         //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
@@ -604,7 +611,7 @@ final class SQLDBClob implements SQLData
     public SQLXML getSQLXML() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCSQLXML(value_.toCharArray());     
     }
 /* endif */ 

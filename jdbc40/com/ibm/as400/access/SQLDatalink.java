@@ -47,6 +47,7 @@ implements SQLData
     private int                     maxLength_;
     private SQLConversionSettings   settings_;
     private int                     truncated_;
+    private boolean                     outOfBounds_; 
     private String                  value_;
 
     SQLDatalink(int maxLength, SQLConversionSettings settings)
@@ -54,7 +55,7 @@ implements SQLData
         length_         = 0;
         maxLength_      = maxLength;
         settings_       = settings;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         value_          = ""; // @A1C
     }
 
@@ -223,6 +224,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -232,7 +237,7 @@ implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -290,14 +295,14 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(value_);
     }
 
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCClob(value_, value_.length());
     }
 
@@ -341,7 +346,7 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // if JDBC 3.0 or later return a URL instead of a string.
         // If we are not able to turn the string into a URL then return
         // the string (that is why there is no "else".  That shouldn't
@@ -395,7 +400,7 @@ implements SQLData
     public InputStream getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -411,7 +416,7 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(value_);
     }
     
@@ -419,7 +424,7 @@ implements SQLData
 /* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCNClob(value_, value_.length());
     }
 /* endif */ 

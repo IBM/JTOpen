@@ -46,6 +46,7 @@ implements SQLData
     private SQLConversionSettings   settings_;
     private int                     maxLength_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private String                  value_;
     private String                  originalValue_;
     private int                     ccsid_; //@cca1
@@ -54,7 +55,7 @@ implements SQLData
     {
         settings_       = settings;
         maxLength_      = maxLength;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";
         originalValue_  = "";
         ccsid_          = ccsid;  //@cca1
@@ -198,7 +199,7 @@ implements SQLData
             for(int i = valueLength; i < exactLength; ++i)
                 buffer.append(c);
             value_ = buffer.toString();
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
         }
         else if(valueLength > exactLength)
         {
@@ -206,7 +207,7 @@ implements SQLData
             truncated_ = valueLength - exactLength;
         }
         else
-            truncated_ = 0;
+            truncated_ = 0; outOfBounds_ = false; 
     }
 
     //---------------------------------------------------------//
@@ -320,6 +321,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -329,7 +334,7 @@ implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
@@ -344,7 +349,7 @@ implements SQLData
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString().trim()));
@@ -352,7 +357,7 @@ implements SQLData
             {
                 if(scale >= bigDecimal.scale())
                 {
-                    truncated_ = 0;
+                    truncated_ = 0; outOfBounds_ = false; 
                     return bigDecimal.setScale(scale);
                 }
                 else
@@ -374,14 +379,14 @@ implements SQLData
     public InputStream getBinaryStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new HexReaderInputStream(new StringReader(getString()));
     }
 
     public Blob getBlob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new AS400JDBCBlob(BinaryConverter.stringToBytes(getString()), maxLength_);
@@ -397,7 +402,7 @@ implements SQLData
     public boolean getBoolean()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // If value equals "true", "false", "1", or "0", then return the
         // corresponding boolean, otherwise an empty string is
@@ -411,7 +416,7 @@ implements SQLData
     public byte getByte()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -427,7 +432,7 @@ implements SQLData
     public byte[] getBytes()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return BinaryConverter.stringToBytes(getString());
@@ -443,7 +448,7 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         return new StringReader(getString());
@@ -452,7 +457,7 @@ implements SQLData
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         return new AS400JDBCClob(getString(), maxLength_);
@@ -461,7 +466,7 @@ implements SQLData
     public Date getDate(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
@@ -477,7 +482,7 @@ implements SQLData
     public double getDouble()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -493,7 +498,7 @@ implements SQLData
     public float getFloat()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -509,7 +514,7 @@ implements SQLData
     public int getInt()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -525,7 +530,7 @@ implements SQLData
     public long getLong()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -541,7 +546,7 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         return getString();
@@ -550,7 +555,7 @@ implements SQLData
     public short getShort()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         try
         {
@@ -566,7 +571,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec.
         int maxFieldSize = settings_.getMaxFieldSize();
@@ -583,7 +588,7 @@ implements SQLData
     public Time getTime(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
@@ -598,7 +603,7 @@ implements SQLData
     public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(calendar == null) //@dat1
         {
             //getter methods do not enforce strict conversion
@@ -613,7 +618,7 @@ implements SQLData
     public InputStream getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ReaderInputStream(new StringReader(getString()), 13488);
@@ -634,7 +639,7 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getNString(), since it will
         // handle truncating to the max field size if needed.
@@ -645,7 +650,7 @@ implements SQLData
 /* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         // This is written in terms of getNString(), since it will
         // handle truncating to the max field size if needed.
@@ -675,7 +680,7 @@ implements SQLData
     public RowId getRowId() throws SQLException
     {
         //
-        //truncated_ = 0;
+        //truncated_ = 0; outOfBounds_ = false; 
         //try
         //{
         //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
@@ -696,7 +701,7 @@ implements SQLData
     {
         //This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCSQLXML(getString().toCharArray());     
     }
 /* endif */ 

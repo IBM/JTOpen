@@ -41,12 +41,13 @@ implements SQLData
     // Private data.
     private SQLConversionSettings   settings_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private double                 value_;
 
     SQLFloat(SQLConversionSettings settings)
     {
         settings_   = settings;
-        truncated_  = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         value_      = 0.0d;
     }
 
@@ -82,7 +83,7 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         if(object instanceof String)
         {
@@ -244,6 +245,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -276,7 +281,7 @@ implements SQLData
 
         // BigDecimal bigDecimal = new BigDecimal(Double.toString(value_))    // @A0D
 
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
 
         BigDecimal bigDecimal = null;                                           // @A0A
 
@@ -298,7 +303,7 @@ implements SQLData
         {
             if(scale >= bigDecimal.scale())
             {
-                truncated_ = 0;
+                truncated_ = 0; outOfBounds_ = false; 
                 return bigDecimal.setScale(scale);
             }
             else
@@ -328,23 +333,23 @@ implements SQLData
     public boolean getBoolean()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return(value_ != 0.0d);
     }
 
     public byte getByte()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Byte.MAX_VALUE || value_ < Byte.MIN_VALUE)
         {
             if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
             {
-                truncated_ = 3;
+                truncated_ = 3; outOfBounds_=true;
             }
             else
             {
-                truncated_ = 1;
+                truncated_ = 1; outOfBounds_=true;
             }
         }
         return(byte) value_;
@@ -381,24 +386,25 @@ implements SQLData
     public double getDouble()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return(double) value_;
     }
 
     public float getFloat()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return(float) value_;
     }
 
     public int getInt()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
         {
             truncated_ = 1; // this may not be accurate but we know truncation will occur
+            outOfBounds_=true;
         }
         return(int) value_;
     }
@@ -406,10 +412,11 @@ implements SQLData
     public long getLong()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Long.MAX_VALUE || value_ < Long.MIN_VALUE)
         {
             truncated_ = 1; // this is not necessarily correct, but we know there is truncation
+            outOfBounds_=true;
         }
         return(long) value_;
     }
@@ -417,23 +424,25 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new Double(value_);
     }
 
     public short getShort()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
         {
             if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
             {
                 truncated_ = 3;
+                outOfBounds_=true;
             }
             else
             {
                 truncated_ = 2;
+                outOfBounds_=true;
             }
         }
         return(short) value_;
@@ -442,7 +451,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String stringRep = Double.toString(value_);
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
@@ -493,7 +502,7 @@ implements SQLData
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String stringRep = Double.toString(value_);
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)

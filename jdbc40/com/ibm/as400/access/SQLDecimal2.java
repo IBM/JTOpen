@@ -47,6 +47,7 @@ implements SQLData
     private AS400PackedDecimal      typeConverter_;
     private double                  value_;
     private int                     truncated_;
+    private boolean                 outOfBounds_; 
     private JDProperties            properties_;  // @M0A - added JDProperties so we can get the scale & precision
     private int                     vrm_;         // @M0A
 
@@ -61,7 +62,7 @@ implements SQLData
         scale_          = scale;
         typeConverter_  = new AS400PackedDecimal(precision_, scale_);
         value_          = 0;
-        truncated_      = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         vrm_            = vrm;         // @M0A
         properties_     = properties;  // @M0A
     }
@@ -239,6 +240,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -248,7 +253,7 @@ implements SQLData
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
@@ -263,7 +268,7 @@ implements SQLData
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new BigDecimal(value_);
     }
 
@@ -284,30 +289,30 @@ implements SQLData
     public boolean getBoolean()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return(value_ != 0);
     }
 
     public byte getByte()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Byte.MAX_VALUE || value_ < Byte.MIN_VALUE)
         {
             if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
             {
                 if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
                 {
-                    truncated_ = 7;
+                    truncated_ = 7; outOfBounds_=true;
                 }
                 else
                 {
-                    truncated_ = 3;
+                    truncated_ = 3; outOfBounds_=true;
                 }
             }
             else
             {
-                truncated_ = 1;
+                truncated_ = 1; outOfBounds_=true;
             }
         }
         return(byte)value_;
@@ -323,14 +328,14 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(getString());
     }
 
     public Clob getClob()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String string = getString();
         return new AS400JDBCClob(string, string.length());
     }
@@ -345,17 +350,17 @@ implements SQLData
     public double getDouble()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return value_;
     }
 
     public float getFloat()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Float.MAX_VALUE || value_ < -Float.MAX_VALUE)  //@trunc min_val is a posative number. //Float.MIN_VALUE)
         {
-            truncated_ = 4;
+            truncated_ = 4; outOfBounds_=true;
         }
         return(float)value_;
     }
@@ -363,10 +368,10 @@ implements SQLData
     public int getInt()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
         {
-            truncated_ = 4;
+            truncated_ = 4; outOfBounds_=true;
         }
         return(int)value_;
     }
@@ -374,10 +379,11 @@ implements SQLData
     public long getLong()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Long.MAX_VALUE || value_ < Long.MIN_VALUE)
         {
             truncated_ = 1; // this is not necessarily correct, but we know there is truncation
+            outOfBounds_=true;
         }
         return(long)value_;
     }
@@ -385,23 +391,25 @@ implements SQLData
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new Double(value_);
     }
 
     public short getShort()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
         {
             if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
             {
                 truncated_ = 6;
+                outOfBounds_=true;
             }
             else
             {
                 truncated_ = 2;
+                outOfBounds_=true;
             }
         }
         return(short)value_;
@@ -410,7 +418,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String stringRep = Double.toString(value_);
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
@@ -438,7 +446,7 @@ implements SQLData
     public InputStream getUnicodeStream()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
@@ -454,7 +462,7 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new StringReader(getNString());
     }
     
@@ -462,7 +470,7 @@ implements SQLData
 /* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String string = getNString();
         return new AS400JDBCNClob(string, string.length());
     }
@@ -471,7 +479,7 @@ implements SQLData
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         String stringRep = Double.toString(value_);
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)

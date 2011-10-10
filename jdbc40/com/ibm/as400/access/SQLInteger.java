@@ -39,6 +39,7 @@ implements SQLData
 
     // Private data.
     private int                 truncated_;
+    private boolean             outOfBounds_; 
     private int                 value_;
     private int                 scale_;                              // @A0A
     private BigDecimal          bigDecimalValue_ = null;             // @A0A
@@ -51,7 +52,7 @@ implements SQLData
 
     SQLInteger(int scale, int vrm)                      // @A0A //@trunc3
     {
-        truncated_          = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         value_              = 0;
         scale_              = scale;                                      // @A0A
         if(scale_ > 0)                                                   // @C0A
@@ -97,7 +98,7 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        truncated_ = 0;                                                     // @D9c
+        truncated_ = 0; outOfBounds_ = false;                                                      // @D9c
 
         if(object instanceof String)
         {
@@ -131,6 +132,7 @@ implements SQLData
                 if(( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))
                 {
                     truncated_ = 4;                                                           // @D9c
+                    outOfBounds_=true;
                     //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
                     if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
                     {                                                                    //@trunc3
@@ -157,6 +159,7 @@ implements SQLData
                     {
                         // @P1a
                         truncated_ = 4;                                                    // @P1a
+                        outOfBounds_=true;
                         //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
                         if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
                         {                                                                    //@trunc3
@@ -193,6 +196,7 @@ implements SQLData
                 //        float (4 bytes) that didn't fit into a bigint (8
                 //        bytes) without some data truncation.
                 truncated_ = 4;                                                           // @D9c
+                outOfBounds_=true;
             }
 
             // Store the value.
@@ -324,6 +328,10 @@ implements SQLData
         return truncated_;
     }
 
+    public boolean getOutOfBounds() {
+      return outOfBounds_; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
@@ -340,7 +348,7 @@ implements SQLData
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(scale_ > 0)
         {                                                   // @C0A
             if(scale >= 0)
@@ -374,7 +382,7 @@ implements SQLData
     public boolean getBoolean()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return(value_ != 0);
     }
 
@@ -385,11 +393,11 @@ implements SQLData
         {
             if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
             {
-                truncated_ = 3;
+                truncated_ = 3; outOfBounds_ = true;
             }
             else
             {
-                truncated_ = 1;
+                truncated_ = 1;  outOfBounds_ = true;
             }
         }
         return(byte) value_;
@@ -426,7 +434,7 @@ implements SQLData
     public double getDouble()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(scale_ > 0)                                 // @C0A
             return bigDecimalValue_.doubleValue();      // @A0A
         else                                            // @C0A
@@ -436,7 +444,7 @@ implements SQLData
     public float getFloat()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(scale_ > 0)                                 // @C0A
             return bigDecimalValue_.floatValue();       // @A0A
         else                                            // @C0A
@@ -446,31 +454,31 @@ implements SQLData
     public int getInt()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return value_;
     }
 
     public long getLong()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return value_;
     }
 
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         return new Integer((int) value_);
     }
 
     public short getShort()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
         {
-            truncated_ = 2;
+            truncated_ = 2;  outOfBounds_ = true;
         }
         return(short) value_;
     }
@@ -478,7 +486,7 @@ implements SQLData
     public String getString()
     throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(scale_ > 0)                                 // @C0A
             return bigDecimalValue_.toString();         // @A0A
         else                                            // @C0A
@@ -526,7 +534,7 @@ implements SQLData
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
+        truncated_ = 0; outOfBounds_ = false; 
         if(scale_ > 0)                         
             return bigDecimalValue_.toString();
         else                                

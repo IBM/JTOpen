@@ -428,6 +428,9 @@ class SQLArray implements SQLData
     {
         return 0;
     }
+    public boolean getOutOfBounds() {
+      return false; 
+    }
 
     public int getType() {
          
