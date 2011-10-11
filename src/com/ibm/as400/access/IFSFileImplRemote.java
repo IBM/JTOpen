@@ -511,8 +511,24 @@ implements IFSFileImpl
     }
     catch (Exception e)
     {
+      
       if (Trace.traceOn_) Trace.log(Trace.WARNING,
                  "Unable to determine if file or directory.\n" + e.toString());
+      
+      // If the server has been disconnected, go ahead and throw an exception
+      // to avoid the null pointer exception from fs_.server_
+      if (fd_.server_ == null) {
+        if (e instanceof IOException) { 
+           throw (IOException) e;
+        } else {
+           IOException ioEx = new IOException(e.toString());
+           // initCause was added in JDK 1.4.  Ignore exception if it does not exist. 
+           try {
+             ioEx.initCause(e); 
+           } catch (Throwable e2) {} 
+           throw ioEx;
+        }
+      }
     }
 
     // Delete this entry.
