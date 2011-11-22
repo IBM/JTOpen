@@ -363,15 +363,15 @@ implements SQLData
     public Reader getCharacterStream()
     throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+      return new java.io.StringReader(getString());
+        
     }
 
     public Clob getClob()
     throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+      String string = getString(); 
+      return new AS400JDBCClob(string, string.length());
     }
 
     public Date getDate(Calendar calendar)
@@ -489,16 +489,16 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+      return new java.io.StringReader(getString());
+       
     }
     
     //@pda jdbc40
 /* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        String string = getString(); 
+      return new AS400JDBCNClob(string, string.length());
     }
 /* endif */ 
     

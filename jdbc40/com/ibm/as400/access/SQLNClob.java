@@ -40,14 +40,11 @@ import java.sql.SQLXML;
 //This is almost the same as SQLClob, and I would have liked to extend it, but it is final, and so decided
 //to not extend.  It may come in handy for future NClob deviations also.  
 
-final class SQLNClob implements SQLData
+final class SQLNClob extends SQLDataBase
 {
    
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
-    private SQLConversionSettings   settings_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private String                  value_;
     private Object savedObject_; // This is our byte[] or InputStream or whatever that we save to convert to bytes until we really need to.
 
@@ -55,10 +52,9 @@ final class SQLNClob implements SQLData
     //
     SQLNClob(int maxLength, SQLConversionSettings settings)
     {
-        length_         = 0;
+      super(settings); 
+      length_         = 0;
         maxLength_      = maxLength;
-        settings_       = settings;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";
     }
 
@@ -390,21 +386,6 @@ final class SQLNClob implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -469,21 +450,6 @@ final class SQLNClob implements SQLData
         }
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(value_);
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCClob(value_, maxLength_);
-    }
 
     public Date getDate(Calendar calendar)
     throws SQLException
@@ -562,38 +528,6 @@ final class SQLNClob implements SQLData
         return null;
     }
 
-    public InputStream getUnicodeStream()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ReaderInputStream(new StringReader(value_), 13488);
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-
-
-    public Reader getNCharacterStream() throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(value_);
-    }
-    
-/* ifdef JDBC40 */
-    public NClob getNClob() throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCNClob(value_, maxLength_);
-    }
-/* endif */ 
 
     public String getNString() throws SQLException
     {
@@ -635,11 +569,5 @@ final class SQLNClob implements SQLData
 
 /* endif */ 
     
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

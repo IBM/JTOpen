@@ -38,24 +38,20 @@ import java.net.URL;                     // @d2a
 import java.net.MalformedURLException;
 
 final class SQLDatalink
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // Private data.
     private int                     length_;
     private int                     maxLength_;
-    private SQLConversionSettings   settings_;
-    private int                     truncated_;
-    private boolean                     outOfBounds_; 
     private String                  value_;
 
     SQLDatalink(int maxLength, SQLConversionSettings settings)
     {
+        super(settings); 
         length_         = 0;
         maxLength_      = maxLength;
-        settings_       = settings;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = ""; // @A1C
     }
 
@@ -292,19 +288,6 @@ implements SQLData
         return null;
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(value_);
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCClob(value_, value_.length());
-    }
 
     public Date getDate(Calendar calendar)
     throws SQLException
@@ -397,37 +380,6 @@ implements SQLData
         return null;
     }
 
-    public InputStream getUnicodeStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(value_));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-    
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(value_);
-    }
-    
-    //@pda jdbc40
-    /* ifdef JDBC40 
-    public NClob getNClob() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCNClob(value_, value_.length());
-    }
-    endif */ 
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -451,10 +403,5 @@ implements SQLData
     }
     endif */ 
     // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

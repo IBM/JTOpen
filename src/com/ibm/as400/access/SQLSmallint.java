@@ -33,27 +33,26 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLSmallint
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
-    private int                 truncated_;
-    private boolean             outOfBounds_; 
     private short               value_;
     private int                 scale_;                             // @A0A
     private BigDecimal          bigDecimalValue_ = null;            // @A0A
     private int                 vrm_;                               //@trunc3
     
 
-    SQLSmallint(int vrm) //@trunc3
+    SQLSmallint(int vrm, SQLConversionSettings settings) //@trunc3
     {
-        this(0, vrm); //@trunc3
+        this(0, vrm, settings); //@trunc3
     }
 
-    SQLSmallint(int scale, int vrm)                   // @A0A  //@trunc3
+    SQLSmallint(int scale, int vrm, SQLConversionSettings settings)                   // @A0A  //@trunc3
     {
-        truncated_ = 0; outOfBounds_ = false; 
+    	super(settings); 
+        
         value_              = 0;
         scale_              = scale;                                      // @A0A
         if(scale_ > 0)                                                   // @C0A
@@ -63,7 +62,7 @@ implements SQLData
 
     public Object clone()
     {
-        return new SQLSmallint(scale_, vrm_);  //@trunc
+        return new SQLSmallint(scale_, vrm_, settings_);  //@trunc
     }
 
     //---------------------------------------------------------//
@@ -405,19 +404,6 @@ implements SQLData
         return null;
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 
     public Date getDate(Calendar calendar)
     throws SQLException
@@ -508,16 +494,15 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+         return new java.io.StringReader(getString());
     }
     
     /* ifdef JDBC40 
     //@pda jdbc40
     public NClob getNClob() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        String string = getString(); 
+      return new AS400JDBCNClob(string, string.length());
     }
     endif */ 
     //@pda jdbc40

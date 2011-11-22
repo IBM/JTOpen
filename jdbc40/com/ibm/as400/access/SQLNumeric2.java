@@ -41,16 +41,13 @@ import java.util.Calendar;
 // property.
 //
 final class SQLNumeric2
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
-    private SQLConversionSettings   settings_;
     private int                     precision_;
     private int                     scale_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private AS400ZonedDecimal       typeConverter_;
     private double                  value_;
     private JDProperties            properties_;  // @M0A - added JDProperties so we can get the scale & precision
@@ -62,10 +59,9 @@ implements SQLData
                 int vrm,                  // @M0C
                 JDProperties properties)  // @M0C
     {
-        settings_       = settings;
+        super(settings);
         precision_      = precision;
         scale_          = scale;
-        truncated_ = 0; outOfBounds_ = false; 
         typeConverter_  = new AS400ZonedDecimal(precision_, scale_);
         value_          = 0;
         vrm_            = vrm;         // @M0A
@@ -255,20 +251,6 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -330,20 +312,6 @@ implements SQLData
         return null;
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(getString());
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = getString();
-        return new AS400JDBCClob(string, string.length());
-    }
 
     public Date getDate(Calendar calendar)
     throws SQLException
@@ -465,22 +433,6 @@ implements SQLData
     
 
     //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(getNString());
-    }
-    
-    //@pda jdbc40
-/* ifdef JDBC40 */
-    public NClob getNClob() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = getNString();
-        return new AS400JDBCNClob(string, string.length());
-    }
-/* endif */ 
-    //@pda jdbc40
     public String getNString() throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
@@ -510,11 +462,6 @@ implements SQLData
     }
 /* endif */ 
     
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
+   
 }
 

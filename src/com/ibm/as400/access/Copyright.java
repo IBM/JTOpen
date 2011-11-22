@@ -68,6 +68,7 @@ package com.ibm.as400.access;
 //@E3   20110926  JDBC: AS/IS JDBC client program
 //@E4   20110929  JDBC: Always use GregorianCalendar to interpret database dates. 
 //@E5   20110929  JDBC: Fix updated row count for auto generated keys
+//@F1   20111122  JDBC: Miscellaneous conversion fixes 
 //
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------

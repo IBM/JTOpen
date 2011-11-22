@@ -14,15 +14,10 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.ByteArrayInputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Date;
 /*ifdef JDBC40 
 import java.sql.NClob;
@@ -37,7 +32,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLBigint
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
@@ -45,19 +40,18 @@ implements SQLData
     private static final BigInteger LONG_MIN_VALUE = BigInteger.valueOf(Long.MIN_VALUE);
 
     // Private data.
-    private int  truncated_ = 0;
-    private boolean outOfBounds_ = false; 
     private long value_     = 0;
     private int vrm_;            //@trunc3
 
-    SQLBigint(int vrm)           //@trunc3
+    SQLBigint(int vrm, SQLConversionSettings settings)           //@trunc3
     {                            //@trunc3
+      super(settings);
         vrm_ = vrm;              //@trunc3
     }                            //@trunc3
     
     public Object clone()
     {
-        return new SQLBigint(vrm_);  //@trunc3
+        return new SQLBigint(vrm_, settings_);  //@trunc3
     }
 
     //---------------------------------------------------------//
@@ -274,20 +268,7 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(Long.toString(value_)));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
+   
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -355,21 +336,6 @@ implements SQLData
     {
         truncated_ = 0; outOfBounds_ = false; 
         return BinaryConverter.longToByteArray(value_);
-    }
-
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(Long.toString(value_));
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = Long.toString(value_);
-        return new AS400JDBCClob(string, string.length());
     }
 
     public Date getDate(Calendar calendar)
@@ -470,39 +436,6 @@ implements SQLData
         return null;
     }
 
-    public InputStream  getUnicodeStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(Long.toString(value_)));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-    
-
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false;   //@pdc
-        return new StringReader(Long.toString(value_));  //@pdc
-    }
-    
-    //@pda jdbc40
-    /* ifdef JDBC40 
-    public NClob getNClob() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = Long.toString(value_);
-        return new AS400JDBCNClob(string, string.length());
-    }
-endif */     
-
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -528,10 +461,5 @@ endif */
     }
 endif */     
     // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

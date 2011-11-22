@@ -14,14 +14,8 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.ByteArrayInputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Date;
 /*ifdef JDBC40
 import java.sql.NClob;
@@ -36,7 +30,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLDecimal
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
@@ -55,11 +49,8 @@ implements SQLData
     static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
     static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(Double.MIN_VALUE);
 
-    private SQLConversionSettings   settings_;
     private int                     precision_;
     private int                     scale_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_;
     private AS400PackedDecimal      typeConverter_;
     private BigDecimal              value_;
     private JDProperties            properties_;   // @M0A - added JDProperties so we can get the scale & precision
@@ -71,10 +62,9 @@ implements SQLData
                int vrm,                  // @M0C
                JDProperties properties)  // @M0C
     {
-        settings_       = settings;
+        super(settings); 
         precision_      = precision;
         scale_          = scale;
-        truncated_ = 0; outOfBounds_ = false; 
         typeConverter_  = new AS400PackedDecimal(precision_, scale_);
         value_          = default_; // @C2C
         vrm_            = vrm;         // @M0A
@@ -304,20 +294,6 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -381,20 +357,7 @@ implements SQLData
         return null;
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(getString());
-    }
 
-    public Clob getClob()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = getString();
-        return new AS400JDBCClob(string, string.length());
-    }
 
     public Date getDate(Calendar calendar)
     throws SQLException
@@ -514,37 +477,6 @@ implements SQLData
         return null;
     }
 
-    public InputStream  getUnicodeStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-    
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(getNString());
-    }
-    
-    //@pda jdbc40
-    /* ifdef JDBC40 
-    public NClob getNClob() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = getNString();
-        return new AS400JDBCNClob(string, string.length());
-    }
-    endif */ 
     
     //@pda jdbc40
     public String getNString() throws SQLException
@@ -574,10 +506,4 @@ implements SQLData
         return null;
     }
     endif */ 
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }

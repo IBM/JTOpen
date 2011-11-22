@@ -21,7 +21,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
+  
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -38,26 +38,22 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLVarcharForBitData
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[]     default_    = new byte[0]; // @C2A
 
-    private SQLConversionSettings   settings_;
     private int                     length_;
     private int                     maxLength_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private byte[]                  value_;
 
     SQLVarcharForBitData(int maxLength, SQLConversionSettings settings)
     {
-        settings_       = settings;
+        super(settings);
         length_         = 0;
         maxLength_      = maxLength;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = default_; // @C2C
     }
 
@@ -660,11 +656,5 @@ implements SQLData
     }
 /* endif */ 
 
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

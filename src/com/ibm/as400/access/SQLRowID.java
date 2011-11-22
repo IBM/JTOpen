@@ -37,24 +37,20 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class SQLRowID implements SQLData
+final class SQLRowID extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[] default_ = new byte[0];
 
-    private SQLConversionSettings   settings_;
     private int                     length_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private byte[]                  value_;
 
     SQLRowID(SQLConversionSettings settings)
     {
-        settings_       = settings;
+        super(settings);
         length_         = 0;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = default_;
     }
 
@@ -612,11 +608,6 @@ final class SQLRowID implements SQLData
     }
    endif */ 
     
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
+
 }
 

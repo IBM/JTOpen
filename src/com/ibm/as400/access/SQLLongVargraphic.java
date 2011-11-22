@@ -36,26 +36,22 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLLongVargraphic
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
-    private SQLConversionSettings   settings_;
     private int                     length_;
     private int                     maxLength_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private String                  value_;
 
     // Note: maxLength is in bytes not counting 2 for LL.
     //
     SQLLongVargraphic(int maxLength, SQLConversionSettings settings)
     {
-        settings_       = settings;
-        length_         = 0;
+      super(settings); 
+      length_         = 0;
         maxLength_      = maxLength;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";
     }
 
@@ -331,51 +327,6 @@ endif */
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-
-    public BigDecimal getBigDecimal(int scale)
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(value_)); // @F3C
-            if(scale >= 0)
-            {
-                if(scale >= bigDecimal.scale())
-                {
-                    truncated_ = 0; outOfBounds_ = false; 
-                    return bigDecimal.setScale(scale);
-                }
-                else
-                {
-                    truncated_ = bigDecimal.scale() - scale;
-                    return bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
-                }
-            }
-            else
-                return bigDecimal;
-        }
-        catch(NumberFormatException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
-            return null;
-        }
-    }
-
     public InputStream getBinaryStream()
     throws SQLException
     {
@@ -399,35 +350,6 @@ endif */
         }
     }
 
-    public boolean getBoolean()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        // If value equals "true" or "false", then return the
-        // corresponding boolean, otherwise an empty string is
-        // false, a non-empty string is true.
-        String trimmedValue = value_.trim();        
-        return((trimmedValue.length() > 0) 
-               && (! trimmedValue.equalsIgnoreCase("false"))
-               && (! trimmedValue.equals("0")));
-    }
-
-    public byte getByte()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return(new Double(value_.trim())).byteValue();
-        }
-        catch(NumberFormatException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
-            return -1;
-        }
-    }
 
     public byte[] getBytes()
     throws SQLException
@@ -445,103 +367,6 @@ endif */
         }
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        // This is written in terms of getString(), since it will
-        // handle truncating to the max field size if needed.
-        return new StringReader(getString());
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        // This is written in terms of getString(), since it will
-        // handle truncating to the max field size if needed.
-        return new AS400JDBCClob(getString(), maxLength_);
-    }
-
-    public Date getDate(Calendar calendar)
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = AS400Calendar.getGregorianInstance(); //@dat1
-        }
-        else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
-        }
-
-        return SQLDate.stringToDate(value_, settings_, calendar);
-    }
-
-    public double getDouble()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return(new Double(value_.trim())).doubleValue();
-        }
-        catch(NumberFormatException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
-            return -1;
-        }
-    }
-
-    public float getFloat()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return(new Double(value_.trim())).floatValue();
-        }
-        catch(NumberFormatException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
-            return -1;
-        }
-    }
-
-    public int getInt()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return(new Double(value_.trim())).intValue();
-        }
-        catch(NumberFormatException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
-            return -1;
-        }
-    }
-
-    public long getLong()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return(new Double(value_.trim())).longValue();
-        }
-        catch(NumberFormatException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
-            return -1;
-        }
-    }
 
     public Object getObject()
     throws SQLException
@@ -552,21 +377,6 @@ endif */
         return getString();
     }
 
-    public short getShort()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return(new Double(value_.trim())).shortValue();
-        }
-        catch(NumberFormatException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
-            return -1;
-        }
-    }
 
     public String getString()
     throws SQLException
@@ -587,75 +397,6 @@ endif */
         }
     }
 
-    public Time getTime(Calendar calendar)
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = AS400Calendar.getGregorianInstance(); //@dat1
-        }
-        else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
-        }
-
-        return SQLTime.stringToTime(value_, settings_, calendar);
-    }
-
-    public Timestamp getTimestamp(Calendar calendar)
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(calendar == null) //@dat1
-        {
-            //getter methods do not enforce strict conversion
-            calendar = AS400Calendar.getGregorianInstance(); //@dat1
-        }
-        else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
-        }
-
-        return SQLTimestamp.stringToTimestamp(value_, calendar);
-    }
-
-    public InputStream getUnicodeStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ReaderInputStream(new StringReader(value_), 13488);
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-    
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        // This is written in terms of getNString(), since it will
-        // handle truncating to the max field size if needed.
-        return new StringReader(getNString());
-    }
-    
-    //@pda jdbc40
-    /* ifdef JDBC40 
-    public NClob getNClob() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        // This is written in terms of getNString(), since it will
-        // handle truncating to the max field size if needed.
-        String string = getNString();
-        return new AS400JDBCNClob(string, maxLength_);
-    }
-   endif */ 
     
     //@pda jdbc40
     public String getNString() throws SQLException
@@ -704,11 +445,5 @@ endif */
     }
 endif */ 
     
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

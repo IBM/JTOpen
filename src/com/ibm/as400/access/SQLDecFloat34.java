@@ -18,7 +18,6 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Date;
 /* ifdef JDBC40 
 import java.sql.NClob;
@@ -33,7 +32,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 //@DFA new class
-final class SQLDecFloat34 implements SQLData {
+final class SQLDecFloat34 extends SQLDataBase {
     static final String copyright = "Copyright (C) 2006 International Business Machines Corporation and others.";
 
     private static final BigDecimal default_ = BigDecimal.valueOf(0);  
@@ -65,13 +64,9 @@ final class SQLDecFloat34 implements SQLData {
        
     static final int DECFLOAT34_MIN_EXP = -6143;  
     
-    private SQLConversionSettings settings_;
 
     private int precision_;  //34
        
-    private int truncated_;
-    
-    private boolean outOfBounds_; 
     
     String specialValue_ = null; //since BigDecimal cannot hold "Infinity", "-Infinity" or "NaN", store them here as string
 
@@ -88,9 +83,9 @@ final class SQLDecFloat34 implements SQLData {
     private int vrm_;
 
     SQLDecFloat34( SQLConversionSettings settings, int vrm, JDProperties properties) {
-        settings_ = settings;
+      super(settings); 
+      
         precision_ = 34;
-        truncated_ = 0; outOfBounds_ = false; 
         roundingModeStr = properties.getString(JDProperties.DECFLOAT_ROUNDING_MODE);
         typeConverter_ = new AS400DecFloat(precision_);
         value_ = default_;  
@@ -428,15 +423,6 @@ final class SQLDecFloat34 implements SQLData {
         return null;
     }
 
-    public Reader getCharacterStream() throws SQLException {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-    public Clob getClob() throws SQLException {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 
     public Date getDate(Calendar calendar) throws SQLException {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -595,10 +581,6 @@ final class SQLDecFloat34 implements SQLData {
         return null;
     }
 
-    public InputStream getUnicodeStream() throws SQLException {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
     
     /** Helper method to return string value of special values that
      *  cannot be held in current BigDecimal objects.
@@ -634,21 +616,7 @@ final class SQLDecFloat34 implements SQLData {
             return null; //not a special value
     }
 
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
     
-    //@pda jdbc40
-    /*ifdef JDBC40 
-    public NClob getNClob() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-   endif */ 
     
     //@pda jdbc40
     public String getNString() throws SQLException
@@ -687,11 +655,5 @@ final class SQLDecFloat34 implements SQLData {
     }
     endif */ 
     
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
     
 }

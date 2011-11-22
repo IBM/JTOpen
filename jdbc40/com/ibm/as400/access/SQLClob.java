@@ -35,15 +35,12 @@ import java.util.Calendar;
 /* ifdef JDBC40 */
 import java.sql.SQLXML;  //@PDA jdbc40
 /* endif */ 
-final class SQLClob implements SQLData
+final class SQLClob extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
-    private SQLConversionSettings   settings_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private String                  value_;
     private Object savedObject_; // This is our byte[] or InputStream or whatever that we save to convert to bytes until we really need to.
 
@@ -51,10 +48,9 @@ final class SQLClob implements SQLData
     //
     SQLClob(int maxLength, SQLConversionSettings settings)
     {
+        super(settings); 
         length_         = 0;
         maxLength_      = maxLength;
-        settings_       = settings;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";
     }
 

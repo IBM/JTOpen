@@ -2507,8 +2507,8 @@ public class Main implements Runnable {
                           methodParameters += parameterTypeName + " ";
                           if (arg.equals("null")) {
                             parameters[p] = null;
-                          } else if (parameterTypeName
-                              .equals("java.lang.String")) {
+                          } else if (parameterTypeName.equals("java.lang.String") || 
+                              parameterTypeName.equals("java.lang.Object") ) {
                             parameters[p] = arg;
                           } else if (parameterTypeName.equals("int")) {
                             try {

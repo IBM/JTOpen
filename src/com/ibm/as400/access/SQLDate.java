@@ -37,23 +37,19 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLDate
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
     // Private data.
-    private SQLConversionSettings   settings_;
     private int			    dateFormat_;	// @550A
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private int                     year_;
     private int                     month_;
     private int                     day_;
 
     SQLDate(SQLConversionSettings settings, int dateFormat)
     {
-        settings_   = settings;
-        truncated_ = 0; outOfBounds_ = false; 
+        super(settings); 
         year_       = 0;
         month_      = 0;
         day_        = 0;
@@ -564,21 +560,6 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -622,20 +603,6 @@ implements SQLData
         return null;
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(getString());
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = getString();
-        return new AS400JDBCClob(string, string.length());
-    }
 
     public Date getDate(Calendar calendar)
     throws SQLException
@@ -727,39 +694,7 @@ implements SQLData
         return ts;
     }
 
-    public InputStream  getUnicodeStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
     
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(getNString());
-    }
-    
-    //@pda jdbc40
-    /* ifdef JDBC40 
-
-    public NClob getNClob() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false;                                      //@pda
-        String string = getString();                        //@pda
-        return new AS400JDBCNClob(string, string.length()); //@pda
-    }
-    endif */ 
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -790,10 +725,6 @@ implements SQLData
     }
     endif */ 
     // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
+
 }
 

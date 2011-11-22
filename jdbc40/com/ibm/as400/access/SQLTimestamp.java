@@ -15,13 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.CharConversionException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.math.BigDecimal;
-import java.sql.Array;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Date;
+ import java.math.BigDecimal;
+ import java.sql.Blob;
+ import java.sql.Date;
 /* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
@@ -35,14 +31,11 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLTimestamp
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // Private data.
-    private SQLConversionSettings   settings_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private int                     year_;
     private int                     month_;
     private int                     day_;
@@ -53,8 +46,7 @@ implements SQLData
 
     SQLTimestamp(SQLConversionSettings settings)
     {
-        settings_   = settings;
-        truncated_ = 0; outOfBounds_ = false; 
+        super(settings); 
         year_       = 0;
         month_      = 0;
         day_        = 0;
@@ -483,19 +475,6 @@ implements SQLData
         return null;
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 
     public Date getDate(Calendar calendar)
     throws SQLException
@@ -598,30 +577,8 @@ implements SQLData
         return ts;
     }
 
-    public InputStream  getUnicodeStream()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
     
 
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);  //@pdc
-        return null;   //@pdc
-    }
-    
-/* ifdef JDBC40 */
-    //@pda jdbc40
-    public NClob getNClob() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-/* endif */ 
     
     //@pda jdbc40
     public String getNString() throws SQLException
@@ -650,11 +607,5 @@ implements SQLData
     }
 /* endif */ 
     
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

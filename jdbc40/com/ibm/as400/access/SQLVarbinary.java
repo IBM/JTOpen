@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -38,26 +37,22 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLVarbinary
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private static final byte[]     default_    = new byte[0];
 
-    private SQLConversionSettings   settings_;
     private int                     length_;
     private int                     maxLength_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private byte[]                  value_;
 
     SQLVarbinary(int maxLength, SQLConversionSettings settings)
     {
-        settings_       = settings;
+        super(settings);
         length_         = 0;
         maxLength_      = maxLength;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = default_;
     }
 
@@ -75,7 +70,7 @@ implements SQLData
     public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException
     {
-        length_ = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);;
+        length_ = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);
         AS400ByteArray typeConverter = new AS400ByteArray(length_);
         value_ = (byte[])typeConverter.toObject(rawBytes, offset+2);
     }
@@ -413,22 +408,6 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        // This is written in terms of getBytes(), since it will
-        // handle truncating to the max field size if needed.
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -581,43 +560,6 @@ implements SQLData
         return null;
     }
 
-    public InputStream getUnicodeStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        // This is written in terms of getBytes(), since it will
-        // handle truncating to the max field size if needed.
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(getBytes())));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-
-    //@PDA jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        // This is written in terms of toBytes(), since it will
-        // handle truncating to the max field size if needed.
-        return new StringReader(BinaryConverter.bytesToHexString(getBytes()));
-    }
-
-/* ifdef JDBC40 */
-    //@PDA jdbc40
-    public NClob getNClob() throws SQLException
-    {        
-        truncated_ = 0; outOfBounds_ = false; 
-        // This is written in terms of getBytes(), since it will
-        // handle truncating to the max field size if needed.
-        String string = BinaryConverter.bytesToHexString(getBytes());
-        return new AS400JDBCNClob(string, maxLength_);
-    }
-/* endif */ 
 
     //@PDA jdbc40
     public String getNString() throws SQLException

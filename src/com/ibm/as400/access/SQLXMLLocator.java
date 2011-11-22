@@ -932,7 +932,9 @@ endif */
             //get value from RS.updateX(value)
             doConversion();     //@loch
             truncated_ = 0; outOfBounds_ = false;      //@loch
-            return valueBlob_;//@loch
+            if (valueBlob_ != null) {
+              return valueBlob_;//@loch
+            }
         }                       //@loch
         
         int locatorLength = (int)locator_.getLength();

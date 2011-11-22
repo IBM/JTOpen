@@ -36,15 +36,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class SQLDBClob implements SQLData
+final class SQLDBClob extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private int                     length_;                    // Length of string, in characters.     @E3C
     private int                     maxLength_;                 // Max length of field, in bytes.       @E3C
-    private SQLConversionSettings   settings_;
-    private int                     truncated_;
-    private boolean                 outOfBounds_; 
     private String                  value_;
     private Object savedObject_; // This is our byte[] or InputStream or whatever that we save to convert to bytes until we really need to.
 
@@ -52,10 +49,9 @@ final class SQLDBClob implements SQLData
     //
     SQLDBClob(int maxLength, SQLConversionSettings settings)
     {
+      super(settings); 
         length_         = 0;
         maxLength_      = maxLength;
-        settings_       = settings;
-        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";
     }
 
@@ -616,9 +612,4 @@ endif */
     }
     endif */ 
     // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }

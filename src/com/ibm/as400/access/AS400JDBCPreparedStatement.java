@@ -293,7 +293,7 @@ value of the property to false.  The problem did not occur with the jar file.
         useReturnValueParameter_    = sqlStatement.hasReturnValueParameter();       // @F2A
 
         if(useReturnValueParameter_)                                               // @F2A
-            returnValueParameter_   = new SQLInteger(connection_.getVRM());                             // @F2A  //@trunc3
+            returnValueParameter_   = new SQLInteger(connection_.getVRM(),settings_);                             // @F2A  //@trunc3
 
         if(JDTrace.isTraceOn())
         {                                                  // @D1A @F2C

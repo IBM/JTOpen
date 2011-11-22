@@ -38,23 +38,21 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLBinary
-implements SQLData
+extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    private SQLConversionSettings   settings_;
     private int                     maxLength_;
-    private int                     truncated_;
-    private boolean outOfBounds_ = false; 
 
     private AS400ByteArray          typeConverter_;
     private byte[]                  value_;
 
     SQLBinary(int maxLength, SQLConversionSettings settings)
     {
-        settings_       = settings;
+      super(settings); 
+        
         maxLength_      = maxLength;
-        truncated_ = 0; outOfBounds_ = false;
+       
        
         typeConverter_  = new AS400ByteArray(maxLength);
         value_          = new byte[maxLength];
@@ -638,11 +636,5 @@ implements SQLData
     }
 /* endif */ 
     
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

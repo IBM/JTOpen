@@ -435,14 +435,14 @@ implements DatabaseMetaData
             "PSEUDO_COLUMN",
         };
 
-        SQLData[] sqlData = { new SQLSmallint (vrm), // scope //@trunc3
+        SQLData[] sqlData = { new SQLSmallint (vrm, settings_), // scope //@trunc3
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (vrm),    // data type   //@trunc3
+            new SQLSmallint (vrm, settings_),    // data type   //@trunc3
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (vrm),     // column size    //@trunc3
-            new SQLInteger (vrm),     // buffer length  //@trunc3
-            new SQLSmallint (vrm),    // decimal digits //@trunc3
-            new SQLSmallint (vrm),    // pseudo column  //@trunc3
+            new SQLInteger (vrm, settings_),     // column size    //@trunc3
+            new SQLInteger (vrm, settings_),     // buffer length  //@trunc3
+            new SQLSmallint (vrm, settings_),    // decimal digits //@trunc3
+            new SQLSmallint (vrm, settings_),    // pseudo column  //@trunc3
         };
 
         int[] fieldNullables = { columnNoNulls,  // scope
@@ -1102,19 +1102,19 @@ endif */
                 new SQLVarchar (128, settings_),  // library
                 new SQLVarchar (128, settings_),  // table
                 new SQLVarchar (128, settings_),  // column
-                new SQLSmallint (vrm), // data type  //@trunc3
+                new SQLSmallint (vrm, settings_), // data type  //@trunc3
                 new SQLVarchar (128, settings_),  // type name
-                new SQLInteger (vrm),  // column size  //@trunc3
-                new SQLInteger (vrm),  // buffer length //@trunc3
-                new SQLInteger (vrm), // decimal digits //@trunc3
-                new SQLInteger (vrm), // radix //@trunc3
-                new SQLInteger (vrm), // nullable //@trunc3
+                new SQLInteger (vrm, settings_),  // column size  //@trunc3
+                new SQLInteger (vrm, settings_),  // buffer length //@trunc3
+                new SQLInteger (vrm, settings_), // decimal digits //@trunc3
+                new SQLInteger (vrm, settings_), // radix //@trunc3
+                new SQLInteger (vrm, settings_), // nullable //@trunc3
                 new SQLVarchar (254, settings_),  // remarks
                 new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def   //@550 Column default value support
-                new SQLInteger (vrm),  // sql data type //@trunc3
-                new SQLInteger (vrm),  // datetime sub //@trunc3
-                new SQLInteger (vrm),  // octet length //@trunc3
-                new SQLInteger (vrm),  // ordinal  //@trunc3
+                new SQLInteger (vrm, settings_),  // sql data type //@trunc3
+                new SQLInteger (vrm, settings_),  // datetime sub //@trunc3
+                new SQLInteger (vrm, settings_),  // octet length //@trunc3
+                new SQLInteger (vrm, settings_),  // ordinal  //@trunc3
                 new SQLVarchar (254, settings_),  // is nullable
             };
 
@@ -1180,24 +1180,24 @@ endif */
                 new SQLVarchar (128, settings_),  // library
                 new SQLVarchar (128, settings_),  // table
                 new SQLVarchar (128, settings_),  // column
-                new SQLSmallint (vrm), // data type //@trunc3
+                new SQLSmallint (vrm, settings_), // data type //@trunc3
                 new SQLVarchar (128, settings_),  // type name
-                new SQLInteger (vrm),  // column size //@trunc3
-                new SQLInteger (vrm),  // buffer length //@trunc3
-                new SQLInteger (vrm), // decimal digits //@trunc3
-                new SQLInteger (vrm), // radix //@trunc3
-                new SQLInteger (vrm), // nullable //@trunc3
+                new SQLInteger (vrm, settings_),  // column size //@trunc3
+                new SQLInteger (vrm, settings_),  // buffer length //@trunc3
+                new SQLInteger (vrm, settings_), // decimal digits //@trunc3
+                new SQLInteger (vrm, settings_), // radix //@trunc3
+                new SQLInteger (vrm, settings_), // nullable //@trunc3
                 new SQLVarchar (254, settings_),  // remarks
                 new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def
-                new SQLInteger (vrm),  // sql data type //@trunc3
-                new SQLInteger (vrm),  // datetime sub //@trunc3
-                new SQLInteger (vrm),  // octet length //@trunc3
-                new SQLInteger (vrm),  // ordinal //@trunc3
+                new SQLInteger (vrm, settings_),  // sql data type //@trunc3
+                new SQLInteger (vrm, settings_),  // datetime sub //@trunc3
+                new SQLInteger (vrm, settings_),  // octet length //@trunc3
+                new SQLInteger (vrm, settings_),  // ordinal //@trunc3
                 new SQLVarchar (254, settings_),  // is nullable
                 new SQLVarchar (128, settings_),  // scope catalog       //@G4A
                 new SQLVarchar (128, settings_),  // scope schema        //@G4A
                 new SQLVarchar (128, settings_),  // scope table         //@G4A
-                new SQLSmallint (vrm), // source data type    //@G4A //@trunc3
+                new SQLSmallint (vrm, settings_), // source data type    //@G4A //@trunc3
 /* ifdef JDBC40
                 new SQLVarchar (128, settings_),  // is autoincrement    //jdbc40
 endif */ 
@@ -1619,12 +1619,12 @@ endif */
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (vrm),    // key seq //@trunc3
-            new SQLSmallint (vrm),    // update rule //@trunc3
-            new SQLSmallint (vrm),    // delete rule //@trunc3
+            new SQLSmallint (vrm, settings_),    // key seq //@trunc3
+            new SQLSmallint (vrm, settings_),    // update rule //@trunc3
+            new SQLSmallint (vrm, settings_),    // delete rule //@trunc3
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (vrm),    // deferrability //@trunc3
+            new SQLSmallint (vrm, settings_),    // deferrability //@trunc3
         };
 
         int[] fieldNullables = {columnNullable,  // pk catalog
@@ -2088,12 +2088,12 @@ endif */
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (vrm),    // key seq  //@trunc3
-            new SQLSmallint (vrm),    // update rule //@trunc3
-            new SQLSmallint (vrm),    // delete rule //@trunc3
+            new SQLSmallint (vrm, settings_),    // key seq  //@trunc3
+            new SQLSmallint (vrm, settings_),    // update rule //@trunc3
+            new SQLSmallint (vrm, settings_),    // delete rule //@trunc3
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (vrm),    // deferrability //@trunc3
+            new SQLSmallint (vrm, settings_),    // deferrability //@trunc3
         };
         int[] fieldNullables = {columnNullable,  // pk catalog
             columnNullable,  // pk schema
@@ -2371,12 +2371,12 @@ endif */
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (vrm),    // key seq //@trunc3
-            new SQLSmallint (vrm),    // update rule //@trunc3
-            new SQLSmallint (vrm),    // delete rule //@trunc3
+            new SQLSmallint (vrm, settings_),    // key seq //@trunc3
+            new SQLSmallint (vrm, settings_),    // update rule //@trunc3
+            new SQLSmallint (vrm, settings_),    // delete rule //@trunc3
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (vrm),    // deferrability //@trunc3
+            new SQLSmallint (vrm, settings_),    // deferrability //@trunc3
         };
 
         int[] fieldNullables = {columnNullable,  // pk catalog
@@ -2648,15 +2648,15 @@ endif */
             // when instantiating the non-unique small int
             // pass in a boolean and it will give it the
             // right value
-            new SQLSmallint (vrm),    // non-unique - boolean //@trunc3
+            new SQLSmallint (vrm, settings_),    // non-unique - boolean //@trunc3
             new SQLVarchar (128, settings_),  // index qualifier
             new SQLVarchar (128, settings_),  // index name
-            new SQLSmallint (vrm),    // type //@trunc3
-            new SQLSmallint (vrm),    // ordinal position //@trunc3
+            new SQLSmallint (vrm, settings_),    // type //@trunc3
+            new SQLSmallint (vrm, settings_),    // ordinal position //@trunc3
             new SQLVarchar (128, settings_),  // column name
             new SQLVarchar (1, settings_),    // sort sequence
-            new SQLInteger  (vrm),    // cardinality
-            new SQLInteger  (vrm),    // pages //@trunc3
+            new SQLInteger  (vrm, settings_),    // cardinality
+            new SQLInteger  (vrm, settings_),    // pages //@trunc3
             new SQLVarchar (128, settings_),  // filter condition
         };
 
@@ -3266,7 +3266,7 @@ endif */
             new SQLVarchar (128, settings_),  // pk schema
             new SQLVarchar (128, settings_),  // pk table
             new SQLVarchar (128, settings_),  // pk column
-            new SQLSmallint (vrm),    // key seq  //@trunc3
+            new SQLSmallint (vrm, settings_),    // key seq  //@trunc3
             new SQLVarchar (128, settings_),  // pk name
         };
 
@@ -3400,7 +3400,11 @@ endif */
 
     /**
     Returns a description of a catalog's stored procedure
-    parameters and result columns.
+    parameters and result columns.  
+    <p> Note:  For this function to work with procedure names
+    longer than 10 characters, the metadata source=1 property must be used on the connection.  
+    This is the default when connecting to a V7R1 or later system. 
+    
     
     @param  catalog            The catalog name. If null is specified, this parameter
                                is ignored.  If empty string is specified,
@@ -3484,14 +3488,14 @@ endif */
             new SQLVarchar (128, settings_),  // schema
             new SQLVarchar (128, settings_),  // procedure
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (vrm),    // column type //@trunc3
-            new SQLSmallint (vrm),    // data type //@trunc3
+            new SQLSmallint (vrm, settings_),    // column type //@trunc3
+            new SQLSmallint (vrm, settings_),    // data type //@trunc3
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (vrm),     // precision //@trunc3
-            new SQLInteger (vrm),     // length //@trunc3
-            new SQLSmallint (vrm),    // scale //@trunc3
-            new SQLInteger (vrm),    // radix //@trunc3
-            new SQLSmallint (vrm),    // nullable //@trunc3
+            new SQLInteger (vrm, settings_),     // precision //@trunc3
+            new SQLInteger (vrm, settings_),     // length //@trunc3
+            new SQLSmallint (vrm, settings_),    // scale //@trunc3
+            new SQLInteger (vrm, settings_),    // radix //@trunc3
+            new SQLSmallint (vrm, settings_),    // nullable //@trunc3
             new SQLVarchar (2000, settings_)  // remarks
         };
 
@@ -3730,17 +3734,17 @@ endif */
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // catalog
             new SQLVarchar (128, settings_),  // schema
             new SQLVarchar (128, settings_),  // procedure
-            new SQLInteger (vrm),     // reserved //@trunc3
-            new SQLInteger (vrm),     // reserved //@trunc3
-            new SQLInteger (vrm),     // reserved //@trunc3
+            new SQLInteger (vrm,settings_),     // reserved //@trunc3
+            new SQLInteger (vrm,settings_),     // reserved //@trunc3
+            new SQLInteger (vrm,settings_),     // reserved //@trunc3
             new SQLVarchar (2000, settings_),  // remarks
 /* ifdef JDBC40
-            new SQLSmallint (vrm),     // procedure type //@trunc3
+            new SQLSmallint (vrm, settings_),     // procedure type //@trunc3
             new SQLVarchar (128, settings_)  // specific name //@JDBC40
 
 endif */ 
 /* ifndef JDBC40 */ 
-            new SQLSmallint (vrm)     // procedure type //@trunc3
+            new SQLSmallint (vrm, settings_)     // procedure type //@trunc3
 /* endif */ 
         };
 
@@ -5086,23 +5090,23 @@ endif */
         };
 
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // Table name.
-            new SQLSmallint (vrm),               // Data type. //@trunc3
-            new SQLInteger (vrm),                // Precision. //@trunc3
+            new SQLSmallint (vrm, settings_),               // Data type. //@trunc3
+            new SQLInteger (vrm, settings_),                // Precision. //@trunc3
             new SQLVarchar (128, settings_),  // Literal prefix.
             new SQLVarchar (128, settings_),  // Literal suffix.
             new SQLVarchar (128, settings_),  // Create parameters.
-            new SQLSmallint (vrm),               // Nullable. //@trunc3
-            new SQLSmallint (vrm),               // Case sensitive. //@trunc3
-            new SQLSmallint (vrm),               // Searchable. //@trunc3
-            new SQLSmallint (vrm),               // Unsigned. //@trunc3
-            new SQLSmallint (vrm),               // Currency. //@trunc3
-            new SQLSmallint (vrm),               // Auto increment. //@trunc3
+            new SQLSmallint (vrm, settings_),               // Nullable. //@trunc3
+            new SQLSmallint (vrm, settings_),               // Case sensitive. //@trunc3
+            new SQLSmallint (vrm, settings_),               // Searchable. //@trunc3
+            new SQLSmallint (vrm, settings_),               // Unsigned. //@trunc3
+            new SQLSmallint (vrm,settings_),               // Currency. //@trunc3
+            new SQLSmallint (vrm,settings_),               // Auto increment. //@trunc3
             new SQLVarchar (128, settings_),  // Local type name.
-            new SQLSmallint (vrm),               // Minimum scale. //@trunc3
-            new SQLSmallint (vrm),               // Maximum scale. //@trunc3
-            new SQLInteger (vrm),                // Unused. //@trunc3
-            new SQLInteger (vrm),                // Unused. //@trunc3
-            new SQLInteger (vrm)                 // Radix. //@trunc3
+            new SQLSmallint (vrm,settings_),               // Minimum scale. //@trunc3
+            new SQLSmallint (vrm,settings_),               // Maximum scale. //@trunc3
+            new SQLInteger (vrm,settings_),                // Unused. //@trunc3
+            new SQLInteger (vrm,settings_),                // Unused. //@trunc3
+            new SQLInteger (vrm,settings_)                 // Radix. //@trunc3
         };
 
 
@@ -5148,10 +5152,10 @@ endif */
         typeSamples.addElement(new SQLDouble(settings_));                          // @D0C
         typeSamples.addElement(new SQLFloat(settings_));                           // @D0C
         typeSamples.addElement(new SQLGraphic(16382, settings_, -1)); //@cca1
-        typeSamples.addElement(new SQLInteger(vrm));    //@trunc3                               // @D0C
+        typeSamples.addElement(new SQLInteger(vrm,settings_));    //@trunc3                               // @D0C
         typeSamples.addElement(new SQLNumeric(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLReal(settings_));                            // @D0C
-        typeSamples.addElement(new SQLSmallint(vrm));   //@trunc3                               // @D0C
+        typeSamples.addElement(new SQLSmallint(vrm,settings_));   //@trunc3                               // @D0C
         typeSamples.addElement(new SQLTime(settings_, -1));                            // @D0C @550C
         typeSamples.addElement(new SQLTimestamp(settings_));                       // @D0C
         //typeSamples.addElement(new SQLLongVarchar(32739, settings_));        //Change to report LONG VARCHAR as VARCHAR to be consistent with other clients.
@@ -5171,7 +5175,7 @@ endif */
         }                                                                       // @B4D B5A 
         
         if (connection_.getVRM() >= JDUtilities.vrm450)         // @D0A
-            typeSamples.addElement(new SQLBigint(vrm));  //@trunc3                              // @D0A
+            typeSamples.addElement(new SQLBigint(vrm, settings_));  //@trunc3                              // @D0A
         
         // @M0A - added support for binary, varbinary, and rowid data types
         if(connection_.getVRM() >= JDUtilities.vrm520)
@@ -5389,7 +5393,7 @@ endif */
                 new SQLVarchar (128, settings_),  // type schema
                 new SQLVarchar (128, settings_),  // type name
                 new SQLVarchar (128, settings_),  // class name
-                new SQLSmallint (vrm),               // data type //@trunc3
+                new SQLSmallint (vrm,settings_),               // data type //@trunc3
                 new SQLVarchar (2000, settings_), // remarks
             };
 
@@ -5417,9 +5421,9 @@ endif */
                 new SQLVarchar (128, settings_),  // type schema
                 new SQLVarchar (128, settings_),  // type name
                 new SQLVarchar (128, settings_),  // class name
-                new SQLSmallint (vrm),               // data type //@trunc3
+                new SQLSmallint (vrm,settings_),               // data type //@trunc3
                 new SQLVarchar (2000, settings_), // remarks
-                new SQLSmallint (vrm),               // base type  //@G4A //@trunc3
+                new SQLSmallint (vrm,settings_),               // base type  //@G4A //@trunc3
             };
 
             fieldNullables = new int[] {  columnNullable,  // type catalog
@@ -5686,14 +5690,14 @@ endif */
             "PSEUDO_COLUMN",
         };
 
-        SQLData[] sqlData = { new SQLSmallint (vrm), // scope //@trunc3
+        SQLData[] sqlData = { new SQLSmallint (vrm,settings_), // scope //@trunc3
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (vrm),    // data type //@trunc3
+            new SQLSmallint (vrm,settings_),    // data type //@trunc3
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (vrm),     // column size //@trunc3
-            new SQLInteger (vrm),     // buffer length //@trunc3
-            new SQLSmallint (vrm),    // decimal digits //@trunc3
-            new SQLSmallint (vrm),    // pseudo column //@trunc3
+            new SQLInteger (vrm,settings_),     // column size //@trunc3
+            new SQLInteger (vrm,settings_),     // buffer length //@trunc3
+            new SQLSmallint (vrm,settings_),    // decimal digits //@trunc3
+            new SQLSmallint (vrm,settings_),    // pseudo column //@trunc3
         };
 
         int[] fieldNullables = {columnNoNulls,  // scope
@@ -7614,7 +7618,7 @@ endif */
         // Set up the result set.
         int vrm = connection_.getVRM();  //@trunc3
         String[] fieldNames = { "NAME", "MAX_LEN", "DEFAULT_VALUE", "DESCRIPTION" };
-        SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(vrm), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) }; //trunc3
+        SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(vrm,settings_), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) }; //trunc3
         int[] fieldNullables = {columnNoNulls, columnNoNulls, columnNoNulls, columnNoNulls}; // table types can not be null
         
         Object[][] data =  { { "ApplicationName", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME") }, 
