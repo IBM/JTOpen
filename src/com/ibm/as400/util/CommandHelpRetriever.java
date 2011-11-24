@@ -272,15 +272,20 @@ public class CommandHelpRetriever
       {
         Trace.log(Trace.DIAGNOSTIC, "Loading gencmddoc.xsl.");  
       }
-
-      String docXSLURI = CommandHelpRetriever.class.getClassLoader().getResource("com/ibm/as400/util/gencmddoc.xsl").toString();
+      
+      ClassLoader classloader = CommandHelpRetriever.class.getClassLoader(); 
+      if (classloader == null) {
+    	  classloader = ClassLoader.getSystemClassLoader(); 
+      }
+      
+      String docXSLURI = classloader.getResource("com/ibm/as400/util/gencmddoc.xsl").toString();
 
       if (Trace.isTraceOn())
       {
         Trace.log(Trace.DIAGNOSTIC, "Loading gencmdhlp.xsl.");
       }
 
-      String hlpXSLURI = CommandHelpRetriever.class.getClassLoader().getResource("com/ibm/as400/util/gencmdhlp.xsl").toString();
+      String hlpXSLURI = classloader.getResource("com/ibm/as400/util/gencmdhlp.xsl").toString();
 
       if (Trace.isTraceOn())
       {
