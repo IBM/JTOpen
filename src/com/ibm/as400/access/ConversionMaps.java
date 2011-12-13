@@ -110,8 +110,8 @@ abstract class ConversionMaps
         encodingCcsid_.put("Cp942",     "942");
         // encodingCcsid_.put("Cp942C",    ???);  // Don't know the CCSID - unclear what the 'C' means.
         encodingCcsid_.put("Cp943",     "943");
-        encodingCcsid_.put("Cp943",     "944");
-        encodingCcsid_.put("Cp943",     "946");
+        encodingCcsid_.put("Cp944",     "944");
+        encodingCcsid_.put("Cp946",     "946");
         // encodingCcsid_.put("Cp943C",    ???); // Don't know the CCSID - unclear what the 'C' means.
         encodingCcsid_.put("Cp948",     "948");
         encodingCcsid_.put("Cp949",     "949");
