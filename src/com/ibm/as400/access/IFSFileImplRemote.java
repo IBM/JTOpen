@@ -504,7 +504,7 @@ implements IFSFileImpl
       new IFSDeleteFileReq(pathname, fd_.preferredServerCCSID_);
     try
     {
-      if (isDirectory() == IFSReturnCodeRep.SUCCESS)
+      if (!isSymbolicLink() && isDirectory() == IFSReturnCodeRep.SUCCESS )
       {
         req = new IFSDeleteDirReq(pathname, fd_.preferredServerCCSID_);
       }
