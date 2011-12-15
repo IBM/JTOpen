@@ -1020,6 +1020,60 @@ x'01' QP0L_UDFS_PREFERRED_STORAGE_UNIT_SSD: Solid state drive storage media is p
     {
         setAttributes((byte)mainStorageOption, (byte)32);
     }
+    
+    
+    //TODO-S
+    
+    // Whether the object(*STMF or *DIR) inherits allow check point writer from their parents.
+    private boolean inheritAllowCheckPointWrite_ = false;
+    
+    /**
+    Returns whether new objects created within a directory should inherit the save-while-active checkpoint processing options of its parent.
+    @return  true if the object can inherit the save-while-active checkpoint processing options of its parent, otherwise return false.
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+    @exception  InterruptedException  If this thread is interrupted.
+    @exception  IOException  If an error occurs while communicating with the system.
+    @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+    **/
+   public boolean isInheritAllowCheckpointWrite() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+   {
+       getAttributes();
+       return inheritAllowCheckPointWrite_;
+   }
+   /**
+    Sets whether new objects created within a directory should inherit the save-while-active checkpoint processing options of its parent.
+    @param  inheritAllowCheckpointWrite  true if the object can inherit the save-while-active checkpoint processing options of its parent, otherwise return false.
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+    @exception  InterruptedException  If this thread is interrupted.
+    @exception  IOException  If an error occurs while communicating with the system.
+    @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+    **/
+   public void setInheritAllowCheckpointWrite(boolean inheritAllowCheckpointWrite) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+   {
+       setAttributes(inheritAllowCheckpointWrite, (byte)46);
+   }
+    
+    // Whether the object is savable.
+    boolean sysRestrictSave_;
+    /**
+     Returns whether the object can be written to or deleted, have its extended attributes changed or deleted, or have its size changed.
+     @return  true if the object cannot be changed; false otherwise.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     **/
+    public boolean isSysRestrictSave() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        getAttributes();
+        return sysRestrictSave_;
+    }
+    
+    
+    //TODO-E
 
     /**
      Constant indicating that the directory has format type 1.
@@ -2021,6 +2075,10 @@ x'01' QP0L_UDFS_PREFERRED_STORAGE_UNIT_SSD: Solid state drive storage media is p
                     case 45:
                         udfsStorageUnit_ = buffer[offset + 16];
                         break;
+                    case 46:
+                    	inheritAllowCheckPointWrite_ = buffer[offset + 16] == 0x01;
+                    case 47:
+                    	sysRestrictSave_ = buffer[offset + 16] == 0x01;
                     case 300:
                         setEffectiveUserId_ = buffer[offset + 16] == 0x01;
                         break;
