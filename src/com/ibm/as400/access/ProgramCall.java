@@ -617,6 +617,11 @@ public class ProgramCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "De-serializing ProgramCall object.");
         in.defaultReadObject();
+        
+        if (cancelLock_ == null) {
+        	 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "cancelLock is NULL, recreate it.");
+        	 cancelLock_ =  new CancelLock();
+        }
 
         // impl_ remains null.
         // actionCompletedListeners_ remains null.
