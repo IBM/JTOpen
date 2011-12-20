@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.TimeZone;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  Provides a converter between a {@link java.sql.Date java.sql.Date} object and an IBM i <i>date</i> value such 
@@ -637,8 +638,8 @@ public AS400Date(int format, Character separator)
         // For those formats, we need to deduce the century based on the 'yy' value.
         centuryDigit = disambiguateCentury(source);
       }
-
-      java.util.Date dateObj = getDateFormatter(centuryDigit).parse(source);
+      SimpleDateFormat dateFormatter = getDateFormatter(centuryDigit);
+      java.util.Date dateObj = dateFormatter.parse(source);
       return new java.sql.Date(dateObj.getTime());
     }
     catch (Exception e) {
@@ -790,8 +791,9 @@ public AS400Date(int format, Character separator)
     // Range of years representable in the above 2-digit year formats: 1940-2039
     int year, century;
     year = Integer.parseInt(dateString.substring(offsetToYear, offsetToYear+2));
-    if (year < 40) century = 1;   // century 1 is years 2000-2099
-    else           century = 0;   // century 0 is years 1900-1999
+    if (year == 0)      century = 0;   // century 0 is years 1901-2000
+    else if (year < 40) century = 1;   // century 1 is years 2001-2100
+    else                century = 0;   // century 0 is years 1901-2000
 
     return new Integer(century);
   }
