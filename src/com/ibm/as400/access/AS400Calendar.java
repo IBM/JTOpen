@@ -33,8 +33,11 @@ public class AS400Calendar {
      boolean isBuddhist = false; 
      try { 
          isBuddhist  = (returnCalendar  instanceof BuddhistCalendar);
-     } catch (java.lang.NoClassDefFoundError ncdfe) { 
-       // Just ignore if class cannot be found 
+     } catch (Exception ncdfe) { 
+       // Just ignore if any exception occurs.  @F2C
+       // Possible exceptions (from Javadoc) are: 
+       // java.lang.NoClassDefFoundError
+       // java.security.AccessControlException (if sun.util classes cannot be used) 
      }
      
      if (isGregorian && (! isBuddhist)) {
@@ -64,8 +67,8 @@ public class AS400Calendar {
      boolean isBuddhist = false; 
      try {
        isBuddhist = (returnCalendar  instanceof BuddhistCalendar); 
-     } catch (java.lang.NoClassDefFoundError ncdfe) { 
-       // Just ignore if class cannot be found 
+     } catch (Exception ncdfe) { 
+       // Just ignore if class cannot be found @F2C
      }
 
      if (isGregorian && (! isBuddhist)) {
@@ -98,8 +101,8 @@ public class AS400Calendar {
       boolean isBuddhist = false; 
       try { 
         isBuddhist =  (calendar instanceof BuddhistCalendar);
-      } catch (java.lang.NoClassDefFoundError ncdfe) { 
-        // Just ignore if class cannot be found 
+      } catch (Exception  ncdfe) { 
+        // Just ignore if class cannot be found @F2C 
       }
 
 

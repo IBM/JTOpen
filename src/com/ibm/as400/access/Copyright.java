@@ -69,6 +69,7 @@ package com.ibm.as400.access;
 //@E4   20110929  JDBC: Always use GregorianCalendar to interpret database dates. 
 //@E5   20110929  JDBC: Fix updated row count for auto generated keys
 //@F1   20111122  JDBC: Miscellaneous conversion fixes 
+//@F2   20111220  Ignore all exceptions when loading Buddhist calendar
 //
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
@@ -77,7 +78,7 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
-    public static String version   = "Open Source Software, JTOpen 7.6, codebase 5770-SS1 V7R1M0.06 2011/09/30 @E4";  // As of V7R1: JC1 is merged into SS1 Option 3
+    public static String version   = "Open Source Software, JTOpen 7.6, codebase 5770-SS1 V7R1M0.06 2011/12/20 @F2";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9; // ex: "9" indicates V7R1
