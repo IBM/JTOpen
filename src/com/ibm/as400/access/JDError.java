@@ -716,6 +716,37 @@ retrieved from the system.
   }
 
   
+  public static void throwSQLException(Object thrower, SQLException exception)
+      throws SQLException {
+
+    String reason = exception.getMessage();
+    String state = exception.getSQLState();
+    int returnCode = exception.getErrorCode();
+
+/*ifdef JDBC40 
+     
+     SQLException e = createSQLExceptionSubClass(reason, state, returnCode);
+endif */
+    
+    /* ifndef JDBC40 */
+    SQLException e = new SQLException(reason, state, returnCode);
+    /* endif */
+    try {
+      e.setNextException(exception);
+    } catch (Exception setError) {
+      // Just ignore
+    }
+    if (JDTrace.isTraceOn()) {
+      String message = "Throwing exception, " + " return code: " + returnCode
+          + " reason: " + reason + " state: " + state;
+      JDTrace.logException(thrower, message, e);
+    }
+
+    throw e;
+  }
+
+
+  
   
   //@PDA jdbc40
 //JDBC40DOC   /**

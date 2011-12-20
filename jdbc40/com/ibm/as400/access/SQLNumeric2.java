@@ -14,15 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.ByteArrayInputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Date;
 /* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
@@ -31,6 +23,8 @@ import java.sql.SQLException;
 /* ifdef JDBC40 */
 import java.sql.SQLXML;
 /* endif */ 
+import java.sql.Blob;
+import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -416,35 +410,8 @@ extends SQLDataBase
         return null;
     }
 
-    public InputStream  getUnicodeStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
     
 
-    //@pda jdbc40
-    public String getNString() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        String stringRep = Double.toString(value_);
-        int decimal = stringRep.indexOf('.');
-        if(decimal == -1)
-            return stringRep;
-        else
-            return stringRep.substring(0, decimal)
-            + settings_.getDecimalSeparator()
-            + stringRep.substring(decimal+1);
-    }
 
 /* ifdef JDBC40 */
     //@pda jdbc40

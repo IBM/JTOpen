@@ -14,7 +14,6 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;

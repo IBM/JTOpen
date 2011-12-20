@@ -46,6 +46,8 @@ type of SQL data.
 public abstract class SQLDataBase implements SQLData
 {
     
+    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    
    protected int                     truncated_;
    protected boolean                 outOfBounds_; 
    protected SQLConversionSettings   settings_;
@@ -748,8 +750,9 @@ public abstract class SQLDataBase implements SQLData
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract String getNString()
-    throws SQLException;
+    public String getNString() throws SQLException {
+      return getString(); 
+    }
     
     //@PDA jdbc40
     /**

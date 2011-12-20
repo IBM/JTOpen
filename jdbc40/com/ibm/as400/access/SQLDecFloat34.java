@@ -14,9 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Date;
 /* ifdef JDBC40 */
@@ -331,10 +329,6 @@ final class SQLDecFloat34 extends SQLDataBase {
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream() throws SQLException {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 
     public BigDecimal getBigDecimal(int scale) throws SQLException {
         truncated_ = 0; outOfBounds_ = false; 

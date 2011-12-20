@@ -14,11 +14,8 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Date;
 /* ifdef JDBC40 */
 import java.sql.NClob;
@@ -338,12 +335,6 @@ extends SQLDataBase
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -484,36 +475,8 @@ extends SQLDataBase
         return null;
     }
 
-    public InputStream  getUnicodeStream()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
     
-    //@pda jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-         return new java.io.StringReader(getString());
-    }
     
-/* ifdef JDBC40 */
-    //@pda jdbc40
-    public NClob getNClob() throws SQLException
-    {
-        String string = getString(); 
-      return new AS400JDBCNClob(string, string.length());
-    }
-/* endif */ 
-    //@pda jdbc40
-    public String getNString() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(scale_ > 0)                                
-            return bigDecimalValue_.toString();       
-        else                                       
-            return Short.toString(value_);         
-    }
 /* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
@@ -529,11 +492,5 @@ extends SQLDataBase
         return null;
     }
 /* endif */ 
-    // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

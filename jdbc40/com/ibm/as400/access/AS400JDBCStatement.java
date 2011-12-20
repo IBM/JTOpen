@@ -707,6 +707,8 @@ implements Statement
                               JDServerRow resultRow)    // private protected
     throws SQLException
     {
+      SQLException savedException = null;   /*@F3A*/ 
+
       try { 
         cancelled_ = false;
 
@@ -1006,7 +1008,22 @@ implements Statement
 
                         if(returnCode < 0)
                         {
+                          //
+                          // Check if error came from a combined opened fetch...  
+                          // If so, delay error until fetch occurs.  @F3A
+                          // 
+                          int errd6 = sqlca.getErrd(6); 
+                          if ( errd6 == 1) {
+                             // Delay error
+                              try {
+                                JDError.throwSQLException(connection_, id_, errorClass, returnCode);
+                              } catch (SQLException e) {
+                                savedException = e; 
+                              }
+                          } else { 
+                          
                             JDError.throwSQLException(connection_, id_, errorClass, returnCode);
+                          }
                         }
                         else
                         {
@@ -1084,6 +1101,9 @@ implements Statement
                                                              actualConcurrency, fetchDirection_, fetchSize_);    // @E1C
                             if(resultSet_.getConcurrency () != resultSetConcurrency_ && resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE) //@nowarn only warn if concurrency level is lessened 
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+                            if (savedException != null) {     /*@F3A*/
+                              resultSet_.addSavedException(savedException); 
+                            }
                         }                                                                                                   //@GKA
                     }
                     else

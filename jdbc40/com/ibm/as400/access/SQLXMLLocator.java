@@ -321,7 +321,7 @@ final class SQLXMLLocator implements SQLLocator
                     }
 
                     int objectLength = bytes.length;
-                    if(bytes.length > maxLength_)
+                    if(objectLength > maxLength_)
                     {
                         byte[] newValue = new byte[maxLength_];
                         System.arraycopy(bytes, 0, newValue, 0, maxLength_);
@@ -365,7 +365,7 @@ final class SQLXMLLocator implements SQLLocator
                     bytes = baos.toByteArray();
                     
                     int objectLength = bytes.length;
-                    if(bytes.length > maxLength_)
+                    if(objectLength > maxLength_)
                     {
                         byte[] newValue = new byte[maxLength_];
                         System.arraycopy(bytes, 0, newValue, 0, maxLength_);

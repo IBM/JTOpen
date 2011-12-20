@@ -439,7 +439,7 @@ extends SQLDataBase
         //This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCSQLXML(getString().toCharArray());     
+        return new AS400JDBCSQLXML(getString());     
     }
 /* endif */ 
     

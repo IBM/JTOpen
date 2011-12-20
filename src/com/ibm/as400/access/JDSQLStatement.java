@@ -915,7 +915,9 @@ class JDSQLStatement
         // @F8d }                                                                          // @A1A
 
 
-        isPackaged_ =   ((numberOfParameters_ > 0) && !isCurrentOf_ && !isUpdateOrDelete_) // @F8a
+        // 2011-11-29.  If the statement has parameters, let it be stored in the package
+        // even if a update or delete. 
+        isPackaged_ =   ((numberOfParameters_ > 0) && !isCurrentOf_ )                        // @F8a
                         || (isInsert_ && isSubSelect_)                                       // @F8a
                         || (isSelect_ && isForUpdate_)                                       // @F8a
                         || (isDeclare_);                                                     // @F8a

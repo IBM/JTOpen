@@ -110,13 +110,69 @@ endif */
      *
      * @param  data     The SQLXML data.
      * @param maxLength Max length.
+     * @throws SQLException 
      */
-    AS400JDBCSQLXML(String data, int maxLength)
+    AS400JDBCSQLXML(String data, int maxLength) throws SQLException
     {
         isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
         
+        // We must make sure the the data is well formed XML data.  Otherwise it is not valid
+        // and we should throw a data type mismatch error.
+        // For simplicity's sake, just check for an opening <
+        data = data.trim(); 
+        if ((data.length() == 0) || (data.charAt(0) != '<')) {
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
+        
+        
+        
         lobType   = SQLData.CLOB;                         
         clobValue_ = new AS400JDBCClob(data, maxLength, isXML_); //@xmltrim   
+        
+    }
+
+    /**
+     * Constructs an empty AS400JDBCSQLXML object.  
+     * No further communication with the IBM i system is necessary.
+     *
+     * @param  data     The SQLXML data.
+     * @param maxLength Max length.
+     * @throws SQLException 
+     */
+    AS400JDBCSQLXML(int maxLength) throws SQLException
+    {
+        isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
+        String data =""; 
+        
+        lobType   = SQLData.CLOB;                         
+        clobValue_ = new AS400JDBCClob(data, maxLength, isXML_); //@xmltrim   
+        
+    }
+
+
+    /**
+     * Constructs an AS400JDBCSQLXML object.  The data is contained
+     * in the String.  No further communication with the IBM i system is necessary.
+     *
+     * @param  data     The SQLXML data.
+     * @throws SQLException 
+     */
+    AS400JDBCSQLXML(String data) throws SQLException
+    {
+      isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
+      
+      // We must make sure the the data is well formed XML data.  Otherwise it is not valid
+      // and we should throw a data type mismatch error.
+      // For simplicity's sake, just check for an opening <
+      data = data.trim(); 
+      if ((data.length() == 0) || (data.charAt(0) != '<')) {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      }
+      
+      
+      
+      lobType   = SQLData.CLOB;                         
+      clobValue_ = new AS400JDBCClob(data, AS400JDBCClob.MAX_LOB_SIZE, isXML_); //@xmltrim   
         
     }
 

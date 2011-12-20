@@ -65,10 +65,17 @@ in the String.  No further communication with the IBM i system is necessary.
     maxLength_ = maxLength;
   }
 
+  AS400JDBCClob(String data)
+  {
+    data_ = data.toCharArray();
+    maxLength_ = MAX_LOB_SIZE; 
+  }
+
 
   AS400JDBCClob(char[] data)
   {
     data_ = data;
+    maxLength_ = MAX_LOB_SIZE; 
   }
   
   //@xmltrim

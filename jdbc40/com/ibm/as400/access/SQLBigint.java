@@ -14,7 +14,6 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Blob;
@@ -283,16 +282,15 @@ extends SQLDataBase
     public InputStream getBinaryStream()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        return new ByteArrayInputStream(BinaryConverter.longToByteArray(value_));
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      return null;
     }
 
     public Blob getBlob()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        byte[] bytes = BinaryConverter.longToByteArray(value_);
-        return new AS400JDBCBlob(bytes, bytes.length);
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      return null;
     }
 
     public boolean getBoolean()
@@ -334,8 +332,8 @@ extends SQLDataBase
     public byte[] getBytes()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        return BinaryConverter.longToByteArray(value_);
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      return null;
     }
 
     public Date getDate(Calendar calendar)

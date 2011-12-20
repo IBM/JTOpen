@@ -5181,7 +5181,7 @@ void handleAbort() {
 /* ifdef JDBC40 */
     public SQLXML createSQLXML() throws SQLException
     {
-        return new AS400JDBCSQLXML("", AS400JDBCSQLXML.MAX_XML_SIZE); 
+        return new AS400JDBCSQLXML(AS400JDBCSQLXML.MAX_XML_SIZE); 
     }
 /* endif */ 
     

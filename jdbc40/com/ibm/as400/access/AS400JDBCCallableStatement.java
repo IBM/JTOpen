@@ -2246,7 +2246,7 @@ implements CallableStatement
           return new java.net.URL(value);
         } catch (MalformedURLException e) {
           JDError
-              .throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID, e);
+              .throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
           return null;
         }
       } else {
