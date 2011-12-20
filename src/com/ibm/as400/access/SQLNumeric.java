@@ -110,8 +110,7 @@ extends SQLDataBase
     {
         BigDecimal bigDecimal = null;
 
-        if(object instanceof String)
-        {
+        if(object instanceof String) {
             try
             {
                 String value = SQLDataFactory.convertScientificNotation((String)object); // @F3C
@@ -122,26 +121,25 @@ extends SQLDataBase
             catch(NumberFormatException e)
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                return;
             }
             catch(StringIndexOutOfBoundsException e)        // jdk 1.3.x throws this instead of a NFE
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                return; 
             }
-        }
-
-        else if(object instanceof Number)
-        {
+        } else if(object instanceof Number) {
             String value = SQLDataFactory.convertScientificNotation(object.toString()); // @C1C
             if(scale >= 0)
                 value = SQLDataFactory.truncateScale(value, scale);
             bigDecimal = new BigDecimal(value);
-        }
-
-        else if(object instanceof Boolean)
+        } else if(object instanceof Boolean) {
             bigDecimal = (((Boolean)object).booleanValue() == true) ? BigDecimal.valueOf(1) : BigDecimal.valueOf(0);
 
-        else
+        } else { 
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+            return; 
+        }
 
         // Truncate if necessary.  If we ONLY truncate on the right side, we don't    @E3C
         // need to report it.  If we truncate on the left side, then we report the    @E3A

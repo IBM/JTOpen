@@ -991,7 +991,7 @@ endif */
             truncated_ = 0; outOfBounds_ = false;      //@loch
             return new AS400JDBCSQLXML(value_, maxLength_); //@loch
         }                       //@loch
-        return new AS400JDBCSQLXML( getString().toCharArray() );        
+        return new AS400JDBCSQLXML( getString() );        
     }
     endif */ 
     

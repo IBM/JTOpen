@@ -476,12 +476,6 @@ extends SQLDataBase
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
