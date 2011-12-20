@@ -31,7 +31,7 @@ class DBReplySQLCA
     private int     offset_;
     private int     length_;
     // Add 96 to offset_ for Errd1, 100 to offset_ for Errd2, etc.
-    private static final int[]   locationFromOffset_ = {96, 100, 104, 108, 112};  //@F1A @F4C
+    private static final int[]   locationFromOffset_ = {96, 100, 104, 108, 112, 116};  //@F1A @F4C
 
 
 
