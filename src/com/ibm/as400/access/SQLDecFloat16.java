@@ -331,10 +331,6 @@ final class SQLDecFloat16 extends SQLDataBase {
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream() throws SQLException {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 
     public BigDecimal getBigDecimal(int scale) throws SQLException {
         truncated_ = 0; outOfBounds_ = false; 
@@ -578,10 +574,6 @@ final class SQLDecFloat16 extends SQLDataBase {
         return null;
     }
 
-    public InputStream getUnicodeStream() throws SQLException {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
     
     /** Helper method to return string value of special values that
      *  cannot be held in current BigDecimal objects.
@@ -622,21 +614,8 @@ final class SQLDecFloat16 extends SQLDataBase {
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        
-        //NaN, Infinity, -Infinity
-        if(specialValue_ != null){
-            return specialValue_;
-        }
-        
-        String stringRep = value_.toString();
-        int decimal = stringRep.indexOf('.');
-        if(decimal == -1)
-            return stringRep;
-        else
-            return stringRep.substring(0, decimal)
-            + settings_.getDecimalSeparator()
-            + stringRep.substring(decimal+1);
+       return getString(); 
+       
     }
 
     //@pda jdbc40

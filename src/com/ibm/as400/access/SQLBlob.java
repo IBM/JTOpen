@@ -18,12 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Date;
 /* ifdef JDBC40 
 import java.sql.NClob;
@@ -37,15 +33,13 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class SQLBlob implements SQLData
+final class SQLBlob extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
     private static final byte[] default_ = new byte[0];
 
     private int maxLength_;
-    private int truncated_;
-    private boolean outOfBounds_ = false; 
 
     private byte[] value_ = default_;
     private Object savedObject_; // This is our byte[] or InputStream or whatever that we save to convert to bytes until we really need to.
@@ -53,6 +47,7 @@ final class SQLBlob implements SQLData
 
     SQLBlob(int maxLength, SQLConversionSettings settings)
     {
+      super(settings); 
         maxLength_ = maxLength;
     }
 
@@ -453,22 +448,6 @@ final class SQLBlob implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToHexString(value_)));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
     public BigDecimal getBigDecimal(int scale) //@CRS - Could use a Converter here to make this work.
     throws SQLException
@@ -515,22 +494,6 @@ final class SQLBlob implements SQLData
         return value_;
     }
 
-    public Reader getCharacterStream()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return new StringReader(BinaryConverter.bytesToHexString(value_));
-    }
-
-    public Clob getClob()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        String string = BinaryConverter.bytesToHexString(value_);
-        return new AS400JDBCClob(string, string.length());
-    }
 
     public Date getDate(Calendar calendar) //@CRS - Could use toLong() to make this work.
     throws SQLException
@@ -604,49 +567,6 @@ final class SQLBlob implements SQLData
         return null;
     }
 
-    public InputStream getUnicodeStream()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToHexString(value_)));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
-        
-    //@PDA jdbc40
-    public Reader getNCharacterStream() throws SQLException
-    {
-        if(savedObject_ != null) doConversion();  //@pdc
-        truncated_ = 0; outOfBounds_ = false;                            //@pdc
-        return new StringReader(BinaryConverter.bytesToHexString(value_));  //@pdc
-    }
-
-    //@PDA jdbc40
-    /* ifdef JDBC40 
-
-    public NClob getNClob() throws SQLException
-    {        
-        if(savedObject_ != null) doConversion();  //@pdc
-        truncated_ = 0; outOfBounds_ = false; //@pdc
-        String string = BinaryConverter.bytesToHexString(value_); //@pdc
-        return new AS400JDBCNClob(string, string.length());  //@pdc
-    }
-    endif */ 
-    //@PDA jdbc40
-    public String getNString() throws SQLException
-    {
-        if(savedObject_ != null) doConversion();      //@pdc
-        truncated_ = 0; outOfBounds_ = false;                                //@pdc
-        return BinaryConverter.bytesToHexString(value_); //@pdc
-    }
     /* ifdef JDBC40 
 
     //@PDA jdbc40
@@ -667,10 +587,5 @@ final class SQLBlob implements SQLData
     }
    endif */ 
     // @array
-    public Array getArray() throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
 }
 

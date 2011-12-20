@@ -13,14 +13,12 @@
 
 package com.ibm.as400.access;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -368,21 +366,6 @@ endif */
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
     public BigDecimal getBigDecimal(int scale)
     throws SQLException
@@ -608,7 +591,7 @@ endif */
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCSQLXML(value_.toCharArray());     
+        return new AS400JDBCSQLXML(value_);     
     }
     endif */ 
     // @array

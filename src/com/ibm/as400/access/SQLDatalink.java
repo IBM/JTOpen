@@ -14,14 +14,10 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.ByteArrayInputStream;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Date;
 /* ifdef JDBC40 
 import java.sql.NClob;
@@ -34,7 +30,6 @@ endif */
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.net.URL;                     // @d2a
 import java.net.MalformedURLException;
 
 final class SQLDatalink

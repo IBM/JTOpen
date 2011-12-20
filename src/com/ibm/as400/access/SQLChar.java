@@ -13,14 +13,9 @@
 
 package com.ibm.as400.access;
 
-import java.io.ByteArrayInputStream;
 import java.io.CharConversionException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 
@@ -308,21 +303,6 @@ endif */
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream getAsciiStream()
-    throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false; 
-
-        try
-        {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    }
 
 
     public InputStream getBinaryStream()
@@ -482,7 +462,7 @@ endif */
         //This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCSQLXML(getString().toCharArray());     
+        return new AS400JDBCSQLXML(getString());     
     }
    endif */ 
     // @array
