@@ -225,6 +225,7 @@ implements ResultSet
     boolean                             isMetadataResultSet = false; //@mdrs
     private DBReplyRequestedDS          reply_ = null; 
     private Class                       byteArrayClass_ = null; 
+    private SQLException                savedException_;    /* Saved exception from combined open/fetch @F3A*/ 
     /*---------------------------------------------------------*/
     /*                                                         */
     /* MISCELLANEOUS METHODS.                                  */
@@ -792,7 +793,9 @@ implements ResultSet
             }
             catch(MalformedURLException e)
             {
-                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID, e);
+                // To be consistent with other testcases where the type does not match,
+                // return a data type mismatch. 
+                JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, e);
                 return null;
             }
         }
@@ -1276,6 +1279,13 @@ implements ResultSet
     private void beforePositioning (boolean scrollable)
     throws SQLException
     {
+        // Check to see if saved exception. If so, then create a copy with the 
+        // proper stack trace and throw it, referencing the original exception @F3A
+        if (savedException_ != null) {
+          SQLException nextException = savedException_; 
+          savedException_ = null; 
+          JDError.throwSQLException(this, nextException); 
+        }
         checkOpen ();
         
         if((scrollable) && (getType() == TYPE_FORWARD_ONLY))  //@cur
@@ -2538,24 +2548,65 @@ implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
+            int sqlType = 0; 
+            if (data != null) {
+              sqlType = data.getSQLType(); 
+            }
             byte[] value;                                                               // @C1C
 
             // Treat this differently from the other get's.  If the data is not a       // @C1A
             // BINARY, VARBINARY, or BLOB, and we have access to the bytes, then return // @C1A @D4C
             // the bytes directly.                                                      // @C1A
             if((data != null)
-               && (!(data.getSQLType() == SQLData.BINARY)) 
-               && (!(data.getSQLType() == SQLData.VARBINARY))
-               && (!(data.getSQLType() == SQLData.BLOB))                                   // @D4A
-               && (!(data.getSQLType() == SQLData.BLOB_LOCATOR))                           // @D4A
-               && (!(data.getSQLType() == SQLData.CHAR_FOR_BIT_DATA))                      // @M0A
-               && (!(data.getSQLType() == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
-               && (!(data.getSQLType() == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
-               && (!(data.getSQLType() == SQLData.ROWID))                                  // @M0A
-               && (!(data.getSQLType() == SQLData.XML_LOCATOR))                                  //@xml3
-               && (row_ instanceof JDServerRow))                                       // @C1A
+               && (!(sqlType == SQLData.BINARY)) 
+               && (!(sqlType == SQLData.VARBINARY))
+               && (!(sqlType == SQLData.BLOB))                                   // @D4A
+               && (!(sqlType == SQLData.BLOB_LOCATOR))                           // @D4A
+               && (!(sqlType == SQLData.CHAR_FOR_BIT_DATA))                      // @M0A
+               && (!(sqlType == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
+               && (!(sqlType == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
+               && (!(sqlType == SQLData.ROWID))                                  // @M0A
+               && (!(sqlType == SQLData.XML_LOCATOR))                                  //@xml3
+               && (row_ instanceof JDServerRow))   {                                    // @C1A
                 value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
                                                                                         // @C1A
+                
+                // If the data is a variable length type, we want to strip the encoded
+                // length to be consistent with other JDBC drivers
+                if (sqlType == SQLData.VARCHAR || 
+                    sqlType == SQLData.VARGRAPHIC ||
+                    sqlType == SQLData.NVARCHAR || 
+                    sqlType == SQLData.DATALINK) {
+                  if (value != null) {
+                      if (value.length >= 2) {
+                        int newLength = 0x100 * (((int)value[0])&0xff) + (((int)value[1])&0xff);
+                        if (sqlType == SQLData.VARGRAPHIC) {
+                          newLength = newLength * 2; 
+                        }
+                        byte[] newValue = new byte[newLength]; 
+                        for (int i = 0; i < newLength; i++) { 
+                          newValue[i] = value[i+2]; 
+                        }
+                        value = newValue; 
+                        
+                      }
+                  }
+                } else if (sqlType == SQLData.CLOB_LOCATOR) {
+                  String x = data.getString();
+                  try { 
+                    value = x.getBytes("ISO8859_1");
+                  } catch (Exception cpException) {
+                    // ignore; 
+                  }
+                } else if (sqlType == SQLData.DBCLOB_LOCATOR) {
+                  String x = data.getString();
+                  try { 
+                    value = x.getBytes("UTF-16BE");
+                  } catch (Exception cpException) {
+                    // ignore; 
+                  }
+                }
+               }
             else
             {                                                                      // @C1A
                 value = (data == null) ? null : data.getBytes ();                        // @C1C
@@ -7384,6 +7435,14 @@ endif */
     throws SQLException {
       return getObject (findColumn (columnLabel), type); 
  }
+
+
+
+ /* Save exception from combined operation @F3A*/   
+protected void addSavedException(SQLException savedException) {
+  savedException_ = savedException; 
+  
+}
 
  
     

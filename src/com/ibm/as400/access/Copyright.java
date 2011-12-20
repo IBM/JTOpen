@@ -70,7 +70,7 @@ package com.ibm.as400.access;
 //@E5   20110929  JDBC: Fix updated row count for auto generated keys
 //@F1   20111122  JDBC: Miscellaneous conversion fixes 
 //@F2   20111220  Ignore all exceptions when loading Buddhist calendar
-//
+//@F3   20111220  JDBC: Report fetch errors correctly
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
