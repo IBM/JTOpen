@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.*;                                            // @J1c
+import java.util.Hashtable;
 
 
 
@@ -831,5 +832,216 @@ Reads an input stream and returns its data as a String.
         }
         return xml;
     }
+    
+    /**
+     * returns the type names based on the type from java.sql.Types
+     */
+
+    public static String getTypeName(int typeNumber) {
+        switch (typeNumber) {
+      case Types.SMALLINT:
+          return "SMALLINT";
+      case Types.INTEGER:
+          return "INTEGER";
+      case Types.BIGINT:
+          return "BIGINT";
+      case Types.FLOAT:
+          return "FLOAT";
+      case Types.REAL:
+          return "REAL";
+      case Types.DOUBLE:
+          return "DOUBLE";
+      case Types.NUMERIC:
+          return "NUMERIC";
+      case Types.DECIMAL:
+          return "DECIMAL";
+      case -360:
+          return "DECFLOAT"; 
+      case Types.CHAR:
+          return "CHAR";
+      case Types.VARCHAR:
+          return "VARCHAR";
+      case Types.DATALINK:
+          return "DATALINK";
+      case Types.BINARY:
+          return "BINARY"; 
+      case Types.VARBINARY:
+          return "VARBINARY"; 
+      case Types.TIME:
+          return "TIME";
+      case Types.DATE:
+          return "DATE";
+      case Types.TIMESTAMP:
+          return "TIMESTAMP";
+      case Types.BLOB:
+          return "BLOB";
+      case Types.CLOB:
+          return "CLOB";
+
+          //
+                // New for JDK 1.6
+                //
+
+      case -8:   /* Types.ROWID */ 
+          return "ROWID"; 
+      case -15:  /* Types.NCHAR */ 
+          return "NCHAR";
+      case -9:  /* Types.NVARCHAR */ 
+          return "NVARCHAR";
+      case 2011:  /* Types.NCLOB */ 
+          return "NCLOB";
+      case -16:   /*  Types.LONGNVARCHAR */ 
+          return "NVARCHAR";
+      case 2009:  /* Types.SQLXML */ 
+          return "SQLXML"; 
+
+      default:
+          return "UNKNOWN";
+
+        } 
+    } 
+
+    static String[][] typeNameToTypeCode = {
+
+        {"ARRAY","2003"},
+        {"BIGINT","-5"},
+        {"BINARY","-2"},
+        {"BIT","-7"},
+        {"BLOB","2004"},
+        {"BOOLEAN","16"},
+        {"CHAR","1"},
+        {"CLOB","2005"},
+        {"DATALINK","70"},
+        {"DATE","91"},
+        {"DECIMAL","3"},
+        {"DISTINCT","2001"},
+        {"DOUBLE","8"},
+        {"FLOAT","6"},
+        {"INTEGER","4"},
+        {"JAVA_OBJECT","2000"},
+        {"LONGNVARCHAR","-16"},
+        {"LONGVARBINARY","-4"},
+        {"LONGVARCHAR","-1"},
+        {"NULL","0"},
+        {"NUMERIC","2"},
+        {"DECFLOAT","-360"}, 
+        {"OTHER","1111"},
+        {"REAL","7"},
+        {"REF","2006"},
+        {"ROWID","-8"},
+        {"SMALLINT","5"},
+        {"STRUCT","2002"},
+        {"TIME","92"},
+        {"TIMESTAMP","93"},
+        {"TINYINT","-6"},
+        {"VARBINARY","-3"},
+        {"VARCHAR","12"},
+ /*ifndef JDBC40*/
+        {"NCHAR","1"},
+        {"GRAPHIC", "1"}, 
+        {"NCLOB","2005"},
+        {"NVARCHAR","12"},
+        {"SQLXML","2005"},
+        {"VARGRAPHIC", "12"},
+ /*endif */
+ /*ifdef JDBC40
+        {"NCHAR","-15"},
+        {"GRAPHIC", "-15"}, 
+        {"NCLOB","2011"},
+        {"NVARCHAR","-9"},
+        {"SQLXML","2009"},
+        {"VARGRAPHIC", "-9"},
+ endif */
+
+    };
+
+
+
+    
+
+    static Hashtable typeNameHashtable = null ; 
+
+    public static int getTypeCode(String typeName) throws SQLException {
+    if (typeNameHashtable == null) {
+      typeNameHashtable = new Hashtable();
+      for (int i = 0; i < typeNameToTypeCode.length; i++) {
+        typeNameHashtable.put(typeNameToTypeCode[i][0], new Integer(
+            typeNameToTypeCode[i][1]));
+      }
+    }
+
+    Integer integer = (Integer) typeNameHashtable.get(typeName);
+    if (integer == null) {
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(null, "Unable to get type from " + typeName);
+      JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+      return 0; 
+    } else {
+      int typecode = integer.intValue();
+      if (typecode != 0) {
+        return typecode;
+      } else {
+        if (JDTrace.isTraceOn())
+          JDTrace.logInformation(null, "Unable to get type from " + typeName);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_INVALID);
+        return 0; 
+      }
+    }
+  }
+    
+    public static Hashtable instanceHashtable; 
+
+    public static boolean classIsInstanceOf(Class thisClass, String interfaceName) {
+        if (instanceHashtable == null) {
+        instanceHashtable = new Hashtable(); 
+        }
+
+        Hashtable interfaceHash = (Hashtable) instanceHashtable.get(thisClass);
+        if (interfaceHash == null) {
+          interfaceHash = new Hashtable();
+          instanceHashtable.put(thisClass, interfaceHash); 
+        } 
+
+        Boolean answer = (Boolean) interfaceHash.get(interfaceName);
+     if (answer == null) {
+       boolean booleanAnswer = false;
+
+       Class lookClass = thisClass;
+       while (lookClass != null && !booleanAnswer) {
+         if (JDTrace.isTraceOn()) {
+           JDTrace.logInformation(null, "JDUtilities.classIsInstance checking "
+               + lookClass.getName() + " of "
+               + thisClass.getName() + " for " + interfaceName);
+         }
+         if (interfaceName.equals(lookClass.getName())) {
+           booleanAnswer = true;
+         } else {
+           Class[] interfaces = lookClass.getInterfaces();
+           for (int i = 0; !booleanAnswer && i < interfaces.length; i++) {
+             if (JDTrace.isTraceOn()) {
+               JDTrace.logInformation(null,
+                   "DB2Utilities.classIsInstance checking "
+                       + interfaces[i].getName() + " of "
+                       + thisClass.getName() + " for "
+                       + interfaceName);
+             }
+             if (interfaces[i].getName().equals(interfaceName)) {
+               booleanAnswer = true;
+             }
+           }
+           if (!booleanAnswer) {
+             lookClass = lookClass.getSuperclass();
+           }
+         }
+       }
+       answer = new Boolean(booleanAnswer);
+       interfaceHash.put(interfaceName, answer); 
+        }
+
+        return answer.booleanValue(); 
+
+        
+    } 
+
 
 }
