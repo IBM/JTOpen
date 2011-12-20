@@ -33,7 +33,7 @@ public class AS400Calendar {
      boolean isBuddhist = false; 
      try { 
          isBuddhist  = (returnCalendar  instanceof BuddhistCalendar);
-     } catch (Exception ncdfe) { 
+     } catch (Throwable ncdfe) { 
        // Just ignore if any exception occurs.  @F2C
        // Possible exceptions (from Javadoc) are: 
        // java.lang.NoClassDefFoundError
@@ -67,7 +67,7 @@ public class AS400Calendar {
      boolean isBuddhist = false; 
      try {
        isBuddhist = (returnCalendar  instanceof BuddhistCalendar); 
-     } catch (Exception ncdfe) { 
+     } catch (Throwable ncdfe) { 
        // Just ignore if class cannot be found @F2C
      }
 
@@ -101,7 +101,7 @@ public class AS400Calendar {
       boolean isBuddhist = false; 
       try { 
         isBuddhist =  (calendar instanceof BuddhistCalendar);
-      } catch (Exception  ncdfe) { 
+      } catch (Throwable  ncdfe) { 
         // Just ignore if class cannot be found @F2C 
       }
 
