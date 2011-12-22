@@ -2018,6 +2018,13 @@ implements ResultSet
             //if((positionFromFirst_ == 0) || (positionFromLast_ == 0))  //@rel1 per javadoc, relative(1) <==> next()
                 //return false;
 
+            // If before first and scrolling negative, then the position is invalid.
+            // return without doing anything.. 
+            if (rowNumber < 0 && isBeforeFirst()) {
+              return false; 
+            }
+            
+            
             // Handle max rows.
             if((maxRows_ > 0) && (positionFromFirst_ == -1))                // @E3a
                 getRow();                                                     // @E3a
