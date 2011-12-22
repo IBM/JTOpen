@@ -451,7 +451,8 @@ public abstract class SQLDataBase implements SQLData
     throws SQLException
     {
         String string = getString(); 
-      return new AS400JDBCClob(string, string.length());
+        // Use the default maximum length for the obtained clob
+        return new AS400JDBCClob(string);
     }
   
     /**
