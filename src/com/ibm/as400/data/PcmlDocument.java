@@ -48,6 +48,7 @@ import java.net.UnknownHostException;
 
 
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.TimeZone;
 
 import com.ibm.as400.access.BinaryConverter;
@@ -692,23 +693,26 @@ class PcmlDocument extends PcmlDocRoot
         if (children == null)                                       // @C5A
             return;                                                 // @C5A
 
-        while ( children.hasMoreElements() )                        // @C5A
-        {                                                           // @C5A
-            child = (PcmlDocNode) children.nextElement();           // @C5A
+        LinkedList queue = new LinkedList(); //@F4
+		queue.add(newChild);//@F4
+		while (!queue.isEmpty()) {//@F4
+			child = (PcmlDocNode) queue.getFirst();//@F4
+			queue.removeFirst();//@F4
 
-            qName = child.getQualifiedName();                       // @C5A
-            if ( !qName.equals("") )                                // @C5A
-            {                                                       // @C5A
-                if ( this.containsElement(qName) )                  // @C5A
-                {                                                   // @C5A
-                    this.addPcmlSpecificationError(DAMRI.MULTIPLE_DEFINE, new Object[] {qName} ); // @C5A
-                }                                                   // @C5A
-                this.addElement(child);                             // @C5A
-            }                                                       // @C5A
+			children = child.getChildren();//@F4
+			while (children.hasMoreElements()) {//@F4
+				child = (PcmlDocNode) children.nextElement();//@F4
+				qName = child.getQualifiedName();//@F4
+				if (!qName.equals("")) {//@F4
+					if (this.addElement(child) != null) {//@F4
+						this.addPcmlSpecificationError(DAMRI.MULTIPLE_DEFINE, new Object[] { qName });//@F4
+					}//@F4
+				}//@F4
+				queue.add(child);//@F4
+			}//@F4
 
-            // Recursively add all nodes in the tree to the hash table
-            addToHashtable(child);                                  // @C5A
-        }                                                           // @C5A
+		}
+
 
     }                                                               // @C5A
 
