@@ -71,6 +71,7 @@ package com.ibm.as400.access;
 //@F1   20111122  JDBC: Miscellaneous conversion fixes 
 //@F2   20111220  Ignore all exceptions when loading Buddhist calendar
 //@F3   20111220  JDBC: Report fetch errors correctly
+//@F4   20120118  PCML parser performance tuning
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
