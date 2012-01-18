@@ -37,9 +37,9 @@ abstract class PcmlDocRoot extends PcmlDocNode {
         return node;                                                // @C1A
     }                                                               // @C1A
 
-    public void addElement(PcmlNode elem) 
+    public Object addElement(PcmlNode elem) //@F4
     {
-        m_hash.put(elem.getQualifiedName(), elem);
+        return m_hash.put(elem.getQualifiedName(), elem); //@F4
     }
 
     public boolean containsElement(String qName) 
