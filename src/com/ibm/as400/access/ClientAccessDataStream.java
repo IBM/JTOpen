@@ -30,6 +30,9 @@ class ClientAccessDataStream extends DataStream
 
   private InUseLock  inUseLock_ = new InUseLock(); 
   boolean inUse_; //@P0A
+  private CADSPool fromPool_ = null;
+  private int fromPoolIndex_ = 0;
+
 
   // Note: The following method is called by AS400ThreadedServer and AS400NoThreadServer.
 
@@ -199,7 +202,7 @@ class ClientAccessDataStream extends DataStream
     }
   }
 
-  // Constructs an empty ClientAccessDataStream object.
+  // Constructs an empty ClientAccessDataStream object. 
   ClientAccessDataStream()
   {
     super(HEADER_LENGTH);
@@ -212,6 +215,12 @@ class ClientAccessDataStream extends DataStream
     super(HEADER_LENGTH, ds);
   }
 
+  // Constructs an empty ClientAccessDataStream object that is pooled.
+  ClientAccessDataStream(CADSPool pool, int poolIndex) {
+    super(HEADER_LENGTH);
+    fromPool_ = pool; 
+    fromPoolIndex_ = poolIndex; 
+  }
   // Retrieve the request correlation for this data stream.  The return value may be invalid if it has not been set.
   // @return  The request correlation number.
   int getCorrelation()
@@ -347,6 +356,11 @@ class ClientAccessDataStream extends DataStream
 		  // This is an error case.   You cannot double free a buffer
 		  throw new InternalErrorException(InternalErrorException.UNKNOWN);		  
 	  }
+	  
+	  }
+	  // Let the pool know that something was returned.  This should speed up searches through the pool. 
+	  if (fromPool_ != null) {
+	    fromPool_.returnToPool(this, fromPoolIndex_); 
 	  }
   }
   
@@ -364,6 +378,7 @@ class ClientAccessDataStream extends DataStream
   	   return true; 
      }
 	 }
+	 
   }
 
   
