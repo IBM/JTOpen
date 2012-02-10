@@ -322,7 +322,7 @@ public abstract class SQLDataBase implements SQLData
     {
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString().trim())); // @F3C
+            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString().trim(), settings_)); // @F5C
             if(scale >= 0)
             {
                 if(scale >= bigDecimal.scale())

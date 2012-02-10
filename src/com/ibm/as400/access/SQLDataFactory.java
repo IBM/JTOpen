@@ -29,13 +29,21 @@ class SQLDataFactory
     notation to a String representation without scientific
     notation.
     
+    Also handles the use of a different character as the decimal separator.  
+    This is indicated by the conversion settings. 
+    
     @param scientificNotation   The String representation of a number
                                 in scientific notation.
+    @param settings             The SQLConversionSettings to be used.  The only 
+                                setting currently used is the decimalSeparator. 
     @return                     The String representation without
                                 scientific notation.
     **/
-    static String convertScientificNotation(String scientificNotation)
+    static String convertScientificNotation(String scientificNotation, SQLConversionSettings settings) /*@F5C*/
     {
+        if ((settings !=null) && settings.getDecimalSeparator().equals(",")) {  /* @F5A */ 
+          scientificNotation = scientificNotation.replace(',', '.'); 
+        }
         // Check to see if it is indeed scientific notation.
         int e = scientificNotation.indexOf('E');
         if(e < 0)

@@ -113,7 +113,7 @@ extends SQLDataBase
         if(object instanceof String) {
             try
             {
-                String value = SQLDataFactory.convertScientificNotation((String)object); // @F3C
+                String value = SQLDataFactory.convertScientificNotation((String)object, settings_); // @F3C
                 if(scale >= 0)
                     value = SQLDataFactory.truncateScale(value, scale);
                 bigDecimal = new BigDecimal(value);
@@ -129,7 +129,7 @@ extends SQLDataBase
                 return; 
             }
         } else if(object instanceof Number) {
-            String value = SQLDataFactory.convertScientificNotation(object.toString()); // @C1C
+            String value = SQLDataFactory.convertScientificNotation(object.toString(), settings_); // @C1C
             if(scale >= 0)
                 value = SQLDataFactory.truncateScale(value, scale);
             bigDecimal = new BigDecimal(value);
