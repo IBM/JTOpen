@@ -73,7 +73,7 @@ package com.ibm.as400.access;
 //@F3   20111220  JDBC: Report fetch errors correctly
 //@F4   20120118  PCML parser performance tuning
 //@F5   20120208  JDBC: Honor decimal separator for PreparedStatement.setString()
-//@F6   20120210  JDBC: describe option property
+//@F6   20120210  JDBC: describe option property 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
