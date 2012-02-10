@@ -490,6 +490,7 @@ public class AS400JDBCArray implements Array {
         JDTrace.logInformation(this, "DB2Array.validate array is null 07006");
       }
       JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+      return;
     }
 
     /* ifndef JDBC40 */
@@ -766,12 +767,40 @@ public class AS400JDBCArray implements Array {
         } /* for i */
         data_ = shortArray;
       } else {
-        if (JDTrace.isTraceOn()) {
-          JDTrace.logInformation(this,
-              "DB2Array.validate 07006 type is SMALLINT but array types is "
-                  + arrayType);
+        // Treat as object and try to convert.  If exception then throw
+        // data type mismatch. 
+        try { 
+          Object[] inObjectArray = (Object[]) inArray;
+          Integer[] shortArray = new Integer[inObjectArray.length];
+          for (int i = 0; i < inObjectArray.length; i++) {
+            if (inObjectArray[i] == null) {
+              shortArray[i] = null;
+            } else { /* not null */
+              try {
+                shortArray[i] = new Integer(Short.parseShort(inObjectArray[i].toString()));
+              } catch (NumberFormatException nfe) {
+                if (JDTrace.isTraceOn()) {
+                  JDTrace
+                      .logInformation(
+                          this,
+                          "DB2Array.validate 07006 type is SMALLINT but NumberFormatException thrown for string "
+                              + inObjectArray[i]);
+                } /* debug */
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+                return;
+              } /* catch */
+            } /* not null */
+          } /* for i */
+          data_ = shortArray;
+          
+        } catch (Exception e) {
+          if (JDTrace.isTraceOn()) {
+            JDTrace.logInformation(this,
+                "DB2Array.validate 07006 type is SMALLINT but array types is "
+                    + arrayType);
+          }
+          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
       }
       break;
 
