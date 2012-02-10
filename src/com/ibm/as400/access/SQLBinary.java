@@ -56,7 +56,7 @@ extends SQLDataBase
         typeConverter_  = new AS400ByteArray(maxLength);
         value_          = new byte[maxLength];
     }
-
+  
     public Object clone()
     {
         return new SQLBinary(maxLength_, settings_);
