@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: JDProperties.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -49,10 +49,10 @@ attributes for the driver.
 //
 //    __ Add a property to AS400JDBCDataSourceBeanInfo.java.
 //
-//    __ Update testcases JDDriverGetPropertyInfo.java, 
-//                        AS400JDBCConnectionPoolDataSourceBeanInfoTestcase.java, 
-//                        AS400JDBCDataSourceBeanInfoTestcase.java, 
-//                        JDConnectionCommit.java, 
+//    __ Update testcases JDDriverGetPropertyInfo.java,
+//                        AS400JDBCConnectionPoolDataSourceBeanInfoTestcase.java,
+//                        AS400JDBCDataSourceBeanInfoTestcase.java,
+//                        JDConnectionCommit.java,
 //                        JDDriverGetPropertyInfo.java.
 //
 //    __ Test serialization
@@ -134,7 +134,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              MAXIMUM_SCALE           = 54;
     static final int              TRANSLATE_HEX           = 55;   // @M0A - support hex constant parser option
     static final int              TRACE_TOOLBOX           = 56;   // @K1A - support to allow a toolbox trace
-    static final int              QAQQINILIB              = 57;   // @K2A - support to specify a QAQQINI library name 
+    static final int              QAQQINILIB              = 57;   // @K2A - support to specify a QAQQINI library name
     static final int              LOGIN_TIMEOUT           = 58;   // @K5A
     static final int              TRUE_AUTO_COMMIT        = 59;   // @KBA //@true
     static final int              BIDI_IMPLICIT_REORDERING = 60;    //@K24
@@ -145,7 +145,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              VARIABLE_FIELD_COMPRESSION = 65;  //@K54
     static final int              QUERY_OPTIMIZE_GOAL = 66; //@540
     static final int              KEEP_ALIVE              = 67;   // @PDA - keep_alive, receive_buffer_size, send_buffer_size
-    static final int              RECEIVE_BUFFER_SIZE     = 68;   //        also exist in SocketProperties and their values 
+    static final int              RECEIVE_BUFFER_SIZE     = 68;   //        also exist in SocketProperties and their values
     static final int              SEND_BUFFER_SIZE        = 69;   //        get propagated to SocketProperties
     static final int              XA_LOOSELY_COUPLED_SUPPORT = 70; //@540
     static final int              TRANSLATE_BOOLEAN          = 71; //@PDA
@@ -161,15 +161,16 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              SOCKET_TIMEOUT              = 81; //@STIMEOUT
     static final int              DO_UPDATE_DELETE_BLOCKING  = 82;  //@A2A
     static final int              MAXIMUM_BLOCKED_INPUT_ROWS = 83;  //@A6A
-    static final int              QUERY_TIMEOUT_MECHANISM    = 84; 
-    
+    static final int              QUERY_TIMEOUT_MECHANISM    = 84;
+    static final int              DESCRIBE_OPTION            = 85;  //@F6A
+
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 85;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 86;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
-                                                               // @A2C @A6C 
+                                                               // @A2C @A6C @F6A
 
 
     // Property names.
@@ -256,10 +257,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String IGNORE_WARNINGS_ = "ignore warnings"; //@igwrn
     private static final String SECURE_CURRENT_USER_ = "secure current user"; //@pw3 (switch to turn on/off old code. see @pw1)
     private static final String CONCURRENT_ACCESS_RESOLUTION_ = "concurrent access resolution"; //@cc1
-    private static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy 
+    private static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy
     private static final String SOCKET_TIMEOUT_ = "socket timeout"; //@STIMEOUT
-    static final String DO_UPDATE_DELETE_BLOCKING_ = "use block update"; // @A2 Property must be visible in package 
+    static final String DO_UPDATE_DELETE_BLOCKING_ = "use block update"; // @A2 Property must be visible in package
     static final String MAXIMUM_BLOCKED_INPUT_ROWS_ = "maximum blocked input rows";  // @A6A
+    static final String DESCRIBE_OPTION_ = "describe option";   //@F6A
 
     // Common String objects.  Using these will theoretically
     // cut down on the number of String allocations.
@@ -443,11 +445,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     static final String         XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED = "0";  //@540
     static final String         XA_LOOSELY_COUPLED_SUPPORT_SHARED = "1";  //@540
-    
+
     static final String         METADATA_SOURCE_ROI = "0";  //@PDA
     static final String         METADATA_SOURCE_STORED_PROCEDURE = "1";  //@PDA
     static final String         METADATA_SOURCE_HOST_VERSION_DEFAULT = "-1"; //@mdsp //not yet set, so default depends on i5 version (post-v6r1 default is SP)
-    
+
     static final String         QUERY_STORAGE_LIMIT_NOMAX               = "-1"; //@550
 
     static final String         DECFLOAT_ROUNDING_MODE_HALF_EVEN    = "half even"; //@DFA
@@ -463,10 +465,14 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         CONCURRENTACCESS_WAIT_FOR_OUTCOME = "2"; //@cc1
     static final String         CONCURRENTACCESS_SKIP_LOCKS = "3"; //@cc1
 
-    static final String         QUERY_TIMEOUT_MECHANISM_CANCEL="cancel"; 
-    static final String         QUERY_TIMEOUT_MECHANISM_QQRYTIMLMT="qqrytimlmt"; 
-    
-    
+    static final String         QUERY_TIMEOUT_MECHANISM_CANCEL="cancel";
+    static final String         QUERY_TIMEOUT_MECHANISM_QQRYTIMLMT="qqrytimlmt";
+
+    static final String         DESCRIBE_OPTION_SYSTEM_NAMES = "system names";  //@F6A
+    static final String         DESCRIBE_OPTION_LONG_NAMES = "long names";    //@F6A
+    static final String         DESCRIBE_OPTION_LABELS = "labels";        //@F6A
+
+
     // Static data.
     private static DriverPropertyInfo[] dpi_;
     private static String[]             defaults_;
@@ -532,7 +538,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[8]  = BIDI_STRING_TYPE_ST10;
         dpi_[i].choices[9]  = BIDI_STRING_TYPE_ST11;
         dpi_[i].choices[10] = BIDI_STRING_TYPE_NONE;//Bidi-HCG1
-        defaults_[i]        = BIDI_STRING_TYPE_ST5; //Bidi-HCG 
+        defaults_[i]        = BIDI_STRING_TYPE_ST5; //Bidi-HCG
         	//BIDI_STRING_TYPE_NOTSET;
 
         // Big decimal.  @E0A
@@ -591,7 +597,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = CURSOR_SENSITIVITY_ASENSITIVE;
         dpi_[i].choices[1]  = CURSOR_SENSITIVITY_INSENSITIVE;
         dpi_[i].choices[2]  = CURSOR_SENSITIVITY_SENSITIVE;
-        defaults_[i]        = CURSOR_SENSITIVITY_ASENSITIVE;                   //@K6C 
+        defaults_[i]        = CURSOR_SENSITIVITY_ASENSITIVE;                   //@K6C
 
         // Data compression.  @D0A
         i = DATA_COMPRESSION;
@@ -1029,7 +1035,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         defaults_[i]        = "0";
 
         // @K1A
-        // Trace Toolbox  
+        // Trace Toolbox
         i = TRACE_TOOLBOX;
         dpi_[i] = new DriverPropertyInfo (TRACE_TOOLBOX_, "");
         dpi_[i].description = "TRACE_TOOLBOX_DESC";
@@ -1085,12 +1091,12 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i] = new DriverPropertyInfo(PACKAGE_CCSID_, "");
         dpi_[i].description = "PACKAGE_CCSID_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[3];//Bidi-HCG 
+        dpi_[i].choices     = new String[3];//Bidi-HCG
         dpi_[i].choices[0]  = PACKAGE_CCSID_UCS2;
         dpi_[i].choices[1]  = PACKAGE_CCSID_UTF16;
-        dpi_[i].choices[2]  = "system"; //Bidi-HCG        
+        dpi_[i].choices[2]  = "system"; //Bidi-HCG
         defaults_[i]        = PACKAGE_CCSID_UCS2;
-        
+
         // @M0A - 63 digit decimal precision
         i = MINIMUM_DIVIDE_SCALE;
         dpi_[i] = new DriverPropertyInfo(MINIMUM_DIVIDE_SCALE_, "");
@@ -1136,7 +1142,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[1]  = TRANSLATE_HEX_BINARY;
         defaults_[i]        = TRANSLATE_HEX_CHARACTER;
 
-        // @K2A - support to specify a QAQQINI library name 
+        // @K2A - support to specify a QAQQINI library name
         i = QAQQINILIB;
         dpi_[i] = new DriverPropertyInfo(QAQQINILIB_, "");
         dpi_[i].description = "QAQQINILIB_DESC";
@@ -1163,7 +1169,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = FALSE_;
         dpi_[i].choices[1]  = TRUE_;
         defaults_[i]        = TRUE_;
-        
+
         // Bidi implicit reordering @K24
         i = BIDI_IMPLICIT_REORDERING;
         dpi_[i] = new DriverPropertyInfo (BIDI_IMPLICIT_REORDERING_, "");
@@ -1203,7 +1209,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
-                
+
         // Variable-Length Field Compression @K54
         i = VARIABLE_FIELD_COMPRESSION;
         dpi_[i] = new DriverPropertyInfo (VARIABLE_FIELD_COMPRESSION_, "");
@@ -1224,8 +1230,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[1]  = QUERY_OPTIMIZE_GOAL_FIRSTIO;
         dpi_[i].choices[2]  = QUERY_OPTIMIZE_GOAL_ALLIO;
         defaults_[i]        = QUERY_OPTIMIZE_GOAL_DEFAULT;
-        
-        // Keep alive.  
+
+        // Keep alive.
         i = KEEP_ALIVE;
         dpi_[i] = new DriverPropertyInfo (KEEP_ALIVE_, "");
         dpi_[i].description = "KEEP_ALIVE_DESC";
@@ -1234,15 +1240,15 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = FALSE_;
         dpi_[i].choices[1]  = TRUE_;
         defaults_[i]        = EMPTY_; //default set by platform
-        
-        // Receive buffer size.  
+
+        // Receive buffer size.
         i = RECEIVE_BUFFER_SIZE;
         dpi_[i] = new DriverPropertyInfo (RECEIVE_BUFFER_SIZE_, "");
         dpi_[i].description = "RECEIVE_BUFFER_SIZE_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;  //default set by platform
-        
+
         // Send buffer size.
         i = SEND_BUFFER_SIZE;
         dpi_[i] = new DriverPropertyInfo (SEND_BUFFER_SIZE_, "");
@@ -1260,7 +1266,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED;
         dpi_[i].choices[1]  = XA_LOOSELY_COUPLED_SUPPORT_SHARED;
         defaults_[i]        = XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED;
-        
+
         // Translate Boolean   //@PDA
         i = TRANSLATE_BOOLEAN;
         dpi_[i] = new DriverPropertyInfo (TRANSLATE_BOOLEAN_, "");
@@ -1270,7 +1276,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = FALSE_;
         dpi_[i].choices[1]  = TRUE_;
         defaults_[i]        = TRUE_;
-        
+
         // Database Metadata   //@PDA
         i = METADATA_SOURCE;
         dpi_[i] = new DriverPropertyInfo (METADATA_SOURCE_, "");
@@ -1281,7 +1287,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[1]  = METADATA_SOURCE_STORED_PROCEDURE;
         dpi_[i].choices[2]  = METADATA_SOURCE_HOST_VERSION_DEFAULT; //@mdsp
         defaults_[i]        = METADATA_SOURCE_HOST_VERSION_DEFAULT; //@mdsp
-        
+
         // Query Storage Limit   //@550
         i = QUERY_STORAGE_LIMIT;
         dpi_[i] = new DriverPropertyInfo (QUERY_STORAGE_LIMIT_, "");
@@ -1289,7 +1295,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = QUERY_STORAGE_LIMIT_NOMAX;
-        
+
         // Decfloat Rounding Mode  //@DFA
         i = DECFLOAT_ROUNDING_MODE;
         dpi_[i] = new DriverPropertyInfo (DECFLOAT_ROUNDING_MODE_, "");
@@ -1304,7 +1310,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[5]  = DECFLOAT_ROUNDING_MODE_HALF_DOWN;
         dpi_[i].choices[6]  = DECFLOAT_ROUNDING_MODE_UP;
         defaults_[i]        = DECFLOAT_ROUNDING_MODE_HALF_EVEN;
-        
+
         // Autocommit Exception  //@CE1
         i = AUTOCOMMIT_EXCEPTION;
         dpi_[i] = new DriverPropertyInfo (AUTOCOMMIT_EXCEPTION_, "");
@@ -1314,7 +1320,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = FALSE_;
-        
+
         // Auto Commit  //@AC1
         i = AUTO_COMMIT;
         dpi_[i] = new DriverPropertyInfo (AUTO_COMMIT_, "");
@@ -1324,7 +1330,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = TRUE_;
-        
+
         // Ignore Warnings  //@igwrn
         i = IGNORE_WARNINGS;
         dpi_[i] = new DriverPropertyInfo (IGNORE_WARNINGS_, "");
@@ -1332,7 +1338,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]  = EMPTY_;
-        
+
         // Secure Current User  //@pw3
         i = SECURE_CURRENT_USER;
         dpi_[i] = new DriverPropertyInfo (SECURE_CURRENT_USER_, "");
@@ -1342,7 +1348,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = TRUE_;
-        
+
         // Concurrent Access Resolution  //@cc1
         i = CONCURRENT_ACCESS_RESOLUTION;
         dpi_[i] = new DriverPropertyInfo (CONCURRENT_ACCESS_RESOLUTION_, "");
@@ -1354,7 +1360,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[2]  = CONCURRENTACCESS_WAIT_FOR_OUTCOME;
         dpi_[i].choices[3]  = CONCURRENTACCESS_SKIP_LOCKS;
         defaults_[i]  = CONCURRENTACCESS_NOT_SET;
-      
+
         // Jvm16 Synchronize  //@dmy
         i = JVM16_SYNCHRONIZE;
         dpi_[i] = new DriverPropertyInfo (JVM16_SYNCHRONIZE_, "");
@@ -1363,8 +1369,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
-        defaults_[i]  = FALSE_; /* @C6A*/ 
-        
+        defaults_[i]  = FALSE_; /* @C6A*/
+
         // Socket timeout  //@STIMEOUT
         i = SOCKET_TIMEOUT;
         dpi_[i] = new DriverPropertyInfo (SOCKET_TIMEOUT_, "");
@@ -1372,8 +1378,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]  = EMPTY_;  //default set by platform
-      
-        
+
+
         // Socket timeout  //@STIMEOUT
         i = DO_UPDATE_DELETE_BLOCKING;
         dpi_[i] = new DriverPropertyInfo (DO_UPDATE_DELETE_BLOCKING_, "");
@@ -1384,8 +1390,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = FALSE_;
 
-        
-        
+
+
         i = MAXIMUM_BLOCKED_INPUT_ROWS;
         dpi_[i] = new DriverPropertyInfo (MAXIMUM_BLOCKED_INPUT_ROWS_, "");
         dpi_[i].description = "MAXIMUM_BLOCKED_INPUT_ROWS_DESC";
@@ -1409,7 +1415,16 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
        dpi_[i].choices[1]  = QUERY_TIMEOUT_MECHANISM_CANCEL;
        defaults_[i]        = QUERY_TIMEOUT_MECHANISM_QQRYTIMLMT;
 
-        
+       //@F6A - Added RPB describe option for column names
+       i = DESCRIBE_OPTION;
+       dpi_[i] = new DriverPropertyInfo(DESCRIBE_OPTION_, "");
+       dpi_[i].description = "DESCRIBE_OPTION";
+       dpi_[i].required    = false;
+       dpi_[i].choices     = new String[3];
+       dpi_[i].choices[0]  = DESCRIBE_OPTION_SYSTEM_NAMES;
+       dpi_[i].choices[1]  = DESCRIBE_OPTION_LONG_NAMES;
+       dpi_[i].choices[2]  = DESCRIBE_OPTION_LABELS;
+       defaults_[i]        = EMPTY_;
     }
 
 
@@ -1423,7 +1438,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     /**
     Constructor.
-    
+
     @param  urlProperties   The URL properties.
     @param  info            The info properties.
     **/
@@ -1557,7 +1572,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     /**
     Is the value of the specified property set to the specified
     value?  The comparison is case insensitive.
-    
+
     @param      index   Property index.
     @param      value   Value to compare to.
     @return     true or false.
@@ -1572,7 +1587,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     /**
     Get the driver property info.
-    
+
     @return     The info.
     **/
     DriverPropertyInfo[] getInfo ()
@@ -1608,7 +1623,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     Get the value of the specified property as a boolean.  This
     is intended for properties that take "true" and "false" as
     values.
-    
+
     @param      index   Property index.
     @return     The value.
     **/
@@ -1624,7 +1639,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     is the index within the list of choices.  If the property is
     not specified, then the index of the default value will be
     returned.  If the value does not match a choice, then return -1.
-    
+
     @param      index   Property index.
     @return     The index of the value, or -1.
     **/
@@ -1641,7 +1656,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     /**
     Get the value of the specified property as an int.  This
     is intended for properties that take integers as values.
-    
+
     @param      index   Property index.
     @return     The value.
     **/
@@ -1663,7 +1678,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     /**
     Get the original "info" Properties object, that was passed in as the
     second argument to the constructor of this object.
-    
+
     @return     The original "info" Properties object.
     **/
     Properties getOriginalInfo ()
@@ -1672,11 +1687,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     }
 
 
-    //@PDA 
+    //@PDA
     /**
     Gets index of the property name as indexed in array.
     This method is used by AS400JDBCDataSource so that it can
-    update properties based on property name string. 
+    update properties based on property name string.
     @param propertyName
     @return index of property in array.  returns -1 if not found.
     **/
@@ -1691,13 +1706,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         }
         return -1;
     }
-    
-    
+
+
     /**
     Returns the value of the specified property.  The
     URL properties are searched first, then the info
     properties.
-    
+
     @param  urlProperties   The URL properties.
     @param  info            The info properties.
     @param  propertyName    The property name.
@@ -1723,7 +1738,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     choices are allowed, then the value will be compared against
     the choices, and if none match, the default value will be
     returned.
-    
+
     @param      index   Property index.
     @return     The value.
     **/
@@ -1741,7 +1756,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     /**
     Indicates if any extra properties are specified.
-    
+
     @param      properties   The properties.
     @return     true or false
     **/
@@ -1756,7 +1771,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     Indicates if the trace property is set.  This needs to be
     detected before an object of this class is even instantiated,
     which is why it is static.
-    
+
     @param      urlProperties   The URL properties.
     @param      info            The info properties.
     @return     Whether the trace property was set to true, false, or not specified when constructed.
@@ -1774,8 +1789,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     //@K1A
     /**
-    Indicates if a toolbox trace category is set.  
-    
+    Indicates if a toolbox trace category is set.
+
     @param    urlProperties    The URL properties.
     @param    info             The info properties.
     @return   The category the toolbox trace was set to when constructed.
@@ -1808,7 +1823,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
             return TRACE_TOOLBOX_THREAD;
         else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_NONE))
             return TRACE_TOOLBOX_NONE;
-        else 
+        else
             return TRACE_TOOLBOX_NOT_SET;
     }
 
@@ -1868,7 +1883,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     If choices are allowed, then the value will be compared against
     the choices, and if none match, the property will be set to
     the default value.
-    
+
     @param      index   Property index.
     @param      value   The value.
     **/
@@ -1880,7 +1895,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
             values_[index] = defaults_[index];
         else
             values_[index] = value;
-        
+
         //Bidi-HCG start
         //exception for "package ccsid" - it can accept any integer
         if(index == PACKAGE_CCSID){
@@ -1894,7 +1909,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         	}catch(NumberFormatException e){
         		//do nothing, will be handled by  code below
         	}
-        }                 
+        }
         //Bidi-HCG end
 
         // If choices are provided, for a specified index,
@@ -1926,7 +1941,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     /**
     Returns the string representation of the object.
-    
+
     @return The string representation.
     **/
     //

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400JDBCStatement.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2010 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -62,10 +62,10 @@ explicitly close statements rather than counting on garbage collection.
 //    are not intended to be used outside of the class
 //    hierarchy.
 //
-public class AS400JDBCStatement 
-/* ifdef JDBC40 
-extends ToolboxWrapper 
-endif */ 
+public class AS400JDBCStatement
+/* ifdef JDBC40
+extends ToolboxWrapper
+endif */
 implements Statement
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
@@ -109,8 +109,8 @@ implements Statement
     int                     numberOfResults_;    // private protected
     int                     positionOfSyntaxError_;    //@F10A
     boolean                 prefetch_;    // private protected
-    int                     queryTimeout_;                /*@D4A*/ 
-    private     boolean                 queryTimeoutSet_ = false;  /*@B2A*/ 
+    int                     queryTimeout_;                /*@D4A*/
+    private     boolean                 queryTimeoutSet_ = false;  /*@B2A*/
     AS400JDBCResultSet      resultSet_;    // private protected
     private     int                     rowCountEstimate_;    // @ECA
     private     boolean                 rpbCreated_;
@@ -131,28 +131,28 @@ implements Statement
     private boolean     useVariableFieldCompression_ = false;    //@K54
     private boolean     isPoolable_ = false;         //@PDA  jdbc40
     JDServerRow         parameterRow_;          // private protected //@re-prep moved from preparedStatement so that it has visibility here
-    private boolean     threadInterrupted = false; 
-    private DBReplyRequestedDS commonExecuteReply = null; // reply from commonExecute.  Note:  This cannot be returned to the pool until it is 
+    private boolean     threadInterrupted = false;
+    private DBReplyRequestedDS commonExecuteReply = null; // reply from commonExecute.  Note:  This cannot be returned to the pool until it is
                                                           // no longer being used.  The data_ pointer from this reply is shared with
                                                           // all kinds of objects.
     	                                                  // Note:  Because of the current structure, this can be returned after it is used.  The data_
                                                           // pointer from the reply was created by ClientAccessDataStream.construct.  The returnToPool
-                                                          // method for the reply has been corrected to set the data_ pointer back to DBStorage_.data. 
+                                                          // method for the reply has been corrected to set the data_ pointer back to DBStorage_.data.
                                                           // @B5A
-    private DBReplyRequestedDS connectReply = null;    
-    private DBReplyRequestedDS execImmediateReply = null; 
-    private DBReplyRequestedDS normalPrepareReply = null;    
-    private DBReplyRequestedDS getMoreResultsReply = null;   
+    private DBReplyRequestedDS connectReply = null;
+    private DBReplyRequestedDS execImmediateReply = null;
+    private DBReplyRequestedDS normalPrepareReply = null;
+    private DBReplyRequestedDS getMoreResultsReply = null;
 
     protected boolean queryRunning_;    // Used to determine whether or not we need to track}
                                         // a QueryCancelThread.  @D4A
     protected AS400JDBCQueryCancelThread cancelThread_;    /*@D4A*/
 
 
-    
+
     /**
     Constructs an AS400JDBCStatement object.
-    
+
     @param  connection              The connection to the system.
     @param  id                      The id.
     @param  transactionManager      The transaction manager for the connection.
@@ -165,7 +165,7 @@ implements Statement
     @param  resultSetConcurrency    The result set concurrency.
     @param  resultSetHoldability    The result set holdability.
     @param  autoGeneratedKeys       Indicates if auto generated keys were requested.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     AS400JDBCStatement (AS400JDBCConnection connection,
@@ -212,7 +212,7 @@ implements Statement
         rpbQueryTimeoutChanged_ = false;    //@EFA
         rpbSyncNeeded_          = true;
         settings_               = new SQLConversionSettings (connection_);
-        sqlWarning_             = null;           
+        sqlWarning_             = null;
         packageCriteria_        = packageCriteria;    // @A1A
 
         // By default, the statement name and cursor name are
@@ -238,7 +238,7 @@ implements Statement
 
         cursor_ = new JDCursor (connection_, id_, cursorDefaultName_, resultSetConcurrency_);    // @E4C @EAC
 
-        //@F4 If the user specified a holdability, then we must check the holdability of 
+        //@F4 If the user specified a holdability, then we must check the holdability of
         //@F4 statements on a Connection.commit or Connection.rollback.  Thought about just
         //@F4 setting this flag to true if the holdability was different than the connection
         //@F4 holdability, but the connection holdability can change above us.
@@ -281,11 +281,11 @@ implements Statement
     // JDBC 2.0
     /**
     Adds an SQL statement to the current batch of SQL statements.
-    
+
     @param sql  The SQL statement to be added to the current batch.
                 This can be any SQL statement that does not return
                 a result set.
-    
+
     @exception SQLException     If the statement is not open or
                                 the SQL statement contains a syntax
                                 error.
@@ -316,7 +316,7 @@ implements Statement
     Cancels the statement.  This is useful when one thread
     needs to cancel a statement that is being executed by another
     thread.  This will close the current result set.
-    
+
     @exception  SQLException    If the statement is not open or
                                 an error occurs.
     **/
@@ -338,7 +338,7 @@ implements Statement
     /**
     Checks that the statement is open.  Public methods
     that require an open statement should call this first.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     void checkOpen ()
@@ -354,7 +354,7 @@ implements Statement
     // JDBC 2.0
     /**
     Clears the current batch of SQL statements.
-    
+
     @exception SQLException     If the statement is not open.
     **/
     public void clearBatch ()
@@ -374,13 +374,13 @@ implements Statement
     Clears all warnings that have been reported for the statement.
     After this call, getWarnings() returns null until a new warning
     is reported for the statement.
-    
+
     @exception SQLException If an error occurs.
     **/
     public void clearWarnings ()
     throws SQLException
     {
-        sqlWarning_ = null;             
+        sqlWarning_ = null;
     }
 
 
@@ -389,7 +389,7 @@ implements Statement
     Releases the statement's resources immediately instead of waiting
     for them to be automatically released.  This closes the current
     result set.
-    
+
     @exception SQLException If an error occurs.
     **/
     //
@@ -422,7 +422,7 @@ implements Statement
             //{    // @B3A               //@perf3
             closeResultSet (JDCursor.REUSE_NO);
             //}    // @B3A               //@perf3
-                
+
             // If, even after closing the current result set,
             // there are more result sets that were returned, we
             // need to close them, too.  At first I though we
@@ -443,20 +443,20 @@ implements Statement
             {
                 generatedKeys_.close();
                 generatedKeys_ = null;
-            } 
-            
-            //@KBL If the user specified to keep statements open until a transaction boundary and locators are associated 
+            }
+
+            //@KBL If the user specified to keep statements open until a transaction boundary and locators are associated
             // with the statement, do not close the RPB or ORS until a transaction boundary is reached.
             if(isAssociatedWithLocators() && (connection_.getProperties().getBoolean(JDProperties.HOLD_STATEMENTS)) && (connection_.getAutoCommit() == false))
             {
                 setHoldStatement(true);
                 closed_ = true;     // Want the statement to only be available for use internally, user should not be able to use the statement.
-                
-                if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; } 
-                if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }     
-                if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }  
-                if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; } 
-                if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }  
+
+                if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; }
+                if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }
+                if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }
+                if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; }
+                if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }
                 return;             // Mark the statement as closed, but don't notify the connection it has been closed or delete the RPB and ORS.
             }
 
@@ -497,7 +497,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request3 != null) {
-                    		request3.returnToPool();  request3=null; 
+                    		request3.returnToPool();  request3=null;
                     }
                     if(closeReply != null) {
                     	closeReply.returnToPool();closeReply=null;
@@ -532,19 +532,19 @@ implements Statement
             finally
             {    //@P0A
                 if(request2 != null) {
-                	request2.returnToPool();  request2=null; 
+                	request2.returnToPool();  request2=null;
                 }
             }
 
             // Ignore errors, since we would not be able to get
             // the message text anyway (because the ORS is gone.)
 
-            // free the pooled commonExecuteReply 
-            if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; } 
-            if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }     
-            if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }  
-            if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; } 
-            if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }  
+            // free the pooled commonExecuteReply
+            if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; }
+            if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }
+            if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }
+            if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; }
+            if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }
             closed_ = true;
             connection_.notifyClose (this, id_);
 
@@ -559,8 +559,8 @@ implements Statement
 
     //@KBL
     /*
-    Finish releasing a partially-closed statement's resources.  A statement may become partially closed if, for example, 
-    the user called close on the statement and it was associated with a locator.  
+    Finish releasing a partially-closed statement's resources.  A statement may become partially closed if, for example,
+    the user called close on the statement and it was associated with a locator.
     This method will delete any RPB and ORS associated with the statement.".
     @exception SQLException if an error occurs
     */
@@ -569,46 +569,46 @@ implements Statement
     {
         synchronized(internalLock_)
         {
-            // Delete the RPB.  Remember the error information                                             
-            // in order to report later...                                                                 
-            SQLException e = null;    
+            // Delete the RPB.  Remember the error information
+            // in order to report later...
+            SQLException e = null;
             if(rpbCreated_)
-            {    
-                DBSQLRPBDS request3 = null;    
-                DBReplyRequestedDS finishClosingReply = null;    
+            {
+                DBSQLRPBDS request3 = null;
+                DBReplyRequestedDS finishClosingReply = null;
                 try
-                {    
+                {
                     request3 = DBDSPool.getDBSQLRPBDS(DBSQLRPBDS.FUNCTIONID_DELETE_RPB, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);    //@P0C
 
-                    finishClosingReply = connection_.sendAndReceive(request3, id_);    
+                    finishClosingReply = connection_.sendAndReceive(request3, id_);
 
-                    int errorClass = finishClosingReply.getErrorClass();    
-                    int returnCode = finishClosingReply.getReturnCode();    
+                    int errorClass = finishClosingReply.getErrorClass();
+                    int returnCode = finishClosingReply.getReturnCode();
                     if(errorClass != 0)
-                    {    
+                    {
                         if(returnCode < 0)
-                        {    
+                        {
                             try
-                            {    
-                                JDError.throwSQLException(connection_, id_, errorClass, returnCode);    
-                            }    
+                            {
+                                JDError.throwSQLException(connection_, id_, errorClass, returnCode);
+                            }
                             catch(SQLException e2)
-                            {    
-                                e = e2;    
-                            }    
-                        }    
+                            {
+                                e = e2;
+                            }
+                        }
                         else
-                        {    
-                            postWarning (JDError.getSQLWarning(connection_, id_, errorClass, returnCode));    
-                        }    
-                    }    
+                        {
+                            postWarning (JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
+                        }
+                    }
                 }
                 finally
-                {    
-                    if(request3 != null) { request3.returnToPool(); request3=null; }    
+                {
+                    if(request3 != null) { request3.returnToPool(); request3=null; }
                     if(finishClosingReply != null) { finishClosingReply.returnToPool(); finishClosingReply = null; }
                 }
-            }    
+            }
 
             // Delete the ORS.
             //
@@ -621,18 +621,18 @@ implements Statement
             // all of the previous datastreams, since this is the
             // last one for this statement.
             //
-            // Make sure not to base future requests on this ORS.                                   
-            DBSQLResultSetDS request2 = null;    
+            // Make sure not to base future requests on this ORS.
+            DBSQLResultSetDS request2 = null;
             try
-            {    
-                request2 = DBDSPool.getDBSQLResultSetDS(DBSQLResultSetDS.FUNCTIONID_DELETE_RESULTS_SET, id_, 0, 0);    
+            {
+                request2 = DBDSPool.getDBSQLResultSetDS(DBSQLResultSetDS.FUNCTIONID_DELETE_RESULTS_SET, id_, 0, 0);
 
-                connection_.send(request2, id_, false);    
+                connection_.send(request2, id_, false);
             }
             finally
-            {    
+            {
                 if(request2 != null) {
-                		request2.returnToPool();   request2 = null; 
+                		request2.returnToPool();   request2 = null;
                 }
             }
 
@@ -646,20 +646,20 @@ implements Statement
             if(JDTrace.isTraceOn())
                 JDTrace.logClose (this);
 
-            // Rethrow any exception that surfaced when deleting the RPB.                              
-            if(e != null)    
-                throw e;    
+            // Rethrow any exception that surfaced when deleting the RPB.
+            if(e != null)
+                throw e;
         }
 
     }
 
     /**
     Closes the result set and cursor.
-    
+
     @param      reuseFlag   Either JDCursor.REUSE_NO,
                             JDCursor.REUSE_YES, or
                             JDCursor.REUSE_RESULT_SET.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     void closeResultSet (int reuseFlag)    // private protected
@@ -674,13 +674,13 @@ implements Statement
 
         if (threadInterrupted) {
         	// Force a close to be flowed
-        	try { 
-        		cursor_.setState(false); 
-        		cursor_.close (reuseFlag); 
-        	} catch (Exception e) { 
-        		
+        	try {
+        		cursor_.setState(false);
+        		cursor_.close (reuseFlag);
+        	} catch (Exception e) {
+
         	}
-        } else { 
+        } else {
            if(! cursor_.isClosed ())
               cursor_.close (reuseFlag);
         }
@@ -692,10 +692,10 @@ implements Statement
 
     /**
     Executes an SQL statement on the IBM i system.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  resultRow       The result row or null if none.
-    
+
     @exception      SQLException    If the query timeout limit is
                                     exceeded or an error occurs.
     **/
@@ -707,44 +707,44 @@ implements Statement
                               JDServerRow resultRow)    // private protected
     throws SQLException
     {
-      SQLException savedException = null;   /*@F3A*/ 
+      SQLException savedException = null;   /*@F3A*/
 
-      try { 
+      try {
         cancelled_ = false;
 
         /*@D4A*/
         if (connection_.isQueryTimeoutMechanismCancel()) {
-          startCancelThread(); 
+          startCancelThread();
         }
-        
+
         // If the statement is not immediately executable, then
         // we still need to do the execute.  Otherwise, the execute
         // was already done as part of the prepare.
         if((! allowImmediate_) || (! sqlStatement.isImmediatelyExecutable ()))
         {
 
-          
-          
+
+
           //
           // If using generated keys, make sure that the prefetch
           // operation is disabled.  If the prefetch option is not
           // disabled, then it is not possible to the the updated row
-          // count from the insert. 
+          // count from the insert.
           // @E5
           if (autoGeneratedKeys_ == RETURN_GENERATED_KEYS && prefetch_) {
-            prefetch_ = false; 
+            prefetch_ = false;
           }
-         
-          // Also close the autogenerated key if it is open.  
+
+          // Also close the autogenerated key if it is open.
           // Breaking the exec into two pieces causes this to be closed
           // right after the exec if it already is open
           // @E5
           if (generatedKeys_ != null) {
             if (!generatedKeys_.isClosed()) {
-              try { 
+              try {
               generatedKeys_.close();
               } catch (Exception e) {
-                
+
               }
             }
           }
@@ -793,7 +793,7 @@ implements Statement
                     //@F5D //@F3A If we are on a system that supports extended column descriptors and if the              //@F3A
                     //@F5D //@F3A user asked for them, send the extended column descriptors code point.                   //@F3A
                     boolean extendedMetaData = false;                                                              //@F3A   //@541C undeleted
-                    //@F5D if (connection_.getVRM() >= JDUtilities.vrm520)                                                //@F3A   
+                    //@F5D if (connection_.getVRM() >= JDUtilities.vrm520)                                                //@F3A
                     if(connection_.getVRM() >= JDUtilities.vrm540 && isCall)                                        //@541A
                     {                                                                                              //@F3A   //@541C  undeleted
                          extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); //@F3A  //@541C  undeleted
@@ -805,7 +805,7 @@ implements Statement
                     if(connection_.getVRM() >= JDUtilities.vrm610 )     //@cur request cursor attributes  //@isol
                         requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES; //@cur
                     //@P0A
-                    request = DBDSPool.getDBSQLRequestDS(functionId, id_, requestedORS, 0);    //@P0C @F3C @F5C //@541C 
+                    request = DBDSPool.getDBSQLRequestDS(functionId, id_, requestedORS, 0);    //@P0C @F3C @F5C //@541C
 
                     openAttributes = cursor_.getOpenAttributes(sqlStatement, blockCriteria_);    //@F7M
                     if(openNeeded)
@@ -848,19 +848,19 @@ implements Statement
                             request.setBufferSize(blockSize_ * 1024);
                         }
                         else {                                                    //@K54
-                        	if (resultRow != null) {  // @B5A -- check for null pointer  
+                        	if (resultRow != null) {  // @B5A -- check for null pointer
                                request.setBlockingFactor(getBlockingFactor (sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
-                        	} else { 
+                        	} else {
                                 request.setBlockingFactor(getBlockingFactor (sqlStatement, 0));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
                         	}
                         }
                     }
 
                     //@K1D //@F8 If we are pre-V5R2, the user set the resultSetType to "TYPE_SCROLL_INSENSITIVE", or
-                    //@K1D //@F8 the user did not change from the default of the "cursor sensitivity" property,  
+                    //@K1D //@F8 the user did not change from the default of the "cursor sensitivity" property,
                     //@K1D //@F8 send what we always have.
-                    //@K1D //@F8 Change in a future release to send CURSOR_SCROLLABLE_INSENSITIVE and 
-                    //@K1D //@F8 CURSOR_NOT_SCROLLABLE_INSENSITIVE if resultSetType_ == 
+                    //@K1D //@F8 Change in a future release to send CURSOR_SCROLLABLE_INSENSITIVE and
+                    //@K1D //@F8 CURSOR_NOT_SCROLLABLE_INSENSITIVE if resultSetType_ ==
                     //@K1D //@F8 ResultSet.TYPE_SCROLL_INSENSITIVE to v5r1 or later hosts.
                     String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
                     //@K1D if((connection_.getVRM() < JDUtilities.vrm520)                                                    //@F8A
@@ -870,7 +870,7 @@ implements Statement
                     //@K1D     if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
                     //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);
                     //@K1D     else
-                    //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE); 
+                    //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);
                     //@K1D }
                     //@K1D //@F8 If we are V5R2 or later, send new numbers based on what the user
                     //@K1D //@F8 set in "cursor sensitivity" property                                                      //@F8A
@@ -898,7 +898,7 @@ implements Statement
                         else    //@K1A
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@K1A        Option 1
                     }    //@K1A
-                    else if ((autoGeneratedKeys_ == RETURN_GENERATED_KEYS) && connection_.getVRM() >= JDUtilities.vrm610)   //@GKA 
+                    else if ((autoGeneratedKeys_ == RETURN_GENERATED_KEYS) && connection_.getVRM() >= JDUtilities.vrm610)   //@GKA
                     {                                                                                                       //@GKA
                         // The user requested generated keys so we wrapped the INSERT with a SELECT                         //@GKA
                         // The result set returned will be for the generated keys and should be read-only, insensitive      //@GKA
@@ -937,7 +937,7 @@ implements Statement
                         // @G4A
                         if(resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT)    // @G4A
                             request.setResultSetHoldabilityOption((byte)0xD5);    // @G4A
-                        else if(resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT)    // @G4A 
+                        else if(resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT)    // @G4A
                             request.setResultSetHoldabilityOption((byte)0xE8);    // @G4A
                         // else resultSetHoldability_ == AS400JDBCResultSet.HOLDABILITY_NOT_SPECIFIED, // @G4A
                         // so don't send the code point because the user did not tell us to            // @G4A
@@ -946,15 +946,15 @@ implements Statement
                     commonExecuteBefore(sqlStatement, request);
 
                     if (commonExecuteReply != null) { commonExecuteReply.returnToPool(); commonExecuteReply=null; }
-                    
+
                     commonExecuteReply = connection_.sendAndReceive(request, id_);    //@P0C
 
 
                     // Gather information from the reply.
                     cursor_.processConcurrencyOverride(openAttributes, commonExecuteReply);    // @E1A @EAC
-                    
+
                     cursor_.processCursorAttributes(commonExecuteReply);                  //@cur
-                    
+
                     transactionManager_.processCommitOnReturn(commonExecuteReply);    // @E2A
                     DBReplySQLCA sqlca = commonExecuteReply.getSQLCA();
                     DBData resultData = null;
@@ -989,7 +989,7 @@ implements Statement
                         if(sqlState.startsWith("00") || sqlState.startsWith("02"))                    //@pda (issue 32120)  //@issue 34500 //@35199
                         	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
-                    else if((errorClass == 2) && (returnCode == 700) 
+                    else if((errorClass == 2) && (returnCode == 700)
                             && (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)) //@pda perf2 - fetch/close
                     {
                         lastBlock = true;
@@ -1000,7 +1000,7 @@ implements Statement
                         	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
 
-                    
+
                     //else //@PDD  check for errors even on cases above (issue 32120)
                     if(errorClass != 0 && bypassExceptionWarning == false)  //@pdc (issue 32120)
                     {
@@ -1009,33 +1009,33 @@ implements Statement
                         if(returnCode < 0)
                         {
                           //
-                          // Check if error came from a combined opened fetch...  
+                          // Check if error came from a combined opened fetch...
                           // If so, delay error until fetch occurs.  @F3A
-                          // 
-                          int errd6 = sqlca.getErrd(6); 
+                          //
+                          int errd6 = sqlca.getErrd(6);
                           if ( errd6 == 1) {
                              // Delay error
                               try {
                                 JDError.throwSQLException(connection_, id_, errorClass, returnCode);
                               } catch (SQLException e) {
-                                savedException = e; 
+                                savedException = e;
                               }
-                          } else { 
-                          
+                          } else {
+
                             JDError.throwSQLException(connection_, id_, errorClass, returnCode);
                           }
                         }
                         else
                         {
                             String sqlState = sqlca.getSQLState (connection_.converter_);  //@igwrn
-                            if( connection_.getProperties().getString(JDProperties.IGNORE_WARNINGS).toUpperCase().indexOf(sqlState) == -1 )  //@igwrn 
+                            if( connection_.getProperties().getString(JDProperties.IGNORE_WARNINGS).toUpperCase().indexOf(sqlState) == -1 )  //@igwrn
                                 postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
                         }
                     }
 
                     //Make an auto-generated key result set if it was requested          //@G4A
                     if(autoGeneratedKeys_ == RETURN_GENERATED_KEYS &&    //@G4A
-                       (connection_.getVRM() >= JDUtilities.vrm520) && 
+                       (connection_.getVRM() >= JDUtilities.vrm520) &&
                        ((connection_.getVRM() < JDUtilities.vrm610) || !sqlStatement.isSelectFromInsert()))    //@F5A @F6C @GKC
                         //@F6D&& generatedKeys_ == null)                                 //@F5A
                         makeGeneratedKeyResultSet(returnCode, sqlca);    //@G4A
@@ -1043,7 +1043,7 @@ implements Statement
                     {
                         generatedKeys_.close();
                         generatedKeys_ = null;
-                    } 
+                    }
 
 
                     //@F5D This belongs on the prepare, not the execute
@@ -1057,9 +1057,9 @@ implements Statement
                     if(openNeeded)
                     {
                       // @B5A Check for null pointer.
-                    	int rowLength = 0; 
+                    	int rowLength = 0;
                     	if (resultRow != null) {
-                    		rowLength = resultRow.getRowLength(); 
+                    		rowLength = resultRow.getRowLength();
                     	}
                         JDServerRowCache rowCache;
                         if((fetchFirstBlock) && (resultData != null))
@@ -1080,7 +1080,7 @@ implements Statement
                                                 ? cursor_.getConcurrency() : resultSetConcurrency_;    // @E1C @EAC
 
                         if((autoGeneratedKeys_ == RETURN_GENERATED_KEYS) &&
-                            (connection_.getVRM() >= JDUtilities.vrm610) && 
+                            (connection_.getVRM() >= JDUtilities.vrm610) &&
                             sqlStatement.isSelectFromInsert())    //@GKA
                         {
                             // this will be the generated keys result set                                                                                                   //@GKA
@@ -1099,10 +1099,10 @@ implements Statement
                                                              sqlStatement, rowCache, connection_.getCatalog(),
                                                              cursor_.getName(), maxRows_, resultSetType_,
                                                              actualConcurrency, fetchDirection_, fetchSize_);    // @E1C
-                            if(resultSet_.getConcurrency () != resultSetConcurrency_ && resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE) //@nowarn only warn if concurrency level is lessened 
+                            if(resultSet_.getConcurrency () != resultSetConcurrency_ && resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE) //@nowarn only warn if concurrency level is lessened
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                             if (savedException != null) {     /*@F3A*/
-                              resultSet_.addSavedException(savedException); 
+                              resultSet_.addSavedException(savedException);
                             }
                         }                                                                                                   //@GKA
                     }
@@ -1113,7 +1113,7 @@ implements Statement
                     }
 
                     // Compute the number of results.
-                    //@541D boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);   
+                    //@541D boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);
                     if(isCall)
                         numberOfResults_ = sqlca.getErrd (2);    //@F1C
                     else
@@ -1134,25 +1134,25 @@ implements Statement
                         if((isCall) && (numberOfResults_ > 0) && (resultSet_ == null))
                         {
                             boolean preV5R3 = connection_.getVRM() < JDUtilities.vrm530;
-                            
+
                             // Change the result set type based on the current attributes
                             // unless forward only cursors were requested.   This must
                             // be kept in sync with similar code ins AS400JDBCResultSet
-                            // @C4A 
-                            int callResultSetType ;  
+                            // @C4A
+                            int callResultSetType ;
                             if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY) {
                             	// The user requested FORWARD_ONLY, so the result set will
-                            	// only be usable as forward only. 
-                            	callResultSetType = ResultSet.TYPE_FORWARD_ONLY; 
-                            } else if(cursor_.getCursorAttributeScrollable() == 0)             
-                                callResultSetType =  ResultSet.TYPE_FORWARD_ONLY;                               
-                            else if(cursor_.getCursorAttributeSensitive() == 0)          
-                                callResultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;                           
-                            else if(cursor_.getCursorAttributeSensitive() == 1)           
-                                callResultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;                            
-                            else                                                                   
-                            	callResultSetType = resultSetType_; 
-                            
+                            	// only be usable as forward only.
+                            	callResultSetType = ResultSet.TYPE_FORWARD_ONLY;
+                            } else if(cursor_.getCursorAttributeScrollable() == 0)
+                                callResultSetType =  ResultSet.TYPE_FORWARD_ONLY;
+                            else if(cursor_.getCursorAttributeSensitive() == 0)
+                                callResultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
+                            else if(cursor_.getCursorAttributeSensitive() == 1)
+                                callResultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;
+                            else
+                            	callResultSetType = resultSetType_;
+
                             JDServerRow row = new JDServerRow (
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
                                                                                                       callResultSetType), settings_);          //@KBA
@@ -1161,7 +1161,7 @@ implements Statement
                                                                                                                    row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
                             //if pre-v5r3 create a FORWARD_ONLY RESULT SET
                             if(preV5R3)                                                           //@KBA
-                            {                             
+                            {
                                 resultSet_ = new AS400JDBCResultSet (this,
                                                                      sqlStatement, rowCache, connection_.getCatalog(),
                                                                      cursor_.getName(), maxRows_, ResultSet.TYPE_FORWARD_ONLY,
@@ -1184,24 +1184,24 @@ implements Statement
 
                     commonExecuteAfter (sqlStatement, commonExecuteReply);
                 } catch (SQLException sqlex) {
-                	
+
                 	// Handle interrupted exception
                 	String messageText = sqlex.getMessage();
-                	messageText = messageText.toLowerCase(); 
+                	messageText = messageText.toLowerCase();
                 	if (messageText.indexOf("internal driver error") >= 0) {
 						if (messageText.indexOf("interrupted") > 0) {
 							threadInterrupted = true;
 						}
 					}
-                	throw sqlex; 
+                	throw sqlex;
                 }
                 finally
                 {    //@P0A
                     if(request != null)  {
-                    	request.returnToPool();    request = null; 
+                    	request.returnToPool();    request = null;
                     }
                     // This can be returned.  See comment at declaration.  @B5A
-                    if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; } 
+                    if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; }
 
                 }
             }
@@ -1247,10 +1247,10 @@ implements Statement
 
     /**
     Performs common operations needed after an execute.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  reply           The execute reply.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     //
@@ -1267,10 +1267,10 @@ implements Statement
 
     /**
     Performs common operations needed before an execute.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  request         The execute request.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     //
@@ -1281,17 +1281,17 @@ implements Statement
     throws SQLException
     {
         // Clear warnings.
-        clearWarnings ();   
+        clearWarnings ();
     }
 
 
 
     /**
     Prepares (pre-compiles) the SQL statement on the IBM i system.
-    
+
     @param   sqlStatement   The SQL statement.
     @return                 The result row or null if none.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     //
@@ -1306,7 +1306,7 @@ implements Statement
       try {
         /*@D4A*/
         if (connection_.isQueryTimeoutMechanismCancel()) {
-          startCancelThread(); 
+          startCancelThread();
         }
 
         cancelled_ = false;
@@ -1362,7 +1362,7 @@ implements Statement
                         resultRow = null;                           //@re-prep output lobs
                     }                                               //@re-prep
 
-                    commonPrepareBypass (sqlStatement, i); 
+                    commonPrepareBypass (sqlStatement, i);
 
                     //@re-prep input lobs on prepared statement
                     if(parameterRow_ != null && parameterRow_.containsLob_)  //@re-prep
@@ -1425,7 +1425,7 @@ implements Statement
                         else
                         {
                             request.setPrepareOption (0);
-                            request.setPackageName(null, connection_.converter_);         //send empty code point per 
+                            request.setPackageName(null, connection_.converter_);         //send empty code point per
                         }
                     }
                     else
@@ -1434,11 +1434,11 @@ implements Statement
                     commonPrepareBefore (sqlStatement, request);
                     commonExecuteBefore (sqlStatement, request);
 
-                    if (execImmediateReply != null) { 
-                    	execImmediateReply.returnToPool(); execImmediateReply = null; 
+                    if (execImmediateReply != null) {
+                    	execImmediateReply.returnToPool(); execImmediateReply = null;
                     }
-                    if (normalPrepareReply != null) { 
-                    	normalPrepareReply.returnToPool();normalPrepareReply = null; 
+                    if (normalPrepareReply != null) {
+                    	normalPrepareReply.returnToPool();normalPrepareReply = null;
                     }
                     if (connectReply != null) { connectReply.returnToPool(); connectReply=null; }
                     connectReply = connection_.sendAndReceive (request, id_);    //@P0C
@@ -1462,7 +1462,7 @@ implements Statement
 
                     commonPrepareAfter (sqlStatement, connectReply);
                     commonExecuteAfter (sqlStatement, connectReply);
-                    
+
                 }
                 catch(DBDataStreamException e)
                 {
@@ -1470,10 +1470,10 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null)  { 
-                    		request.returnToPool();    request=null; 
+                    if(request != null)  {
+                    		request.returnToPool();    request=null;
                     }
-                    if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }      /*@B5A*/ 
+                    if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }      /*@B5A*/
 
                 }
 
@@ -1507,7 +1507,7 @@ implements Statement
                 DBSQLRequestDS request = null;    //@P0A
                 try
                 {
-                    
+
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A
                     boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);      //@cur
                     if(connection_.getVRM() >= JDUtilities.vrm610 )                           //@cur //@isol
@@ -1529,7 +1529,7 @@ implements Statement
                     request = DBDSPool.getDBSQLRequestDS (DBSQLRequestDS.FUNCTIONID_EXECUTE_IMMEDIATE, id_, requestedORS, 0);    //@P0C @F5C
 
                     boolean extended = false;                                                         //@540
-                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540                  
+                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
                     //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
                     request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
@@ -1555,23 +1555,23 @@ implements Statement
 
                     //@F5A Don't have to check if a v5r2 system, because extendedMetaData
                     //@F5A can only be true if we are running to v5r2
-                    if(extendedMetaData)    //@F5A 
+                    if(extendedMetaData)    //@F5A
                     {
-                        //@F5A 
-                        request.setExtendedColumnDescriptorOption((byte)0xF1);    //@F5A 
+                        //@F5A
+                        request.setExtendedColumnDescriptorOption((byte)0xF1);    //@F5A
                     }    //@F5A
 
                     commonPrepareBefore (sqlStatement, request);
                     commonExecuteBefore (sqlStatement, request);
 
-                    if (connectReply != null) { 
-                    	connectReply.returnToPool();connectReply = null; 
+                    if (connectReply != null) {
+                    	connectReply.returnToPool();connectReply = null;
                     }
-                    if (normalPrepareReply != null) { 
-                    	normalPrepareReply.returnToPool();normalPrepareReply = null; 
+                    if (normalPrepareReply != null) {
+                    	normalPrepareReply.returnToPool();normalPrepareReply = null;
                     }
 
-                    if (execImmediateReply != null) { execImmediateReply.returnToPool(); execImmediateReply=null;} 
+                    if (execImmediateReply != null) { execImmediateReply.returnToPool(); execImmediateReply=null;}
                     execImmediateReply = connection_.sendAndReceive (request, id_);    //@P0C
 
                     int errorClass = execImmediateReply.getErrorClass();
@@ -1581,7 +1581,7 @@ implements Statement
 
                     if(errorClass != 0)
                     {
-                        positionOfSyntaxError_ = sqlca.getErrd(5);    //@F10A 
+                        positionOfSyntaxError_ = sqlca.getErrd(5);    //@F10A
                         if(returnCode < 0)
                             JDError.throwSQLException (connection_, id_, errorClass, returnCode);
                         else
@@ -1591,7 +1591,7 @@ implements Statement
                     transactionManager_.processCommitOnReturn(execImmediateReply);    // @E2A
 
                     cursor_.processCursorAttributes(execImmediateReply);                   //@cur
-                    
+
                     // Compute the update count.
                     //@F10M DBReplySQLCA sqlca = reply.getSQLCA ();
                     updateCount_ = sqlca.getErrd (3);    //@F1C
@@ -1599,9 +1599,9 @@ implements Statement
 
                     //@F5A Don't have to check if a v5r2 system, because extendedMetaData
                     //@F5A can only be true if we are running to v5r2
-                    if(extendedMetaData)    //@F5A 
+                    if(extendedMetaData)    //@F5A
                     {
-                        //@F5A 
+                        //@F5A
                         extendedColumnDescriptors_ = execImmediateReply.getExtendedColumnDescriptors ();    //@F5A
                     }    //@F5A
 
@@ -1612,9 +1612,9 @@ implements Statement
                         makeGeneratedKeyResultSet(returnCode, sqlca);    //@F5A
                     else if(generatedKeys_ != null)    //@PDA genkeys - handle previous genkeys
                     {
-                        generatedKeys_.close();    
+                        generatedKeys_.close();
                         generatedKeys_ = null;
-                    } 
+                    }
 
                     // Compute the number of results.
                     //boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL); //@cur moved above
@@ -1639,7 +1639,7 @@ implements Statement
 
                         //if pre-v5r3 create a FORWARD_ONLY RESULT SET
                             if(preV5R3)                                                           //@KBA
-                            {                             
+                            {
                                 resultSet_ = new AS400JDBCResultSet (this,
                                                                      sqlStatement, rowCache, connection_.getCatalog(),
                                                                      cursor_.getName(), maxRows_, ResultSet.TYPE_FORWARD_ONLY,
@@ -1668,10 +1668,10 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null) { 
-                    		request.returnToPool();  request = null; 
+                    if(request != null) {
+                    		request.returnToPool();  request = null;
                     }
-                    if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }   /*@B5A*/ 
+                    if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }   /*@B5A*/
                 }
 
                 // Inform the transaction manager that a statement
@@ -1703,9 +1703,9 @@ implements Statement
                 syncRPB ();
 
                 DBSQLRequestDS request = null;    //@P0A
-                if (normalPrepareReply != null) { 
-                	normalPrepareReply.returnToPool(); normalPrepareReply = null;  
-                } /* B5A */ 
+                if (normalPrepareReply != null) {
+                	normalPrepareReply.returnToPool(); normalPrepareReply = null;
+                } /* B5A */
                 try
                 {
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A @F10C
@@ -1726,7 +1726,7 @@ implements Statement
                     request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_PREPARE_DESCRIBE, id_, requestedORS, 0);    //@P0C @F5C
 
                     boolean extended = false;                                                         //@540
-                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540                  
+                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
                     //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
                     request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
@@ -1751,16 +1751,16 @@ implements Statement
                     //@F5A can only be true if we are running to v5r2
                     if(extendedMetaData)    //@F5A
                     {
-                        //@F5A                                                              
-                        request.setExtendedColumnDescriptorOption((byte)0xF1);    //@F5A                                                         
+                        //@F5A
+                        request.setExtendedColumnDescriptorOption((byte)0xF1);    //@F5A
                     }    //@F5A
 
                     commonPrepareBefore (sqlStatement, request);
-                    if (execImmediateReply != null) { 
-                    	execImmediateReply.returnToPool();execImmediateReply = null; 
+                    if (execImmediateReply != null) {
+                    	execImmediateReply.returnToPool();execImmediateReply = null;
                     }
-                    if (connectReply != null) { 
-                    	connectReply.returnToPool();connectReply = null; 
+                    if (connectReply != null) {
+                    	connectReply.returnToPool();connectReply = null;
                     }
 
                     if (normalPrepareReply != null) { normalPrepareReply.returnToPool(); normalPrepareReply=null; }
@@ -1791,8 +1791,8 @@ implements Statement
                     //@F5A can only be true if we are running to v5r2
                     if(extendedMetaData)    //@F5A
                     {
-                        //@F5A 
-                        extendedColumnDescriptors_ = normalPrepareReply.getExtendedColumnDescriptors ();    //@F5A                                                              
+                        //@F5A
+                        extendedColumnDescriptors_ = normalPrepareReply.getExtendedColumnDescriptors ();    //@F5A
                     }    //@F5A
 
                     commonPrepareAfter (sqlStatement, normalPrepareReply);
@@ -1804,7 +1804,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) {
-                    		request.returnToPool();  request=null; 
+                    		request.returnToPool();  request=null;
                     }
                     if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; }   //@B5A
                 }
@@ -1832,10 +1832,10 @@ implements Statement
             {    // @B2A
                 SQLData sqlData = resultRow.getSQLData(i);
                 int sqlType = sqlData.getSQLType();  //@xml3
-                if(sqlType == SQLData.CLOB_LOCATOR ||  
-                     sqlType == SQLData.BLOB_LOCATOR ||    
-                     sqlType == SQLData.DBCLOB_LOCATOR ||        
-                     sqlType == SQLData.NCLOB_LOCATOR ||              
+                if(sqlType == SQLData.CLOB_LOCATOR ||
+                     sqlType == SQLData.BLOB_LOCATOR ||
+                     sqlType == SQLData.DBCLOB_LOCATOR ||
+                     sqlType == SQLData.NCLOB_LOCATOR ||
                      sqlType == SQLData.XML_LOCATOR)     //@xml3
 
                     lastPrepareContainsLocator_ = true;    // @B2A
@@ -1854,10 +1854,10 @@ implements Statement
 
     /**
     Performs common operations needed after a prepare.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  reply           The prepare reply.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     //
@@ -1874,10 +1874,10 @@ implements Statement
 
     /**
     Performs common operations needed before a prepare.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  request         The prepare request.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     //
@@ -1895,10 +1895,10 @@ implements Statement
 
     /**
     Performs common operations in leiu of a prepare.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  statementIndex  The cached statement index.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     //
@@ -1917,21 +1917,21 @@ implements Statement
     Runs an SQL statement that may return multiple result sets.
     This closes the current result set and clears warnings before
     executing the new SQL statement.
-    
+
     <p>Under some situations, a single SQL statement may return
     multiple result sets, an update count, or both.  This might occur
     when executing a stored procedure that returns multiple
     result sets or when dynamically executing an unknown SQL string.
-    
+
     <p>Use getMoreResults(), getResultSet(), and getUpdateCount()
     to navigate through multiple result sets, an update count, or
     both.
-    
+
     @param  sql     The SQL statement.
     @return         true if a result set was returned, false
                     if an update count was returned or nothing
                     was returned.
-    
+
     @exception      SQLException    If the statement is not open,
                                     the SQL statement contains a syntax
                                     error, the query timeout limit is
@@ -1952,17 +1952,17 @@ implements Statement
 
             // Validate that no parameters are set, since parameters
             // imply the need for a PreparedStatement.
-            // 
-            // Note:  This code causes problems with some statements with a syntax error.  
+            //
+            // Note:  This code causes problems with some statements with a syntax error.
             // For example
             // select * from sysibm.sysdummy1 where 'a = '?'
-            // 
+            //
             // Removing this code to allow database engine errors to be returned.
-            // 
+            //
             // if(sqlStatement.countParameters () > 0)
             //     JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-            // @AAD 
-            
+            // @AAD
+
             // Prepare and execute.
             JDServerRow resultRow = commonPrepare (sqlStatement);
             commonExecute (sqlStatement, resultRow);
@@ -1976,36 +1976,36 @@ implements Statement
     //@G4A JDBC 3.0
     /**
   Runs an SQL statement that may return multiple result sets and
-  makes any auto-generated keys available for retrieval using 
-  Statement.getGeneratedKeys().  This closes the current result set 
-  and clears warnings before executing the new SQL statement.    
-  
+  makes any auto-generated keys available for retrieval using
+  Statement.getGeneratedKeys().  This closes the current result set
+  and clears warnings before executing the new SQL statement.
+
   <p>Under some situations, a single SQL statement may return
   multiple result sets, an update count, or both.  This might occur
   when executing a stored procedure that returns multiple
   result sets or when dynamically executing an unknown SQL string.
-  
+
   <p>Use getMoreResults(), getResultSet(), and getUpdateCount()
   to navigate through multiple result sets, an update count, or
   both.
-  
-  <p>This method requires OS/400 V5R2  
-  or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception 
+
+  <p>This method requires OS/400 V5R2
+  or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception
   will be thrown.
-  
+
   @param  sql               The SQL statement.
-  @param  autoGeneratedKeys Indicates whether auto-generated keys should be made available for 
-                          retrieval.  Valid values are Statement.RETURN_GENERATED_KEYS and 
-                          Statement.NO_GENERATED_KEYS. 
+  @param  autoGeneratedKeys Indicates whether auto-generated keys should be made available for
+                          retrieval.  Valid values are Statement.RETURN_GENERATED_KEYS and
+                          Statement.NO_GENERATED_KEYS.
   @return                   true if a result set was returned, false
                           if an update count was returned or nothing
                           was returned.
-  
+
   @exception      SQLException    If the statement is not open,
                                 the SQL statement contains a syntax
                                 error, the query timeout limit is
-                                exceeded, the value for autoGeneratedKeys is 
-                                not a valid value, if connecting to OS/400 V5R1 
+                                exceeded, the value for autoGeneratedKeys is
+                                not a valid value, if connecting to OS/400 V5R1
                                 or earlier, an error occurs.
   @since Modification 5
   **/
@@ -2020,35 +2020,35 @@ implements Statement
         autoGeneratedKeys_ = autoGeneratedKeys;
 
         if((connection_.getVRM() >= JDUtilities.vrm610) && //@GKA
-           (autoGeneratedKeys_ == RETURN_GENERATED_KEYS))  //@GKA 
+           (autoGeneratedKeys_ == RETURN_GENERATED_KEYS))  //@GKA
         {
             synchronized(internalLock_)
             {
                 checkOpen ();
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                                   settings_.getDecimalSeparator (), escapeProcessing_,
-                                                                  packageCriteria_, connection_);    
+                                                                  packageCriteria_, connection_);
 
-                if(JDTrace.isTraceOn())    
-                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");    
+                if(JDTrace.isTraceOn())
+                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                // Note:  This code causes problems with some statements with a syntax error.  
+                // Note:  This code causes problems with some statements with a syntax error.
                 // For example
                 // select * from sysibm.sysdummy1 where 'a = '?'
-                // 
+                //
                 // Removing this code to allow database engine errors to be returned.
-                // 
+                //
                 //if(sqlStatement.countParameters () > 0)
                 //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-                // @AAD 
+                // @AAD
 
                 if(sqlStatement.isInsert_)
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql);
                     //Construct the new JDSQLStatement object
-                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator(), escapeProcessing_, packageCriteria_, connection_); 
+                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator(), escapeProcessing_, packageCriteria_, connection_);
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
                     sqlStatement.setSelectFromInsert(true);
@@ -2062,7 +2062,7 @@ implements Statement
             }
         }
         else //@GKA do what we always have
-            return execute (sql);   
+            return execute (sql);
     }
 
 
@@ -2071,32 +2071,32 @@ implements Statement
     /**
     Runs an SQL statement that may return multiple result sets and
     makes any auto-generated keys for the columns indicated in the given array
-    available for retrieval using Statement.getGeneratedKeys().  
+    available for retrieval using Statement.getGeneratedKeys().
     This closes the current result set and clears warnings before
-    executing the new SQL statement.    
-    
+    executing the new SQL statement.
+
     <p>Under some situations, a single SQL statement may return
     multiple result sets, an update count, or both.  This might occur
     when executing a stored procedure that returns multiple
     result sets or when dynamically executing an unknown SQL string.
-    
+
     <p>Use getMoreResults(), getResultSet(), and getUpdateCount()
     to navigate through multiple result sets, an update count, or
     both.
-     
+
     <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
-    
+
     @param  sql               The SQL statement.
-    @param  columnIndexes     Indicates that auto-generated keys for the indicated 
-                              columns should be made available for retrieval. 
+    @param  columnIndexes     Indicates that auto-generated keys for the indicated
+                              columns should be made available for retrieval.
     @return                   true if a result set was returned, false
                               if an update count was returned or nothing
                               was returned.
-    @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
+    @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems,
                               if the statement is not open,
                               the SQL statement contains a syntax
                               error, the query timeout limit is
-                              exceeded, the value for columnIndexes is 
+                              exceeded, the value for columnIndexes is
                               not a valid value, or an error occurs.
     @since Modification 5
     **/
@@ -2106,32 +2106,32 @@ implements Statement
         if(connection_.getVRM() >= JDUtilities.vrm610)  //@GKA
         {
             synchronized(internalLock_)
-            {    
+            {
                 checkOpen ();
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
-                                                              packageCriteria_, connection_);    
+                                                              packageCriteria_, connection_);
 
-                if(JDTrace.isTraceOn())    
-                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");    
+                if(JDTrace.isTraceOn())
+                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                // Note:  This code causes problems with some statements with a syntax error.  
+                // Note:  This code causes problems with some statements with a syntax error.
                 // For example
                 // select * from sysibm.sysdummy1 where 'a = '?'
-                // 
+                //
                 // Removing this code to allow database engine errors to be returned.
-                // 
+                //
                 // if(sqlStatement.countParameters () > 0)
                 //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-                // @AAD 
-                
+                // @AAD
+
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, columnIndexes, null);
-                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_); 
+                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
 
@@ -2141,7 +2141,7 @@ implements Statement
                 // Prepare and execute.
                 JDServerRow resultRow = commonPrepare (sqlStatement);
                 commonExecute (sqlStatement, resultRow);
-                
+
                 return(resultSet_ != null);
             }
         }
@@ -2158,32 +2158,32 @@ implements Statement
     /**
     Runs an SQL statement that may return multiple result sets and
     makes any auto-generated keys for the columns indicated in the given array
-    available for retrieval using Statement.getGeneratedKeys().  
+    available for retrieval using Statement.getGeneratedKeys().
     This closes the current result set and clears warnings before
-    executing the new SQL statement.    
-    
+    executing the new SQL statement.
+
     <p>Under some situations, a single SQL statement may return
     multiple result sets, an update count, or both.  This might occur
     when executing a stored procedure that returns multiple
     result sets or when dynamically executing an unknown SQL string.
-    
+
     <p>Use getMoreResults(), getResultSet(), and getUpdateCount()
     to navigate through multiple result sets, an update count, or
     both.
-    
+
     <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
-    
+
     @param  sql               The SQL statement.
-    @param  columnNames     Indicates that auto-generated keys for the indicated 
-                              columns should be made available for retrieval. 
+    @param  columnNames     Indicates that auto-generated keys for the indicated
+                              columns should be made available for retrieval.
     @return                   true if a result set was returned, false
                               if an update count was returned or nothing
                               was returned.
-    @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
+    @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems,
                               if the statement is not open,
                               the SQL statement contains a syntax
                               error, the query timeout limit is
-                              exceeded, the value for columnNames is 
+                              exceeded, the value for columnNames is
                               not a valid value, or an error occurs.
     @since Modification 5
     **/
@@ -2193,32 +2193,32 @@ implements Statement
         if(connection_.getVRM() >= JDUtilities.vrm610)  //@GKA
         {
             synchronized(internalLock_)
-            {    
+            {
                 checkOpen ();
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
-                                                              packageCriteria_, connection_);    
+                                                              packageCriteria_, connection_);
 
-                if(JDTrace.isTraceOn())    
-                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");    
+                if(JDTrace.isTraceOn())
+                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                // Note:  This code causes problems with some statements with a syntax error.  
+                // Note:  This code causes problems with some statements with a syntax error.
                 // For example
                 // select * from sysibm.sysdummy1 where 'a = '?'
-                // 
+                //
                 // Removing this code to allow database engine errors to be returned.
-                // 
+                //
                 // if(sqlStatement.countParameters () > 0)
                 //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-                // @AAD 
+                // @AAD
 
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, null, columnNames);
-                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_); 
+                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
 
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
@@ -2250,17 +2250,17 @@ implements Statement
     added to the batch.  The batch is cleared after the SQL statements
     are run.  In addition, this closes the current result set and
     clears warnings before executing the new SQL statement.
-    
+
     <p>When batch updates are run, autocommit should usually be turned off.
     This allows the caller to decide whether or not to commit the
     transaction in the event that an error occurs and some of the
     SQL statements in a batch fail to run.
-    
+
     @return An array of row counts for the SQL statements that are run.
             The array contains one element for each statement in the
             batch of SQL statements.  The array is ordered according to
             the order in which the SQL statements were added to the batch.
-    
+
     @exception SQLException If the statement is not open,
                             an SQL statement contains a syntax
                             error, the query timeout limit is
@@ -2341,11 +2341,11 @@ implements Statement
     Runs an SQL statement that returns a single result set.
     This closes the current result set and clears warnings
     before executing the new SQL statement.
-    
+
     @param  sql     The SQL statement.
     @return         The result set that contains the data produced
                     by the query.
-    
+
     @exception      SQLException    If the statement is not open,
                                     the SQL statement contains a syntax
                                     error, no result set is returned by the
@@ -2367,15 +2367,15 @@ implements Statement
 
             // Validate that no parameters are set, since parameters
             // imply the need for a PreparedStatement.
-            // Note:  This code causes problems with some statements with a syntax error.  
+            // Note:  This code causes problems with some statements with a syntax error.
             // For example
             // select * from sysibm.sysdummy1 where 'a = '?'
-            // 
+            //
             // Removing this code to allow database engine errors to be returned.
-            // 
+            //
             // if(sqlStatement.countParameters () > 0)
             //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-            // @AAD 
+            // @AAD
 
             // Prepare and execute.
             JDServerRow resultRow = commonPrepare (sqlStatement);
@@ -2399,12 +2399,12 @@ implements Statement
     SQL statement that does not return a result set.
     This closes the current result set and clears warnings
     before executing the new SQL statement.
-    
+
     @param  sql     The SQL statement.
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
                     return nothing.
-    
+
     @exception      SQLException    If the statement is not open,
                                     the SQL statement contains a syntax
                                     error, the query timeout limit is
@@ -2427,15 +2427,15 @@ implements Statement
 
             // Validate that no parameters are set, since parameters
             // imply the need for a PreparedStatement.
-            // Note:  This code causes problems with some statements with a syntax error.  
+            // Note:  This code causes problems with some statements with a syntax error.
             // For example
             // select * from sysibm.sysdummy1 where 'a = '?'
-            // 
+            //
             // Removing this code to allow database engine errors to be returned.
-            // 
+            //
             // if(sqlStatement.countParameters () > 0)
             //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-            // @AAD 
+            // @AAD
 
             // Prepare and execute.  Check for a result set in both
             // places.  It is best to catch it after the prepare (so
@@ -2461,27 +2461,27 @@ implements Statement
     //@G4A JDBC 3.0
     /**
     Runs an SQL INSERT, UPDATE, or DELETE statement, or any
-    SQL statement that does not return a result set and 
-    makes any auto-generated keys available for retrieval using 
+    SQL statement that does not return a result set and
+    makes any auto-generated keys available for retrieval using
     Statement.getGeneratedKeys().
     This closes the current result set and clears warnings
     before executing the new SQL statement.
     <p>This method requires OS/400 V5R2 or
-    or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception 
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception
     will be thrown.
-  
-    
+
+
     @param  sql     The SQL statement.
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
                     return nothing.
-    
+
     @exception      SQLException    If the statement is not open,
                                     the SQL statement contains a syntax
                                     error, the query timeout limit is
                                     exceeded, the statement returns
-                                    a result set, the value for autoGeneratedKeys is 
-                                    not a valid value, if connecting to OS/400 V5R1 
+                                    a result set, the value for autoGeneratedKeys is
+                                    not a valid value, if connecting to OS/400 V5R1
                                     or earlier, an error occurs.
     @since Modification 5
     **/
@@ -2495,35 +2495,35 @@ implements Statement
         autoGeneratedKeys_ = autoGeneratedKeys;
 
         if((connection_.getVRM() >= JDUtilities.vrm610) && //@GKA
-           (autoGeneratedKeys_ == RETURN_GENERATED_KEYS))  //@GKA 
+           (autoGeneratedKeys_ == RETURN_GENERATED_KEYS))  //@GKA
         {
             synchronized(internalLock_)
             {
                 checkOpen ();
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                                   settings_.getDecimalSeparator (), escapeProcessing_,
-                                                                  packageCriteria_, connection_);    
+                                                                  packageCriteria_, connection_);
 
-                if(JDTrace.isTraceOn())    
-                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");    
+                if(JDTrace.isTraceOn())
+                    JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                // Note:  This code causes problems with some statements with a syntax error.  
+                // Note:  This code causes problems with some statements with a syntax error.
                 // For example
                 // select * from sysibm.sysdummy1 where 'a = '?'
-                // 
+                //
                 // Removed this code let engine return error
-                // 
+                //
                 //if(sqlStatement.countParameters () > 0)
                 //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-                // @AAD 
+                // @AAD
 
                 if(sqlStatement.isInsert_)
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql);
                     //Create a new JDSQLStatement
-                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator(), escapeProcessing_, packageCriteria_, connection_); 
+                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator(), escapeProcessing_, packageCriteria_, connection_);
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
 
@@ -2557,16 +2557,16 @@ implements Statement
     //@G4A JDBC 3.0
     /**
     Runs an SQL INSERT, UPDATE, or DELETE statement, or any
-    SQL statement that does not return a result set and 
+    SQL statement that does not return a result set and
     makes any auto-generated keys for the columns indicated in the given array
     available for retrieval using Statement.getGeneratedKeys().
     This closes the current result set and clears warnings
     before executing the new SQL statement.
-    
+
     <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
-    
+
     @param  sql            The SQL statement.
-    @param  columnIndexes  The indexes of columns for which auto-generated keys should be made 
+    @param  columnIndexes  The indexes of columns for which auto-generated keys should be made
                            available for retrieval.
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
@@ -2576,45 +2576,45 @@ implements Statement
                                     the SQL statement contains a syntax
                                     error, the query timeout limit is
                                     exceeded, the statement returns
-                                    a result set, the value for autoGeneratedKeys is 
+                                    a result set, the value for autoGeneratedKeys is
                                     not a valid value or an error occurs.
-  
-    @since Modification 5  
+
+    @since Modification 5
     **/
     public int executeUpdate (String sql, int[] columnIndexes)
     throws SQLException
     {
         if(connection_.getVRM() >= JDUtilities.vrm610)   //@GKA
         {
-            synchronized(internalLock_)                                                                                     
-            {    
+            synchronized(internalLock_)
+            {
                 //make sure the statement is open
                 checkOpen ();
 
-                //create the sql statement object.  
-                JDSQLStatement sqlStatement = new JDSQLStatement (sql, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);    
-                
-                if(JDTrace.isTraceOn())    
-                    JDTrace.logInformation (this, "Executing update, SQL Statement -->[" + sqlStatement + "]");    
+                //create the sql statement object.
+                JDSQLStatement sqlStatement = new JDSQLStatement (sql, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+
+                if(JDTrace.isTraceOn())
+                    JDTrace.logInformation (this, "Executing update, SQL Statement -->[" + sqlStatement + "]");
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                // Note:  This code causes problems with some statements with a syntax error.  
+                // Note:  This code causes problems with some statements with a syntax error.
                 // For example
                 // select * from sysibm.sysdummy1 where 'a = '?'
-                // 
+                //
                 // Removing this code to allow database engine errors to be returned.
-                // 
+                //
 
                 //if(sqlStatement.countParameters () > 0)
                 //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-                // @AAD 
+                // @AAD
 
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
                 {
-                    String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, columnIndexes, null); 
-                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_); 
+                    String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, columnIndexes, null);
+                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
 
@@ -2656,16 +2656,16 @@ implements Statement
     //@G4A JDBC 3.0
     /**
     Runs an SQL INSERT, UPDATE, or DELETE statement, or any
-    SQL statement that does not return a result set and 
+    SQL statement that does not return a result set and
     makes any auto-generated keys for the columns indicated in the given array
     available for retrieval using Statement.getGeneratedKeys().
     This closes the current result set and clears warnings
     before executing the new SQL statement.
-    
+
     <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
-     
+
     @param  sql          The SQL statement.
-    @param  columnNames  The column names for which auto-generated keys should be made 
+    @param  columnNames  The column names for which auto-generated keys should be made
                          available for retrieval.
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
@@ -2675,44 +2675,44 @@ implements Statement
                                     the SQL statement contains a syntax
                                     error, the query timeout limit is
                                     exceeded, the statement returns
-                                    a result set, the value for autoGeneratedKeys is 
-                                    not a valid value or an error occurs.  
-    @since Modification 5  
+                                    a result set, the value for autoGeneratedKeys is
+                                    not a valid value or an error occurs.
+    @since Modification 5
     **/
     public int executeUpdate (String sql, String[] columnNames)
     throws SQLException
     {
         if(connection_.getVRM() >= JDUtilities.vrm610)                                                                   //@GKA
-        {                                                                                                               
-            synchronized(internalLock_)                                                                                     
-            {    
+        {
+            synchronized(internalLock_)
+            {
                 //make sure the statement is open
                 checkOpen ();
 
-                //create the sql statement object.  
-                JDSQLStatement sqlStatement = new JDSQLStatement (sql, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);    
-                
-                if(JDTrace.isTraceOn())    
-                    JDTrace.logInformation (this, "Executing update, SQL Statement -->[" + sqlStatement + "]");    
+                //create the sql statement object.
+                JDSQLStatement sqlStatement = new JDSQLStatement (sql, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+
+                if(JDTrace.isTraceOn())
+                    JDTrace.logInformation (this, "Executing update, SQL Statement -->[" + sqlStatement + "]");
 
                 // Validate that no parameters are set, since parameters
                 // imply the need for a PreparedStatement.
-                // Note:  This code causes problems with some statements with a syntax error.  
+                // Note:  This code causes problems with some statements with a syntax error.
                 // For example
                 // select * from sysibm.sysdummy1 where 'a = '?'
-                // 
+                //
                 // Removing this code to allow database engine errors to be returned.
-                // 
+                //
 
                 //if(sqlStatement.countParameters () > 0)
                 //    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-                // @AAD 
+                // @AAD
 
                 //check if the statement is an insert statement
                 if(sqlStatement.isInsert_)
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, null, columnNames);
-                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_); 
+                    sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
 
@@ -2753,7 +2753,7 @@ implements Statement
 
     /**
     Closes the statement if not explicitly closed by the caller.
-    
+
     @exception   Throwable      If an error occurs.
     **/
     protected void finalize ()
@@ -2775,7 +2775,7 @@ implements Statement
 
     /**
     Returns the appropriate blocking factor for the SQL statement.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  rowLength       The row length.
     @return                 The blocking factor (in rows).
@@ -2843,9 +2843,9 @@ implements Statement
     // JDBC 2.0
     /**
     Returns the connection for this statement.
-    
+
     @return The connection for this statement.
-    
+
     @exception SQLException If an error occurs.
     **/
     public Connection getConnection ()
@@ -2859,7 +2859,7 @@ implements Statement
     /**
     Returns the name of the SQL cursor that is used by
     subsequent statement execute methods.
-    
+
     @return     The cursor name.
     **/
     String getCursorName ()
@@ -2875,9 +2875,9 @@ implements Statement
     //@F3A
     /**
     Returns extended column descriptors for this statement.
-    This will be null if the user has the "extended meta data" 
+    This will be null if the user has the "extended meta data"
     property set to false (the default).
-        
+
     @return     The extended column descriptors for this statement.
     **/
     DBExtendedColumnDescriptors getExtendedColumnDescriptors ()
@@ -2893,9 +2893,9 @@ implements Statement
     // JDBC 2.0
     /**
     Returns the fetch direction.
-    
+
     @return The fetch direction.
-    
+
     @exception SQLException If the statement is not open.
     **/
     public int getFetchDirection ()
@@ -2913,9 +2913,9 @@ implements Statement
     // JDBC 2.0
     /**
     Returns the fetch size.
-    
+
     @return The fetch size.
-    
+
     @exception SQLException If the statement is not open.
     **/
     public int getFetchSize ()
@@ -2932,35 +2932,35 @@ implements Statement
 
     //@G4A JDBC 3.0
     /**
-    Retrieves any auto-generated keys created as a result of executing this Statement object. 
+    Retrieves any auto-generated keys created as a result of executing this Statement object.
     Currently DB2 for IBM i supports returning only one auto-generated key to the Toolbox JDBC driver
-    -- the key for the last inserted row.  Be aware that the generated key returned is not 
-    guaranteed to be unique unless a unique constraint is created on the table.  
-    
-    <p>In order for this method to return auto-generated keys, the statement must be executed on 
-    a table with an identity column.  For more information about identity columns, Go to the 
+    -- the key for the last inserted row.  Be aware that the generated key returned is not
+    guaranteed to be unique unless a unique constraint is created on the table.
+
+    <p>In order for this method to return auto-generated keys, the statement must be executed on
+    a table with an identity column.  For more information about identity columns, Go to the
     IBM i Information Center, and search on the phrase "identity column".
 
-    
-    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, 
-    an exception will be thrown. 
-    
+
+    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier,
+    an exception will be thrown.
+
     <p>This method will return null if the user did not request auto-generated keys
     during the execute of a Statement or during the prepare of a PreparedStatement.
     This method will also return null if the application has not executed the
     statement before calling this method.
-    
+
     <p>This method will return an empty result set if the database did not generate
     any auto-generated keys when executing the statement.
-    
-    @return      The ResultSet object containing the auto-generated key(s) 
+
+    @return      The ResultSet object containing the auto-generated key(s)
                  generated by the execution of this Statement object, an empty
                  result set if the database did not generate any auto-generated keys,
-                 or null if the application did not request auto-generated keys or 
+                 or null if the application did not request auto-generated keys or
                  did not execute the statement before calling this method.
-    
-    @exception SQLException     If the statement is not open,  
-                                if connecting to OS/400 V5R1 or earlier, 
+
+    @exception SQLException     If the statement is not open,
+                                if connecting to OS/400 V5R1 or earlier,
                                 an error occurs.
     @since Modification 5
     **/
@@ -2982,9 +2982,9 @@ implements Statement
             //@F6 If the user didn't execute the statement yet, throw a function sequence exception.
             //@F6 If it's just an issue of the database not returning any keys,
             //@F6 return an empty result set.
-            //@F6 Since we will also have null generated keys if the database did not 
+            //@F6 Since we will also have null generated keys if the database did not
             //@F6 return us any values, return null instead of throwing a function sequence error.
-            //@F6 This matches the behavior of Statement.getResultSet() if no result set was 
+            //@F6 This matches the behavior of Statement.getResultSet() if no result set was
             //@F6 created, or getResultSet() is called before executing a statement.
             //@F6D If we have not made any generated keys yet, a statement must
             //@F6D not have been executed, so throw a function sequence error.
@@ -3003,10 +3003,10 @@ implements Statement
     returned for any column value.  It applies only to BINARY,
     VARBINARY, CHAR, and VARCHAR fields.  If the limit is exceeded,
     then the excess data is discarded.
-    
+
     @return     The maximum field size limit (in bytes), or
                 0 for no limit.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public int getMaxFieldSize ()
@@ -3026,9 +3026,9 @@ implements Statement
     The maximum rows limit is the maximum number of rows that a
     result set can contain.  If the limit is exceeded, then the
     excess rows are dropped.
-    
+
     @return     The maximum rows limit, or 0 for no limit.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public int getMaxRows ()
@@ -3046,10 +3046,10 @@ implements Statement
     /**
     Returns the next result set.  This closes the
     current result set.
-    
+
     @return         true if another result set is available, false
                     if there are no more result sets.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     public boolean getMoreResults ()
@@ -3131,7 +3131,7 @@ implements Statement
                     cursor_.processConcurrencyOverride(openAttributes, getMoreResultsReply);    // @E1A @EAC
 
                     cursor_.processCursorAttributes(getMoreResultsReply);                   //@cur
-                    
+
                     // Note that the cursor was opened.
                     cursor_.setState (false);
 
@@ -3163,10 +3163,10 @@ implements Statement
                 }
                 finally
                 {    //@P0A
-                    if(request != null)  { 
-                    	request.returnToPool();    request = null; 
+                    if(request != null)  {
+                    	request.returnToPool();    request = null;
                     }
-                    if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }  
+                    if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }
                 }
             }
 
@@ -3187,18 +3187,18 @@ implements Statement
     //@G4A JDBC 3.0
     /**
     Returns the next result set.  This closes the current result set.  This method
-    handles any current ResultSet object(s) according to the instructions specified 
-    by the actionOnCurrentResultSet parameter, and returns true if the next result is a 
-    ResultSet object. 
-    
-    @param          current  What should happen to current ResultSet objects 
-                    obtained using the method getResultSet.  Valid values are 
+    handles any current ResultSet object(s) according to the instructions specified
+    by the actionOnCurrentResultSet parameter, and returns true if the next result is a
+    ResultSet object.
+
+    @param          current  What should happen to current ResultSet objects
+                    obtained using the method getResultSet.  Valid values are
                     CLOSE_CURRENT_RESULT, KEEP_CURRENT_RESULT, and CLOSE_ALL_RESULTS.
-    
+
     @return         Always false because this method is not supported.
-    
-    @exception      SQLException    if DatabaseMetaData.supportsMultipleOpenResults returns false 
-                    and either Statement.KEEP_CURRENT_RESULT or Statement.CLOSE_ALL_RESULTS are 
+
+    @exception      SQLException    if DatabaseMetaData.supportsMultipleOpenResults returns false
+                    and either Statement.KEEP_CURRENT_RESULT or Statement.CLOSE_ALL_RESULTS are
                     supplied as the argument.
     @since Modification 5
     **/
@@ -3207,7 +3207,7 @@ implements Statement
     {
         if(current == Statement.CLOSE_CURRENT_RESULT)  //@forum1
             return getMoreResults();   //@forum1
-        
+
         JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return false;
     }
@@ -3216,10 +3216,10 @@ implements Statement
     //@F10A
     /**
     Will return the value of the last syntax error that came back from the IBM i system.
-    
+
     @return     The value of the character of the last syntax error from the system,
                 or 0 if no errors occurred or the value is not known.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public int getPositionOfSyntaxError ()
@@ -3237,10 +3237,10 @@ implements Statement
     Returns the query timeout limit for this statement.
     The query timeout limit is the number of seconds that the
     driver will wait for an SQL statement to execute.
-    
+
     @return     The query timeout limit (in seconds), or
                 0 for no limit.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public int getQueryTimeout ()
@@ -3257,11 +3257,11 @@ implements Statement
 
     /**
     Returns the current result set.
-    
+
     @return     The current result set, or null if an update
                 count was returned or there are no more
                 result sets.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public ResultSet getResultSet ()
@@ -3279,9 +3279,9 @@ implements Statement
     // JDBC 2.0
     /**
     Returns the result set concurrency to be used for this statement.
-    
+
     @return The result set concurrency.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public int getResultSetConcurrency ()
@@ -3299,26 +3299,26 @@ implements Statement
     //@G4A  JDBC 3.0
     /**
     Returns the result set cursor holdability to be used for this statement.
-    
-    @return     The cursor holdability.  Valid values are ResultSet.HOLD_CURSORS_OVER_COMMIT and 
+
+    @return     The cursor holdability.  Valid values are ResultSet.HOLD_CURSORS_OVER_COMMIT and
                 ResultSet.CLOSE_CURSORS_AT_COMMIT.  The holdability is derived in this order
                 of precedence:
                 <ul>
                 <li>1.  The holdability, if any, that was specified on statement creation using
-                the methods createStatement(), prepareCall(), or prepareStatement() on the 
+                the methods createStatement(), prepareCall(), or prepareStatement() on the
                 Connection object.
                 <li>2.  The holdability specified using the method setHoldability(int)
                 if this method was called on the Connection object.
-                <li>3.  If neither of above methods were called, the value of the 
-                <code> cursor hold </code> 
-                <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
+                <li>3.  If neither of above methods were called, the value of the
+                <code> cursor hold </code>
+                <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>
                 Full functionality of #1 and #2 requires OS/400 v5r2
-                or IBM i.  If connecting to OS/400 V5R1 or earlier, 
+                or IBM i.  If connecting to OS/400 V5R1 or earlier,
                 the value specified on these two methods will be ignored and the default holdability
                 will be the value of #3.
-          
+
     @exception  SQLException    If the statement is not open.
-    
+
     @since Modification 5
     **/
     public int getResultSetHoldability ()
@@ -3327,11 +3327,11 @@ implements Statement
         synchronized(internalLock_)
         {
             checkOpen ();
-            
+
             //if we can get info from resultSet (post 540), that will be more accurate, since it can be from stored-proc cursor
             if((resultSet_ != null) && (!resultSet_.isClosed()))  //@cur //@cur2
             	return resultSet_.getHoldability();   //@cur
-            
+
             //@F4 If resultSetHoldability_ was set by the user, then return it.  Otherwise,
             //@F4 return the connection's holdability.
             if((resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||    //@F4A
@@ -3350,9 +3350,9 @@ implements Statement
     // JDBC 2.0
     /**
     Returns the result set type to be used for this statement.
-    
+
     @return The result set type.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public int getResultSetType ()
@@ -3369,10 +3369,10 @@ implements Statement
 
     /**
     Returns the current update count.
-    
+
     @return     The update count, or -1 if a result set was
                 returned or there are no more result sets.
-    
+
     @exception  SQLException    If the statement is not open.
     **/
     public int getUpdateCount ()
@@ -3390,10 +3390,10 @@ implements Statement
     /**
     Returns the first warning reported for the statement.
     Subsequent warnings may be chained to this warning.
-    
+
     @return     The first warning, or null if no warnings
                 have been reported.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public SQLWarning getWarnings ()
@@ -3419,7 +3419,7 @@ implements Statement
     Returns whether or not the statement has been partially closed.
     A statement may become partially closed if the user specified to keep statements associated with
     locators open until a transaction boundary by setting the "hold statements" connection property to true.
-    */  
+    */
     boolean isHoldStatement()
     {
         return holdStatement_;
@@ -3443,7 +3443,7 @@ implements Statement
 
     /**
     Indicates if the statement is closed.
-    
+
     @return     true if the statement is closed;
                 false otherwise.
     **/
@@ -3457,7 +3457,7 @@ implements Statement
     //@G4A
     /**
     Creates a result set to be returned from getGeneratedKeys().
-    
+
     Make an empty result set if return code is < 0 because the information
     will not be waiting for us in the SQLCA.
     **/
@@ -3482,7 +3482,7 @@ implements Statement
             // If SQLCode (returnCode) from system is not 0, then don't go look
             // for auto-generated key because it will not be there.  Instead,
             // make empty result set.
-            //@F6D generatedKey = ""; 
+            //@F6D generatedKey = "";
             if(JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "return code was not 0, generated key is null");
         }
@@ -3500,12 +3500,12 @@ implements Statement
             generatedKey = sqlca.getGeneratedKey();    //@P0C @F6C Deleted converter
             if(JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "generated key from system is: " + generatedKey);
-            // generatedKey will be null if the database did not return to us a 
+            // generatedKey will be null if the database did not return to us a
             // proper generatedKey
         }
         String[] fieldNames = {""};
         SQLData[] sqlData   = { new SQLDecimal (30, 0, settings_, connection_.getVRM(), connection_.getProperties())};    //@F6C // @M0C - changed SQLDecimal ctor signature
-        int[] fieldNullables = {AS400JDBCDatabaseMetaData.columnNoNulls};    
+        int[] fieldNullables = {AS400JDBCDatabaseMetaData.columnNoNulls};
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
         boolean[][] nulls = {{false}};
         boolean[][] dataMappingErrors = {{false}};
@@ -3528,7 +3528,7 @@ implements Statement
     // @B3A
     /**
     Marks the cursor as closed.
-    
+
     @param isRollback True if we called this from rollback(), false if we called this from commit().
     **/
     void markCursorClosed(boolean isRollback)    //@F4C
@@ -3539,19 +3539,19 @@ implements Statement
         if(rollbackCursorHold)     //@K94
             isRollback = false;    //@K94
 
-        // @F4 Added a check of statement level holdability because the user can specify the 
+        // @F4 Added a check of statement level holdability because the user can specify the
         // @F4 holdability of a specific statement (as a different value than the connection
         // @F4 holdability) with JDBC 3.0 support.  If this was called from Connection.rollback(),
         // @F4 close all statements.
         if((getResultSetHoldability() == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT    //@F4A
-           || isRollback)  //@F4A 
-           &&  ((connection_.getVRM() <= JDUtilities.vrm610) 
+           || isRollback)  //@F4A
+           &&  ((connection_.getVRM() <= JDUtilities.vrm610)
                || ((connection_.getVRM() >= JDUtilities.vrm710) && cursor_.getCursorIsolationLevel() != 0)))   //@isol only close if cursor's isolationlvl is not *none
         {
             //@F5D cursor_.setState(true);
-            //@F4 Instead of calling closeResultSet which does more work than we need to, 
+            //@F4 Instead of calling closeResultSet which does more work than we need to,
             //@F4 just move the code here that we need to clean up our internal variables.
-            //@F4 Otherwise, we'd make an unnecessary flow to the system to tell it to 
+            //@F4 Otherwise, we'd make an unnecessary flow to the system to tell it to
             //@F4 close the cursor which it already has.
             if(resultSet_ != null)    //@F4A
             {
@@ -3569,7 +3569,7 @@ implements Statement
 
     /**
     Notifies the statement that its result set has been closed.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     void notifyClose ()
@@ -3581,14 +3581,14 @@ implements Statement
             if(numberOfResults_ > 1) {
                 cursor_.close (JDCursor.REUSE_RESULT_SET);
             } else {
-               // Only one result set.   
+               // Only one result set.
                 cursor_.close (JDCursor.REUSE_YES);
             }
         }
 
-        // Close statement if closeOnCompletion_ and all results have been processed. 
+        // Close statement if closeOnCompletion_ and all results have been processed.
         if (closeOnCompletion_ && numberOfResults_ <= 1) { // @D7A
-          this.close(); 
+          this.close();
         }
     }
 
@@ -3596,13 +3596,13 @@ implements Statement
 
     /**
     Posts a warning for the statement.
-    
+
     @param   sqlWarning  The warning.
     **/
     void postWarning (SQLWarning sqlWarning)
     {
         if (JDTrace.isTraceOn ())           {
-           JDTrace.logInformation(this, "postWarning("+sqlWarning+")");                
+           JDTrace.logInformation(this, "postWarning("+sqlWarning+")");
         }
 
         if(sqlWarning_ == null)
@@ -3618,22 +3618,22 @@ implements Statement
     Sets the SQL cursor name that will be used by the statement.
     Cursor names must be unique within the connection.
     The cursor name can only be set when no result set is open.
-    
+
     <p>The cursor name can be used in SQL positioned UPDATE or DELETE
     statements to identify the current row in the result set generated
     by this statement.  By definition, SQL positioned UPDATEs or
     DELETEs must be executed by a different statement than the one
     that generated the result set being used for positioning.
-    
+
     <p>Cursor names are case sensitive.  However, when using a cursor
     name within other SQL positioned UPDATE or DELETE statements,
     the cursor name will be uppercased.  If you use a cursor name
     with lowercase characters, you need to enclose it in double
     quotes when referring to it in other SQL statements.
-    
+
     @param  cursorName    The cursor name.  If null, a unique
                           default name will be used.
-    
+
     @exception      SQLException    If the statement is not open,
                                     a result set is open, the cursor
                                     name is not unique within the
@@ -3710,11 +3710,11 @@ implements Statement
     in SQL statements with DB2 for IBM i SQL grammar elements.
     If escape processing is not needed, then setting the escape
     processing mode to false improves performance.
-    
+
     @param  escapeProcessing      true to process escape clauses;
                                   false otherwise.  The default
                                   is true.
-    
+
     @exception          SQLException    If the statement is not open.
     **/
     public void setEscapeProcessing (boolean escapeProcessing)
@@ -3736,9 +3736,9 @@ implements Statement
     /**
     Sets the direction in which the rows in a result set will be
     processed.
-    
+
     <p>This setting is not used.
-    
+
     @param      fetchDirection  The fetch direction for processing rows.
                                 Valid values are:
                                 <ul>
@@ -3747,7 +3747,7 @@ implements Statement
                                   <li>ResultSet.FETCH_UNKNOWN
                                 </ul>
                                 The default is ResultSet.FETCH_FORWARD.
-    
+
     @exception          SQLException    If the statement is not open,
                                         the result set type is
                                         ResultSet.TYPE_FORWARD_ONLY,
@@ -3783,15 +3783,15 @@ implements Statement
     rows are needed.  The number of rows specified only affects result
     sets created using this statement. If the value specified is zero,
     then the driver will choose an appropriate fetch size.
-    
+
     <p>This setting only affects statements that meet the criteria
     specified in the "block criteria" property.  The fetch size
     is only used if the "block size" property is set to "0".
-    
+
     @param fetchSize    The number of rows.  This must be greater than
                         or equal to 0 and less than or equal to the
                         maximum rows limit. The default is zero.
-    
+
     @exception          SQLException    If the statement is not open
                                         or the input value is not valid.
     **/
@@ -3820,10 +3820,10 @@ implements Statement
     value.  It applies only to BINARY, VARBINARY, CHAR, and VARCHAR
     fields.  If the limit is exceeded, then the excess data is
     discarded.
-    
+
     @param  maxFieldSize     The maximum field size limit (in bytes) or
                              0 for no limit. The default is 0.
-    
+
     @exception      SQLException    If the statement is not open
                                     or the input value is not valid.
     **/
@@ -3852,11 +3852,11 @@ implements Statement
     Sets the maximum rows limit.  The maximum rows limit is the
     maximum number of rows that a result set can contain.
     If the limit is exceeded, the excess rows are dropped.
-    
-    
+
+
     @param  maxRows     The maximum rows limit or 0 for no limit.
                         The default is 0.
-    
+
     @exception      SQLException    If the statement is not open
                                     or the input value is not valid.
     **/
@@ -3895,18 +3895,18 @@ implements Statement
     Sets the query timeout limit.  The query timeout limit
     is the number of seconds that the driver will wait for a
     SQL statement to execute.
-    
-    <p>This is implemented using the database query time limit, also 
-    known as QQRYTIMLMT.  This value specifies the query processing time limit that is 
-    compared to the estimated number of elapsed seconds that a query must run. The 
-    time limit determines if the database query can start.  
-    
+
+    <p>This is implemented using the database query time limit, also
+    known as QQRYTIMLMT.  This value specifies the query processing time limit that is
+    compared to the estimated number of elapsed seconds that a query must run. The
+    time limit determines if the database query can start.
+
     <p> Beginning with Version 6 Release 1 of IBM i, you must have *JOBCTL special authority.
-    
+
     @param  queryTimeout    The query timeout limit (in seconds)
                             or 0 for no limit.  The default is the job's query timeout limit
                    value unless this method is explicitly called.
-    
+
     @exception      SQLException    If the statement is not open
                                     or the input value is not valid.
     **/
@@ -3921,9 +3921,9 @@ implements Statement
             if(queryTimeout < 0)
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-            if((queryTimeout_ != queryTimeout) || !queryTimeoutSet_)  /*@B2C*/ 
+            if((queryTimeout_ != queryTimeout) || !queryTimeoutSet_)  /*@B2C*/
             {
-            	queryTimeoutSet_ = true;                              /*@B2A*/ 
+            	queryTimeoutSet_ = true;                              /*@B2A*/
                 queryTimeout_ = queryTimeout;
 
                 // Since we store the query timeout in the RPB, we need
@@ -3942,7 +3942,7 @@ implements Statement
     /**
     Creates or changes the RPB (Request Parameter Block) for the
     statement.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     private void syncRPB ()
@@ -3984,12 +3984,24 @@ implements Statement
                 //@F5D Do not need to specify this on the RPB
                 //@F5D Check system level before sending new code point
                 //@F5D if (connection_.getVRM() >= JDUtilities.vrm520)                                    // @F4A
-                //@F5D {   
+                //@F5D {
                 //@F5D     if (resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT)       // @F4A
                 //@F5D         request.setResultSetHoldabilityOption((byte)0xD5);                         // @F4A
-                //@F5D     else if (resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) // @F4A 
-                //@F5D         request.setResultSetHoldabilityOption((byte)0xE8);                         // @F4A           
+                //@F5D     else if (resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) // @F4A
+                //@F5D         request.setResultSetHoldabilityOption((byte)0xE8);                         // @F4A
                 //@F5D}
+
+                // @F6A - Send the RPB describe option
+                String rpbDescOpt = connection_.getProperties().getString(JDProperties.DESCRIBE_OPTION);
+                if(null != rpbDescOpt && rpbDescOpt.length() > 0){
+                    if(rpbDescOpt.equals(JDProperties.DESCRIBE_OPTION_SYSTEM_NAMES)){
+                        request.setDescribeOption(0xE2);
+                    } else if(rpbDescOpt.equals(JDProperties.DESCRIBE_OPTION_LONG_NAMES)){
+                        request.setDescribeOption(0xD5);
+                    }else if(rpbDescOpt.equals(JDProperties.DESCRIBE_OPTION_LABELS)){
+                        request.setDescribeOption(0xD3);
+                    }
+                }
 
                 connection_.send (request, id_);
             }
@@ -3999,7 +4011,7 @@ implements Statement
             }
             finally
             {    //@P0A
-                if(request != null) { 
+                if(request != null) {
                 	request.returnToPool();   request = null;
                 }
             }
@@ -4013,7 +4025,7 @@ implements Statement
 
     /**
     Returns the statement name.
-    
+
     @return     The statement name.
     **/
     public String toString ()
@@ -4024,9 +4036,9 @@ implements Statement
 
     /**
     Verifies values for the autoGeneratedKey parameter.
-    
-    @param  autoGeneratedKeys Valid values are Statement.RETURN_GENERATED_KEYS and 
-                              Statement.NO_GENERATED_KEYS. 
+
+    @param  autoGeneratedKeys Valid values are Statement.RETURN_GENERATED_KEYS and
+                              Statement.NO_GENERATED_KEYS.
     @exception  SQLException    If an error occurs.
     **/
     static final void verifyGeneratedKeysParameter (int autoGeneratedKeys)
@@ -4040,19 +4052,19 @@ implements Statement
 
     //@PDA jdbc40
     /**
-     * Requests that a <code>Statement</code> be pooled or not pooled.  The value 
-     * specified is a hint to the statement pool implementation indicating 
-     * whether the applicaiton wants the statement to be pooled.  It is up to 
+     * Requests that a <code>Statement</code> be pooled or not pooled.  The value
+     * specified is a hint to the statement pool implementation indicating
+     * whether the applicaiton wants the statement to be pooled.  It is up to
      * the statement pool manager as to whether the hint is used.
      * <p>
-     * The poolable value of a statement is applicable to both internal 
-     * statement caches implemented by the driver and external statement caches 
+     * The poolable value of a statement is applicable to both internal
+     * statement caches implemented by the driver and external statement caches
      * implemented by application servers and other applications.
      * <p>
      * By default, a <code>Statement</code> is poolable when it is created.
      * <p>
      * @param poolable      requests that the statement be pooled if true and
-     *                      that the statement not be pooled if false 
+     *                      that the statement not be pooled if false
      * <p>
      * @throws SQLException if the <code>Statement</code> has been closed
      * <p>
@@ -4060,12 +4072,12 @@ implements Statement
     public void setPoolable(boolean poolable) throws SQLException
     {
         checkOpen();//@pda do same as native
-        isPoolable_ = poolable;   
+        isPoolable_ = poolable;
     }
-    
+
     //@PDA jdbc40
     /**
-     * Returns the value of the statements poolable hint, indicating whether 
+     * Returns the value of the statements poolable hint, indicating whether
      * pooling of the statement is requested.
      * <p>
      * @return      The value of the statements poolable hint.
@@ -4079,7 +4091,7 @@ implements Statement
         checkOpen();//@pda do same as native
         return isPoolable_;
     }
- 
+
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
@@ -4088,17 +4100,17 @@ implements Statement
 
     //  @D7A
     /**
-     * Specifies that this Statement will be closed when all its dependent result sets are closed. 
-     * If execution of the Statement does not produce any result sets, this method has no effect. 
-     * <p>Note: Multiple calls to closeOnCompletion do not toggle the effect on this Statement. 
-     * However, a call to closeOnCompletion does effect both the subsequent execution of statements, 
+     * Specifies that this Statement will be closed when all its dependent result sets are closed.
+     * If execution of the Statement does not produce any result sets, this method has no effect.
+     * <p>Note: Multiple calls to closeOnCompletion do not toggle the effect on this Statement.
+     * However, a call to closeOnCompletion does effect both the subsequent execution of statements,
      * and statements that currently have open, dependent, result sets.
      * @throws SQLException - if this method is called on a closed Statement
      */
-    
+
     public void closeOnCompletion() throws SQLException {
-      checkOpen(); 
-      closeOnCompletion_ = true; 
+      checkOpen();
+      closeOnCompletion_ = true;
     }
 /**
  * Returns a value indicating whether this Statement will be closed when all its dependent result sets are closed.
@@ -4108,13 +4120,14 @@ implements Statement
 
     // @D7A
     public boolean isCloseOnCompletion() throws SQLException {
-      return closeOnCompletion_; 
+      checkOpen();
+      return closeOnCompletion_;
     }
 
-    /*@D4A*/ 
+    /*@D4A*/
     /**
     Handles the work involved in supporting a setQueryTimeout option with the cancel property set. .
-   
+
     **/
         protected void startCancelThread()
         {
@@ -4143,7 +4156,7 @@ implements Statement
 
 
 
-    /*@D4A*/ 
+    /*@D4A*/
     /**
      * endTheCancelThread
     **/
@@ -4164,6 +4177,6 @@ implements Statement
         }
 
 
-    
-    
+
+
 }
