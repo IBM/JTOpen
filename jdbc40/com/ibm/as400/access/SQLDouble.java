@@ -82,6 +82,10 @@ extends  SQLDataBase
         {
             try
             {
+                if (settings_.getDecimalSeparator().equals(",")){
+                  object = ((String) object).replace(',','.'); 
+                }
+
                 value_ = Double.valueOf((String) object).doubleValue();
                 // You can't test for data truncation of a number by testing
                 // the lengths of two string versions of it.

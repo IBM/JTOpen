@@ -1573,8 +1573,18 @@ void handleAbort() {
             AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();  //@KBL
             //@KBLD ((AS400JDBCStatement)list.nextElement()).markCursorClosed(isRollback); // @DAC @F3C 
             // If the statement is held open, all of the result sets have already been closed
+            
+            // If we happen to get an exception, just ignore it.  There exists a 
+            // race condition where another thread could have closed the connected while
+            // we were looping through the statement elements.   @F7A
+            try { 
             if(!statement.isHoldStatement())                                        //@KBL
                 statement.markCursorClosed(isRollback);                             //@KBL
+            } catch (SQLException ex) {
+              if (JDTrace.isTraceOn()) {
+                JDTrace.logException(this, "markCursorsClosed caught exception", ex); 
+              }
+            }
         }                                                                           //@KBL
     }
 

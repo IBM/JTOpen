@@ -322,7 +322,7 @@ public abstract class SQLDataBase implements SQLData
     {
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString().trim())); // @F3C
+            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString().trim(), settings_)); // @F5C
             if(scale >= 0)
             {
                 if(scale >= bigDecimal.scale())
@@ -451,7 +451,8 @@ public abstract class SQLDataBase implements SQLData
     throws SQLException
     {
         String string = getString(); 
-      return new AS400JDBCClob(string, string.length());
+        // Use the default maximum length for the obtained clob
+        return new AS400JDBCClob(string);
     }
   
     /**

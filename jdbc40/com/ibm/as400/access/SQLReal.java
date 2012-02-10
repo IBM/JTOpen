@@ -79,6 +79,9 @@ extends SQLDataBase
 
         if(object instanceof String)
         {
+            if (settings_.getDecimalSeparator().equals(",")){
+               object = ((String) object).replace(',','.'); 
+            }
             try
             {
                 value_ = Float.valueOf((String) object).floatValue();
@@ -89,6 +92,7 @@ extends SQLDataBase
             }
             catch(NumberFormatException e)
             {
+              
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }

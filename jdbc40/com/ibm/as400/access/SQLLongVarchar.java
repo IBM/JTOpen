@@ -327,7 +327,7 @@ extends SQLDataBase
         truncated_ = 0; outOfBounds_ = false; 
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(value_)); // @F3C
+            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(value_, settings_)); // @F3C
             if(scale >= 0)
             {
                 if(scale >= bigDecimal.scale())
