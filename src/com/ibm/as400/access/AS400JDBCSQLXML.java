@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400JDBCSQLXML.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2006-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 2006-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -24,36 +24,36 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.SQLXML;
-endif */ 
+endif */
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-endif */ 
+endif */
 import javax.xml.transform.Result;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import javax.xml.transform.Source;
-endif */ 
+endif */
 import javax.xml.transform.dom.DOMResult;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 import org.xml.sax.InputSource;
-endif */ 
+endif */
 
 import javax.xml.parsers.ParserConfigurationException;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import org.xml.sax.SAXException;
- 
+
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
@@ -62,91 +62,91 @@ endif */
 //@xml2 whole class is redesigned after that of The Native Driver
 /**
 This class provides the object interface for using XML data through JDBC.
-The mapping in the Java programming language for the SQL XML type. 
-XML is a built-in type that stores an XML value as a column value in a row of a database table. 
-The SQLXML interface provides methods for accessing the XML value as a String, a Reader or Writer, or as a Stream. 
+The mapping in the Java programming language for the SQL XML type.
+XML is a built-in type that stores an XML value as a column value in a row of a database table.
+The SQLXML interface provides methods for accessing the XML value as a String, a Reader or Writer, or as a Stream.
 This class returns the data as an XML type.  The actual type on the host may vary.
 Instances of this class are created by AS400JDBCConnection.
-This class should not be used if JDK 1.6 is not in use. 
+This class should not be used if JDK 1.6 is not in use.
 **/
 public class AS400JDBCSQLXML
-/* ifdef JDBC40 
-implements SQLXML  
-endif */ 
+/* ifdef JDBC40
+implements SQLXML
+endif */
 
-{ 
-   
+{
+
     static final int MAX_XML_SIZE = AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3
     // We may internally store the SQLXML object as a DOM document
     // if getResult was used to create the object
     static final int DOM_DOCUMENT = 22345;
-    static final int LOB_FREED    = 0; 
+    static final int LOB_FREED    = 0;
     int lobType = LOB_FREED;   //corresponding to SQLData numbers
-    
-    AS400JDBCClob   clobValue_ = null;                
-    AS400JDBCBlob   blobValue_ = null;                
-    AS400JDBCClobLocator  clobLocatorValue_ = null;   
-    AS400JDBCBlobLocator  blobLocatorValue_ = null;   
-    
+
+    AS400JDBCClob   clobValue_ = null;
+    AS400JDBCBlob   blobValue_ = null;
+    AS400JDBCClobLocator  clobLocatorValue_ = null;
+    AS400JDBCBlobLocator  blobLocatorValue_ = null;
+
     /* Document available in JDK 1.4, so this cannot be moved back to  */
     /* V5R4 which still supports JDK 1.3.  In V5R4, this will need to  */
-    /* be JDBC 4.0 only */ 
+    /* be JDBC 4.0 only */
     org.w3c.dom.Document  domDocument_ = null;
-    
-    //Today, the only case where isXML_ can be true is if this is a AS400JDBCSQLXMLLocator 
+
+    //Today, the only case where isXML_ can be true is if this is a AS400JDBCSQLXMLLocator
     //(since xml columns are always returned as locators from hostserver)
     protected boolean isXML_ = false;      //@xml4 true if this data originated from a native XML column type
-    
+
     /**
      * Constructs an AS400JDBCSQLXML object.  This is only a dummy constructor used by subclasses.
      */
     protected AS400JDBCSQLXML()
     {
     }
-    
+
     /**
      * Constructs an AS400JDBCSQLXML object.  The data is contained
      * in the String.  No further communication with the IBM i system is necessary.
      *
      * @param  data     The SQLXML data.
      * @param maxLength Max length.
-     * @throws SQLException 
+     * @throws SQLException
      */
     AS400JDBCSQLXML(String data, int maxLength) throws SQLException
     {
         isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
-        
+
         // We must make sure the the data is well formed XML data.  Otherwise it is not valid
         // and we should throw a data type mismatch error.
         // For simplicity's sake, just check for an opening <
-        data = data.trim(); 
+        data = data.trim();
         if ((data.length() == 0) || (data.charAt(0) != '<')) {
           JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
-        
-        
-        
-        lobType   = SQLData.CLOB;                         
-        clobValue_ = new AS400JDBCClob(data, maxLength, isXML_); //@xmltrim   
-        
+
+
+
+        lobType   = SQLData.CLOB;
+        clobValue_ = new AS400JDBCClob(data, maxLength, isXML_); //@xmltrim
+
     }
 
     /**
-     * Constructs an empty AS400JDBCSQLXML object.  
+     * Constructs an empty AS400JDBCSQLXML object.
      * No further communication with the IBM i system is necessary.
      *
      * @param  data     The SQLXML data.
      * @param maxLength Max length.
-     * @throws SQLException 
+     * @throws SQLException
      */
     AS400JDBCSQLXML(int maxLength) throws SQLException
     {
         isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
-        String data =""; 
-        
-        lobType   = SQLData.CLOB;                         
-        clobValue_ = new AS400JDBCClob(data, maxLength, isXML_); //@xmltrim   
-        
+        String data ="";
+
+        lobType   = SQLData.CLOB;
+        clobValue_ = new AS400JDBCClob(data, maxLength, isXML_); //@xmltrim
+
     }
 
 
@@ -155,25 +155,25 @@ endif */
      * in the String.  No further communication with the IBM i system is necessary.
      *
      * @param  data     The SQLXML data.
-     * @throws SQLException 
+     * @throws SQLException
      */
     AS400JDBCSQLXML(String data) throws SQLException
     {
       isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
-      
+
       // We must make sure the the data is well formed XML data.  Otherwise it is not valid
       // and we should throw a data type mismatch error.
       // For simplicity's sake, just check for an opening <
-      data = data.trim(); 
+      data = data.trim();
       if ((data.length() == 0) || (data.charAt(0) != '<')) {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
       }
-      
-      
-      
-      lobType   = SQLData.CLOB;                         
-      clobValue_ = new AS400JDBCClob(data, AS400JDBCClob.MAX_LOB_SIZE, isXML_); //@xmltrim   
-        
+
+
+
+      lobType   = SQLData.CLOB;
+      clobValue_ = new AS400JDBCClob(data, AS400JDBCClob.MAX_LOB_SIZE, isXML_); //@xmltrim
+
     }
 
     /**
@@ -185,9 +185,9 @@ endif */
     AS400JDBCSQLXML(char[] data)
     {
         isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
-        
-        lobType   = SQLData.CLOB;                         
-        clobValue_ = new AS400JDBCClob(data, isXML_); //@xmltrim              
+
+        lobType   = SQLData.CLOB;
+        clobValue_ = new AS400JDBCClob(data, isXML_); //@xmltrim
     }
 
 
@@ -199,32 +199,32 @@ endif */
      * @param  data     The SQLXML data.
      * @param maxLength Max length.
      */
-    AS400JDBCSQLXML (byte [] data, long maxLength)         
+    AS400JDBCSQLXML (byte [] data, long maxLength)
     {
         isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
-        
-        lobType   = SQLData.BLOB;                              
-        blobValue_ = new AS400JDBCBlob(data, (int)maxLength);   
-    } 
 
-    
+        lobType   = SQLData.BLOB;
+        blobValue_ = new AS400JDBCBlob(data, (int)maxLength);
+    }
+
+
     /**
      * Retrieves the XML value designated by this SQLXML instance as a java.io.Reader object.
      * The format of this stream is defined by org.xml.sax.InputSource,
-     * where the characters in the stream represent the Unicode code points for  
+     * where the characters in the stream represent the Unicode code points for
      * XML according to section 2 and appendix B of the XML 1.0 specification.
-     * Although an encoding declaration other than Unicode may be present, 
+     * Although an encoding declaration other than Unicode may be present,
      * the encoding of the stream is Unicode.
      * The behavior of this method is the same as ResultSet.getCharacterStream()
      * when the designated column of the ResultSet has a type java.sql.Types of SQLXML.
      * <p>
      * The SQL XML object becomes not readable when this method is called and
      * may also become not writable depending on implementation.
-     * 
+     *
      * @return a stream containing the XML data.
      * @exception SQLException if there is an error processing the XML value.
      *   The getCause() method of the exception may provide a more detailed exception, for example,
-     *   if the stream does not contain valid characters. 
+     *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not readable.
      */
     public synchronized Reader getCharacterStream() throws SQLException
@@ -234,7 +234,7 @@ endif */
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
             return null;
         }
-        
+
         switch (lobType)
         {
 
@@ -251,7 +251,7 @@ endif */
             case DOM_DOCUMENT:
                 // Calling getString will do the appropriate conversion
                 String stringValue = this.getString();
-                r = new StringReader(stringValue); 
+                r = new StringReader(stringValue);
                 break;
             default:
             {
@@ -277,14 +277,14 @@ endif */
         switch (lobType)
         {
             case SQLData.DBCLOB:
-            case SQLData.CLOB:  
+            case SQLData.CLOB:
                 s = clobValue_.getSubString((long) 1, (int) clobValue_.length());
                 break;
-            case SQLData.DBCLOB_LOCATOR: 
-            case SQLData.CLOB_LOCATOR:  
+            case SQLData.DBCLOB_LOCATOR:
+            case SQLData.CLOB_LOCATOR:
                 s = clobLocatorValue_.getSubString((long) 1, (int) clobLocatorValue_.length());
                 break;
-            case SQLData.BLOB: 
+            case SQLData.BLOB:
             case SQLData.BLOB_LOCATOR:
 
                 // Check for a byte order mark
@@ -297,7 +297,7 @@ endif */
                         bytes = blobValue_.getBytes(1, 4);
                     else
                         bytes = new byte[0]; //@xmlzero
-                        
+
                 } else
                 {
                     InputStream is = blobLocatorValue_.getBinaryStream();
@@ -318,7 +318,7 @@ endif */
                         }catch(Exception e){
                           if(JDTrace.isTraceOn())
                           {
-                              JDTrace.logException(this, "is.close() exception", e); 
+                              JDTrace.logException(this, "is.close() exception", e);
                           }
                         }
                     }
@@ -450,7 +450,7 @@ endif */
                         {
                             encoding = "UTF-16BE";
                         } else
-                        {   
+                        {
                             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                             return null;
                         }
@@ -502,7 +502,7 @@ endif */
                     }
 
                     try
-                    { 
+                    {
                         reader = new BufferedReader(new InputStreamReader(stream,
                                 encoding));
                     } catch (UnsupportedEncodingException e)
@@ -538,27 +538,27 @@ endif */
                     return null;
                 }finally
                 {
-                    try{                        
+                    try{
                         stream.close();
-                    }catch(Exception e){ 
+                    }catch(Exception e){
                       if(JDTrace.isTraceOn())
                       {
-                          JDTrace.logException(this, "stream.close() exception", e); 
+                          JDTrace.logException(this, "stream.close() exception", e);
                       }
                     }
-                    try{                        
+                    try{
                         reader.close();
-                    }catch(Exception e){ 
+                    }catch(Exception e){
                       if(JDTrace.isTraceOn())
                       {
-                          JDTrace.logException(this, "reader.close() exception", e); 
+                          JDTrace.logException(this, "reader.close() exception", e);
                       }
                     }
                 }
                 s = sb.toString();
 
                 break; // end of BLOB case
-                /* ifdef JDBC40 
+                /* ifdef JDBC40
             case DOM_DOCUMENT:
 
                 DOMImplementation implementation = domDocument_.getImplementation();
@@ -569,7 +569,7 @@ endif */
                 s  = lsSerializer.writeToString(domDocument_);
 
                 break;
-                endif */ 
+                endif */
 
             case 0:
                 //freed already
@@ -586,10 +586,10 @@ endif */
         else
             return s;
     }
-    
+
 
     /**
-    Retrieves the internal encoding specified in the bytes that represent the beginning of an 
+    Retrieves the internal encoding specified in the bytes that represent the beginning of an
     XML document.  If no internal encoding is present, then null is returned.
     **/
     private String getInternalEncodingFromEbcdic(byte[] bytes)
@@ -634,7 +634,7 @@ endif */
                     // from withing the string
                     encoding = encodingName[currentPattern];
                     // skip space
-                     
+
                     while (bytes[i] == 0x40 && i < length)
                         i++;
                     // make sure = is found. = is invariant at 0x7e
@@ -689,20 +689,20 @@ endif */
                                 {
                                     try{
                                         byteArrayInputStream.close();
-                                    }catch(Exception e){ 
+                                    }catch(Exception e){
                                       if(JDTrace.isTraceOn())
                                       {
-                                          JDTrace.logException(this, "byteArayInputStream.close() exception", e); 
+                                          JDTrace.logException(this, "byteArayInputStream.close() exception", e);
                                       }
                                     }
                                     try{
                                         reader.close();
-                                    }catch(Exception e){ 
+                                    }catch(Exception e){
                                       if(JDTrace.isTraceOn())
                                       {
-                                          JDTrace.logException(this, "reader.close() exception", e); 
+                                          JDTrace.logException(this, "reader.close() exception", e);
                                       }
-                                      
+
                                     }
                                 }
 
@@ -734,7 +734,7 @@ endif */
         }
 
         return encoding;
-    } 
+    }
 
     /**
      * Writes the given Java String to the XML value that this <code>SQLXML</code> object designates.
@@ -743,21 +743,21 @@ endif */
      */
     public synchronized void setString(String str) throws SQLException
     {
-        freeInternals(); 
+        freeInternals();
         if(lobType == LOB_FREED)
         {
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
         }
-        
-        clobValue_ = new AS400JDBCClob(str, str.length()); 
 
-        lobType = SQLData.CLOB; 
+        clobValue_ = new AS400JDBCClob(str, str.length(), isXML_);
+
+        lobType = SQLData.CLOB;
     }
 
 
     /**
     Package level helper method.  Only valid on Clob-like data.
-    Writes a String to this XML, starting at position <i>position</i> in the XML.  
+    Writes a String to this XML, starting at position <i>position</i> in the XML.
     The XML will be truncated after the last character written.  The <i>lengthOfWrite</i>
     characters written will start from <i>offset</i> in the string that was provided by the
     application.
@@ -772,25 +772,25 @@ endif */
     **/
     synchronized int setString(long position, String string, int offset, int lengthOfWrite) throws SQLException
     {
-        switch (lobType) 
+        switch (lobType)
         {
             case SQLData.DBCLOB:
-            case SQLData.CLOB: 
+            case SQLData.CLOB:
                 return clobValue_.setString(position, string, offset, lengthOfWrite);
             case SQLData.DBCLOB_LOCATOR:
-            case SQLData.CLOB_LOCATOR: 
-                return clobLocatorValue_.setString(position, string, offset, lengthOfWrite); 
+            case SQLData.CLOB_LOCATOR:
+                return clobLocatorValue_.setString(position, string, offset, lengthOfWrite);
             default:
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Invalid value: "+ lobType);
             return 0;
         }
-        
-    
+
+
     }
-    
-    
+
+
     /**
-     * Retrieves the XML value designated by this SQLXML instance as a stream. 
+     * Retrieves the XML value designated by this SQLXML instance as a stream.
      * @return a stream containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not readable.
@@ -798,10 +798,10 @@ endif */
     public synchronized InputStream getBinaryStream() throws SQLException
     {
         InputStream is = null;
-        switch (lobType) 
+        switch (lobType)
         {
             case SQLData.DBCLOB:
-            case SQLData.CLOB: 
+            case SQLData.CLOB:
                 try
                 {
                     // Check for an internal encoding in the string. If there is
@@ -822,13 +822,13 @@ endif */
                 }
                 break;
             case SQLData.DBCLOB_LOCATOR:
-            case SQLData.CLOB_LOCATOR:   
+            case SQLData.CLOB_LOCATOR:
                 //This will also be the case for XML column data
                 if(isXML_) //@xml6 if xml column and thus also a locator, then get bytes from bloblocator code
                     is = blobLocatorValue_.getBinaryStream();   //@xml6 (no trim of XML declaration because it is binary)
                 else
                 {
-                    
+
                     try
                     {
                         // Check for an internal encoding in the string. If there is
@@ -849,21 +849,21 @@ endif */
                     }
                 }
                 break;
-            case SQLData.BLOB:  
+            case SQLData.BLOB:
                 //
                 // In this case, we rely on the binary stream to identify its own encoding
                 // It appears the that binary encoding will be used the most.. However,
                 // this is not useful from a DB perspective since it cannot be searched.
-                // 
+                //
                 is = blobValue_.getBinaryStream();
 
                 break;
-            case SQLData.BLOB_LOCATOR: 
+            case SQLData.BLOB_LOCATOR:
                 //
                 // In this case, we rely on the binary stream to identify its own encoding
                 // It appears the that binary encoding will be used the most.. However,
                 // this is not useful from a DB perspective since it cannot be searched.
-                // 
+                //
                 is = blobLocatorValue_.getBinaryStream();
 
                 break;
@@ -882,7 +882,7 @@ endif */
                     }
 
                     break;
-            default:  
+            default:
             {
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Invalid value: "+ lobType);
                 return null;
@@ -896,7 +896,7 @@ endif */
   //JDBC40DOC     /**
   //JDBC40DOC      * Returns a Source for reading the XML value designated by this SQLXML instance.
   //JDBC40DOC      * Sources are used as inputs to XML parsers and XSLT transformers.
-  //JDBC40DOC      * @param sourceClass The class of the source, or null.  
+  //JDBC40DOC      * @param sourceClass The class of the source, or null.
   //JDBC40DOC      * If the class is null, a vendor specific Source implementation will be returned.
   //JDBC40DOC      * The following classes are supported at a minimum:
   //JDBC40DOC      * <pre>
@@ -909,10 +909,10 @@ endif */
   //JDBC40DOC      * @throws SQLException if there is an error processing the XML value
   //JDBC40DOC      *   or if this feature is not supported.
   //JDBC40DOC      *   The getCause() method of the exception may provide a more detailed exception, for example,
-  //JDBC40DOC      *   if an XML parser exception occurs. 
+  //JDBC40DOC      *   if an XML parser exception occurs.
   //JDBC40DOC      *   An exception is thrown if the state is not readable.
   //JDBC40DOC      */
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
     public synchronized <T extends Source> T getSource(Class<T> sourceClass) throws SQLException
     {
         String classname;
@@ -923,7 +923,7 @@ endif */
         {
             classname = sourceClass.getName();
         }
-  
+
         if (lobType == LOB_FREED)
         {
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
@@ -995,7 +995,7 @@ endif */
             JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
             return null;
         }
-         
+
     }
             endif */
 
@@ -1027,11 +1027,11 @@ endif */
     }
 
     /**
-     * Retrieves a Writer to be used to write the XML value that this SQLXML instance represents. 
+     * Retrieves a Writer to be used to write the XML value that this SQLXML instance represents.
      * @return a stream to which data can be written.
      * @throws SQLException if there is an error processing the XML value.
      *   The getCause() method of the exception may provide a more detailed exception, for example,
-     *   if the stream does not contain valid characters. 
+     *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not writable.
      * @exception If there is an error
      */
@@ -1044,15 +1044,15 @@ endif */
 
         freeInternals();
 
-        clobValue_ = new AS400JDBCClob("", AS400JDBCClob.MAX_LOB_SIZE); 
-        lobType = SQLData.CLOB; 
+        clobValue_ = new AS400JDBCClob("", AS400JDBCClob.MAX_LOB_SIZE, isXML_);
+        lobType = SQLData.CLOB;
 
-        return clobValue_.setCharacterStream(1L); 
+        return clobValue_.setCharacterStream(1L);
     }
 
   //JDBC40DOC     /**
   //JDBC40DOC      * Returns a Result for setting the XML value designated by this SQLXML instance.
-  //JDBC40DOC      * @param resultClass The class of the result, or null.  
+  //JDBC40DOC      * @param resultClass The class of the result, or null.
   //JDBC40DOC      * If resultClass is null, a vendor specific Result implementation will be returned.
   //JDBC40DOC      * The following classes are supported at a minimum:
   //JDBC40DOC      * <pre>
@@ -1065,11 +1065,11 @@ endif */
   //JDBC40DOC      * @throws SQLException if there is an error processing the XML value
   //JDBC40DOC      *   or if this feature is not supported.
   //JDBC40DOC      *   The getCause() method of the exception may provide a more detailed exception, for example,
-  //JDBC40DOC      *   if an XML parser exception occurs. 
+  //JDBC40DOC      *   if an XML parser exception occurs.
   //JDBC40DOC      *   An exception is thrown if the state is not writable.
   //JDBC40DOC      * @exception If there is an error
   //JDBC40DOC      */
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
     public synchronized <T extends Result> T setResult(Class<T> resultClass) throws SQLException
     {
         String classname;
@@ -1080,7 +1080,7 @@ endif */
         {
             classname = resultClass.getName();
         }
-        
+
         if (lobType == LOB_FREED)
         {
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
@@ -1108,13 +1108,13 @@ endif */
         } else if (classname.equals("javax.xml.transform.sax.SAXResult"))
         {
 
-            // 
+            //
             // TODO
             //
             // To get this to work, you would need to implement a SAX
             // content handler to dump the handled information to the
             // an output character stream
-            // 
+            //
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
             return null;
 
@@ -1140,25 +1140,25 @@ endif */
             return null;
         }
     }
-    
-    endif */ 
-    
+
+    endif */
+
     /**
      * This method frees the object and releases the
      * the resources that it holds. The object is invalid once the
      * <code>free</code> method is called. If <code>free</code> is called
      * multiple times, the subsequent calls to <code>free</code> are treated
      * as a no-op.
-     * 
+     *
      * @throws SQLException
      *             if an error occurs releasing the Clob's resources
      */
     public synchronized void free() throws SQLException
     {
         freeInternals();
-        lobType = LOB_FREED; 
+        lobType = LOB_FREED;
     }
-    
+
 
     /**
      * Free the internal representation used by the SQLXML.
@@ -1179,9 +1179,9 @@ endif */
 
         if (clobValue_ != null)
         {
-/* ifdef JDBC40         	
+/* ifdef JDBC40
             clobValue_.free();
-    endif */ 
+    endif */
             clobValue_ = null;
         }
 
@@ -1195,7 +1195,7 @@ endif */
         {
             domDocument_ = null;
         }
-    } 
+    }
     /**
      * Retrieves the internal encoding specified in the string that represents
      * an XML document. If no internal encoding is present, then null is
@@ -1229,5 +1229,5 @@ endif */
             }
         }
         return encoding;
-    } 
+    }
 }

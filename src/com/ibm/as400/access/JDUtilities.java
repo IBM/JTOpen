@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: JDUtilities.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -41,37 +41,37 @@ class JDUtilities
     static final int vrm610 = AS400.generateVRM(6, 1, 0);           // @610
     static final int vrm540 = AS400.generateVRM(5, 4, 0);           // @540
     static final int vrm530 = AS400.generateVRM(5, 3, 0);           // @G0A
-    static final int vrm520 = AS400.generateVRM(5, 2, 0);           // @J2a @J3a   
+    static final int vrm520 = AS400.generateVRM(5, 2, 0);           // @J2a @J3a
     static final int vrm510 = AS400.generateVRM(5, 1, 0);           //      @J31a
     static final int vrm450 = AS400.generateVRM(4, 5, 0);           // @G0A
     static final int vrm440 = AS400.generateVRM(4, 4, 0);
     static final int vrm430 = AS400.generateVRM(4, 3, 0);
-                 
-    static int JDBCLevel_ = 10;                                     // @J4a    
-    static int JVMLevel_ = 120; //1.2.0                             //@big   
-    private final static Object bigDecimalLock_ = new Object();           //@big   
-     
+
+    static int JDBCLevel_ = 10;                                     // @J4a
+    static int JVMLevel_ = 120; //1.2.0                             //@big
+    private final static Object bigDecimalLock_ = new Object();           //@big
+
     // @J4a
     static
     {
-       try 
-       { 
-          Class.forName("java.sql.Blob"); 
+       try
+       {
+          Class.forName("java.sql.Blob");
           JDBCLevel_ = 20;
 
-          Class.forName("java.sql.Savepoint"); 
+          Class.forName("java.sql.Savepoint");
           JDBCLevel_ = 30;
-          
-          Class.forName("java.util.concurrent.Semaphore");       //@big  
-          JVMLevel_  = 150;  //jre 5.0                           //@big  
-          
-          Class.forName("java.sql.SQLXML");                      //@big  
-          JDBCLevel_ = 40;                                       //@big     
-          JVMLevel_  = 160;  //jre 6.0                           //@big  
-       }                                         
-       catch (Throwable e) { }   
-    }                          
-                             
+
+          Class.forName("java.util.concurrent.Semaphore");       //@big
+          JVMLevel_  = 150;  //jre 5.0                           //@big
+
+          Class.forName("java.sql.SQLXML");                      //@big
+          JDBCLevel_ = 40;                                       //@big
+          JVMLevel_  = 160;  //jre 6.0                           //@big
+       }
+       catch (Throwable e) { }
+    }
+
 
 
 // @D0A
@@ -175,7 +175,7 @@ for use in implementing various pieces of the JDBC driver.
 
                 if (!libraryListOnly) // Return list of all libraries on the system
                 {
-                  
+
                   request.setLibraryName("%", connection.converter_);
                   request.setLibraryNameSearchPatternIndicator(0xF1);
                 }
@@ -226,7 +226,7 @@ for use in implementing various pieces of the JDBC driver.
                     sqlData = new SQLData[] {new SQLVarchar (128, settings)};   //schema name
 
                     fieldNullables = new int[] {AS400JDBCDatabaseMetaData.columnNoNulls};
-                    maps = new JDFieldMap[1];   
+                    maps = new JDFieldMap[1];
                 }
                 else
                 {
@@ -236,7 +236,7 @@ for use in implementing various pieces of the JDBC driver.
                     sqlData = new SQLData[] {new SQLVarchar (128, settings),   //schema name
                         new SQLVarchar (128, settings)};  //table catalog  //@G4A
 
-                    fieldNullables = new int[] {AS400JDBCDatabaseMetaData.columnNoNulls, 
+                    fieldNullables = new int[] {AS400JDBCDatabaseMetaData.columnNoNulls,
                         AS400JDBCDatabaseMetaData.columnNullable}; //@G4A
                     maps = new JDFieldMap[2];   //@G4C
                 }
@@ -260,9 +260,9 @@ for use in implementing various pieces of the JDBC driver.
             }
             finally
             {
-                if (request != null) { request.returnToPool(); request = null; } 
+                if (request != null) { request.returnToPool(); request = null; }
                 // Cannot close this reply.  Pass to AS400JDBCResultSet to close
-                // if (reply != null) { reply.returnToPool(); reply = null; }  
+                // if (reply != null) { reply.returnToPool(); reply = null; }
             }
 
         } // End of try block
@@ -387,7 +387,7 @@ for use in implementing various pieces of the JDBC driver.
         // 1. Strip outer double-quotes.
         name = name.substring(1, name.length()-1);
       }
-  
+
       // 2. Collapse any doubled embedded double-quotes, to single double-quotes.
       if(name.indexOf('\"') == -1 )
       {
@@ -461,17 +461,17 @@ Reads a reader and returns its data as a String.
     /**
      Reads a reader and returns its data as a String.
      Reads until reader returns -1 for eof.
-     
+
      @param  input       The reader.
      @return             The string.
-     
+
      **/
     static final String readerToString (Reader input)
     throws SQLException
     {
         StringBuffer buffer = new StringBuffer ();
         try {
-            
+
             char[] rawChars = new char[32000];
             int actualLength = 0;
             while (input.ready ()) {
@@ -482,13 +482,13 @@ Reads a reader and returns its data as a String.
                 buffer.append (rawChars, 0, length2);                 //@pda jdbc40 performance
                 actualLength += length2;
             }
-            
+
         }
         catch (IOException e) {
             JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
         }
 
-        
+
         return buffer.toString ();
     }
 
@@ -514,7 +514,7 @@ stored procedure to run the command
            statement = connection.createStatement();
 
            // We run commands via the QCMDEXC stored procedure.  That procedure
-           // requires the length of the command be included with the command 
+           // requires the length of the command be included with the command
            // specified in precision 15, scale 5 format.  That is,
            // "CALL QSYS.QCMDEXC('command-to-run', 000000nnnn.00000)"
            String commandLength = "0000000000" + command.length();
@@ -536,7 +536,7 @@ stored procedure to run the command
            if(statement != null)
                statement.close();
        }
-          
+
    }
 
 
@@ -564,23 +564,23 @@ Reads an input stream and returns its data as a byte array.
             int actualLength = 0;
     	    //
     	    // Restructured logic to not use available ..
-    	    // @A5C 
-            int length2 = input.read (rawBytes);                 /*@A5A*/ 
+    	    // @A5C
+            int length2 = input.read (rawBytes);                 /*@A5A*/
 
-            while (length2 >= 0 && actualLength < length ) {     /*@A5C*/ 
-        		if (length2 > 0) {                               /*@A5A*/ 
-        		    if (actualLength + length2 <= length) {	
+            while (length2 >= 0 && actualLength < length ) {     /*@A5C*/
+        		if (length2 > 0) {                               /*@A5A*/
+        		    if (actualLength + length2 <= length) {
         			   System.arraycopy (rawBytes, 0, buffer, actualLength, length2);
         		    } else {
         		       // copy part (if needed).
-        			   System.arraycopy (rawBytes, 0, buffer, actualLength, length - actualLength); 
-        		    }             
+        			   System.arraycopy (rawBytes, 0, buffer, actualLength, length - actualLength);
+        		    }
         		    actualLength += length2;
-        		}                                                /*@A5A*/ 
-        		length2 = input.read (rawBytes);                 /*@A5A*/ 
+        		}                                                /*@A5A*/
+        		length2 = input.read (rawBytes);                 /*@A5A*/
             }
 
-            
+
             // The spec says to throw an exception when the
             // actual length does not match the specified length.
             // I think this is strange since this means the length
@@ -600,7 +600,7 @@ Reads an input stream and returns its data as a byte array.
         return buffer;
     }
 
-   
+
 
     //@PDA jdbc40
     /**
@@ -618,15 +618,15 @@ Reads an input stream and returns its data as a byte array.
             //@pda copy code from native since ByteBuffer is not available on ibm java
         	ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
 
-            
+
             int blocksize = 4096;
             byte[] buffer = new byte[blocksize];
             try {
-        	int length2 = input.read (buffer);             
+        	int length2 = input.read (buffer);
 
         	while (length2 >=  0) {
         	    outBuffer.write(buffer, 0, length2);
-        	    length2 = input.read (buffer);         
+        	    length2 = input.read (buffer);
         	}
             } catch (IOException e) {
             	JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
@@ -635,7 +635,7 @@ Reads an input stream and returns its data as a byte array.
             return outBuffer.toByteArray();
         }
 
- 
+
 
 
         //@pda method from native
@@ -646,10 +646,10 @@ Reads an input stream and returns its data as a byte array.
         @param  encoding    The encoding.
         @return             The string.
 
-        @exception SQLException If the length is not valid or the 
+        @exception SQLException If the length is not valid or the
                                 conversion is not possible.
          **/
-        static String streamToString (InputStream input, 
+        static String streamToString (InputStream input,
         		String encoding)
         throws SQLException
         {
@@ -739,41 +739,41 @@ Reads an input stream and returns its data as a String.
                     if (toPlainStringMethod == null) {
                         try {
                             Class bigDecimalClass = Class.forName("java.math.BigDecimal");
-                            Class[] parameterTypes = new Class[0]; 
+                            Class[] parameterTypes = new Class[0];
                             toPlainStringMethod = bigDecimalClass.getMethod("toPlainString",  parameterTypes);
                             emptyArgs = new Object[0];
                         } catch (Exception e) {
-                            if (JDTrace.isTraceOn ())                                           
-                            {  
-                               JDTrace.logException(null, "Exception while calling BigDecimal.toPlainString.", e);                          
-                            }     
-                            toPlainStringMethod = null; 
+                            if (JDTrace.isTraceOn ())
+                            {
+                               JDTrace.logException(null, "Exception while calling BigDecimal.toPlainString.", e);
+                            }
+                            toPlainStringMethod = null;
 
-                            return bigDecimal.toString(); 
+                            return bigDecimal.toString();
                         }
-                    } /* if */ 
-                } /* synchronized */ 
-            } /* toPlainStringMethod == null */ 
+                    } /* if */
+                } /* synchronized */
+            } /* toPlainStringMethod == null */
             String returnString;
-            try { 
+            try {
                 returnString =
                     (String) toPlainStringMethod.invoke((Object) bigDecimal, emptyArgs);
             } catch (Exception e) {
-                if (JDTrace.isTraceOn ())                                           
-                {  
-                   JDTrace.logException(null, "Exception while calling BigDecimal.toPlainString.", e);                          
-                }   
+                if (JDTrace.isTraceOn ())
+                {
+                   JDTrace.logException(null, "Exception while calling BigDecimal.toPlainString.", e);
+                }
 
-                returnString = bigDecimal.toString(); 
+                returnString = bigDecimal.toString();
             }
 
-            return returnString; 
+            return returnString;
 
-        } else { /* not JDK15 */ 
+        } else { /* not JDK15 */
 
-            return bigDecimal.toString(); 
-        } 
-    }    
+            return bigDecimal.toString();
+        }
+    }
 
 
     //@xml3
@@ -800,7 +800,7 @@ Reads an input stream and returns its data as a String.
         return s;
 
     }
-    
+
     //@xmlutf8
     static final boolean hasXMLDeclaration(String xml)
     {
@@ -811,7 +811,7 @@ Reads an input stream and returns its data as a String.
         else
             return false;
     }
-    
+
     //@xmlutf16 remove encoding inside of XML declaration
     static final String handleXMLDeclarationEncoding(String xml)
     {
@@ -832,7 +832,7 @@ Reads an input stream and returns its data as a String.
         }
         return xml;
     }
-    
+
     /**
      * returns the type names based on the type from java.sql.Types
      */
@@ -856,7 +856,7 @@ Reads an input stream and returns its data as a String.
       case Types.DECIMAL:
           return "DECIMAL";
       case -360:
-          return "DECFLOAT"; 
+          return "DECFLOAT";
       case Types.CHAR:
           return "CHAR";
       case Types.VARCHAR:
@@ -864,9 +864,9 @@ Reads an input stream and returns its data as a String.
       case Types.DATALINK:
           return "DATALINK";
       case Types.BINARY:
-          return "BINARY"; 
+          return "BINARY";
       case Types.VARBINARY:
-          return "VARBINARY"; 
+          return "VARBINARY";
       case Types.TIME:
           return "TIME";
       case Types.DATE:
@@ -882,24 +882,24 @@ Reads an input stream and returns its data as a String.
                 // New for JDK 1.6
                 //
 
-      case -8:   /* Types.ROWID */ 
-          return "ROWID"; 
-      case -15:  /* Types.NCHAR */ 
+      case -8:   /* Types.ROWID */
+          return "ROWID";
+      case -15:  /* Types.NCHAR */
           return "NCHAR";
-      case -9:  /* Types.NVARCHAR */ 
+      case -9:  /* Types.NVARCHAR */
           return "NVARCHAR";
-      case 2011:  /* Types.NCLOB */ 
+      case 2011:  /* Types.NCLOB */
           return "NCLOB";
-      case -16:   /*  Types.LONGNVARCHAR */ 
+      case -16:   /*  Types.LONGNVARCHAR */
           return "NVARCHAR";
-      case 2009:  /* Types.SQLXML */ 
-          return "SQLXML"; 
+      case 2009:  /* Types.SQLXML */
+          return "SQLXML";
 
       default:
           return "UNKNOWN";
 
-        } 
-    } 
+        }
+    }
 
     static String[][] typeNameToTypeCode = {
 
@@ -913,6 +913,7 @@ Reads an input stream and returns its data as a String.
         {"CLOB","2005"},
         {"DATALINK","70"},
         {"DATE","91"},
+        {"DBCLOB", "2005"},
         {"DECIMAL","3"},
         {"DISTINCT","2001"},
         {"DOUBLE","8"},
@@ -924,7 +925,7 @@ Reads an input stream and returns its data as a String.
         {"LONGVARCHAR","-1"},
         {"NULL","0"},
         {"NUMERIC","2"},
-        {"DECFLOAT","-360"}, 
+        {"DECFLOAT","-360"},
         {"OTHER","1111"},
         {"REAL","7"},
         {"REF","2006"},
@@ -938,7 +939,7 @@ Reads an input stream and returns its data as a String.
         {"VARCHAR","12"},
  /*ifndef JDBC40*/
         {"NCHAR","1"},
-        {"GRAPHIC", "1"}, 
+        {"GRAPHIC", "1"},
         {"NCLOB","2005"},
         {"NVARCHAR","12"},
         {"SQLXML","2005"},
@@ -946,7 +947,7 @@ Reads an input stream and returns its data as a String.
  /*endif */
  /*ifdef JDBC40
         {"NCHAR","-15"},
-        {"GRAPHIC", "-15"}, 
+        {"GRAPHIC", "-15"},
         {"NCLOB","2011"},
         {"NVARCHAR","-9"},
         {"SQLXML","2009"},
@@ -957,9 +958,9 @@ Reads an input stream and returns its data as a String.
 
 
 
-    
 
-    static Hashtable typeNameHashtable = null ; 
+
+    static Hashtable typeNameHashtable = null ;
 
     public static int getTypeCode(String typeName) throws SQLException {
     if (typeNameHashtable == null) {
@@ -975,7 +976,7 @@ Reads an input stream and returns its data as a String.
       if (JDTrace.isTraceOn())
         JDTrace.logInformation(null, "Unable to get type from " + typeName);
       JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
-      return 0; 
+      return 0;
     } else {
       int typecode = integer.intValue();
       if (typecode != 0) {
@@ -984,23 +985,23 @@ Reads an input stream and returns its data as a String.
         if (JDTrace.isTraceOn())
           JDTrace.logInformation(null, "Unable to get type from " + typeName);
         JDError.throwSQLException(JDError.EXC_DATA_TYPE_INVALID);
-        return 0; 
+        return 0;
       }
     }
   }
-    
-    public static Hashtable instanceHashtable; 
+
+    public static Hashtable instanceHashtable;
 
     public static boolean classIsInstanceOf(Class thisClass, String interfaceName) {
         if (instanceHashtable == null) {
-        instanceHashtable = new Hashtable(); 
+        instanceHashtable = new Hashtable();
         }
 
         Hashtable interfaceHash = (Hashtable) instanceHashtable.get(thisClass);
         if (interfaceHash == null) {
           interfaceHash = new Hashtable();
-          instanceHashtable.put(thisClass, interfaceHash); 
-        } 
+          instanceHashtable.put(thisClass, interfaceHash);
+        }
 
         Boolean answer = (Boolean) interfaceHash.get(interfaceName);
      if (answer == null) {
@@ -1035,13 +1036,13 @@ Reads an input stream and returns its data as a String.
          }
        }
        answer = new Boolean(booleanAnswer);
-       interfaceHash.put(interfaceName, answer); 
+       interfaceHash.put(interfaceName, answer);
         }
 
-        return answer.booleanValue(); 
+        return answer.booleanValue();
 
-        
-    } 
+
+    }
 
 
 }
