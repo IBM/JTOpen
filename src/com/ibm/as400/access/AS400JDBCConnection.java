@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400JDBCConnection.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,40 +19,40 @@ import java.net.SocketException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.ClientInfoStatus;
 import java.sql.SQLClientInfoException;
-import java.sql.SQLPermission; 
-endif */ 
+import java.sql.SQLPermission;
+endif */
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.NClob;
-endif */ 
+endif */
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.SQLXML;
-endif */ 
+endif */
 import java.sql.Statement;
-import java.sql.Savepoint;                        // @E10a                
+import java.sql.Savepoint;                        // @E10a
 import java.sql.Struct;
 import java.util.Enumeration;               // @DAA
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.util.HashMap;
-endif */ 
+endif */
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.Executor;
-endif */ 
+endif */
 
 
 /**
@@ -100,14 +100,14 @@ statements.
 // 3.  All requests for the connection and the related objects in
 //     its context should be sent via a variation of one of the
 //     sendXXX() methods.  This makes debugging cleaner.
-//    
+//
 public class AS400JDBCConnection
-/*ifdef JDBC40 
+/*ifdef JDBC40
 extends ToolboxWrapper
-endif */ 
+endif */
 implements Connection
 {
-	
+
     private class CancelLock extends Object {}          //@C7A
     private class HeldRequestsLock extends Object {}          //@C7A
 
@@ -155,10 +155,10 @@ implements Connection
     //   false = Decide based on system VRM (for production code).
     //
     // @E9D private static final boolean        FORCE_EXTENDED_FORMATS_ = false;
-    
+
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
     //        The IBM i passes it along to database to enable correct package caching of
-    //        "where current of" statements.  This flag affects only package caching. 
+    //        "where current of" statements.  This flag affects only package caching.
     private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R1M01   "; // @EDA F8c H2c pdc 610
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
@@ -228,12 +228,12 @@ implements Connection
     private boolean thousandStatements_ = false;                        //@K1A
 
     private String qaqqiniLibrary_ = null;                              //@K2A
-                                                                                   
-    //@KBA Specifies level of autocommit support to use.  
+
+    //@KBA Specifies level of autocommit support to use.
     // If V5R2 or earlier use old support of running SET TRANSACTION STATEMENTS (0)
     // If "true autocommit" connection property is false - run autocommit under *NONE isolation (1)
     // If "true autocommit" connection property is true - run with specified isolation (2)
-    int newAutoCommitSupport_ = 1;                                      //@KBA  
+    int newAutoCommitSupport_ = 1;                                      //@KBA
 
     private boolean wrappedInsert_ = false;                             // @GKA
     //@pda 550 client info
@@ -243,23 +243,23 @@ implements Connection
     static final String clientHostnamePropertyName_ = "ClientHostname";
     static final String clientAccountingPropertyName_ = "ClientAccounting";
     static final String clientProgramIDPropertyName_ = "ClientProgramID"; //@pda
-    
+
     //@pda 550 client info values
     private String applicationName_ = "";   //@pdc so can be added to Properties object in getClientInfo()
     private String clientUser_ = ""; //@pdc
     private String clientHostname_ = ""; //@pdc
     private String clientAccounting_ = ""; //@pdc
     private String clientProgramID_ = ""; //@pdc
-    
+
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
 
 	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
-	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A 
+	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A
 
-	protected final static int QUERY_TIMEOUT_QQRYTIMLMT = 0; 
-	protected final static int QUERY_TIMEOUT_CANCEL     = 1; 
-  
-	private int queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT; 
+	protected final static int QUERY_TIMEOUT_QQRYTIMLMT = 0;
+	protected final static int QUERY_TIMEOUT_CANCEL     = 1;
+
+	private int queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT;
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -290,9 +290,9 @@ implements Connection
     // @E8A
     /**
     Cancels a statement within this connection.
-    
+
     @param id   The ID of the statement.
-    
+
     @exception              SQLException    If the statement cannot be executed.
     **/
     void cancel(int id)
@@ -317,7 +317,7 @@ implements Connection
 
                     // Create another connection to issue the cancel.
                     cancelConnection = new AS400JDBCConnection();
-                    
+
                     //AS400 system = new AS400(as400PublicClassObj_);
                     //cancelConnection.setSystem(system);
 
@@ -345,10 +345,10 @@ implements Connection
                     finally
                     {
                         if (request != null) {
-                        	request.returnToPool();	request = null; 
+                        	request.returnToPool();	request = null;
                         }
                         if (cancelReply != null) {
-                        	cancelReply.returnToPool(); cancelReply = null; 
+                        	cancelReply.returnToPool(); cancelReply = null;
                         }
                     }
                 }
@@ -379,9 +379,9 @@ implements Connection
     Checks that the specified SQL statement can be executed.
     This decision is based on the access specified by the caller
     and the read only mode.
-    
+
     @param   sqlStatement   The SQL statement.
-    
+
     @exception              SQLException    If the statement cannot be executed.
     **/
     void checkAccess (JDSQLStatement sqlStatement)
@@ -436,7 +436,7 @@ implements Connection
     **/
     private boolean checkHoldabilityConstants (int holdability)
     {
-        if ((holdability == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) || 
+        if ((holdability == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
             (holdability == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT)  ||
             (holdability == AS400JDBCResultSet.HOLDABILITY_NOT_SPECIFIED))
         {
@@ -449,7 +449,7 @@ implements Connection
     /**
     Checks that the connection is open.  Public methods
     that require an open connection should call this first.
-    
+
     @exception  SQLException    If the connection is not open.
     **/
     void checkOpen ()
@@ -466,7 +466,7 @@ implements Connection
     Clears all warnings that have been reported for the connection.
     After this call, getWarnings() returns null until a new warning
     is reported for the connection.
-    
+
     @exception SQLException If an error occurs.
     **/
     public void clearWarnings ()
@@ -482,7 +482,7 @@ implements Connection
     for them to be automatically released.  This rolls back any active
     transactions, closes all statements that are running in the context
     of the connection, and disconnects from the IBM i system.
-    
+
     @exception SQLException If an error occurs.
     **/
     //
@@ -551,19 +551,19 @@ implements Connection
      * handle the processing of the abort.   @D7A
      */
 void handleAbort() {
-  
+
   // Cancel any existing statement.
-  try { 
-     cancel(0); 
-  } catch (SQLException e ) { 
-        // Ingore any errors     
+  try {
+     cancel(0);
+  } catch (SQLException e ) {
+        // Ingore any errors
   }
   closing_ = true;
-  // partial close (moved rollback and closing of all the statements).    
+  // partial close (moved rollback and closing of all the statements).
   try {
     pseudoClose();
   } catch (SQLException e) {
-    // Just ignore and continue 
+    // Just ignore and continue
   }
 
   // Disconnect from the system.
@@ -580,11 +580,11 @@ void handleAbort() {
     rollback and releases any database locks currently held by
     the connection.  This has no effect when the connection
     is in auto-commit mode.
-    
+
     <p>This method can not be called when the connection is part
     of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
     AS400JDBCXAResource</a> for more information.
-    
+
     @exception SQLException     If the connection is not open
                                 or an error occurs.
     **/
@@ -599,7 +599,7 @@ void handleAbort() {
         // Note: CPS 72CSHT support
         if (transactionManager_.getAutoCommit () && properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION))  //@CE1
             JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);    //@CE1
-        
+
         // Note:  Intuitively, it seems like if we are in
         //        auto-commit mode, that we should not need to
         //        do anything for an explicit commit.  However,
@@ -607,9 +607,9 @@ void handleAbort() {
         //        confused, so we go ahead an send the commit
         //        anyway.
 
-        transactionManager_.commit ();        
+        transactionManager_.commit ();
 
-        // @F3 If cursor hold property is false, then mark the cursors closed.  Don't worry here 
+        // @F3 If cursor hold property is false, then mark the cursors closed.  Don't worry here
         // @F3 about whether their statement level holdability is different; we will check that
         // @F3 within AS400JDBCStatement.markCursorsClosed().
         // @F3 If the user has changed any statement's holdability, then we need to go through
@@ -631,9 +631,9 @@ void handleAbort() {
     //@F3A
     /**
     Sets a flag for whether the user has changed the holdability for any of the statements that
-    came from this connection.  As of JDBC 3.0, the user can specify a statement-level holdability 
-    that is different from the statement-level holdability.  Rather than always going through all 
-    of the statements to see if any of their holidabilities is different, we will mark this flag if 
+    came from this connection.  As of JDBC 3.0, the user can specify a statement-level holdability
+    that is different from the statement-level holdability.  Rather than always going through all
+    of the statements to see if any of their holidabilities is different, we will mark this flag if
     the user changes any of the statement holdabilities.
 
     @exception SQLException     If the connection is not open
@@ -649,7 +649,7 @@ void handleAbort() {
     /**
     Corrects the result set type based on the result set concurrency
     and posts a warning.
-    
+
     @param resultSetType            The result set type.
     @param resultSetConcurrency     The result set concurrency.
     @return                         The correct result set type.
@@ -670,13 +670,13 @@ void handleAbort() {
     Creates a Statement object for executing SQL statements without
     parameters.  If the same SQL statement is executed many times, it
     is more efficient to use prepareStatement().
-    
+
     <p>Result sets created using the statement will be type
     ResultSet.TYPE_FORWARD_ONLY and concurrency
     ResultSet.CONCUR_READ_ONLY.
-    
+
     @return     The statement object.
-    
+
     @exception  SQLException    If the connection is not open,
                             the maximum number of statements
                             for this connection has been reached, or an
@@ -696,7 +696,7 @@ void handleAbort() {
     Creates a Statement object for executing SQL statements without
     parameters.  If the same SQL statement is executed many times, it
     is more efficient to use prepareStatement().
-    
+
     @param resultSetType            The result set type.  Valid values are:
                                     <ul>
                                       <li>ResultSet.TYPE_FORWARD_ONLY
@@ -709,7 +709,7 @@ void handleAbort() {
                                       <li>ResultSet.CONCUR_UPDATABLE
                                     </ul>
     @return                         The statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                     the maximum number of statements
                                     for this connection has been reached, the
@@ -722,7 +722,7 @@ void handleAbort() {
     {
         return createStatement (resultSetType,                         //@G4A
                                 resultSetConcurrency, getInternalHoldability());         //@G4A
-        //@G4M Moved code to createStatement (int, int, int) 
+        //@G4M Moved code to createStatement (int, int, int)
     }
 
 
@@ -731,11 +731,11 @@ void handleAbort() {
     Creates a Statement object for executing SQL statements without
     parameters.  If the same SQL statement is executed many times, it
     is more efficient to use prepareStatement().
-    
-    <p>Full functionality of this method requires support in OS/400 V5R2  
-    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
+
+    <p>Full functionality of this method requires support in OS/400 V5R2
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for
     resultSetHoldability will be ignored.
-        
+
     @param resultSetType            The result set type.  Valid values are:
                                     <ul>
                                       <li>ResultSet.TYPE_FORWARD_ONLY
@@ -749,11 +749,11 @@ void handleAbort() {
                                     </ul>
     @param resultSetHoldability     The result set holdability.  Valid values are:
                                     <ul>
-                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT 
+                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT
                                       <li>ResultSet.CLOSE_CURSORS_AT_COMMIT
                                     </ul>
     @return                         The statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                the maximum number of statements
                                 for this connection has been reached, the
@@ -811,7 +811,7 @@ void handleAbort() {
     /**
     Outputs debug information for a request.  This should only be used
     for debugging the JDBC driver and is not intended for production code.
-    
+
     @param   request     The request.
     **/
     private void debug (DBBaseRequestDS request)
@@ -830,7 +830,7 @@ void handleAbort() {
     /**
     Outputs debug information for a reply.  This should only be used
     for debugging the JDBC driver and is not intended for production code.
-    
+
     @param   reply     The reply.
     **/
     private void debug (DBReplyRequestedDS reply)
@@ -858,7 +858,7 @@ void handleAbort() {
 
     /**
     Closes the connection if not explicitly closed by the caller.
-    
+
     @exception   Throwable      If an error occurs.
     **/
     protected void finalize ()
@@ -875,7 +875,7 @@ void handleAbort() {
 
     /**
     Returns the AS400 object for this connection.
-    
+
     @return     The AS400 object.
     **/
     AS400Impl getAS400 ()
@@ -888,10 +888,10 @@ void handleAbort() {
 
     /**
     Returns the auto-commit state.
-    
+
     @return     true if the connection is in auto-commit mode;
                 false otherwise.
-    
+
     @exception  SQLException    If the connection is not open.
     **/
     public boolean getAutoCommit ()
@@ -905,9 +905,9 @@ void handleAbort() {
 
     /**
     Returns the catalog name.
-    
+
     @return     The catalog name.
-    
+
     @exception  SQLException    If the connection is not open.
     **/
     public String getCatalog ()
@@ -921,29 +921,29 @@ void handleAbort() {
     /**
      * This method returns the concurrent access resolution setting.
      * This method has no effect on IBM i V6R1 or earlier.
-     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
+     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET},
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-     * Setting this property to default exhibits the default behavior on the servers  
-     * i.e., the semantic applied for read 
-     * transactions to avoid locks will be determined by the server.          
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS},
+     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.
+     * Setting this property to default exhibits the default behavior on the servers
+     * i.e., the semantic applied for read
+     * transactions to avoid locks will be determined by the server.
      *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED
      * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-     * ultimately determined by server. 
+     * ultimately determined by server.
      *
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
      * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
      * if enabled, and the server will wait for the commit or rollback of data in the process of
-     * being updated.  
-     * 
+     * being updated.
+     *
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-     *   
+     * to server.  This directs the database manager to skip records in the case of record lock conflicts.
+     *
      * @return  The concurrent access resolution setting.    Possible return valuse:
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET},
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
@@ -955,7 +955,7 @@ void handleAbort() {
 
     /**
     Returns the converter for this connection.
-    
+
     @return     The converter.
     **/
     //@P0D    ConverterImplRemote getConverter ()
@@ -972,10 +972,10 @@ void handleAbort() {
     which case it returns the converter for this connection.
     This is useful for code that handles all types of fields
     in a generic manner.
-    
+
     @param      ccsid       The CCSID.
     @return     The converter.
-    
+
     @exception  SQLException    If the CCSID is not valid.
     **/
     ConvTable getConverter (int ccsid) //@P0C
@@ -1010,7 +1010,7 @@ void handleAbort() {
     // @ECA
     /**
     Returns the style of data compression.
-    
+
     @return The style of data compression.  Possible values are DATA_COMPRESSION_NONE_,
             DATA_COMPRESSION_OLD_, and DATA_COMPRESSION_RLE_.
     **/
@@ -1023,7 +1023,7 @@ void handleAbort() {
 
     /**
     Returns the default SQL schema.
-    
+
     @return     The default SQL schema, or QGPL if none was
                 specified.
     **/
@@ -1051,20 +1051,20 @@ void handleAbort() {
     //@G4A JDBC 3.0
     /**
     Returns the holdability of ResultSets created from this connection.
-    
-    @return     The cursor holdability.  Valid values are ResultSet.HOLD_CURSORS_OVER_COMMIT and 
+
+    @return     The cursor holdability.  Valid values are ResultSet.HOLD_CURSORS_OVER_COMMIT and
                 ResultSet.CLOSE_CURSORS_AT_COMMIT.  The holdability is derived in this order
                 of precedence:
                 <ul>
                 <li>1.  The holdability specified using the method setHoldability(int)
                 if this method was called.
-                <li>2.  The value of the <code> cursor hold </code> 
-                <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>. </ul>  
-                Full functionality of #1 requires support in OS/400 
-                V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, 
+                <li>2.  The value of the <code> cursor hold </code>
+                <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>. </ul>
+                Full functionality of #1 requires support in OS/400
+                V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier,
                 the value specified on this method will be ignored and the default holdability
                 will be the value of #2.
-    
+
     @exception  SQLException    If the connection is not open.
     @since Modification 5
     **/
@@ -1072,8 +1072,8 @@ void handleAbort() {
     throws SQLException
     {
         checkOpen ();
-        // If holdability has been set, return its value. 
-        if ((holdability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) || 
+        // If holdability has been set, return its value.
+        if ((holdability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
             (holdability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT))
         {
             return holdability_;
@@ -1113,17 +1113,17 @@ void handleAbort() {
 
     //@G4A JDBC 3.0
     /**
-    Returns the holdability of ResultSets created from this connection.  
+    Returns the holdability of ResultSets created from this connection.
     Use this method internally to return the value specified if the user has called
-    setHoldability(int), or HOLDABILITY_NOT_SPECIFIED if that 
-    method hasn't been called, meaning to use the old behavior and not the new code 
+    setHoldability(int), or HOLDABILITY_NOT_SPECIFIED if that
+    method hasn't been called, meaning to use the old behavior and not the new code
     point for cursor holdability.
-    
-    @return     The cursor holdability.  Valid values are 
-                AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,  
-                AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT, 
+
+    @return     The cursor holdability.  Valid values are
+                AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+                AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT,
                 and AS400JDBCResultSet.HOLDABILITY_NOT_SPECIFIED.
-    
+
     @since Modification 5
     **/
     int getInternalHoldability ()
@@ -1185,9 +1185,9 @@ void handleAbort() {
     Returns the DatabaseMetaData object that describes the
     connection's tables, supported SQL grammar, stored procedures,
     capabilities and more.
-    
+
     @return     The metadata object.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public DatabaseMetaData getMetaData ()
@@ -1203,7 +1203,7 @@ void handleAbort() {
 
     /**
     Returns the connection properties.
-    
+
     @return    The connection properties.
     **/
     JDProperties getProperties ()
@@ -1224,14 +1224,14 @@ void handleAbort() {
       <li>10 character user name
       <li>6 character job number
     </ul>
-    
+
     <p>Note: Since this method is not defined in the JDBC Connection interface,
     you typically need to cast a Connection object to AS400JDBCConnection in order
     to call this method:
     <blockquote><pre>
     String serverJobIdentifier = ((AS400JDBCConnection)connection).getServerJobIdentifier();
     </pre></blockquote>
-    
+
     @return The server job identifier, or null if not known.
     **/
     public String getServerJobIdentifier()                              // @E8A
@@ -1251,14 +1251,14 @@ void handleAbort() {
     // @EHA
     /**
     Returns the system object which is managing the connection to the system.
-    
+
     <p>Note: Since this method is not defined in the JDBC Connection interface,
     you typically need to cast a Connection object to AS400JDBCConnection in order
     to call this method:
     <blockquote><pre>
     AS400 system = ((AS400JDBCConnection)connection).getSystem();
     </pre></blockquote>
-    
+
     @return The system.
     **/
     // Implementation note:  Don't use this object internally because we could be running in a proxy environment
@@ -1274,7 +1274,7 @@ void handleAbort() {
 
     /**
     Returns the transaction isolation level.
-    
+
     @return     The transaction isolation level.  Possible
                 values are:
                 <ul>
@@ -1283,7 +1283,7 @@ void handleAbort() {
                 <li>TRANSACTION_READ_COMMITTED
                    <li>TRANSACTION_REPEATABLE_READ
                 </ul>
-    
+
     @exception  SQLException    If the connection is not open.
     **/
     public int getTransactionIsolation ()
@@ -1305,11 +1305,11 @@ void handleAbort() {
     // JDBC 2.0
     /**
     Returns the type map.
-    
+
     <p>This driver does not support the type map.
-    
+
     @return     The type map.
-    
+
     @exception  SQLException    This exception is always thrown.
     **/
     public Map getTypeMap ()
@@ -1324,7 +1324,7 @@ void handleAbort() {
     // @B1C
     /**
     Returns the next unused id.
-    
+
     @param      resultSetType       The result set type.  This is
                                     relevant only when the connection
                                     is being used for DRDA.
@@ -1402,8 +1402,8 @@ void handleAbort() {
 
         // All ids are being used.
         JDError.throwSQLException (this, JDError.EXC_MAX_STATEMENTS_EXCEEDED);
-        return -1;                 
-      }  
+        return -1;
+      }
     }
 
 
@@ -1411,7 +1411,7 @@ void handleAbort() {
     // @j31a new method -- Must the user have "for update" on their
     //       SQL statement to guarantee an updatable cursor?  The answer is
     //       no for v5r2 and v5r1 systems with a PTF.  For V5R1 systems
-    //       without the PTF, v4r5, and earlier, the answer is yes.  
+    //       without the PTF, v4r5, and earlier, the answer is yes.
     boolean getMustSpecifyForUpdate ()
     {
        return mustSpecifyForUpdate_;
@@ -1423,7 +1423,7 @@ void handleAbort() {
 
     /**
     Returns the URL for the connection's database.
-    
+
     @return      The URL for the database.
     **/
     String getURL ()
@@ -1436,7 +1436,7 @@ void handleAbort() {
 
     /**
     Returns the user name as currently signed on to the system.
-    
+
     @return      The user name.
     **/
     String getUserName ()
@@ -1467,10 +1467,10 @@ void handleAbort() {
     /**
     Returns the first warning reported for the connection.
     Subsequent warnings may be chained to this warning.
-    
+
     @return     The first warning or null if no warnings
                 have been reported.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public SQLWarning getWarnings ()
@@ -1484,7 +1484,7 @@ void handleAbort() {
     /**
     Indicates if the specified cursor name is already used
     in the connection.
-    
+
     @return     true if the cursor name is already used;
                 false otherwise.
     **/
@@ -1504,17 +1504,17 @@ void handleAbort() {
 
     /**
     Indicates if the connection is closed.
-    
+
     @return     true if the connection is closed; false
                 otherwise.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public boolean isClosed ()
     throws SQLException
     {
-        if (aborted_) return true;  /*@D7A*/ 
-        
+        if (aborted_) return true;  /*@D7A*/
+
         if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact IBM i system
 
         if (server_ == null)                        // @EFC
@@ -1532,10 +1532,10 @@ void handleAbort() {
 
     /**
     Indicates if the connection is in read-only mode.
-    
+
     @return     true if the connection is in read-only mode;
                 false otherwise.
-    
+
     @exception  SQLException    If the connection is not open.
     **/
     public boolean isReadOnly ()
@@ -1558,7 +1558,7 @@ void handleAbort() {
     // @B4A
     /**
     Marks all of the cursors as closed.
-    
+
     @param  isRollback True if we called this from rollback(), false if we called this from commit().
     **/
     void markCursorsClosed(boolean isRollback)  //@F3C //@XAC
@@ -1571,18 +1571,18 @@ void handleAbort() {
         while (list.hasMoreElements())                                           // @DAC
         {                                                                       //@KBL
             AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();  //@KBL
-            //@KBLD ((AS400JDBCStatement)list.nextElement()).markCursorClosed(isRollback); // @DAC @F3C 
+            //@KBLD ((AS400JDBCStatement)list.nextElement()).markCursorClosed(isRollback); // @DAC @F3C
             // If the statement is held open, all of the result sets have already been closed
-            
-            // If we happen to get an exception, just ignore it.  There exists a 
+
+            // If we happen to get an exception, just ignore it.  There exists a
             // race condition where another thread could have closed the connected while
             // we were looping through the statement elements.   @F7A
-            try { 
+            try {
             if(!statement.isHoldStatement())                                        //@KBL
                 statement.markCursorClosed(isRollback);                             //@KBL
             } catch (SQLException ex) {
               if (JDTrace.isTraceOn()) {
-                JDTrace.logException(this, "markCursorsClosed caught exception", ex); 
+                JDTrace.logException(this, "markCursorsClosed caught exception", ex);
               }
             }
         }                                                                           //@KBL
@@ -1591,36 +1591,36 @@ void handleAbort() {
     //@KBL
     /*
     If a statement associated with locators has been partially closed, finish closing the statement object.
-    A statement may become partially closed if the user closed the statement and set the "hold statements" connection 
+    A statement may become partially closed if the user closed the statement and set the "hold statements" connection
     property to true when making the connection.  Additionally, the statement must have been used to access a locator.
     */
     private void markStatementsClosed()
     {
-        if(!statements_.isEmpty())                                                           
-            {                                                                                    
-                // Make a clone of the vector, since it will be modified as each statement       
-                // closes itself.                                                                
+        if(!statements_.isEmpty())
+            {
+                // Make a clone of the vector, since it will be modified as each statement
+                // closes itself.
                 // @KBL Close any statements the user called close on that were associated with locators.
-                Vector statements = (Vector)statements_.clone();                                 
-                Enumeration list = statements.elements();                                        
-                while (list.hasMoreElements())                                                    
-                {                                                                                
-                    AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();       
-                    try                                                                          
-                    {                                                                            
-                        if(statement.isHoldStatement())                                          
-                        {                                                                        
-                            statement.setAssociatedWithLocators(false);                          
-                            statement.finishClosing();                                                    
-                        }                                                                        
-                    }                                                                            
-                    catch (SQLException e)                                                       
-                    {                                                                            
-                        if (JDTrace.isTraceOn())                                                  
-                            JDTrace.logInformation (this, "Closing statement after rollback failed: " + e.getMessage()); 
-                    }                                                                            
-                }                                                                                
-            }                                                                                    
+                Vector statements = (Vector)statements_.clone();
+                Enumeration list = statements.elements();
+                while (list.hasMoreElements())
+                {
+                    AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();
+                    try
+                    {
+                        if(statement.isHoldStatement())
+                        {
+                            statement.setAssociatedWithLocators(false);
+                            statement.finishClosing();
+                        }
+                    }
+                    catch (SQLException e)
+                    {
+                        if (JDTrace.isTraceOn())
+                            JDTrace.logInformation (this, "Closing statement after rollback failed: " + e.getMessage());
+                    }
+                }
+            }
     }
 
     //@GKA
@@ -1641,8 +1641,8 @@ void handleAbort() {
             //Prepare a statement in order to retrieve the column names associated with the indexes specified in the array
             //wrapper the statement with a select * from final table
             // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
-            // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will 
-            // change the autogenerated keys, NEW TABLE is used. 
+            // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will
+            // change the autogenerated keys, NEW TABLE is used.
             StringBuffer selectAll = new StringBuffer("SELECT * FROM NEW TABLE(");
             selectAll.append(sql);
             selectAll.append(")");
@@ -1670,12 +1670,12 @@ void handleAbort() {
         //verify there is a column name  specified in the array
         if(columnNames == null || columnNames.length == 0) {
             JDError.throwSQLException(JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-            return "";  /* doesnt really return because exception is thrown */ 
-        } else { 
+            return "";  /* doesnt really return because exception is thrown */
+        } else {
         //wrapper the statement with a select xxx from final table where xxx is replaced with the appropriate column(s)
         // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
-        // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will 
-        // change the autogenerated keys, NEW TABLE is used. 
+        // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will
+        // change the autogenerated keys, NEW TABLE is used.
         StringBuffer selectFrom = new StringBuffer("SELECT " + columnNames[0]);  //we verified above that there is at least one name
         for(int i=1; i<columnNames.length; i++)
         {
@@ -1691,24 +1691,24 @@ void handleAbort() {
     }
 
     //@GKA
-    // Note:  This method is used when the user supplies ResultSet.RETURN_GENERATED_KEYS 
+    // Note:  This method is used when the user supplies ResultSet.RETURN_GENERATED_KEYS
     // to the execute/executeUpdate method.
     /*
     * Prepares and executes the statement needed to retrieve generated keys
-    */ 
+    */
     String makeGeneratedKeySelectStatement(String sql)
     throws SQLException
     {
         // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
-        // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will 
-        // change the autogenerated keys, NEW TABLE is used. 
+        // AFTER INSERT TRIGGERS are present.  Since it is unlikely that AFTER INSERT triggers will
+        // change the autogenerated keys, NEW TABLE is used.
 
         StringBuffer selectFrom = new StringBuffer("SELECT *SQLGENCOLUMNS FROM NEW TABLE(");
         selectFrom.append(sql);
         selectFrom.append(")");
 
         return selectFrom.toString();
-        
+
     }
 
     /**
@@ -1716,11 +1716,11 @@ void handleAbort() {
     executing it. The JDBC driver converts all SQL statements
     from the JDBC SQL grammar into the native DB2 for IBM i
     SQL grammar prior to executing them.
-    
+
     @param  sql     The SQL statement in terms of the JDBC SQL grammar.
     @return         The translated SQL statement in the native
                     DB2 for IBM i SQL grammar.
-    
+
     @exception      SQLException    If the SQL statement has a syntax error.
     **/
     public String nativeSQL (String sql)
@@ -1737,7 +1737,7 @@ void handleAbort() {
     /**
     Notifies the connection that a statement in its context has
     been closed.
-    
+
     @param   statement   The statement.
     @param   id          The statement's id.
     **/
@@ -1762,7 +1762,7 @@ void handleAbort() {
 
     /**
     Posts a warning for the connection.
-    
+
     @param   sqlWarning  The warning.
     **/
     void postWarning (SQLWarning sqlWarning)
@@ -1781,14 +1781,14 @@ void handleAbort() {
     and output parameters and stores it in a CallableStatement
     object.  This object can be used to efficiently call the SQL
     stored procedure multiple times.
-    
+
     <p>Result sets created using the statement will be type
     ResultSet.TYPE_FORWARD_ONLY and concurrency
     ResultSet.CONCUR_READ_ONLY.
-    
+
     @param  sql     The SQL stored procedure call.
     @return         The callable statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                the maximum number of statements
                                for this connection has been reached,  or an
@@ -1809,7 +1809,7 @@ void handleAbort() {
     and output parameters and stores it in a CallableStatement
     object.  This object can be used to efficiently call the SQL
     stored procedure multiple times.
-    
+
     @param sql                      The SQL statement.
     @param resultSetType            The result set type.  Valid values are:
                                     <ul>
@@ -1823,7 +1823,7 @@ void handleAbort() {
                                       <li>ResultSet.CONCUR_UPDATABLE
                                     </ul>
     @return                         The prepared statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                the maximum number of statements
                                 for this connection has been reached, the
@@ -1835,7 +1835,7 @@ void handleAbort() {
                                           int resultSetConcurrency)
     throws SQLException
     {
-        return prepareCall(sql, resultSetType, resultSetConcurrency, 
+        return prepareCall(sql, resultSetType, resultSetConcurrency,
                            getInternalHoldability());   //@G4A
         //@G4M Moved code below
     }
@@ -1847,11 +1847,11 @@ void handleAbort() {
     and output parameters and stores it in a CallableStatement
     object.  This object can be used to efficiently call the SQL
     stored procedure multiple times.
-    
-    <p>Full functionality of this method requires support in OS/400 V5R2  
-    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
+
+    <p>Full functionality of this method requires support in OS/400 V5R2
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for
     resultSetHoldability will be ignored.
-    
+
     @param sql                      The SQL statement.
     @param resultSetType            The result set type.  Valid values are:
                                     <ul>
@@ -1867,7 +1867,7 @@ void handleAbort() {
     @return                         The prepared statement object.
     @param resultSetHoldability     The result set holdability.  Valid values are:
                                     <ul>
-                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT 
+                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT
                                       <li>ResultSet.CLOSE_CURSORS_AT_COMMIT
                                     </ul>
     @exception      SQLException    If the connection is not open,
@@ -1933,14 +1933,14 @@ void handleAbort() {
     and stores it in a PreparedStatement object.  This object can
     be used to efficiently execute this SQL statement
     multiple times.
-    
+
     <p>Result sets created using the statement will be type
     ResultSet.TYPE_FORWARD_ONLY and concurrency
     ResultSet.CONCUR_READ_ONLY.
-    
+
     @param  sql     The SQL statement.
     @return         The prepared statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                the maximum number of statements
                                for this connection has been reached,  or an
@@ -1950,7 +1950,7 @@ void handleAbort() {
     throws SQLException
     {
         return prepareStatement (sql, ResultSet.TYPE_FORWARD_ONLY,
-                                 ResultSet.CONCUR_READ_ONLY, 
+                                 ResultSet.CONCUR_READ_ONLY,
                                  getInternalHoldability());     //@G4A
     }
 
@@ -1963,14 +1963,14 @@ void handleAbort() {
     and stores it in a PreparedStatement object.  This object can
     be used to efficiently execute this SQL statement
     multiple times.
-    
-    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception will be 
-    thrown. 
-    
+
+    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception will be
+    thrown.
+
     <p>Result sets created using the statement will be type
     ResultSet.TYPE_FORWARD_ONLY and concurrency
     ResultSet.CONCUR_READ_ONLY.
-    
+
     @param  sql                 The SQL statement.
     @param  autoGeneratedKeys   Whether to return auto generated keys.  Valid values are:
                                 <ul>
@@ -1978,10 +1978,10 @@ void handleAbort() {
                                   <li>Statement.NO_GENERATED_KEYS
                                 </ul>
     @return         The prepared statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                the maximum number of statements
-                               for this connection has been reached,  
+                               for this connection has been reached,
                                if connecting to OS/400 V5R1 or earlier,
                                an error occurs.
     @since Modification 5
@@ -2002,7 +2002,7 @@ void handleAbort() {
 
         if(getVRM() >= JDUtilities.vrm610 && autoGeneratedKeys==Statement.RETURN_GENERATED_KEYS)    //@GKA added new generated key support
         {
-            // check if it is an insert statement.  
+            // check if it is an insert statement.
             // Note:  this should be false if the statement was wrappered with a SELECT
             // when prepareStatement(String sql, int[] columnIndex) or
             // prepareStatement(String sql, String[] columnNames) was called.
@@ -2011,7 +2011,7 @@ void handleAbort() {
                 //wrapper the statement
                 String selectStatement = makeGeneratedKeySelectStatement(sql);
                 sqlStatement = new JDSQLStatement (selectStatement, properties_.getString(JDProperties.DECIMAL_SEPARATOR), true,
-                                                   properties_.getString(JDProperties.PACKAGE_CRITERIA), this);                               
+                                                   properties_.getString(JDProperties.PACKAGE_CRITERIA), this);
                 wrappedInsert_ = true;
 
             }
@@ -2031,7 +2031,7 @@ void handleAbort() {
                                                                                properties_.getBoolean (JDProperties.PREFETCH),
                                                                                sqlStatement, false,
                                                                                properties_.getString (JDProperties.PACKAGE_CRITERIA),
-                                                                               ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, 
+                                                                               ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY,
                                                                                getInternalHoldability(), autoGeneratedKeys);    //@G4A
         statements_.addElement(statement);                      // @DAC
         statementCount_++;                           //@K1A
@@ -2063,10 +2063,10 @@ void handleAbort() {
     and stores it in a PreparedStatement object.  This object can
     be used to efficiently execute this SQL statement
     multiple times.
-    
+
     <p>Result sets created using the statement will be holdability
     ResultSet.CLOSE_CURSORS_AT_COMMIT.
-    
+
     @param sql                      The SQL statement.
     @param resultSetType            The result set type.  Valid values are:
                                     <ul>
@@ -2080,7 +2080,7 @@ void handleAbort() {
                                       <li>ResultSet.CONCUR_UPDATABLE
                                     </ul>
     @return                         The prepared statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                the maximum number of statements
                                 for this connection has been reached, the
@@ -2105,7 +2105,7 @@ void handleAbort() {
     and stores it in a PreparedStatement object.  This object can
     be used to efficiently execute this SQL statement
     multiple times.
-    
+
     @param sql                      The SQL statement.
     @param resultSetType            The result set type.  Valid values are:
                                     <ul>
@@ -2120,11 +2120,11 @@ void handleAbort() {
                                     </ul>
     @param resultSetHoldability     The result set holdability.  Valid values are:
                                     <ul>
-                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT 
+                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT
                                       <li>ResultSet.CLOSE_CURSORS_AT_COMMIT
                                     </ul>
     @return                         The prepared statement object.
-    
+
     @exception      SQLException    If the connection is not open,
                                     the maximum number of statements
                                     for this connection has been reached, the
@@ -2133,7 +2133,7 @@ void handleAbort() {
     **/
     public PreparedStatement prepareStatement (String sql,
                                                int resultSetType,
-                                               int resultSetConcurrency, 
+                                               int resultSetConcurrency,
                                                int resultSetHoldability)
     throws SQLException
     {
@@ -2189,10 +2189,10 @@ void handleAbort() {
      *
      * <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
      *
-     * @param  sql     The SQL statement.                                  
+     * @param  sql     The SQL statement.
      * @param  columnIndexes An array of column indexes indicating the columns that should be returned from the inserted row or rows.
      * @return         The prepared statement object.
-     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
+     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems,
      *                 the connection is not open,
      *                 the maximum number of statements for this connection has been reached,
      *                 or an error occurs.
@@ -2235,10 +2235,10 @@ void handleAbort() {
      *
      * <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
      *
-     * @param  sql     The SQL statement.                                  
+     * @param  sql     The SQL statement.
      * @param  columnNames An array of column names indicating the columns that should be returned from the inserted row or rows.
      * @return         The prepared statement object.
-     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
+     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems,
      *                 the connection is not open,
      *                 the maximum number of statements for this connection has been reached,
      *                 or an error occurs.
@@ -2276,7 +2276,7 @@ void handleAbort() {
     //@E10a new method
     void processSavepointRequest(String savepointStatement)
     throws SQLException
-    {                                                                       
+    {
         // must be OS/400 v5r2 or IBM i
         if (vrm_ < JDUtilities.vrm520)
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
@@ -2285,7 +2285,7 @@ void handleAbort() {
         if (!transactionManager_.isLocalTransaction())
             JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);
 
-        // cannot do savepoints if autocommit on 
+        // cannot do savepoints if autocommit on
         if (getAutoCommit())
             JDError.throwSQLException(this, JDError.EXC_TXN_STATE_INVALID);
 
@@ -2294,12 +2294,12 @@ void handleAbort() {
             statement = createStatement();
 
             statement.executeUpdate(savepointStatement);
-        
+
         }finally                  //@scan1
         {
             if(statement != null) //@scan1
                 statement.close();
-            
+
         }
     }
 
@@ -2324,7 +2324,7 @@ void handleAbort() {
         // closes itself.                                                                // @DAA
         // @j4 change -- close may throw a SQLException.  Log that error and keep going.
         // Since the user called close we won't return until we tried to close all
-        // statements.  
+        // statements.
         Vector statements = (Vector)statements_.clone();                                 // @DAA
         Enumeration list = statements.elements();                                        // @DAA
         while (list.hasMoreElements())                                                    // @DAC
@@ -2362,7 +2362,7 @@ void handleAbort() {
 
             // Same for this flag.  Don't want to grow the object by saving
             // this as member data.
-            boolean preV5R1 = true;        
+            boolean preV5R1 = true;
             boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
 
             try
@@ -2488,20 +2488,20 @@ void handleAbort() {
 
     // @E10a new method
     /**
-     * Removes the given Savepoint object from the current transaction. 
-     * Any reference to the savepoint after it has been removed will 
+     * Removes the given Savepoint object from the current transaction.
+     * Any reference to the savepoint after it has been removed will
      * cause an SQLException to be thrown.
      *
      * @param savepoint the savepoint to be removed.
      *
-     * @exception SQLException if a database access error occurs or the given Savepoint 
+     * @exception SQLException if a database access error occurs or the given Savepoint
      *                         is not a valid savepoint in the current transaction.
      *
      * @since Modification 5
     **/
     public void releaseSavepoint(Savepoint savepoint)
     throws SQLException
-    {      
+    {
         if (savepoint == null)
             throw new NullPointerException("savepoint");
 
@@ -2535,11 +2535,11 @@ void handleAbort() {
     rollback and releases any database locks currently held by
     the connection.  This has no effect when the connection
     is in auto-commit mode.
-    
+
     <p>This method can not be called when the connection is part
     of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
     AS400JDBCXAResource</a> for more information.
-    
+
     @exception SQLException     If the connection is not open
                                 or an error occurs.
     **/
@@ -2558,8 +2558,8 @@ void handleAbort() {
         {
             transactionManager_.rollback ();
 
-            // @F3 Mark all cursors closed on a rollback.  Don't worry here 
-            // @F3 about whether their statement level holdability is different; we will check 
+            // @F3 Mark all cursors closed on a rollback.  Don't worry here
+            // @F3 about whether their statement level holdability is different; we will check
             // @F3 that within Statement.markCursorsClosed().
 
             // @F3D if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE   // @B4A
@@ -2576,12 +2576,12 @@ void handleAbort() {
 
     // @E10 new method
     /**
-     * Undoes all changes made after the specified Savepoint was set. 
+     * Undoes all changes made after the specified Savepoint was set.
      *
      * @param savepoint the savepoint to be rolled back to.
      *
-     * @exception SQLException if a database access error occurs, the Savepoint 
-     *                         is no longer valid, or this Connection 
+     * @exception SQLException if a database access error occurs, the Savepoint
+     *                         is no longer valid, or this Connection
      *                         is currently in auto-commit mode.
      * @since Modification 5
     **/
@@ -2604,7 +2604,7 @@ void handleAbort() {
 
         processSavepointRequest(SQLCommand);
 
-        sp.setStatus(AS400JDBCSavepoint.CLOSED);                  
+        sp.setStatus(AS400JDBCSavepoint.CLOSED);
 
         if(properties_.getBoolean(JDProperties.HOLD_STATEMENTS )) //@PDA additional HOLD_STATEMENTS check
             markStatementsClosed();         //@KBL
@@ -2621,9 +2621,9 @@ void handleAbort() {
     /**
     Sends a request data stream to the system using the
     connection's id and does not expect a reply.
-    
+
     @param   request     The request.
-    
+
     @exception           SQLException   If an error occurs.
     **/
     //
@@ -2640,10 +2640,10 @@ void handleAbort() {
     /**
     Sends a request data stream to the system and does not
     expect a reply.
-    
+
     @param   request     The request.
     @param   id          The id.
-    
+
     @exception           SQLException   If an error occurs.
     **/
     //
@@ -2660,14 +2660,14 @@ void handleAbort() {
     /**
     Sends a request data stream to the system and does not
     expect a reply.
-    
+
     @param   request        The request.
     @param   id             The id.
     @param   leavePending   Indicates if the request should
                             be left pending.  This indicates
                             whether or not to base the next
                             request on this one.
-    
+
     @exception              SQLException   If an error occurs.
     **/
     //
@@ -2709,7 +2709,7 @@ void handleAbort() {
                 else                                                                        // @E5A
                     actualRequest = request;                                                // @E5A
                 heldRequests_ = null;                                                       // @E5A
-                                                                      
+
                 server_.send(actualRequest);                // @E5A @F7M
 //@P1D                requestPending_[id] = leavePending; //@P0A @F7M
             }                                                                               // @E5A
@@ -2808,10 +2808,10 @@ void handleAbort() {
     /**
     Holds a request until the next explicit request.  It will
     be concatenated at the beginning of the next request.
-    
+
     @param   request     The request.
     @param   id          The id.
-    
+
     @exception           SQLException   If an error occurs.
     **/
     //
@@ -2873,10 +2873,10 @@ void handleAbort() {
     Sends a request data stream to the system using the
     connection's id and returns the corresponding reply from
     the system.
-    
+
     @param   request     The request.
     @return              The reply.
-    
+
     @exception           SQLException   If an error occurs.
     **/
     //
@@ -2893,11 +2893,11 @@ void handleAbort() {
     /**
     Sends a request data stream to the system and returns the
     corresponding reply from the system.
-    
+
     @param   request     The request.
     @param   id          The id.
     @return              The reply.
-    
+
     @exception           SQLException   If an error occurs.
     **/
     //
@@ -2948,7 +2948,7 @@ void handleAbort() {
                 else                                                                        // @E5A
                     actualRequest = request;                                                // @E5A
                 heldRequests_ = null;                                                       // @E5A
-                                                                      
+
                 reply = (DBReplyRequestedDS)server_.sendAndReceive(actualRequest);          // @E5C @F7M
                 //@P0D requestPending_.clear(id);
 //@P1D                requestPending_[id] = false; //@P0A @F7M
@@ -2979,9 +2979,9 @@ void handleAbort() {
             //@P0D request.freeCommunicationsBuffer();                              // @EMa
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
-        
+
         // if (DBDSPool.monitor) {
-        //	reply.setAllocatedLocation(); 
+        //	reply.setAllocatedLocation();
         // }
 
         return(DBReplyRequestedDS) reply;
@@ -3016,7 +3016,7 @@ void handleAbort() {
                 else                                                                        // @E5A
                     actualRequest = request;                                                // @E5A
                 heldRequests_ = null;                                                       // @E5A
-                //D2A- allowed correlation ID to be stored and used on multiple receive calls                                                      
+                //D2A- allowed correlation ID to be stored and used on multiple receive calls
                 correlationID_ = server_.send(actualRequest);
                 reply = (DBReplyRequestedDS)server_.receive(correlationID_);
             }                                                                               // @E5A
@@ -3049,7 +3049,7 @@ void handleAbort() {
 
         return(DBReplyRequestedDS) reply;
     }
-    
+
     //@DA2 - sew added new receive method.
     DBReplyRequestedDS receiveMoreData()
     throws SQLException{
@@ -3057,7 +3057,7 @@ void handleAbort() {
         try{
             if(correlationID_ > 0){
                 synchronized(heldRequestsLock_)
-                { 
+                {
                     reply = (DBReplyRequestedDS)server_.receive(correlationID_);
                 }
                 reply.parse(dataCompression_);
@@ -3077,7 +3077,7 @@ void handleAbort() {
     as individual transactions.  Otherwise, its SQL statements are
     grouped into transactions that are terminated by either a commit
     or rollback.
-    
+
     <p>By default, the connection is in auto-commit mode.  The
     commit occurs when the statement execution completes or the
     next statement execute occurs, whichever comes first.  In the
@@ -3087,14 +3087,14 @@ void handleAbort() {
     cases, a single statement may return multiple results as well
     as output parameter values.  Here the commit occurs when all results
     and output parameter values have been retrieved.
-    
+
     <p>The auto-commit mode is always false when the connection is part
     of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
     AS400JDBCXAResource</a> for more information.
-    
+
     @param  autoCommit  true to turn on auto-commit mode, false to
                         turn it off.
-    
+
     @exception          SQLException    If the connection is not open
                                         or an error occurs.
     **/
@@ -3114,7 +3114,7 @@ void handleAbort() {
 
     /**
     This method is not supported.
-    
+
     @exception          SQLException    If the connection is not open.
     **/
     public void setCatalog (String catalog)
@@ -3130,36 +3130,36 @@ void handleAbort() {
      * This method sets concurrent access resolution.  This method overrides the setting of ConcurrentAccessResolution on the datasource or connection
      * URL properties.  This changes the setting for this connection only.  This method has no effect on
      * IBM i V6R1 or earlier.
-     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
+     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET},
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
-     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
-     * Setting this property to default exhibits the default behavior on the servers  
-     * i.e., the semantic applied for read 
-     * transactions to avoid locks will be determined by the server.          
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS},
+     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.
+     * Setting this property to default exhibits the default behavior on the servers
+     * i.e., the semantic applied for read
+     * transactions to avoid locks will be determined by the server.
      *
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED
      * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
-     * ultimately determined by server. 
+     * ultimately determined by server.
      *
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
      * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
      * if enabled, and the server will wait for the commit or rollback of data in the process of
-     * being updated.  
-     * 
+     * being updated.
+     *
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
-     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
-     *   
+     * to server.  This directs the database manager to skip records in the case of record lock conflicts.
+     *
      *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET},
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
      */
     public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
     {
-             
+
         DBSQLAttributesDS request = null;
         DBReplyRequestedDS reply = null;
         try
@@ -3167,13 +3167,13 @@ void handleAbort() {
             if (getVRM() >= JDUtilities.vrm710)
             {
                 request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
-               
+
                 //get value of concurrent access resolution.
-                int car = properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);         
+                int car = properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);
                 //here, we also allow resetting back to default 0
                 //pass value of concurrent access resolution into the hostserver request.
-                request.setConcurrentAccessResolution( car );              
-                
+                request.setConcurrentAccessResolution( car );
+
                 reply = sendAndReceive(request);
                 int errorClass = reply.getErrorClass();
                 if (errorClass != 0)
@@ -3184,23 +3184,23 @@ void handleAbort() {
             JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
         } finally
         {
-            if (request != null)  { 
-            	request.returnToPool(); request=null; 
+            if (request != null)  {
+            	request.returnToPool(); request=null;
             }
             if (reply != null) {
-            	reply.returnToPool(); reply = null; // Can return -- only errorClass accessed 
+            	reply.returnToPool(); reply = null; // Can return -- only errorClass accessed
             }
         }
-       
+
         concurrentAccessResolution_ = concurrentAccessResolution;
     }
-    
-    
+
+
     /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
     eWLM correlators require IBM i V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
-    
+
     @param bytes The eWLM correlator value
     **/
     public void setDB2eWLMCorrelator(byte[] bytes)
@@ -3210,8 +3210,8 @@ void handleAbort() {
         {
             DBSQLAttributesDS request = null;
             DBReplyRequestedDS reply = null;
-            try                                                                                 
-            {          
+            try
+            {
                 if(bytes == null)
                 {
                     if(JDTrace.isTraceOn())
@@ -3219,17 +3219,17 @@ void handleAbort() {
                 }
                 request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                             id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
-                                                            + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);   
-                request.seteWLMCorrelator(bytes);                                
-                reply = sendAndReceive(request);                 
+                                                            + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
+                request.seteWLMCorrelator(bytes);
+                reply = sendAndReceive(request);
                 int errorClass = reply.getErrorClass();
                 if(errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());        
-            }                                                                                   
-            catch(DBDataStreamException e)                                                      
-            {                                                                                   
-                JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             
-            }   
+                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+            }
+            catch(DBDataStreamException e)
+            {
+                JDError.throwSQLException(JDError.EXC_INTERNAL, e);
+            }
             finally
             {
                 if (request != null) { request.returnToPool(); request = null; }
@@ -3242,7 +3242,7 @@ void handleAbort() {
     // @B1A
     /**
     Sets whether the connection is being used for DRDA.
-    
+
     @param  drda        true if the connection is being used for DRDA,
                         false otherwise.
     **/
@@ -3259,16 +3259,16 @@ void handleAbort() {
     //@G4A JDBC 3.0
     /**
     Sets the holdability of ResultSets created from this connection.
-    
+
     <p>Full functionality of this method requires OS/400 V5R2
     or IBM i.  If connecting to OS/400 V5R1 or earlier, all
     cursors for the connection will be changed to the value of the variable
     <i>holdability</i>.
-    
+
     @param  holdability   The cursor holdability.
                           Valid values are ResultSet.HOLD_CURSORS_OVER_COMMIT or
                           ResultSet.CLOSE_CURSORS_AT_COMMIT.
-    
+
     @exception          SQLException    If the connection is not open
                                         or the value passed in is not valid.
     @since Modification 5
@@ -3285,7 +3285,7 @@ void handleAbort() {
         holdability_ = holdability;
 
         if (holdability == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT)           //@F5A
-            transactionManager_.setHoldIndicator(JDProperties.CURSORHOLD_FALSE); //@F5A 
+            transactionManager_.setHoldIndicator(JDProperties.CURSORHOLD_FALSE); //@F5A
         else if (holdability == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT)     //@F5A
             transactionManager_.setHoldIndicator(JDProperties.CURSORHOLD_TRUE);  //@F5A
 
@@ -3320,7 +3320,7 @@ void handleAbort() {
           }
           finally                                               //@dbldrvr
           {                                                     //@dbldrvr
-              //Since driver is registered twice in DriverManager via DriverManager.registerDriver(new AS400JDBCDriver()), 
+              //Since driver is registered twice in DriverManager via DriverManager.registerDriver(new AS400JDBCDriver()),
               //remove extra driver references now so we don't waste resources by continuing to try, and also so we don't lock out id if pwd is not correct.
               Enumeration en = DriverManager.getDrivers();      //@dbldrvr
               Driver firstDriver = null;                        //@dbldrvr
@@ -3333,7 +3333,7 @@ void handleAbort() {
                       if(firstDriver == null)                   //@dbldrvr
                           firstDriver = nextDriver;             //@dbldrvr
                       else                                      //@dbldrvr
-                          DriverManager.deregisterDriver(nextDriver); //@dbldrvr  
+                          DriverManager.deregisterDriver(nextDriver); //@dbldrvr
                   }                                             //@dbldrvr
               }                                                 //@dbldrvr
           }                                                     //@dbldrvr
@@ -3367,7 +3367,7 @@ void handleAbort() {
             else                                                                                                            //@mdsp
                 properties_.setString(JDProperties.METADATA_SOURCE, JDProperties.METADATA_SOURCE_STORED_PROCEDURE);         //@mdsp
         }                                                                                                                   //@mdsp
-            
+
         //@P0D requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         if(!TESTING_THREAD_SAFETY && as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
@@ -3377,15 +3377,15 @@ void handleAbort() {
         else                                                                         //@KBA
             newAutoCommitSupport_ = 2;                                               //@KBA         //run autocommit with specified isolation level
 
-        
+
         if (as400_.getVRM() >= JDUtilities.vrm710) {
         	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);  //@A2A
         }
-        
+
         maximumBlockedInputRows_ = properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);       // @A6A
         if ( maximumBlockedInputRows_ > 32000 ) maximumBlockedInputRows_ = 32000;                     // @A6A
         if ( maximumBlockedInputRows_ < 1 ) maximumBlockedInputRows_ = 1;                             // @A6A
-        	
+
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
@@ -3414,17 +3414,17 @@ void handleAbort() {
         transactionManager_ = new JDTransactionManager (this, id_,
                                                         properties_.getString (JDProperties.TRANSACTION_ISOLATION),
                                                         properties_.getBoolean (JDProperties.AUTO_COMMIT));  //@AC1
-        
+
         transactionManager_.setHoldIndicator(properties_.getString(JDProperties.CURSOR_HOLD));       // @D9
-        
+
         // If the hold properties are specified, make sure they are set locally
-        if (properties_.getString(JDProperties.CURSOR_HOLD) != null) { 
+        if (properties_.getString(JDProperties.CURSOR_HOLD) != null) {
           if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_TRUE)
             holdability_ = AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
           else if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE)
             holdability_ = AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
         }
-        
+
         // Initialize the read-only mode to true if the access
         // property says read only.
         readOnly_ = (properties_.equals (JDProperties.ACCESS,
@@ -3441,14 +3441,14 @@ void handleAbort() {
         // a JDBC property.                                                                                     //@k2A
         qaqqiniLibrary_ = properties_.getString(JDProperties.QAQQINILIB);                                       //@K2A
 
-        
+
         String queryTimeoutMechanismString = properties_.getString(JDProperties.QUERY_TIMEOUT_MECHANISM);
         if (queryTimeoutMechanismString != null) {
           queryTimeoutMechanismString = queryTimeoutMechanismString.trim().toLowerCase();
           if (queryTimeoutMechanismString.equals(JDProperties.QUERY_TIMEOUT_MECHANISM_CANCEL)) {
-            queryTimeoutMechanism_ = QUERY_TIMEOUT_CANCEL; 
+            queryTimeoutMechanism_ = QUERY_TIMEOUT_CANCEL;
           } else {
-            queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT; 
+            queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT;
           }
         }
         //@A3D
@@ -3456,7 +3456,7 @@ void handleAbort() {
         //open ();
 
         //@A3A
-        // Connect.        
+        // Connect.
         if (JDTrace.isTraceOn())                                                      // @F6a
         {                                                                             // @F6a
             JDTrace.logInformation("Toolbox for Java - " + Copyright.version);        // @F6a
@@ -3599,7 +3599,7 @@ void handleAbort() {
                 }
             }
 
-            boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);  //@540                                                        
+            boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);  //@540
             //@540 Database Host Server Trace is supported on V5R3 and later systems
             boolean traceDatabaseHostServer = ((getVRM() >= JDUtilities.vrm530) && ((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)); //@540
             // Optionally start trace on the database server job or database host server
@@ -3623,7 +3623,7 @@ void handleAbort() {
                                                ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +      //@540
                                                "TRCTYPE((TESTA *INFO))", SQLNaming);                  //@540
                             }
-                            else{   //@540 run command for V5R4 and higher                                    
+                            else{   //@540 run command for V5R4 and higher
                                 JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                 //@540
                                                serverJobIdentifier.substring(20) +                     //@540
                                                ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +       //@540
@@ -3682,11 +3682,11 @@ void handleAbort() {
     specified "read only" or "read call" for the "access" property,
     then the read-only mode cannot be set to false.  The read-only
     mode cannot be changed while in the middle of a transaction.
-    
+
     <p>This method can not be called when the connection is part
     of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
     AS400JDBCXAResource</a> for more information.
-    
+
     @exception          SQLException    If the connection is not open,
                                         a transaction is active, or the
                                         "access" property is set to "read
@@ -3719,7 +3719,7 @@ void handleAbort() {
      * Creates an unnamed savepoint in the current transaction and returns the new Savepoint object that represents it.
      * <UL>
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
-     * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.                                                                              
+     * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
      * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
@@ -3731,16 +3731,16 @@ void handleAbort() {
     **/
     public Savepoint setSavepoint()
     throws SQLException
-    {      
+    {
         return setSavepoint(null, AS400JDBCSavepoint.getNextId());
-    }  
+    }
 
     // @E10 new method
     /**
      * Creates a named savepoint in the current transaction and returns the new Savepoint object that represents it.
      * <UL>
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
-     * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.   
+     * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
      * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
@@ -3752,12 +3752,12 @@ void handleAbort() {
     **/
     public Savepoint setSavepoint(String name)
     throws SQLException
-    {                           
+    {
         if (name == null)
             throw new NullPointerException("name");
 
         return setSavepoint(name, 0);
-    }  
+    }
 
     // @E10 new method
     private Savepoint setSavepoint(String name, int id)
@@ -3768,9 +3768,9 @@ void handleAbort() {
 
         // When creating the savepoint specify retain cursors.  That is the
         // only option supported by the IBM i system at this time.  We have to specify
-        // it because the SQL default is close cursors.  Since we need to use 
+        // it because the SQL default is close cursors.  Since we need to use
         // an option other than the default we have to specify it on the statement.
-        // Plus, the system will return an error if we don't specify it.  
+        // Plus, the system will return an error if we don't specify it.
         processSavepointRequest("SAVEPOINT " + name + " ON ROLLBACK RETAIN CURSORS" );
 
         return(Savepoint)(Object) new AS400JDBCSavepoint(name, id);
@@ -3784,9 +3784,9 @@ void handleAbort() {
 
     /**
     Sets the server attributes.
-    
+
     @param      libraryList     The library list.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     private void setServerAttributes ()
@@ -3801,6 +3801,7 @@ void handleAbort() {
             //@P0C
             DBSQLAttributesDS request = null;
             int decimalSeparator, dateFormat, dateSeparator, timeFormat, timeSeparator;
+            int decimalDataErrors;
             DBReplyServerAttributes serverAttributes = null;
             try
             {
@@ -3827,27 +3828,27 @@ void handleAbort() {
                 // @E2D // should always use the server job's CCSID.
 
                 // Set the client CCSID to Unicode.                             // @E2A
-                
-                // @M0C - As of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which   
+
+                // @M0C - As of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which
                 // will cause our statement to flow in 1200 and our package to be 1200
 
                 //Bidi-HCG allow any ccsid or "system" to use ccsid of AS400 object
                 //Bidi-HCG start
-                String sendCCSID = properties_.getString(JDProperties.PACKAGE_CCSID);  
+                String sendCCSID = properties_.getString(JDProperties.PACKAGE_CCSID);
 
-                int sendCCSIDInt; 
+                int sendCCSIDInt;
                 int hostCCSID;
-                if(this.getSystem() == null)  //@pdcbidi 
+                if(this.getSystem() == null)  //@pdcbidi
                     hostCCSID = 37;
                 else
                     hostCCSID = this.getSystem().getCcsid();
-                int default_ccsid = Integer.parseInt(JDProperties.PACKAGE_CCSID_UCS2);  
-                
+                int default_ccsid = Integer.parseInt(JDProperties.PACKAGE_CCSID_UCS2);
+
                 if( sendCCSID.equalsIgnoreCase("system"))
-                	sendCCSIDInt = hostCCSID;                	                 
+                	sendCCSIDInt = hostCCSID;
                 else {
                 	try{
-                		if((sendCCSIDInt = Integer.valueOf(sendCCSID).intValue()) <= 0) 
+                		if((sendCCSIDInt = Integer.valueOf(sendCCSID).intValue()) <= 0)
                 			sendCCSIDInt = default_ccsid;
                 		if(vrm_ < JDUtilities.vrm530 && sendCCSIDInt == 1200)
                 			sendCCSIDInt = default_ccsid;
@@ -3855,14 +3856,14 @@ void handleAbort() {
                 		sendCCSIDInt = default_ccsid;
                 	}
                 }
-                
+
                 packageCCSID_Converter = ConvTable.getTable(sendCCSIDInt, null);
                 properties_.setString(JDProperties.PACKAGE_CCSID, (new Integer(sendCCSIDInt)).toString());
                 request.setClientCCSID(sendCCSIDInt);
                 if(JDTrace.isTraceOn())
-        			JDTrace.logInformation(this, "Client CCSID = " + sendCCSIDInt);                
+        			JDTrace.logInformation(this, "Client CCSID = " + sendCCSIDInt);
                 //Bidi-HCG end
-                
+
                 // This language feature code is used to tell the
                 // system what language to send error messages in.
                 // If that language is not installed on the system,
@@ -3906,7 +3907,7 @@ void handleAbort() {
                     else                                                          //@AC1
                         request.setAutoCommit(0xD5);                              //@AC1
                 }                                                                 //@AC1
-                
+
                 if((newAutoCommitSupport_ == 1) && (properties_.getBoolean(JDProperties.AUTO_COMMIT)))  //@KBA //@AC1 (only set to *NONE if autocommit is on)
                     request.setCommitmentControlLevelParserOption(0);       //@KBA Run under *NONE when in autocommit
                 else                                                        //@KBA Run under default isolation level
@@ -3937,7 +3938,10 @@ void handleAbort() {
 
                 request.setNamingConventionParserOption (properties_.getIndex (JDProperties.NAMING));
 
-                // Do not set the ignore decimal data error parser option.
+                // Set the ignore decimal data error parser option.
+                decimalDataErrors = properties_.getIndex (JDProperties.DECIMAL_DATA_ERRORS);
+                if (decimalDataErrors != -1)
+                    request.setIgnoreDecimalDataErrorParserOption(decimalDataErrors);
 
                 // If the system supports RLE data compression, then use it.               @ECA
                 // Otherwise, use the old-style data compression.                          @ECA
@@ -3988,9 +3992,9 @@ void handleAbort() {
                 {                  // @D0C @E9C
                     // @E9D || (FORCE_EXTENDED_FORMATS_)) {
 
-                    if(vrm_ >= JDUtilities.vrm540)          //@540 use new Super Extended Formats 
-                        request.setUseExtendedFormatsIndicator(0xF2);   //@540 
-                    else                                                //@540 
+                    if(vrm_ >= JDUtilities.vrm540)          //@540 use new Super Extended Formats
+                        request.setUseExtendedFormatsIndicator(0xF2);   //@540
+                    else                                                //@540
                         request.setUseExtendedFormatsIndicator (0xF1);
 
                     // Although we publish a max lob threshold of 16777216,                   @E6A
@@ -4010,8 +4014,8 @@ void handleAbort() {
                 // Set the default select statement type to be read-only (OS/400 v5r1
                 // and earlier the default was updatable).  If the app requests updatable
                 // statements we will now specify "updatable" on the RPB.  Do this
-                // only to V5R1 systems with the needed PTF, and V5R2 and later systems 
-                // because they have the fix needed to support 
+                // only to V5R1 systems with the needed PTF, and V5R2 and later systems
+                // because they have the fix needed to support
                 // altering the cursor type in the RPB.  (AmbiguousSelectOption(1)
                 // means read-only)
                 if (vrm_ >= JDUtilities.vrm520)                              // @J3a
@@ -4068,7 +4072,7 @@ void handleAbort() {
                     int maximumPrecision = properties_.getInt(JDProperties.MAXIMUM_PRECISION);
                     int maximumScale = properties_.getInt(JDProperties.MAXIMUM_SCALE);
                     int minimumDivideScale = properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
-                    
+
                     // make sure that if scale is >31 we set precision to 63
                     // this is a requirement of host server to avoid a PWS0009
                     if(maximumScale > 31)
@@ -4096,7 +4100,7 @@ void handleAbort() {
                     }
 
                     //@KBL - added support for hold/not hold locators
-                    // Specifies whether input locators should be allocated as type hold locators or not hold locators.  
+                    // Specifies whether input locators should be allocated as type hold locators or not hold locators.
                     // If the locators are of type hold, they will not be released when a commit is done.
                     boolean holdLocators = properties_.getBoolean(JDProperties.HOLD_LOCATORS);
                     if(!holdLocators)       // Only need to set it if it is false, by default host server sets them to hold.
@@ -4106,13 +4110,13 @@ void handleAbort() {
                             JDTrace.logInformation(this, "Hold Locators = " + holdLocators);
                     }
 
-                    //@KBL - added support for locator persistance.  The JDBC specification says locators should be 
+                    //@KBL - added support for locator persistance.  The JDBC specification says locators should be
                     // scoped to the transaction (ie. commit, rollback, or connection.close()) if auto commit is off
                     // host server added two options for the optional Locator Persistence ('3830'x') connection attribute:
                     // 0 -- Locators without the hold property are freed when cursor closed (locators scoped to the cursor).
                     // 1 -- Locators without the hold property are freed when the transaction is completed (locators scoped to the transaction).
                     //
-                    // By default this is set to 0 by the host server, but to comply with the JDBC specification, 
+                    // By default this is set to 0 by the host server, but to comply with the JDBC specification,
                     // we should always set it to 1.
                     // Note:  this only applies when auto commit is off.  The property has no effect if auto commit is on.
                     // Locators are always scoped to the cursor when auto-commit is on.
@@ -4122,11 +4126,11 @@ void handleAbort() {
                 //@540
                 if(vrm_ >= JDUtilities.vrm540){
 
-                    //Set the query optimization goal 
+                    //Set the query optimization goal
                     // 0 = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used (default) //@PDC update comment to reflect host server default
                     // 1 = Optimize query for first block of data (*FIRSTIO)
                     // 2 = Optimize query for entire result set (*ALLIO)
-                    int queryOptimizeGoal = properties_.getInt (JDProperties.QUERY_OPTIMIZE_GOAL);    
+                    int queryOptimizeGoal = properties_.getInt (JDProperties.QUERY_OPTIMIZE_GOAL);
                     if(queryOptimizeGoal != 0){      // Only need to send if we are not using the default
                         if(queryOptimizeGoal == 1)
                             request.setQueryOptimizeGoal(0xC6);
@@ -4162,7 +4166,7 @@ void handleAbort() {
                         JDTrace.logInformation (this, "Using original datastreams");
                 }
 
-                // Send an RDB name to the system only if connecting to 
+                // Send an RDB name to the system only if connecting to
                 // v5r2 and newer versions of IBM i
                 if (vrm_ >= JDUtilities.vrm520)                                                                   // @J2a
                 {
@@ -4185,10 +4189,10 @@ void handleAbort() {
                 if (vrm_ >= JDUtilities.vrm610)
                 {
                     //these strings are not mri translated for future diagnostic tools, searching etc on host server
-                    request.setInterfaceType( "JDBC", tempConverter); 
-                    request.setInterfaceName( "IBM Toolbox for Java", tempConverter); 
+                    request.setInterfaceType( "JDBC", tempConverter);
+                    request.setInterfaceName( "IBM Toolbox for Java", tempConverter);
                     request.setInterfaceLevel( AS400JDBCDriver.DRIVER_LEVEL_, tempConverter);
-                    
+
                     //@DFA 550 decfloat rounding mode
                     short roundingMode = 0;                                                               //@DFA
                     String roundingModeStr = properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);  //@DFA
@@ -4206,17 +4210,17 @@ void handleAbort() {
                         roundingMode = 1;                                                          //@DFA
                     else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_DOWN))  //@DFA
                         roundingMode = 5;                                                             //@DFA
-                   
+
                     //only need to send request if not default 0 (half even)
                     if(roundingMode != 0)                                                             //@DFA
                         request.setDecfloatRoundingMode(roundingMode);                                //@DFA
-                    
+
                     //@eof Close on EOF
                     request.setCloseEOF( 0xE8) ;
-                    
+
                 }
 
-                //@710 
+                //@710
                 if (vrm_ >= JDUtilities.vrm710)
                 {
                     int car = properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);        //@cc1
@@ -4224,12 +4228,12 @@ void handleAbort() {
                     {                                                                               //@cc1
                         request.setConcurrentAccessResolution( car );                               //@cc1
                         //Use instance variable to to "current setting".
-                        //This will allow the Connection setting to override DataSource 
+                        //This will allow the Connection setting to override DataSource
                         //setting for future updates to this property from the Connection object.   //@cc1
                         concurrentAccessResolution_ = car;                                          //@cc1
                     }                                                                               //@cc1
                 }
-                
+
                 // Send the request and process the reply.
                 reply = sendAndReceive (request);
 
@@ -4246,10 +4250,10 @@ void handleAbort() {
                 // list, and shows up as a PWS0003.
                 else if ((errorClass == 7) && (returnCode == 304))
                     postWarning (JDError.getSQLWarning (this, id_, errorClass, returnCode));
-                                                                                             
+
                 // -704 is RDB (IASP) does not exist.  We do not go back to the system to get
                 // error info since they are sending an invalid attribute exception when the
-                // IASP is not found.  We can create a better error than that. 
+                // IASP is not found.  We can create a better error than that.
                 else if ((errorClass == 7) && (returnCode == -704))                    // @J2a
                 {                                                                      // @J2a
                     try                                                                // @J2a
@@ -4269,10 +4273,10 @@ void handleAbort() {
             }
             finally
             {
-                if (request != null) { 
-                	request.returnToPool(); request = null; 
+                if (request != null) {
+                	request.returnToPool(); request = null;
                 }
-                // We cannot return the reply to the pool while it is still being used in the serverAttributes structure 
+                // We cannot return the reply to the pool while it is still being used in the serverAttributes structure
                 // if (reply != null) reply.returnToPool();
             }
 
@@ -4283,7 +4287,7 @@ void handleAbort() {
             int serverCCSID = serverAttributes.getServerCCSID();
             //@P0D converter_ = ConverterImplRemote.getConverter (serverCCSID, as400_);
             converter_ = ConvTable.getTable(serverCCSID, null); //@P0A
-   
+
             // Get the server functional level.  It comes back as in the                           @E7A
             // format VxRxMx9999.                                                                  @E7A
             String serverFunctionalLevelAsString = serverAttributes.getServerFunctionalLevel(converter_); // @E7A
@@ -4300,9 +4304,9 @@ void handleAbort() {
             if (serverFunctionalLevel_ >= 5)                                                    // @E8A
                 serverJobIdentifier_ = serverAttributes.getServerJobIdentifier(converter_);     // @E8A
 
-            // User no longer needs to specify "for update" on their SQL 
+            // User no longer needs to specify "for update" on their SQL
             // statements if running to v5r1 with a PTF. (V5R2 and later
-            // is handled in another piece of code)           
+            // is handled in another piece of code)
             if ((vrm_ == JDUtilities.vrm510) &&                     //@J31a
                 ( serverFunctionalLevel_ >= 10))                    //@J31a
                 mustSpecifyForUpdate_ = false;                      //@J31a
@@ -4469,10 +4473,10 @@ void handleAbort() {
         {                      // @J5C
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
-        finally 
+        finally
         {
         	// Don't return the reply to the pool until the very end,
-        	// as it is used by the DBReplyServerAttributes object 
+        	// as it is used by the DBReplyServerAttributes object
             if (reply != null) { reply.returnToPool(); reply = null; }
         }
     }
@@ -4495,11 +4499,11 @@ void handleAbort() {
     Sets the transaction isolation level.  The transaction
     isolation level cannot be changed while in the middle of
     a transaction.
-    
+
     <p>JDBC and DB2 for IBM i use different terminology for transaction
     isolation levels.  The following table provides a terminology
     mapping:
-    
+
     <p><table border>
     <tr><th>IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
     <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
@@ -4507,7 +4511,7 @@ void handleAbort() {
     <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
     <tr><td>*RR</td>  <td>TRANSACTION_SERIALIZABLE</td></tr>
     </table>
-    
+
     @param      level   The transaction isolation level.  Possible
                         values are:
                         <ul>
@@ -4516,7 +4520,7 @@ void handleAbort() {
                            <li>TRANSACTION_REPEATABLE_READ
                         <li>TRANSACTION_SERIALIZABLE
                         </ul>
-    
+
     @exception      SQLException    If the connection is not open,
                                     the input level is not valid
                                     or unsupported, or a transaction
@@ -4539,15 +4543,15 @@ void handleAbort() {
     /**
     Sets the type map to be used for distinct and structured
     types.
-    
+
     <p>Note: Distinct types are supported by DB2 for IBM i, but
     are not externalized by the IBM Toolbox for Java JDBC driver.
     In other words, distinct types behave as if they are the underlying
     type.  Structured types are not supported by DB2 for IBM i.
     Consequently, this driver does not support the type map.
-    
+
     @param typeMap  The type map.
-    
+
     @exception  SQLException    This exception is always thrown.
     **/
     public void setTypeMap (Map typeMap)
@@ -4561,7 +4565,7 @@ void handleAbort() {
     /**
     Returns the connection's catalog name.  This is the
     name of the IBM i system.
-    
+
     @return     The catalog name.
     **/
     public String toString ()
@@ -4573,7 +4577,7 @@ void handleAbort() {
 
     /**
     Indicates if the connection is using extended formats.
-    
+
     @return     true if the connection is using extended formats, false
                 otherwise.
     **/
@@ -4582,8 +4586,8 @@ void handleAbort() {
     {
         return extendedFormats_;
     }
- 
-    
+
+
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
@@ -4594,196 +4598,196 @@ void handleAbort() {
 
     //@PDA jdbc40
   //JDBC40DOC    /**
-  //JDBC40DOC     * Returns true if the connection has not been closed and is still valid.  
-  //JDBC40DOC     * The driver shall submit a query on the connection or use some other 
-  //JDBC40DOC     * mechanism that positively verifies the connection is still valid when 
+  //JDBC40DOC     * Returns true if the connection has not been closed and is still valid.
+  //JDBC40DOC     * The driver shall submit a query on the connection or use some other
+  //JDBC40DOC     * mechanism that positively verifies the connection is still valid when
   //JDBC40DOC     * this method is called.
   //JDBC40DOC     * <p>
-  //JDBC40DOC     * The query submitted by the driver to validate the connection shall be 
+  //JDBC40DOC     * The query submitted by the driver to validate the connection shall be
   //JDBC40DOC     * executed in the context of the current transaction.
-  //JDBC40DOC     * 
-  //JDBC40DOC     * @param timeout -     The time in seconds to wait for the database operation 
-  //JDBC40DOC     *                      used to validate the connection to complete.  If 
-  //JDBC40DOC     *                      the timeout period expires before the operation 
-  //JDBC40DOC     *                      completes, this method returns false.  A value of 
-  //JDBC40DOC     *                      0 indicates a timeout is not applied to the 
-  //JDBC40DOC     *                      database operation. 
+  //JDBC40DOC     *
+  //JDBC40DOC     * @param timeout -     The time in seconds to wait for the database operation
+  //JDBC40DOC     *                      used to validate the connection to complete.  If
+  //JDBC40DOC     *                      the timeout period expires before the operation
+  //JDBC40DOC     *                      completes, this method returns false.  A value of
+  //JDBC40DOC     *                      0 indicates a timeout is not applied to the
+  //JDBC40DOC     *                      database operation.
   //JDBC40DOC     * <p>
   //JDBC40DOC     * @return true if the connection is valid, false otherwise
   //JDBC40DOC     * @exception SQLException if a database access error occurs.
-  //JDBC40DOC */ 
-    /* ifdef JDBC40 
-    public boolean isValid(int timeout) throws SQLException 
-    { 
+  //JDBC40DOC */
+    /* ifdef JDBC40
+    public boolean isValid(int timeout) throws SQLException
+    {
         DBSQLRequestDS request = null;
-        DBReplyRequestedDS reply = null; 
-        int errorClass = 0; 
-        int returnCode = 0; 
+        DBReplyRequestedDS reply = null;
+        int errorClass = 0;
+        int returnCode = 0;
         ReentrantLock lock = new ReentrantLock();
 
-       // Return exception if timeout is less than 0.. @D6A 
+       // Return exception if timeout is less than 0.. @D6A
         if (timeout < 0) {
                JDError.throwSQLException( this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-        } 
+        }
 
-        try 
-        { 
-            // inner class to run timer in sep thread 
-            class CommTimer implements Runnable 
-            {      
-       
+        try
+        {
+            // inner class to run timer in sep thread
+            class CommTimer implements Runnable
+            {
+
                 Thread otherThread;
                 ReentrantLock lock;
                 int timeout;
-                
-                public void run() 
-                { 
-                    try 
-                    { 
+
+                public void run()
+                {
+                    try
+                    {
                         Thread.sleep(timeout * 1000);
                         lock.lockInterruptibly(); //lock, so only one thread can call interrupt
                         otherThread.interrupt();
-                        lock.unlock(); 
-                        
+                        lock.unlock();
+
                     }catch(InterruptedException ie)
-                    { 
+                    {
                         //interrupted from notifyThread because request/reply is done.  just return from run()
                         if (JDTrace.isTraceOn())
                             JDTrace.logInformation (this, "Connection.isValid timer interrupted and stopped");
-                    } 
-                    
+                    }
+
                 }
-                
-                public CommTimer(Thread otherThread, int timeout, ReentrantLock lock ) 
-                { 
+
+                public CommTimer(Thread otherThread, int timeout, ReentrantLock lock )
+                {
                     this.otherThread = otherThread;
                     this.timeout = timeout;
                     this.lock = lock;
-                } 
+                }
             };
 
-            CommTimer timer = null; 
-            Thread t = null; 
+            CommTimer timer = null;
+            Thread t = null;
 
-            // Only use timeout if > 0.  @D6A 
-            if (timeout > 0) { 
+            // Only use timeout if > 0.  @D6A
+            if (timeout > 0) {
               timer = new CommTimer( Thread.currentThread(), timeout, lock); //pass in ref to main thread so timer can interrupt if blocked on IO
               t = new  Thread(timer);
               t.start(); //sleeps for timeout and then interrupts main thread if it is still blocked on IO
             }
-            
+
             try
             {
-                request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_TEST_CONNECTION, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0); 
-                reply = sendAndReceive(request); 
+                request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_TEST_CONNECTION, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+                reply = sendAndReceive(request);
 
                 lock.lockInterruptibly(); //lock, so only one thread can call interrupt
                 if (t != null) t.interrupt(); //stop timer thread @D6C
-                lock.unlock(); 
-                errorClass = reply.getErrorClass(); 
+                lock.unlock();
+                errorClass = reply.getErrorClass();
                 returnCode = reply.getReturnCode();
-             
+
             } catch(Exception ex) {
-             try { 
+             try {
                 // Make sure timeout thread is stopped @D6A
                 lock.lockInterruptibly(); //lock, so only one thread can call interrupt
                 if (t != null) t.interrupt(); //stop timer thread
-                lock.unlock(); 
+                lock.unlock();
              } catch (Exception ex2) {
-             }    
+             }
                 //interruptedException is wrapped in sqlException
                 //if exception occurs, just return false since connection is not valid
                 //this happens if timer ends before sendAndReceive returns
                 if (JDTrace.isTraceOn())
                     JDTrace.logInformation (this, "Connection.isValid timed out or could not verify valid connection");
                 return false;
-            } 
-            
-            if(errorClass == 7 && returnCode == -201) 
-                return true; 
+            }
+
+            if(errorClass == 7 && returnCode == -201)
+                return true;
             else
-                return false; 
-            
+                return false;
+
         }
-        catch(Exception e) 
-        { 
+        catch(Exception e)
+        {
             //implmentation note:  if any exception happens, just return false, since conn is not valid
-            return false;  
-        } 
+            return false;
+        }
         finally
-        { 
+        {
             if (request != null) {
-                   request.returnToPool(); request = null; 
-            } 
+                   request.returnToPool(); request = null;
+            }
             if (reply != null) {
-                   reply.returnToPool();  reply = null;   // commented out code 
+                   reply.returnToPool();  reply = null;   // commented out code
             }
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Connection.isValid call complete");
-        } 
-         
+        }
+
     }
-       
-    endif */ 
+
+    endif */
 
 
 
     //@PDA 550 client info
     /**
-     * Sets the value of the client info property specified by name to the 
-     * value specified by value.  
+     * Sets the value of the client info property specified by name to the
+     * value specified by value.
      * <p>
-     * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code> 
-     * method to determine the client info properties supported by the driver 
+     * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
+     * method to determine the client info properties supported by the driver
      * and the maximum length that may be specified for each property.
      * <p>
-     * The driver stores the value specified in a suitable location in the 
-     * database.  For example in a special register, session parameter, or 
-     * system table column.  For efficiency the driver may defer setting the 
-     * value in the database until the next time a statement is executed or 
-     * prepared.  Other than storing the client information in the appropriate 
-     * place in the database, these methods shall not alter the behavior of 
-     * the connection in anyway.  The values supplied to these methods are 
+     * The driver stores the value specified in a suitable location in the
+     * database.  For example in a special register, session parameter, or
+     * system table column.  For efficiency the driver may defer setting the
+     * value in the database until the next time a statement is executed or
+     * prepared.  Other than storing the client information in the appropriate
+     * place in the database, these methods shall not alter the behavior of
+     * the connection in anyway.  The values supplied to these methods are
      * used for accounting, diagnostics and debugging purposes only.
      * <p>
-     * The driver shall generate a warning if the client info name specified 
+     * The driver shall generate a warning if the client info name specified
      * is not recognized by the driver.
      * <p>
-     * If the value specified to this method is greater than the maximum 
-     * length for the property the driver may either truncate the value and 
-     * generate a warning or generate a <code>SQLException</code>.  If the driver 
-     * generates a <code>SQLException</code>, the value specified was not set on the 
+     * If the value specified to this method is greater than the maximum
+     * length for the property the driver may either truncate the value and
+     * generate a warning or generate a <code>SQLException</code>.  If the driver
+     * generates a <code>SQLException</code>, the value specified was not set on the
      * connection.
      * <p>
-     * The following client info properties are supported in Toobox for Java.  
+     * The following client info properties are supported in Toobox for Java.
      * <p>
      * <ul>
-     * <li>ApplicationName  -   The name of the application currently utilizing 
+     * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
-     * <li>ClientUser       -   The name of the user that the application using 
-     *                          the connection is performing work for.  This may 
-     *                          not be the same as the user name that was used 
+     * <li>ClientUser       -   The name of the user that the application using
+     *                          the connection is performing work for.  This may
+     *                          not be the same as the user name that was used
      *                          in establishing the connection.</li>
-     * <li>ClientHostname   -   The hostname of the computer the application 
+     * <li>ClientHostname   -   The hostname of the computer the application
      *                          using the connection is running on.</li>
      * <li>ClientAccounting -   Client accounting information.</li>
      * <li>ClientProgramID  -   The client program identification.</li>
      * </ul>
      * <p>
-     * @param name      The name of the client info property to set 
-     * @param value     The value to set the client info property to.  If the 
+     * @param name      The name of the client info property to set
+     * @param value     The value to set the client info property to.  If the
      *                  value is null, the current value of the specified
      *                  property is cleared.
      * <p>
-     * @throws  SQLClientInfoException if the database returns an error while 
+     * @throws  SQLClientInfoException if the database returns an error while
      *          setting the client info value on the database server.
      * <p>
      */
-    public void setClientInfo(String name, String value) 
-/* ifdef JDBC40     
+    public void setClientInfo(String name, String value)
+/* ifdef JDBC40
     throws SQLClientInfoException
-endif */ 
-    /* ifndef JDBC40 */ 
+endif */
+    /* ifndef JDBC40 */
     throws SQLException
     /* endif  */
     {
@@ -4793,11 +4797,11 @@ endif */
         ConvTable tempConverter = null;
 
         String oldValue = null;  //save in case we get error from host db
-        
+
         // in order to reset if null value is passed in, use empty string
         if (value == null)
             value = "";
-        
+
         try
         {
             if (getVRM() >= JDUtilities.vrm610)
@@ -4852,10 +4856,10 @@ endif */
             {
             	setClientInfoReply = sendAndReceive(request);
                 int errorClass = setClientInfoReply.getErrorClass();
-                //throw SQLException  
-                if (errorClass != 0)     
+                //throw SQLException
+                if (errorClass != 0)
                     JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
-                
+
             }
         } catch (Exception e)
         {
@@ -4870,24 +4874,24 @@ endif */
                 clientHostname_ = oldValue;
             else if (name.equals(clientProgramIDPropertyName_)) //@pda
                 clientProgramID_ = oldValue;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 
             //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
             HashMap m = new HashMap();
             m.put(name, ClientInfoStatus.REASON_UNKNOWN);
             JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m );
 
-endif */ 
-/* ifndef JDBC40 */ 
+endif */
+/* ifndef JDBC40 */
             JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
-/* endif */ 
+/* endif */
         } finally
         {
             if (request != null) {
-                request.returnToPool(); request = null; 
+                request.returnToPool(); request = null;
             }
             if (setClientInfoReply != null) {
-            	setClientInfoReply.returnToPool(); setClientInfoReply = null; // only error class used 
+            	setClientInfoReply.returnToPool(); setClientInfoReply = null; // only error class used
             }
         }
     }
@@ -4912,23 +4916,23 @@ endif */
      * properties to be set atomically. For those databases, one or more
      * properties may have been set before the error occurred.
      * <p>
-     * 
-     * The following client info properties are supported in Toobox for Java.  
+     *
+     * The following client info properties are supported in Toobox for Java.
      * <p>
      * <ul>
-     * <li>ApplicationName  -   The name of the application currently utilizing 
+     * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
-     * <li>ClientUser       -   The name of the user that the application using 
-     *                          the connection is performing work for.  This may 
-     *                          not be the same as the user name that was used 
+     * <li>ClientUser       -   The name of the user that the application using
+     *                          the connection is performing work for.  This may
+     *                          not be the same as the user name that was used
      *                          in establishing the connection.</li>
-     * <li>ClientHostname   -   The hostname of the computer the application 
+     * <li>ClientHostname   -   The hostname of the computer the application
      *                          using the connection is running on.</li>
      * <li>ClientAccounting -   Client accounting information.</li>
      * <li>ClientProgramID  -   The client program identification.</li>
      * </ul>
      * <p>
-     * 
+     *
      * @param properties
      *            the list of client info properties to set
      *            <p>
@@ -4937,22 +4941,22 @@ endif */
      *             clientInfo values on the database
      *             <p>
      */
-    public void setClientInfo(Properties properties) 
-    /* ifdef JDBC40 
+    public void setClientInfo(Properties properties)
+    /* ifdef JDBC40
     throws SQLClientInfoException
-    endif */ 
-    /* ifndef JDBC40 */ 
+    endif */
+    /* ifndef JDBC40 */
     throws SQLException
-    /* endif */ 
+    /* endif */
     {
         String newApplicationName = properties.getProperty(applicationNamePropertyName_);
         String newClientHostname = properties.getProperty(clientHostnamePropertyName_);
         String newClientUser = properties.getProperty(clientUserPropertyName_);
         String newClientAccounting = properties.getProperty(clientAccountingPropertyName_);
         String newClientProgramID = properties.getProperty(clientProgramIDPropertyName_); //@pda
-        
+
         //In order to reset if null value is passed in, use empty string
-        //per javadoc, clear its value if not specified in properties 
+        //per javadoc, clear its value if not specified in properties
         if (newApplicationName == null)
             newApplicationName = "";
         if (newClientHostname == null)
@@ -4963,7 +4967,7 @@ endif */
             newClientAccounting = "";
         if (newClientProgramID == null)  //@PDA
             newClientProgramID = "";
-        
+
         DBSQLAttributesDS request = null;
         DBReplyRequestedDS setClientInfoReply = null;
         ConvTable tempConverter = null;
@@ -4973,33 +4977,33 @@ endif */
             {
                 request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
                 tempConverter = ConvTable.getTable(as400_.getCcsid(), null);
-                
+
                 request.setClientInfoApplicationName(newApplicationName, tempConverter);
-                
+
                 request.setClientInfoClientUser(newClientUser, tempConverter);
-                
+
                 request.setClientInfoClientAccounting(newClientAccounting, tempConverter);
-                
+
                 request.setClientInfoClientHostname(newClientHostname, tempConverter);
-                
+
                 request.setClientInfoProgramID(newClientProgramID, tempConverter); //@pda
-                
+
                 setClientInfoReply = sendAndReceive(request);
                 int errorClass = setClientInfoReply.getErrorClass();
                 if (errorClass != 0)
                     JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
             }
-            
+
             //update local values after request/reply in case of exception
             applicationName_ = newApplicationName;
             clientHostname_ = newClientHostname;
             clientUser_ = newClientUser;
             clientAccounting_ = newClientAccounting;
             clientProgramID_ = newClientProgramID;
-            
+
         } catch( Exception e)
         {
-/* ifdef JDBC40 
+/* ifdef JDBC40
             //create Map<String,ClientInfoStatus> for exception constructor
             //@PDD jdbc40 merge HashMap<String,ClientInfoStatus> m = new HashMap<String,ClientInfoStatus>();
             HashMap m = new HashMap();
@@ -5011,44 +5015,44 @@ endif */
             }
             JDError.throwSQLClientInfoException( this, JDError.EXC_INTERNAL, e, m);
 
-endif */ 
-/* ifndef JDBC40 */         
+endif */
+/* ifndef JDBC40 */
         	JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
-/* endif */ 
+/* endif */
         } finally
         {
-            if (request != null) { 
-                request.returnToPool(); request = null; 
+            if (request != null) {
+                request.returnToPool(); request = null;
             }
             if (setClientInfoReply != null)  {
-            	setClientInfoReply.returnToPool(); setClientInfoReply=null; // only error class used  
+            	setClientInfoReply.returnToPool(); setClientInfoReply=null; // only error class used
             }
         }
-        
+
     }
 
     //@PDA 550 client info
     /**
-     * Returns the value of the client info property specified by name.  This 
-     * method may return null if the specified client info property has not 
-     * been set and does not have a default value.  This method will also 
-     * return null if the specified client info property name is not supported 
+     * Returns the value of the client info property specified by name.  This
+     * method may return null if the specified client info property has not
+     * been set and does not have a default value.  This method will also
+     * return null if the specified client info property name is not supported
      * by the driver.
      * <p>
      * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
      * method to determine the client info properties supported by the driver.
      * <p>
-     * 
-     * The following client info properties are supported in Toobox for Java.  
+     *
+     * The following client info properties are supported in Toobox for Java.
      * <p>
      * <ul>
-     * <li>ApplicationName  -   The name of the application currently utilizing 
+     * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
-     * <li>ClientUser       -   The name of the user that the application using 
-     *                          the connection is performing work for.  This may 
-     *                          not be the same as the user name that was used 
+     * <li>ClientUser       -   The name of the user that the application using
+     *                          the connection is performing work for.  This may
+     *                          not be the same as the user name that was used
      *                          in establishing the connection.</li>
-     * <li>ClientHostname   -   The hostname of the computer the application 
+     * <li>ClientHostname   -   The hostname of the computer the application
      *                          using the connection is running on.</li>
      * <li>ClientAccounting -   Client accounting information.</li>
      * <li>ClientProgramID  -   The client program identification.</li>
@@ -5058,7 +5062,7 @@ endif */
      * <p>
      * @return          The value of the client info property specified
      * <p>
-     * @throws SQLException     if the database returns an error when 
+     * @throws SQLException     if the database returns an error when
      *                          fetching the client info value from the database.
      * <p>
      * see java.sql.DatabaseMetaData#getClientInfoProperties
@@ -5086,31 +5090,31 @@ endif */
 
     //@PDA 550 client info
     /**
-     * Returns a list containing the name and current value of each client info 
-     * property supported by the driver.  The value of a client info property 
-     * may be null if the property has not been set and does not have a 
+     * Returns a list containing the name and current value of each client info
+     * property supported by the driver.  The value of a client info property
+     * may be null if the property has not been set and does not have a
      * default value.
      * <p>
-     * 
-     * The following client info properties are supported in Toobox for Java.  
+     *
+     * The following client info properties are supported in Toobox for Java.
      * <p>
      * <ul>
-     * <li>ApplicationName  -   The name of the application currently utilizing 
+     * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
-     * <li>ClientUser       -   The name of the user that the application using 
-     *                          the connection is performing work for.  This may 
-     *                          not be the same as the user name that was used 
+     * <li>ClientUser       -   The name of the user that the application using
+     *                          the connection is performing work for.  This may
+     *                          not be the same as the user name that was used
      *                          in establishing the connection.</li>
-     * <li>ClientHostname   -   The hostname of the computer the application 
+     * <li>ClientHostname   -   The hostname of the computer the application
      *                          using the connection is running on.</li>
      * <li>ClientAccounting -   Client accounting information.</li>
      * <li>ClientProgramID  -   The client program identification.</li>
      * </ul>
      * <p>
-     * @return  A <code>Properties</code> object that contains the name and current value of 
-     *          each of the client info properties supported by the driver.  
+     * @return  A <code>Properties</code> object that contains the name and current value of
+     *          each of the client info properties supported by the driver.
      * <p>
-     * @throws  SQLException if the database returns an error when 
+     * @throws  SQLException if the database returns an error when
      *          fetching the client info values from the database
      */
     public Properties getClientInfo() throws SQLException
@@ -5123,16 +5127,16 @@ endif */
         props.setProperty(clientProgramIDPropertyName_, clientProgramID_); //@pda
         return props;
     }
- 
- 
- 
- 
-     
+
+
+
+
+
     //@PDA jdbc40
     /**
      * Constructs an object that implements the <code>Clob</code> interface. The object
      * returned initially contains no data.  The <code>setAsciiStream</code>,
-     * <code>setCharacterStream</code> and <code>setString</code> methods of 
+     * <code>setCharacterStream</code> and <code>setString</code> methods of
      * the <code>Clob</code> interface may be used to add data to the <code>Clob</code>.
      * @return An object that implements the <code>Clob</code> interface
      * @throws SQLException if an object that implements the
@@ -5143,7 +5147,7 @@ endif */
     {
         return new AS400JDBCClob("", AS400JDBCClob.MAX_LOB_SIZE);
     }
-    
+
     //@PDA jdbc40
     /**
      * Constructs an object that implements the <code>Blob</code> interface. The object
@@ -5159,7 +5163,7 @@ endif */
     {
         return new AS400JDBCBlob(new byte[0], AS400JDBCBlob.MAX_LOB_SIZE);  //@pdc 0 len array
     }
-  
+
     //@PDA jdbc40
   //JDBC40DOC    /**
   //JDBC40DOC     * Constructs an object that implements the <code>NClob</code> interface. The object
@@ -5171,12 +5175,12 @@ endif */
   //JDBC40DOC     * <code>NClob</code> interface can not be constructed.
   //JDBC40DOC     *
   //JDBC40DOC     */
-     /*ifdef JDBC40 
+     /*ifdef JDBC40
     public NClob createNClob() throws SQLException
     {
         return new AS400JDBCNClob("", AS400JDBCNClob.MAX_LOB_SIZE);
     }
-endif */ 
+endif */
 
     //@PDA jdbc40
   //JDBC40DOC    /**
@@ -5188,13 +5192,13 @@ endif */
   //JDBC40DOC     * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
   //JDBC40DOC     * be constructed
   //JDBC40DOC     */
-     /*ifdef JDBC40 
+     /*ifdef JDBC40
     public SQLXML createSQLXML() throws SQLException
     {
-        return new AS400JDBCSQLXML(AS400JDBCSQLXML.MAX_XML_SIZE); 
+        return new AS400JDBCSQLXML(AS400JDBCSQLXML.MAX_XML_SIZE);
     }
-    endif */ 
-    
+    endif */
+
     //@PDA //@array
     /**
      * Factory method for creating Array objects.
@@ -5203,7 +5207,7 @@ endif */
      * database-specific name which may be the name of a built-in type, a user-defined type or a standard  SQL type supported by this database. This
      *  is the value returned by <code>Array.getBaseTypeName</code>
      *  For Toolbox, the typeName will correspond to a typename in java.sql.Types.
-     *  
+     *
      * @param elements the elements that populate the returned object
      * @return an Array object whose elements map to the specified SQL type
      * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
@@ -5211,7 +5215,7 @@ endif */
      */
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException
     {
-        //@array            
+        //@array
         return new AS400JDBCArray(typeName, elements, this.vrm_, this);
     }
 
@@ -5219,7 +5223,7 @@ endif */
     /**
      * Factory method for creating Struct objects.
      *
-     * @param typeName the SQL type name of the SQL structured type that this <code>Struct</code> 
+     * @param typeName the SQL type name of the SQL structured type that this <code>Struct</code>
      * object maps to. The typeName is the name of  a user-defined type that
      * has been defined for this database. It is the value returned by
      * <code>Struct.getSQLTypeName</code>.
@@ -5229,16 +5233,16 @@ endif */
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
      */
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException
-    {   
+    {
         JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
     }
-    
+
 
     //@2KRA
     /**
      * Starts or stops the Database Host Server trace for this connection.
-     * Note:  This method is only supported when running to IBM i V5R3 or later 
+     * Note:  This method is only supported when running to IBM i V5R3 or later
      * and is ignored if you specified to turn on database host server tracing
      * using the 'server trace' connection property.
      * @param trace true to start database host server tracing, false to end it.
@@ -5248,9 +5252,9 @@ endif */
             if(getVRM() >= JDUtilities.vrm530){
                 // See if tracing was specified by server trace property
                 // Server Job Trace
-                boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);  
+                boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);
                 // Database Host Server Trace
-                boolean traceDatabaseHostServer = (((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)); 
+                boolean traceDatabaseHostServer = (((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0));
                 String serverJobIdentifier = getServerJobIdentifier();
                 boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
 
@@ -5259,20 +5263,20 @@ endif */
                     {
                         try{
                             if(getVRM() == JDUtilities.vrm530){  // run command for V5R3
-                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                
-                                                       serverJobIdentifier.substring(20) +                    
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +
+                                                       serverJobIdentifier.substring(20) +
                                                        ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +
-                                                       "TRCTYPE((TESTA *INFO))", SQLNaming);                 
+                                                       "TRCTYPE((TESTA *INFO))", SQLNaming);
                             }
-                            else{   // run command for V5R4 and higher                                    
-                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                 
-                                                       serverJobIdentifier.substring(20) +                     
-                                                       ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +       
+                            else{   // run command for V5R4 and higher
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +
+                                                       serverJobIdentifier.substring(20) +
+                                                       ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +
                                                        "TRCTYPE((*DBHSVR *INFO))", SQLNaming);
                             }
                             databaseHostServerTrace_ = true;
                         }catch(Exception e){
-                            JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start database host server tracing failed, could not trace server job");    
+                            JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start database host server tracing failed, could not trace server job");
                         }
                     }
                     else // user requested tracing be turned off
@@ -5307,12 +5311,12 @@ endif */
 
     //@A2A
 	public boolean doUpdateDeleteBlocking() {
-		return doUpdateDeleteBlocking_; 
+		return doUpdateDeleteBlocking_;
 	}
 
-	// @A6A 
-	public int getMaximumBlockedInputRows() { 
-		return maximumBlockedInputRows_; 
+	// @A6A
+	public int getMaximumBlockedInputRows() {
+		return maximumBlockedInputRows_;
 	}
 
   //JDBC40DOC    /**
@@ -5321,157 +5325,157 @@ endif */
   //JDBC40DOC     * <li> The connection marked as closed
   //JDBC40DOC     * <li>   Closes any physical connection to the database
   //JDBC40DOC     * <li>   Releases resources used by the connection
-  //JDBC40DOC     * <li>   Insures that any thread that is currently accessing the connection will 
-  //JDBC40DOC     *      	either progress to completion or throw an SQLException. 
+  //JDBC40DOC     * <li>   Insures that any thread that is currently accessing the connection will
+  //JDBC40DOC     *      	either progress to completion or throw an SQLException.
   //JDBC40DOC     * </ul>
   //JDBC40DOC     * <p>
-  //JDBC40DOC     * Calling abort marks the connection closed and releases any resources. 
+  //JDBC40DOC     * Calling abort marks the connection closed and releases any resources.
   //JDBC40DOC     * Calling abort on a closed connection is a no-op.
-  //JDBC40DOC     * <p>It is possible that the aborting and releasing of the resources that are 
-  //JDBC40DOC     * 	held by the connection can take an extended period of time. 
-  //JDBC40DOC     * 	When the abort method returns, the connection will have been marked as closed 
-  //JDBC40DOC     * 	and the Executor that was passed as a parameter to abort may still be executing 
+  //JDBC40DOC     * <p>It is possible that the aborting and releasing of the resources that are
+  //JDBC40DOC     * 	held by the connection can take an extended period of time.
+  //JDBC40DOC     * 	When the abort method returns, the connection will have been marked as closed
+  //JDBC40DOC     * 	and the Executor that was passed as a parameter to abort may still be executing
   //JDBC40DOC     * 	tasks to release resources.
   //JDBC40DOC     * <p>
-  //JDBC40DOC     * This method checks to see that there is an SQLPermission object before 
-  //JDBC40DOC     * 	allowing the method to proceed. If a SecurityManager exists and its 
-  //JDBC40DOC     * 	checkPermission method denies calling abort, this method throws a 
+  //JDBC40DOC     * This method checks to see that there is an SQLPermission object before
+  //JDBC40DOC     * 	allowing the method to proceed. If a SecurityManager exists and its
+  //JDBC40DOC     * 	checkPermission method denies calling abort, this method throws a
   //JDBC40DOC     * 	java.lang.SecurityException.
   //JDBC40DOC    	* @param executor The Executor implementation which will be used by abort.
   //JDBC40DOC      * @throws  SQLException - if a database access error occurs or the executor is null
-  //JDBC40DOC      * @throws  SecurityException - if a security manager exists and its checkPermission 
+  //JDBC40DOC      * @throws  SecurityException - if a security manager exists and its checkPermission
   //JDBC40DOC      *	method denies calling abort
   //JDBC40DOC     */
-/* ifdef JDBC40 
+/* ifdef JDBC40
   public void abort(Executor executor) throws SQLException {
 
     // Check for null executor
     if (executor == null) {
-         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
-    } 
-    
-    // Check for authority 
+         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);
+    }
+
+    // Check for authority
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
-         SQLPermission sqlPermission = new SQLPermission("callAbort"); 
+         SQLPermission sqlPermission = new SQLPermission("callAbort");
          security.checkPermission(sqlPermission);
-    }    
-    
-    // Calling on a close connection is a no-op 
+    }
+
+    // Calling on a close connection is a no-op
       if (aborted_ || (server_ == null))  {
-         return; 
+         return;
       }
-    
-    // 
-    // Mark the connection as aborted.  Any call to closed will see that it is closed. 
+
     //
-    aborted_ = true; 
-    
+    // Mark the connection as aborted.  Any call to closed will see that it is closed.
+    //
+    aborted_ = true;
+
     //
     // Prepare and start the executor to clean everything up.
     //
-    Runnable runnable = new AS400JDBCConnectionAbortRunnable(this); 
-    
-    executor.execute(runnable);   
+    Runnable runnable = new AS400JDBCConnectionAbortRunnable(this);
+
+    executor.execute(runnable);
   }
 endif */
-	
+
 
 
   /**
    * Retrieves this <code>Connection</code> object's current schema name.
    * @return  the current schema name or null if there is none
    * @throws  SQLException if a database access error occurs or this method is called on a closed connection
-   */    
+   */
   public String getSchema() throws SQLException {
-    
-    
-    Statement s = createStatement(); 
-    String query; 
+
+
+    Statement s = createStatement();
+    String query;
     boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
-    if (SQLNaming) { 
+    if (SQLNaming) {
        query = "SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1";
     } else {
       query = "SELECT CURRENT SCHEMA FROM SYSIBM/SYSDUMMY1";
     }
-    
-    ResultSet rs = s.executeQuery(query); 
+
+    ResultSet rs = s.executeQuery(query);
     rs.next();
     String schema = rs.getString(1);
     rs.close();
     s.close();
-    return schema; 
+    return schema;
   }
 
    /**
-    * Sets the maximum period a Connection or objects created from the Connection will wait for the database to 
-    * reply to any one request. If any request remains unanswered, the waiting method will return with a 
-    * SQLException, and the Connection or objects created from the Connection will be marked as closed. 
-    * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods, 
-    * will result in a SQLException. 
-    * 
+    * Sets the maximum period a Connection or objects created from the Connection will wait for the database to
+    * reply to any one request. If any request remains unanswered, the waiting method will return with a
+    * SQLException, and the Connection or objects created from the Connection will be marked as closed.
+    * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods,
+    * will result in a SQLException.
+    *
     *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket.
-    *<p>Currently, setting the network timeout is only supported when the "thread used" property is false.  
-    *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks 
-    * the connection closed and releases any resources held by the connection. 
-    *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed. 
-    * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method 
+    *<p>Currently, setting the network timeout is only supported when the "thread used" property is false.
+    *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks
+    * the connection closed and releases any resources held by the connection.
+    *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed.
+    * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method
     * throws a java.lang.SecurityException.
-    *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the 
-    * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second. 
-    * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of 
+    *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the
+    * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second.
+    * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of
     * 0 indicates that there is not timeout for database operations.
-   * @throws SQLException 
-    * @throws  SQLException - if a database access error occurs, this method is called on a closed connection, 
+   * @throws SQLException
+    * @throws  SQLException - if a database access error occurs, this method is called on a closed connection,
     *  or the value specified for seconds is less than 0.
-    * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling 
+    * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
     *  setNetworkTimeout.
     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-    * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int), 
+    * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
     *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
-    */ 
-  
+    */
+
    public void setNetworkTimeout(int timeout) throws SQLException {
 
-/* ifdef JDBC40 
+/* ifdef JDBC40
 
      SecurityManager security = System.getSecurityManager();
      if (security != null) {
-          SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout"); 
+          SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout");
           security.checkPermission(sqlPermission);
-     }    
+     }
 endif */
 
-     
+
      // Make sure that the THREAD_USED property is false. The default is true
-     String threadUsedProperty = properties_.getString(JDProperties.THREAD_USED); 
+     String threadUsedProperty = properties_.getString(JDProperties.THREAD_USED);
 
      if (threadUsedProperty == null) {
-         if (timeout > 0 ) { 
-           JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED); 
+         if (timeout > 0 ) {
+           JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED);
          }
      } else {
         if (threadUsedProperty.equalsIgnoreCase("true")) {
-          if (timeout > 0 ) { 
-            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED); 
-          }          
+          if (timeout > 0 ) {
+            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED);
+          }
         }
      }
-     
-     
+
+
      // Make sure value is not negative
-     if (timeout < 0) { 
-       JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+     if (timeout < 0) {
+       JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);
      }
 
-     // Calling on a closed connection is a no-op 
+     // Calling on a closed connection is a no-op
      checkOpen ();
-     
+
      try {
       server_.setSoTimeout(timeout);
     } catch (SocketException e) {
-      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e); 
-    } 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e);
+    }
    }
 
    /**
@@ -5484,119 +5488,119 @@ endif */
     */
   public int getNetworkTimeout() throws SQLException {
     checkOpen ();
-    
+
     try {
       return server_.getSoTimeout();
     } catch (SocketException e) {
-      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e); 
-      return 0; 
-    } 
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, e);
+      return 0;
+    }
   }
 
 //JDBC40DOC    /**
-//JDBC40DOC     * Sets the maximum period a Connection or objects created from the Connection will wait for the database to 
-//JDBC40DOC     * reply to any one request. If any request remains unanswered, the waiting method will return with a 
-//JDBC40DOC     * SQLException, and the Connection or objects created from the Connection will be marked as closed. 
-//JDBC40DOC     * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods, 
-//JDBC40DOC     * will result in a SQLException. 
-//JDBC40DOC     *<p>Note: This method is intended to address a rare but serious condition where network partitions can 
-//JDBC40DOC     * cause threads issuing JDBC calls to hang uninterruptedly in socket reads, until the OS TCP-TIMEOUT 
-//JDBC40DOC     * (typically 10 minutes). This method is related to the abort() method which provides an administrator 
-//JDBC40DOC     * thread a means to free any such threads in cases where the JDBC connection is accessible to the 
-//JDBC40DOC     * administrator thread. The setNetworkTimeout method will cover cases where there is no administrator 
-//JDBC40DOC     * thread, or it has no access to the connection. This method is severe in it's effects, and should be 
-//JDBC40DOC     * given a high enough value so it is never triggered before any more normal timeouts, 
-//JDBC40DOC     * such as transaction timeouts. 
-//JDBC40DOC     * <p>JDBC driver implementations may also choose to support the setNetworkTimeout method to impose 
-//JDBC40DOC     * a limit on database response time, in environments where no network is present. 
-//JDBC40DOC     *<p>Drivers may internally implement some or all of their API calls with multiple internal driver-database 
-//JDBC40DOC     * transmissions, and it is left to the driver implementation to determine whether the limit will be 
-//JDBC40DOC     *  applied always to the response to the API call, or to any single request made during the API call. 
-//JDBC40DOC     *<p>This method can be invoked more than once, such as to set a limit for an area of JDBC code, 
-//JDBC40DOC     * and to reset to the default on exit from this area. Invocation of this method has no impact on 
-//JDBC40DOC     * already outstanding requests. 
-//JDBC40DOC     *<p>The Statement.setQueryTimeout() timeout value is independent of the timeout value specified in 
-//JDBC40DOC     * setNetworkTimeout. If the query timeout expires before the network timeout then the statement execution 
-//JDBC40DOC     * will be canceled. If the network is still active the result will be that both the statement and connection 
-//JDBC40DOC     * are still usable. However if the network timeout expires before the query timeout or if the statement timeout 
-//JDBC40DOC     * fails due to network problems, the connection will be marked as closed, any resources held by the connection 
-//JDBC40DOC     * will be released and both the connection and statement will be unusable. 
-//JDBC40DOC     *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks 
-//JDBC40DOC     * the connection closed and releases any resources held by the connection. 
-//JDBC40DOC     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed. 
-//JDBC40DOC     * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method 
+//JDBC40DOC     * Sets the maximum period a Connection or objects created from the Connection will wait for the database to
+//JDBC40DOC     * reply to any one request. If any request remains unanswered, the waiting method will return with a
+//JDBC40DOC     * SQLException, and the Connection or objects created from the Connection will be marked as closed.
+//JDBC40DOC     * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods,
+//JDBC40DOC     * will result in a SQLException.
+//JDBC40DOC     *<p>Note: This method is intended to address a rare but serious condition where network partitions can
+//JDBC40DOC     * cause threads issuing JDBC calls to hang uninterruptedly in socket reads, until the OS TCP-TIMEOUT
+//JDBC40DOC     * (typically 10 minutes). This method is related to the abort() method which provides an administrator
+//JDBC40DOC     * thread a means to free any such threads in cases where the JDBC connection is accessible to the
+//JDBC40DOC     * administrator thread. The setNetworkTimeout method will cover cases where there is no administrator
+//JDBC40DOC     * thread, or it has no access to the connection. This method is severe in it's effects, and should be
+//JDBC40DOC     * given a high enough value so it is never triggered before any more normal timeouts,
+//JDBC40DOC     * such as transaction timeouts.
+//JDBC40DOC     * <p>JDBC driver implementations may also choose to support the setNetworkTimeout method to impose
+//JDBC40DOC     * a limit on database response time, in environments where no network is present.
+//JDBC40DOC     *<p>Drivers may internally implement some or all of their API calls with multiple internal driver-database
+//JDBC40DOC     * transmissions, and it is left to the driver implementation to determine whether the limit will be
+//JDBC40DOC     *  applied always to the response to the API call, or to any single request made during the API call.
+//JDBC40DOC     *<p>This method can be invoked more than once, such as to set a limit for an area of JDBC code,
+//JDBC40DOC     * and to reset to the default on exit from this area. Invocation of this method has no impact on
+//JDBC40DOC     * already outstanding requests.
+//JDBC40DOC     *<p>The Statement.setQueryTimeout() timeout value is independent of the timeout value specified in
+//JDBC40DOC     * setNetworkTimeout. If the query timeout expires before the network timeout then the statement execution
+//JDBC40DOC     * will be canceled. If the network is still active the result will be that both the statement and connection
+//JDBC40DOC     * are still usable. However if the network timeout expires before the query timeout or if the statement timeout
+//JDBC40DOC     * fails due to network problems, the connection will be marked as closed, any resources held by the connection
+//JDBC40DOC     * will be released and both the connection and statement will be unusable.
+//JDBC40DOC     *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks
+//JDBC40DOC     * the connection closed and releases any resources held by the connection.
+//JDBC40DOC     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed.
+//JDBC40DOC     * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method
 //JDBC40DOC     * throws a java.lang.SecurityException.
 //JDBC40DOC     *@param executor - The Executor implementation which will be used by setNetworkTimeout.
-//JDBC40DOC     *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the 
-//JDBC40DOC     * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second. 
-//JDBC40DOC     * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of 
+//JDBC40DOC     *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the
+//JDBC40DOC     * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second.
+//JDBC40DOC     * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of
 //JDBC40DOC     * 0 indicates that there is not timeout for database operations.
-//JDBC40DOC     * @throws  SQLException - if a database access error occurs, this method is called on a closed connection, 
+//JDBC40DOC     * @throws  SQLException - if a database access error occurs, this method is called on a closed connection,
 //JDBC40DOC     *  the executor is null, or the value specified for seconds is less than 0.
-//JDBC40DOC     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling 
+//JDBC40DOC     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
 //JDBC40DOC     *  setNetworkTimeout.
 //JDBC40DOC     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-//JDBC40DOC     * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int), 
+//JDBC40DOC     * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
 //JDBC40DOC     *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
-  
-/* ifdef JDBC40 
+
+/* ifdef JDBC40
   public void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException {
     // TODO JDBC41 Auto-generated method stub
 
      // Make sure value is not negative
-     if (milliseconds < 0) { 
-        JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
+     if (milliseconds < 0) {
+        JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);
      }
 
     // Check for null executor
     if (executor == null) {
-         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID); 
-    } 
+         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);
+    }
 
-    // Check for authority 
+    // Check for authority
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
-         SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout"); 
+         SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout");
          security.checkPermission(sqlPermission);
-    }    
-    
+    }
+
     checkOpen ();
 
-    try { 
-       server_.setSoTimeout(milliseconds); 
-    } catch (java.net.SocketException socketException) { 
-      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, socketException); 
+    try {
+       server_.setSoTimeout(milliseconds);
+    } catch (java.net.SocketException socketException) {
+      JDError.throwSQLException(JDError.EXC_COMMUNICATION_LINK_FAILURE, socketException);
     }
-    
+
   }
 endif */
 
-  /** 
+  /**
    *Sets the given schema name to access.
    *<p>
-   * Calling setSchema has no effect on previously created or prepared Statement objects. 
-   * For the toolbox driver, the DBMS prepare operation takes place immediately when the 
-   * Connection method prepareStatement or prepareCall is invoked. 
+   * Calling setSchema has no effect on previously created or prepared Statement objects.
+   * For the toolbox driver, the DBMS prepare operation takes place immediately when the
+   * Connection method prepareStatement or prepareCall is invoked.
    * For maximum portability, setSchema should be called before a Statement is created or prepared.
    *
    * @param schema The name of the schema to use for the connection
-   * @throws SQLException If a database access error occurs or this method is 
+   * @throws SQLException If a database access error occurs or this method is
    * called on a closed connection
-   * 
+   *
    */
   public void setSchema(String schema) throws SQLException {
     checkOpen ();
-    PreparedStatement ps = prepareStatement("SET CURRENT SCHEMA ? "); 
+    PreparedStatement ps = prepareStatement("SET CURRENT SCHEMA ? ");
     if (schema.length() > 0 && schema.charAt(0) == '"') {
       // If delimited name pass as is
     } else {
       // Name is not delimited, make sure it is upper case
-      schema = schema.toUpperCase(); 
+      schema = schema.toUpperCase();
     }
     ps.setString(1, schema);
-    ps.executeUpdate(); 
-    ps.close(); 
+    ps.executeUpdate();
+    ps.close();
   }
 
   /**
@@ -5604,7 +5608,7 @@ endif */
    * @return true if cancel will be used as the query timeout mechanism
    */
   protected boolean isQueryTimeoutMechanismCancel() {
-    return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL; 
+    return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL;
   }
 
 

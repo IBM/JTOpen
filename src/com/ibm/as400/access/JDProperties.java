@@ -163,10 +163,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              MAXIMUM_BLOCKED_INPUT_ROWS = 83;  //@A6A
     static final int              QUERY_TIMEOUT_MECHANISM    = 84;
     static final int              DESCRIBE_OPTION            = 85;  //@F6A
+    static final int              DECIMAL_DATA_ERRORS        = 86;
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 86;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 87;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -262,6 +263,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String DO_UPDATE_DELETE_BLOCKING_ = "use block update"; // @A2 Property must be visible in package
     static final String MAXIMUM_BLOCKED_INPUT_ROWS_ = "maximum blocked input rows";  // @A6A
     static final String DESCRIBE_OPTION_ = "describe option";   //@F6A
+    static final String DECIMAL_DATA_ERRORS_ = "decimal data errors";
 
     // Common String objects.  Using these will theoretically
     // cut down on the number of String allocations.
@@ -471,6 +473,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         DESCRIBE_OPTION_SYSTEM_NAMES = "system names";  //@F6A
     static final String         DESCRIBE_OPTION_LONG_NAMES = "long names";    //@F6A
     static final String         DESCRIBE_OPTION_LABELS = "labels";        //@F6A
+
+    static final String         DECIMAL_DATA_ERRORS_IGNORE = "ignore";
+    static final String         DECIMAL_DATA_ERRORS_REPORT = "report";
+    static final String         DECIMAL_DATA_ERRORS_IGNORE_NULL = "ignore null";
+    static final String         DECIMAL_DATA_ERRORS_REPORT_NULL = "report null";
 
 
     // Static data.
@@ -1425,6 +1432,21 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
        dpi_[i].choices[1]  = DESCRIBE_OPTION_LONG_NAMES;
        dpi_[i].choices[2]  = DESCRIBE_OPTION_LABELS;
        defaults_[i]        = EMPTY_;
+
+       //@F6A - Added decimal data errors
+       i = DECIMAL_DATA_ERRORS;
+       dpi_[i] = new DriverPropertyInfo(DECIMAL_DATA_ERRORS_, "");
+       dpi_[i].description = "DECIMAL_DATA_ERRORS";
+       dpi_[i].required    = false;
+       dpi_[i].choices     = new String[4];
+       dpi_[i].choices[0]  = DECIMAL_DATA_ERRORS_IGNORE;
+       dpi_[i].choices[1]  = DECIMAL_DATA_ERRORS_REPORT;
+       dpi_[i].choices[2]  = DECIMAL_DATA_ERRORS_IGNORE_NULL;
+       dpi_[i].choices[3]  = DECIMAL_DATA_ERRORS_REPORT_NULL;
+       defaults_[i]        = EMPTY_;
+
+
+
     }
 
 
