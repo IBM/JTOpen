@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400JDBCPreparedStatement.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access.jdbcClient;
 
@@ -51,15 +51,15 @@ import java.util.zip.CRC32;
 /**
  * Main class for the jdbcClient program. This sample client uses JDBC to connect to
  * the specified URL using the specified userid and password.
- * 
- * This program is provided AS/IS and formal support will NOT be provided. 
- * This program should not be used in a production environment. 
- * 
- * Because this program is provided AS/IS, no consideration is made for NLS support. 
- * 
+ *
+ * This program is provided AS/IS and formal support will NOT be provided.
+ * This program should not be used in a production environment.
+ *
+ * Because this program is provided AS/IS, no consideration is made for NLS support.
+ *
  */
 public class Main implements Runnable {
-  
+
   public static String[] knownDrivers = { "com.ibm.as400.access.AS400JDBCDriver",
                                           "com.ibm.jdbc.db2.app.DB2Driver",
                                           "com.ibm.jtopenlite.database.jdbc.JDBCDriver"};
@@ -71,10 +71,10 @@ public class Main implements Runnable {
       "com.ibm.as400.access.jdbcClient.Main executes SQL commands using a JDBC connection.  ",
       "  This program is provided AS IS and formal support will NOT be provided.",
       "  This program should not be used in a production environment.",
-      "", 
-      "Parameters are passed to a CALL procedure by using the following ", 
+      "",
+      "Parameters are passed to a CALL procedure by using the following ",
       "CALL ... -- INPARM [p1]....    Calls the stored procedure with the specified parameters",
-      "", 
+      "",
       "Besides SQL COMMANDS, the following COMMANDS and SUBCOMMANDS are available",
       "",
       "!USAGE                          Displays this information",
@@ -191,7 +191,7 @@ public class Main implements Runnable {
   private PreparedStatement pstmt;
   private String[] savedStringParm_  = new String[256];
   private boolean echoComments_ = false;
-  private String urlArgs_;
+  private String urlArgs_="";
   private boolean debug_ = false;
   private String conLabel_;
   private CallableStatement cstmt_;
@@ -201,7 +201,7 @@ public class Main implements Runnable {
   boolean xml_ = false;
   //
   // Optimization for using a connection pool
-  // 
+  //
   private boolean useConnectionPool_ = false;
   private boolean reuseStatement_ = false;
   private Connection poolConnection = null;
@@ -220,7 +220,7 @@ public class Main implements Runnable {
 
     //
     // Load drivers
-    // 
+    //
     for (int i = 0; i < knownDrivers.length; i++) {
       try {
         Class.forName(knownDrivers[i]);
@@ -230,7 +230,7 @@ public class Main implements Runnable {
         }
       }
     }
-    // 
+    //
     // look for jdk1.4
     //
     String version = System.getProperty("java.version");
@@ -251,19 +251,30 @@ public class Main implements Runnable {
     }
     variables.put("MAIN", this);
 
+    //
+    // Look for debug setting
+    //
+    String debug = System.getProperty("com.ibm.as400.access.jdbcClient.debug");
+    if (debug != null) {
+        debug = debug.toUpperCase();
+        if (debug.equals("TRUE")) {
+          debug_ = true;
+    }
+    }
+
   }
 
   public Main(String url, String userid, String password) throws SQLException {
     initializeDefaults();
     url_ = url;
     userid_ = userid;
-    password_ = password; 
-    try { 
+    password_ = password;
+    try {
        connection_ = DriverManager.getConnection(url_, userid_, password_);
-       variables.put("CON", connection_); 
+       variables.put("CON", connection_);
     } catch (SQLException ex ) {
-      System.out.println("Unable to connect to "+url_+" using "+userid_); 
-      throw ex; 
+      System.out.println("Unable to connect to "+url_+" using "+userid_);
+      throw ex;
     }
 
   }
@@ -300,7 +311,7 @@ public class Main implements Runnable {
         connection_.close();
       }
       connection_ = null;
-      variables.remove("CON"); 
+      variables.remove("CON");
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -355,7 +366,7 @@ public class Main implements Runnable {
   //
   // remove properties from the string so that they are not
   // duplicated.
-  // 
+  //
   public String removeProperty(String url, String newProperties) {
     int equalsIndex = newProperties.indexOf("=");
     while (equalsIndex > 0) {
@@ -409,7 +420,7 @@ public class Main implements Runnable {
         && thisConnectPassword.equals(poolPassword)
         && (connectUrl.equals(poolUrl))) {
       connection_ = poolConnection;
-      variables.put("CON", connection_); 
+      variables.put("CON", connection_);
 
     } else {
       if (poolConnection != null) {
@@ -424,7 +435,7 @@ public class Main implements Runnable {
           + connectUrl;
       connection_ = (Connection) connectionPool.get(key);
       if (connection_ != null) {
-        variables.put("CON", connection_); 
+        variables.put("CON", connection_);
 
         if (debug_)
           System.out.println("Retrieved connection from pool for " + key);
@@ -439,7 +450,7 @@ public class Main implements Runnable {
           connection_ = DriverManager.getConnection(connectUrl,
               thisConnectUserId, thisConnectPassword);
         }
-        variables.put("CON", connection_); 
+        variables.put("CON", connection_);
 
       }
       poolConnection = connection_;
@@ -451,13 +462,13 @@ public class Main implements Runnable {
     return connection_;
   }
 
-  
-  /** 
+
+  /**
    * execute an sql query
-   * @param command -- SQL command to execute 
+   * @param command -- SQL command to execute
    * @throws Exception
    */
-  void executeSqlQuery(String command, PrintStream out1) throws Exception {         
+  void executeSqlQuery(String command, PrintStream out1) throws Exception {
     history.addElement(command);
     if (connection_ != null) {
       if (stmt_ != null && reuseStatement_) {
@@ -465,7 +476,7 @@ public class Main implements Runnable {
       } else {
         if (stmt_ != null) {
           stmt_.close();
-          
+
         }
         if (jdk14_) {
           stmt_ = connection_.createStatement(resultSetType_,
@@ -520,7 +531,7 @@ public class Main implements Runnable {
     }
 }
 
-  public void executeCallCommand(String command, PrintStream out1) throws Exception {        
+  public void executeCallCommand(String command, PrintStream out1) throws Exception {
     history.addElement(command);
     if (connection_ != null) {
       //
@@ -529,7 +540,7 @@ public class Main implements Runnable {
       // A unicode string may be specified using UX'dddd'
       // A byte array may be specified using X'dddd'
       // or GEN_BYTE_ARRAY+'nnnn'
-      // 
+      //
       int parmIndex = command.indexOf("-- INPARM");
       String parms = null;
       if (parmIndex > 0) {
@@ -725,9 +736,9 @@ public class Main implements Runnable {
       out1.println("UNABLE to EXECUTE CALL because not connected");
     }
 }
-  
 
-  public void executeSqlCommand(String command, PrintStream out1) throws Exception  {           
+
+  public void executeSqlCommand(String command, PrintStream out1) throws Exception  {
     //
     // just attempt to execute the statement
     //
@@ -774,7 +785,7 @@ public class Main implements Runnable {
     }
 }
 
-  public void processException(SQLException ex, String command, PrintStream out1) {      
+  public void processException(SQLException ex, String command, PrintStream out1) {
     // A SQLException was generated. Catch it and
     // display the error information. Note that there
     // could be multiple error objects chained
@@ -795,7 +806,7 @@ public class Main implements Runnable {
             ex.printStackTrace();
           int thisCode = ex.getErrorCode();
           if (thisCode == -104) { // TOKEN NOT VALID
-              out1.println("\nToken not valid found.  Use !HELP to see what you can do"); 
+              out1.println("\nToken not valid found.  Use !HELP to see what you can do");
           }
 
           t = ex.getNextException();
@@ -826,10 +837,10 @@ public class Main implements Runnable {
     }
 }
 
-  
+
   /**
    * Execute a top level command. This may be an SQL statement or a command !
-   * 
+   *
    * @param command
    * @param out1
    * @return
@@ -869,7 +880,7 @@ public class Main implements Runnable {
       String upcaseCommand = command.toUpperCase();
       if (upcaseCommand.startsWith("SELECT")
           || upcaseCommand.startsWith("VALUES")) {
-        executeSqlQuery(command,out1); 
+        executeSqlQuery(command,out1);
       } else if (upcaseCommand.startsWith("!ECHO")
           || upcaseCommand.startsWith("--") || upcaseCommand.startsWith("//")
           || upcaseCommand.startsWith("/*")) {
@@ -887,22 +898,22 @@ public class Main implements Runnable {
           || upcaseCommand.equals("EXIT")) {
         returnCode = false;
       } else if (command.length() > 0 && command.startsWith("!")) {
-        command = command.substring(1); 
-        executeCommand(command, out1); 
+        command = command.substring(1);
+        executeCommand(command, out1);
       } else if (upcaseCommand.startsWith("CALL ")) {
-        executeCallCommand(command, out1); 
+        executeCallCommand(command, out1);
       } else {
         //
         // If not a blank line
         //
         if (upcaseCommand.length() != 0) {
-          executeSqlCommand(command, out1); 
+          executeSqlCommand(command, out1);
         }
       }
 
     } catch (SQLException ex) {
 
-      processException(ex, command, out1); 
+      processException(ex, command, out1);
     } catch (Exception e) {
       out1.println("\n*** exception caught *** " + e);
       out1.println("Statement was " + command);
@@ -934,7 +945,7 @@ public class Main implements Runnable {
 
   /**
    * Executes a command that is not an SQL query
-   * 
+   *
    * @param command1
    * @param out1
    * @return
@@ -1380,7 +1391,7 @@ public class Main implements Runnable {
             connection_.close();
           }
           connection_ = null;
-          variables.remove("CON"); 
+          variables.remove("CON");
 
         }
 
@@ -1435,7 +1446,7 @@ public class Main implements Runnable {
           // A unicode string may be specified using UX'dddd'
           // A byte array may be specified using X'dddd'
           // or GEN_BYTE_ARRAY+'nnnn'
-          // 
+          //
           int parmIndex = command1.indexOf("-- INPARM");
           String parms = null;
           if (parmIndex > 0) {
@@ -1830,7 +1841,7 @@ public class Main implements Runnable {
             // Check for toolbox Driver
             DatabaseMetaData dmd = connection_.getMetaData();
             String driverName = dmd.getDriverName();
-            if (driverName.indexOf("Toolbox") >= 0) {
+            if (driverName.indexOf("Toolbox") >= 0 || driverName.indexOf("jtopenlite") >= 0) {
               String jobName = "";
               try {
                 jobName = ReflectionUtil.callMethod_S(connection_,
@@ -2348,7 +2359,7 @@ public class Main implements Runnable {
       // could be multiple error objects chained
       // together
       if (!silent) {
-        processException(ex, command1, out1); 
+        processException(ex, command1, out1);
       }
     } catch (Exception e) {
       out1.println("\n*** exception caught *** " + e);
@@ -2492,7 +2503,7 @@ public class Main implements Runnable {
 
                         //
                         // If the arg refers to a variable try to use it
-                        // 
+                        //
                         Object argObject = variables.get(arg);
                         if (argObject != null) {
                           parameters[p] = argObject;
@@ -2501,13 +2512,13 @@ public class Main implements Runnable {
                           //
                           // Now convert the arg from a string into something
                           // else
-                          // 
+                          //
                           String parameterTypeName = parameterTypes[p]
                               .getName();
                           methodParameters += parameterTypeName + " ";
                           if (arg.equals("null")) {
                             parameters[p] = null;
-                          } else if (parameterTypeName.equals("java.lang.String") || 
+                          } else if (parameterTypeName.equals("java.lang.String") ||
                               parameterTypeName.equals("java.lang.Object") ) {
                             parameters[p] = arg;
                           } else if (parameterTypeName.equals("int")) {
@@ -2763,7 +2774,7 @@ public class Main implements Runnable {
 
                   //
                   // If the arg refers to a variable try to use it
-                  // 
+                  //
                   Object argObject = variables.get(arg);
                   if (argObject != null) {
                     parameters[p] = argObject;
@@ -2771,7 +2782,7 @@ public class Main implements Runnable {
 
                     //
                     // Now convert the arg from a string into something else
-                    // 
+                    //
                     String parameterTypeName = parameterTypes[p].getName();
                     methodParameters += parameterTypeName + " ";
                     if (arg.equals("null")) {
@@ -3243,7 +3254,7 @@ public class Main implements Runnable {
       // column data and displaying
       dispRow(out1, rs, trim, numCols, colType, columnLabel, format);
 
-      // 
+      //
       // Check for warnings.
       //
       SQLWarning warning = rs.getWarnings();
@@ -3959,7 +3970,7 @@ public class Main implements Runnable {
     } catch (Exception e) {
       out1.println("Processing of " + thisParm + " failed");
       e.printStackTrace(out1);
-      throw new SQLException("Unable to set HexString parameter"); 
+      throw new SQLException("Unable to set HexString parameter");
     }
 
     cstmt1.setString(parm, stuff.toString());
@@ -4001,7 +4012,7 @@ public class Main implements Runnable {
     return arrayParameter;
   }
 
-  
+
   void handleSqlarrayParm(PreparedStatement cstmt, String thisParm, int parm,
       PrintStream out) throws SQLException {
     try {
@@ -4053,7 +4064,7 @@ public class Main implements Runnable {
             String[] parameter = new String[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
               String s = (String) parameterVector.get(i);
-              
+
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
@@ -4081,7 +4092,7 @@ public class Main implements Runnable {
             Clob[] parameter = new Clob[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
               String s = (String) parameterVector.get(i);
-              
+
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
@@ -4104,7 +4115,7 @@ public class Main implements Runnable {
                 parameter[i] = new BigDecimal(s);
               }
             }
-            
+
             if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "DECIMAL"));
             } else {
