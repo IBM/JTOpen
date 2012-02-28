@@ -1491,11 +1491,22 @@ void handleAbort() {
     boolean isCursorNameUsed (String cursorName)
     throws SQLException // @EGA
     {
-        Enumeration list = statements_.elements();                                                          // @DAA
+        // Make a clone of the vector, since it will be modified as each statement @FAA
+         Vector statements = (Vector)statements_.clone();
+
+        Enumeration list = statements.elements();                                                          // @DAA
         while (list.hasMoreElements())
         {                                                                     // @DAC
+            try {
             if (((AS400JDBCStatement)list.nextElement()).getCursorName().equalsIgnoreCase(cursorName))      // @DAC
                 return true;
+            } catch (Exception e) {  /*@FAA */
+              // ignore any exceptions
+              if (JDTrace.isTraceOn()) {
+                JDTrace.logException(this, "isCursorNameUsed caught exception", e);
+              }
+
+            }
         }
         return false;
     }
@@ -1566,8 +1577,10 @@ void handleAbort() {
     {
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "Testing to see if cursors should be held.");  //@F3C
-
-        Enumeration list = statements_.elements();                              // @DAA
+        // Make a clone of the vector, since it will be modified as each statement
+        // closes itself. @FAA
+        Vector statements = (Vector)statements_.clone();
+        Enumeration list = statements.elements();                                // @DAA
         while (list.hasMoreElements())                                           // @DAC
         {                                                                       //@KBL
             AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();  //@KBL

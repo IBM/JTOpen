@@ -77,6 +77,7 @@ package com.ibm.as400.access;
 //@F7   20120210  JDBC: Ignore exceptions during race condition
 //@F8   20120210  Improve CADSPool performance
 //@F9   20120213  JDBC:  Decimal data errors property
+//@FA   20120228  JDBC:  Fix java.util.NoSuchElementException: Vector Enumeration thrown by rollback
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
