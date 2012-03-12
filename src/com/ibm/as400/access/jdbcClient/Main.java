@@ -512,13 +512,13 @@ public class Main implements Runnable {
         manualResultSet_ = rs;
         variables.put("RS", manualResultSet_);
         manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs, rsmd,
-            false, manualResultSetNumCols_);
+            false, manualResultSetNumCols_, html_, xml_ );
       } else {
         dispResultSet(out1, rs, false);
         // Display any warnings
         if (warning != null) {
           if (!silent) {
-            dispWarning(out1, warning);
+            dispWarning(out1, warning, hideWarnings_, html_);
           }
         }
         // Close the result set
@@ -626,7 +626,7 @@ public class Main implements Runnable {
       SQLWarning warning = cstmt_.getWarnings();
       if (warning != null) {
         if (!silent) {
-          dispWarning(out1, warning);
+          dispWarning(out1, warning, hideWarnings_, html_);
         }
         if (html_) {
           System.out.println("Statement was " + command);
@@ -706,7 +706,7 @@ public class Main implements Runnable {
             manualResultSet_ = rs;
             variables.put("RS", manualResultSet_);
             manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs,
-                rsmd, false, manualResultSetNumCols_);
+                rsmd, false, manualResultSetNumCols_, html_, xml_);
           } else {
 
             dispResultSet(out1, rs, false);
@@ -776,7 +776,7 @@ public class Main implements Runnable {
       SQLWarning warning = stmt_.getWarnings();
       if (warning != null) {
         if (!silent) {
-          dispWarning(out1, warning);
+          dispWarning(out1, warning, hideWarnings_, html_);
         }
       }
 
@@ -1054,7 +1054,7 @@ public class Main implements Runnable {
             manualResultSet_ = rs;
             variables.put("RS", manualResultSet_);
             manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs, rsmd,
-                false, manualResultSetNumCols_);
+                false, manualResultSetNumCols_, html_, xml_);
           } else {
 
             // Display all columns and rows from the result set
@@ -1063,7 +1063,7 @@ public class Main implements Runnable {
             SQLWarning warning = pstmt.getWarnings();
             if (warning != null) {
               if (!silent) {
-                dispWarning(out1, warning);
+                dispWarning(out1, warning, hideWarnings_, html_);
               }
             }
             // Close the result set
@@ -1091,7 +1091,7 @@ public class Main implements Runnable {
           SQLWarning warning = pstmt.getWarnings();
           if (warning != null) {
             if (!silent) {
-              dispWarning(out1, warning);
+              dispWarning(out1, warning, hideWarnings_, html_);
             }
           }
         } else {
@@ -1113,7 +1113,7 @@ public class Main implements Runnable {
               SQLWarning warning = pstmt.getWarnings();
               if (warning != null) {
                 if (!silent) {
-                  dispWarning(out1, warning);
+                  dispWarning(out1, warning, hideWarnings_, html_);
                 }
               }
 
@@ -1243,7 +1243,7 @@ public class Main implements Runnable {
                 SQLWarning warning = connection_.getWarnings();
                 if (warning != null) {
                   if (!silent) {
-                    dispWarning(out1, warning);
+                    dispWarning(out1, warning, hideWarnings_, html_);
                   }
                 }
 
@@ -1330,7 +1330,7 @@ public class Main implements Runnable {
             SQLWarning warning = connection_.getWarnings();
             if (warning != null) {
               if (!silent) {
-                dispWarning(out1, warning);
+                dispWarning(out1, warning, hideWarnings_, html_);
               }
             }
 
@@ -1348,7 +1348,7 @@ public class Main implements Runnable {
             SQLWarning warning = connection_.getWarnings();
             if (warning != null) {
               if (!silent) {
-                dispWarning(out1, warning);
+                dispWarning(out1, warning, hideWarnings_, html_);
               }
             }
 
@@ -1532,7 +1532,7 @@ public class Main implements Runnable {
           SQLWarning warning = cstmt_.getWarnings();
           if (warning != null) {
             if (!silent) {
-              dispWarning(out1, warning);
+              dispWarning(out1, warning, hideWarnings_, html_);
             }
             if (html_) {
               System.out.println("Statement was " + command1);
@@ -1612,7 +1612,7 @@ public class Main implements Runnable {
                 manualResultSet_ = rs;
                 variables.put("RS", manualResultSet_);
                 manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs,
-                    rsmd, false, manualResultSetNumCols_);
+                    rsmd, false, manualResultSetNumCols_, html_, xml_);
               } else {
 
                 dispResultSet(out1, rs, false);
@@ -2100,7 +2100,7 @@ public class Main implements Runnable {
         boolean ok = manualResultSet_.next();
         if (ok) {
           dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
-              manualResultSetColType_, manualResultSetColumnLabel_, null);
+              manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_);
         } else {
           out1.println("rs.next returned false");
         }
@@ -2109,7 +2109,7 @@ public class Main implements Runnable {
         boolean ok = manualResultSet_.first();
         if (ok) {
           dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
-              manualResultSetColType_, manualResultSetColumnLabel_, null);
+              manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_);
         } else {
           out1.println("rs.first returned false");
         }
@@ -2126,7 +2126,7 @@ public class Main implements Runnable {
         boolean ok = manualResultSet_.last();
         if (ok) {
           dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
-              manualResultSetColType_, manualResultSetColumnLabel_, null);
+              manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_);
         } else {
           out1.println("rs.last returned false");
         }
@@ -2135,7 +2135,7 @@ public class Main implements Runnable {
         boolean ok = manualResultSet_.previous();
         if (ok) {
           dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
-              manualResultSetColType_, manualResultSetColumnLabel_, null);
+              manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_);
         } else {
           out1.println("rs.previous returned false");
         }
@@ -2146,7 +2146,7 @@ public class Main implements Runnable {
         boolean ok = manualResultSet_.absolute(pos);
         if (ok) {
           dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
-              manualResultSetColType_, manualResultSetColumnLabel_, null);
+              manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_);
         } else {
           out1.println("rs.absolute returned false");
         }
@@ -2157,7 +2157,7 @@ public class Main implements Runnable {
         boolean ok = manualResultSet_.relative(pos);
         if (ok) {
           dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
-              manualResultSetColType_, manualResultSetColumnLabel_, null);
+              manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_);
         } else {
           out1.println("rs.relative returned false");
         }
@@ -2341,7 +2341,7 @@ public class Main implements Runnable {
             SQLWarning warning = stmt_.getWarnings();
             if (warning != null) {
               if (!silent) {
-                dispWarning(out1, warning);
+                dispWarning(out1, warning, hideWarnings_, html_);
               }
             }
 
@@ -3001,15 +3001,15 @@ public class Main implements Runnable {
   }
 
 
-  private String[] dispColumnHeadings(PrintStream out1, ResultSet rs,
-      ResultSetMetaData rsmd, boolean trim, int numCols) throws SQLException {
+  static private String[] dispColumnHeadings(PrintStream out1, ResultSet rs,
+      ResultSetMetaData rsmd, boolean trim, int numCols, boolean html, boolean xml) throws SQLException {
     int i;
     // Display column headings
 
     // Build up the output so it can be sent as a single System.out.println()
     StringBuffer output = new StringBuffer();
 
-    if (html_) {
+    if (html) {
       output.append("<table border>\n");
     }
 
@@ -3017,19 +3017,19 @@ public class Main implements Runnable {
 
     for (i = 1; i <= numCols; i++) {
       columnLabel[i] = rsmd.getColumnLabel(i);
-      if (html_) {
+      if (html) {
         output.append("<th>" + columnLabel[i].replace('_', ' '));
       } else {
-        if (!xml_) {
+        if (!xml) {
           if (i > 1)
             output.append(",");
           output.append(columnLabel[i]);
         }
       }
     }
-    if (html_)
+    if (html)
       output.append("<tr>\n");
-    if (xml_) {
+    if (xml) {
       output.append("<table>");
       out1.println(output.toString());
     } else {
@@ -3041,17 +3041,19 @@ public class Main implements Runnable {
   }
 
   /* @SuppressWarnings("fallthrough") */
-  private void dispRow(PrintStream out1, ResultSet rs, boolean trim,
-      int numCols, int colType[], String columnLabel[], String format[])
+  static private void dispRow(PrintStream out1, ResultSet rs, boolean trim,
+      int numCols, int colType[], String columnLabel[], String format[],
+      boolean xml, boolean html,
+      int showLobThreshold, int stringSampleSize, boolean characterDetails, boolean showMixedUX)
       throws SQLException {
     int i;
     StringBuffer output = new StringBuffer();
-    if (xml_)
+    if (xml)
       output.append("<row>\n");
     for (i = 1; i <= numCols; i++) {
-      if (html_) {
+      if (html) {
         output.append("<td>");
-      } else if (xml_) {
+      } else if (xml) {
         output.append("   <" + columnLabel[i] + ">");
       } else {
         if (i > 1)
@@ -3088,7 +3090,7 @@ public class Main implements Runnable {
         if (bytes == null) {
           output.append(rs.getString(i));
         } else {
-          if (bytes.length < showLobThreshold_) {
+          if (bytes.length < showLobThreshold) {
             for (int j = 0; j < bytes.length; j++) {
               int showInt = bytes[j] & 0xFF;
               if (showInt >= 0x10) {
@@ -3112,17 +3114,17 @@ public class Main implements Runnable {
         if (format != null && (i - 1) < format.length && format[i - 1] != null) {
           outString = formatString(outString, format[i - 1]);
         }
-        appendUnicodeString(output, outString);
+        appendUnicodeString(output, outString, showLobThreshold, stringSampleSize, characterDetails, showMixedUX);
       }
         break;
       }
-      if (xml_) {
+      if (xml) {
         output.append("</" + columnLabel[i] + ">\n");
       }
     } /* for i */
-    if (html_) {
+    if (html) {
       out1.println(output.toString() + "<tr>");
-    } else if (xml_) {
+    } else if (xml) {
       out1.println(output.toString() + "</row>");
     } else {
       out1.println(output.toString());
@@ -3211,17 +3213,21 @@ public class Main implements Runnable {
     return rest;
   }
 
-  public void dispResultSet(ResultSet rs) throws SQLException {
-    dispResultSet(System.out, rs, false, null);
+  //
+  // Convenience method to display result set
+  //
+  public static void dispResultSet(ResultSet rs) throws SQLException {
+    dispResultSet(System.out, rs, false, null, false, false, 16384, 16384, true, true, false );
   }
 
   void dispResultSet(PrintStream out1, ResultSet rs, boolean trim)
       throws SQLException {
-    dispResultSet(out1, rs, trim, null);
+    dispResultSet(out1, rs, trim, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_, hideWarnings_);
   }
 
-  void dispResultSet(PrintStream out1, ResultSet rs, boolean trim,
-      String[] format) throws SQLException {
+  static void dispResultSet(PrintStream out1, ResultSet rs, boolean trim,
+      String[] format, boolean xml, boolean html,
+      int showLobThreshold, int stringSampleSize, boolean characterDetails, boolean showMixedUX, boolean hideWarnings) throws SQLException {
     int i;
 
     // Get the ResultSetMetaData. This will be used for
@@ -3233,7 +3239,7 @@ public class Main implements Runnable {
 
     int numCols = rsmd.getColumnCount();
 
-    String[] columnLabel = dispColumnHeadings(out1, rs, rsmd, trim, numCols);
+    String[] columnLabel = dispColumnHeadings(out1, rs, rsmd, trim, numCols, xml, html);
 
     //
     // figure out column types
@@ -3252,14 +3258,14 @@ public class Main implements Runnable {
 
       // Loop through each column, getting the
       // column data and displaying
-      dispRow(out1, rs, trim, numCols, colType, columnLabel, format);
+      dispRow(out1, rs, trim, numCols, colType, columnLabel, format, xml, html, showLobThreshold, stringSampleSize, characterDetails, showMixedUX);
 
       //
       // Check for warnings.
       //
       SQLWarning warning = rs.getWarnings();
       if (warning != null) {
-        dispWarning(out1, warning);
+        dispWarning(out1, warning, hideWarnings, html);
       }
 
       // Fetch the next result set row
@@ -3267,33 +3273,33 @@ public class Main implements Runnable {
       more = rs.next();
     }
 
-    if (html_)
+    if (html)
       out1.println("</table>");
-    if (xml_)
+    if (xml)
       out1.println("</table>");
 
   }
 
-  private void dispWarning(PrintStream out1, SQLWarning warning) {
-    if (hideWarnings_) {
+  static private void dispWarning(PrintStream out1, SQLWarning warning, boolean hideWarnings, boolean html) {
+    if (hideWarnings) {
       return;
     }
     if (warning != null) {
       out1.println("\n *** Warning ***\n");
-      if (html_)
+      if (html)
         System.out.println("<br>");
       while (warning != null) {
         out1.println("SQLState: " + warning.getSQLState());
-        if (html_)
+        if (html)
           System.out.println("<br>");
         out1.println("Message:  " + cleanupMessage(warning.getMessage()));
-        if (html_)
+        if (html)
           System.out.println("<br>");
         out1.println("Vendor:   " + warning.getErrorCode());
-        if (html_)
+        if (html)
           System.out.println("<br>");
         out1.println("");
-        if (html_)
+        if (html)
           System.out.println("<br>");
         warning = warning.getNextWarning();
       }
@@ -3301,7 +3307,7 @@ public class Main implements Runnable {
     }
   }
 
-  private String cleanupMessage(String message) {
+  private static String cleanupMessage(String message) {
     boolean invalidCharacter = false;
     //
     // Check to see if invalid character
@@ -3428,17 +3434,18 @@ public class Main implements Runnable {
     }
   }
 
-  private void appendUnicodeString(StringBuffer sb, String outString) {
+  static private void appendUnicodeString(StringBuffer sb, String outString,
+      int showLobThreshold, int stringSampleSize, boolean characterDetails, boolean showMixedUX) {
     //
     // Check length
     //
     if (outString != null) {
       int length = outString.length();
-      if (length > showLobThreshold_) {
+      if (length > showLobThreshold) {
         sb.append("CHARARRAY[size=" + length + ",CRC32=" + getCRC32(outString)
             + "]->");
-        if (!characterDetails_) {
-          outString = outString.substring(0, stringSampleSize_);
+        if (!characterDetails) {
+          outString = outString.substring(0, stringSampleSize);
         }
       }
     }
@@ -3457,7 +3464,7 @@ public class Main implements Runnable {
       if (!nonAsciiFound) {
         sb.append(outString);
       } else {
-        if (showMixedUX_) {
+        if (showMixedUX) {
           appendMixedUXOutput(sb, chars);
         } else {
           sb.append("U'");
@@ -3530,7 +3537,7 @@ public class Main implements Runnable {
     }
   }
 
-  public void appendMixedUXOutput(StringBuffer sb, char[] chars) {
+  public static void appendMixedUXOutput(StringBuffer sb, char[] chars) {
     boolean inUX = false;
     for (int i = 0; i < chars.length; i++) {
       int showInt = chars[i] & 0xFFFF;
@@ -3765,7 +3772,7 @@ public class Main implements Runnable {
       SQLWarning warning = cstmt.getWarnings();
       if (warning != null) {
         if (!silent) {
-          dispWarning(out, warning);
+          dispWarning(out, warning, hideWarnings_, html_);
         }
       }
 
@@ -3785,14 +3792,14 @@ public class Main implements Runnable {
       SQLWarning warning = cstmt.getWarnings();
       if (warning != null) {
         if (!silent) {
-          dispWarning(out, warning);
+          dispWarning(out, warning, hideWarnings_, html_);
         }
       }
 
     }
   }
 
-  String getCRC32(String input) {
+  static String getCRC32(String input) {
     int length = input.length();
     byte[] byteArray = new byte[2 * length];
     for (int i = 0; i < length; i++) {
@@ -3831,7 +3838,7 @@ public class Main implements Runnable {
     SQLWarning warning = cstmt1.getWarnings();
     if (warning != null) {
       if (!silent) {
-        dispWarning(out1, warning);
+        dispWarning(out1, warning, hideWarnings_, html_);
       }
     }
 
@@ -3844,7 +3851,7 @@ public class Main implements Runnable {
     SQLWarning warning = cstmt1.getWarnings();
     if (warning != null) {
       if (!silent) {
-        dispWarning(out1, warning);
+        dispWarning(out1, warning, hideWarnings_, html_);
       }
     }
   }
@@ -3893,7 +3900,7 @@ public class Main implements Runnable {
     SQLWarning warning = cstmt1.getWarnings();
     if (warning != null) {
       if (!silent) {
-        dispWarning(out1, warning);
+        dispWarning(out1, warning, hideWarnings_, html_);
       }
     }
 
@@ -3983,7 +3990,7 @@ public class Main implements Runnable {
     SQLWarning warning = cstmt1.getWarnings();
     if (warning != null) {
       if (!silent) {
-        dispWarning(out1, warning);
+        dispWarning(out1, warning, hideWarnings_, html_);
       }
     }
 
