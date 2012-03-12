@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: JDServerRow.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -50,19 +50,19 @@ implements JDRow
     private boolean[]               translated_;
     private boolean                 wasCompressed = false;   // set to true if variable length field compression is used
     private Hashtable               insensitiveColumnNames_; // @PDA maps strings to column indexes
-    boolean                         containsLob_;     //@re-prep 
-    boolean                         containsArray_;     //@array 
+    boolean                         containsLob_;     //@re-prep
+    boolean                         containsArray_;     //@array
 
     /**
     Constructs a JDServerRow object.  Use this constructor
     when the format information has already been retrieved
     from the system.
-    
+
     @param      connection      The connection to the system.
     @param      id              The id.
     @param      serverFormat    The server format information.
     @param      settings        The conversion settings.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     JDServerRow (AS400JDBCConnection connection,
@@ -79,11 +79,11 @@ implements JDRow
     /**
     Constructs a JDServerRow object.  Use this constructor when format
     information has not yet been retrieved from the system.
-    
+
     @param  connection      The connection to the system.
     @param  id              The id.
     @param  settings        The conversion settings.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     /* @C1D
@@ -93,22 +93,22 @@ implements JDRow
         throws SQLException
     {
         DBDataFormat serverFormat = null;
-  
+
         DBSQLRequestDS request = new DBSQLRequestDS (
             DBSQLRequestDS.FUNCTIONID_DESCRIBE,
       id, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
       + DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);
-  
+
       DBReplyRequestedDS reply = connection.sendAndReceive (request, id);
-  
+
       int errorClass = reply.getErrorClass();
       int returnCode = reply.getReturnCode();
-  
+
       if (errorClass != 0)
         JDError.throwSQLException (connection, id, errorClass, returnCode);
-  
+
         serverFormat = reply.getDataFormat ();
-  
+
         initialize (connection, id, serverFormat, settings);
     }
     */
@@ -118,7 +118,7 @@ implements JDRow
     // @D1A
     /**
     Returns the raw bytes.
-    
+
     @param      index   The field index (1-based).
     @return             A copy of the bytes.
     **/
@@ -134,12 +134,12 @@ implements JDRow
 
     /**
     Initializes the state of the object.
-    
+
     @param      connection          The connection to the system.
     @param      id                  The id.
     @param      serverFormat        The server format information.
     @param      settings            The conversion settings.
-    
+
     @exception  SQLException        If an error occurs.
     **/
     private void initialize (AS400JDBCConnection connection,
@@ -197,7 +197,7 @@ implements JDRow
                     dataOffset_[i] = offset;
                     dataLength_[i] = serverFormat_.getFieldLength (i);
                     //@array (if array type) here we do not know the array length, just the element length, but that is okay since the elem length is fed into the sqlDataTemplate in SQLArray.  (for reply result, setRowIndex() will later re-populate the dataLength_ and dataOffset_ arrays anyways.)
-                    lobLocatorHandles_[i] = serverFormat_.getFieldLOBLocator (i);    // @C2C                    
+                    lobLocatorHandles_[i] = serverFormat_.getFieldLOBLocator (i);    // @C2C
                     offset += dataLength_[i];
                     scales_[i] = serverFormat_.getFieldScale (i);
                     precisions_[i] = serverFormat_.getFieldPrecision (i);
@@ -206,10 +206,10 @@ implements JDRow
                     if( serverFormat_.getArrayType (i) == 1)          //@array
                     {
                         compositeContentType = sqlTypes_[i] & 0xFFFE; //@array
-                        sqlTypes_[i] =  SQLData.NATIVE_ARRAY;   //@array not a hostserver number, since we only get a 1 bit array flag for the type    
+                        sqlTypes_[i] =  SQLData.NATIVE_ARRAY;   //@array not a hostserver number, since we only get a 1 bit array flag for the type
                     }
                     //@array comment: we are assuming here that all of the metadata above (except sqlType) is for the array content type
-                    
+
                     //@re-prep check if lob or locator type here
                     //hostserver cannot know beforehand if type will be a lob or a locator.  This is on a per-connection basis.
                     int fieldType = sqlTypes_[i] & 0xFFFE;    //@re-prep
@@ -217,13 +217,13 @@ implements JDRow
                         containsLob_ = true;                  //@re-prep
                     else if(fieldType == SQLData.NATIVE_ARRAY)          //@array
                         containsArray_ = true;           //@array
-                        
+
                     int maxLobSize = serverFormat_.getFieldLOBMaxSize (i);    // @C2C
                     int xmlCharType = serverFormat_.getXMLCharType(i); //@xml3 sb=0 or db=1
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
-                                                          fieldType, dataLength_[i], precisions_[i], 
+                                                          fieldType, dataLength_[i], precisions_[i],
                                                           scales_[i], ccsids_[i], translateBinary, settings,
-                                                          maxLobSize, (i+1), dateFormat, timeFormat, compositeContentType, xmlCharType);    //@F1C // @C2C @550C @array //@xml3  
+                                                          maxLobSize, (i+1), dateFormat, timeFormat, compositeContentType, xmlCharType);    //@F1C // @C2C @550C @array //@xml3
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);
@@ -265,9 +265,9 @@ implements JDRow
     /**
     Sets the server data.  Use this when new data has been retrieved
     from the system.
-    
+
     @param  serverData      The server data.
-    
+
     @exception  SQLException        If an error occurs.
     **/
     void setServerData (DBData serverData)
@@ -290,9 +290,9 @@ implements JDRow
 
     /**
     Sets the row index within the server data.
-    
+
     @param  rowIndex        The row index (0-based).
-    
+
     @exception  SQLException        If an error occurs.
     **/
     void setRowIndex (int rowIndex)
@@ -307,7 +307,7 @@ implements JDRow
                 rowDataOffset_ = serverData_.getRowDataOffset (rowIndex_);
                 //@array calculate data offsets for arrays (result data from host)
                 if(this.containsArray_ && rowDataOffset_ != -1)                     //@array array data not VLC but variable in length
-                {  
+                {
                     //Here if reply is VariableData needed for Arrays.              //@array
                     //@array set input array lengths of data
                     int offset = 0;                                                 //@array
@@ -321,12 +321,12 @@ implements JDRow
                             // String typeName = sqlData_[j].getTypeName();                //@array
                             int length = 0;                                             //@array
                             dataOffset_[j] = offset;                                    //@array
-                            length = dataLengths[outCount];                                    //@arrayout  
+                            length = dataLengths[outCount];                                    //@arrayout
 
                             offset += length;                                           //@array
                             dataLength_[j] = length;                                    //@array //set full array length here if array
                             outCount++;                                                 //@arrayout
-                        }                                                               //@array     
+                        }                                                               //@array
                     }
                 }                                                                   //@array
                 else if(serverData_.isVariableFieldsCompressed() && rowDataOffset_ != -1)                   //@K54
@@ -344,7 +344,7 @@ implements JDRow
                            typeName.equals("VARCHAR() FOR BIT DATA") ||             //@K54
                            typeName.equals("LONG VARCHAR") ||                       //@K54
                            typeName.equals("LONG VARCHAR FOR BIT DATA") ||          //@K54
-                           typeName.equals("VARBINARY") ||                          //@K54 
+                           typeName.equals("VARBINARY") ||                          //@K54
                            typeName.equals("DATALINK"))                             //@K54
                         {                                                           //@K54
                             length = BinaryConverter.byteArrayToUnsignedShort(rawBytes_, rowDataOffset_ + offset);    //@K54 //get actual length of data
@@ -394,7 +394,7 @@ implements JDRow
 
     public int findField (String name)
     throws SQLException
-    {       
+    {
         if(name.startsWith("\"") && name.endsWith("\""))    //@D6a @DELIMc
         {
             name = JDUtilities.stripOuterDoubleQuotes(name);  //@DELIMa
@@ -402,15 +402,15 @@ implements JDRow
                 if(name.equals(getFieldName(i)))    //@D6c (used to be equalsIgnoreCase)
                     return i;
         }
-        else  
-        { 
+        else
+        {
             //@PDA  use hashtable to reduce number of toUpper calls
             //X.equalsIgnoreCase(Y) converts both X and Y to uppercase.
             if(insensitiveColumnNames_ == null)
             {
                 // Create a new hash table to hold all the column name/number mappings.
                 insensitiveColumnNames_ = new Hashtable(sqlData_.length);
-                
+
                 // cache all the column names and numbers.
                 for (int i = sqlData_.length; i >= 1; i--)//@pdc 776N6J (int i = 1; i <= sqlData_.length; i++)
                 {
@@ -422,14 +422,14 @@ implements JDRow
                     insensitiveColumnNames_.put(cName, new Integer(i));
                 }
             }
-            
+
             // Look up the mapping in our cache. First look up using the user's casing
             Integer x = (Integer) insensitiveColumnNames_.get(name);
             if (x != null)
                 return (x.intValue());
             else
             {
-                String upperCaseName = name.toUpperCase(); 
+                String upperCaseName = name.toUpperCase();
                 x = (Integer) insensitiveColumnNames_.get(upperCaseName);
 
                 if (x != null)
@@ -437,9 +437,20 @@ implements JDRow
                     // Add the user's casing
                     insensitiveColumnNames_.put(name, x);
                     return (x.intValue());
-                }  
+                }
             }
         }
+
+        if (JDTrace.isTraceOn()) {
+            JDTrace.logInformation (this, "Did not find column " + name);
+            StringBuffer sb = new StringBuffer();
+            for (int i = 1; i <= sqlData_.length; i++)
+            {
+               sb.append("["+i+"]="+getFieldName(i)+" ");
+            }
+            JDTrace.logInformation (this, "Columns are " + sb.toString());
+        }
+
         JDError.throwSQLException (JDError.EXC_COLUMN_NOT_FOUND);
         return -1;
     }
@@ -477,7 +488,7 @@ implements JDRow
             if(fieldNames_[index0] == null)
                 fieldNames_[index0] = serverFormat_.getFieldName (index0,
                                                                   connection_.getConverter (serverFormat_.getFieldNameCCSID (index0))).trim();
-            
+
             //Bidi-HCG - add converion from serverFormat_.getFieldNameCCSID (index0) to "bidi string type" here
             //Bidi-HCG start
             boolean reorder = connection_.getProperties().getBoolean(JDProperties.BIDI_IMPLICIT_REORDERING);
@@ -503,9 +514,9 @@ implements JDRow
     {
         return precisions_[index-1];
     }
-  
-  
-  
+
+
+
     public int getFieldScale (int index)
         throws SQLException
     {
@@ -595,13 +606,13 @@ implements JDRow
         }
     }
 
-    //@arrayout 
+    //@arrayout
     /**
     Calculates the index by skipping any non output parms (inout parms are output)
-    
+
     @param  index   The field index (0-based).
     @return         new index into an output-only parm list (-1 if non are output parms)
-    
+
     @exception  SQLException    If an error occurs.
     **/
     int getVariableOutputIndex(int index) throws SQLException
@@ -623,10 +634,10 @@ implements JDRow
 
     /**
     Is there a data mapping error for the field?
-    
+
     @param      index   The field index (1-based).
     @return             true or false
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public boolean isDataMappingError(int index)
@@ -634,11 +645,11 @@ implements JDRow
     {
         try
         {
-            int outputIndex = index;                                  //@arrayout 
-            if(serverData_ instanceof DBVariableData)                 //@arrayout 
+            int outputIndex = index;                                  //@arrayout
+            if(serverData_ instanceof DBVariableData)                 //@arrayout
                 outputIndex = getVariableOutputIndex(index-1) + 1;    //@arrayout (arrays in DBVariableData only contain output parms here, so need to skip any input parms in other JDServer arrays)
-            
-            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex - 1) == -2))  //@arrayout 
+
+            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex - 1) == -2))  //@arrayout
                 return true;
             else
                 return false;
@@ -652,10 +663,10 @@ implements JDRow
 
     /**
     Is the field value SQL NULL?
-    
+
     @param      index   The field index (1-based).
     @return             true or false
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public boolean isNull(int index)
@@ -663,10 +674,10 @@ implements JDRow
     {
         try
         {
-            int outputIndex = index;                                  //@arrayout 
-            if(serverData_ instanceof DBVariableData)                 //@arrayout 
+            int outputIndex = index;                                  //@arrayout
+            if(serverData_ instanceof DBVariableData)                 //@arrayout
                 outputIndex = getVariableOutputIndex(index-1) + 1;    //@arrayout (arrays in DBVariableData only contain output parms here, so need to skip any input parms in other JDServer arrays)
-            
+
             if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex - 1) == -1)) //@arrayout
                 return true;
             else
@@ -683,10 +694,10 @@ implements JDRow
 
     /**
     Can the field contain a SQL NULL value?
-    
+
     @param  index   The field index (1-based).
     @return         true if nullable.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public int isNullable (int index)
@@ -695,7 +706,7 @@ implements JDRow
         //@F2 Add try/catch block to this method.
         try
         {    //@F2A
-            return(((sqlTypes_[index-1] & 0x0001) != 0) 
+            return(((sqlTypes_[index-1] & 0x0001) != 0)
                    ? ResultSetMetaData.columnNullable
                    : ResultSetMetaData.columnNoNulls);
         }
@@ -711,10 +722,10 @@ implements JDRow
 
     /**
     Return the CCSID for a field.
-    
+
     @param      index   The field index (1-based).
     @return             The CCSID.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public int getCCSID (int index)
@@ -728,10 +739,10 @@ implements JDRow
     /**
     Return the length of a field's data within server
     data.
-    
+
     @param      index   The field index (1-based).
     @return             The data length.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     public int getLength (int index)
@@ -745,9 +756,9 @@ implements JDRow
 
     /**
     Return the length of the row's data.
-    
+
     @return             The row length.
-    
+
     @exception  SQLException    If an error occurs.
     **/
     int getRowLength ()
@@ -775,10 +786,10 @@ implements JDRow
 
     /**
     Is the field an input value?
-    
+
     @param  index   The field index (1-based).
     @return         true or false
-    
+
     @exception  SQLException    If an error occurs.
     **/
     boolean isInput(int index) throws SQLException
@@ -808,10 +819,10 @@ implements JDRow
 
     /**
     Is the field an output value?
-    
+
     @param  index   The field index (1-based).
     @return         true or false
-    
+
     @exception  SQLException    If an error occurs.
     **/
     boolean isOutput(int index) throws SQLException

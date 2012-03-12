@@ -38,8 +38,15 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
 
 /**
  Represents the authentication information and a set of connections to the IBM i host servers.
- <p>If running on IBM i or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword <code>localhost</code> can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
- <p>If running on another operating system, the system name, user ID, and password need to be supplied.  If not supplied, the first 'open' request associated with this object will trigger a prompt to the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords <code>localhost</code> and *CURRENT will not work when running on another operating system.
+ <p>If running on IBM i or an older version of that operating system, the system name, user ID,
+    and password do not need to be supplied.  These values default to the local system.
+    For the system name, the keyword <code>localhost</code> can be used to specify the local system.
+    For the user ID and password, *CURRENT can be used.
+ <p>If running on another operating system, the system name, user ID, and password need to be supplied.
+    If not supplied, the first 'open' request associated with this object will trigger a prompt to the
+    workstation user.  Subsequent opens associated with the same object will not prompt the workstation
+    user.  Keywords <code>localhost</code> and *CURRENT will not work when running on another operating
+    system.
  <p>For example:
  <pre>
  *    AS400 system = new AS400();
@@ -937,8 +944,8 @@ public class AS400 implements Serializable
             }
             int credType = credVault_.getType();
             if (credType != AUTHENTICATION_SCHEME_PASSWORD) {
-              // Design note: For various reasons (such as lack of requirement, and potential complications 
-              // when swapping during a token-based session), the Toolbox has never supported staying 
+              // Design note: For various reasons (such as lack of requirement, and potential complications
+              // when swapping during a token-based session), the Toolbox has never supported staying
               //on-thread when using profile tokens or other non-password based authentication schemes.
               Trace.log(Trace.DIAGNOSTIC, "  authenticationScheme:", credType +
                         " ("+credTypeToString(credType)+")");
@@ -1069,7 +1076,7 @@ public class AS400 implements Serializable
             impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_, mustAddLanguageLibrary_);
             propertiesFrozen_ = true;
         }
-        impl_.setBidiStringType(this.getBidiStringType());				//@Bidi-HCG3        
+        impl_.setBidiStringType(this.getBidiStringType());				//@Bidi-HCG3
     }
 
     /**
@@ -1090,8 +1097,8 @@ public class AS400 implements Serializable
      **/
     public static void clearPasswordCache(String systemName)
     {
-    	String longName = null; 
-    	boolean isLocalHost = false; 
+    	String longName = null;
+    	boolean isLocalHost = false;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache, system name:", systemName);
         if (systemName == null)
         {
@@ -1100,21 +1107,21 @@ public class AS400 implements Serializable
         systemName = resolveSystem(systemName);
         boolean localHost = systemName.equals("localhost");
         if (localHost) {
-        	isLocalHost = true; 
-        	try { 
+        	isLocalHost = true;
+        	try {
         	systemName = InetAddress.getLocalHost().getHostName();
-        	} catch (Exception e) { /* ignore */ } 
+        	} catch (Exception e) { /* ignore */ }
         }
-        int dotIndex = systemName.indexOf("."); 
+        int dotIndex = systemName.indexOf(".");
         if (dotIndex > 0) {
-        	longName = systemName; 
-        	systemName = systemName.substring(0,dotIndex); 
+        	longName = systemName;
+        	systemName = systemName.substring(0,dotIndex);
         }
         synchronized (AS400.systemList)
         {
             for (int i = AS400.systemList.size() - 1; i >= 0; i--)
             {
-            	String elementName = (String)((Object[])AS400.systemList.elementAt(i))[0]; 
+            	String elementName = (String)((Object[])AS400.systemList.elementAt(i))[0];
                 if (systemName.equalsIgnoreCase(elementName))
                 {
                     AS400.systemList.removeElementAt(i);
@@ -1155,28 +1162,28 @@ public class AS400 implements Serializable
 
         chooseImpl();
 
-        //@D3A - Start 
+        //@D3A - Start
         // Before the thread to connect server, block the thread to refresh profile token credential.
-        if (credVault_ instanceof ProfileTokenVault) { 
+        if (credVault_ instanceof ProfileTokenVault) {
           if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Before service connected, block the thread of refreshing profile token credential");
           ((ProfileTokenVault) credVault_).preventRefresh();
         }
         //@D3A - End
-        
-        //@D3C - Start 
-        try { 
+
+        //@D3C - Start
+        try {
           signon(service == AS400.SIGNON);
-        
+
           impl_.connect(service);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
-        } finally { 
+        } finally {
           // After the thread to connect server, notify the thread to refresh profile token credential.
-          if (credVault_ instanceof ProfileTokenVault) { 
+          if (credVault_ instanceof ProfileTokenVault) {
             if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "After service connected, notify the thread of refreshing profile token credential");
             ((ProfileTokenVault) credVault_).allowRefresh();
           }
         }
-        //@D3C - Start 
+        //@D3C - Start
     }
 
     /**
@@ -1211,7 +1218,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Disconnects all services.  All socket connections associated with this object will be closed.  The signon information is not changed, and connection properties remain frozen. 
+     Disconnects all services.  All socket connections associated with this object will be closed.  The signon information is not changed, and connection properties remain frozen.
      @see #resetAllServices
      **/
     public void disconnectAllServices()
@@ -1372,9 +1379,9 @@ public class AS400 implements Serializable
      **/
     public int getCcsid()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting CCSID.");
         if (ccsid_ == 0)
         {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting CCSID.");
             try
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving CCSID from system...");
@@ -1387,8 +1394,8 @@ public class AS400 implements Serializable
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Taking best guess CCSID:", e);
                 ccsid_ = ExecutionEnvironment.getBestGuessAS400Ccsid();
             }
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CCSID:", ccsid_);
         }
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CCSID:", ccsid_);
         return ccsid_;
     }
 
@@ -2052,30 +2059,30 @@ public class AS400 implements Serializable
         return timezone_;
     }
 
-    /** 
-     * Returns the timezone of the IBM i, if available.  If the timezone is not available, 
-     * then the default timezone for the client will be return.  
+    /**
+     * Returns the timezone of the IBM i, if available.  If the timezone is not available,
+     * then the default timezone for the client will be return.
      * @param as400   System to get the timezone from
-     * @return  The timezone of the IBM i if available. 
+     * @return  The timezone of the IBM i if available.
      */
-    public static TimeZone getDefaultTimeZone(AS400 system) { 
-      TimeZone timeZone = null; 
-      if (system != null) { 
-        try { 
+    public static TimeZone getDefaultTimeZone(AS400 system) {
+      TimeZone timeZone = null;
+      if (system != null) {
+        try {
         timeZone = system.getTimeZone();
-        } catch (Exception e) {  
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception obtaining timezone ", e); 
+        } catch (Exception e) {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception obtaining timezone ", e);
         }
       }
-      if (timeZone == null) { 
+      if (timeZone == null) {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Defaulting to local timezone");
-        timeZone = TimeZone.getDefault(); 
+        timeZone = TimeZone.getDefault();
       }
 
-      return timeZone; 
+      return timeZone;
     }
-      
-    
+
+
     /**
      Returns the user ID.  The user ID returned may be set as a result of the constructor, or it may be what the user typed in at the sign-on prompt.
      @return  The user ID, or an empty string ("") if not set.
@@ -2783,8 +2790,8 @@ public class AS400 implements Serializable
      **/
     public static void removePasswordCacheEntry(String systemName, String userId)
     {
-    	boolean isLocalHost = false; 
-    	String longName = null; 
+    	boolean isLocalHost = false;
+    	String longName = null;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing password cache entry, system name: " + systemName + " user ID: " + userId);
         if (systemName == null)
         {
@@ -2799,21 +2806,21 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         systemName = resolveSystem(systemName);
-        
+
         boolean localHost = systemName.equals("localhost");
         if (localHost) {
-        	isLocalHost = true; 
-        	try { 
+        	isLocalHost = true;
+        	try {
         	systemName = InetAddress.getLocalHost().getHostName();
-        	} catch (Exception e) { /* ignore */ } 
+        	} catch (Exception e) { /* ignore */ }
         } else {
         	// Note. The check to see if the current system was also local host was
-        	// done in resolveSystem. 
+        	// done in resolveSystem.
         }
-        int dotIndex = systemName.indexOf("."); 
+        int dotIndex = systemName.indexOf(".");
         if (dotIndex > 0) {
-        	longName = systemName; 
-        	systemName = systemName.substring(0,dotIndex); 
+        	longName = systemName;
+        	systemName = systemName.substring(0,dotIndex);
         }
 
         userId = resolveUserId(userId.toUpperCase());
@@ -3692,7 +3699,11 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets whether the IBM Toolbox for Java uses threads in communication with the host servers.  The default is true. Letting the IBM Toolbox for Java use threads may be beneficial to performance, turning threads off may be necessary if your application needs to be compliant with the Enterprise Java Beans specification. The thread used property cannot be changed once a connection to the system has been established.
+     Sets whether the IBM Toolbox for Java uses threads in communication with the host servers.  The default is true.
+     Letting the IBM Toolbox for Java use threads may be beneficial to performance, turning threads off may be necessary
+     if your application needs to be compliant with the Enterprise Java Beans specification.
+     The thread used property cannot be changed once a connection to the system has been established.
+
      <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.threadUsed</tt>
      @param  useThreads  true to use threads; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
@@ -4099,40 +4110,40 @@ public class AS400 implements Serializable
         validationSystem.signon(false); // signon(false) calls disconnect() when done
         return true;
     }
-    
+
     //@prompt new method
     /**
     This tells AS400 to force prompt by displaying login dialog (actually the sign-on handler) prior to even trying to authenticate.
     This is useful in cases where an application sends in incorrect dummy id/password and expects Toolbox to display the logon dialog.
     In JDBC, we do some pre-validation of id/password.  So JDBC may flag the id/password as invalid and then need
-    to let AS400 know that it just needs to display the logon dialog. 
+    to let AS400 know that it just needs to display the logon dialog.
     **/
-    void forcePrompt() 
+    void forcePrompt()
     {
         forcePrompt_ = true;
     }
-    
-    //@Bidi-HCG3 start    
+
+    //@Bidi-HCG3 start
     private int bidiStringType = BidiStringType.DEFAULT;
-    
+
     /**
-     * Sets bidi string type of the connection. 
+     * Sets bidi string type of the connection.
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      */
     public void setBidiStringType(int bidiStringType){
     	this.bidiStringType = bidiStringType;
     }
-    
+
     /**
-     * Returns bidi string type of the connection. 
+     * Returns bidi string type of the connection.
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      */
     public int getBidiStringType(){
     	return bidiStringType;
-    }       
-    
+    }
+
     /**
-     * Determines whether Bidi processing should occur in AS400Text.toBytes() method     
+     * Determines whether Bidi processing should occur in AS400Text.toBytes() method
      */
     public boolean bidiAS400Text = false;
     //@Bidi-HCG3 end

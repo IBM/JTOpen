@@ -1,29 +1,29 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400JDBCResultSetMetaData.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2010 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2010 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
 import java.sql.Connection;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.DatabaseMetaData;
-endif */ 
+endif */
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.Statement;
-endif */ 
+endif */
 
 
 /**
@@ -42,19 +42,19 @@ columns in a result set.
 //   before executing a query (via PreparedStatement.getMetaData()).
 //
 public class AS400JDBCResultSetMetaData
-/* ifdef JDBC40 
+/* ifdef JDBC40
 extends ToolboxWrapper
-endif */ 
+endif */
 implements ResultSetMetaData
 {
     static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
     // Private static final ints
-    // Searchable constants 
+    // Searchable constants
     //@G1A @G2C
     static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
     static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our IBM i system
-    static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
+    static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true
     static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
 
     // Updateable constants
@@ -68,7 +68,7 @@ implements ResultSetMetaData
     private int                 concurrency_;
     private String              cursorName_;
     private JDRow               row_;
-    private DBExtendedColumnDescriptors extendedColumnDescriptors_;   //@G1A   
+    private DBExtendedColumnDescriptors extendedColumnDescriptors_;   //@G1A
     private ConvTable           convTable_;                           //@G1A
     private Connection          con_;                                 //@in1
 
@@ -96,7 +96,7 @@ implements ResultSetMetaData
         extendedColumnDescriptors_ = extendedColumnDescriptors;                          //@G1A
         convTable_      = convTable;                                                     //@G1A
         con_            = con;                                                           //@in1
-    }                                                                                    
+    }
 
     /**
     Throws an exception if the specified column index is not
@@ -182,7 +182,7 @@ implements ResultSetMetaData
     Returns the suggested label for use in printouts
     or displays for a column.
     @param  columnIndex     The column index (1-based).
-    @return                 The column label if the user set the 
+    @return                 The column label if the user set the
                             driver property "extended metadata" to true and
                             the system returns us a column label,
                             otherwise the column name.
@@ -235,7 +235,11 @@ implements ResultSetMetaData
     throws SQLException
     {
         checkIndex(columnIndex);
-        return row_.getFieldName(columnIndex);
+        String columnName =row_.getFieldName(columnIndex);
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logInformation (this, "getColumnName("+columnIndex+") returned " + columnName);
+        }
+        return columnName;
     }
 
     /**
@@ -296,10 +300,10 @@ implements ResultSetMetaData
 
     /**
     Returns the schema name of the table for a column.
-    This method is supported only if the user has set the 
+    This method is supported only if the user has set the
     driver property "extended metadata" to true.
     @param  columnIndex     The column index (1-based).
-    @return                 The schema name if the user set the 
+    @return                 The schema name if the user set the
                             driver property "extended metadata" to true and
                             the system returns us a schema name,
                             otherwise "".
@@ -325,10 +329,10 @@ implements ResultSetMetaData
 
     /**
     Returns the column's table name.
-    This method is supported only if the user has set the 
+    This method is supported only if the user has set the
     driver property "extended metadata" to true.
     @param  columnIndex     The column index (1-based).
-    @return                 The base table name if the user set the 
+    @return                 The base table name if the user set the
                             driver property "extended metadata" to true and
                             the system returns us a table name,
                             otherwise "".
@@ -358,23 +362,23 @@ implements ResultSetMetaData
     @param  columnIndex     The column index (1-based).
     @return                 True if column is autoincrement, false otherwise.
     @exception  SQLException    If the column index is not valid.
-    Note:  connection property "extended metadata" must be true for this method to be return accurate information. 
+    Note:  connection property "extended metadata" must be true for this method to be return accurate information.
     If the "extended metadata" connection property is not set to true, then this method will always return false.
     **/
     public boolean isAutoIncrement(int columnIndex)
     throws SQLException
     {
         checkIndex(columnIndex);
-        
+
         // Only run the query to get the information if the table name can be found.  The table name
         // can only be found if "extended metadata" == true
         // @A9A
-        
-        String tableName = this.getTableName(columnIndex); 
+
+        String tableName = this.getTableName(columnIndex);
         if ((tableName == null) || (tableName.length() == 0) ) {
-         	return false; 
+         	return false;
         }
-        
+
         //return false; //@in1 add implementation instead of always returning false
 
         PreparedStatement ps = null;
@@ -392,7 +396,7 @@ implements ResultSetMetaData
             ps.setString(3, this.getSchemaName(columnIndex));
 
             rs = ps.executeQuery();
-            if ( rs.next()) 
+            if ( rs.next())
                 return true;
             else
                 return false;
@@ -406,10 +410,10 @@ implements ResultSetMetaData
         {
             try{
             if(rs != null)
-                rs.close();   
+                rs.close();
             }catch(Exception e){} //allow next close to execute
             if(ps != null)
-                ps.close();   
+                ps.close();
         }
     }
 
@@ -507,8 +511,8 @@ implements ResultSetMetaData
     @return                 If the user has set the "extended metadata" driver property to true,
                             returns true if the column can be used in a where clause
                             with any comparison operator except LIKE, returns
-                            false if the column cannot be used in a where clause.  
-                            If the "extended metadata" driver property is set to false, 
+                            false if the column cannot be used in a where clause.
+                            If the "extended metadata" driver property is set to false,
                             true will always be returned.
     @exception  SQLException    If the column index is not valid.
     **/
@@ -545,10 +549,10 @@ implements ResultSetMetaData
     }
 
     /**
-    Indicates if it is possible for a write on the column to succeed.  
-    The write may fail even if this method returns true.  
-    The accuracy of this method will be improved if the "extended metadata" 
-    property is set to true.  
+    Indicates if it is possible for a write on the column to succeed.
+    The write may fail even if this method returns true.
+    The accuracy of this method will be improved if the "extended metadata"
+    property is set to true.
     @param  columnIndex     The column index (1-based).
     @return                 true if it is possible for a write on
                             the column to succeed; false otherwise.
@@ -570,23 +574,23 @@ implements ResultSetMetaData
     {
         return cursorName_;
     }
-    
-    
+
+
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCResultSetMetaData", "java.sql.ResultSetMetaData" };
-    } 
-         
+    }
+
     //@in1 (copied from AS400JDBCDatabaseMetadata)
     /**
     Returns the naming convention used when referring to tables.
     This depends on the naming convention specified in the connection
     properties.
-    
+
     @return     If using SQL naming convention, "." is returned. If
                 using system naming convention, "/" is returned.
-    
+
     @exception  SQLException    This exception is never thrown.
     **/
     private String getCatalogSeparator ()
