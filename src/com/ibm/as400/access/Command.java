@@ -917,7 +917,9 @@ public class Command implements Serializable
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshParsedXML().");
     xmlPanelGroup_ = null;
     xmlProductLibrary_ = null;
-    String xml = getXML();
+    String xml = null ;
+    try {
+     xml = getXML();
     CommandHelpHandler handler = new CommandHelpHandler();
     //SAXParser parser = new SAXParser();
     SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -933,6 +935,16 @@ public class Command implements Serializable
     if (prodLib != null && !prodLib.equalsIgnoreCase("__NONE")) xmlProductLibrary_ = prodLib.trim();
 
     refreshedParsedXML_ = true;
+    } catch (SAXException e) {
+
+      if (Trace.traceOn_) {
+          Trace.log(Trace.DIAGNOSTIC, "Exception in Command.refreshParsedXML().");
+          Trace.log(Trace.DIAGNOSTIC, e);
+          Trace.log(Trace.DIAGNOSTIC, "path is "+path_);
+          Trace.log(Trace.DIAGNOSTIC, "XML is "+xml);
+      }
+      throw e;
+    }
   }
 
 
@@ -1254,7 +1266,7 @@ public class Command implements Serializable
         detectedMissingPTF_ = true;  // remember that the PTF is missing
         ProgramParameter[] shorterParmList = new ProgramParameter[5];
         System.arraycopy(parms, 0, shorterParmList, 0, 5);
-        try { pc.setParameterList(shorterParmList); } catch (PropertyVetoException e) {} 
+        try { pc.setParameterList(shorterParmList); } catch (PropertyVetoException e) {}
         succeeded = pc.run();
       }
       if (!succeeded) throw new AS400Exception(pc.getMessageList());
@@ -1428,6 +1440,9 @@ public class Command implements Serializable
     byte[] outputData = parms[3].getOutputData();
     int bytesReturned = BinaryConverter.byteArrayToInt(outputData, 0);
     int bytesAvailable = BinaryConverter.byteArrayToInt(outputData, 4);
+
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Refreshing XML /QSYS.LIB/QCDRCMDD.PGM returned bytesAvailable="+bytesAvailable);
+
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(bytesAvailable+8));
     try
     {
@@ -1450,11 +1465,14 @@ public class Command implements Serializable
     {
       xml_ = conv1208.byteArrayToString(outputData, 8, bytesReturned, 0);
       refreshedXML_ = true;
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Refreshing XML /QSYS.LIB/QCDRCMDD.PGM returned data="+xml_);
+
     }
     else
     {
       xml2_ = conv1208.byteArrayToString(outputData, 8, bytesReturned, 0);
       refreshedXML2_ = true;
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Refreshing XML /QSYS.LIB/QCDRCMDD.PGM returned data="+xml2_);
     }
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Successfully refreshed XML (format "+format+") information for "+path_+".");
   }
