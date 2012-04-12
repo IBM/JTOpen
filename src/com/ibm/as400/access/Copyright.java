@@ -78,6 +78,7 @@ package com.ibm.as400.access;
 //@F8   20120210  Improve CADSPool performance
 //@F9   20120213  JDBC:  Decimal data errors property
 //@FA   20120228  JDBC:  Fix java.util.NoSuchElementException: Vector Enumeration thrown by rollback
+//@FB   20120410  Print: synchronized send and receive request in NPConversation.makeRequest()
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
