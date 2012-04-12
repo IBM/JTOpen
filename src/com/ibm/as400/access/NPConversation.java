@@ -109,17 +109,22 @@ class NPConversation extends Object
         request.setConverter(converter_);
         reply.setConverter(converter_);
         request.setCorrelation(correlation);
-        server_.clearInstanceReplyStreams();
-        server_.addInstanceReplyStream(reply);
-        server_.send(request, correlation);
+        DataStream ds;  //@FBA
+        //to fix multi-threads bug; server_ clear reply and add reply should be atomic.
+        //If no this, sometimes server_.receive will get other type reply stream.
+        synchronized (server_) { //@FBA, 
+            server_.clearInstanceReplyStreams();
+            server_.addInstanceReplyStream(reply);
+            server_.send(request, correlation);
+            ds = server_.receive(correlation);  //@D5A
+        } //@FBA
         //@D5A begin
-        DataStream ds = server_.receive(correlation); 
         //Unknown data stream
         if (ds != null) {
-        	if (!(ds instanceof NPDataStream)) {
-        		Trace.log(Trace.ERROR, "Unknown reply data stream:" + ds.getClass().getName(),ds.data_);
-        		throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
-        	}
+            if (!(ds instanceof NPDataStream)) {
+                Trace.log(Trace.ERROR, "Unknown reply data stream:" + ds.getClass().getName(),ds.data_);
+                throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+            }
         }
         reply = (NPDataStream)ds;
         //@D5A end
