@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400JDBCBlobLocator.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -43,7 +43,7 @@ public class AS400JDBCBlobLocator implements Blob
   static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
-  JDLobLocator locator_; 
+  JDLobLocator locator_;
   Object savedObject_; // This is our InputStream or byte[] or whatever that needs to be written if we are batching.
   int savedScale_; // This is our length that goes with our savedObject_.
 
@@ -77,11 +77,11 @@ Returns the entire BLOB as a stream of uninterpreted bytes.
 @exception  SQLException    If an error occurs.
 **/
   public InputStream getBinaryStream() throws SQLException
-  {  
+  {
     //Following Native, throw HY010 after free() has been called.  Note:  NullPointerException if synchronized(null-ref)
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       return new AS400JDBCInputStream(locator_);
@@ -102,10 +102,10 @@ Returns part of the contents of the BLOB.
                             or an error occurs.
 **/
   public byte[] getBytes(long position, int length) throws SQLException
-  {   
+  {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -132,11 +132,11 @@ Returns the handle to this BLOB locator in the database.
 
 @return             The handle to this locator in the database.
 **/
-  int getHandle() throws SQLException //@free called from rs.updateValue(), which in turn will throw exc back to rs.updateX() caller
+  public int getHandle() throws SQLException //@free called from rs.updateValue(), which in turn will throw exc back to rs.updateX() caller
   {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     return locator_.getHandle();
   }
 
@@ -153,7 +153,7 @@ Returns the length of the BLOB.
   {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       return locator_.getLength();
@@ -199,10 +199,10 @@ Returns the position at which a pattern is found in the BLOB.
 @exception SQLException     If the position is not valid or an error occurs.
 **/
   public long position(byte[] pattern, long position) throws SQLException
-  {     
+  {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -250,7 +250,7 @@ Returns the position at which a pattern is found in the BLOB.
   {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -301,7 +301,7 @@ Returns the position at which a pattern is found in the BLOB.
   {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-     
+
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -313,9 +313,9 @@ Returns the position at which a pattern is found in the BLOB.
 
 
   /**
-   Writes an array of bytes to this BLOB, starting at position <i>position</i> 
+   Writes an array of bytes to this BLOB, starting at position <i>position</i>
    in the BLOB.
-   
+
    @param position The position (1-based) in the BLOB where writes should start.
    @param bytesToWrite The array of bytes to be written to this BLOB.
    @return The number of bytes written to the BLOB.
@@ -327,7 +327,7 @@ Returns the position at which a pattern is found in the BLOB.
   {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       int offset = (int)position-1;
@@ -360,8 +360,8 @@ Returns the position at which a pattern is found in the BLOB.
 
 
   /**
- Writes all or part of the byte array the application passes in to this BLOB, 
- starting at position <i>position</i> in the BLOB.  
+ Writes all or part of the byte array the application passes in to this BLOB,
+ starting at position <i>position</i> in the BLOB.
  The <i>lengthOfWrite</i>
  bytes written will start from <i>offset</i> in the bytes that were provided by the
  application.
@@ -379,7 +379,7 @@ Returns the position at which a pattern is found in the BLOB.
   {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       int blobOffset = (int)position-1;
@@ -411,18 +411,18 @@ Returns the position at which a pattern is found in the BLOB.
 
   /**
   Truncates this BLOB to a length of <i>lengthOfBLOB</i> bytes.
-   
-  @param lengthOfBLOB The length, in bytes, that this BLOB should be after 
+
+  @param lengthOfBLOB The length, in bytes, that this BLOB should be after
   truncation.
 
   @exception SQLException If there is an error accessing the BLOB or if the length
-  specified is greater than the length of the BLOB. 
+  specified is greater than the length of the BLOB.
   **/
   public void truncate(long lengthOfBLOB) throws SQLException
   {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
     synchronized(locator_)
     {
       int length = (int)lengthOfBLOB;
@@ -447,7 +447,7 @@ Returns the position at which a pattern is found in the BLOB.
    * resources that it holds. The object is invalid once the <code>free</code>
    * method is called. If <code>free</code> is called multiple times, the
    * subsequent calls to <code>free</code> are treated as a no-op.
-   * 
+   *
    * @throws SQLException
    *             if an error occurs releasing the Blob's resources
    */
@@ -455,24 +455,24 @@ Returns the position at which a pattern is found in the BLOB.
   {
       if(locator_ == null)
           return;  //no-op
-      
+
      synchronized(locator_) //@sync
-     {   
+     {
          locator_.free();
-     
+
          locator_  = null;  //@pda make objects available for GC
          savedObject_ = null;
          cache_ = null;
      }
   }
-  
+
 
   // @PDA jdbc40
   /**
    * Returns an <code>InputStream</code> object that contains a partial
    * <code>Blob</code> value, starting with the byte specified by pos, which
    * is length bytes in length.
-   * 
+   *
    * @param pos
    *            the offset to the first byte of the partial value to be
    *            retrieved. The first byte in the <code>Blob</code> is at
@@ -490,7 +490,7 @@ Returns the position at which a pattern is found in the BLOB.
   {
       if(locator_ == null)//@free
           JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+
       synchronized(locator_)
       {
           return new AS400JDBCInputStream(locator_, pos, length);
