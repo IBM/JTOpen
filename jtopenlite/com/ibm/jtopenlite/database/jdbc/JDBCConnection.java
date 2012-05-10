@@ -25,6 +25,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
+/**
+<p>The JDBCConnection class provides a JDBC connection
+to a specific DB2 for IBM i database.  Use
+DriverManager.getConnection() with a jdbc:jtopenlite://SYSTENAME URL to create AS400JDBCConnection
+objects.
+**/
 public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallback
 {
   private DatabaseConnection conn_;
@@ -47,7 +53,7 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
 
   private boolean autoCommit_ = true;         /* JDBC view of autocommit */
   private int     transactionIsolation_ = Connection.TRANSACTION_NONE;  /* JDBC view of transaction isolation level */
-                                          /* None means that transation isolation has not been set */
+                                          /* None means that transaction isolation has not been set */
   private final boolean[] usedRPBs_ = new boolean[32768];
 
   private final Calendar calendar_ = Calendar.getInstance(); // Master calendar used for conversions.
