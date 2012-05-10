@@ -1,21 +1,23 @@
 <!--///////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: build.xml
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Getting Started
-// 
+//
 //
 // Pre-requisites:
 //   - JDK 1.4.1 (or higher)
+//   - JDK 1.5   (for JTOpenLite)
+//   - JDK 1.6   (for java6 version)
 //   - Apache Ant 1.5
 //   - CVS client (to download source)
 //
@@ -68,9 +70,9 @@
 //    "/jtopen_build/javadoc" and the various "/jtopen_build/output*" directories.
 //
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // Requisite jars and packages
-// 
+//
 // The following is a list of jar files and the URLs from which they can be
 // obtained. These jar files are required in order to build JTOpen. We cannot
 // include these jar files in the JTOpen CVS repository due to licensing issues.
@@ -114,7 +116,7 @@
 //
 // Filename: preverify1.1 or preverify1.1.exe
 // Location: http://java.sun.com/products/sjwtoolkit/
-// Description: J2ME Wireless Toolkit preverification tool required to build the 
+// Description: J2ME Wireless Toolkit preverification tool required to build the
 //              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
 //              Note:  The J2ME Wireless Toolkit can only be installed on Windows or Linux.
 //              (The preverify1.1.exe file can be found in C:\WTKxx\bin after the install, where "xx" is the J2ME WTK version number.)
@@ -129,7 +131,7 @@
 //              The location link is for Windows users to obtain a CVS client.
 //
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // Useful targets
 //
 //    usage         - This is the default. Prints information on available targets.
@@ -148,7 +150,7 @@
 //    micro         - Builds just the jt400Micro.jar (including compiling and pre-verification).
 //    zip           - Builds just the doc.zip and src.zip files, assuming the source has
 //                    been downloaded and the javadoc has been built.
-//                    
+//
 // Suggested build invocation:
 //
 //   java org.apache.tools.ant.Main clean clean-source source all
@@ -174,10 +176,10 @@
 //                        on your system.
 //
 ////////////////////////////////////////////////////////////////////////////-->
-  
+
 
 <project name="JTOpen" basedir="." default="usage">
-  
+
 
 <!--///////////////////////////////////////////////////////////////////////////
     // PROPERTIES
@@ -186,27 +188,46 @@
   <!-- The "build" value is the root directory in which the JTOpen
        files will get downloaded and built. All of the other
        subdirectories required by this build stem off of this
-       directory. --> 
-  <property name="build" value="/jtopen_build"/>
+       directory. -->
+  <!-- This can be overridden on the ant command line using
+	    -Dbuild=/build/JTOpen -->
+
+   <condition property="build" value="/jtopen_build">
+	  <not>
+	      <isset property="build"/>
+	  </not>
+   </condition>
+
+  <!-- Set the properties for the JDKs used to compile the code -->
+  <property name="jdk14" value="/jdk1.4"/>
+  <property name="jdk15" value="/jdk1.5"/>
+  <property name="jdk16" value="/jdk1.6.0"/>
+
+  <!-- Set the id used to access cvs -->
+  <property name="cvsUserid" value="anonymous"/>
+  <property name="cvsPassword" value=""/>
 
 
-  <property name="bin" value="${build}/bin"/>  
+  <property name="bin" value="${build}/bin"/>
   <property name="source" value="${build}/src"/>
   <property name="jdbc40source" value="${build}/jdbc40"/>
   <property name="source-contrib" value="${build}/contrib"/>
   <property name="source-micro" value="${build}/micro"/>
+  <property name="source-jtopenlite" value="${build}/jtopenlite"/>
   <property name="dist" value="${build}/dist"/>
   <property name="include" value="${build}/include"/>
   <property name="stubs" value="${build}/stubs"/> <!-- stubs are classes we need for compiling, but we don't ship. -->
   <property name="javadoc" value="${build}/javadoc"/>
   <property name="output" value="${build}/output"/>
   <property name="output-micro" value="${build}/output-micro"/>
+  <property name="output-jtopenlite" value="${build}/output-jtopenlite"/>
   <property name="output-micro-verified" value="${build}/output-micro-verified"/>
 
   <property name="build.sysclasspath" value="ignore"/>
-  
-  <property name="doclink" value="http://download.oracle.com/javase/1.4.2/docs/api"/>
-    
+
+  <property name="doclink" value="http://download.oracle.com/javase/1.4.2/docs/api/"/>
+  <property name="doclink6" value="http://download.oracle.com/javase/6/docs/api/"/>
+
   <property name="show-progress" value="false"/>
 
   <!-- These local socket optimizations are only beneficial when running
@@ -223,7 +244,7 @@
     <exclude name="com/ibm/as400/access/SocketContainerUnix2$SCUInputStream.class"/>
     <exclude name="com/ibm/as400/access/SocketContainerUnix2$SCUOutputStream.class"/>
   </patternset>
-    
+
   <!-- These optimizations are for executing certain Toolbox functions on-thread and
        in-process when running Java code on OS/400 that connects to localhost.
        They use JNI calls instead of socket calls to the Client Access Host Servers.
@@ -259,26 +280,27 @@
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="all" depends="jar,javadoc,zip"/>
 
-  
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: clean
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="clean" depends="clean-javadoc,clean-dist,clean-output"/>
-  
+
   <target name="clean-dist">
     <delete dir="${dist}"/>
   </target>
-  
+
   <target name="clean-javadoc">
     <delete dir="${javadoc}"/>
   </target>
-  
+
   <target name="clean-output">
     <delete dir="${output}"/>
     <delete dir="${output-micro}"/>
+    <delete dir="${output-jtopenlite}"/>
     <delete dir="${output-micro-verified}"/>
   </target>
-  
+
 
 
 <!--///////////////////////////////////////////////////////////////////////////
@@ -288,6 +310,7 @@
     <delete dir="${source}"/>
     <delete dir="${source-contrib}"/>
     <delete dir="${source-micro}"/>
+    <delete dir="${source-jtopenlite}"/>
     <delete dir="${build}/CVS"/>
     <delete file="${build}/license.html"/>
     <delete file="${build}/readme.html"/>
@@ -295,13 +318,20 @@
   </target>
 
 
-  
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: compile
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="compile" depends="init">
-    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
     <fail message="Can't find ${include}/servlet.jar." unless="servletJarExists"/>
+  	<tstamp/>
+  	<echo message="compiling jtopen on ${DSTAMP}"/>
+  	<replaceregexp file="${source}/com/ibm/as400/access/Copyright.java"
+  	               match="built=[^ ]*"
+  	               replace="built=${DSTAMP}"
+  	               byline="true"
+  	/>
+
     <javac srcdir="${source}:${source-contrib}"
            destdir="${output}"
            memoryMaximumSize="256m"
@@ -310,7 +340,8 @@
            debuglevel="lines,source"
            fork="true"
            encoding="iso-8859-1"
-           target="1.1">
+           target="1.1"
+    	   executable="${jdk14}/bin/javac" >
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
@@ -327,7 +358,6 @@
   </target>
 
   <target name="compile-micro" depends="init">
-    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
     <fail message="Can't find ${include}/midpapi10.jar." unless="midpapiJarExists"/>
     <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
     <javac srcdir="${source-micro}:${source}"
@@ -337,13 +367,14 @@
            debuglevel="lines,source"
            fork="true"
            encoding="iso-8859-1"
-           target="1.1">
+           target="1.1"
+    	   executable="${jdk14}/bin/javac" >
       <include name="com/ibm/as400/micro/*.java"/>
       <include name="java/sql/*.java"/>
       <include name="java/math/*.java"/>
       <include name="java/net/*.java"/>
       <include name="java/util/*.java"/>
-      
+
       <!-- These classes only belong in the ME server, not the client. -->
       <exclude name="com/ibm/as400/micro/ConnectionHandler.java"/>
       <exclude name="com/ibm/as400/micro/JdbcMeService.java"/>
@@ -354,13 +385,38 @@
       <exclude name="com/ibm/as400/micro/ResultSetHandler.java"/>
       <exclude name="com/ibm/as400/micro/Service.java"/>
       <exclude name="com/ibm/as400/micro/StatementHandler.java"/>
-      
+
       <bootclasspath>
         <pathelement path="${include}/midpapi10.jar:${include}/cldcapi10.jar:${include}"/>
       </bootclasspath>
     </javac>
-  </target>      
-  
+  </target>
+
+
+	  <target name="compile-jtopenlite" depends="init">
+	  	<tstamp/>
+	  	<echo message="compiling jtopenlite on ${DSTAMP}"/>
+	  	<replaceregexp file="${source-jtopenlite}/com/ibm/jtopenlite/About.java"
+	  	               match="INTERFACE_LEVEL=&quot;.*&quot;"
+	  	               replace="INTERFACE_LEVEL=&quot;${DSTAMP}&quot;"
+	  	               byline="true"
+	  	/>
+	    <javac srcdir="${source-jtopenlite}"
+	           destdir="${output-jtopenlite}"
+	           failonerror="true"
+	           debug="on"
+	           debuglevel="lines,source"
+	           fork="true"
+	           encoding="iso-8859-1"
+	           target="1.5"
+	    	   executable="${jdk15}/bin/javac" >
+	      <include name="com/ibm/jtopenlite/*.java"/>
+	      <include name="com/ibm/jtopenlite/**/*.java"/>
+
+	    </javac>
+	  </target>
+
+
 
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: init
@@ -372,26 +428,29 @@
     <mkdir dir="${javadoc}"/>
     <!-- mkdir dir="${include}"/ -->
     <mkdir dir="${output}"/>
+    <mkdir dir="${output-jtopenlite}"/>
     <mkdir dir="${output-micro}"/>
     <mkdir dir="${output-micro-verified}"/>
     <mkdir dir="${bin}"/>
-    
+<!--
     <condition property="jdk14Exists">
       <available classname="java.nio.Buffer"/>
     </condition>
-    
+-->
+
+
     <condition property="servletJarExists">
       <available file="${include}/servlet.jar" type="file"/>
     </condition>
-    
+
     <condition property="midpapiJarExists">
       <available file="${include}/midpapi10.jar" type="file"/>
     </condition>
-    
+
     <condition property="cldcapiJarExists">
       <available file="${include}/cldcapi10.jar" type="file"/>
     </condition>
-    
+
     <condition property="javadocIncludesExist">
       <and>
         <available file="${include}/servlet.jar" type="file"/>
@@ -408,9 +467,9 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: jar
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet"/>
+  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jtopenlite"/>
 
-  <!-- Note that the utilities package is now included in the jt400.jar. -->  
+  <!-- Note that the utilities package is now included in the jt400.jar. -->
   <target name="jar-jt400" depends="init,compile,pcml,copyright">
     <jar jarfile="${dist}/jt400.jar" manifest="${build}/build/jt400_manifest.txt">
       <fileset dir="${output}">
@@ -434,7 +493,7 @@
     </jar>
     <checksum file="${dist}/jt400.jar"/>
   </target>
-  
+
   <target name="jar-jt400Micro" depends="init,compile-micro,micro-preverify">
     <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
       <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
@@ -442,6 +501,16 @@
     </jar>
     <checksum file="${dist}/jt400Micro.jar"/>
   </target>
+
+    <target name="jar-jtopenlite" depends="init,compile-jtopenlite">
+      <jar jarfile="${dist}/jtopenlite.jar">
+        <fileset dir="${output-jtopenlite}" />
+        <fileset dir="${build}" includes="license.html"/>
+      </jar>
+      <checksum file="${dist}/jtopenlite.jar"/>
+    </target>
+
+
 
   <target name="jar-jt400Native" depends="init,compile,pcml,copyright">
     <jar jarfile="${dist}/jt400Native.jar" manifest="${build}/build/jt400Native_manifest.txt">
@@ -470,7 +539,7 @@
     </jar>
     <checksum file="${dist}/jt400Native.jar"/>
   </target>
-  
+
   <target name="jar-jt400Proxy" depends="init,compile">
     <jar jarfile="${dist}/jt400Proxy.jar" manifest="${build}/build/jt400Proxy_manifest.txt">
       <fileset dir="${output}" includesfile="${build}/build/proxy.includes"/>
@@ -506,27 +575,23 @@
     </jar>
     <checksum file="${dist}/jt400Servlet.jar"/>
   </target>
-  
+
 
 
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: javadoc
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="javadoc" depends="init,checkJavadocIncludes">
-    <condition property="jdk140Exists"> <!-- Need 1.4.1 or later for javadoc to work on Windows. -->
-      <contains string="${java.version}" substring="1.4.0"/>
-    </condition>
-    <fail message="Not using JDK 1.4.1 or higher." if="jdk140Exists"/>
-    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/> <!-- Sanity. -->
     <javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
-             sourcepath="${source}:${source-contrib}:${source-micro}:${include}"
+             sourcepath="${source}:${source-contrib}:${source-jtopenlite}:${source-micro}:${include}"
              destdir="${javadoc}"
              use="false"
              link="${doclink}"
              maxmemory="256m"
              failonerror="true"
-             additionalparam="-breakiterator">
+             additionalparam="-breakiterator"
+    	     executable="${jdk15}/bin/javadoc">
       <classpath>
         <!-- Include these if the user happens to have them, just so
              javadoc generates without any extra warnings. -->
@@ -556,13 +621,13 @@
         ${include}/sslightx.zip
     </echo>
   </target>
-  
-  
+
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: micro
-    ///////////////////////////////////////////////////////////////////////////-->  
+    ///////////////////////////////////////////////////////////////////////////-->
   <target name="micro" depends="init,jar-jt400Micro"/>
-  
+
   <target name="micro-preverify" depends="init,compile-micro">
     <condition property="preverifyExeExists">
       <or>
@@ -577,7 +642,7 @@
     <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
     <fail message="Can't find ${bin}/preverify executable." unless="preverifyExeExists"/>
     <echo>Pre-verifying Micro Edition classes</echo>
-    <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false"> 
+    <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false">
       <!-- The preverify tool expects directories to be separted by ';' in its -classpath option. -->
       <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi10.jar;${include}/cldcapi10.jar ${output-micro}"/>
     </exec>
@@ -649,28 +714,31 @@
           <os family="windows"/>      // Assume CVS is available.
         </not>
       </or>
-    </condition>        
+    </condition>
     <fail message="Can't find cvs executable.  Copy cvs.exe to local directory." unless="cvsExeExists"/>
 -->
-    <cvspass cvsroot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400" password=""/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+
+    <cvspass cvsroot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="src" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="contrib" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="include" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="micro" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="build" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="stubs" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="license.html" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="readme.html" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="changes.html" dest="${build}"/>
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="jtopenlite" dest="${build}"/>
   </target>
 
 
@@ -683,31 +751,31 @@
 Available Ant targets for the JTOpen build script include:
 
   all
-  
+
   clean, clean-dist, clean-javadoc, clean-output
-  
+
   clean-source
-  
+
   compile
-  
+
   compile-micro
 
   copyright
-  
+
   init
-  
+
   jar, jar-jt400, jar-jt400Micro, jar-jt400Native, jar-jt400Proxy, jar-jt400Servlet
-  
+
   javadoc, checkJavadocIncludes
-  
+
   micro, micro-preverify
-  
+
   pcml
-  
+
   source
-  
+
   usage
-  
+
   zip, zip-javadoc, zip-source
     </echo>
   </target>
@@ -718,20 +786,21 @@ Available Ant targets for the JTOpen build script include:
     // Target: zip
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="zip" depends="zip-source,zip-javadoc"/>
-  
-  <target name="zip-javadoc">  
+
+  <target name="zip-javadoc">
     <zip zipfile="${dist}/doc.zip" update="false">
       <zipfileset dir="${javadoc}"/>
       <zipfileset dir="${build}" includes="license.html"/>
     </zip>
     <checksum file="${dist}/doc.zip"/>
   </target>
-  
+
   <target name="zip-source">
     <zip zipfile="${dist}/src.zip" update="false">
       <zipfileset dir="${source}"  excludes=".project"/>
       <zipfileset dir="${source-contrib}"  excludes=".project"/>
       <zipfileset dir="${source-micro}"  excludes=".project"/>
+      <zipfileset dir="${source-jtopenlite}"  excludes=".project"/>
       <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar,.project"/>
       <zipfileset dir="${build}/build" excludes="**/mypasswd,.project"/>
       <zipfileset dir="${build}" includes="license.html"/>
@@ -739,6 +808,6 @@ Available Ant targets for the JTOpen build script include:
       <zipfileset dir="${build}" includes="changes.html"/>
     </zip>
     <checksum file="${dist}/src.zip"/>
-  </target>  
+  </target>
 
 </project>
