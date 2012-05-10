@@ -247,14 +247,14 @@ public class AS400ZonedDecimal implements AS400DataType
 
     // @E0A
     /**
-     * Converts the specified Java object into IBM i format in 
+     * Converts the specified Java object into IBM i format in
      * the specified byte array.
      *
      * @param doubleValue   The value to be converted to IBM i format.  If the decimal part
      *                      of this value needs to be truncated, it will be rounded towards
      *                      zero.  If the integral part of this value needs to be truncated,
      *                      an exception will be thrown.
-     * @param as400Value    The array to receive the data type in IBM i format.  There must 
+     * @param as400Value    The array to receive the data type in IBM i format.  There must
      *                      be enough space to hold the IBM i value.
      * @return              The number of bytes in the IBM i representation of the data type.
      **/
@@ -265,16 +265,16 @@ public class AS400ZonedDecimal implements AS400DataType
 
     // @E0A
     /**
-     * Converts the specified Java object into IBM i format in 
+     * Converts the specified Java object into IBM i format in
      * the specified byte array.
      *
      * @param doubleValue   The value to be converted to IBM i format.  If the decimal part
      *                      of this value needs to be truncated, it will be rounded towards
      *                      zero.  If the integral part of this value needs to be truncated,
      *                      an exception will be thrown.
-     * @param as400Value    The array to receive the data type in IBM i format.  
+     * @param as400Value    The array to receive the data type in IBM i format.
      *                      There must be enough space to hold the IBM i value.
-     * @param offset        The offset into the byte array for the start of the IBM i value. 
+     * @param offset        The offset into the byte array for the start of the IBM i value.
      *                      It must be greater than or equal to zero.
      * @return              The number of bytes in the IBM i representation of the data type.
      **/
@@ -290,13 +290,13 @@ public class AS400ZonedDecimal implements AS400DataType
             throw new ExtendedIllegalArgumentException("doubleValue", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
         // Extract the normalized value.  This is the value represented by
-        // two longs (one for each side of the decimal point).  Using longs 
-        // here improves the quality of the algorithm as well as the 
+        // two longs (one for each side of the decimal point).  Using longs
+        // here improves the quality of the algorithm as well as the
         // performance of arithmetic operations.  We may need to use an
         // "effective" scale due to the lack of precision representable
         // by a long.
         long leftSide = (long)absValue;
-        int effectiveScale = (scale > 15) ? 15 : scale;       
+        int effectiveScale = (scale > 15) ? 15 : scale;
         long rightSide = (long)Math.round((absValue - (double)leftSide) * Math.pow(10, effectiveScale));
 
         // Ok, now we are done with any double arithmetic!
@@ -306,9 +306,9 @@ public class AS400ZonedDecimal implements AS400DataType
         int rightmostOffset = offset + digits - 1;
         int padOffset = rightmostOffset - (scale - effectiveScale);
         for (int i = rightmostOffset; i > padOffset; --i)
-            as400Value[i] = (byte)0x00F0;       
+            as400Value[i] = (byte)0x00F0;
 
-        // Compute the bytes for the right side of the decimal point. 
+        // Compute the bytes for the right side of the decimal point.
         int decimalOffset = rightmostOffset - scale;
         int nextDigit;
         for (int i = padOffset; i > decimalOffset; --i) {
@@ -344,8 +344,8 @@ public class AS400ZonedDecimal implements AS400DataType
      * part of the value needs to be truncated to be represented by a Java
      * double value, then it converted to either Double.POSITIVE_INFINITY
      * or Double.NEGATIVE_INFINITY.
-     * 
-     * @param as400Value The array containing the data type in IBM i format.  
+     *
+     * @param as400Value The array containing the data type in IBM i format.
      *                   The entire data type must be represented.
      * @return           The Java double value corresponding to the data type.
      **/
@@ -362,10 +362,10 @@ public class AS400ZonedDecimal implements AS400DataType
      * part of the value needs to be truncated to be represented by a Java
      * double value, then it converted to either Double.POSITIVE_INFINITY
      * or Double.NEGATIVE_INFINITY.
-     * 
-     * @param as400Value The array containing the data type in IBM i format.  
+     *
+     * @param as400Value The array containing the data type in IBM i format.
      *                   The entire data type must be represented.
-     * @param offset     The offset into the byte array for the start of the IBM i value.  
+     * @param offset     The offset into the byte array for the start of the IBM i value.
      *                   It must be greater than or equal to zero.
      * @return           The Java double value corresponding to the data type.
      **/
@@ -376,6 +376,11 @@ public class AS400ZonedDecimal implements AS400DataType
             throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
 
         // Compute the value.
+        /*
+         * This old code had a bug in that it can produce
+         * inexact answers. For example
+         * 10.10105 is turned into -10.101049999999999
+
         double doubleValue = 0;
         double multiplier = Math.pow(10, digits - scale - 1);
         int rightMostOffset = offset + digits - 1;
@@ -383,7 +388,23 @@ public class AS400ZonedDecimal implements AS400DataType
             doubleValue += ((byte)(as400Value[i] & 0x000F)) * multiplier;
             multiplier /= 10;
         }
-                        
+        */
+
+        /*
+         * Instead we gather the digits using a long, then divide by the scale.
+         * Note:  Using a multiply by Math.pow(10, -scale) gives a worse answer.
+         * Math.pow(10,-scale) is a less accurate number than Math.pow(10,scale)
+         */
+
+        long   longValue = 0;
+        double doubleValue = 0;
+        double divisor = Math.pow(10, scale);
+        int rightMostOffset = offset + digits - 1;
+        for(int i = offset; i <= rightMostOffset; ++i) {
+            longValue = longValue * 10 + (byte)(as400Value[i] & 0x000F);
+        }
+        doubleValue = longValue / divisor;
+
         // Determine the sign.
         switch(as400Value[rightMostOffset] & 0x00F0) {
             case 0x00B0:
@@ -397,7 +418,7 @@ public class AS400ZonedDecimal implements AS400DataType
             case 0x00F0:
                 // Positive.
                 break;
-            default: 
+            default:
                 throwNumberFormatException(HIGH_NIBBLE, rightMostOffset,
                                            as400Value[rightMostOffset] & 0x00FF,
                                            as400Value);
