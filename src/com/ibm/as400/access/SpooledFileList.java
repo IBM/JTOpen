@@ -333,10 +333,9 @@ implements java.io.Serializable
       * parameter, was run. This parameter can be used in conjunction with the user
       * name, qualified output queue name, form type, user-specified data, auxiliary
       * storage pool, starting spooled file create date, starting spooled file create
-      * time, ending spooled file create date, ending spooled file create time, or
-      * qualified job name parameters to return a partial list of all the spooled 
-      * files. The list of spooled files returned is sorted by status, output 
-      * priority, date, and time.
+      * time, ending spooled file create date, or ending spooled file create time 
+      * parameters to return a partial list of all the spooled files. The list of 
+      * spooled files returned is sorted by status, output priority, date, and time.
       *
       * The following special values are supported for this parameter:
       *@param jobSystemFilter
@@ -491,11 +490,11 @@ implements java.io.Serializable
       * The date the spooled file was created on the system. This parameter can be
       * used in conjunction with the user name, qualified output queue name, form 
       * type, user-specified data, auxiliary storage pool, job system name, starting 
-      * spooled file create time, ending spooled file create date, ending spooled file
-      * create time, or qualified job name parameters to return a partial list of all
-      * the spooled files. The list of spooled files returned is sorted by status, 
-      * output priority, date, and time. The date must be in the CYYMMDD format or 
-      * one of the following special values:
+      * spooled file create time, ending spooled file create date, or ending spooled 
+      * file create time parameters to return a partial list of all the spooled files. 
+      * The list of spooled files returned is sorted by status, output priority, date, 
+      * and time. The date must be in the CYYMMDD format or one of the following 
+      * special values:
       * @param startDateFilter
       * <br>
       *   <I>date</I> All spooled files with a create date and time equal to or 
@@ -544,13 +543,13 @@ implements java.io.Serializable
       * This parameter can be used in conjunction with the user name, qualified
       * output queue name, form type, user-specified data, auxiliary storage pool, 
       * job system name, starting spooled file create date, ending spooled file
-      * create date, ending spooled file create time, or qualified job name 
-      * parameters to return a partial list of all the spooled files. The list of
-      * spooled files returned is sorted by status, output priority, date, and time.
-      * This parameter must be set to blanks when special value *ALL or *FIRST is used
-      * for parameter Starting spooled file create date. This parameter must have a
-      * value set if a date is specified for parameter Starting spooled file create 
-      * date. The time must be in the HHMMSS format. 
+      * create date, or ending spooled file create time parameters to return a 
+      * partial list of all the spooled files. The list of spooled files returned 
+      * is sorted by status, output priority, date, and time. This parameter must 
+      * be set to blanks when special value *ALL or *FIRST is used for parameter 
+      * Starting spooled file create date. This parameter must have a value set if
+      * a date is specified for parameter Starting spooled file create date. The 
+      * time must be in the HHMMSS format. 
       *
       * The time format HHMMSS is defined as follows:
       * @param startTimeFilter
