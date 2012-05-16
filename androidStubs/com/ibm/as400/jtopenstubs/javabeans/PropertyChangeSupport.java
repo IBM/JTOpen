@@ -12,14 +12,20 @@ public class PropertyChangeSupport {
 
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 	public void firePropertyChange(String string, Object oldValue,
 			Object newValue) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	public void firePropertyChange(String property, boolean oldValue,
+			boolean newValue) {
+		// TODO Auto-generated method stub
+
 	}
 
 
