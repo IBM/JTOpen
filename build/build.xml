@@ -213,12 +213,15 @@
   <property name="jdbc40source" value="${build}/jdbc40"/>
   <property name="source-contrib" value="${build}/contrib"/>
   <property name="source-micro" value="${build}/micro"/>
+  <property name="source-android" value="${build}/android"/>
+  <property name="source-androidStubs" value="${build}/androidStubs"/>
   <property name="source-jtopenlite" value="${build}/jtopenlite"/>
   <property name="dist" value="${build}/dist"/>
   <property name="include" value="${build}/include"/>
   <property name="stubs" value="${build}/stubs"/> <!-- stubs are classes we need for compiling, but we don't ship. -->
   <property name="javadoc" value="${build}/javadoc"/>
   <property name="output" value="${build}/output"/>
+  <property name="output-android" value="${build}/output-android"/>
   <property name="output-micro" value="${build}/output-micro"/>
   <property name="output-jtopenlite" value="${build}/output-jtopenlite"/>
   <property name="output-micro-verified" value="${build}/output-micro-verified"/>
@@ -311,6 +314,7 @@
     <delete dir="${source-contrib}"/>
     <delete dir="${source-micro}"/>
     <delete dir="${source-jtopenlite}"/>
+    <delete dir="${source-android}"/>
     <delete dir="${build}/CVS"/>
     <delete file="${build}/license.html"/>
     <delete file="${build}/readme.html"/>
@@ -357,6 +361,41 @@
           tofile="${output}/utilities/UTMRI.properties"/>
   </target>
 
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: compile-android
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="compile-android" depends="source-android">
+	  	<tstamp/>
+	  	<echo message="compiling jtopen on ${DSTAMP}"/>
+	  	<replaceregexp file="${source-android}/com/ibm/as400/access/Copyright.java"
+	  	               match="built=[^ ]*"
+	  	               replace="built=${DSTAMP}"
+	  	               byline="true"
+	  	/>
+
+	    <javac srcdir="${source-android}:${source-androidStubs}"
+	           destdir="${output-android}"
+	           memoryMaximumSize="256m"
+	           failonerror="true"
+	           debug="on"
+	           debuglevel="lines,source"
+	           fork="true"
+	           encoding="iso-8859-1"
+	           target="1.1"
+	    	   executable="${jdk14}/bin/javac"
+	>
+	    </javac>
+	    <copy file="${source}/utilities/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/utilities/INMRI.properties"/>
+	    <copy file="${source}/utilities/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/utilities/UTMRI.properties"/>
+	  </target>
+
+
+
+
   <target name="compile-micro" depends="init">
     <fail message="Can't find ${include}/midpapi10.jar." unless="midpapiJarExists"/>
     <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
@@ -401,6 +440,7 @@
 	  	               replace="INTERFACE_LEVEL=&quot;${DSTAMP}&quot;"
 	  	               byline="true"
 	  	/>
+	  	<mkdir dir="${output-jtopenlite}"/>
 	    <javac srcdir="${source-jtopenlite}"
 	           destdir="${output-jtopenlite}"
 	           failonerror="true"
@@ -412,7 +452,6 @@
 	    	   executable="${jdk15}/bin/javac" >
 	      <include name="com/ibm/jtopenlite/*.java"/>
 	      <include name="com/ibm/jtopenlite/**/*.java"/>
-
 	    </javac>
 	  </target>
 
@@ -431,6 +470,8 @@
     <mkdir dir="${output-jtopenlite}"/>
     <mkdir dir="${output-micro}"/>
     <mkdir dir="${output-micro-verified}"/>
+    <mkdir dir="${output-android}"/>
+    <mkdir dir="${source-android}"/>
     <mkdir dir="${bin}"/>
 <!--
     <condition property="jdk14Exists">
@@ -467,7 +508,7 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: jar
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jtopenlite"/>
+  <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jtopenlite,jar-jt400android"/>
 
   <!-- Note that the utilities package is now included in the jt400.jar. -->
   <target name="jar-jt400" depends="init,compile,pcml,copyright">
@@ -509,6 +550,20 @@
       </jar>
       <checksum file="${dist}/jtopenlite.jar"/>
     </target>
+
+	  <target name="jar-jt400android" depends="init,compile-android,pcml-android,copyright-android">
+	    <jar jarfile="${dist}/jt400android.jar" manifest="${build}/build/jt400_manifest.txt">
+	      <fileset dir="${output-android}">
+	        <patternset refid="exclude.native.optimizations"/>
+	        <patternset refid="exclude.local.socket.implementation"/>
+	      </fileset>
+	      <fileset dir="${source}"
+	               includes="**/*.ser,**/*.dtd,**/*.xsl,**/*.xsd"
+	               excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
+	      <fileset dir="${build}" includes="license.html"/>
+	    </jar>
+	    <checksum file="${dist}/jt400android.jar"/>
+	  </target>
 
 
 
@@ -674,6 +729,30 @@
   </target>
 
 
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: pcml-android
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="pcml-android" depends="init">
+	    <condition property="pcmlRuntimeExists">
+	      <and>
+	        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
+	        <available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output}:${include}:${source}"/>
+	      </and>
+	    </condition>
+	    <fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
+	    <taskdef name="pcml" classname="PCMLTask"/>
+	    <pcml srcdir="${source}"
+	          destdir="${output-android}"
+	          classpath="${output-android}:${include}:${source}"
+	          includes="**/*.pcml"/>
+	    <!-- Classpath:
+	           Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
+	           Need "include" for the ProgramCallDocument class to use the AS400 object.
+	           Need JDK 1.4 or higher (XML) to parse the PCML.
+	           Need "source" to find the pcml.dtd.  -->
+	  </target>
+
+
 
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: copyright
@@ -684,6 +763,13 @@
                includes="**/*.class"
                verbose="${show-progress}"/>
   </target>
+
+	  <target name="copyright-android" depends="init">
+	    <taskdef name="copyright" classname="CopyrightInsertionTask"/>
+	    <copyright destdir="${output-android}"
+	               includes="**/*.class"
+	               verbose="${show-progress}"/>
+	  </target>
 
 
 	<!--///////////////////////////////////////////////////////////////////////////
@@ -739,7 +825,105 @@
              command="checkout -P -A" package="changes.html" dest="${build}"/>
     <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="jtopenlite" dest="${build}"/>
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="androidStubs" dest="${build}"/>
   </target>
+
+<!--///////////////////////////////////////////////////////////////////////////
+	// Target: source-android
+	// Create a version of JTOpen that is suitable for use on Android.
+	// Interfaces and classes not available in Android are replaced by
+	// stub classes in the androidStubs module.
+	///////////////////////////////////////////////////////////////////////////-->
+
+    <target name="source-android" >
+        <!-- copy source files from source -->
+        <copy todir="${source-android}" >
+            <fileset dir="${build}/src" >
+                <include name="com/**/*.java" />
+
+            	<!-- micro, vaccess, servlet, html and other GUI items are not available -->
+                <exclude name="com/ibm/as400/micro/*.java" />
+                <exclude name="com/ibm/as400/vaccess/**" />
+	            <exclude name="com/ibm/as400/util/commtrace/**" />
+                <exclude name="com/ibm/as400/util/servlet/**" />
+                <exclude name="com/ibm/as400/util/html/**" />
+                <exclude name="com/ibm/as400/access/*View.java" />
+                <exclude name="com/ibm/as400/access/ToolboxSignonHandler.java"/>
+                <exclude name="com/ibm/as400/access/TunnelProxyServer.java" />
+                <exclude name="com/ibm/as400/access/AS400SignonTextField.java" />
+                <exclude name="com/ibm/as400/access/*Dialog.java" />
+                <exclude name="com/ibm/as400/access/AS400SignonDialogAdapter.java" />
+
+                <!-- javax.sql package with XA resources is not available -->
+                <exclude name="com/ibm/as400/access/AS400JDBCX*.java" />
+
+            	<!-- org.ietf.jgss.GSSContext classes are not available -->
+                <exclude name="com/ibm/as400/access/TokenManager.java" />
+                <exclude name="com/ibm/as400/access/TokenManager2.java" />
+            </fileset>
+        </copy>
+
+    	<!-- point non working references to use the jtopenstub classes -->
+
+        <replaceregexp flags="g" >
+            <regexp pattern="java.awt" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javaawt" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*BeanInfo.java" />
+                <include name="**/ToolboxSignonHandler.java" />
+                <include name="**/PresentationLoader.java" />
+             </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="javax.swing" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javaxswing" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/ResourceBundleLoader.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="java.beans" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javabeans" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="sun.misc" />
+            <substitution expression="com.ibm.as400.jtopenstubs.sunmisc" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*Mlog.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="sun.util" />
+            <substitution expression="com.ibm.as400.jtopenstubs.sunutil" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*Calendar.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="org.ietf.jgss" />
+            <substitution expression="com.ibm.as400.jtopenstubs.orgietfjgss" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/Token*.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="javax.naming" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javaxnaming" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/AS400JDBC*" />
+            </fileset>
+        </replaceregexp>
+    </target>
 
 
 
