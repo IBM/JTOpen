@@ -204,7 +204,7 @@
   <property name="jdk16" value="/jdk1.6.0"/>
 
   <!-- Set the id used to access cvs -->
-  <property name="cvsUserid" value="anonymous"/>
+  <property name="cvsUserid" value="anoncvs"/>
   <property name="cvsPassword" value=""/>
 
 
