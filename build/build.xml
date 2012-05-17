@@ -603,7 +603,7 @@
 
   <!-- Note that the utilities package is now included in the jt400.jar. -->
   <target name="jar-jt400" depends="init,compile,pcml,copyright">
-    <jar jarfile="${dist}/jt400.jar" manifest="${build}/build/jt400_manifest.txt">
+    <jar jarfile="${dist}/jt400.jar" manifest="${sourceroot}/build/jt400_manifest.txt">
       <fileset dir="${output}">
         <patternset refid="exclude.native.optimizations"/>
         <patternset refid="exclude.local.socket.implementation"/>
@@ -627,8 +627,8 @@
   </target>
 
   <target name="jar-jt400Micro" depends="init,compile-micro,micro-preverify">
-    <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
-      <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
+    <jar jarfile="${dist}/jt400Micro.jar" manifest="${sourceroot}/build/jt400Micro_manifest.txt">
+      <fileset dir="${output-micro-verified}" includesfile="${sourceroot}/build/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
     <checksum file="${dist}/jt400Micro.jar"/>
@@ -643,7 +643,7 @@
     </target>
 
 	  <target name="jar-jt400android" depends="init,compile-android,pcml-android,copyright-android">
-	    <jar jarfile="${dist}/jt400android.jar" manifest="${build}/build/jt400_manifest.txt">
+	    <jar jarfile="${dist}/jt400android.jar" manifest="${sourceroot}/build/jt400_manifest.txt">
 	      <fileset dir="${output-android}">
 	        <patternset refid="exclude.native.optimizations"/>
 	        <patternset refid="exclude.local.socket.implementation"/>
@@ -661,7 +661,7 @@
 
 
 	  <target name="jar-jt4006" depends="init,compile6,pcml6,copyright6">
-	    <jar jarfile="${dist6}/jt400.jar" manifest="jt400_manifest.txt">
+	    <jar jarfile="${dist6}/jt400.jar" manifest="${sourceroot}/build/jt400_manifest.txt">
 	      <fileset dir="${output6}">
 	        <patternset refid="exclude.native.optimizations"/>
 	        <patternset refid="exclude.local.socket.implementation"/>
@@ -681,7 +681,7 @@
 	               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl,**/*.xsd"
 	               excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
 	      <fileset dir="${build}" includes="license.html"/>
-	      <fileset dir="${build}/build" includes="META-INF/services/java.sql.Driver"/> <!-- jdbc 4.0 driver manifest -->
+	      <fileset dir="${sourceroot}/build" includes="META-INF/services/java.sql.Driver"/> <!-- jdbc 4.0 driver manifest -->
 
 	    </jar>
 	    <checksum file="${dist6}/jt400.jar"/>
@@ -717,7 +717,7 @@
 
 
   <target name="jar-jt400Native" depends="init,compile,pcml,copyright">
-    <jar jarfile="${dist}/jt400Native.jar" manifest="${build}/build/jt400Native_manifest.txt">
+    <jar jarfile="${dist}/jt400Native.jar" manifest="${sourceroot}/build/jt400Native_manifest.txt">
       <fileset dir="${output}">
         <patternset>
             <!-- Exclude everything in the 'utilities' package except the AboutToolbox class. -->
@@ -745,17 +745,17 @@
   </target>
 
   <target name="jar-jt400Proxy" depends="init,compile">
-    <jar jarfile="${dist}/jt400Proxy.jar" manifest="${build}/build/jt400Proxy_manifest.txt">
-      <fileset dir="${output}" includesfile="${build}/build/proxy.includes"/>
-      <fileset dir="${include}" includesfile="${build}/build/proxy.includes"/>
-      <fileset dir="${source}" includesfile="${build}/build/proxy.includes"/>
+    <jar jarfile="${dist}/jt400Proxy.jar" manifest="${sourceroot}/build/jt400Proxy_manifest.txt">
+      <fileset dir="${output}" includesfile="${sourceroot}/build/proxy.includes"/>
+      <fileset dir="${include}" includesfile="${sourceroot}/build/proxy.includes"/>
+      <fileset dir="${source}" includesfile="${sourceroot}/build/proxy.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
     <checksum file="${dist}/jt400Proxy.jar"/>
   </target>
 
   <target name="jar-jt400Servlet" depends="init,compile">
-    <jar jarfile="${dist}/jt400Servlet.jar" manifest="${build}/build/jt400Servlet_manifest.txt">
+    <jar jarfile="${dist}/jt400Servlet.jar" manifest="${sourceroot}/build/jt400Servlet_manifest.txt">
       <fileset dir="${output}">
         <patternset>
             <include name="com/ibm/as400/util/html/**"/>
@@ -1189,7 +1189,7 @@
 	   </copy>
 
 	    <!-- jdbc 4.0 driver manifest -->
-	    <copy tofile="${build}/build/META-INF/services/java.sql.Driver"
+	    <copy tofile="${sourceroot}/build/META-INF/services/java.sql.Driver"
 	          overwrite="yes"
 	          preservelastmodified="yes"
 	          file="${sourceroot}/build/java.sql.Driver" />
@@ -1279,7 +1279,7 @@ Available Ant targets for the JTOpen build script include:
       <zipfileset dir="${source-micro}"  excludes=".project"/>
       <zipfileset dir="${source-jtopenlite}"  excludes=".project"/>
       <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar,.project"/>
-      <zipfileset dir="${build}/build" excludes="**/mypasswd,.project"/>
+      <zipfileset dir="${sourceroot}/build" excludes="**/mypasswd,.project"/>
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
       <zipfileset dir="${build}" includes="changes.html"/>
@@ -1291,7 +1291,7 @@ Available Ant targets for the JTOpen build script include:
 	    <zip zipfile="${dist6}/src.zip" update="false">
 	      <zipfileset dir="${source6}"  excludes=".project"/>
 	      <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar,.project"/>
-	      <zipfileset dir="${build}/build" excludes="**/mypasswd,.project"/>
+	      <zipfileset dir="${sourceroot}/build" excludes="**/mypasswd,.project"/>
 	      <zipfileset dir="${build}" includes="license.html"/>
 	      <zipfileset dir="${build}" includes="readme.html"/>
 	      <zipfileset dir="${build}" includes="changes.html"/>
