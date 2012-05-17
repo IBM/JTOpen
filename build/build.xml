@@ -229,9 +229,8 @@
 
   <property name="bin" value="${build}/bin"/>
   <property name="source" value="${sourceroot}/src"/>
-  <property name="source-jdbc40" value="${build}/jdbc40"/>
+  <property name="source-jdbc40" value="${sourceroot}/jdbc40"/>
   <property name="source-java6" value="${build}/java6"/>
-  <property name="jdbc40source" value="${build}/jdbc40"/>
   <property name="source-contrib" value="${sourceroot}/contrib"/>
   <property name="source-micro" value="${sourceroot}/micro"/>
   <property name="source-android" value="${build}/android"/>
@@ -369,8 +368,8 @@
     <fail message="Trying to clean eclipse"  if="inEclipse"/>
     <delete dir="${source}"/>
     <delete dir="${source-contrib}"/>
-    <delete dir="${source=jdbc40}"/>
-    <delete dir="${source=java6}"/>
+    <delete dir="${source-jdbc40}"/>
+    <delete dir="${source-java6}"/>
     <delete dir="${source-micro}"/>
     <delete dir="${source-jtopenlite}"/>
     <delete dir="${source-android}"/>
@@ -1006,6 +1005,7 @@
 	    // Target: jdbc40src
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="source-jdbc40" depends="init">
+	  	<echo> Processing jdbc40 file from ${source} to ${source-jdbc40} </echo>
 	    <taskdef name="jdbc40src" classname="Jdbc40Task" classpath="."/>
 	    <jdbc40src destdir="${source-jdbc40}"
 	               srcdir="${source}"
