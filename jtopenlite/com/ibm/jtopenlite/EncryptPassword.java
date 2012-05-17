@@ -13,6 +13,10 @@
 
 package com.ibm.jtopenlite;
 
+/**
+ * Package private class to handle the encryption of a password sent to the host server.
+ *
+ */
 final class EncryptPassword
 {
   private EncryptPassword()

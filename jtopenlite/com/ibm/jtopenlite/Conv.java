@@ -314,7 +314,7 @@ public final class Conv
     for (int i=0; i<length; ++i)
     {
       char c = s.charAt(i);
-      byte high = (byte)(c << 8);
+      byte high = (byte)(c >> 8);
       byte low = (byte)c;
       data[offset+(i*2)] = high;
       data[offset+(i*2)+1] = low;
@@ -334,7 +334,7 @@ public final class Conv
       } else {
         c = ' ';
       }
-      byte high = (byte)(c << 8);
+      byte high = (byte)(c >> 8);
       byte low = (byte)c;
       data[offset+(i*2)] = high;
       data[offset+(i*2)+1] = low;
@@ -365,16 +365,18 @@ public final class Conv
 
 
   /**
-   * Converts the specified String into Unicode bytes, padding the byte array with Unicode spaces (0x0020) up to <i>length</i> bytes.
+   * Converts the specified String into Unicode bytes, padding the byte array with Unicode
+   * spaces (0x0020) up to <i>length</i> bytes.
   **/
-  public static final void stringToBlankPadUnicodeByteArray(final String s, final byte[] data, final int offset, final int length)
+  public static final void stringToBlankPadUnicodeByteArray(final String s,
+		  final byte[] data, final int offset, final int length)
   {
     int counter = 0;
     if (s != null)
     {
       for (int i=0; i<s.length() && (counter+2)<=length; ++i)
       {
-        byte high = (byte)(s.charAt(i) << 8);
+        byte high = (byte)(s.charAt(i) >> 8);
         byte low = (byte)s.charAt(i);
         data[offset+counter] = high;
         ++counter;

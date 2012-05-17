@@ -29,6 +29,7 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
   private JDBCParameterMetaData pmd_;
   private int descriptorHandle_;
   private boolean returnGeneratedKeys_;
+  private int sqlStatementType_;
 
   public JDBCPreparedStatement(JDBCConnection conn, String sql, Calendar calendar, String statementName, String cursorName, int rpbID) throws SQLException
   {
@@ -46,13 +47,13 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
     //
     // Only set the statement name and cursor name in the RPB
     //
-    int sqlStatementType = JDBCStatement.getStatementType(sql);
+    sqlStatementType_ = JDBCStatement.getStatementType(sql);
 
-    statementAttributes_.setSQLStatementType(sqlStatementType);
+    statementAttributes_.setSQLStatementType(sqlStatementType_);
 
-      dpa.setSQLStatementType(sqlStatementType);
+      dpa.setSQLStatementType(sqlStatementType_);
       dpa.setPrepareOption(0); // Normal prepare.
-      if (sqlStatementType == 2) {   // Only set for select statement
+      if (sqlStatementType_ == JDBCStatement.TYPE_SELECT ) {   // Only set for select statement
         dpa.setOpenAttributes(0x80); // Read only. Otherwise blocking doesn't work.
       }
 
@@ -104,8 +105,17 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
 
   public boolean execute() throws SQLException
   {
-	  boolean callStatement = false;
+	boolean callStatement = false;
     if (closed_) throw JDBCError.getSQLException(JDBCError.EXC_FUNCTION_SEQUENCE);
+
+
+    //
+    // If this is a select statement, use the executeQuery path
+    //
+    if (sqlStatementType_ == JDBCStatement.TYPE_SELECT ) {   // Only set for select statement
+    	executeQuery();
+    	return true;
+    }
 
     DatabaseConnection conn = conn_.getDatabaseConnection();
     conn.setSQLCommunicationsAreaCallback(this);
@@ -207,10 +217,24 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
   {
     if (closed_) throw JDBCError.getSQLException(JDBCError.EXC_FUNCTION_SEQUENCE);
 
-    switch (statementAttributes_.getSQLStatementType()) {
+    switch (sqlStatementType_) {
     	case JDBCStatement.TYPE_SELECT:
     		// Valid
     		break;
+    	case JDBCStatement.TYPE_CALL:
+    	{
+    		boolean result = execute();
+    		if (result) {
+    			ResultSet rs = getResultSet();
+    			if (rs == null) {
+            		throw JDBCError.getSQLException(JDBCError.EXC_CURSOR_STATE_INVALID);
+    			} else {
+    			  return rs;
+    			}
+    		} else {
+        		throw JDBCError.getSQLException(JDBCError.EXC_CURSOR_STATE_INVALID);
+    		}
+    	}
     	default:
     		throw JDBCError.getSQLException(JDBCError.EXC_CURSOR_STATE_INVALID);
     }
@@ -359,6 +383,7 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
       {
 //        conn.setSQLCommunicationsAreaCallback(null);
       }
+
       return updateCount_;
     }
     catch (IOException io)
@@ -470,12 +495,14 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
     col.setValue(x);
   }
 
-  /**
-   * Not implemented.
-  **/
   public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException
   {
-    throw new NotImplementedException();
+	    if (closed_) throw JDBCError.getSQLException(JDBCError.EXC_FUNCTION_SEQUENCE);
+	    if (cal == null) throw JDBCError.getSQLException(JDBCError.EXC_PARAMETER_TYPE_INVALID, "cal is null");
+
+	    Column col = pmd_.getColumn(parameterIndex-1);
+	    col.setValue(x, cal );
+
   }
 
   public void setDouble(int parameterIndex, double x) throws SQLException
@@ -580,12 +607,12 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
     col.setValue(x);
   }
 
-  /**
-   * Not implemented.
-  **/
   public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException
   {
-    throw new NotImplementedException();
+	    if (closed_) throw JDBCError.getSQLException(JDBCError.EXC_FUNCTION_SEQUENCE);
+	    if (cal == null) throw JDBCError.getSQLException(JDBCError.EXC_ATTRIBUTE_VALUE_INVALID, "cal is null");
+	    Column col = pmd_.getColumn(parameterIndex-1);
+	    col.setValue(x, cal );
   }
 
   public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException
@@ -595,12 +622,12 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
     col.setValue(x);
   }
 
-  /**
-   * Not implemented.
-  **/
   public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException
   {
-    throw new NotImplementedException();
+	    if (closed_) throw JDBCError.getSQLException(JDBCError.EXC_FUNCTION_SEQUENCE);
+	    if (cal == null) throw JDBCError.getSQLException(JDBCError.EXC_ATTRIBUTE_VALUE_INVALID, "cal is null");
+	    Column col = pmd_.getColumn(parameterIndex-1);
+	    col.setValue(x, cal);
   }
 
   public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException

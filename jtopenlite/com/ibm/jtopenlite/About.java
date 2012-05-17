@@ -13,7 +13,16 @@
 
 package com.ibm.jtopenlite;
 
+/**
+ * This class provides information about the current version of JTOpenLite
+ *
+ */
 public class About {
     public static String INTERFACE_NAME="jtopenlite";
-    public static String INTERFACE_LEVEL="20120508";            // We just use the data as the current interface level
+    /**
+     * The INTERFACE_LEVEL represents the level of the interface.  For now,
+     * we just use the current date.  This date is automatically adjusted
+     * each time jtopenlite.jar is built.
+     */
+    public static String INTERFACE_LEVEL="20120515";
 }

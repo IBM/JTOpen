@@ -14,7 +14,7 @@
 package com.ibm.jtopenlite;
 
 /**
- * Represents a System i message.
+ * Represents a IBM i message.
 **/
 public class Message
 {

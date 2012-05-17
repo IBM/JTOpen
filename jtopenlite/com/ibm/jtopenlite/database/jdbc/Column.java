@@ -22,7 +22,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
+
+import sun.util.BuddhistCalendar;
 
 final class Column
 {
@@ -114,7 +117,7 @@ final class Column
 
 
 
-  private final Calendar calendar_;
+  private Calendar calendar_;
 
   Column(Calendar cal, int index, boolean parameter)
   {
@@ -210,6 +213,14 @@ final class Column
     valueType_ = TYPE_DATE;
   }
 
+  void setValue(Date d, Calendar cal)
+  {
+    dateValue_ = d;
+    null_ = d == null;
+    valueType_ = TYPE_DATE;
+    calendar_ = cal;
+  }
+
   void setValue(Time t)
   {
     dateValue_ = t;
@@ -217,11 +228,27 @@ final class Column
     valueType_ = TYPE_TIME;
   }
 
+  void setValue(Time t, Calendar cal)
+  {
+    dateValue_ = t;
+    null_ = t == null;
+    valueType_ = TYPE_TIME;
+    calendar_=cal;
+  }
+
   void setValue(Timestamp t)
   {
     dateValue_ = t;
     null_ = t == null;
     valueType_ = TYPE_TIMESTAMP;
+  }
+
+  void setValue(Timestamp t, Calendar cal)
+  {
+    dateValue_ = t;
+    null_ = t == null;
+    valueType_ = TYPE_TIMESTAMP;
+    calendar_ = cal;
   }
 
   void setValue(byte[] b)
@@ -240,9 +267,19 @@ final class Column
 
   void setValue(Object obj)
   {
-    objectValue_ = obj;
-    null_ = obj == null;
-    valueType_ = TYPE_OBJECT;
+	// Use the right setValue for supported types
+	if (obj instanceof String) setValue((String)obj);
+	else if (obj instanceof java.sql.Date)   setValue((java.sql.Date)obj);
+	else if (obj instanceof java.sql.Time)   setValue((java.sql.Time)obj);
+	else if (obj instanceof java.sql.Timestamp)   setValue((java.sql.Timestamp)obj);
+	else if (obj instanceof byte[])   setValue((byte[])obj);
+	else if (obj instanceof BigDecimal)   setValue((BigDecimal)obj);
+	else if (obj instanceof URL)   setValue((URL)obj);
+	else {
+		objectValue_ = obj;
+		null_ = obj == null;
+		valueType_ = TYPE_OBJECT;
+	}
   }
 
   void setValue(URL url)
@@ -284,14 +321,43 @@ final class Column
     valueType_ = TYPE_CHARACTER_STREAM;
   }
 
+  private String getNonexponentValueString() throws SQLException {
+	  String s;
+switch (valueType_)
+	      {
+	        case TYPE_FLOAT:
+	            s = String.valueOf(floatValue_);
+	            if (s.indexOf("E")>0) {
+	            	s = new BigDecimal(floatValue_).toPlainString();
+	            }
+	            break;
+	          case TYPE_DOUBLE:
+	            s = String.valueOf(doubleValue_);
+	            if (s.indexOf("E")>0) {
+	            	s = new BigDecimal(doubleValue_).toPlainString();
+	            }
+	            break;
+	          case TYPE_BIG_DECIMAL:
+	        	  s = bigDecimalValue_.toPlainString();
+	        	  break;
+	          case TYPE_BOOLEAN:
+	              s = booleanValue_ ? "1" : "0";
+	          default:
+	            	return getValueString();
+	      }
+	    return s;
+  }
   private String getValueString() throws SQLException
   {
-    String s = stringValue_;
+    String s;
 
     try
     {
       switch (valueType_)
       {
+        case TYPE_STRING :
+        	s = stringValue_;
+        	break;
         case TYPE_INT:
           s = String.valueOf(intValue_);
           break;
@@ -385,11 +451,16 @@ final class Column
           }
           s = buf.toString();
           break;
+
+          default:
+        	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
+
       }
     }
     catch (IOException io)
     {
-      SQLException sql = new SQLException("Error reading from parameter stream: "+io.toString());
+      SQLException sql = JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Error reading from parameter stream: "+io.toString());
       sql.initCause(io);
       throw sql;
     }
@@ -399,26 +470,26 @@ final class Column
   private String getValueTimeAsString() throws SQLException
   {
 
-    String s = stringValue_;
+    String s = "UNSET";
     try
     {
       switch (valueType_)
       {
-        case 0:
-      if (parameter_) throw JDBCError.getSQLException(JDBCError.EXC_PARAMETER_COUNT_MISMATCH);
+	        case 0:
+	      if (parameter_) throw JDBCError.getSQLException(JDBCError.EXC_PARAMETER_COUNT_MISMATCH);
 
-        case TYPE_INT:
-        case TYPE_SHORT:
-        case TYPE_LONG:
-        case TYPE_FLOAT:
-        case TYPE_DOUBLE:
-        case TYPE_BYTE:
-        case TYPE_BOOLEAN:
-        case TYPE_BYTE_ARRAY:
-        case TYPE_BIG_DECIMAL:
-        case TYPE_URL:
-        case TYPE_DATE:
-        case TYPE_TIMESTAMP:
+	        case TYPE_INT:
+	        case TYPE_SHORT:
+	        case TYPE_LONG:
+	        case TYPE_FLOAT:
+	        case TYPE_DOUBLE:
+	        case TYPE_BYTE:
+	        case TYPE_BOOLEAN:
+	        case TYPE_BYTE_ARRAY:
+	        case TYPE_BIG_DECIMAL:
+	        case TYPE_URL:
+	        case TYPE_DATE:
+	        case TYPE_TIMESTAMP:
           throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
 
         case TYPE_TIME:
@@ -430,8 +501,8 @@ final class Column
         case TYPE_OBJECT:
           s = objectValue_.toString();
       {
-    Time t = Time.valueOf(s);
-    s = t.toString();
+    	  Time t = Time.valueOf(s);
+    	  s = t.toString();
       }
 
           break;
@@ -504,23 +575,28 @@ final class Column
     }
 
           break;
+        case  TYPE_STRING :
+        {
+        	s = stringValue_;
+            Time t = Time.valueOf(s);
+            s = t.toString();
+        }
+
       default:
-    {
-        Time t = Time.valueOf(s);
-        s = t.toString();
-    }
+        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
+
+
 
       }
-
       //
       // At this point, the time should have come from
       // Time.toString() so it will be in the right format
       //
-
     }
     catch (IOException io)
     {
-      SQLException sql = new SQLException("Error reading from parameter stream: "+io.toString());
+      SQLException sql = JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Error reading from parameter stream: "+io.toString());
       sql.initCause(io);
       throw sql;
     } catch (IllegalArgumentException e) {
@@ -536,7 +612,7 @@ final class Column
   private String getValueTimestampAsString() throws SQLException
   {
 
-    String s = stringValue_;
+    String s ="NOT SET";
     try
     {
       switch (valueType_)
@@ -556,7 +632,7 @@ final class Column
         case TYPE_BIG_DECIMAL:
         case TYPE_URL:
 	    if (true) {
-		throw new SQLException("Conversion of type "+valueType_+" to timestamp not supported.");
+		throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of type "+valueType_+" to timestamp not supported.");
 	    }
           break;
         case TYPE_DATE:
@@ -646,13 +722,15 @@ final class Column
 	  }
 
           break;
-      default:
-	  {
-        s = isoTimestamp(s);
-	      Timestamp ts = Timestamp.valueOf(s);
-	      s = ts.toString();
-	  }
+        case  TYPE_STRING :
+  	  {
+          s = isoTimestamp(stringValue_);
+  	      Timestamp ts = Timestamp.valueOf(s);
+  	      s = ts.toString();
+  	  }
 
+      default:
+    	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
       }
       while (s.length() < 26) {
 	  s = s + "0";
@@ -662,7 +740,7 @@ final class Column
     }
     catch (IOException io)
     {
-      SQLException sql = new SQLException("Error reading from parameter stream: "+io.toString());
+      SQLException sql = JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Error reading from parameter stream: "+io.toString());
       sql.initCause(io);
       throw sql;
     } catch (IllegalArgumentException e) {
@@ -712,6 +790,9 @@ final class Column
       case TYPE_SHORT:
         f = shortValue_;
         break;
+      case TYPE_LONG:
+          f = longValue_;
+          break;
       case TYPE_STRING:
 	  stringValue = stringValue_;
         f = Float.parseFloat(stringValue);
@@ -731,11 +812,9 @@ final class Column
       case TYPE_DATE:
       case TYPE_TIME:
       case TYPE_TIMESTAMP:
-        f = dateValue_.getTime();
-        break;
+      	throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of date/time/timestamp to float not supported.");
       case TYPE_BYTE_ARRAY:
-        f = Conv.byteArrayToFloat(byteArrayValue_, 0);
-        break;
+    	throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of byte array to float not supported.");
       case TYPE_BIG_DECIMAL:
         f = bigDecimalValue_.floatValue();
         break;
@@ -744,15 +823,19 @@ final class Column
         f = Float.parseFloat(stringValue);
         break;
       case TYPE_URL:
-        throw new SQLException("Conversion of URL to float not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of URL to float not supported.");
       case TYPE_ASCII_STREAM:
-        throw new SQLException("Conversion of ASCII stream to float not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of ASCII stream to float not supported.");
       case TYPE_BINARY_STREAM:
-        throw new SQLException("Conversion of binary stream to float not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of binary stream to float not supported.");
       case TYPE_UNICODE_STREAM:
-        throw new SQLException("Conversion of Unicode stream to float not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of Unicode stream to float not supported.");
       case TYPE_CHARACTER_STREAM:
-        throw new SQLException("Conversion of character stream to float not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of character stream to float not supported.");
+      default:
+    	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
+
     }
     return f;
       } catch (NumberFormatException e) {
@@ -780,6 +863,10 @@ final class Column
       case TYPE_SHORT:
         d = shortValue_;
         break;
+      case TYPE_LONG:
+          d = longValue_;
+          break;
+
       case TYPE_STRING:
 	  stringValue = stringValue_;
         d = Double.parseDouble(stringValue_);
@@ -799,11 +886,9 @@ final class Column
       case TYPE_DATE:
       case TYPE_TIME:
       case TYPE_TIMESTAMP:
-        d = dateValue_.getTime();
-        break;
+        	throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of date/time/timestamp to double not supported.");
       case TYPE_BYTE_ARRAY:
-        d = Conv.byteArrayToDouble(byteArrayValue_, 0);
-        break;
+          throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of byte array to double not supported.");
       case TYPE_BIG_DECIMAL:
         d = bigDecimalValue_.doubleValue();
         break;
@@ -812,15 +897,19 @@ final class Column
         d = Double.parseDouble(stringValue);
         break;
       case TYPE_URL:
-        throw new SQLException("Conversion of URL to double not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of URL to double not supported.");
       case TYPE_ASCII_STREAM:
-        throw new SQLException("Conversion of ASCII stream to double not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of ASCII stream to double not supported.");
       case TYPE_BINARY_STREAM:
-        throw new SQLException("Conversion of binary stream to double not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of binary stream to double not supported.");
       case TYPE_UNICODE_STREAM:
-        throw new SQLException("Conversion of Unicode stream to double not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of Unicode stream to double not supported.");
       case TYPE_CHARACTER_STREAM:
-        throw new SQLException("Conversion of character stream to double not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of character stream to double not supported.");
+      default:
+    	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
+
     }
     return d;
       } catch (NumberFormatException e) {
@@ -838,26 +927,55 @@ final class Column
 
       String stringValue = null;
       try {
-    long l = longValue_;
+    long l ;
     switch (valueType_)
     {
         case 0:
 	    if (parameter_) throw JDBCError.getSQLException(JDBCError.EXC_PARAMETER_COUNT_MISMATCH);
+        case  TYPE_LONG :
+        	l = longValue_;
+        	break;
       case TYPE_INT:
         l = intValue_;
         break;
       case TYPE_SHORT:
         l = shortValue_;
         break;
+      case TYPE_OBJECT:
+          // fall through
       case TYPE_STRING:
       {
-        stringValue = stringValue_;
+    	if (valueType_ == TYPE_OBJECT) {
+            stringValue = objectValue_.toString();
+    	} else {
+            stringValue = stringValue_;
+    	}
         double doubleValue = Double.parseDouble(stringValue);
         if (doubleValue > Long.MAX_VALUE || doubleValue < Long.MIN_VALUE) {
           throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
         }
+        // If the doublevalue is in the range that can be accurately convert to
+        // a long, just use the double conversion.  A double value has an implied 1.x
+        // followed by 52 bits, so the precision is 53 bits.
+        // Otherwise, we must rely on
+        // parseLong, which will not handle strings of the form 134.53 or 12.3E20
+        // 2^53=9,007,199,254,740,992
+        if ((doubleValue < 9007199254740992L ) && (doubleValue > -9007199254740992L)) {
+        	l = (long) doubleValue;
+        } else {
+        	try {
+        		l = Long.parseLong(stringValue);
+        	} catch (NumberFormatException nfe) {
+        		int dotIndex = stringValue.indexOf(".");
+        		if (dotIndex > 0) {
+        			stringValue = stringValue.substring(0,dotIndex);
+            		l = Long.parseLong(stringValue);
+        		} else {
+        			throw nfe;
+        		}
+        	}
+        }
 
-        l = Long.parseLong(stringValue);
       }
         break;
       case TYPE_FLOAT:
@@ -884,8 +1002,7 @@ final class Column
       case TYPE_TIMESTAMP:
         throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
       case TYPE_BYTE_ARRAY:
-        l = Conv.byteArrayToLong(byteArrayValue_, 0);
-        break;
+          throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of byte array to long not supported.");
       case TYPE_BIG_DECIMAL:
       {
         double doubleValue = bigDecimalValue_.doubleValue();
@@ -896,25 +1013,20 @@ final class Column
         l = bigDecimalValue_.longValue();
       }
         break;
-      case TYPE_OBJECT: {
-        stringValue = objectValue_.toString();
-        double doubleValue = Double.parseDouble(stringValue);
-        if (doubleValue > Long.MAX_VALUE || doubleValue < Long.MIN_VALUE) {
-          throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
-        }
-        l = Long.parseLong(stringValue);
-      }
-        break;
       case TYPE_URL:
-        throw new SQLException("Conversion of URL to long not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of URL to long not supported.");
       case TYPE_ASCII_STREAM:
-        throw new SQLException("Conversion of ASCII stream to long not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of ASCII stream to long not supported.");
       case TYPE_BINARY_STREAM:
-        throw new SQLException("Conversion of binary stream to long not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of binary stream to long not supported.");
       case TYPE_UNICODE_STREAM:
-        throw new SQLException("Conversion of Unicode stream to long not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of Unicode stream to long not supported.");
       case TYPE_CHARACTER_STREAM:
-        throw new SQLException("Conversion of character stream to long not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of character stream to long not supported.");
+        default:
+      	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
+
     }
     return l;
       } catch (NumberFormatException e) {
@@ -929,12 +1041,15 @@ final class Column
   {
       String stringValue = null;
       try {
-	  int i = intValue_;
+	  int i ;
 	  switch (valueType_) {
       case 0:
         if (parameter_)
           throw JDBCError
               .getSQLException(JDBCError.EXC_PARAMETER_COUNT_MISMATCH);
+      case  TYPE_INT :
+    	  i = intValue_;
+    	  break;
       case TYPE_LONG:
         if (longValue_ > Integer.MAX_VALUE || longValue_ < Integer.MIN_VALUE) {
           throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
@@ -976,8 +1091,7 @@ final class Column
 	      case TYPE_TIMESTAMP:
           throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
 	      case TYPE_BYTE_ARRAY:
-		  i = Conv.byteArrayToInt(byteArrayValue_, 0);
-		  break;
+	          throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH, "Conversion from byte array to integer not supported");
 	      case TYPE_BIG_DECIMAL:
 	      {
 	        double doubleValue = bigDecimalValue_.doubleValue();
@@ -1000,15 +1114,21 @@ final class Column
 	      }
 		  break;
 	      case TYPE_URL:
-		  throw new SQLException("Conversion of URL to int not supported.");
+		  throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of URL to int not supported.");
 	      case TYPE_ASCII_STREAM:
-		  throw new SQLException("Conversion of ASCII stream to int not supported.");
+		  throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of ASCII stream to int not supported.");
 	      case TYPE_BINARY_STREAM:
-		  throw new SQLException("Conversion of binary stream to int not supported.");
+		  throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of binary stream to int not supported.");
 	      case TYPE_UNICODE_STREAM:
-		  throw new SQLException("Conversion of Unicode stream to int not supported.");
+		  throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of Unicode stream to int not supported.");
 	      case TYPE_CHARACTER_STREAM:
-		  throw new SQLException("Conversion of character stream to int not supported.");
+		  throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of character stream to int not supported.");
+
+
+          default:
+          	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
+
 	  }
 	  return i;
       } catch (NumberFormatException e) {
@@ -1022,11 +1142,14 @@ final class Column
   {
       String stringValue = null;
       try {
-    short sh = shortValue_;
+    short sh ;
     switch (valueType_)
     {
         case 0:
 	    if (parameter_) throw JDBCError.getSQLException(JDBCError.EXC_PARAMETER_COUNT_MISMATCH);
+        case  TYPE_SHORT :
+        	sh = shortValue_;
+        	break;
       case TYPE_LONG:
         if (longValue_ > Short.MAX_VALUE || longValue_ < Short.MIN_VALUE) {
           throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
@@ -1068,11 +1191,10 @@ final class Column
       case TYPE_DATE:
       case TYPE_TIME:
       case TYPE_TIMESTAMP:
-        // This conversion not possible
-        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
+          // This conversion not possible
+          throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
       case TYPE_BYTE_ARRAY:
-        sh = (short)Conv.byteArrayToShort(byteArrayValue_, 0);
-        break;
+          throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of byte array to short not supported.");
       case TYPE_BIG_DECIMAL:
       {
         double doubleValue = bigDecimalValue_.doubleValue();
@@ -1092,15 +1214,21 @@ final class Column
       }
         break;
       case TYPE_URL:
-        throw new SQLException("Conversion of URL to short not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of URL to short not supported.");
       case TYPE_ASCII_STREAM:
-        throw new SQLException("Conversion of ASCII stream to short not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of ASCII stream to short not supported.");
       case TYPE_BINARY_STREAM:
-        throw new SQLException("Conversion of binary stream to short not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of binary stream to short not supported.");
       case TYPE_UNICODE_STREAM:
-        throw new SQLException("Conversion of Unicode stream to short not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of Unicode stream to short not supported.");
       case TYPE_CHARACTER_STREAM:
-        throw new SQLException("Conversion of character stream to short not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of character stream to short not supported.");
+
+
+
+      default:
+      	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
     }
     return sh;
       } catch (NumberFormatException e) {
@@ -1114,7 +1242,6 @@ final class Column
 
   private byte[]  getValueByteArray() throws SQLException
   {
-      String stringValue = null;
       byte[] ba = byteArrayValue_;
     switch (valueType_)
     {
@@ -1125,39 +1252,46 @@ final class Column
         break;
 
       case TYPE_STRING:
-        throw new SQLException("Conversion of string to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of string to byte array not supported.");
       case TYPE_LONG:
-        throw new SQLException("Conversion of long to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of long to byte array not supported.");
       case TYPE_INT:
-        throw new SQLException("Conversion of int to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of int to byte array not supported.");
+      case TYPE_SHORT:
+          throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of short to byte array not supported.");
       case TYPE_FLOAT:
-        throw new SQLException("Conversion of float to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of float to byte array not supported.");
       case TYPE_DOUBLE:
-        throw new SQLException("Conversion of doubleto byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of doubleto byte array not supported.");
       case TYPE_BYTE:
-        throw new SQLException("Conversion of byte to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of byte to byte array not supported.");
       case TYPE_BOOLEAN:
-        throw new SQLException("Conversion of boolean to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of boolean to byte array not supported.");
       case TYPE_DATE:
-        throw new SQLException("Conversion of date to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of date to byte array not supported.");
       case TYPE_TIME:
-        throw new SQLException("Conversion of time to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of time to byte array not supported.");
       case TYPE_TIMESTAMP:
-        throw new SQLException("Conversion of timestamp to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of timestamp to byte array not supported.");
       case TYPE_BIG_DECIMAL:
-        throw new SQLException("Conversion of BIGDECIMAL  to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of BIGDECIMAL  to byte array not supported.");
       case TYPE_OBJECT:
-        throw new SQLException("Conversion of OBJECT to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of OBJECT to byte array not supported.");
       case TYPE_URL:
-        throw new SQLException("Conversion of URL to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of URL to byte array not supported.");
       case TYPE_ASCII_STREAM:
-        throw new SQLException("Conversion of ASCII stream to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of ASCII stream to byte array not supported.");
       case TYPE_BINARY_STREAM:
-        throw new SQLException("Conversion of binary stream to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of binary stream to byte array not supported.");
       case TYPE_UNICODE_STREAM:
-        throw new SQLException("Conversion of Unicode stream to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of Unicode stream to byte array not supported.");
       case TYPE_CHARACTER_STREAM:
-        throw new SQLException("Conversion of character stream to byte array not supported.");
+        throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of character stream to byte array not supported.");
+
+      default:
+      	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unrecognized valueType "+valueType_);
+
+
     }
     return ba;
 
@@ -1368,7 +1502,7 @@ final class Column
       case DB2Type.DECFLOAT:  // DECFLOAT
         return java.sql.Types.OTHER;
       default:
-        throw new SQLException("Unknown database column type: "+type_);
+        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database column type: "+type_);
     }
   }
 
@@ -1457,7 +1591,7 @@ final class Column
 	return "DECFLOAT";
 
       default:
-        throw new SQLException("Unknown database column type: "+type_);
+        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database column type: "+type_);
     }
   }
 
@@ -1466,6 +1600,9 @@ final class Column
     return length_;
   }
 
+  /*
+   * Returns the length of the declared type.
+   */
   int getDeclaredLength() throws SQLException  {
 	  if (declaredLength_ == 0) {
 		    switch (type_ & 0xFFFE) {
@@ -1501,13 +1638,24 @@ final class Column
 	    		declaredLength_ = lobMaxSize_;
 	    		break;
 	    	case DB2Type.DECFLOAT:
-          if (length_ == 8) {
-            declaredLength_ = 16;
-          } else if (length_ == 16) {
-            declaredLength_ = 34;
-          } else {
-            throw new SQLException("Unknown DECFLOAT length= "+length_);
-          }
+				if (length_ == 8) {
+					declaredLength_ = 16;
+				} else if (length_ == 16) {
+					declaredLength_ = 34;
+				} else {
+					throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,
+							"Unknown DECFLOAT length= " + length_);
+				}
+				break;
+	    	case DB2Type.TIMESTAMP:
+	    		declaredLength_=26;
+	    		break;
+	    	case DB2Type.TIME:
+	    		declaredLength_=8;
+	    		break;
+	    	case DB2Type.DATE:
+	    		declaredLength_=10;
+	    		break;
 
 	    			// TBD
 	    	default:
@@ -1660,7 +1808,8 @@ final class Column
     timeCache_.put(new ByteArrayKey(key), value);
   }
 
-  // Convert a string to bytes.  Throws truncation exception after
+  // Convert a string to bytes in an output buffer.
+  // Throws truncation exception after
   // converting as much as possible.
   // returns length in bytes
   private int convertString(final String s, final byte[] data, final int offset) throws SQLException
@@ -1715,6 +1864,7 @@ final class Column
     try {
       if ((valueType_ == 0) && parameter_) throw JDBCError.getSQLException(JDBCError.EXC_PARAMETER_COUNT_MISMATCH);
 
+
     if (!null_)
     {
       int len = 0;
@@ -1758,7 +1908,7 @@ final class Column
       case DB2Type.BLOB: // BLOB
       case DB2Type.CLOB: // CLOB
       case DB2Type.DBCLOB: // DBCLOB
-	    throw new SQLException("Lob  not implemented yet");
+	    throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Lob  not implemented yet");
 
         case DB2Type.VARCHAR: // VARCHAR
         case DB2Type.LONGVARCHAR: // LONG VARCHAR
@@ -1791,18 +1941,18 @@ final class Column
 		d = getValueDouble();
 		Conv.doubleToByteArray(d, data, offset);
 	    } else {
-		throw new SQLException("Unknown database type: "+type_+" length= "+length_);
+		throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_+" length= "+length_);
 	    }
 	    break;
         case DB2Type.DECIMAL: // DECIMAL (packed decimal)
-          s = getValueString();
-	  s = formatDecimal(s, precision_, scale_);
-	  Conv.stringToPackedDecimal(s, precision_, data, offset);
-	  break;
+          s = getNonexponentValueString();
+	      s = formatDecimal(s, precision_, scale_);
+	      Conv.stringToPackedDecimal(s, precision_, data, offset);
+	      break;
 
         case DB2Type.NUMERIC: // NUMERIC (zoned decimal)
-          s = getValueString();
-	  s = formatDecimal(s, precision_, scale_);
+          s = getNonexponentValueString();
+      	  s = formatDecimal(s, precision_, scale_);
           Conv.stringToZonedDecimal(s, precision_, data, offset);
           break;
         case DB2Type.BIGINT: // BIGINT
@@ -1850,15 +2000,15 @@ final class Column
       case DB2Type.CLOB_LOCATOR: // CLOB locator
       case DB2Type.DBCLOB_LOCATOR: // DBCLOB locator
       case DB2Type.XML_LOCATOR:
-	    throw new SQLException("LOB locator not implemented yet");
+	    throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"LOB locator not implemented yet");
 
       case DB2Type.XML:  // XML
-	    throw new SQLException("XML not implemented yet");
+	    throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"XML not implemented yet");
       case DB2Type.DECFLOAT:  // DECFLOAT
-	    throw new SQLException("DECFLOAT not implemented yet");
+	    throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"DECFLOAT not implemented yet");
 
         default:
-          throw new SQLException("Unknown database type: "+type_);
+          throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_);
       }
     }
     } catch (NumberFormatException nfe) {
@@ -2689,7 +2839,7 @@ final class Column
         int locatorHandle = Conv.byteArrayToInt(data, offset);
 //        System.out.println("Handle: "+Integer.toHexString(locatorHandle));
       default:
-        throw new SQLException("Unknown database type: "+type_);
+        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_);
     }
     final byte[] b = new byte[length];
     System.arraycopy(data, offset, b, 0, length);
@@ -2869,7 +3019,7 @@ final class Column
 	    } else if (length_ == 8) {
 		return ""+Conv.byteArrayToDouble(data, offset);
 	    }
-	    throw new SQLException("Unknown database type: "+type_+" length= "+length_);
+	    throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_+" length= "+length_);
         case DB2Type.DECIMAL: // DECIMAL (packed decimal)
           return Conv.packedDecimalToString(data, offset, precision_, scale_, buffer_);
         case DB2Type.NUMERIC: // NUMERIC (zoned decimal)
@@ -2950,22 +3100,22 @@ final class Column
 //          System.out.println(length_+", "+offset+", "+buffer_.length+", "+scale_+", "+precision_);
           int locatorHandle = Conv.byteArrayToInt(data, offset);
 //          System.out.println("Handle: 0x"+Integer.toHexString(locatorHandle));
-          throw new SQLException("Unsupported database type: "+type_+" length= "+length_);
+          throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unsupported database type: "+type_+" length= "+length_);
         case DB2Type.DECFLOAT:
           if (length_ == 8) {
             return Conv.decfloat16ByteArrayToString(data, offset);
           } else if (length_ == 16) {
             return Conv.decfloat34ByteArrayToString(data, offset);
           } else {
-            throw new SQLException("Unknown DECFLOAT length= "+length_);
+            throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown DECFLOAT length= "+length_);
           }
         default:
-          throw new SQLException("Unknown database type: "+type_+" length= "+length_);
+          throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_+" length= "+length_);
       }
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException("Data conversion error");
+      SQLException sql = JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Data conversion error");
       sql.initCause(uee);
       throw sql;
     }
@@ -3017,7 +3167,7 @@ final class Column
         } else if (length_ == 16) {
           stringValue =  Conv.decfloat34ByteArrayToString(data, offset);
         } else {
-          throw new SQLException("Unknown DECFLOAT length= "+length_);
+          throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown DECFLOAT length= "+length_);
         }
         Double d = Double.parseDouble(stringValue);
         if (d.doubleValue() != 0.0) return true;
@@ -3034,7 +3184,7 @@ final class Column
         JDBCError.throwSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
         return false;
       default:
-        throw new SQLException("Unknown database type: "+type_);
+        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_);
     }
   }
 
@@ -3096,7 +3246,7 @@ final class Column
       case DB2Type.CLOB_LOCATOR: //TODO - CLOB locator
       case DB2Type.DBCLOB_LOCATOR: // DBCLOB locator
       case DB2Type.XML_LOCATOR:
-    	  throw new SQLException("Type "+type_+" not fully supported");
+    	  throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Type "+type_+" not fully supported");
       case DB2Type.DECFLOAT:
 
         if (length_ == 8) {
@@ -3104,7 +3254,7 @@ final class Column
         } else if (length_ == 16) {
           return new BigDecimal(Conv.decfloat34ByteArrayToString(data, rowOffset));
         } else {
-          throw new SQLException("Unknown DECFLOAT length= "+length_);
+          throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown DECFLOAT length= "+length_);
         }
       case DB2Type.DATALINK:
       {
@@ -3119,7 +3269,7 @@ final class Column
 
       }
       default:
-        throw new SQLException("Unknown database type: "+type_);
+        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_);
     }
     } catch (NumberFormatException nfe) {
       SQLException sqlex = JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH);
@@ -3150,7 +3300,7 @@ final class Column
       default:
         return new JDBCBlob(data, offset, length_);
 //      default:
-//        throw new SQLException("Unknown database type: "+type_);
+//        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_);
     }
   }
 
@@ -3163,7 +3313,11 @@ final class Column
 		  if (dotIndex > 0) {
 			  input = input .substring(0,dotIndex);
 		  }
-		  if (input.length() > precision) {
+		  int inputLength = input.length();
+		  if (input.charAt(0) == '-') {
+			  inputLength--;
+		  }
+		  if (inputLength > precision) {
 				throw new DataTruncation(index_,  /* index */
 			              parameter_, /* was parameter truncated */
 			              false, /* read */
@@ -3195,7 +3349,11 @@ final class Column
 			 input = sb.toString();
 		  }
 		  // check for truncation
-		  if (input.length() > precision + 1) {
+		  int inputLength = input.length();
+		  if (input.charAt(0) == '-') {
+			  inputLength--;
+		  }
+		  if (inputLength > precision + 1) {
 				throw new DataTruncation(index_,  /* index */
 			              parameter_, /* was parameter truncated */
 			              false, /* read */
@@ -3212,6 +3370,36 @@ public int isNullable() {
 	} else {
 		return ResultSetMetaData.columnNoNulls;
 	}
+}
+
+/*
+ * Returns an instance of a Gregorian calendar to be used to set
+ * Date values.   This is needed because the server uses the Gregorian calendar.
+ * For some locales, the calendar returned by Calendar.getInstance is not usable.
+ * For example, in the THAI local, a java.util.BuddhistCalendar is returned.
+ */
+public static Calendar getGregorianInstance() {
+  Calendar returnCalendar = Calendar.getInstance();
+  boolean isGregorian = (returnCalendar  instanceof GregorianCalendar);
+  boolean isBuddhist = false;
+  try {
+      isBuddhist  = (returnCalendar  instanceof BuddhistCalendar);
+  } catch (Throwable ncdfe) {
+    // Just ignore if any exception occurs.
+    // Possible exceptions (from Javadoc) are:
+    // java.lang.NoClassDefFoundError
+    // java.security.AccessControlException (if sun.util classes cannot be used)
+  }
+
+  if (isGregorian && (! isBuddhist)) {
+     // Calendar is gregorian, but not buddhist
+     return returnCalendar;
+  } else {
+    // Create a new gregorianCalendar for the current timezone and locale
+    Calendar gregorianCalendar = new GregorianCalendar();
+    return gregorianCalendar;
+  }
+
 }
 
 

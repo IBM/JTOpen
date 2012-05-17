@@ -15,21 +15,24 @@ package com.ibm.jtopenlite;
 
 
 /**
- * Initially obtained from a {@link SignonConnection SignonConnection} object; contains information about the System i host,
- * such as VRM level (V5R4M0, etc) and password level. All host server connections will have an associated SystemInfo object.
- * If a connection is constructed using a system name, user, and password, then an implicit SignonConnection is made to
+ * Initially obtained from a {@link SignonConnection SignonConnection} object; contains information about
+ * the IBM i host, such as VRM level (V5R4M0, etc) and password level. All host server connections will
+ * have an associated SystemInfo object.
+ * If a connection is constructed using a system name, user, and password, then an implicit SignonConnection
+ * is made to
  * obtain the SystemInfo object, and then closed.
  * <p></p>
  * For performance reasons, when multiple connections need to be made to
- * the same host (Command, DDM, File, etc), an application may want to explicitly retrieve the SystemInfo object directly
+ * the same host (Command, DDM, File, etc), an application may want to explicitly retrieve the SystemInfo
+ * object directly
  * from the SignonConnection, in order to avoid any implicit SignonConnections.
 **/
 public final class SystemInfo
 {
-	public final static int VERSION_540 = 0x050400; 
-	public final static int VERSION_610 = 0x060100; 
-	public final static int VERSION_710 = 0x070100; 
-	
+	public final static int VERSION_540 = 0x050400;
+	public final static int VERSION_610 = 0x060100;
+	public final static int VERSION_710 = 0x070100;
+
   private String system_;
   private int serverVersion_;
   private int serverLevel_;
@@ -80,10 +83,10 @@ public final class SystemInfo
    **/
 
   public int getServerVersion() {
-     return serverVersion_; 
+     return serverVersion_;
   }
-  
-  
+
+
   /**
    * Returns the server password level.
   **/
