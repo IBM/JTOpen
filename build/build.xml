@@ -1038,6 +1038,9 @@
     <cvspass cvsroot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
     <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="src" dest="${build}"/>
+  	<!-- The jdbc40 target is used to get the files to be processed by the source-jdbc40 step -->
+    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="jdbc40" dest="${build}"/>
     <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="contrib" dest="${build}"/>
     <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
