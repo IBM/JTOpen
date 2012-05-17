@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2012 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -220,6 +220,7 @@
   <property name="include" value="${build}/include"/>
   <property name="stubs" value="${build}/stubs"/> <!-- stubs are classes we need for compiling, but we don't ship. -->
   <property name="javadoc" value="${build}/javadoc"/>
+  <property name="javadoc-jtopenlite" value="${build}/javadoc-jtopenlite"/>
   <property name="output" value="${build}/output"/>
   <property name="output-android" value="${build}/output-android"/>
   <property name="output-micro" value="${build}/output-micro"/>
@@ -295,6 +296,7 @@
 
   <target name="clean-javadoc">
     <delete dir="${javadoc}"/>
+    <delete dir="${javadoc-jtopenlite}"/>
   </target>
 
   <target name="clean-output">
@@ -465,6 +467,7 @@
     <mkdir dir="${build}"/>
     <mkdir dir="${dist}"/>
     <mkdir dir="${javadoc}"/>
+    <mkdir dir="${javadoc-jtopenlite}"/>
     <!-- mkdir dir="${include}"/ -->
     <mkdir dir="${output}"/>
     <mkdir dir="${output-jtopenlite}"/>
@@ -660,12 +663,29 @@
       <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
       <group title="Toolbox Utility Packages" packages="com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
       <group title="Toolbox Micro Edition Packages" packages="com.ibm.as400.micro"/>
+      <group title="JTOpenLite Packages" packages="com.ibm.jtopenlite"/>
       <!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
            com.ibm.as400.access package will get erroneously linked to our stubs. -->
     </javadoc>
   </target>
 
-  <target name="checkJavadocIncludes" unless="javadocIncludesExist">
+  <target name="javadoc-jtopenlite" depends="init">
+	    <javadoc packagenames="com.ibm.jtopenlite,com.ibm.jtopenlite.*"
+	             sourcepath="${source-jtopenlite}"
+	             destdir="${javadoc-jtopenlite}"
+	             use="false"
+	             link="${doclink}"
+	             maxmemory="256m"
+	             failonerror="true"
+	             additionalparam="-breakiterator"
+	    	     executable="${jdk15}/bin/javadoc" >
+	      <group title="JTOpenLite Packages" packages="com.ibm.jtopenlite"/>
+	      <!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
+	           com.ibm.as400.access package will get erroneously linked to our stubs. -->
+	    </javadoc>
+   </target>
+
+	<target name="checkJavadocIncludes" unless="javadocIncludesExist">
     <echo>
       WARNING: Generated javadoc will be missing some information.
       Can't find one of:
@@ -829,6 +849,18 @@
              command="checkout -P -A" package="androidStubs" dest="${build}"/>
   </target>
 
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: source-build ...... download the build directories
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="source-build" depends="init">
+	    <cvspass cvsroot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
+	    <cvs cvsRoot=":pserver:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+	             command="checkout -P -A" package="build" dest="${build}"/>
+	  </target>
+
+
+
+
 <!--///////////////////////////////////////////////////////////////////////////
 	// Target: source-android
 	// Create a version of JTOpen that is suitable for use on Android.
@@ -969,7 +1001,7 @@ Available Ant targets for the JTOpen build script include:
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: zip
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="zip" depends="zip-source,zip-javadoc"/>
+  <target name="zip" depends="zip-source,zip-javadoc,zip-javadoc-jtopenlite"/>
 
   <target name="zip-javadoc">
     <zip zipfile="${dist}/doc.zip" update="false">
@@ -977,6 +1009,14 @@ Available Ant targets for the JTOpen build script include:
       <zipfileset dir="${build}" includes="license.html"/>
     </zip>
     <checksum file="${dist}/doc.zip"/>
+  </target>
+
+  <target name="zip-javadoc-jtopenlite">
+	    <zip zipfile="${dist}/doc-jtopenlite.zip" update="false">
+	      <zipfileset dir="${javadoc-jtopenlite}"/>
+	      <zipfileset dir="${build}" includes="license.html"/>
+	    </zip>
+	    <checksum file="${dist}/doc-jtopenlite.zip"/>
   </target>
 
   <target name="zip-source">
