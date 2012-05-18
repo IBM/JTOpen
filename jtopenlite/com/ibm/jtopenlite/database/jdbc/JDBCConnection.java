@@ -427,11 +427,13 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
   }
 
   /**
-   * Not implemented.
+   * The driver does not allow readonly to be specified.  All connections will
+   * allow writes to be done.
   **/
   public boolean isReadOnly() throws SQLException
   {
-    throw new NotImplementedException();
+		checkOpen();
+    return false;
   }
 
   /**
@@ -667,6 +669,7 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
   **/
   public void setHoldability(int holdability) throws SQLException
   {
+		checkOpen();
     if (holdability != ResultSet.HOLD_CURSORS_OVER_COMMIT)
     {
 	  throw new NotImplementedException();
@@ -674,11 +677,15 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
   }
 
   /**
-   * Not implemented.
+   * The default setting if false.  Any attempt to change the value to true
+   * will result in a NotImplementedException.
   **/
   public void setReadOnly(boolean readOnly) throws SQLException
   {
-    throw new NotImplementedException();
+		checkOpen();
+	if (readOnly == true) {
+		throw new NotImplementedException();
+	}
   }
 
   /**
@@ -727,7 +734,8 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
    * Return the version level.  See SystemInfo.VERSION_VxRx constants for possible values.
    * @return
    */
-  protected int getServerVersion() {
+  protected int getServerVersion() throws SQLException  {
+  	checkOpen();
 	 if (serverVersion_ == 0) {
 		 serverVersion_ = conn_.getInfo().getServerVersion();
 	 }
@@ -742,7 +750,8 @@ public String getUserName() throws SQLException  {
 	return userName_;
 }
 
-public String getURL() {
+public String getURL() throws SQLException {
+	checkOpen();
 	return JDBCDriver.URL_PREFIX_ + conn_.getInfo().getSystem();
 }
 
