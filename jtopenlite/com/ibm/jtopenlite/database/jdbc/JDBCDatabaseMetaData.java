@@ -851,6 +851,8 @@ implements DatabaseMetaData
         if (r < 10)  buffer.append("0");
         buffer.append(r);
         buffer.append (".");
+        if (m < 1000) buffer.append("0");
+        if (m < 100) buffer.append("0");
         if (m < 10)  buffer.append("0");
         buffer.append(m);
         buffer.append (" V");
@@ -3651,7 +3653,10 @@ implements DatabaseMetaData
 			// jtopenlite only supports READONLY cursors
 			if ((resultSetConcurrency == ResultSet.CONCUR_READ_ONLY)) {
 				return true;
+			} if ( resultSetConcurrency == ResultSet.CONCUR_UPDATABLE) {
+				return false;
 			} else {
+				JDBCError.throwSQLException (JDBCError.EXC_CONCURRENCY_INVALID);
 				return false;
 			}
 		} else {

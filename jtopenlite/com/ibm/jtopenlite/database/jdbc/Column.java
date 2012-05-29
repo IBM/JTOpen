@@ -342,6 +342,7 @@ switch (valueType_)
 	        	  break;
 	          case TYPE_BOOLEAN:
 	              s = booleanValue_ ? "1" : "0";
+	              break;
 	          default:
 	            	return getValueString();
 	      }

@@ -38,6 +38,12 @@ public class JDBCColumnMetaData {
         case DB2Type.GRAPHIC:
         precision = column.getScale();
         break;
+        case DB2Type.FLOATINGPOINT:
+        	if (column.getLength() == 4) {
+        		return 24;
+        	} else {
+        		return 53;
+        	}
         case DB2Type.CLOB:
         case DB2Type.BLOB:
         precision = column.getLength() - 4;
