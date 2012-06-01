@@ -125,6 +125,7 @@ public class CommandConnection extends HostServerConnection
       din.skipBytes(8);
       int datastreamLevel = din.readShort();
       din.skipBytes(length-36);
+      din.end();
 
       conn = new CommandConnection(info, commandServer, din, dout, ccsid, datastreamLevel, user, jobName);
       return conn;
@@ -182,6 +183,7 @@ public class CommandConnection extends HostServerConnection
       messages = getMessages(length);
 //      throw DataStreamException.badReturnCode("commandCallProgram", rc);
     }
+    in_.end();
     return new CommandResult(success, messages, rc);
   }
 
@@ -232,6 +234,7 @@ public class CommandConnection extends HostServerConnection
       messages = getMessages(length);
 //      throw DataStreamException.badReturnCode("commandCallProgram", rc);
     }
+    in_.end();
     return new CommandResult(success, messages, rc);
   }
 
@@ -387,6 +390,7 @@ public class CommandConnection extends HostServerConnection
       throw DataStreamException.badReturnCode("commandRunCommand", rc);
     }
     Message[] messages = getMessages(length);
+    in_.end();
     return new CommandResult(rc == 0, messages, rc);
   }
 
