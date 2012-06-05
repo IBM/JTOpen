@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SQLGraphic.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -21,11 +21,11 @@ import java.sql.Clob;
 /*ifdef JDBC40
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+endif */
 import java.sql.SQLException;
-/*ifdef JDBC40 
+/*ifdef JDBC40
 import java.sql.SQLXML;
-endif */ 
+endif */
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -44,7 +44,7 @@ extends SQLDataBase
 
     SQLGraphic(int maxLength, SQLConversionSettings settings, int ccsid)  //@cca1
     {
-      super(settings); 
+      super(settings);
         maxLength_      = maxLength;
         value_          = "";
         originalValue_  = "";
@@ -104,7 +104,7 @@ extends SQLDataBase
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
-        
+
         BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
         bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
@@ -138,11 +138,11 @@ extends SQLDataBase
             value = object.toString();
 
         else if(object instanceof Boolean)
-        { 
+        {
             // @PDC
             // if "translate boolean" == false, then use "0" and "1" values to match native driver
             if(settings_.getTranslateBoolean() == true)
-                value = object.toString();  //"true" or "false"     
+                value = object.toString();  //"true" or "false"
             else
                 value = ((Boolean)object).booleanValue() == true ? "1" : "0";
         }
@@ -164,13 +164,13 @@ extends SQLDataBase
             Clob clob = (Clob)object;
             value = clob.getSubString(1, (int)clob.length());
         }
-        /* ifdef JDBC40 
-        else if(object instanceof SQLXML) //@PDA jdbc40 
-        {    
+        /* ifdef JDBC40
+        else if(object instanceof SQLXML) //@PDA jdbc40
+        {
             SQLXML xml = (SQLXML)object;
             value = xml.getString();
-        }   
-        endif */   
+        }
+        endif */
 
         if(value == null)
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -189,7 +189,7 @@ extends SQLDataBase
             for(int i = valueLength; i < exactLength; ++i)
                 buffer.append(c);
             value_ = buffer.toString();
-            truncated_ = 0; outOfBounds_ = false; 
+            truncated_ = 0; outOfBounds_ = false;
         }
         else if(valueLength > exactLength)
         {
@@ -197,7 +197,7 @@ extends SQLDataBase
             truncated_ = valueLength - exactLength;
         }
         else
-            truncated_ = 0; outOfBounds_ = false; 
+            truncated_ = 0; outOfBounds_ = false;
     }
 
     //---------------------------------------------------------//
@@ -266,7 +266,8 @@ extends SQLDataBase
 
     public int getPrecision()
     {
-        return maxLength_;
+        /* maxLength_ is the length in bytes */
+        return maxLength_ / 2 ;
     }
 
     public int getRadix()
@@ -312,7 +313,7 @@ extends SQLDataBase
     }
 
     public boolean getOutOfBounds() {
-      return outOfBounds_; 
+      return outOfBounds_;
     }
 
     //---------------------------------------------------------//
@@ -326,14 +327,14 @@ extends SQLDataBase
     public InputStream getBinaryStream()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return new HexReaderInputStream(new StringReader(getString()));
     }
 
     public Blob getBlob()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         try
         {
             return new AS400JDBCBlob(BinaryConverter.stringToBytes(getString()), maxLength_);
@@ -350,7 +351,7 @@ extends SQLDataBase
     public byte[] getBytes()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         try
         {
             return BinaryConverter.stringToBytes(getString());
@@ -367,7 +368,7 @@ extends SQLDataBase
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         return getString();
@@ -377,7 +378,7 @@ extends SQLDataBase
     public String getString()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec.
         int maxFieldSize = settings_.getMaxFieldSize();
@@ -397,8 +398,8 @@ extends SQLDataBase
     {
         value_ = value_.trim();
     }
-    
-    
+
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -412,15 +413,15 @@ extends SQLDataBase
         else
         {
             return value_;
-        } 
+        }
     }
 
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
         //
-        //truncated_ = 0; outOfBounds_ = false; 
+        //truncated_ = 0; outOfBounds_ = false;
         //try
         //{
         //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
@@ -431,7 +432,7 @@ extends SQLDataBase
         //    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
         //    return null;
         //}
-        
+
         //decided this is of no use
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
@@ -441,10 +442,10 @@ extends SQLDataBase
     {
         //This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCSQLXML(getString());     
+        truncated_ = 0; outOfBounds_ = false;
+        return new AS400JDBCSQLXML(getString());
     }
-   endif */ 
-   
+   endif */
+
 }
 
