@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SQLDatalink.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,14 +19,14 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+endif */
 import java.sql.SQLException;
 /* ifdef JDBC40
 import java.sql.SQLXML;
-endif */ 
+endif */
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -44,7 +44,7 @@ extends SQLDataBase
 
     SQLDatalink(int maxLength, SQLConversionSettings settings)
     {
-        super(settings); 
+        super(settings);
         length_         = 0;
         maxLength_      = maxLength;
         value_          = ""; // @A1C
@@ -91,10 +91,11 @@ extends SQLDataBase
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(object instanceof String)
+        if(object instanceof String) {
             value_ = (String)object;
-
-        else
+        } else if (object instanceof java.net.URL) {  /*@FCA*/
+          value_ = ((java.net.URL)object).toExternalForm();
+        } else
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
 
         length_ = value_.length();
@@ -129,7 +130,7 @@ extends SQLDataBase
         if(JDUtilities.JDBCLevel_ >= 30)
             return "java.net.URL";
         else
-            return "java.lang.Datalink";       
+            return "java.lang.Datalink";
     }
 
     public String getLiteralPrefix()
@@ -144,7 +145,7 @@ extends SQLDataBase
 
     public String getLocalName()
     {
-        return "DATALINK"; 
+        return "DATALINK";
     }
 
     public int getMaximumPrecision()
@@ -192,7 +193,7 @@ extends SQLDataBase
 
     public String getTypeName()
     {
-        return "DATALINK"; 
+        return "DATALINK";
     }
 
     public boolean isSigned()
@@ -216,7 +217,7 @@ extends SQLDataBase
     }
 
     public boolean getOutOfBounds() {
-      return outOfBounds_; 
+      return outOfBounds_;
     }
 
     //---------------------------------------------------------//
@@ -228,7 +229,7 @@ extends SQLDataBase
     public InputStream getAsciiStream()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
 
         try
         {
@@ -324,7 +325,7 @@ extends SQLDataBase
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         // if JDBC 3.0 or later return a URL instead of a string.
         // If we are not able to turn the string into a URL then return
         // the string (that is why there is no "else".  That shouldn't
@@ -382,21 +383,21 @@ extends SQLDataBase
     }
 
     //@pda jdbc40
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
     public RowId getRowId() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
+    endif */
     //@pda jdbc40
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
 	public SQLXML getSQLXML() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
+    endif */
     // @array
 }
 
