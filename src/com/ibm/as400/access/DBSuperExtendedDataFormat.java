@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DBSuperExtendedDataFormat.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2004-2004 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 2004-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -119,26 +119,26 @@ when it was not previously set by the constructor.
   {
     return numberOfFields_;
   }
-  
+
   // @550
   public int getDateFormat()
   {
 	  return (new Byte(rawBytes_[offset_+ 8])).intValue();
   }
-  
+
   // @550
   public int getTimeFormat()
   {
 	  return (new Byte(rawBytes_[offset_+ 9])).intValue();
   }
-  
+
   // @550
   public int getDateSeparator()
   {
 	  return (new Byte(rawBytes_[offset_+ 10])).intValue();
   }
-  
-  // @550 
+
+  // @550
   public int getTimeSeparator()
   {
 	  return (new Byte(rawBytes_[offset_+ 11])).intValue();
@@ -161,6 +161,15 @@ when it was not previously set by the constructor.
                                            offset_ + 20 + (fieldIndex * REPEATED_FIXED_LENGTH_));
   }
 
+  /* for now, this is in same position */
+  public int getArrayFieldLength (int fieldIndex)
+  {
+    return BinaryConverter.byteArrayToInt (rawBytes_,
+                                           offset_ + 20 + (fieldIndex * REPEATED_FIXED_LENGTH_));
+  }
+
+
+
   public int getFieldScale (int fieldIndex)
   {
     return BinaryConverter.byteArrayToShort (rawBytes_,
@@ -176,7 +185,7 @@ when it was not previously set by the constructor.
   public int getFieldCCSID (int fieldIndex)
   {
     // CCSID of the data that goes in the field/column
-    return BinaryConverter.byteArrayToUnsignedShort (rawBytes_, 
+    return BinaryConverter.byteArrayToUnsignedShort (rawBytes_,
                                                      offset_ + 28 + (fieldIndex * REPEATED_FIXED_LENGTH_));
   }
 
@@ -185,46 +194,46 @@ when it was not previously set by the constructor.
     return rawBytes_[offset_ + 30 + (fieldIndex * REPEATED_FIXED_LENGTH_)];
   }
 
-  public int getFieldLOBLocator (int fieldIndex)                          
-  {                                                                       
-    return BinaryConverter.byteArrayToInt (rawBytes_,                   
-                                           offset_ + 33 + (fieldIndex * REPEATED_FIXED_LENGTH_));                
-  }           
-  
-  //@xml3 return 0 if single, 1 if is doublebyte 
-  //Note: if 65535, then this is not applicable
-  public int getXMLCharType(int fieldIndex)                     
+  public int getFieldLOBLocator (int fieldIndex)
   {
-      
-      int flag = BinaryConverter.byteArrayToInt (rawBytes_,                   
+    return BinaryConverter.byteArrayToInt (rawBytes_,
+                                           offset_ + 33 + (fieldIndex * REPEATED_FIXED_LENGTH_));
+  }
+
+  //@xml3 return 0 if single, 1 if is doublebyte
+  //Note: if 65535, then this is not applicable
+  public int getXMLCharType(int fieldIndex)
+  {
+
+      int flag = BinaryConverter.byteArrayToInt (rawBytes_,
               offset_ + 37 + (fieldIndex * REPEATED_FIXED_LENGTH_));
       //flag is actually only 1 byte long
       //array bit is bit #5
-      int isDBChar = (flag >> 27) & 0x00000001; 
+      int isDBChar = (flag >> 27) & 0x00000001;
       return isDBChar;
   }
-  
+
   //@array return 1 if is array, 0 if not
-  public int getArrayType(int fieldIndex)                     
+  public int getArrayType(int fieldIndex)
   {
-      int flag = BinaryConverter.byteArrayToInt (rawBytes_,                   
+      int flag = BinaryConverter.byteArrayToInt (rawBytes_,
               offset_ + 37 + (fieldIndex * REPEATED_FIXED_LENGTH_));
       //flag is actually only 1 byte long
       //array bit is bit #2
-      int isArray = (flag >> 30) & 0x00000001; 
+      int isArray = (flag >> 30) & 0x00000001;
       return isArray;
-      
+
   }
 
-  public int getFieldLOBMaxSize (int fieldIndex)                          
-  {                                                                       
-    return BinaryConverter.byteArrayToInt (rawBytes_,                   
+  public int getFieldLOBMaxSize (int fieldIndex)
+  {
+    return BinaryConverter.byteArrayToInt (rawBytes_,
                                            offset_ + 42 + (fieldIndex * REPEATED_FIXED_LENGTH_));
-  }                                                                      
+  }
 
   public int getFieldNameLength (int fieldIndex)
   {
-      // Variable Length info LL - 8 
+      // Variable Length info LL - 8
       // LL is the length of the variable length info which includes 4 bytes for the LL, 2 bytes for the CP, 2 bytes for the field name ccsid, and ? bytes for the field name
       int offsetToVariableFieldInformation = BinaryConverter.byteArrayToInt(rawBytes_, offset_ + 48 + (fieldIndex * REPEATED_FIXED_LENGTH_));
       int lengthOfVariableFieldInformation  = BinaryConverter.byteArrayToInt(rawBytes_, offset_ + 16 + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation);  // Length of the variable information for a specific codepoint
@@ -234,7 +243,7 @@ when it was not previously set by the constructor.
 
   public int getFieldNameCCSID (int fieldIndex)
   {
-      // CCSID of the field/column name.  Usually the same as the job ccsid. 
+      // CCSID of the field/column name.  Usually the same as the job ccsid.
       int length = findCodePoint(fieldIndex, 0x3840);
       if(length >=0)
       {
@@ -244,7 +253,7 @@ when it was not previously set by the constructor.
       else
       {
           JDTrace.logInformation("Did not find the code point for the field name");
-          return getFieldCCSID(fieldIndex);  
+          return getFieldCCSID(fieldIndex);
       }
   }
 
@@ -278,7 +287,7 @@ when it was not previously set by the constructor.
       int lengthOfVariableFieldInformation  = BinaryConverter.byteArrayToInt(rawBytes_, offset_ + 16 + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation);  // Length of the variable information for a specific codepoint
       // retrieve the first codepoint in the variable length information
       int codePoint = BinaryConverter.byteArrayToShort(rawBytes_, offset_ + 16 + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation + 4);;
-      
+
       // Search until you find the codepoint for the information you want, or until the end of of the variable length info
       // move to the next LL CP in the variable inforamtion
       while((codePoint != cp) && (length < lengthOfVariableInformation))
@@ -290,9 +299,9 @@ when it was not previously set by the constructor.
 
       // Check to see if we found the codepoint, otherwise we looped through all of the information and didn't find the codepoint we wanted
       if(codePoint != cp){
-          return -1;    
+          return -1;
       }
-      
+
       return length + offsetToVariableFieldInformation;
   }
 
@@ -307,7 +316,7 @@ when it was not previously set by the constructor.
     BinaryConverter.intToByteArray (numberOfFields, rawBytes_,
                                     offset_ + 4);
   }
-  
+
   public void setRecordSize (int recordSize)
   {
     // not applicable - only called by AS400JDBCPreparedStatement.changeDescriptor()
@@ -369,7 +378,7 @@ when it was not previously set by the constructor.
       // At this time we will continue to use the Extended Data Format.
       Trace.log(Trace.DIAGNOSTIC, "called DBSuperExtendedDataFormat.setFieldNameLength()");
   }
-  
+
   public void setFieldNameCCSID (int fieldIndex, int nameCCSID)
   {
     // not applicable - only called by AS400JDBCPreparedStatement.changeDescriptor()
@@ -377,7 +386,7 @@ when it was not previously set by the constructor.
       Trace.log(Trace.DIAGNOSTIC, "called DBSuperExtendedDataFormat.setFieldNameCCSID()");
   }
 
-  public void setFieldName (int fieldIndex, String name, ConvTable converter) 
+  public void setFieldName (int fieldIndex, String name, ConvTable converter)
   throws DBDataStreamException
   {
     // not applicable - only called by AS400JDBCPreparedStatement.changeDescriptor()
@@ -391,13 +400,13 @@ when it was not previously set by the constructor.
     return 0;
   }
 
-  //@550A - returns whether or not this data is associated with a stored procedure result set 
+  //@550A - returns whether or not this data is associated with a stored procedure result set
   public boolean getCSRSData()
   {
 	  return csRsData_;
   }
-  
-  //@550A - sets whether or not this data is associated with a stored procedure result set 
+
+  //@550A - sets whether or not this data is associated with a stored procedure result set
   public void setCSRSData(boolean csRsData)
   {
 	  csRsData_ = csRsData;

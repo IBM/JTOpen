@@ -742,28 +742,32 @@ endif */
                     if(!parameterRow_.containsArray_ || parameterRow_.isInput(i+1)) //@array4
                     {
                         SQLData sqlData = parameterRow_.getSQLData(i+1);    //@array
-                        int arrayLen = 1;  //@array 1 by default so size can be multiplied for non arrays also
                         // boolean arrayIndicatorSet = false; //@array
                         if(sqlData.getType() == java.sql.Types.ARRAY)       //@array
                         {
-                            arrayLen = ((SQLArray)sqlData).getArrayCount();    //@array
+                            int arrayLen = ((SQLArray)sqlData).getArrayCount();    //@array @G2A
+                            int elementSize = parameterRow_.getArrayDataLength (i+1);   //@G2A
                             if (parameterNulls_[i] || parameterDefaults_[i] || parameterUnassigned_[i])  //@array
                                 headerTotalSize_ += 4; //@array space for x9911ffff
                             else
                                 headerTotalSize_ += 12;  //@array (array column requires 12 bytes in header x9911) //@array2
+                            parameterLengths_[i] = elementSize * arrayLen;  //@array 0, 1, or more datatype-length blocks
+                            indicatorTotalSize_ += (arrayLen*2);//@array@G2A
                         }
                         else
                         {
                             //non array value
                             headerTotalSize_ += 8;  //@array (assuming row has array.  x9912 is length 8)
+                            // Set non-array length, avoiding any unnecessary multiplication  @G2A
+                            parameterLengths_[i] = parameterRow_.getLength (i+1);
+                            indicatorTotalSize_ += 2;
+
                         }
                         //@array set input (to host) array lengths of data
                         //@array if null array or 0 length array, then data length is 0
-                        parameterLengths_[i] = parameterRow_.getLength (i+1) * arrayLen;  //@array 0, 1, or more datatype-length blocks
                         parameterOffsets_[i] = parameterTotalSize_;
                         parameterTotalSize_ += parameterLengths_[i];
 
-                        indicatorTotalSize_ += (arrayLen*2);//@array
                     }
 
                     if(isjvm16Synchronizer) {
@@ -899,7 +903,7 @@ endif */
                                         {                                                    //@array
                                             arrayLen = ((SQLArray)sqlData).getArrayCount();  //@array
                                             elementType = ((SQLArray)sqlData).getElementNativeType(); //@array
-                                            size = parameterRow_.getLength(i+1);             //@array
+                                            size = parameterRow_.getArrayDataLength(i+1);             //@array@G2C
                                         }                                                       //@array
                                         ((DBVariableData)parameterMarkerData).setHeaderColumnInfo(i, (short)sqlData.getNativeType(), (short)indicatorValue, (short)elementType, size, (short)arrayLen); //@array
                                     }                                                        //@array
@@ -963,12 +967,15 @@ endif */
                                             //Set the stream header info for each column in addition to data in rawbytes above.
                                             int arrayLen = -1;                                   //@array
                                             int elementType = -1;                                //@array
-                                            int size = parameterRow_.getLength(i+1);             //@array
+                                            int size ;             //@array
                                             if(sqlData.getType() == java.sql.Types.ARRAY)        //@array
                                             {                                                    //@array
+                                                size = parameterRow_.getArrayDataLength(i+1);  /*@G2A*/ 
                                                 arrayLen = ((SQLArray)sqlData).getArrayCount();  //@array
                                                 elementType = ((SQLArray)sqlData).getElementNativeType(); //@array
-                                            }                                                    //@array
+                                            }    else {                                                //@array
+                                             size = parameterRow_.getLength(i+1);
+                                            }
                                             ((DBVariableData)parameterMarkerData).setHeaderColumnInfo(i, (short)sqlData.getNativeType(), (short)0, (short)elementType, size, (short)arrayLen); //@array
                                         }                                                        //@array
 

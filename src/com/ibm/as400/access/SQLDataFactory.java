@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SQLDataFactory.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -25,24 +25,24 @@ class SQLDataFactory
 {
     // @C2A
     /**
-    Converts a String representation of a number in scientific 
+    Converts a String representation of a number in scientific
     notation to a String representation without scientific
     notation.
-    
-    Also handles the use of a different character as the decimal separator.  
-    This is indicated by the conversion settings. 
-    
+
+    Also handles the use of a different character as the decimal separator.
+    This is indicated by the conversion settings.
+
     @param scientificNotation   The String representation of a number
                                 in scientific notation.
-    @param settings             The SQLConversionSettings to be used.  The only 
-                                setting currently used is the decimalSeparator. 
+    @param settings             The SQLConversionSettings to be used.  The only
+                                setting currently used is the decimalSeparator.
     @return                     The String representation without
                                 scientific notation.
     **/
     static String convertScientificNotation(String scientificNotation, SQLConversionSettings settings) /*@F5C*/
     {
-        if ((settings !=null) && settings.getDecimalSeparator().equals(",")) {  /* @F5A */ 
-          scientificNotation = scientificNotation.replace(',', '.'); 
+        if ((settings !=null) && settings.getDecimalSeparator().equals(",")) {  /* @F5A */
+          scientificNotation = scientificNotation.replace(',', '.');
         }
         // Check to see if it is indeed scientific notation.
         int e = scientificNotation.indexOf('E');
@@ -58,7 +58,7 @@ class SQLDataFactory
         int exponent = Integer.parseInt(tempValue);                                   // @F3a
 
         // Parse the sign.
-        boolean sign = (scientificNotation.charAt(0) != '-');            
+        boolean sign = (scientificNotation.charAt(0) != '-');
 
         String mantissa = scientificNotation.substring(sign ? 0 : 1, e);            //@K1A
 
@@ -78,7 +78,7 @@ class SQLDataFactory
 	{                                                                           //@k1A
             //Determine the new position the decimal should be in
             int newLocation = index + exponent;                                     //@K1A
-            //Copy the numbers before the current decimal   
+            //Copy the numbers before the current decimal
             buffer.append(mantissa.substring(0, index));                            //@K1A
             //Copy the numbers after the decimal
   	    buffer.append(mantissa.substring(index + 1));                           //@K1A
@@ -127,7 +127,7 @@ class SQLDataFactory
                 buffer.append(temp.substring(0, index + exponent));                 //@K1A
                 //Add the decimal point
                 buffer.append('.');                                                 //@K1A
-                //Copy the rest of the number                           
+                //Copy the rest of the number
                 buffer.append(temp.substring(index + exponent));                    //@K1A
             }                                                                       //@K1A
         }                                                                           //@K1A
@@ -145,14 +145,14 @@ class SQLDataFactory
         {
             int digits = -exponent;
             for(int i = 1; i <= digits; ++i)
-                buffer.append('0');                
-            buffer.append(scientificNotation.substring(sign ? 0 : 1, e));                
+                buffer.append('0');
+            buffer.append(scientificNotation.substring(sign ? 0 : 1, e));
         }
         else if(exponent >= 0)
         {                       //@G3C Added the equals.
-            buffer.append(scientificNotation.substring(sign ? 0 : 1, e));                
+            buffer.append(scientificNotation.substring(sign ? 0 : 1, e));
             for(int i = 1; i <= exponent; ++i)
-                buffer.append('0');                
+                buffer.append('0');
         }
         String mantissa = buffer.toString();
 
@@ -168,25 +168,25 @@ class SQLDataFactory
         {
             if(i == decimalPoint)
                 buffer.append('.');
-            char ch = mantissa.charAt(i);                        
+            char ch = mantissa.charAt(i);
             if(ch != '.')
                 buffer.append(ch);
         }
 
         // Strip leading and trailing 0's, if any.
         int start = 0;
-        for(; start < buffer.length() && buffer.charAt(start) == '0'; ++start);   // @G3C  
+        for(; start < buffer.length() && buffer.charAt(start) == '0'; ++start);   // @G3C
         int end = buffer.length() - 1;
-        for(; end >= 0 && buffer.charAt(end) == '0'; --end);                      // @G3C  
-        String result;                                                              // @G3C  
+        for(; end >= 0 && buffer.charAt(end) == '0'; --end);                      // @G3C
+        String result;                                                              // @G3C
         if(end >= start)
-        {                                                         // @G3A  
-            result = buffer.toString().substring(start, end + 1);                  // @G3C  
+        {                                                         // @G3A
+            result = buffer.toString().substring(start, end + 1);                  // @G3C
         }
         else
-        {                                                                    // @G3A  
-            result = "0";                                                           // @G3A  
-        }                                                                           // @G3A  
+        {                                                                    // @G3A
+            result = "0";                                                           // @G3A
+        }                                                                           // @G3A
 
         // check to make sure we have more than just "."
         if(result.equals("."))
@@ -200,7 +200,7 @@ class SQLDataFactory
     /**
     Compute the scale of an object.  This is the number
     of digits to the right of the decimal point.
-    
+
     @param  object      A Java object.
     @return             the scale.
     **/
@@ -219,7 +219,7 @@ class SQLDataFactory
     /**
     Compute the precision of an object.  This is the
     total number of digits.
-    
+
     @param  object      A Java object.
     @return             the precision.
     **/
@@ -264,7 +264,7 @@ class SQLDataFactory
 
         return precision;
     }
-    
+
 
     //@DFA
     /**
@@ -274,7 +274,7 @@ class SQLDataFactory
     (ie.  9E17 in BigDecimal is represented as BigInt(900000000000000000), but we want
     to calculate precision taking into account that trailing 0's can be represented in an exponent that
     is not possible in the BigDecimal object as a negative scale.)
-    
+
     @param  value       BigDecimal object.
     @param  maxSize     max size of precision (16 or 34 for decfloats)
     @return             the precision.
@@ -285,25 +285,25 @@ class SQLDataFactory
 
         String toString = value.unscaledValue().toString(); //value.toString(); 1.6 returns "123E+4", 1.4 returns "1230000"
 
-        //int pointIndex = value.scale();//@rnd1 toString.indexOf('.');     
+        //int pointIndex = value.scale();//@rnd1 toString.indexOf('.');
 
         if(toString.charAt(0) == '-')
-            toString = toString.substring(1); 
+            toString = toString.substring(1);
 
         int length = toString.length();
 
-        // We need to truncate any ending zeroes.  Without this, 
-        // the precision of 1e5 was getting computed as 5 rather 
-        // than 1.      
-                  
-        int endIndex = length;                     
-                
+        // We need to truncate any ending zeroes.  Without this,
+        // the precision of 1e5 was getting computed as 5 rather
+        // than 1.
+
+        int endIndex = length;
+
         //@rnd1 if(pointIndex != 0)
         //@rnd1     maxSize++;  //allow for extra '.' char
         while((toString.charAt(--endIndex) == '0')  &&  (endIndex > maxSize) );
-     
+
         int numberZeros = length - endIndex - 1; //@rnd1
-       
+
         if(endIndex == maxSize)
         {
             if(toString.charAt(endIndex) == '0')
@@ -316,17 +316,17 @@ class SQLDataFactory
         }
         else
             precision = endIndex + 1;
-        
+
         //@rnd1 if(pointIndex != -1)
         //@rnd1     precision--;
-        
+
 
         int[] retVal = new int[2];  //@rnd1
         retVal[0] = precision;      //@rnd1
         retVal[1] = numberZeros;    //@rnd1
         return retVal;              //@rnd1
     }
-    
+
 
     /**
     Return a SQLData object corresponding to a
@@ -334,7 +334,7 @@ class SQLDataFactory
     In the case where a SQL type code specifies a
     type that is not supported in DB2 for IBM i, then
     it will map to the next closest type.
-    
+
     @param  sqlType     SQL type code defined in java.sql.Types.
     @param  maxLength   Max length of data.
     @param  precision   Precision of data.
@@ -342,7 +342,7 @@ class SQLDataFactory
     @param  settings    The conversion settings.
     @param  vrm         The OS/400 or IBM i Version, Release, and Modification.
     @return             A SQLData object.
-    
+
     @exception  SQLException    If no valid type can be
                                 mapped.
     **/
@@ -359,7 +359,7 @@ class SQLDataFactory
     {
         switch(sqlType)
         {                                      // @D0C
-            
+
             case Types.BIGINT:                                      // @D0A
                 if(vrm >= JDUtilities.vrm450)   // @D0A
                     return new SQLBigint(vrm, settings);    //trunc3                         // @D0A
@@ -367,11 +367,11 @@ class SQLDataFactory
                     return new SQLInteger(vrm, settings);    //trunc3
 
             case Types.BINARY:
-            {                                                            // @M0C - changed the code to return a      
-                if(vrm >= JDUtilities.vrm530)                            // @M0C - SQLBinary for v5r3 and newer   
-                    return new SQLBinary(maxLength, settings);           // @M0C - only because the old SQLBinary 
-                else                                                     // @M0C - function has been moved to        
-                    return new SQLCharForBitData(maxLength, settings);   // @M0C - SQLCharForBitData              
+            {                                                            // @M0C - changed the code to return a
+                if(vrm >= JDUtilities.vrm530)                            // @M0C - SQLBinary for v5r3 and newer
+                    return new SQLBinary(maxLength, settings);           // @M0C - only because the old SQLBinary
+                else                                                     // @M0C - function has been moved to
+                    return new SQLCharForBitData(maxLength, settings);   // @M0C - SQLCharForBitData
             }                                                            // @M0C
 
             case Types.BLOB:
@@ -391,7 +391,7 @@ class SQLDataFactory
                 if(settings != null)                                           // @E0A
                     if(! settings.useBigDecimal())                             // @E0A
                         return new SQLDecimal2(precision, scale, settings, vrm, properties);  // @M0C - pass the JDProperties so we can get the scale
-                return new SQLDecimal(precision, scale, settings, vrm, properties);           // @M0C  // @E0A   
+                return new SQLDecimal(precision, scale, settings, vrm, properties);           // @M0C  // @E0A
 
             case Types.DOUBLE:
                 return new SQLDouble(settings);
@@ -406,7 +406,7 @@ class SQLDataFactory
                 if(settings != null)                                           // @E0A
                     if(! settings.useBigDecimal())                             // @E0A
                         return new SQLNumeric2(precision, scale, settings, vrm, properties);  // @M0C - pass the JDProperties so we can get the scale
-                return new SQLNumeric(precision, scale, settings, vrm, properties);           // @M0C  // @E0A   
+                return new SQLNumeric(precision, scale, settings, vrm, properties);           // @M0C  // @E0A
 
             case Types.REAL:
                 return new SQLReal(settings);
@@ -431,7 +431,7 @@ class SQLDataFactory
             }
 
             case Types.LONGVARBINARY:                               // @D0A
-            {                                                                    // @M0C - changed the code to return a 
+            {                                                                    // @M0C - changed the code to return a
                 if(vrm >= JDUtilities.vrm530)                                    // @M0C - SQLVarbinary for v5r3 and newer
                     return new SQLVarbinary(maxLength, settings);                // @M0C - only because the old SQLVarbinary
                 else                                                             // @M0C - function has been moved to
@@ -454,11 +454,11 @@ class SQLDataFactory
     /**
     Return a SQLData object corresponding to the
     specific IBM i native type identifier.
-    
+
     @param  connection      The connection.
-    @param  id              The id.                                   
+    @param  id              The id.
     @param  nativeType      An IBM i native type identifier.
-    @param  length          Length of data (in bytes).
+    @param  length          Length of data (in bytes).  For an array, this is the size of the array elements.
     @param  precision       Precision of data.
     @param  scale           Scale of data.
     @param  ccsid           CCSID of data field.
@@ -471,7 +471,7 @@ class SQLDataFactory
     @param  timeFormat      The timeFormat
     @param  compositeContentType The compositeContentType (type of data in composite type (array, structs or associative-array) NativeType specifies if array or struct etc.
     @return                 A SQLData object.
-    
+
     @exception  SQLException    If no valid type can be
                                 mapped.
     **/
@@ -495,7 +495,7 @@ class SQLDataFactory
     {
         switch(nativeType)
         {
-            
+
             case 384:                           // Date.
             { //@datarray
                 if(compositeContentType == 0) //@datarray
@@ -566,13 +566,13 @@ class SQLDataFactory
                 if(settings != null)                                           // @E0A
                     if(! settings.useBigDecimal())                             // @E0A
                         return new SQLDecimal2(precision, scale, settings, connection.getVRM(), connection.getProperties()); // @M0C - pass the JDProperties object so we can get the precision
-                return new SQLDecimal(precision, scale, settings, connection.getVRM(), connection.getProperties());          // @M0C  // @E0A   
+                return new SQLDecimal(precision, scale, settings, connection.getVRM(), connection.getProperties());          // @M0C  // @E0A
 
             case 488:                           // Zoned decimal.
                 if(settings != null)                                           // @E0A
                     if(! settings.useBigDecimal())                             // @E0A
                         return new SQLNumeric2(precision, scale, settings, connection.getVRM(), connection.getProperties()); // @M0C - pass the JDProperties object so we can get the precision
-                return new SQLNumeric(precision, scale, settings, connection.getVRM(), connection.getProperties());          // @M0C  // @E0A   
+                return new SQLNumeric(precision, scale, settings, connection.getVRM(), connection.getProperties());          // @M0C  // @E0A
 
             case 492:                           // Bigint.   // @D0A
                 return new SQLBigint(connection.getVRM(), settings);                      // @D0A //trunc3
@@ -612,20 +612,20 @@ class SQLDataFactory
                 else
                     return new SQLDecFloat34(settings, connection.getVRM(), connection.getProperties() );     //@DFA
             case SQLData.NATIVE_ARRAY:                                //@array
-                return new SQLArray( length, newData( connection, 
-                                                        id, 
-                                                        compositeContentType, 
-                                                        length, 
-                                                        precision, 
+                return new SQLArray( length, newData( connection,
+                                                        id,
+                                                        compositeContentType,
+                                                        length,
+                                                        precision,
                                                         scale,
-                                                        ccsid, 
-                                                        translateBinary, 
-                                                        settings, 
-                                                        lobMaxSize, 
-                                                        columnIndex, 
-                                                        dateFormat, 
-                                                        timeFormat, 
-                                                        0, 0) , connection.getVRM());   //@array   create SQLData array wrapper of actual datatype 
+                                                        ccsid,
+                                                        translateBinary,
+                                                        settings,
+                                                        lobMaxSize,
+                                                        columnIndex,
+                                                        dateFormat,
+                                                        timeFormat,
+                                                        0, 0) , connection.getVRM());   //@array   create SQLData array wrapper of actual datatype
 
             case 2452: //@xml3 xml returned in bloblocator
             case 988:  // the xml type will be seen when a parameter is retrieved from a cached package.  We'll change
@@ -633,7 +633,7 @@ class SQLDataFactory
                 if(ccsid == 65535)
                     xmlCharType = 2; //sb=0 or db=1 binary=2
                 return new SQLXMLLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex, xmlCharType); //@xml3
-                        
+
             default:
                 JDError.throwSQLException(JDError.EXC_INTERNAL, new IllegalArgumentException(Integer.toString(nativeType))); // @E3C
                 return null;
@@ -643,14 +643,14 @@ class SQLDataFactory
     /**
     Return a SQLData object corresponding to the
     specific IBM i native type string.
-    
+
     @param  nativeType  An IBM i native type.
     @param  length      Length of data (in bytes).
     @param  precision   Precision of data.
     @param  scale       Scale of data.
     @param  settings    The conversion settings.
     @return             A SQLData object.
-    
+
     @exception  SQLException    If no valid type can be
                                 mapped.
     **/
@@ -739,14 +739,14 @@ class SQLDataFactory
             return new SQLDBClob(length, settings);                         //@KKB
 
         else if(nativeType.equals("DATE"))
-            return new SQLDate(settings, -1);	// @550 
+            return new SQLDate(settings, -1);	// @550
 
         else if(nativeType.equals("DECIMAL"))
         {
             if(settings != null)                                           // @E0A
                 if(! settings.useBigDecimal())                             // @E0A
                     return new SQLDecimal2(precision, scale, settings, vrm, properties); // @M0C - pass the JDProperties so we can get the scale
-            return new SQLDecimal(precision, scale, settings, vrm, properties);          // @M0C  // @E0A   
+            return new SQLDecimal(precision, scale, settings, vrm, properties);          // @M0C  // @E0A
         }
         else if(nativeType.equals("DECFLOAT"))  //@DFA
         {                                       //@DFA
@@ -787,7 +787,7 @@ class SQLDataFactory
             if(settings != null)                                           // @E0A
                 if(! settings.useBigDecimal())                             // @E0A
                     return new SQLNumeric2(precision, scale, settings, vrm, properties); // @M0C - pass the JDProperties so we can get the scale
-            return new SQLNumeric(precision, scale, settings, vrm, properties);          // @M0C  // @E0A   
+            return new SQLNumeric(precision, scale, settings, vrm, properties);          // @M0C  // @E0A
         }
 
         else if(nativeType.equals("REAL"))
@@ -812,11 +812,11 @@ class SQLDataFactory
             return new SQLTimestamp(settings);
 
         else if(nativeType.equals("VARBINARY"))
-        {                                                                  // @M0C - changed to return SQLVarbinary   
-            if(vrm >= JDUtilities.vrm530)                                  // @M0C - only for v5r3 and newer       
-                return new SQLVarbinary(length, settings);                 // @M0C - because the original function 
-            else                                                           // @M0C - from SQLVarbinary has been moved 
-                return new SQLVarcharForBitData(length, settings);         // @M0C - to SQLVarcharForBitData in order 
+        {                                                                  // @M0C - changed to return SQLVarbinary
+            if(vrm >= JDUtilities.vrm530)                                  // @M0C - only for v5r3 and newer
+                return new SQLVarbinary(length, settings);                 // @M0C - because the original function
+            else                                                           // @M0C - from SQLVarbinary has been moved
+                return new SQLVarcharForBitData(length, settings);         // @M0C - to SQLVarcharForBitData in order
         }                                                                  // @M0C - to add support for real VARBINARY
 
         else if(nativeType.equals("VARBIN"))                               //@K1A
@@ -856,9 +856,9 @@ class SQLDataFactory
                                         length,
                                         precision,
                                         scale,
-                                        ccsid,              
+                                        ccsid,
                                         settings,
-                                        vrm,                   
+                                        vrm,
                                         properties) , vrm);   //@array   create SQLData array wrapper of actual datatype //length is element length
 
         else

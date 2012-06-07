@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DBSQLDADataFormat.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -122,7 +122,9 @@ implements DBDataFormat
                                                  offset_ + 16 + (fieldIndex * REPEATED_LENGTH_));
     }
 
-
+    public int getArrayFieldLength(int fieldIndex) {
+      return 0;  // not possible with this format
+    }
 
     public int getFieldLength (int fieldIndex)
     {
@@ -135,7 +137,7 @@ implements DBDataFormat
         // lob type then get len from secondary SQLVAR blocks
         //Note:  we do not get the length for lobs from the correct location in the datastream.
         //Fixing this exposed a new hostserver issue, where the sql-package does not know before hand
-        //if the type will be a lob or lob-locator.  
+        //if the type will be a lob or lob-locator.
         //Also fixing this exposed a new issue where the lob length returned in the sqlca was not correct.
         //Rather that fixing all these things, we and hostserver agree to re-prepare when sql-package contains a lob
         /*leaving this code as commented out in case it is ever needed for reference in future
@@ -146,7 +148,7 @@ implements DBDataFormat
         }                                                                                                            //@loblen
         else*/                                                                                                         //@loblen
             length = BinaryConverter.byteArrayToShort (rawBytes_, offset_ + 18 + (fieldIndex * REPEATED_LENGTH_));   //@loblen
-       
+
 
         // @A0A
         // For type 484 (DECIMAL) and 488 (NUMERIC), the 1st byte in the Field Length
@@ -393,27 +395,27 @@ implements DBDataFormat
   public int getTimeSeparator() throws DBDataStreamException {
 	return -1;
   }
-  
-  // @550A - returns whether or not this data is associated with a stored procedure result set 
+
+  // @550A - returns whether or not this data is associated with a stored procedure result set
   public boolean getCSRSData()
   {
 	  return csRsData_;
   }
-  
-  //@550A - sets whether or not this data is associated with a stored procedure result set 
+
+  //@550A - sets whether or not this data is associated with a stored procedure result set
   public void setCSRSData(boolean csRsData)
   {
 	  csRsData_ = csRsData;
   }
-    
+
   //@xml3 This isn't included in the Extended Data Stream Format
-  public int getXMLCharType(int fieldIndex)                     
+  public int getXMLCharType(int fieldIndex)
   {
       return -1;
   }
 
   //@array - This isn't included in the SQLDA Data Stream Format
-  public int getArrayType(int fieldIndex)                     
+  public int getArrayType(int fieldIndex)
   {
       return -1;
   }

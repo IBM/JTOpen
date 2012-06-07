@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DBExtendedDataFormat.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -129,6 +129,11 @@ when it was not previously set by the constructor.
   {
     return BinaryConverter.byteArrayToInt (rawBytes_,
                                            offset_ + 20 + (fieldIndex * REPEATED_LENGTH_));
+  }
+
+  public int getArrayFieldLength(int fieldIndex) throws DBDataStreamException {
+    return BinaryConverter.byteArrayToInt (rawBytes_,
+        offset_ + 20 + (fieldIndex * REPEATED_LENGTH_));
   }
 
 
@@ -338,28 +343,31 @@ when it was not previously set by the constructor.
   public int getTimeSeparator() throws DBDataStreamException {
 	return -1;
   }
-  
-  // @550A - returns whether or not this data is associated with a stored procedure result set 
+
+  // @550A - returns whether or not this data is associated with a stored procedure result set
   public boolean getCSRSData()
   {
 	  return csRsData_;
   }
-  
-  //@550A - sets whether or not this data is associated with a stored procedure result set 
+
+  //@550A - sets whether or not this data is associated with a stored procedure result set
   public void setCSRSData(boolean csRsData)
   {
 	  csRsData_ = csRsData;
   }
-  
+
   //@xml3 This isn't included in the Extended Data Stream Format
-  public int getXMLCharType(int fieldIndex)                     
+  public int getXMLCharType(int fieldIndex)
   {
       return -1;
   }
-  
+
   //@array - This isn't included in the Extended Data Stream Format
-  public int getArrayType(int fieldIndex)                     
+  public int getArrayType(int fieldIndex)
   {
       return -1;
   }
+
+
+
 }

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DBDataFormat.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -29,28 +29,28 @@ extends DBOverlay
 
     public abstract int getConsistencyToken ()
         throws DBDataStreamException;
-    
+
     public abstract int getDateFormat()			// @550A
     	throws DBDataStreamException;			// @550A
-    
+
     public abstract int getTimeFormat()			// @550A
 		throws DBDataStreamException;			// @550A
-    
+
     public abstract int getDateSeparator()		// @550A
 		throws DBDataStreamException;			// @550A
-    
+
     public abstract int getTimeSeparator()		// @550A
 		throws DBDataStreamException;			// @550A
-    
+
     public abstract boolean getCSRSData();		// @550A
 
 
     public int getXMLCharType(int fieldIndex)  //@xml3
         throws DBDataStreamException;          //@xml3
-    
+
     public abstract int getArrayType(int fieldIndex)          // @array
         throws DBDataStreamException;                         // @array
-    
+
     public abstract int getNumberOfFields ()
         throws DBDataStreamException;
 
@@ -94,9 +94,9 @@ extends DBOverlay
 
     public abstract void setConsistencyToken (int consistencyToken)
         throws DBDataStreamException;
-    
+
     public abstract void setCSRSData(boolean csRsData);
-    
+
     public abstract void setNumberOfFields (int numberOfFields)
         throws DBDataStreamException;
 
@@ -111,6 +111,9 @@ extends DBOverlay
 
     public abstract void setFieldLength (int fieldIndex, int length)
         throws DBDataStreamException;
+
+    public abstract int getArrayFieldLength(int fieldIndex)
+    throws DBDataStreamException;
 
     public abstract void setFieldScale (int fieldIndex, int scale)
         throws DBDataStreamException;
@@ -132,5 +135,6 @@ extends DBOverlay
 
     public abstract void setFieldName (int fieldIndex, String name, ConvTable converter) //@P0C
         throws DBDataStreamException;
+
 
 }

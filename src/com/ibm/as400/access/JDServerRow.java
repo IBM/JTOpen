@@ -34,7 +34,10 @@ implements JDRow
     // Private data.
     private AS400JDBCConnection     connection_;
     private int[]                   ccsids_;
+    // Represents the total length of the data.  For arrays
+    // this is arrayLen * arrayDataLen.
     private int[]                   dataLength_;
+    private int[]                   arrayDataLength_;
     private int[]                   dataOffset_;
     private String[]                fieldNames_;
     private int[]                   lobLocatorHandles_;    // @C2A
@@ -168,6 +171,7 @@ implements JDRow
 
             ccsids_     = new int[count];
             dataLength_ = new int[count];
+            arrayDataLength_ = new int[count];
             dataOffset_ = new int[count];
             fieldNames_ = new String[count];
             lobLocatorHandles_= new int[count];    // @C2A
@@ -196,7 +200,10 @@ implements JDRow
                     ccsids_[i] = serverFormat_.getFieldCCSID (i);
                     dataOffset_[i] = offset;
                     dataLength_[i] = serverFormat_.getFieldLength (i);
-                    //@array (if array type) here we do not know the array length, just the element length, but that is okay since the elem length is fed into the sqlDataTemplate in SQLArray.  (for reply result, setRowIndex() will later re-populate the dataLength_ and dataOffset_ arrays anyways.)
+                    //@array (if array type) here we do not know the array length, just the element length, but that is okay since the 
+                    // elem length is fed into the sqlDataTemplate in SQLArray.  
+                    // for reply result, setRowIndex() will later re-populate the dataLength_ and dataOffset_ arrays anyways.)
+                    // @G2C
                     lobLocatorHandles_[i] = serverFormat_.getFieldLOBLocator (i);    // @C2C
                     offset += dataLength_[i];
                     scales_[i] = serverFormat_.getFieldScale (i);
@@ -207,6 +214,10 @@ implements JDRow
                     {
                         compositeContentType = sqlTypes_[i] & 0xFFFE; //@array
                         sqlTypes_[i] =  SQLData.NATIVE_ARRAY;   //@array not a hostserver number, since we only get a 1 bit array flag for the type
+                        arrayDataLength_[i] = serverFormat_.getArrayFieldLength(i);  /*@G2A*/ 
+                        
+                    } else {
+                      arrayDataLength_[i] = 0; /*@G2A*/ 
                     }
                     //@array comment: we are assuming here that all of the metadata above (except sqlType) is for the array content type
 
@@ -220,10 +231,18 @@ implements JDRow
 
                     int maxLobSize = serverFormat_.getFieldLOBMaxSize (i);    // @C2C
                     int xmlCharType = serverFormat_.getXMLCharType(i); //@xml3 sb=0 or db=1
+                    if (fieldType == SQLData.NATIVE_ARRAY) {  /*@G2A*/ 
+                      sqlData_[i] = SQLDataFactory.newData (connection, id,
+                          fieldType, arrayDataLength_[i], precisions_[i],
+                          scales_[i], ccsids_[i], translateBinary, settings,
+                          maxLobSize, (i+1), dateFormat, timeFormat, compositeContentType, xmlCharType);    //@F1C // @C2C @550C @array //@xml3
+
+                    } else {
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
                                                           fieldType, dataLength_[i], precisions_[i],
                                                           scales_[i], ccsids_[i], translateBinary, settings,
                                                           maxLobSize, (i+1), dateFormat, timeFormat, compositeContentType, xmlCharType);    //@F1C // @C2C @550C @array //@xml3
+                    }
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);
@@ -250,6 +269,7 @@ implements JDRow
                 {
                     dataOffset_[i] = offset;
                     dataLength_[i] = serverFormat_.getFieldLength (i);
+                    arrayDataLength_[i] = serverFormat_.getArrayFieldLength(i); /*@G2A*/ 
                     offset += dataLength_[i];
                 }
             }
@@ -312,7 +332,8 @@ implements JDRow
                     //@array set input array lengths of data
                     int offset = 0;                                                 //@array
                     int numOfFields = serverFormat_.getNumberOfFields();            //@array
-                    int[] dataLengths = ((DBVariableData)serverData_).getDataLengthsFromHost(); //@array
+                    int[] dataLengths = ((DBVariableData)serverData_).getTotalDataLengthsFromHost(); //@array
+                    int[] arrayDataLengths = ((DBVariableData)serverData_).getArrayDataLengthsFromHost(); /*@G2A*/ 
                     int outCount = 0;  //@arrayout
                     for(int j=0; j<numOfFields; j++)                                 //@array
                     {                                                               //@array
@@ -325,6 +346,7 @@ implements JDRow
 
                             offset += length;                                           //@array
                             dataLength_[j] = length;                                    //@array //set full array length here if array
+                            arrayDataLength_[j] = arrayDataLengths[outCount]; /*@G2A*/ 
                             outCount++;                                                 //@arrayout
                         }                                                               //@array
                     }
@@ -362,6 +384,7 @@ implements JDRow
 
                         offset += length;                                           //@K54
                         dataLength_[j] = length;                                    //@K54
+                        arrayDataLength_[j] = serverFormat_.getArrayFieldLength(j); /*@G2A*/ 
                     }                                                               //@K54
                 }                                                                   //@K54
                 else if(wasCompressed){     // If varying length field compression was used on one request, and not a subsequent fetch, we need to reset the data lengths and offsets based on the server format
@@ -738,7 +761,7 @@ implements JDRow
 
     /**
     Return the length of a field's data within server
-    data.
+    data.  For an array, this is arrayCount * arrayDataLen.
 
     @param      index   The field index (1-based).
     @return             The data length.
@@ -751,6 +774,15 @@ implements JDRow
         return dataLength_[index-1];
     }
 
+    /**
+     * Return the length of element in an array
+     * @return
+     */
+     /*@G2A*/ 
+    
+    public int getArrayDataLength(int index ) {
+      return arrayDataLength_[index-1];
+    }
 
 
 
@@ -850,6 +882,9 @@ implements JDRow
       else
           return false;
     }
+
+
+
 
 
 }
