@@ -188,7 +188,7 @@ implements DBData
                         indicatorCountsFromHost_[i] = 0;  //flag that array is null or zero length array if 0 indicator counts and type of array
                         dataOffsetsFromHost_[i] = (i == 0 ? 0 : dataOffsetsFromHost_[i-1]); //keep same as prev since null arrays have no data (so we can later keep a running total)(ie no -1 values)
                         totalDataLengthsFromHost_[i] = 0;
-                        arrayDataLengthsFromHost_[i] = 0; /*@G2A*/ 
+                        arrayDataLengthsFromHost_[i] = 0; /*@G2A*/
                         dataIsNullArrayFromHost_[i] = -1; //@nullelem null array
                     }else{
                         int dataLen = BinaryConverter.byteArrayToInt (rawBytes, colDescs + 4);
@@ -535,6 +535,11 @@ implements DBData
     public int[] getArrayDataLengthsFromHost() {
       // TODO Auto-generated method stub
       return arrayDataLengthsFromHost_;
+    }
+
+    /* combatibility method */
+    public int[] getDataLengthsFromHost(){
+      return totalDataLengthsFromHost_;
     }
 
     public int[] getTotalDataLengthsFromHost(){
