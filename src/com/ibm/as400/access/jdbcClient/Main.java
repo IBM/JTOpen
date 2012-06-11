@@ -241,17 +241,25 @@ public class Main implements Runnable {
     //
     String version = System.getProperty("java.version");
     if (version != null) {
-      if (version.charAt(0) == '1' && version.charAt(2) < '4') {
-        jdk14_ = false;
-        jdk16_ = false;
-      } else {
-        if (version.charAt(0) == '1' && version.charAt(2) < '6') {
-          jdk14_ = true;
+      if (version.length() > 2) {
+        if (version.charAt(0) == '1' && version.charAt(2) < '4') {
+          jdk14_ = false;
           jdk16_ = false;
         } else {
-          jdk14_ = true;
-          jdk16_ = true;
+          if (version.charAt(0) == '1' && version.charAt(2) < '6') {
+            jdk14_ = true;
+            jdk16_ = false;
+          } else {
+            jdk14_ = true;
+            jdk16_ = true;
 
+          }
+        }
+      } else {
+        // Android JVM returns 0 and runs with JDK 1.5
+        if ("0".equals(version)) {
+          jdk14_ = true;
+          jdk16_ = false;
         }
       }
     }
@@ -2602,7 +2610,7 @@ public class Main implements Runnable {
                           + parameterTypes.length);
                       methodFound = false;
                     } else {
-                      if (argStartIndex != argEndIndex) {
+                      if (argStartIndex <= argEndIndex) {
                         String arg = argsLeft.substring(argStartIndex,
                             argEndIndex).trim();
 
@@ -4565,8 +4573,8 @@ public class Main implements Runnable {
     // Set the values for some local objects if they get changed
     if (var.equals("CON")) { connection_ = (Connection) value; }
     else if (var.equals("STMT")) { stmt_ = (Statement) value; }
-    else if (var.equals("CSTMT")) { pstmt_ = (PreparedStatement) value; }
-    else if (var.equals("PSTMT")) { cstmt_ = (CallableStatement) value; }
+    else if (var.equals("PSTMT")) { pstmt_ = (PreparedStatement) value; }
+    else if (var.equals("CSTMT")) { cstmt_ = (CallableStatement) value; }
     else if (var.equals("RS")) { manualResultSet_ =  (ResultSet) value; }
   }
 
