@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SQLDate.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,14 +18,14 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+endif */
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.SQLXML;
-endif */ 
+endif */
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -43,7 +43,7 @@ extends SQLDataBase
 
     SQLDate(SQLConversionSettings settings, int dateFormat)
     {
-        super(settings); 
+        super(settings);
         year_       = 0;
         month_      = 0;
         day_        = 0;
@@ -79,9 +79,9 @@ extends SQLDataBase
             calendar = AS400Calendar.getGregorianInstance(); //@P0A
             calendar.setLenient(false); //@dat1
         } else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
-        
+
         try
         {
             // Parse the string according to the format and separator.
@@ -179,7 +179,7 @@ extends SQLDataBase
 
         try //@dat1
         {
-            return new Date(calendar.getTime().getTime());
+            return new Date(calendar.getTimeInMillis());
         }catch(Exception e){
             if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing date "+s, e); //@dat1
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
@@ -194,10 +194,10 @@ extends SQLDataBase
         StringBuffer buffer = new StringBuffer();
         String separator = dataFormat.getDateSeparator();
         if(calendar == null) { calendar = AS400Calendar.getGregorianInstance(); //@P0A
-        
+
         }
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.setTime(d);
@@ -206,7 +206,7 @@ extends SQLDataBase
 
         switch(dataFormat.getDateFormat())
         {
-            
+
             case SQLConversionSettings.DATE_FORMAT_USA:                          // mm/dd/yyyy
                 buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
                 buffer.append('/');
@@ -290,7 +290,7 @@ extends SQLDataBase
     	// @550 If the date is in a stored procedure result set, it could have a different date format than the format of the connection
         switch(((dateFormat_ != -1) && (dateFormat_ != connectionDateFormat)) ? dateFormat_ : connectionDateFormat)	// @550C
         {
-            
+
             case SQLConversionSettings.DATE_FORMAT_JULIAN:                      // yy/ddd
                 year_ = twoDigitYearToFour((rawBytes[offset+0] & 0x0f) * 10
                                            + (rawBytes[offset+1] & 0x0f));
@@ -301,7 +301,7 @@ extends SQLDataBase
                              (rawBytes[offset+3] & 0x0f) * 100
                              + (rawBytes[offset+4] & 0x0f) * 10
                              + (rawBytes[offset+5] & 0x0f));
-                calendar.setTime(calendar.getTime()); 
+                calendar.setTime(calendar.getTime());
                 month_ = calendar.get(Calendar.MONTH);
                 day_ = calendar.get(Calendar.DAY_OF_MONTH);
                 break;
@@ -399,13 +399,13 @@ extends SQLDataBase
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(calendar == null) 
+        if(calendar == null)
         {
             calendar = AS400Calendar.getGregorianInstance(); //@P0A
             calendar.setLenient(false); //@dat1
         }
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         if(object instanceof String)
@@ -545,7 +545,7 @@ extends SQLDataBase
     }
 
     public boolean getOutOfBounds() {
-      return outOfBounds_; 
+      return outOfBounds_;
     }
 
     //---------------------------------------------------------//
@@ -601,15 +601,15 @@ extends SQLDataBase
     public Date getDate(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(calendar == null) calendar = AS400Calendar.getGregorianInstance();  
+        truncated_ = 0; outOfBounds_ = false;
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance();
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        return new Date(calendar.getTime().getTime());
+        return new Date(calendar.getTimeInMillis());
     }
 
     public double getDouble()
@@ -643,7 +643,7 @@ extends SQLDataBase
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return getDate(null);
     }
 
@@ -657,11 +657,11 @@ extends SQLDataBase
     public String getString()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        Calendar calendar = AS400Calendar.getGregorianInstance();  
+        truncated_ = 0; outOfBounds_ = false;
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(calendar.getTime().getTime());
+        Date d = new Date(calendar.getTimeInMillis());
         return dateToString(d, settings_, calendar);
     }
 
@@ -675,49 +675,49 @@ extends SQLDataBase
     public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A  
+        truncated_ = 0; outOfBounds_ = false;
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Timestamp ts = new Timestamp(calendar.getTime().getTime());
+        Timestamp ts = new Timestamp(calendar.getTimeInMillis());
         ts.setNanos(0);
         return ts;
     }
 
-    
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        Calendar calendar = AS400Calendar.getGregorianInstance();  
+        truncated_ = 0; outOfBounds_ = false;
+        Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(calendar.getTime().getTime());
+        Date d = new Date(calendar.getTimeInMillis());
         return dateToString(d, settings_, calendar);
     }
 
     //@pda jdbc40
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
 
     public RowId getRowId() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
-    
+    endif */
+
     //@pda jdbc40
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
 	public SQLXML getSQLXML() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
+    endif */
     // @array
 
 }

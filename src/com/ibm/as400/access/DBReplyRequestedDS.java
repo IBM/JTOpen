@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DBReplyRequestedDS.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -29,15 +29,15 @@ final class DBReplyRequestedDS extends DBBaseReplyDS
   long                lastUsed = 0;                      // @B5A
   Exception allocatedLocation = null;           // @B5A
   int       poolIndex = -1;                              // @B5A
-  
-  
+
+
   public DBReplyRequestedDS(boolean setAllocatedLocation, int poolIndex)
   {
     super();
     if (setAllocatedLocation) {
-    	setAllocatedLocation(); 
-    } /*@B5A*/ 
-    this.poolIndex = poolIndex;  /*@B5A*/ 
+    	setAllocatedLocation();
+    } /*@B5A*/
+    this.poolIndex = poolIndex;  /*@B5A*/
   }
 
 
@@ -55,45 +55,45 @@ final class DBReplyRequestedDS extends DBBaseReplyDS
     //@P0D return new DBReplyRequestedDS ();
     return DBDSPool.getDBReplyRequestedDS(); //@P0A
   }
-  
+
   void setAllocatedLocation() {
 	if (firstUsed == 0) {
-		firstUsed = System.currentTimeMillis(); 
+		firstUsed = System.currentTimeMillis();
 	}
-	lastUsed = System.currentTimeMillis() - firstUsed; 
+	lastUsed = System.currentTimeMillis() - firstUsed;
     allocatedLocation = new Exception("location");
-    storage_.setAllocatedLocation(); 
-    
-    
-  }/* @B5A*/ 
-  
-  String getAllocatedLocation() { 
-	  if (allocatedLocation == null) { 
-		return "NONE";   
-	  } else { 
-	  StringWriter sw = new StringWriter(); 
-	  PrintWriter pw = new PrintWriter(sw); 
-	  allocatedLocation.printStackTrace(pw); 
-	  String result = sw.toString(); 
-	  result.replace('\n', ' '); 
-	  return "Used at "+lastUsed+" "+result; 
-	  }	
- } /*@B5A*/ 
-  
+    storage_.setAllocatedLocation();
+
+
+  }/* @B5A*/
+
+  String getAllocatedLocation() {
+	  if (allocatedLocation == null) {
+		return "NONE";
+	  } else {
+	  StringWriter sw = new StringWriter();
+	  PrintWriter pw = new PrintWriter(sw);
+	  allocatedLocation.printStackTrace(pw);
+	  String result = sw.toString();
+	  result = result.replace('\n', ' ');
+	  return "Used at "+lastUsed+" "+result;
+	  }
+ } /*@B5A*/
+
   void returnToPool() {
 	  if (poolIndex >= 0) {
-		  DBDSPool.returnToDBReplyRequestedPool(poolIndex); 
+		  DBDSPool.returnToDBReplyRequestedPool(poolIndex);
 	  }
 	  super.returnToPool();
-	} /*@B5A*/ 
-  
-  
+	} /*@B5A*/
+
+
 //  void setPoolIndex(int poolIndex) {
-//	  if (DBDSPool.monitor) { 
-//		  System.out.println("Using pool at index "+poolIndex); 
+//	  if (DBDSPool.monitor) {
+//		  System.out.println("Using pool at index "+poolIndex);
 //	  }
-//	  this.poolIndex = poolIndex; 
-//	  allocatedLocation = null; 
+//	  this.poolIndex = poolIndex;
+//	  allocatedLocation = null;
 //  }
 
 }

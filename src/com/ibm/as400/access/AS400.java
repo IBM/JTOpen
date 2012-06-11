@@ -1408,8 +1408,8 @@ public class AS400 implements Serializable
             GregorianCalendar now = signonInfo_.currentSignonDate;
             if (expirationDate != null && now != null)
             {
-                long lExpiration = expirationDate.getTime().getTime();
-                long lNow = now.getTime().getTime();
+                long lExpiration = expirationDate.getTimeInMillis();
+                long lNow = now.getTimeInMillis();
 
                 // Divide by number of seconds in day, round up.
                 int days = (int)(((lExpiration - lNow) / 0x5265C00) + 1);

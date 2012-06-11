@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SQLTimestamp.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,12 +18,12 @@ import java.io.InputStream;
  import java.math.BigDecimal;
  import java.sql.Blob;
  import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+endif */
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40
 import java.sql.SQLXML;
 endif */
 import java.sql.Time;
@@ -46,7 +46,7 @@ extends SQLDataBase
 
     SQLTimestamp(SQLConversionSettings settings)
     {
-        super(settings); 
+        super(settings);
         year_       = 0;
         month_      = 0;
         day_        = 0;
@@ -82,7 +82,7 @@ extends SQLDataBase
                 calendar.setLenient(false); //@dat1
             }
             else {
-              calendar = AS400Calendar.getConversionCalendar(calendar); 
+              calendar = AS400Calendar.getConversionCalendar(calendar);
             }
 
             calendar.set(Calendar.YEAR, year);
@@ -95,16 +95,16 @@ extends SQLDataBase
             Timestamp ts = null;//@dat1
             try //@dat1
             {
-                ts = new Timestamp(calendar.getTime().getTime()); //@dat1
+                ts = new Timestamp(calendar.getTimeInMillis()); //@dat1
             }catch(Exception e){
                 if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e); //@dat1
                 JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
                 return null; //@dat1
             }
-                
+
             // @F2A
-            // Remember that the value for nanoseconds is optional.  If we don't check the 
-            // length of the string before trying to handle nanoseconds for the timestamp, 
+            // Remember that the value for nanoseconds is optional.  If we don't check the
+            // length of the string before trying to handle nanoseconds for the timestamp,
             // we will blow up if there is no value available.  An example of a String value
             // as a timestamp that would have this problem is:  "1999-12-31 12:59:59"
             if(s.length() > 20)
@@ -145,16 +145,16 @@ extends SQLDataBase
                                            Calendar calendar, int hourIn)
     {
         // @F3A
-        // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, while we output timestamps like 2100-01-02 03:45:56.000000. The first is apparently the ISO standard while ours follows Java's Timestamp.toString() method. This was pointed out by a user who noticed that although he gets a timestamp from our database in one format, he can't put it back in the database in that same format. 
+        // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, while we output timestamps like 2100-01-02 03:45:56.000000. The first is apparently the ISO standard while ours follows Java's Timestamp.toString() method. This was pointed out by a user who noticed that although he gets a timestamp from our database in one format, he can't put it back in the database in that same format.
         // @F6A Change back to old format because of service issue.
         StringBuffer buffer = new StringBuffer();
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.setTime(ts);
-        
+
         int hour = calendar.get(Calendar.HOUR_OF_DAY);  //@tim2
         if(hourIn == 24 && hour==0)     //@tim2
         {//@tim2
@@ -163,9 +163,9 @@ extends SQLDataBase
             //java changes 1/1/2007 24:00 -> 1/2/2007 00:00
             //for Native jdbc driver compliance, code block at bottom replaces "00" with "24", but need to
             //go back one day to counteract java's conversion.
-            calendar.add(Calendar.DATE, -1); 
+            calendar.add(Calendar.DATE, -1);
         }//@tim2
-        
+
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
         buffer.append('-');
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
@@ -272,7 +272,7 @@ extends SQLDataBase
             calendar.setLenient(false); //@dat1
         }
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         if(object instanceof String)
@@ -417,7 +417,7 @@ extends SQLDataBase
         return truncated_;
     }
     public boolean getOutOfBounds() {
-      return outOfBounds_; 
+      return outOfBounds_;
     }
 
     //---------------------------------------------------------//
@@ -477,12 +477,12 @@ extends SQLDataBase
         outOfBounds_ = false;
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);      //@KBA  added per JTOpen Bug 3818.  According to java.sql.Date, the milliseconds also need to be 'normalized' to zero.
-        return new Date(calendar.getTime().getTime());
+        return new Date(calendar.getTimeInMillis());
     }
 
     public double getDouble()
@@ -516,10 +516,10 @@ extends SQLDataBase
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTime().getTime());
+        Timestamp ts = new Timestamp (calendar.getTimeInMillis());
         ts.setNanos(nanos_);
         return ts;
     }
@@ -534,10 +534,10 @@ extends SQLDataBase
     public String getString()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTime().getTime());
+        Timestamp ts = new Timestamp (calendar.getTimeInMillis());
         ts.setNanos(nanos_);
         return timestampToString(ts, calendar, hour_);       // @F4C
     }
@@ -546,46 +546,46 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 18;
-        outOfBounds_ = false; 
+        outOfBounds_ = false;
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.set(0, 0, 0, hour_, minute_, second_);
-        return new Time(calendar.getTime().getTime());
+        return new Time(calendar.getTimeInMillis());
     }
 
     public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp(calendar.getTime().getTime());
+        Timestamp ts = new Timestamp(calendar.getTimeInMillis());
         ts.setNanos(nanos_);
         return ts;
     }
 
-    
 
-    
+
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTime().getTime());
+        Timestamp ts = new Timestamp (calendar.getTimeInMillis());
         ts.setNanos(nanos_);
-        return timestampToString(ts, calendar, hour_);      
+        return timestampToString(ts, calendar, hour_);
     }
 
-    /* ifdef JDBC40 
+    /* ifdef JDBC40
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -599,7 +599,7 @@ extends SQLDataBase
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
-    
+    endif */
+
 }
 
