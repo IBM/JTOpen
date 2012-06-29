@@ -3940,6 +3940,7 @@ public class Main implements Runnable {
   }
 
   static String getCRC32(String input) {
+    if (input == null) return null; 
     int length = input.length();
     byte[] byteArray = new byte[2 * length];
     for (int i = 0; i < length; i++) {
@@ -3953,6 +3954,7 @@ public class Main implements Runnable {
   }
 
   String getCRC32xor1(String input) {
+    if (input == null) return null; 
     int length = input.length();
     byte[] byteArray = new byte[2 * length];
     for (int i = 0; i < length; i++) {

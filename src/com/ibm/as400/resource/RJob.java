@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: RJob.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2000 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.resource;
@@ -1445,7 +1445,7 @@ which represents additional information about the job type.  Possible values are
 <li>{@link #JOB_SUBTYPE_IMMEDIATE JOB_SUBTYPE_IMMEDIATE} - The job is an immediate job.
 <li>{@link #JOB_SUBTYPE_PROCEDURE_START_REQUEST JOB_SUBTYPE_PROCEDURE_START_REQUEST} - The job started
     with a procedure start request.
-<li>{@link #JOB_SUBTYPE_MACHINE_SERVER_JOB JOB_SUBTYPE_MACHINE_SERVER_JOB} - The job is an 
+<li>{@link #JOB_SUBTYPE_MACHINE_SERVER_JOB JOB_SUBTYPE_MACHINE_SERVER_JOB} - The job is an
     Advanced 36 machine server job.
 <li>{@link #JOB_SUBTYPE_PRESTART JOB_SUBTYPE_PRESTART} - The job is a prestart job.
 <li>{@link #JOB_SUBTYPE_PRINT_DRIVER JOB_SUBTYPE_PRINT_DRIVER} - The job is a print driver job.
@@ -1479,7 +1479,7 @@ which represents additional information about the job type.  Possible values are
     public static final String JOB_SUBTYPE_PROCEDURE_START_REQUEST  = "E";
 
     /**
-    Attribute value indicating that the job is an 
+    Attribute value indicating that the job is an
     Advanced 36 machine server job.
 
     @see #JOB_SUBTYPE
@@ -1763,7 +1763,7 @@ which represents the type of information that is logged.  Possible values are:
     the {@link #LOGGING_SEVERITY message logging severity} are logged.
 <li>{@link #LOGGING_LEVEL_REQUESTS_BY_SEVERITY_AND_ASSOCIATED_MESSAGES LOGGING_LEVEL_REQUESTS_BY_SEVERITY_AND_ASSOCIATED_MESSAGES} -
     Requests or commands from CL programs for which the system issues messages with
-    a severity code greater than or equal to the {@link #LOGGING_SEVERITY 
+    a severity code greater than or equal to the {@link #LOGGING_SEVERITY
     logging severity} and all messages
     associated with those requests or commands that have a severity code greater
     than or equal to the {@link #LOGGING_SEVERITY logging severity}
@@ -1775,7 +1775,7 @@ which represents the type of information that is logged.  Possible values are:
     are logged.
 <li>{@link #LOGGING_LEVEL_ALL_REQUESTS_AND_MESSAGES LOGGING_LEVEL_ALL_REQUESTS_AND_MESSAGES} -
     All requests or commands from CL programs and all messages
-    with a severity code greater than or equal to the {@link #LOGGING_SEVERITY 
+    with a severity code greater than or equal to the {@link #LOGGING_SEVERITY
     logging severity} are logged.
 </ul>
 **/
@@ -1820,7 +1820,7 @@ which represents the type of information that is logged.  Possible values are:
 
     /**
     Attribute value indicating that all requests or commands from CL programs and all messages
-    with a severity code greater than or equal to the {@link #LOGGING_SEVERITY 
+    with a severity code greater than or equal to the {@link #LOGGING_SEVERITY
     logging severity} are logged.
 
     @see #LOGGING_LEVEL
@@ -2942,9 +2942,9 @@ Constructs an RJob object.
         }
 
         if(name.equals("*")) {
-            if (user.trim() != "")
+            if (user.trim().length() > 0)
                 throw new ExtendedIllegalArgumentException("user", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-            if (number.trim() != "")
+            if (number.trim().length() > 0)
                 throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
     }
@@ -2980,11 +2980,11 @@ Commits the specified attribute changes.
 
 @param attributeIDs     The attribute IDs for the specified attribute changes.
 @param values           The specified attribute changes
-@param bidiStringTypes  The bidi string types as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+@param bidiStringTypes  The bidi string types as defined by the CDRA (Character Data
+                        Representataion Architecture). See
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
-                        for more information and valid values. 
-                        
+                        for more information and valid values.
+
 @exception ResourceException                If an error occurs.
 **/
     protected void commitAttributeChanges(Object[] attributeIDs, Object[] values, int[] bidiStringTypes)
@@ -3275,10 +3275,10 @@ If the attribute value does not have an uncommitted change, this
 returns the same value as <b>getAttributeValue()</b>.
 
 @param attributeID  Identifies the attribute.
-@param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+@param bidiStringType   The bidi string type as defined by the CDRA (Character Data
+                        Representataion Architecture). See
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
-                        for more information and valid values. 
+                        for more information and valid values.
 @return             The attribute value, or null if the attribute
                     value is not available.
 
