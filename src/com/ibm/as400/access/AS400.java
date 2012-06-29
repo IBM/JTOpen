@@ -58,9 +58,12 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
 public class AS400 implements Serializable
 {
     private static final String CLASSNAME = "com.ibm.as400.access.AS400";
+    static boolean jdk14 = false;
+
     static
     {
         if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+        jdk14 = JVMInfo.isJDK14();
     }
 
     static final long serialVersionUID = 4L;
@@ -1400,26 +1403,32 @@ public class AS400 implements Serializable
     }
 
     // Calculate number of days until user's password expires.
-    private int getDaysToExpiration()
-    {
-        if (signonInfo_ != null)
-        {
-            GregorianCalendar expirationDate = signonInfo_.expirationDate;
-            GregorianCalendar now = signonInfo_.currentSignonDate;
-            if (expirationDate != null && now != null)
-            {
-                long lExpiration = expirationDate.getTimeInMillis();
-                long lNow = now.getTimeInMillis();
+  private int getDaysToExpiration() {
+    if (signonInfo_ != null) {
+      GregorianCalendar expirationDate = signonInfo_.expirationDate;
+      GregorianCalendar now = signonInfo_.currentSignonDate;
+      if (expirationDate != null && now != null) {
+        // getTimeInMillis() is protected in JDK 1.3 and cannot be used
+        long lExpiration;
+        long lNow;
+        if (jdk14) {
+          lExpiration = expirationDate.getTimeInMillis();
+          lNow = now.getTimeInMillis();
+        } else {
+          lExpiration = expirationDate.getTime().getTime();
+          lNow = now.getTime().getTime();
 
-                // Divide by number of seconds in day, round up.
-                int days = (int)(((lExpiration - lNow) / 0x5265C00) + 1);
-
-                return days;
-            }
         }
-        // No expiration date.
-        return 365;
+
+        // Divide by number of seconds in day, round up.
+        int days = (int) (((lExpiration - lNow) / 0x5265C00) + 1);
+
+        return days;
+      }
     }
+    // No expiration date.
+    return 365;
+  }
 
     /**
      Returns the default sign-on handler.  If none has been specified, returns an instance of the Toolbox's internal sign-on handler.

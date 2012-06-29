@@ -35,6 +35,11 @@ extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
+    static boolean jdk14 = false;
+    static {
+      jdk14 = JVMInfo.isJDK14();
+    }
+
     // Private data.
     private int			    dateFormat_;	// @550A
     private int                     year_;
@@ -179,7 +184,9 @@ extends SQLDataBase
 
         try //@dat1
         {
-            return new Date(calendar.getTimeInMillis());
+        	long millis;
+        	if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+            return new Date(millis);
         }catch(Exception e){
             if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing date "+s, e); //@dat1
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
@@ -661,7 +668,9 @@ extends SQLDataBase
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Date d = new Date(millis);
         return dateToString(d, settings_, calendar);
     }
 
@@ -683,7 +692,9 @@ extends SQLDataBase
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Timestamp ts = new Timestamp(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Timestamp ts = new Timestamp(millis);
         ts.setNanos(0);
         return ts;
     }
@@ -696,7 +707,9 @@ extends SQLDataBase
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Date d = new Date(millis);
         return dateToString(d, settings_, calendar);
     }
 

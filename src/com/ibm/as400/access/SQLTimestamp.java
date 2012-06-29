@@ -34,6 +34,10 @@ final class SQLTimestamp
 extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static boolean jdk14 = false;
+    static {
+      jdk14 = JVMInfo.isJDK14();
+    }
 
     // Private data.
     private int                     year_;
@@ -95,7 +99,9 @@ extends SQLDataBase
             Timestamp ts = null;//@dat1
             try //@dat1
             {
-                ts = new Timestamp(calendar.getTimeInMillis()); //@dat1
+              long millis;
+              if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+                ts = new Timestamp(millis); //@dat1
             }catch(Exception e){
                 if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e); //@dat1
                 JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
@@ -482,7 +488,9 @@ extends SQLDataBase
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);      //@KBA  added per JTOpen Bug 3818.  According to java.sql.Date, the milliseconds also need to be 'normalized' to zero.
-        return new Date(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        return new Date(millis);
     }
 
     public double getDouble()
@@ -519,7 +527,9 @@ extends SQLDataBase
         truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Timestamp ts = new Timestamp (millis);
         ts.setNanos(nanos_);
         return ts;
     }
@@ -537,7 +547,9 @@ extends SQLDataBase
         truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Timestamp ts = new Timestamp (millis);
         ts.setNanos(nanos_);
         return timestampToString(ts, calendar, hour_);       // @F4C
     }
@@ -553,7 +565,9 @@ extends SQLDataBase
         }
 
         calendar.set(0, 0, 0, hour_, minute_, second_);
-        return new Time(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        return new Time(millis);
     }
 
     public Timestamp getTimestamp(Calendar calendar)
@@ -566,7 +580,9 @@ extends SQLDataBase
         }
 
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Timestamp ts = new Timestamp(millis);
         ts.setNanos(nanos_);
         return ts;
     }
@@ -580,7 +596,9 @@ extends SQLDataBase
         truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Timestamp ts = new Timestamp (millis);
         ts.setNanos(nanos_);
         return timestampToString(ts, calendar, hour_);
     }

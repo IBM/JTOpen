@@ -103,22 +103,7 @@ final class JDError
 
   static boolean jdk14 = false;
   static {
-		String javaVersion = System.getProperty("java.version");
-    if (javaVersion.length() > 2) {
-		javaVersion=javaVersion.substring(0,3);
-
-		if ("1.0".equals(javaVersion) || "1.1".equals(javaVersion) || "1.2".equals(javaVersion) || "1.3".equals(javaVersion)) {
-		    jdk14=false;
-		} else {
-		    jdk14=true;
-		}
-    } else {
-      // Android JVM returns 0 and runs is generally compatible with 1.4 @G3A
-      if ("0".equals(javaVersion)) {
-        jdk14 = true;
-      }
-    }
-
+    jdk14 = JVMInfo.isJDK14();
   }
 
 /**

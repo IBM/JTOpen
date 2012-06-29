@@ -47,6 +47,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.CRC32;
 
+import com.ibm.as400.access.JVMInfo;
+
 
 /**
  * Main class for the jdbcClient program. This sample client uses JDBC to connect to
@@ -239,30 +241,9 @@ public class Main implements Runnable {
     //
     // look for jdk1.4
     //
-    String version = System.getProperty("java.version");
-    if (version != null) {
-      if (version.length() > 2) {
-        if (version.charAt(0) == '1' && version.charAt(2) < '4') {
-          jdk14_ = false;
-          jdk16_ = false;
-        } else {
-          if (version.charAt(0) == '1' && version.charAt(2) < '6') {
-            jdk14_ = true;
-            jdk16_ = false;
-          } else {
-            jdk14_ = true;
-            jdk16_ = true;
-
-          }
-        }
-      } else {
-        // Android JVM returns 0 and runs with JDK 1.5
-        if ("0".equals(version)) {
-          jdk14_ = true;
-          jdk16_ = false;
-        }
-      }
-    }
+    jdk14_ = JVMInfo.isJDK14(); 
+    jdk16_ = JVMInfo.isJDK16(); 
+    
     addVariable("MAIN", this);
 
     //

@@ -35,6 +35,11 @@ extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
+    static boolean jdk14 = false;
+    static {
+      jdk14 = JVMInfo.isJDK14();
+    }
+
     // Private data.
     private int			    timeFormat_;
     private int                     hour_;
@@ -128,7 +133,10 @@ extends SQLDataBase
 
         try //@dat1
         {
-            return new Time(calendar.getTimeInMillis());
+          long millis;
+          if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+
+            return new Time(millis);
         }catch(Exception e){
             if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing time "+s, e); //@dat1
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
@@ -562,7 +570,10 @@ extends SQLDataBase
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
-        return new Time(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+
+        return new Time(millis);
     }
 
     public short getShort()
@@ -579,7 +590,9 @@ extends SQLDataBase
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
-        Time t = new Time(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Time t = new Time(millis);
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 
@@ -604,7 +617,9 @@ extends SQLDataBase
         // SQL Time objects do not track this field.
         calendar.set(Calendar.MILLISECOND, 0);  // @F2A
 
-        return new Time(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        return new Time(millis);
     }
 
     public Timestamp getTimestamp(Calendar calendar)
@@ -630,7 +645,9 @@ extends SQLDataBase
 
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);               //@54A
         calendar.set(Calendar.MILLISECOND, 0);                                          //@54A
-        Timestamp ts = new Timestamp(calendar.getTimeInMillis());                     //@54A
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Timestamp ts = new Timestamp(millis);                     //@54A
         ts.setNanos(0);                                                                 //@54A
         return ts;                                                                      //@54A
 
@@ -646,7 +663,9 @@ extends SQLDataBase
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
-        Time t = new Time(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Time t = new Time(millis);
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 
