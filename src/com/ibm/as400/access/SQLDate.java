@@ -616,7 +616,9 @@ extends SQLDataBase
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        return new Date(calendar.getTimeInMillis());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        return new Date(millis);
     }
 
     public double getDouble()
