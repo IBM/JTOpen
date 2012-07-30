@@ -17,5 +17,6 @@
  * </li>
  *
  * </ul>
+ * <p>For tracing information see {@link com.ibm.jtopenlite.Trace}.
  */
 package com.ibm.jtopenlite;
