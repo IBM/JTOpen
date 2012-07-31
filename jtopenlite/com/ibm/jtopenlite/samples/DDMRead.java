@@ -5,9 +5,11 @@ import java.io.IOException;
 import com.ibm.jtopenlite.ddm.*;
 
 /**
- * Sample program to read a file using the DDM support of jtopenlite. Note: This
- * program is not yet working. Try running with arguments: SYSTEM USERID
- * PASSWORD QIWS QCUSTCDT *FIRST
+ * Sample program to read a file using the DDM support of jtopenlite.
+ * A sample run looks like this.
+ * <p>
+ * java DDMRead SYSTEM USERID PASSWORD QIWS QCUSTCDT *FIRST
+ * <p>
  */
 public class DDMRead {
 	public static void main(String[] args) {
@@ -50,7 +52,7 @@ public class DDMRead {
 			while (!reader.isDone()) {
 				connection.readNext(ddmFile, reader);
 			}
-			
+
 			// Close file.
 			connection.close(ddmFile);
 
@@ -58,6 +60,6 @@ public class DDMRead {
 			e.printStackTrace(System.out);
 			System.out
 					.println("Usage:  java com.ibm.jtopenlite.samples.DDMRead SYSTEM USERID PASSWORD LIBRARY FILE MEMBER)");
-		} 
+		}
 	}
 }
