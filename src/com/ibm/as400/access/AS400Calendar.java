@@ -121,7 +121,7 @@ public class AS400Calendar {
   }
 
 
-  /*  Get an instance of a calendar from the GMT timezone  @H1A */ 
+  /*  Get an instance of a calendar from the GMT timezone  @G4A */
   static TimeZone gmtTimeZone = null;
   public static Calendar getGMTInstance() {
     if (gmtTimeZone == null) {

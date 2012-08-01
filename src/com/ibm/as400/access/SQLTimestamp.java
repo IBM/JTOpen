@@ -548,7 +548,7 @@ extends SQLDataBase
         // Note:  For this conversion, we cannot use a default calendar.  If the
         // calendar implements daylight savings time, then there are some times that
         // do not exist.  For example, 2011-03-13 02:32:17 does not exist.
-        // Calendar calendar = AS400Calendar.getGregorianInstance(); @H1C
+        // Calendar calendar = AS400Calendar.getGregorianInstance(); @G4C
         Calendar calendar = AS400Calendar.getGMTInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         long millis;
@@ -598,7 +598,7 @@ extends SQLDataBase
     public String getNString() throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false;
-        Calendar calendar = AS400Calendar.getGMTInstance();           //@H1C
+        Calendar calendar = AS400Calendar.getGMTInstance();           //@G4C
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         long millis;
         if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
