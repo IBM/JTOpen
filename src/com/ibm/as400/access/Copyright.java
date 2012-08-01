@@ -83,6 +83,7 @@ package com.ibm.as400.access;
 //@G1   20120605  JDBC:  Fix array input parameters on reused CallableStatement
 //@G2   20120606  JDBC:  Array parameter fixes
 //@G3   20120611  JDBC:  Handle java.version of "0"
+//@H1   20120730  JDBC:  Correct timestamp conversion.
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -90,8 +91,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
-    //                                                                                              built=20120606 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 7.7, codebase 5770-SS1 V7R1M0.07 built=20120606 @G3";  // As of V7R1: JC1 is merged into SS1 Option 3
+    //                                                                                              built=20120730 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 7.7, codebase 5770-SS1 V7R1M0.07 built=20120730 @H1";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9; // ex: "9" indicates V7R1

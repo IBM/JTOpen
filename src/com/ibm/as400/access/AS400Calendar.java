@@ -15,94 +15,95 @@ package com.ibm.as400.access;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import sun.util.BuddhistCalendar;
 
 public class AS400Calendar {
-  
+
    /*
     * Returns an instance of a Gregorian calendar to be used to set
     * Date values.   This is needed because the server uses the Gregorian calendar.
-    * For some locales, the calendar returned by Calendar.getInstance is not usable. 
-    * For example, in the THAI local, a java.util.BuddhistCalendar is returned. 
+    * For some locales, the calendar returned by Calendar.getInstance is not usable.
+    * For example, in the THAI local, a java.util.BuddhistCalendar is returned.
     * @E4A
     */
    public static Calendar getGregorianInstance() {
-     Calendar returnCalendar = Calendar.getInstance(); 
+     Calendar returnCalendar = Calendar.getInstance();
      boolean isGregorian = (returnCalendar  instanceof GregorianCalendar);
-     boolean isBuddhist = false; 
-     try { 
+     boolean isBuddhist = false;
+     try {
          isBuddhist  = (returnCalendar  instanceof BuddhistCalendar);
-     } catch (Throwable ncdfe) { 
+     } catch (Throwable ncdfe) {
        // Just ignore if any exception occurs.  @F2C
-       // Possible exceptions (from Javadoc) are: 
+       // Possible exceptions (from Javadoc) are:
        // java.lang.NoClassDefFoundError
-       // java.security.AccessControlException (if sun.util classes cannot be used) 
+       // java.security.AccessControlException (if sun.util classes cannot be used)
      }
-     
+
      if (isGregorian && (! isBuddhist)) {
         // Calendar is gregorian, but not buddhist
-        return returnCalendar;  
+        return returnCalendar;
      } else {
        // Create a new gregorianCalendar for the current timezone and locale
        Calendar gregorianCalendar = new GregorianCalendar();
-       return gregorianCalendar; 
+       return gregorianCalendar;
      }
-     
+
    }
 
-   
-   
-   
+
+
+
    /*
     * Returns an instance of a Gregorian calendar to be used to set
     * Date values.   This is needed because the server uses the Gregorian calendar.
-    * For some locales, the calendar returned by Calendar.getInstance is not usable. 
-    * For example, in the THAI local, a java.util.BuddhistCalendar is returned. 
+    * For some locales, the calendar returned by Calendar.getInstance is not usable.
+    * For example, in the THAI local, a java.util.BuddhistCalendar is returned.
     * @E4A
     */
    public static Calendar getGregorianInstance(java.util.TimeZone timezone) {
-     Calendar returnCalendar = Calendar.getInstance(timezone); 
+     Calendar returnCalendar = Calendar.getInstance(timezone);
      boolean isGregorian = (returnCalendar  instanceof GregorianCalendar);
-     boolean isBuddhist = false; 
+     boolean isBuddhist = false;
      try {
-       isBuddhist = (returnCalendar  instanceof BuddhistCalendar); 
-     } catch (Throwable ncdfe) { 
+       isBuddhist = (returnCalendar  instanceof BuddhistCalendar);
+     } catch (Throwable ncdfe) {
        // Just ignore if class cannot be found @F2C
      }
 
      if (isGregorian && (! isBuddhist)) {
         // Calendar is gregorian, but not buddhist
-        return returnCalendar;  
+        return returnCalendar;
      } else {
        // Create a new gregorianCalendar for the current timezone and locale
        Calendar gregorianCalendar = new GregorianCalendar(timezone);
-       return gregorianCalendar; 
+       return gregorianCalendar;
      }
-     
+
    }
 
 
 
-   
+
   /**
-   * Get a calendar to do the conversion to java.util.Date based objects. 
-   * If the user passes in a non-Gregorian calendar, then use the timezone to 
-   * create a gregorian calendar.  This is the observed behavior of the jcc driver. 
+   * Get a calendar to do the conversion to java.util.Date based objects.
+   * If the user passes in a non-Gregorian calendar, then use the timezone to
+   * create a gregorian calendar.  This is the observed behavior of the jcc driver.
    * @param calendar
    * @return
    */
   public static Calendar getConversionCalendar(Calendar calendar) {
     if (calendar == null) {
-      return getGregorianInstance(); 
+      return getGregorianInstance();
     } else {
       boolean isGregorian = (calendar instanceof GregorianCalendar);
-      
-      boolean isBuddhist = false; 
-      try { 
+
+      boolean isBuddhist = false;
+      try {
         isBuddhist =  (calendar instanceof BuddhistCalendar);
-      } catch (Throwable  ncdfe) { 
-        // Just ignore if class cannot be found @F2C 
+      } catch (Throwable  ncdfe) {
+        // Just ignore if class cannot be found @F2C
       }
 
 
@@ -117,6 +118,16 @@ public class AS400Calendar {
         return gregorianCalendar;
       }
     }
+  }
+
+
+  /*  Get an instance of a calendar from the GMT timezone  @H1A */ 
+  static TimeZone gmtTimeZone = null;
+  public static Calendar getGMTInstance() {
+    if (gmtTimeZone == null) {
+      gmtTimeZone = TimeZone.getTimeZone("GMT");
+    }
+    return Calendar.getInstance(gmtTimeZone);
   }
 
 }
