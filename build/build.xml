@@ -1132,7 +1132,6 @@
 	///////////////////////////////////////////////////////////////////////////-->
 
     <target name="source-android" >
-      <fail message="Trying to source in eclipse"  if="inEclipse"/>
         <!-- copy source files from source -->
         <copy todir="${source-android}" >
             <fileset dir="${build}/src" >
@@ -1352,7 +1351,7 @@ Available Ant targets for the JTOpen build script include:
 	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
-	  <target name="ftpv7r2" depends="jar">
+	  <target name="ftpv7r2" depends="jar,jar6">
 	  	<!-- V7R2 server -->
 		  <ftp server="${v7r2server}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
@@ -1390,7 +1389,7 @@ Available Ant targets for the JTOpen build script include:
 	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
-	  <target name="ftplinux" depends="jar">
+	  <target name="ftplinux" depends="jar,jar6">
 	  	<!-- V7R1 server -->
 		  <sftp server="${linuxserver}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
@@ -1429,7 +1428,7 @@ Available Ant targets for the JTOpen build script include:
 	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
-	  <target name="ftpv7r1" depends="jar">
+	  <target name="ftpv7r1" depends="jar,jar6">
 	  	<!-- V7R1 server -->
 		  <ftp server="${v7r1server}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"

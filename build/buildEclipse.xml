@@ -1,24 +1,26 @@
 <!--///////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: buildEclipse.xml
 //
-// This will build the jar files using the source in the eclipse projects as 
-// source.  This is a modified version of build.xml. 
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+// This will build the jar files using the source in the eclipse projects as
+// source.  This is a modified version of build.xml.
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2012 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Getting Started
-// 
+//
 //
 // Pre-requisites:
 //   - JDK 1.4.1 (or higher)
+//   - JDK 1.5   (for JTOpenLite)
+//   - JDK 1.6   (for java6 version)
 //   - Apache Ant 1.5
 //   - CVS client (to download source)
 //
@@ -71,9 +73,9 @@
 //    "/jtopen_build/javadoc" and the various "/jtopen_build/output*" directories.
 //
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // Requisite jars and packages
-// 
+//
 // The following is a list of jar files and the URLs from which they can be
 // obtained. These jar files are required in order to build JTOpen. We cannot
 // include these jar files in the JTOpen CVS repository due to licensing issues.
@@ -117,7 +119,7 @@
 //
 // Filename: preverify1.1 or preverify1.1.exe
 // Location: http://java.sun.com/products/sjwtoolkit/
-// Description: J2ME Wireless Toolkit preverification tool required to build the 
+// Description: J2ME Wireless Toolkit preverification tool required to build the
 //              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
 //              Note:  The J2ME Wireless Toolkit can only be installed on Windows or Linux.
 //              (The preverify1.1.exe file can be found in C:\WTKxx\bin after the install, where "xx" is the J2ME WTK version number.)
@@ -132,7 +134,7 @@
 //              The location link is for Windows users to obtain a CVS client.
 //
 ///////////////////////////////////////////////////////////////////////////////
-// 
+//
 // Useful targets
 //
 //    usage         - This is the default. Prints information on available targets.
@@ -146,10 +148,10 @@
 //    micro         - Builds just the jt400Micro.jar (including compiling and pre-verification).
 //    zip           - Builds just the doc.zip and src.zip files, assuming the source has
 //                    been downloaded and the javadoc has been built.
-//                    
+//
 // Suggested build invocation:
 //
-//   java org.apache.tools.ant.Main clean all
+//   java org.apache.tools.ant.Main clean clean-source source all
 //
 // The resulting jar and zip files can be found in the "dist" subdirectory.
 // The resulting class files can be found in the various "output" subdirectories.
@@ -172,43 +174,64 @@
 //                        on your system.
 //
 ////////////////////////////////////////////////////////////////////////////-->
-  
+
 
 <project name="JTOpen" default="jar">
-  
+
 
 <!--///////////////////////////////////////////////////////////////////////////
     // PROPERTIES
     ///////////////////////////////////////////////////////////////////////////-->
 
+
+
   <!-- The "build" value is the root directory in which the JTOpen
        files will get downloaded and built. All of the other
        subdirectories required by this build stem off of this
-       directory. --> 
-  <property name="build" value="/jtopen_build"/>
+       directory. -->
+<!-- This can be overridden on the ant command line using
+	    -Dbuild=/build/JTOpen -->
+
+   <condition property="build" value="/jtopen_build">
+	  <not>
+	      <isset property="build"/>
+	  </not>
+   </condition>
+
+  <!-- Set the properties for the JDKs used to compile the code -->
+  <property name="jdk14" value="/jdk1.4"/>
+  <property name="jdk15" value="/jdk1.5"/>
+  <property name="jdk16" value="/jdk1.6.0"/>
+
+  <!-- Set the id used to access cvs -->
+  <property name="cvsUserid" value="anonymous"/>
+  <property name="cvsPassword" value=""/>
 
   <property name="userid" value="eberhard"/>
   <property name="password" value="XXXXX"/>
-  <property name="v7r2server"  value="minibld2.rchland.ibm.com"/>
+  <property name="v7r2server"  value="eut72p1.rchland.ibm.com"/>
   <property name="v7r1server"  value="lp01ut18.rchland.ibm.com"/>
-  <property name="v6r1server1" value="fowgai2.rchland.ibm.com"/>          
-  <property name="v6r1server2" value="rchaptf2.rchland.ibm.com"/>       
+  <property name="v6r1server1" value="fowgai2.rchland.ibm.com"/>
+  <property name="v6r1server2" value="rchaptf2.rchland.ibm.com"/>
   <property name="v5r4server"  value="lp03ut5.rchland.ibm.com"/>
   <property name="linuxserver" value="lena6.rchland.ibm.com"/>
   <property name="linuxuserid"   value="jeber"/>
-  <property name="linuxpassword" value="XXXXX"/>
+  <property name="linuxpassword" value="XXXXXX"/>
 
-	
+
   <property name="jdk14home" value="C:/jdk1.4"/>
-	
-  <property name="bin" value="${build}/bin"/>  
-  <property name="source" value="${basedir}/../src"/>
-  <property name="jdbc40source" value="${basedir}/../jdbc40"/>
-  <property name="source-jdbc40" value="${basedir}/../jdbc40"/>
-  <property name="source-jdbc40-combined" value="${build}/jdbc40-combined"/>
-  <property name="source-contrib" value="${basedir}/../contrib"/>
-  <property name="source-micro" value="${basedir}/../micro"/>
-  <property name="source-include" value="${basedir}/../include"/>
+
+  <property name="bin" value="${build}/bin"/>
+  <property name="source" value="${sourceroot}/src"/>
+  <property name="source-jdbc40" value="${sourceroot}/jdbc40"/>
+  <property name="source-java6" value="${build}/java6"/>
+  <property name="source-contrib" value="${sourceroot}/contrib"/>
+  <property name="source-android" value="${sourceroot}/android"/>
+  <property name="source-androidStubs" value="${sourceroot}/androidStubs"/>
+  <property name="source-micro" value="${sourceroot}/micro"/>
+  <property name="source-jtopenlite" value="${sourceroot}/jtopenlite"/>
+
+  <property name="source-include" value="${sourceroot}/include"/>
   <property name="dist" value="${build}/dist14"/>
   <property name="dist6" value="${build}/dist6"/>
   <property name="include" value="${build}/include"/>
@@ -218,15 +241,19 @@
   <property name="javadoc6" value="${build}/javadoc6"/>
   <property name="output" value="${build}/output14"/>
   <property name="output6" value="${build}/output6"/>
+  <property name="output-android" value="${build}/output-android"/>
   <property name="output-micro" value="${build}/output-micro"/>
-  <property name="output-micro-verified" value="${build}/output-micro-verified"/>
+  <property name="output-jtopenlite" value="${build}/output-jtopenlite"/>
+    <property name="output-micro-verified" value="${build}/output-micro-verified"/>
 
   <property name="build.sysclasspath" value="ignore"/>
-  
+
   <property name="doclink" value="http://download.oracle.com/javase/1.4.2/docs/api/"/>
   <property name="doclink6" value="http://download.oracle.com/javase/6/docs/api/"/>
-    
+
   <property name="show-progress" value="false"/>
+  <property name="shadow-jtopenlite" value="J:\dev2000\as400\v7r1m0t.jacl\usr\cmvc\java.pgm\yjac.jacl\jars"/>
+  <property name="shadow2-jtopenlite" value="J:\"/>
 
   <!-- These local socket optimizations are only beneficial when running
        Java code on OS/400 that connects to localhost. They are not required. -->
@@ -242,7 +269,7 @@
     <exclude name="com/ibm/as400/access/SocketContainerUnix2$SCUInputStream.class"/>
     <exclude name="com/ibm/as400/access/SocketContainerUnix2$SCUOutputStream.class"/>
   </patternset>
-    
+
   <!-- These optimizations are for executing certain Toolbox functions on-thread and
        in-process when running Java code on OS/400 that connects to localhost.
        They use JNI calls instead of socket calls to the Client Access Host Servers.
@@ -278,26 +305,39 @@
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="all" depends="jar,javadoc,javadoc6,zip"/>
 
-  
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: clean
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="clean" depends="clean-javadoc,clean-dist,clean-output"/>
-  
+
   <target name="clean-dist">
     <delete dir="${dist}"/>
   </target>
-  
+
   <target name="clean-javadoc">
     <delete dir="${javadoc}"/>
   </target>
-  
+
   <target name="clean-output">
     <delete dir="${output}"/>
     <delete dir="${output-micro}"/>
+    <delete dir="${output-jtopenlite}"/>
     <delete dir="${output-micro-verified}"/>
   </target>
-  
+
+  <target name="clean-dist6">
+    <delete dir="${dist6}"/>
+  </target>
+
+  <target name="clean-javadoc6">
+    <delete dir="${javadoc6}"/>
+  </target>
+
+  <target name="clean-output6">
+    <delete dir="${output6}"/>
+  </target>
+
 
 
 	<!--///////////////////////////////////////////////////////////////////////////
@@ -306,7 +346,7 @@
 	  <target name="compile6" depends="source6">
 	    <fail message="Not using JDK 1.6 or higher." unless="jdk16Exists"/>
 	    <fail message="Can't find ${include}/servlet.jar." unless="servletJarExists"/>
-	    <javac nowarn="on" srcdir="${source-jdbc40-combined}:${source-contrib}"
+	    <javac nowarn="on" srcdir="${source-java6}:${source-contrib}"
 	           destdir="${output6}"
 	           memoryMaximumSize="256m"
 	           failonerror="true"
@@ -321,7 +361,7 @@
 	      	<pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
 	      	<pathelement location="${stubs}"/>
 	      </classpath>
-	      
+
 	    </javac>
 	    <copy file="${source}/utilities/INMRI.pro"
 	          preservelastmodified="yes"
@@ -332,13 +372,19 @@
 	  </target>
 
 
-  
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: compile
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="compile" depends="init">
-    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
     <fail message="Can't find ${include}/servlet.jar." unless="servletJarExists"/>
+  	<tstamp/>
+  	<echo message="compiling jtopen on ${DSTAMP}"/>
+  	<replaceregexp file="${source}/com/ibm/as400/access/Copyright.java"
+  	               match="built=[^ ]*"
+  	               replace="built=${DSTAMP}"
+  	               byline="true"
+  	/>
 
     <javac srcdir="${source}:${source-contrib}"
            destdir="${output}"
@@ -348,10 +394,8 @@
            debuglevel="lines,source"
            fork="true"
            encoding="iso-8859-1"
-    	   executable="${jdk14home}/bin/javac"
-    	   compiler="javac1.4"
-    	   source="1.2"
-           target="1.1">
+           target="1.1"
+    	   executable="${jdk14}/bin/javac" >
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
@@ -367,8 +411,41 @@
           tofile="${output}/utilities/UTMRI.properties"/>
   </target>
 
+
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: compile-android
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="compile-android" depends="source-android">
+	  	<tstamp/>
+	  	<echo message="compiling jtopen on ${DSTAMP}"/>
+	  	<replaceregexp file="${source-android}/com/ibm/as400/access/Copyright.java"
+	  	               match="built=[^ ]*"
+	  	               replace="built=${DSTAMP}"
+	  	               byline="true"
+	  	/>
+
+	    <javac srcdir="${source-android}:${source-androidStubs}"
+	           destdir="${output-android}"
+	           memoryMaximumSize="256m"
+	           failonerror="true"
+	           debug="on"
+	           debuglevel="lines,source"
+	           fork="true"
+	           encoding="iso-8859-1"
+	           target="1.1"
+	    	   executable="${jdk14}/bin/javac"
+	>
+	    </javac>
+	    <copy file="${source}/utilities/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/utilities/INMRI.properties"/>
+	    <copy file="${source}/utilities/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/utilities/UTMRI.properties"/>
+	  </target>
+
+
   <target name="compile-micro" depends="init">
-    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
     <fail message="Can't find ${include}/midpapi10.jar." unless="midpapiJarExists"/>
     <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
     <javac srcdir="${source-micro}:${source}"
@@ -378,13 +455,14 @@
            debuglevel="lines,source"
            fork="true"
            encoding="iso-8859-1"
-           target="1.1">
+           target="1.1"
+    	   executable="${jdk14}/bin/javac" >
       <include name="com/ibm/as400/micro/*.java"/>
       <include name="java/sql/*.java"/>
       <include name="java/math/*.java"/>
       <include name="java/net/*.java"/>
       <include name="java/util/*.java"/>
-      
+
       <!-- These classes only belong in the ME server, not the client. -->
       <exclude name="com/ibm/as400/micro/ConnectionHandler.java"/>
       <exclude name="com/ibm/as400/micro/JdbcMeService.java"/>
@@ -395,13 +473,39 @@
       <exclude name="com/ibm/as400/micro/ResultSetHandler.java"/>
       <exclude name="com/ibm/as400/micro/Service.java"/>
       <exclude name="com/ibm/as400/micro/StatementHandler.java"/>
-      
+
       <bootclasspath>
         <pathelement path="${include}/midpapi10.jar:${include}/cldcapi10.jar:${source-include}"/>
       </bootclasspath>
     </javac>
-  </target>      
-  
+  </target>
+
+
+	  <target name="compile-jtopenlite" depends="init">
+	  	<tstamp/>
+	  	<echo message="compiling jtopenlite on ${DSTAMP}"/>
+	  	<replaceregexp file="${source-jtopenlite}/com/ibm/jtopenlite/About.java"
+	  	               match="INTERFACE_LEVEL=&quot;.*&quot;"
+	  	               replace="INTERFACE_LEVEL=&quot;${DSTAMP}&quot;"
+	  	               byline="true"
+	  	/>
+	  	<mkdir dir="${output-jtopenlite}"/>
+	    <javac srcdir="${source-jtopenlite}"
+	           destdir="${output-jtopenlite}"
+	           failonerror="true"
+	           debug="on"
+	           debuglevel="lines,source"
+	           fork="true"
+	           encoding="iso-8859-1"
+	           target="1.5"
+	    	   executable="${jdk15}/bin/javac" >
+	      <include name="com/ibm/jtopenlite/*.java"/>
+	      <include name="com/ibm/jtopenlite/**/*.java"/>
+
+	    </javac>
+	  </target>
+
+
 
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: init
@@ -410,35 +514,32 @@
     <tstamp/>
     <mkdir dir="${build}"/>
     <mkdir dir="${dist}"/>
+    <mkdir dir="${dist6}"/>
     <mkdir dir="${javadoc}"/>
     <mkdir dir="${javadoc6}"/>
+    <mkdir dir="${javadoc-jtopenlite}"/>
     <!-- mkdir dir="${include}"/ -->
     <mkdir dir="${output}"/>
   	<mkdir dir="${output6}"/>
-    <mkdir dir="${output-micro}"/>
+  	<mkdir dir="${output-jtopenlite}"/>
+  	<mkdir dir="${output-micro}"/>
     <mkdir dir="${output-micro-verified}"/>
+    <mkdir dir="${output-android}"/>
+    <mkdir dir="${source-android}"/>
     <mkdir dir="${bin}"/>
-    
-    <condition property="jdk16Exists">
-      <available classname="java.sql.SQLXML"/>
-    </condition>
 
-    <condition property="jdk14Exists">
-      <available classname="java.nio.Buffer"/>
-    </condition>
-    
     <condition property="servletJarExists">
       <available file="${include}/servlet.jar" type="file"/>
     </condition>
-    
+
     <condition property="midpapiJarExists">
       <available file="${include}/midpapi10.jar" type="file"/>
     </condition>
-    
+
     <condition property="cldcapiJarExists">
       <available file="${include}/cldcapi10.jar" type="file"/>
     </condition>
-    
+
     <condition property="javadocIncludesExist">
       <and>
         <available file="${include}/servlet.jar" type="file"/>
@@ -455,10 +556,10 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: jar
     ///////////////////////////////////////////////////////////////////////////-->
-  	
+
   <target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jt4006,jar-jt400Native6"/>
 
-  <!-- Note that the utilities package is now included in the jt400.jar. -->  
+  <!-- Note that the utilities package is now included in the jt400.jar. -->
   <target name="jar-jt400" depends="init,compile,pcml,copyright">
     <jar jarfile="${dist}/jt400.jar" manifest="jt400_manifest.txt">
       <fileset dir="${output}">
@@ -483,14 +584,47 @@
     <checksum file="${dist}/jt400.jar"/>
   </target>
 
+	<target name="shadow-jtopenlite" depends="jar-jtopenlite">
+		<copy file="${dist}/jtopenlite.jar" tofile="${shadow-jtopenlite}/jtopenlite.jar"/>
+		<copy file="${dist}/jtopenlite.jar" tofile="${shadow2-jtopenlite}/jtopenlite.jar"/>
+	</target>
+
+    <target name="jar-jtopenlite" depends="init,compile-jtopenlite">
+      <jar jarfile="${dist}/jtopenlite.jar">
+        <fileset dir="${output-jtopenlite}" />
+        <fileset dir="${build}" includes="license.html"/>
+      </jar>
+      <checksum file="${dist}/jtopenlite.jar"/>
+    </target>
+
+
+	  <target name="jar-jt400android" depends="init,compile-android,pcml-android,copyright-android">
+	    <jar jarfile="${dist}/jt400android.jar" manifest="${build}/build/jt400_manifest.txt">
+	      <fileset dir="${output-android}">
+	        <patternset refid="exclude.native.optimizations"/>
+	        <patternset refid="exclude.local.socket.implementation"/>
+	      </fileset>
+	      <fileset dir="${source}"
+	               includes="**/*.ser,**/*.dtd,**/*.xsl,**/*.xsd"
+	               excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
+	      <fileset dir="${build}" includes="license.html"/>
+	    </jar>
+	    <checksum file="${dist}/jt400android.jar"/>
+	  </target>
+
+
+
+
+
+
 	  <target name="jar-jt4006" depends="init,jar-jt400,compile6,pcml6,copyright6">
 	    <jar jarfile="${dist6}/jt400.jar" manifest="jt400_manifest.txt">
 	      <fileset dir="${output6}">
 	        <patternset refid="exclude.native.optimizations"/>
 	        <patternset refid="exclude.local.socket.implementation"/>
 	        <patternset>
-	        	<!-- These are shipped in jt400Servlet.jar --> 
-	        	<exclude name="com/ibm/as400/util/html/**"/> 
+	        	<!-- These are shipped in jt400Servlet.jar -->
+	        	<exclude name="com/ibm/as400/util/html/**"/>
 	            <exclude name="com/ibm/as400/util/servlet/**"/>
 	        </patternset>
 	      </fileset>
@@ -538,7 +672,7 @@
 	    <checksum file="${dist6}/jt400Native.jar"/>
 	  </target>
 
-	
+
   <target name="jar-jt400Micro" depends="init,compile-micro,micro-preverify">
     <jar jarfile="${dist}/jt400Micro.jar" manifest="jt400Micro_manifest.txt">
       <fileset dir="${output-micro-verified}" includesfile="${basedir}/micro.includes"/>
@@ -574,7 +708,7 @@
     </jar>
     <checksum file="${dist}/jt400Native.jar"/>
   </target>
-  
+
   <target name="jar-jt400Proxy" depends="init,compile">
     <jar jarfile="${dist}/jt400Proxy.jar" manifest="jt400Proxy_manifest.txt">
       <fileset dir="${output}" includesfile="${basedir}/proxy.includes"/>
@@ -610,27 +744,23 @@
     </jar>
     <checksum file="${dist}/jt400Servlet.jar"/>
   </target>
-  
+
 
 
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: javadoc
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="javadoc" depends="init,checkJavadocIncludes">
-    <condition property="jdk140Exists"> <!-- Need 1.4.1 or later for javadoc to work on Windows. -->
-      <contains string="${java.version}" substring="1.4.0"/>
-    </condition>
-    <fail message="Not using JDK 1.4.1 or higher." if="jdk140Exists"/>
-    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/> <!-- Sanity. -->
     <javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
-             sourcepath="${source}:${source-contrib}:${source-micro}:${include}"
+             sourcepath="${source}:${source-contrib}:${source-jtopenlite}:${source-micro}:${include}"
              destdir="${javadoc}"
              use="false"
              link="${doclink}"
              maxmemory="256m"
              failonerror="true"
-             additionalparam="-breakiterator">
+             additionalparam="-breakiterator"
+    	     executable="${jdk15}/bin/javadoc">
       <classpath>
         <!-- Include these if the user happens to have them, just so
              javadoc generates without any extra warnings. -->
@@ -665,7 +795,7 @@
         <fail message="Not using JDK 1.6 or higher." unless="jdk16Exists"/> <!-- Sanity. -->
 	    <javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
-                 sourcepath="${source-jdbc40-combined}:${source-contrib}:${include}"
+                 sourcepath="${source-java6}:${source-contrib}:${include}"
 	             destdir="${javadoc6}"
 	             use="false"
 	             link="${doclink}"
@@ -688,12 +818,12 @@
 	    </javadoc>
 	  </target>
 
-  
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: micro
-    ///////////////////////////////////////////////////////////////////////////-->  
+    ///////////////////////////////////////////////////////////////////////////-->
   <target name="micro" depends="init,jar-jt400Micro"/>
-  
+
   <target name="micro-preverify" depends="init,compile-micro">
     <condition property="preverifyExeExists">
       <or>
@@ -708,7 +838,7 @@
     <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
     <fail message="Can't find ${bin}/preverify executable." unless="preverifyExeExists"/>
     <echo>Pre-verifying Micro Edition classes</echo>
-    <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false"> 
+    <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false">
       <!-- The preverify tool expects directories to be separted by ';' in its -classpath option. -->
       <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi10.jar;${include}/cldcapi10.jar ${output-micro}"/>
     </exec>
@@ -765,6 +895,31 @@
 
 
 
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: pcml-android
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="pcml-android" depends="init">
+	    <condition property="pcmlRuntimeExists">
+	      <and>
+	        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
+	        <available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output}:${include}:${source}"/>
+	      </and>
+	    </condition>
+	    <fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
+	    <taskdef name="pcml" classname="PCMLTask"/>
+	    <pcml srcdir="${source}"
+	          destdir="${output-android}"
+	          classpath="${output-android}:${include}:${source}"
+	          includes="**/*.pcml"/>
+	    <!-- Classpath:
+	           Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
+	           Need "include" for the ProgramCallDocument class to use the AS400 object.
+	           Need JDK 1.4 or higher (XML) to parse the PCML.
+	           Need "source" to find the pcml.dtd.  -->
+	  </target>
+
+
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: copyright
     ///////////////////////////////////////////////////////////////////////////-->
@@ -774,6 +929,14 @@
                includes="**/*.class"
                verbose="${show-progress}"/>
   </target>
+
+
+	  <target name="copyright-android" depends="init">
+	    <taskdef name="copyright" classname="CopyrightInsertionTask"/>
+	    <copyright destdir="${output-android}"
+	               includes="**/*.class"
+	               verbose="${show-progress}"/>
+	  </target>
 
 
 	<!--///////////////////////////////////////////////////////////////////////////
@@ -790,40 +953,137 @@
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: jdbc40src
 	    ///////////////////////////////////////////////////////////////////////////-->
-	  <target name="jdbc40src" >
+	  <target name="source-jdbc40" >
 	    <taskdef name="jdbc40src" classname="Jdbc40Task" classpath="."/>
-	    <jdbc40src destdir="${jdbc40source}"
+	    <jdbc40src destdir="${source-jdbc40}"
 	               srcdir="${source}"
-	    	
+
 	               verbose="${show-progress}"
 	    />
 	  </target>
+
+<!--///////////////////////////////////////////////////////////////////////////
+	// Target: source-android
+	// Create a version of JTOpen that is suitable for use on Android.
+	// Interfaces and classes not available in Android are replaced by
+	// stub classes in the androidStubs module.
+	///////////////////////////////////////////////////////////////////////////-->
+
+    <target name="source-android" >
+        <!-- copy source files from source -->
+        <copy todir="${source-android}" >
+            <fileset dir="${build}/src" >
+                <include name="com/**/*.java" />
+
+            	<!-- micro, vaccess, servlet, html and other GUI items are not available -->
+                <exclude name="com/ibm/as400/micro/*.java" />
+                <exclude name="com/ibm/as400/vaccess/**" />
+	            <exclude name="com/ibm/as400/util/commtrace/**" />
+                <exclude name="com/ibm/as400/util/servlet/**" />
+                <exclude name="com/ibm/as400/util/html/**" />
+                <exclude name="com/ibm/as400/access/*View.java" />
+                <exclude name="com/ibm/as400/access/ToolboxSignonHandler.java"/>
+                <exclude name="com/ibm/as400/access/TunnelProxyServer.java" />
+                <exclude name="com/ibm/as400/access/AS400SignonTextField.java" />
+                <exclude name="com/ibm/as400/access/*Dialog.java" />
+                <exclude name="com/ibm/as400/access/AS400SignonDialogAdapter.java" />
+
+                <!-- javax.sql package with XA resources is not available -->
+                <exclude name="com/ibm/as400/access/AS400JDBCX*.java" />
+
+            	<!-- org.ietf.jgss.GSSContext classes are not available -->
+                <exclude name="com/ibm/as400/access/TokenManager.java" />
+                <exclude name="com/ibm/as400/access/TokenManager2.java" />
+            </fileset>
+        </copy>
+
+    	<!-- point non working references to use the jtopenstub classes -->
+
+        <replaceregexp flags="g" >
+            <regexp pattern="java.awt" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javaawt" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*BeanInfo.java" />
+                <include name="**/ToolboxSignonHandler.java" />
+                <include name="**/PresentationLoader.java" />
+             </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="javax.swing" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javaxswing" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/ResourceBundleLoader.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="java.beans" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javabeans" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="sun.misc" />
+            <substitution expression="com.ibm.as400.jtopenstubs.sunmisc" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*Mlog.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="sun.util" />
+            <substitution expression="com.ibm.as400.jtopenstubs.sunutil" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/*Calendar.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="org.ietf.jgss" />
+            <substitution expression="com.ibm.as400.jtopenstubs.orgietfjgss" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/Token*.java" />
+            </fileset>
+        </replaceregexp>
+
+        <replaceregexp flags="g" >
+            <regexp pattern="javax.naming" />
+            <substitution expression="com.ibm.as400.jtopenstubs.javaxnaming" />
+            <fileset dir="${source-android}/com/ibm/as400" >
+                <include name="**/AS400JDBC*" />
+            </fileset>
+        </replaceregexp>
+    </target>
+
 
 
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: source6
 	    ///////////////////////////////////////////////////////////////////////////-->
-	  <target name="source6" depends="init, jdbc40src">
+	  <target name="source6" depends="init, source-jdbc40">
 	<!-- copy all source to new dir, and then copy the new jdbc40 specific files replacing any pre-jdbc40 files -->
-	    <copy todir="${source-jdbc40-combined}"  preservelastmodified="yes"> 
-	         <fileset dir="${source}"/>  
+	    <copy todir="${source-java6}"  preservelastmodified="yes">
+	         <fileset dir="${source}"/>
 	    </copy>
-	    <copy todir="${source-jdbc40-combined}"  preservelastmodified="yes"> 
-	         <fileset dir="${source-jdbc40}"/>  
+	    <copy todir="${source-java6}"  preservelastmodified="yes">
+	         <fileset dir="${source-jdbc40}"/>
 	   </copy>
 
 	    <!-- jdbc 4.0 driver manifest -->
-	    <copy tofile="${build}/build/META-INF/services/java.sql.Driver" 
-	          overwrite="yes"  
+	    <copy tofile="${build}/build/META-INF/services/java.sql.Driver"
+	          overwrite="yes"
 	          preservelastmodified="yes"
-	          file="${basedir}/../build/java.sql.Driver" />
+	          file="${sourceroot}/build/java.sql.Driver" />
 
-	    
+
 	  </target>
 
 
-	
-	
+
+
 
 
 <!--///////////////////////////////////////////////////////////////////////////
@@ -834,31 +1094,31 @@
 Available Ant targets for the JTOpen build script include:
 
   all
-  
+
   clean, clean-dist, clean-javadoc, clean-output
-  
+
   clean-source
-  
+
   compile
-  
+
   compile-micro
 
   copyright
-  
+
   init
-  
+
   jar, jar-jt400, jar-jt400Micro, jar-jt400Native, jar-jt400Proxy, jar-jt400Servlet
-  
+
   javadoc, checkJavadocIncludes
-  
+
   micro, micro-preverify
-  
+
   pcml
-  
+
   source
-  
+
   usage
-  
+
   zip, zip-javadoc, zip-source
     </echo>
   </target>
@@ -869,20 +1129,21 @@ Available Ant targets for the JTOpen build script include:
     // Target: zip
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="zip" depends="zip-source,zip-javadoc"/>
-  
-  <target name="zip-javadoc">  
+
+  <target name="zip-javadoc">
     <zip zipfile="${dist}/doc.zip" update="false">
       <zipfileset dir="${javadoc}"/>
       <zipfileset dir="${build}" includes="license.html"/>
     </zip>
     <checksum file="${dist}/doc.zip"/>
   </target>
-  
+
   <target name="zip-source">
     <zip zipfile="${dist}/src.zip" update="false">
       <zipfileset dir="${source}"  excludes=".project"/>
       <zipfileset dir="${source-contrib}"  excludes=".project"/>
       <zipfileset dir="${source-micro}"  excludes=".project"/>
+      <zipfileset dir="${source-jtopenlite}"  excludes=".project"/>
       <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar,.project"/>
       <zipfileset dir="${build}/build" excludes="**/mypasswd"/>
       <zipfileset dir="${build}" includes="license.html"/>
@@ -890,16 +1151,16 @@ Available Ant targets for the JTOpen build script include:
       <zipfileset dir="${build}" includes="changes.html"/>
     </zip>
     <checksum file="${dist}/src.zip"/>
-  </target>  
+  </target>
 
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftpv7r2
-	    // 
-	    // Note:  depends="no" set because the dependency checking takes a 
+	    //
+	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftpv7r2" depends="jar">
-	  	<!-- V7R2 server --> 
+	  	<!-- V7R2 server -->
 		  <ftp server="${v7r2server}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
 		       userid="${userid}"
@@ -929,15 +1190,15 @@ Available Ant targets for the JTOpen build script include:
 		  </ftp>
      </target>
 
-	
+
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftpvlinux
-	    // 
-	    // Note:  depends="no" set because the dependency checking takes a 
+	    //
+	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftplinux" depends="jar">
-	  	<!-- V7R1 server --> 
+	  	<!-- V7R1 server -->
 		  <sftp server="${linuxserver}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
 		       userid="${linuxuserid}"
@@ -968,15 +1229,15 @@ Available Ant targets for the JTOpen build script include:
      </target>
 
 
-	
+
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftpv7r1
-	    // 
-	    // Note:  depends="no" set because the dependency checking takes a 
+	    //
+	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftpv7r1" depends="jar">
-	  	<!-- V7R1 server --> 
+	  	<!-- V7R1 server -->
 		  <ftp server="${v7r1server}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
 		       userid="${userid}"
@@ -988,6 +1249,7 @@ Available Ant targets for the JTOpen build script include:
 		    <fileset dir="${dist}">
 		      <include name="jt400.jar"/>
 		      <include name="jt400Native.jar"/>
+		      <include name="jt400Proxy.jar"/>
 		    </fileset>
 		  </ftp>
 
@@ -1008,12 +1270,12 @@ Available Ant targets for the JTOpen build script include:
 
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftpv6r1
-	    // 
-	    // Note:  depends="no" set because the dependency checking takes a 
+	    //
+	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftpv6r1" depends="jar">
-	  	<!-- V6R1 server --> 
+	  	<!-- V6R1 server -->
 	  <ftp server="${v6r1server1}"
 	       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
 	       userid="${userid}"
@@ -1081,7 +1343,7 @@ Available Ant targets for the JTOpen build script include:
 		    </fileset>
 		  </ftp>
 
-	  	
+
 		  <ftp server="${v6r1server2}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
 		       userid="${userid}"
@@ -1097,11 +1359,11 @@ Available Ant targets for the JTOpen build script include:
 		  </ftp>
      </target>
 
-	
+
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftpv5r4
-	    // 
-	    // Note:  depends="no" set because the dependency checking takes a 
+	    //
+	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftpv5r4" depends="jar">
@@ -1133,7 +1395,7 @@ Available Ant targets for the JTOpen build script include:
 			  <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
-	  	
+
 
      </target>
 
@@ -1141,12 +1403,12 @@ Available Ant targets for the JTOpen build script include:
 
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: ftp
-	    // 
-	    // Note:  depends="no" set because the dependency checking takes a 
+	    //
+	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="ftp" depends="jar">
-	  	<!-- V7R1 server --> 
+	  	<!-- V7R1 server -->
 		  <ftp server="${v7r1server}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
 		       userid="${userid}"
@@ -1203,7 +1465,7 @@ Available Ant targets for the JTOpen build script include:
 		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
-	  	
+
 		  <ftp server="${v6r1server2}"
 		       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
 		       userid="${userid}"
@@ -1231,7 +1493,7 @@ Available Ant targets for the JTOpen build script include:
 		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
-	  	
+
 		  <ftp server="${v5r4server}"
 		       remotedir="/QIBM/ProdData/HTTP/Public/jt400/lib"
 		       userid="${userid}"
@@ -1259,12 +1521,12 @@ Available Ant targets for the JTOpen build script include:
 		      <include name="jt400Native.jar"/>
 		    </fileset>
 		  </ftp>
-	  	
-	  	
-	  	
-	  	
-	  </target>  
-		
+
+
+
+
+	  </target>
+
 
 
 </project>
