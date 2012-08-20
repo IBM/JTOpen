@@ -105,7 +105,7 @@ public class JDMRI2 extends ListResourceBundle
 
 
            // #TRANNOTE Text for the various terms returned by DatabaseMetaData.getXXXTerm().
-      { "CATALOG_TERM", "System" },
+      { "CATALOG_TERM", "Database" },
       { "PROCEDURE_TERM", "Procedure" },
       { "SCHEMA_TERM", "Library" },
 

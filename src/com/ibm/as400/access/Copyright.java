@@ -85,6 +85,7 @@ package com.ibm.as400.access;
 //@G3   20120611  JDBC:  Handle java.version of "0"
 //@G4   20120730  JDBC:  Correct timestamp conversion.
 //@G5   20120820  JDBC:  Fix named parameters.
+//@G6   20120820  JDBC:  Fix DatabaseMetadata getCatalogTerm() and supportsExpressionsInOrderBy()
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

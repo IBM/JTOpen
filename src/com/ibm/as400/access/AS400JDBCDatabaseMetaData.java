@@ -6644,14 +6644,14 @@ endif */
     /**
     Indicates if expressions in ORDER BY lists are supported.
 
-    @return     Always false. Expression in ORDER BY lists are not supported.
+    @return     Always true. Expression in ORDER BY lists have been supported since V5R2.
 
     @exception  SQLException    This exception is never thrown.
     **/
     public boolean supportsExpressionsInOrderBy ()
     throws SQLException
     {
-        return false;
+        return true;
     }
 
 
