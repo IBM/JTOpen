@@ -86,6 +86,7 @@ package com.ibm.as400.access;
 //@G4   20120730  JDBC:  Correct timestamp conversion.
 //@G5   20120820  JDBC:  Fix named parameters.
 //@G6   20120820  JDBC:  Fix DatabaseMetadata getCatalogTerm() and supportsExpressionsInOrderBy()
+//@G7   20120823  JDBC:  Fix array input parameter when reusing callable statement
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
