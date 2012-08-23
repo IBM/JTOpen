@@ -51,24 +51,23 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
- * <p>
- * The AS400JDBCPreparedStatement class precompiles and stores an SQL statement.
- * This provides the ability to efficiently run the statement multiple times. In
- * addition, the statement may contain parameters. Use
- * Connection.prepareStatement() to create new PreparedStatement objects.
- * 
- * <p>
- * When setting input parameter values, the caller must specify types that are
- * compatible with the defined SQL type of the input parameter. For example, if
- * the input parameter has SQL type INTEGER, then the caller must call setInt()
- * to set the IN parameter value. If arbitrary type conversions are required,
- * then use setObject() with a target SQL type.
- * 
- * <p>
- * For method that sets parameters, the application should not modify the
- * parameter value until after the execute completes. Modifying a value between
- * the setXXXX method and the execute method may result in unpredictable
- * behavior.
+<p>The AS400JDBCPreparedStatement class precompiles and stores an
+SQL statement.  This provides the ability to efficiently run
+the statement multiple times.  In addition, the statement may
+contain parameters.  Use Connection.prepareStatement() to create
+new PreparedStatement objects.
+
+<p>When setting input parameter values, the caller must specify types
+that are compatible with the defined SQL type of the input parameter.
+For example, if the input parameter has SQL type INTEGER, then the
+caller must call setInt() to set the IN parameter value.  If
+arbitrary type conversions are required, then use setObject() with
+a target SQL type.
+
+<p>For method that sets parameters, the application should not modify the parameter
+   value until after the execute completes.  Modifying a value
+   between the setXXXX method and the execute method may result in unpredictable
+   behavior.
  **/
 //
 // Implementation notes:
@@ -426,10 +425,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
           if (sqlType == SQLData.CLOB_LOCATOR || // @KBA
               sqlType == SQLData.BLOB_LOCATOR || // @KBA
               sqlType == SQLData.DBCLOB_LOCATOR || // @KBA //@pdc jdbc40
-              /*
-               * ifdef JDBC40 sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
-               * endif
-               */
+/* ifdef JDBC40 
+               sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
+endif */
               sqlType == SQLData.XML_LOCATOR) // @xml3
           { // @KBA
             containsLocator_ = LOCATOR_FOUND; // @KBA
@@ -2074,10 +2072,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
           if (sqlType == SQLData.CLOB_LOCATOR
               || sqlType == SQLData.BLOB_LOCATOR
               || sqlType == SQLData.DBCLOB_LOCATOR || // @pdc jdbc40
-              /*
-               * ifdef JDBC40 sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
-               * endif
-               */
+/* ifdef JDBC40 
+               sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
+endif */
               sqlType == SQLData.XML_LOCATOR) // @xml3
           {
             SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -2965,26 +2962,24 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
 
     if (scale < 0)
       JDError.throwSQLException(this, JDError.EXC_SCALE_INVALID);
-    /*
-     * ifdef JDBC40 if (parameterValue instanceof SQLXML) //@xmlspec
-     * setSQLXML(parameterIndex, (SQLXML)parameterValue); //@xmlspec else endif
-     */
+/* ifdef JDBC40 
+           if (parameterValue instanceof SQLXML) //@xmlspec
+            setSQLXML(parameterIndex, (SQLXML)parameterValue);  //@xmlspec
+        else
+endif */
 
     setValue(parameterIndex, parameterValue, null, scale); // @P0C
   }
 
   // JDBC 2.0
   /**
-   * Sets an input parameter to a Ref value. DB2 for IBM i does not support
-   * structured types.
-   * 
-   * @param parameterIndex
-   *          The parameter index (1-based).
-   * @param parameterValue
-   *          The parameter value.
-   * @exception SQLException
-   *              Always thrown because DB2 for IBM i does not support
-   *              structured types.
+    Sets an input parameter to a Ref value.  DB2 for IBM i
+    does not support structured types.
+
+    @param  parameterIndex  The parameter index (1-based).
+    @param  parameterValue  The parameter value.
+
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
    **/
   public void setRef(int parameterIndex, Ref parameterValue)
       throws SQLException {
@@ -3262,10 +3257,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
           if (sqlType == SQLData.CLOB_LOCATOR
               || sqlType == SQLData.BLOB_LOCATOR
               || sqlType == SQLData.DBCLOB_LOCATOR || // @pdc jdbc40
-              /*
-               * ifdef JDBC40 sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
-               * endif
-               */
+/* ifdef JDBC40 
+               sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
+endif */
               sqlType == SQLData.XML_LOCATOR) // @xml3
           {
             SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -3385,11 +3379,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
       if (parameterValue != null) { // @B6C
         // If the data is a locator, then set its handle. @B6A
         int sqlType = sqlData.getSQLType();
-        if ((sqlType == SQLData.CLOB_LOCATOR || sqlType == SQLData.BLOB_LOCATOR
-            || sqlType == SQLData.DBCLOB_LOCATOR || // @pdc jdbc40
-        /*
-         * ifdef JDBC40 sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40 endif
-         */
+                if((sqlType == SQLData.CLOB_LOCATOR ||
+                    sqlType == SQLData.BLOB_LOCATOR ||
+                    sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+/* ifdef JDBC40 
+               sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40 
+endif */
         sqlType == SQLData.XML_LOCATOR)) // @xml3
         { // @B6A
           SQLLocator sqlDataAsLocator = (SQLLocator) sqlData; // @B6A
@@ -3553,10 +3548,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
 
   // @PDA jdbc40
   // JDBC40DOC /**
-  // JDBC40DOC * Sets the designated parameter to the given
-  // <code>java.sql.RowId</code> object. The
-  // JDBC40DOC * driver converts this to a SQL <code>ROWID</code> value when it
-  // sends it
+ // JDBC40DOC     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+ // JDBC40DOC     * driver converts this to a SQL <code>ROWID</code> value when it sends it
   // JDBC40DOC * to the database
   // JDBC40DOC *
   // JDBC40DOC * @param parameterIndex
@@ -3564,16 +3557,20 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // JDBC40DOC * @throws SQLException if a database access error occurs
   // JDBC40DOC *
   // JDBC40DOC */
-  /*
-   * ifdef JDBC40 public void setRowId(int parameterIndex, RowId x) throws
-   * SQLException { if(JDTrace.isTraceOn()) { JDTrace.logInformation (this,
-   * "setRowId()"); if(x == null) JDTrace.logInformation (this,
-   * "parameter index: " + parameterIndex + " value: NULL"); else
-   * JDTrace.logInformation (this, "parameter index: " + parameterIndex +
-   * " value: " + x.toString()); }
-   * 
-   * setValue (parameterIndex, x, null, -1); } endif
-   */
+/* ifdef JDBC40 
+    public void setRowId(int parameterIndex, RowId x) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {
+                  JDTrace.logInformation (this, "setRowId()"); 
+                  if(x == null) 
+                     JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL"); 
+                  else
+                    JDTrace.logInformation (this, "parameter index: " + parameterIndex +  " value: " + x.toString()); 
+            }
+            setValue (parameterIndex, x, null, -1); 
+     } 
+endif */
   // @PDA jdbc40
   /**
    * Sets the designated paramter to the given <code>String</code> object. The
@@ -3639,8 +3636,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
 
   // @PDA jdbc40
   // JDBC40DOC /**
-  // JDBC40DOC * Sets the designated parameter to a <code>java.sql.NClob</code>
-  // object. The driver converts this to a
+  // JDBC40DOC     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
   // JDBC40DOC * SQL <code>NCLOB</code> value when it sends it to the database.
   // JDBC40DOC * @param parameterIndex
   // JDBC40DOC * @param value the parameter value
@@ -3648,18 +3644,22 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // JDBC40DOC * character sets; if the driver can detect that a data conversion
   // JDBC40DOC * error could occur ; or if a database access error occurs
   // JDBC40DOC */
-  /*
-   * ifdef JDBC40 public void setNClob(int parameterIndex, NClob value) throws
-   * SQLException {
-   * 
-   * if(JDTrace.isTraceOn()) { JDTrace.logInformation (this, "setNClob()");
-   * if(value == null) JDTrace.logInformation (this, "parameter index: " +
-   * parameterIndex + " value: NULL"); else if(value.length() > maxToLog_)
-   * JDTrace.logInformation (this, "parameter index: " + parameterIndex +
-   * " value: " + value.getSubString(1, (int)value.length())); else
-   * JDTrace.logInformation (this, "parameter index: " + parameterIndex +
-   * " length: " + value.length()); } setClob(parameterIndex, value); } endif
-   */
+/* ifdef JDBC40 
+     public void setNClob(int parameterIndex, NClob value) throws SQLException
+     {
+
+         if(JDTrace.isTraceOn())
+         {
+        JDTrace.logInformation (this, "setNClob()");
+        if(value == null) 
+          JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL"); 
+        else if(value.length() > maxToLog_)
+           JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + value.getSubString(1, (int)value.length())); 
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + value.length());
+      } 
+      setClob(parameterIndex, value); 
+   } 
+endif */
 
   // @PDA jdbc40
   /**
@@ -3763,38 +3763,51 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
 
   // @PDA jdbc40
   // JDBC40DOC /**
-  // JDBC40DOC * Sets the designated parameter to the given
-  // <code>java.sql.SQLXML</code> object.
+  // JDBC40DOC      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object.
   // JDBC40DOC * @param parameterIndex
-  // JDBC40DOC * @param xmlObject a <code>SQLXML</code> object that maps an SQL
-  // <code>XML</code> value
+  // JDBC40DOC      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
   // JDBC40DOC * @throws SQLException if a database access error occurs
   // JDBC40DOC */
-  /*
-   * ifdef JDBC40 public void setSQLXML(int parameterIndex, SQLXML xmlObject)
-   * throws SQLException { if(JDTrace.isTraceOn()) { int len;
-   * 
-   * if(xmlObject == null) len = 0; else len = xmlObject.getString().length();
-   * //no length() method yet in jdbc.
-   * 
-   * JDTrace.logInformation (this, "setSQLXML()"); if(xmlObject == null)
-   * JDTrace.logInformation (this, "parameter index: " + parameterIndex +
-   * " value: NULL"); else if(len < maxToLog_) JDTrace.logInformation (this,
-   * "parameter index: " + parameterIndex + " value: " + xmlObject.getString());
-   * else JDTrace.logInformation (this, "parameter index: " + parameterIndex +
-   * " length: " + len); }
-   * 
-   * //@xmlspec special handling of blob/clob column types if(xmlObject == null)
-   * //@xmlspec3 { //@xmlspec3 setValue (parameterIndex, xmlObject, null, -1);
-   * //@xmlspec3 return; //@xmlspec3 } //@xmlspec3 SQLData sqlData =
-   * parameterRow_.getSQLType(parameterIndex); //@xmlspec int sqlDataType =
-   * sqlData.getType(); //@xmlspec switch(sqlDataType) { //@xmlspec case
-   * Types.CLOB: //@xmlspec setCharacterStream(parameterIndex,
-   * xmlObject.getCharacterStream());//@xmlspec break; //@xmlspec case
-   * Types.BLOB: //@xmlspec setBinaryStream(parameterIndex,
-   * xmlObject.getBinaryStream()); //@xmlspec break; //@xmlspec default:
-   * //@xmlspec setValue (parameterIndex, xmlObject, null, -1); } } endif
-   */
+  /* ifdef JDBC40 
+     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
+     {
+         if(JDTrace.isTraceOn())
+         {
+             int len;
+  
+         if(xmlObject == null) 
+            len = 0; 
+         else 
+                 len = xmlObject.getString().length();  //no length() method yet in jdbc.
+    
+         JDTrace.logInformation (this, "setSQLXML()"); 
+         if(xmlObject == null)
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL"); 
+         else if(len < maxToLog_) 
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + xmlObject.getString());
+             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + len);
+      }
+    
+    //@xmlspec special handling of blob/clob column types 
+         if(xmlObject == null)                                                      //@xmlspec3
+         {                                                                          //@xmlspec3
+             setValue (parameterIndex, xmlObject, null, -1);                        //@xmlspec3
+             return;                                                                //@xmlspec3
+         }                                                                          //@xmlspec3
+         SQLData sqlData = parameterRow_.getSQLType(parameterIndex);                //@xmlspec
+         int sqlDataType = sqlData.getType();                                       //@xmlspec
+         switch(sqlDataType) {                                                      //@xmlspec
+             case Types.CLOB:                                                       //@xmlspec
+                 setCharacterStream(parameterIndex, xmlObject.getCharacterStream());//@xmlspec
+                 break;                                                             //@xmlspec
+             case Types.BLOB:                                                       //@xmlspec
+                 setBinaryStream(parameterIndex,  xmlObject.getBinaryStream());     //@xmlspec
+                 break;                                                             //@xmlspec
+             default:                                                               //@xmlspec
+    setValue (parameterIndex, xmlObject, null, -1);
+         }
+     }
+endif */
 
   // @pda jdbc40
   protected String[] getValidWrappedList() {
