@@ -262,17 +262,17 @@
 
 
 <!-- These properties can be used to send the updated Jar file to a system   -->
-
-  <property name="userid" value="NOTDEFINED"/>
-  <property name="password" value="NOTDEFINED"/>
-  <property name="linuxuserid"   value="NOTDEFINED"/>
-  <property name="linuxpassword" value="NOTDEFINED"/>
-  <property name="v7r2server"  value="eut72p1.rchland.ibm.com"/>
-  <property name="v7r1server"  value="lp01ut18.rchland.ibm.com"/>
-  <property name="v6r1server1" value="fowgai2.rchland.ibm.com"/>
-  <property name="v6r1server2" value="rchaptf2.rchland.ibm.com"/>
-  <property name="v5r4server"  value="lp03ut5.rchland.ibm.com"/>
-  <property name="linuxserver" value="lena6.rchland.ibm.com"/>
+<!-- They should be set as properties passed to the ANT invocation --> 
+  <property name="userid"        value="userid_NOTDEFINED"/>
+  <property name="password"      value="password_NOTDEFINED"/>
+  <property name="linuxuserid"   value="linuxuserid_NOTDEFINED"/>
+  <property name="linuxpassword" value="linuxpassword_NOTDEFINED"/>
+  <property name="v7rXserver"  value="v7rXserver_NOTDEFINED"/>
+  <property name="v7r1server"  value="v7r1server_NOTDEFINED"/>
+  <property name="v6r1server1" value="v6r1server1_NOTDEFINED"/>
+  <property name="v6r1server2" value="v6r1server2_NOTDEFINED"/>
+  <property name="v5r4server"  value="v5r4server_NOTDEFINED"/>
+  <property name="linuxserver" value="linuxserver_NOTDEFINED"/>
 
 
 
@@ -1346,14 +1346,14 @@ Available Ant targets for the JTOpen build script include:
 	  </target>
 
 	<!--///////////////////////////////////////////////////////////////////////////
-	    // Target: ftpv7r2
+	    // Target: ftpv7rX
 	    //
 	    // Note:  depends="no" set because the dependency checking takes a
 	    //        null pointer exception in some circumstances.
 	    ///////////////////////////////////////////////////////////////////////////-->
-	  <target name="ftpv7r2" depends="jar,jar6">
-	  	<!-- V7R2 server -->
-		  <ftp server="${v7r2server}"
+	  <target name="ftpv7rX" depends="jar,jar6">
+	  	<!-- v7rX server -->
+		  <ftp server="${v7rXserver}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/"
 		       userid="${userid}"
 		       password="${password}"
@@ -1367,7 +1367,7 @@ Available Ant targets for the JTOpen build script include:
 		    </fileset>
 		  </ftp>
 
-		  <ftp server="${v7r2server}"
+		  <ftp server="${v7rXserver}"
 		       remotedir="/QIBM/proddata/OS400/jt400/lib/java6"
 		       userid="${userid}"
 		       password="${password}"
