@@ -346,7 +346,12 @@ implements JDRow
 
                             offset += length;                                           //@array
                             dataLength_[j] = length;                                    //@array //set full array length here if array
-                            arrayDataLength_[j] = arrayDataLengths[outCount]; /*@G2A*/ 
+                            // If the arrayDataLengths[outCount] is zero, then don't override the 
+                            // previous value.  Null arrays will return 0 as the arrayDataLength
+                            // @G7A
+                            if (arrayDataLengths[outCount] > 0) {
+                               arrayDataLength_[j] = arrayDataLengths[outCount]; /*@G2A*/
+                            }
                             outCount++;                                                 //@arrayout
                         }                                                               //@array
                     }
