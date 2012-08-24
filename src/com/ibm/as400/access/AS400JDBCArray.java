@@ -431,7 +431,12 @@ public class AS400JDBCArray implements Array {
       // create array of same type as data_
       Class dummySQLXType = null; // @nullelem
       try {
-        dummySQLXType = Class.forName(contentTemplate_.getJavaClassName()); // data_[0]).getObject();
+        String className = contentTemplate_.getJavaClassName(); 
+        // For some classes, use the superclass   @G7A
+        if (className.equals("com.ibm.as400.access.AS400JDBCBlob")) {
+          className = "java.sql.Blob"; 
+        }
+        dummySQLXType = Class.forName(className); // data_[0]).getObject();
                                                                             // //returns
                                                                             // column's
                                                                             // rs.getX()
