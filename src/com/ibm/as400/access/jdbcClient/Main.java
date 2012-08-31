@@ -203,6 +203,7 @@ public class Main implements Runnable {
   private boolean debug_ = false;
   private String conLabel_;
   private CallableStatement cstmt_;
+  private String   cstmtSql_; 
   private Vector threads_ = new Vector();
 
   boolean html_ = false;
@@ -283,7 +284,7 @@ public class Main implements Runnable {
 
   public Main(String url, String userid, String password) throws SQLException {
     initializeDefaults();
-    url_ = url;
+    setUrl(url);
     userid_ = userid;
     password_ = password;
     try {
@@ -326,6 +327,10 @@ public class Main implements Runnable {
       }
       if (connection_ != null) {
         connection_.close();
+        cstmt_ = null; 
+        cstmtSql_ = ""; 
+        variables.remove("CSTMT"); 
+
       }
       connection_ = null;
       variables.remove("CON");
@@ -617,15 +622,19 @@ public class Main implements Runnable {
         parms = command.substring(parmIndex + 9).trim();
         command = command.substring(0, parmIndex);
       }
-
-      if (jdk14_) {
-        cstmt_ = connection_.prepareCall(command, resultSetType_,
-            resultSetConcurrency_, resultSetHoldability_);
+      if (command.equals(cstmtSql_)) {
+        // Already prepared.. Keep existing
       } else {
-        cstmt_ = connection_.prepareCall(command);
-      }
-      addVariable("CSTMT", cstmt_);
 
+        if (jdk14_) {
+          cstmt_ = connection_.prepareCall(command, resultSetType_,
+              resultSetConcurrency_, resultSetHoldability_);
+        } else {
+          cstmt_ = connection_.prepareCall(command);
+        }
+        cstmtSql_ = command; 
+        addVariable("CSTMT", cstmt_);
+      }
       if (jdk14_) {
         //
         // If JDK 1.4 is available then use metadata
@@ -800,7 +809,8 @@ public class Main implements Runnable {
         }
       }
       if (!manualFetch_ && closeStatementRS_) {
-        cstmt_.close();
+        // Do not close.  We always attempt to reuse the statement
+        // cstmt_.close();
       }
     } else {
       out1.println("UNABLE to EXECUTE CALL because not connected");
@@ -1257,6 +1267,9 @@ public class Main implements Runnable {
             // It may be reused on the next run
           } else {
             connection_.close();
+            cstmt_ = null; 
+            cstmtSql_ = ""; 
+            variables.remove("CSTMT"); 
           }
         }
 
@@ -1350,6 +1363,10 @@ public class Main implements Runnable {
             // It may be reused on the next run
           } else {
             connection_.close();
+            cstmt_ = null; 
+            cstmtSql_ = ""; 
+            variables.remove("CSTMT"); 
+
           }
           connection_ = null;
         }
@@ -1457,6 +1474,9 @@ public class Main implements Runnable {
             // It may be reused on the next run
           } else {
             connection_.close();
+            cstmt_ = null; 
+            cstmtSql_ = ""; 
+            variables.remove("CSTMT"); 
           }
           connection_ = null;
           variables.remove("CON");
