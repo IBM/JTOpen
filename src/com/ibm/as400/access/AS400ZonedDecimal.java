@@ -396,14 +396,23 @@ public class AS400ZonedDecimal implements AS400DataType
          * Math.pow(10,-scale) is a less accurate number than Math.pow(10,scale)
          */
 
-        long   longValue = 0;
-        double doubleValue = 0;
-        double divisor = Math.pow(10, scale);
         int rightMostOffset = offset + digits - 1;
-        for(int i = offset; i <= rightMostOffset; ++i) {
-            longValue = longValue * 10 + (byte)(as400Value[i] & 0x000F);
+        double doubleValue = 0;
+        
+        if(digits < 18){//long type has a maximum value: 9223372036854775807
+        	long   longValue = 0;
+            double divisor = Math.pow(10, scale);
+            for(int i = offset; i <= rightMostOffset; ++i) {
+                longValue = longValue * 10 + (byte)(as400Value[i] & 0x000F);
+            }
+            doubleValue = longValue / divisor;
+        } else {
+        	double multiplier = Math.pow(10, digits - scale - 1);
+            for(int i = offset; i <= rightMostOffset; ++i) {
+                doubleValue += ((byte)(as400Value[i] & 0x000F)) * multiplier;
+                multiplier /= 10;
+            }
         }
-        doubleValue = longValue / divisor;
 
         // Determine the sign.
         switch(as400Value[rightMostOffset] & 0x00F0) {
