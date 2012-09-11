@@ -399,7 +399,7 @@ public class AS400ZonedDecimal implements AS400DataType
         int rightMostOffset = offset + digits - 1;
         double doubleValue = 0;
         
-        if(digits < 18){//long type has a maximum value: 9223372036854775807
+        if(digits < 19){
         	long   longValue = 0;
             double divisor = Math.pow(10, scale);
             for(int i = offset; i <= rightMostOffset; ++i) {
@@ -407,11 +407,11 @@ public class AS400ZonedDecimal implements AS400DataType
             }
             doubleValue = longValue / divisor;
         } else {
-        	double multiplier = Math.pow(10, digits - scale - 1);
+            double divisor = Math.pow(10, scale);
             for(int i = offset; i <= rightMostOffset; ++i) {
-                doubleValue += ((byte)(as400Value[i] & 0x000F)) * multiplier;
-                multiplier /= 10;
+            	doubleValue = doubleValue * 10 + (byte)(as400Value[i] & 0x000F);
             }
+            doubleValue = doubleValue / divisor;
         }
 
         // Determine the sign.
