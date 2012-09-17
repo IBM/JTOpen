@@ -48,13 +48,14 @@ public class SignonConnection extends HostServerConnection //implements Connecti
     byte[] clientSeed = (byte[])ret[1];
     byte[] serverSeed = (byte[])ret[2];
 
-    byte[] userBytes = getUserBytes(user);
-    byte[] passwordBytes = getPasswordBytes(password);
+    byte[] userBytes = getUserBytes(user, getInfo().getPasswordLevel());
+    byte[] passwordBytes = getPasswordBytes(password, getInfo().getPasswordLevel());
     password = null;
     byte[] encryptedPassword = getEncryptedPassword(userBytes, passwordBytes, clientSeed, serverSeed, getInfo().getPasswordLevel());
 
     // Authenticate.
-    sendSignonInfoRequest(out_, getInfo(), userBytes, encryptedPassword);
+    byte[] userEBCDICBytes = (getInfo().getPasswordLevel() < 2) ? userBytes : getUserBytes(user, 0);
+    sendSignonInfoRequest(out_, getInfo(), userEBCDICBytes, encryptedPassword);
     out_.flush();
 
     int length = in_.readInt();

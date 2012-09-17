@@ -476,6 +476,13 @@ public final class Conv
     }
   }
 
+  /**
+   * Converts the specified CCSID 37 byte into a Unicode char without creating any intermediate objects.
+  **/
+  public static final char ebcdicByteToChar(final byte b)
+  {
+    return CONV_FROM_37[b & 0x00FF];
+  }
 
   /**
    * Converts the specified CCSID 37 bytes into a String.
@@ -1003,7 +1010,7 @@ public final class Conv
   private final static long DEC_FLOAT_34_SIGN_MASK = 0x8000000000000000L; // 1 bits
   private final static long DEC_FLOAT_34_COMBINATION_MASK = 0x7c00000000000000L; // 5 bits
   private final static long DEC_FLOAT_34_EXPONENT_CONTINUATION_MASK = 0x03ffc00000000000L; // 12 bits
-  private final static long DEC_FLOAT_34_COEFFICIENT_CONTINUATION_MASK = 0x00003fffffffffffL; // 46 bits + 64 bits = 110 bits
+  // private final static long DEC_FLOAT_34_COEFFICIENT_CONTINUATION_MASK = 0x00003fffffffffffL; // 46 bits + 64 bits = 110 bits
 
   private static final int[][] TEN_RADIX_MAGNITUDE =
   {
@@ -1613,6 +1620,72 @@ public final class Conv
     return new String(buffer, 0, count);
   }
 
+  /**
+   * The scale is 0, and 0 < numDigits <= 20.
+  **/
+  public static final long zonedDecimalToLong(final byte[] data, final int offset, final int numDigits)
+  {
+    long longValue = 0;
+    if (numDigits <= 0) return longValue;
+
+    final int rightMostOffset = offset + numDigits - 1;
+    for (int i=offset; i<=rightMostOffset; ++i)
+    {
+      longValue = longValue*10 + (data[i] & 0x000F);
+    }
+    // Determine the sign.
+    switch (data[rightMostOffset] & 0x00F0)
+    {
+      case 0x00B0:
+      case 0x00D0:
+        // Negative.
+        longValue = -longValue;
+        break;
+      case 0x00A0:
+      case 0x00C0:
+      case 0x00E0:
+      case 0x00F0:
+        // Positive.
+        break;
+      default:
+        throw new NumberFormatException("Byte sequence not valid for zoned decimal ("+rightMostOffset+": "+(data[rightMostOffset] & 0x00FF)+").");
+    }
+    return longValue;
+  }
+
+  /**
+   * The scale is 0, and 0 < numDigits <= 10.
+  **/
+  public static final int zonedDecimalToInt(final byte[] data, final int offset, final int numDigits)
+  {
+    int value = 0;
+    if (numDigits <= 0) return value;
+
+    final int rightMostOffset = offset + numDigits - 1;
+    for (int i=offset; i<=rightMostOffset; ++i)
+    {
+      value = value*10 + (data[i] & 0x000F);
+    }
+    // Determine the sign.
+    switch (data[rightMostOffset] & 0x00F0)
+    {
+      case 0x00B0:
+      case 0x00D0:
+        // Negative.
+        value = -value;
+        break;
+      case 0x00A0:
+      case 0x00C0:
+      case 0x00E0:
+      case 0x00F0:
+        // Positive.
+        break;
+      default:
+        throw new NumberFormatException("Byte sequence not valid for zoned decimal ("+rightMostOffset+": "+(data[rightMostOffset] & 0x00FF)+").");
+    }
+    return value;
+  }
+
   // Copied from JTOpen AS400ZonedDecimal.
   public static final double zonedDecimalToDouble(final byte[] data, final int offset, final int numDigits, final int scale)
   {
@@ -1739,6 +1812,29 @@ public final class Conv
     if (leftSide > 0)
     {
       throw new NumberFormatException("Double value "+d+" too big for output array.");
+    }
+  }
+
+  /**
+   * The scale is 0, and 0 < numDigits <= 20.
+  **/
+  public static final void longToZonedDecimal(long l, final byte[] data, final int offset, final int numDigits)
+  {
+    int rightmostOffset = offset + numDigits - 1;
+    boolean isNegative = (l < 0);
+    // Compute the bytes for the left side of the decimal point.
+    for (int i = rightmostOffset; i >= offset; --i)
+    {
+      int nextDigit = (int)(l % 10);
+      data[i] = (byte)(0x00F0 | nextDigit);
+      l /= 10;
+    }
+
+    if (isNegative) data[rightmostOffset] = (byte)(data[rightmostOffset] & 0x00DF);
+
+    if (l != 0)
+    {
+      throw new NumberFormatException("Long value too big for ZONED("+numDigits+",0).");
     }
   }
 

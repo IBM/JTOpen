@@ -13,6 +13,9 @@
 
 package com.ibm.jtopenlite.command;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.ibm.jtopenlite.*;
 
 /**
@@ -24,12 +27,22 @@ public class CommandResult
 {
   private boolean success_;
   private Message[] messages_;
+  private List<Message> messageList_; 
   private int rc_;
 
   CommandResult(boolean success, Message[] messages, int rc)
   {
     success_ = success;
     messages_ = messages;
+    messageList_ = null; 
+    rc_ = rc;
+  }
+
+  CommandResult(boolean success, List<Message> messages, int rc)
+  {
+    success_ = success;
+    messages_ = null; 
+    messageList_ = messages; 
     rc_ = rc;
   }
 
@@ -54,15 +67,39 @@ public class CommandResult
   **/
   public Message[] getMessages()
   {
-    return messages_;
+	  if (messages_ == null) {
+		  if (messageList_ != null) { 
+		    int size = messageList_.size();
+		    messages_ = new Message[size];
+		    for (int i = 0; i < size; i++) {
+		    	messages_[i]=messageList_.get(i); 
+		    }
+		  }
+	  }
+	  return messages_;
   }
 
+	public List<Message> getMessagesList() {
+		if (messageList_ == null) {
+			if (messages_ != null) {
+				messageList_ = new LinkedList<Message>();
+				for (int i = 0; i < messages_.length; i++) {
+					messageList_.add(messages_[i]);
+				}
+			}
+		}
+		return messageList_;
+	}
+  
   public String toString()
   {
     // Use string buffer to improve performance 
     StringBuffer s = new StringBuffer(""+success_);
     s.append("; rc=0x"); 
     s.append(Integer.toHexString(rc_));
+    if (messageList_ != null) {
+    	getMessages(); 
+    }
     if (messages_ != null)
     {
       for (int i=0; i<messages_.length; ++i)

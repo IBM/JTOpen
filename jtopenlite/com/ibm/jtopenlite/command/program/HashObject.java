@@ -13,7 +13,7 @@
 
 package com.ibm.jtopenlite.command.program;
 
-final class HashObject extends Object
+public final class HashObject extends Object
 {
   private int hash_;
 
@@ -21,7 +21,7 @@ final class HashObject extends Object
   {
   }
 
-  void setHash(int hash)
+  public void setHash(int hash)
   {
     hash_ = hash;
   }

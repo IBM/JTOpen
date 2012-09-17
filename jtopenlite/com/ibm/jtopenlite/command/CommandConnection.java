@@ -17,7 +17,6 @@ import com.ibm.jtopenlite.*;
 //import com.ibm.jtopenlite.base.experimental.*;
 import java.io.*;
 import java.net.*;
-import java.util.zip.*;
 
 /**
  * Represents a TCP/IP socket connection to the System i Remote Command host server (QSYSWRK/QZRCSRVS prestart jobs).

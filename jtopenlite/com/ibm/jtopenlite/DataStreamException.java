@@ -49,7 +49,7 @@ public class DataStreamException extends IOException
   private String type_;
   private String dataStreamName_;
   private int value_;
-  private Vector messages_ = new Vector();
+  private ArrayList<Message> messages_ = new ArrayList<Message>();
 
   protected DataStreamException(String type, String dataStreamName, int value)
   {
@@ -66,7 +66,7 @@ public class DataStreamException extends IOException
     type_ = ERROR_MESSAGE;
     dataStreamName_ = dataStreamName;
     value_ = message.getSeverity();
-    messages_.addElement(message);
+    messages_.add(message);
   }
 
   /**
@@ -98,7 +98,7 @@ public class DataStreamException extends IOException
   **/
   public Message getErrorMessage()
   {
-    return messages_.size() == 0 ? null : (Message)messages_.elementAt(0);
+    return messages_.size() == 0 ? null : messages_.get(0);
   }
 
   /**
@@ -106,7 +106,7 @@ public class DataStreamException extends IOException
   **/
   public void addMessage(Message message)
   {
-    messages_.addElement(message);
+    messages_.add(message);
   }
 
   /**
@@ -115,7 +115,7 @@ public class DataStreamException extends IOException
   public Message[] getErrorMessages()
   {
     Message[] arr = new Message[messages_.size()];
-    messages_.copyInto(arr);
+    messages_.toArray(arr);
     return arr;
   }
 
