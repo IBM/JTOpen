@@ -15,16 +15,22 @@ package com.ibm.jtopenlite.components;
 
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
-import com.ibm.jtopenlite.command.program.*;
+import com.ibm.jtopenlite.command.program.openlist.*;
+import com.ibm.jtopenlite.command.program.workmgmt.*; 
+
 import java.io.*;
 
-class ListActiveJobsImpl implements OpenListOfJobsFormatOLJB0300Listener, OpenListOfJobsSelectionListener, OpenListOfJobsSortListener
+class ListActiveJobsImpl implements OpenListOfJobsFormatOLJB0300Listener, OpenListOfJobsSelectionListener, OpenListOfJobsSortListener, ActiveJobsListener
 {
   private final OpenListOfJobsFormatOLJB0300 jobFormat_ = new OpenListOfJobsFormatOLJB0300();
   private final int[] fieldsToReturn_ = new int[] { 1906, 314, 602, 601, 305, 2008, 1802, 312, 1306 }; // Subsystem information, % CPU used, function type, function name, current user profile, thread count, run priority, CPU used total, memory pool name
   private final OpenListOfJobs jobList_ = new OpenListOfJobs(jobFormat_, 120, 1, fieldsToReturn_);
-  private final GetListEntries getJobs_ = new GetListEntries(0, null, 0, 0, 0, jobFormat_);
-  private final CloseList close_ = new CloseList(null);
+  // private final GetListEntries getJobs_ = new GetListEntries(0, null, 0, 0, 0, jobFormat_);
+  // private final CloseList close_ = new CloseList(null);
+
+  private final OpenListHandler handler_ = new OpenListHandler(jobList_, jobFormat_, this);
+
+  private ActiveJobsListener ajListener_;
 
   private int counter_ = -1;
   private JobInfo[] jobs_;
@@ -35,83 +41,45 @@ class ListActiveJobsImpl implements OpenListOfJobsFormatOLJB0300Listener, OpenLi
     jobList_.setSortListener(this);
   }
 
+  public void setActiveJobsListener(ActiveJobsListener listener)
+  {
+    ajListener_ = listener;
+  }
+
   public long getElapsedTime()
   {
     return jobList_.getElapsedTime();
   }
+  public void totalRecords(int totalRecords)
+  {
+    jobs_ = new JobInfo[totalRecords];
+  }
+
+  public boolean stopProcessing()
+  {
+    return false;
+  }
+
+  public void totalRecordsInList(int total)
+  {
+    ajListener_.totalRecords(total);
+  }
+
+  public void openComplete()
+  {
+    OpenListOfJobsKeyField[] keyDefinitions = jobList_.getKeyFields();
+    jobFormat_.setKeyFields(keyDefinitions);
+  }
+
 
   public synchronized JobInfo[] getJobs(final CommandConnection conn, final boolean reset) throws IOException
   {
-    jobFormat_.setListener(null);
-
-    int receiverSize = 120; // This should be large enough for the initial call.
-    int numRecordsToReturn = 1; // Need to return at least one record to get the key definition back.
+    jobs_ = null;
+    counter_ = -1;
     jobList_.setResetStatusStatistics(reset);
-    CommandResult result = conn.call(jobList_);
-    if (!result.succeeded())
-    {
-      throw new IOException("Job list failed: "+result.toString());
-    }
-
-    ListInformation listInfo = jobList_.getListInformation();
-    byte[] requestHandle = listInfo.getRequestHandle();
-    close_.setRequestHandle(requestHandle);
-
-    try
-    {
-      OpenListOfJobsKeyField[] keyDefinitions = jobList_.getKeyFields();
-      int recordLength = listInfo.getRecordLength();
-      // Now, the list is building on the server.
-      // Call GetListEntries once to wait for the list to finish building, for example.
-      receiverSize = 100; // Should be good enough for the first call.
-      numRecordsToReturn = 0; // For some reason, specifying 0 here does not wait until the whole list is built.
-      int startingRecord = -1; // Wait until whole list is built before returning.
-      getJobs_.setLengthOfReceiverVariable(receiverSize);
-      getJobs_.setRequestHandle(requestHandle);
-      getJobs_.setRecordLength(recordLength);
-      getJobs_.setNumberOfRecordsToReturn(numRecordsToReturn);
-      getJobs_.setStartingRecord(startingRecord);
-      result = conn.call(getJobs_);
-      if (!result.succeeded())
-      {
-        throw new IOException("Get jobs failed: "+result.toString());
-      }
-
-      listInfo = getJobs_.getListInformation();
-      int totalRecords = listInfo.getTotalRecords();
-      jobs_ = new JobInfo[totalRecords];
-      counter_ = -1;
-
-      // Now retrieve each job record in chunks of 300 at a time.
-      numRecordsToReturn = 600;
-      receiverSize = recordLength * numRecordsToReturn;
-      startingRecord = 1;
-      getJobs_.setLengthOfReceiverVariable(receiverSize);
-      getJobs_.setNumberOfRecordsToReturn(numRecordsToReturn);
-      getJobs_.setStartingRecord(startingRecord);
-      jobFormat_.setKeyFields(keyDefinitions);
-      jobFormat_.setListener(this); // Ready to process.
-      while (startingRecord <= totalRecords)
-      {
-        result = conn.call(getJobs_);
-        if (!result.succeeded())
-        {
-          throw new IOException("Get jobs failed: "+result.toString());
-        }
-        // Assuming it succeeded...
-        listInfo = getJobs_.getListInformation();
-        startingRecord += listInfo.getRecordsReturned();
-        getJobs_.setStartingRecord(startingRecord);
-      }
-      sort();
+    handler_.process(conn, 600);
       return jobs_;
     }
-    finally
-    {
-      // All done.
-      conn.call(close_);
-    }
-  }
 
   private void sort()
   {
@@ -258,6 +226,56 @@ class ListActiveJobsImpl implements OpenListOfJobsFormatOLJB0300Listener, OpenLi
     return null;
   }
 
+  public void newJobInfo(JobInfo info, int index)
+  {
+    jobs_[index] = info;
+  }
+
+  public void subsystem(String s, int index)
+  {
+    jobs_[index].setSubsystem(s);
+  }
+
+  public void functionPrefix(String s, int index)
+  {
+    jobs_[index].setFunctionPrefix(s);
+  }
+
+  public void functionName(String s, int index)
+  {
+    jobs_[index].setFunctionName(s);
+  }
+
+  public void currentUser(String s, int index)
+  {
+    jobs_[index].setCurrentUser(s);
+  }
+
+  public void totalCPUUsed(long cpu, int index)
+  {
+    jobs_[index].setTotalCPUUsed(cpu);
+  }
+
+  public void memoryPool(String s, int index)
+  {
+    jobs_[index].setMemoryPool(s);
+  }
+
+  public void cpuPercent(int i, int index)
+  {
+    jobs_[index].setCPUPercent(i);
+  }
+
+  public void threadCount(int i, int index)
+  {
+    jobs_[index].setThreadCount(i);
+  }
+
+  public void runPriority(int i, int index)
+  {
+    jobs_[index].setRunPriority(i);
+  }
+
   ////////////////////////////////////////
   //
   // List entry format methods.
@@ -268,7 +286,7 @@ class ListActiveJobsImpl implements OpenListOfJobsFormatOLJB0300Listener, OpenLi
                           String status, String type, String subtype)
   {
     String wrkactjobType = getWRKACTJOBType(type, subtype);
-    jobs_[++counter_] = new JobInfo(jobName, userName, jobNumber, wrkactjobType, status);
+    ajListener_.newJobInfo(new JobInfo(jobName, userName, jobNumber, wrkactjobType, status), ++counter_);
   }
 
   synchronized public void newKeyData(int key, String data, byte[] originalTempData, int originalOffset)
@@ -276,22 +294,22 @@ class ListActiveJobsImpl implements OpenListOfJobsFormatOLJB0300Listener, OpenLi
     switch (key)
     {
       case 1906:
-        jobs_[counter_].setSubsystem(data.substring(0,10));
+        ajListener_.subsystem(data.substring(0,10), counter_);
         break;
       case 602:
-        jobs_[counter_].setFunctionPrefix(getFunctionPrefix(data));
+        ajListener_.functionPrefix(getFunctionPrefix(data), counter_);
         break;
       case 601:
-        jobs_[counter_].setFunctionName(data.charAt(0) == '\u0000' ? "          " : data);
+        ajListener_.functionName(data.charAt(0) == '\u0000' ? "          " : data, counter_);
         break;
       case 305:
-        jobs_[counter_].setCurrentUser(data);
+        ajListener_.currentUser(data, counter_);
         break;
       case 312:
-        jobs_[counter_].setTotalCPUUsed(Conv.byteArrayToLong(originalTempData, originalOffset));
+        ajListener_.totalCPUUsed(Conv.byteArrayToLong(originalTempData, originalOffset), counter_);
         break;
       case 1306:
-        jobs_[counter_].setMemoryPool(data);
+        ajListener_.memoryPool(data, counter_);
         break;
     }
   }
@@ -301,13 +319,13 @@ class ListActiveJobsImpl implements OpenListOfJobsFormatOLJB0300Listener, OpenLi
     switch (key)
     {
       case 314:
-        jobs_[counter_].setCPUPercent(data);
+        ajListener_.cpuPercent(data, counter_);
         break;
       case 2008:
-        jobs_[counter_].setThreadCount(data);
+        ajListener_.threadCount(data, counter_);
         break;
       case 1802:
-        jobs_[counter_].setRunPriority(data);
+        ajListener_.runPriority(data, counter_);
         break;
     }
   }

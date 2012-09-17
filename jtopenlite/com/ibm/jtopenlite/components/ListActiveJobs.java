@@ -43,7 +43,14 @@ public class ListActiveJobs
   **/
   public JobInfo[] getJobs(final CommandConnection conn, final boolean reset) throws IOException
   {
+    impl_.setActiveJobsListener(impl_);
     return impl_.getJobs(conn, reset);
+  }
+
+  public void getJobs(final CommandConnection conn, final boolean reset, final ActiveJobsListener ajListener) throws IOException
+  {
+    impl_.setActiveJobsListener(ajListener);
+    impl_.getJobs(conn, reset);
   }
 }
 
