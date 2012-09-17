@@ -13,6 +13,10 @@
 
 package com.ibm.jtopenlite;
 
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Package private class to handle the encryption of a password sent to the host server.
  *
@@ -21,6 +25,31 @@ final class EncryptPassword
 {
   private EncryptPassword()
   {
+  }
+
+  private static final byte[] SHA_SEQUENCE = new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 };
+
+  static byte[] encryptPasswordSHA(byte[] userID, byte[] password, byte[] clientSeed, byte[] serverSeed) throws IOException
+  {
+    try
+    {
+      MessageDigest md = MessageDigest.getInstance("SHA");
+      md.update(userID);
+      md.update(password);
+      byte[] token = md.digest();
+      md.update(token);
+      md.update(serverSeed);
+      md.update(clientSeed);
+      md.update(userID);
+      md.update(SHA_SEQUENCE);
+      return md.digest();
+    }
+    catch (NoSuchAlgorithmException e)
+    {
+      IOException io = new IOException("Error loading SHA encryption: "+e);
+      io.initCause(e);
+      throw io;
+    }
   }
 
   static byte[] encryptPasswordDES(byte[] userID, byte[] password, byte[] clientSeed, byte[] serverSeed)

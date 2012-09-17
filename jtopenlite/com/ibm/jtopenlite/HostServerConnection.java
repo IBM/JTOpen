@@ -51,6 +51,38 @@ public abstract class HostServerConnection implements Connection {
 		return Trace.isStreamTracingEnabled();
 	}
 
+	  /**
+	   * If <i>debug</i> is true, enables by default debugging on all
+	   * HostServerConnection datastreams created after the call to this method.
+	   **/
+	  public static void setDefaultDatastreamDebug(boolean debug) {
+	    HostInputStream.setAllDebug(debug);
+	    HostOutputStream.setAllDebug(debug);
+	  }
+
+	  /**
+	   * Returns the total number of bytes this connection has read since it was
+	   * opened. If an I/O exception has occurred with this stream, the number
+	   * returned by this method may not reflect any partial datastream bytes that
+	   * may have actually been read before the exception took place.
+	   **/
+	  public long getBytesReceived() {
+	    return in_.getBytesReceived();
+	  }
+
+	
+	  /**
+	   * Returns the total number of bytes this connection has written since it was opened.
+	   * If an I/O exception has occurred with this stream, the number returned by this method
+	   * may not reflect any partial datastream bytes that may have actually been written before
+	   * the exception took place. Additionally, the number of bytes written over the TCP socket
+	   * may be less, if the underlying stream has not yet been flushed.
+	  **/
+	  public long getBytesSent()
+	  {
+	    return out_.getBytesSent();
+	  }
+
 	/**
 	 * Returns true if datastream debugging is currently enabled.
 	 **/
@@ -150,9 +182,12 @@ public abstract class HostServerConnection implements Connection {
 			int passwordLevel) throws IOException {
 		final boolean doSHAInsteadOfDES = passwordLevel >= 2;
 		byte[] encryptedPassword = null;
-		if (doSHAInsteadOfDES) {
-			// TODO
-		} else {
+    if (doSHAInsteadOfDES)
+    {
+      encryptedPassword = EncryptPassword.encryptPasswordSHA(userBytes, passwordBytes, clientSeed, serverSeed);
+    }
+    else
+    {
 			// Normal DES encryption.
 			encryptedPassword = EncryptPassword.encryptPasswordDES(userBytes,
 					passwordBytes, clientSeed, serverSeed);
@@ -182,15 +217,16 @@ public abstract class HostServerConnection implements Connection {
 		byte[] serverSeed = new byte[8];
 		din.readFully(serverSeed);
 
-		byte[] userBytes = getUserBytes(user);
-		byte[] passwordBytes = getPasswordBytes(password);
+    byte[] userBytes = getUserBytes(user, info.getPasswordLevel());
+    byte[] passwordBytes = getPasswordBytes(password, info.getPasswordLevel());
 		password = null;
-		byte[] encryptedPassword = getEncryptedPassword(userBytes,
-				passwordBytes, clientSeed, serverSeed, info.getPasswordLevel());
+    byte[] encryptedPassword = getEncryptedPassword(userBytes, passwordBytes,
+        clientSeed, serverSeed, info.getPasswordLevel());
 
 		din.end();
 
-		sendStartServerRequest(dout, userBytes, encryptedPassword, serverID);
+    byte[] userEBCDICBytes = (info.getPasswordLevel() < 2) ? userBytes : getUserBytes(user, 0);
+    sendStartServerRequest(dout, userEBCDICBytes, encryptedPassword, serverID);
 		dout.flush();
 
 		length = din.readInt();
@@ -297,28 +333,49 @@ public abstract class HostServerConnection implements Connection {
 		return clientSeed;
 	}
 
-	static byte[] getUserBytes(String user) throws IOException {
-		if (user.length() > 10) {
+  static byte[] getUserBytes(String user, int level) throws IOException
+  {
+    if (level < 2)
+    {
+      if (user.length() > 10)
+      {
 			throw new IOException("User too long");
 		}
 		byte[] user37 = Conv.blankPadEBCDIC10(user.toUpperCase());
 		return user37;
 	}
+    else
+    {
+      byte[] b = new byte[20];
+      Conv.stringToBlankPadUnicodeByteArray(user.toUpperCase(), b, 0, 20);
+      return b;
+    }
+  }
 
-	static byte[] getPasswordBytes(String password) throws IOException {
+  static byte[] getPasswordBytes(String password, int level) throws IOException
+  {
+    if (level < 2)
+    {
 		// Prepend a Q to numeric password.
-		if (password.length() > 0 && Character.isDigit(password.charAt(0))) {
+      if (password.length() > 0 && Character.isDigit(password.charAt(0)))
+      {
 			password = "Q" + password;
 		}
-		if (password.length() > 10) {
+      if (password.length() > 10)
+      {
 			throw new IOException("Password too long");
 		}
 		byte[] password37 = Conv.blankPadEBCDIC10(password.toUpperCase());
 		return password37;
 	}
+    else
+    {
+      return Conv.stringToUnicodeByteArray(password);
+    }
+  }
 
 	protected static final class HostInputStream {
-		// private static boolean allDebug_ = false;
+		private static boolean allDebug_ = false;
 
 		private final InputStream in_;
 		private boolean debug_;
@@ -329,20 +386,28 @@ public abstract class HostServerConnection implements Connection {
 		private final byte[] longArray_ = new byte[8];
 
 		private PrintStream tracePrintStream = null;
+	    private long bytesReceived_;
 
-		// public static void setAllDebug(boolean debug)
-		// {
-		// allDebug_ = debug;
-		// }
+		public static void setAllDebug(boolean debug)
+		 {
+		   allDebug_ = debug;
+		 }
 
 		public HostInputStream(InputStream in) {
 			in_ = in;
 			debug_ = Trace.isStreamTracingEnabled();
-			if (debug_) {
+			if (debug_ || allDebug_ ) {
 				tracePrintStream = Trace.getPrintStream();
-			}
+				if (tracePrintStream == null) {
+					tracePrintStream = System.out; 
+				}
+			} 
 
 		}
+
+	    public long getBytesReceived() {
+	        return bytesReceived_;
+	      }
 
 		public void setDebug(boolean debug) {
 			debug_ = debug;
@@ -398,6 +463,7 @@ public abstract class HostServerConnection implements Connection {
 			if (debug_) {
 				debugByte(i);
 			}
+      ++bytesReceived_;
 			return i;
 		}
 
@@ -409,13 +475,18 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(shortArray_);
 			if (i != 2) {
 				int numRead = (i >= 0 ? i : 0);
+		        bytesReceived_ += numRead;
 				while (i >= 0 && numRead < 2) {
 					i = in_.read(shortArray_, numRead, 2 - numRead);
 					numRead += (i >= 0 ? i : 0);
+		          bytesReceived_ += numRead;
+
 				}
 				if (numRead < 2) {
 					throw new EOFException();
 				}
+      } else {
+        bytesReceived_ += 2;
 			}
 			if (debug_) {
 				debugBytes(shortArray_, 0, 2);
@@ -427,13 +498,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(intArray_);
 			if (i != 4) {
 				int numRead = (i >= 0 ? i : 0);
+		        bytesReceived_ += numRead;
 				while (i >= 0 && numRead < 4) {
 					i = in_.read(intArray_, numRead, 4 - numRead);
 					numRead += (i >= 0 ? i : 0);
+			        bytesReceived_ += numRead;
 				}
 				if (numRead < 4) {
 					throw new EOFException();
 				}
+			} else {
+		        bytesReceived_ += 4;
 			}
 			if (debug_) {
 				debugBytes(intArray_, 0, 4);
@@ -445,13 +520,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(longArray_);
 			if (i != 8) {
 				int numRead = (i >= 0 ? i : 0);
+		        bytesReceived_ += numRead;
 				while (i >= 0 && numRead < 8) {
 					i = in_.read(longArray_, numRead, 8 - numRead);
 					numRead += (i >= 0 ? i : 0);
+			        bytesReceived_ += numRead;
 				}
 				if (numRead < 8) {
 					throw new EOFException();
 				}
+			} else {
+		        bytesReceived_ += 8;
 			}
 			if (debug_) {
 				debugBytes(longArray_, 0, 8);
@@ -472,13 +551,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = (int) in_.skip(n);
 			if (i != n) {
 				int numSkipped = (i >= 0 ? i : 0);
+		        bytesReceived_ += numSkipped;
 				while (i >= 0 && numSkipped < n) {
 					i = (int) in_.skip(n - numSkipped);
 					numSkipped += (i >= 0 ? i : 0);
+			        bytesReceived_ += numSkipped;
 				}
 				if (numSkipped < n) {
 					throw new EOFException();
 				}
+			} else {
+		        bytesReceived_ += n;
 			}
 			return i;
 		}
@@ -495,13 +578,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(b);
 			if (i != b.length) {
 				int numRead = (i >= 0 ? i : 0);
+		        bytesReceived_ += numRead;
 				while (i >= 0 && numRead < b.length) {
 					i = in_.read(b, numRead, b.length - numRead);
 					numRead += (i >= 0 ? i : 0);
+			        bytesReceived_ += numRead;
 				}
 				if (numRead < b.length) {
 					throw new EOFException();
 				}
+			} else {
+		        bytesReceived_ += i;
 			}
 			if (debug_) {
 				debugBytes(b, 0, b.length);
@@ -513,13 +600,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(b, offset, length);
 			if (i != length) {
 				int numRead = (i >= 0 ? i : 0);
+		        bytesReceived_ += numRead;
 				while (i >= 0 && numRead < length) {
 					i = in_.read(b, offset + numRead, length - numRead);
 					numRead += (i >= 0 ? i : 0);
+			        bytesReceived_ += numRead;
 				}
 				if (numRead < length) {
 					throw new EOFException();
 				}
+			} else {
+		        bytesReceived_ += length;
 			}
 			if (debug_) {
 				debugBytes(b, offset, length);
@@ -533,23 +624,31 @@ public abstract class HostServerConnection implements Connection {
 		static final char[] CHAR = new char[] { '0', '1', '2', '3', '4', '5',
 				'6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-		// private static boolean allDebug_ = false;
+		private static boolean allDebug_ = false;
 
 		private final OutputStream out_;
 		private boolean debug_;
 		private int debugCounter_ = 0;
+		private int bytesSent_ = 0; 
 		private PrintStream tracePrintStream = null;
 
-		// public static void setAllDebug(boolean debug)
-		// {
-		// allDebug_ = debug;
-		// }
+		public static void setAllDebug(boolean debug)
+		 {
+		 allDebug_ = debug;
+		 }
+
+		public long getBytesSent() {
+			return bytesSent_; 
+		}
 
 		public HostOutputStream(final OutputStream out) {
 			out_ = out;
 			debug_ = Trace.isStreamTracingEnabled();
-			if (debug_) {
+			if (debug_ || allDebug_) {
 				tracePrintStream = Trace.getPrintStream();
+				if (tracePrintStream == null) {
+					tracePrintStream=System.out; 
+				}
 			}
 		}
 
@@ -565,6 +664,7 @@ public abstract class HostServerConnection implements Connection {
 			out_.write(i >> 16);
 			out_.write(i >> 8);
 			out_.write(i);
+      bytesSent_ += 4;
 			if (debug_) {
 				debugInt(i);
 			}
@@ -611,6 +711,7 @@ public abstract class HostServerConnection implements Connection {
 		public void writeShort(final int i) throws IOException {
 			out_.write(i >> 8);
 			out_.write(i);
+      bytesSent_ += 2;
 			if (debug_) {
 				debugShort(i);
 			}
@@ -625,6 +726,7 @@ public abstract class HostServerConnection implements Connection {
 
 		public void write(final byte[] b) throws IOException {
 			out_.write(b, 0, b.length);
+      bytesSent_ += b.length;
 			if (debug_) {
 				debugBytes(b, 0, b.length);
 			}
@@ -633,6 +735,7 @@ public abstract class HostServerConnection implements Connection {
 		public void write(final byte[] b, final int offset, final int length)
 				throws IOException {
 			out_.write(b, offset, length);
+      bytesSent_ += length;
 			if (debug_) {
 				debugBytes(b, offset, length);
 			}
@@ -640,6 +743,7 @@ public abstract class HostServerConnection implements Connection {
 
 		public void write(final int i) throws IOException {
 			out_.write(i);
+      ++bytesSent_;
 			if (debug_) {
 				debugByte(i);
 			}
@@ -647,6 +751,7 @@ public abstract class HostServerConnection implements Connection {
 
 		public void writeByte(final int i) throws IOException {
 			out_.write(i);
+      ++bytesSent_;
 			if (debug_) {
 				debugByte(i);
 			}
