@@ -309,27 +309,10 @@ Opens the cursor and describes the data format.
                     //else    //@KBA
                     //    request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@KBA        Option 1
                 }    //@KBA
-                else if(resultSetType == ResultSet.TYPE_FORWARD_ONLY)    //@KBA
-                {
-                    //@KBA
-                    //Determine if user set cursor sensitivity property                                              //@KBA
-                    if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))    //@KBA
-                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@KBA        Option 5
-                    else    //@KBA
-                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@KBA        Option 0
-                }    //@KBA
-                else if(resultSetType == ResultSet.TYPE_SCROLL_SENSITIVE)    //@KBA
-                {
-                    //@KBA
-                    //Determine if user set cursor sensitivity property                                              //@KBA
-                    if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))    //@KBA
-                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@KBA        Option 1
-                    else    //@KBA
-                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@KBA        Option 3
-                }    //@KBA
-                else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@KBA
-                {
-                     request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@KBA        Option 2
+                else {
+                    /* @H1A Use common routine to determine scrollability */  
+                   request.setScrollableCursorFlag (
+                       AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivity, resultSetType, ResultSet.CONCUR_READ_ONLY));
                 }    //@KBA
 
       if (openReply != null) { openReply.returnToPool(); openReply =null; }  
