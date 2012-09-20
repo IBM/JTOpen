@@ -16,6 +16,8 @@ package com.ibm.jtopenlite.file;
 import com.ibm.jtopenlite.*;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a TCP/IP socket connection to the System i File host server (QSERVER/QPWFSERVSO prestart jobs).
@@ -119,6 +121,261 @@ public class FileConnection extends HostServerConnection //implements Connection
         fileServer.close();
       }
     }
+  }
+
+  /**
+   * Returns a list of files under the specified directory or file spec.
+   * For example, these all return the same file listing:
+   * <ul>
+   * <li>list("/home/smith")</li>
+   * <li>list("/home/smith/*")</li>
+   * <li>list("/home/smith/../smith")</li>
+   * </ul>
+  **/
+  public List<FileHandle> listFiles(String dir) throws IOException
+  {
+    if (dir.indexOf("*") < 0)
+    {
+      if (!dir.endsWith("/"))
+      {
+        dir = dir + "/*";
+      }
+      else
+      {
+        dir = dir + "*";
+      }
+    }
+
+    String parent = dir;
+    int slash = parent.lastIndexOf("/");
+    if (slash < 0)
+    {
+      parent = "";
+    }
+    else if (slash > 0)
+    {
+      parent = parent.substring(0,slash+1);
+    }
+
+    sendListFilesRequest(Conv.stringToUnicodeByteArray(dir));
+    out_.flush();
+
+    ArrayList<FileHandle> files = new ArrayList<FileHandle>();
+    int chain = 1;
+    while (chain != 0)
+    {
+      int length = in_.readInt();
+      if (length < 24)
+      {
+        throw DataStreamException.badLength("listFiles", length);
+      }
+      int headerID = in_.readShort();
+      int serverID = in_.readShort();
+      int csInstance = in_.readInt();
+      int correlationID = in_.readInt();
+      int templateLength = in_.readShort();
+      int reqRepID = in_.readShort();
+      chain = in_.readShort();
+      if (reqRepID == 0x8001)
+      {
+        int rc = in_.readShort();
+        int remaining = length-24;
+        in_.skipBytes(remaining);
+        if (rc != FileConstants.RC_NO_MORE_FILES)
+        {
+          throw DataStreamException.badReturnCode("listFiles", rc);
+        }
+      }
+      else if (reqRepID == 0x8005)
+      {
+        int numRead = 22;
+        long createDate = convertDate(in_);
+        long modifyDate = convertDate(in_);
+        long accessDate = convertDate(in_);
+        int fileSize = in_.readInt();
+        int fixedAttributes = in_.readInt();
+        int objectType = in_.readShort();
+        int numExtAttrs = in_.readShort();
+        int bytesEANames = in_.readInt();
+        int bytesEAValues = in_.readInt();
+        int version = in_.readInt();
+        int amountAccessed = in_.readShort();
+        int accessHistory = in_.readByte();
+        int fileCCSID = in_.readShort();
+        int checkoutCCSID = in_.readShort();
+        int restartID = in_.readInt();
+        long largeFileSize = in_.readLong();
+        in_.skipBytes(2);
+        int symlink = in_.readByte(); // 91
+        numRead = 92;
+        int fileNameLLOffset = 20 + templateLength;
+        int toSkip = fileNameLLOffset-numRead;
+        in_.skipBytes(toSkip);
+        numRead += toSkip;
+        int fileNameLength = in_.readInt()-6;
+        in_.skipBytes(2); // 0x0002 -- Name CP.
+        numRead += 6;
+        byte[] nameBuf = new byte[fileNameLength];
+        in_.readFully(nameBuf);
+        numRead += fileNameLength;
+        String name = Conv.unicodeByteArrayToString(nameBuf, 0, nameBuf.length);
+        if (!name.equals(".") && !name.equals(".."))
+        {
+          FileHandle h = FileHandle.createEmptyHandle();
+          h.setName(name);
+          h.setPath(parent+name);
+          h.setDataCCSID(fileCCSID);
+          h.setCreateDate(createDate);
+          h.setModifyDate(modifyDate);
+          h.setAccessDate(accessDate);
+          h.setSize(largeFileSize);
+          h.setVersion(version);
+          h.setSymlink(symlink == 1);
+          h.setDirectory(objectType == 2);
+          files.add(h);
+        }
+        int remaining = length-numRead;
+        in_.skipBytes(remaining);
+      }
+      else
+      {
+        int remaining = length-22;
+        in_.skipBytes(remaining);
+        throw DataStreamException.badReply("listFiles", reqRepID);
+      }
+    }
+    return files;
+  }
+
+  /**
+   * Returns a list of filenames under the specified directory or file spec.
+   * For example, these all return the same file listing:
+   * <ul>
+   * <li>list("/home/smith")</li>
+   * <li>list("/home/smith/*")</li>
+   * <li>list("/home/smith/../smith")</li>
+   * </ul>
+   * To return more than just the names of files, use {@link #listFiles listFiles()}.
+  **/
+  public List<String> list(String dir) throws IOException
+  {
+//    System.out.println("Server CCSID: "+getInfo().getServerCCSID());
+    if (dir.indexOf("*") < 0)
+    {
+      if (!dir.endsWith("/"))
+      {
+        dir = dir + "/*";
+      }
+      else
+      {
+        dir = dir + "*";
+      }
+    }
+
+    sendListFilesRequest(Conv.stringToUnicodeByteArray(dir));
+    out_.flush();
+
+    ArrayList<String> files = new ArrayList<String>();
+    int chain = 1;
+    while (chain != 0)
+    {
+      int length = in_.readInt();
+      if (length < 24)
+      {
+        throw DataStreamException.badLength("listFiles", length);
+      }
+      int headerID = in_.readShort();
+      int serverID = in_.readShort();
+      int csInstance = in_.readInt();
+      int correlationID = in_.readInt();
+      int templateLength = in_.readShort();
+      int reqRepID = in_.readShort();
+      chain = in_.readShort();
+      if (reqRepID == 0x8001)
+      {
+        int rc = in_.readShort();
+        int remaining = length-24;
+        in_.skipBytes(remaining);
+        if (rc != FileConstants.RC_NO_MORE_FILES)
+        {
+          throw DataStreamException.badReturnCode("listFiles", rc);
+        }
+      }
+      else if (reqRepID == 0x8005)
+      {
+        int numRead = 22;
+/*      long createDate = in_.readLong();
+      long modifyDate = in_.readLong();
+      long actual = ((modifyDate >> 32) & 0x00FFFFFFFFL)*1000L + ((modifyDate & 0x00FFFFFFFFL)/1000);
+      System.out.println(new java.util.Date(actual));
+      long accessDate = in_.readLong();
+      int fileSize = in_.readInt();
+      int fixedAttributes = in_.readInt();
+      int objectType = in_.readShort();
+      int numExtAttrs = in_.readShort();
+      int bytesEANames = in_.readInt();
+      int bytesEAValues = in_.readInt();
+      int version = in_.readInt();
+      int amountAccessed = in_.readShort();
+      int accessHistory = in_.readByte();
+      int fileCCSID = in_.readShort();
+      int checkoutCCSID = in_.readShort();
+      int restartID = in_.readInt();
+      long largeFileSize = in_.readLong();
+      in_.skipBytes(2);
+      int symlink = in_.readByte(); // 91
+*/
+        in_.skipBytes(70);
+        numRead = 92;
+        int fileNameLLOffset = 20 + templateLength;
+        int toSkip = fileNameLLOffset-numRead;
+        in_.skipBytes(toSkip);
+        numRead += toSkip;
+        int fileNameLength = in_.readInt()-6;
+        in_.skipBytes(2); // 0x0002 -- Name CP.
+        numRead += 6;
+        byte[] nameBuf = new byte[fileNameLength];
+        in_.readFully(nameBuf);
+        numRead += fileNameLength;
+        String name = Conv.unicodeByteArrayToString(nameBuf, 0, nameBuf.length);
+        if (!name.equals(".") && !name.equals(".."))
+        {
+          files.add(name);
+        }
+        int remaining = length-numRead;
+        in_.skipBytes(remaining);
+      }
+      else
+      {
+        int remaining = length-22;
+        in_.skipBytes(remaining);
+        throw DataStreamException.badReply("listFiles", reqRepID);
+      }
+    }
+    return files;
+  }
+
+  private void sendListFilesRequest(byte[] dirnameUnicode) throws IOException
+  {
+    // 20 + 20 + 6 +
+    out_.writeInt(46+dirnameUnicode.length); // Length.
+    out_.writeShort(0); // Header ID.
+    out_.writeShort(0xE002); // Server ID.
+    out_.writeInt(0); // CS instance.
+    out_.writeInt(newCorrelationID()); // Correlation ID.
+    out_.writeShort(20); // Template length.
+    out_.writeShort(0x000A); // ReqRep ID.
+    out_.writeShort(0); // Chain indicator.
+    out_.writeInt(0); // File handle.
+    out_.writeShort(1200); // CCSID.
+    out_.writeInt(1); // Working dir handle.
+    out_.writeShort(0); // Check authority. 0=none required, 1=read required, 2=write requried, 4=exec required.
+    out_.writeShort(0xFFFF); // Maximum get count (-1 = no max).
+    out_.writeShort(0x0101); // File attribute list level (0x0101 = return 8-byte file size; 0x0001 = reserved flag).
+    out_.writeShort(1); // Pattern matching (POSIX=0, POSIX-all=1, OS/2=2).
+    out_.writeInt(dirnameUnicode.length+6); // Filename LL.
+    out_.writeShort(2); // Filename CP.
+    out_.write(dirnameUnicode);
   }
 
   /**
@@ -234,7 +491,7 @@ public class FileConnection extends HostServerConnection //implements Connection
     else
     {
       in_.skipBytes(remaining);
-      throw DataStreamException.badReply("deleteFile", reqRepID);
+      throw DataStreamException.badReply("openFile", reqRepID);
     }
     in_.skipBytes(remaining-2);
     return rc;
