@@ -13,6 +13,8 @@
 
 package com.ibm.jtopenlite.database.jdbc;
 
+
+
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.database.*;
 
@@ -30,7 +32,8 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
   private int descriptorHandle_;
   private boolean returnGeneratedKeys_;
   private int sqlStatementType_;
-
+  private JDBCResultSetMetaData rsmd_;
+  
   public JDBCPreparedStatement(JDBCConnection conn, String sql, Calendar calendar, String statementName, String cursorName, int rpbID) throws SQLException
   {
     super(conn, statementName, cursorName, rpbID);
@@ -39,7 +42,7 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
 	   	  JDBCError.throwSQLException(JDBCError.EXC_SYNTAX_ERROR);
 	  	  return;
 	}
-
+    rsmd_ = null; 
     // Check for null statement
 
     DatabaseRequestAttributes dpa = new DatabaseRequestAttributes();
@@ -58,9 +61,10 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
       }
 
     JDBCParameterMetaData pmd = new JDBCParameterMetaData(calendar);
+    rsmd_ = new JDBCResultSetMetaData(conn.getDatabaseInfo().getServerCCSID(), calendar, conn_.getCatalog());
 
     dpa.setExtendedSQLStatementText(sql);
-    conn.prepareAndDescribe(dpa, null, pmd);
+    conn.prepareAndDescribe(dpa, rsmd_, pmd);
 
     int handle = -1;
   	  // Only change the descriptor if there are parameters available
@@ -392,12 +396,10 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
     }
   }
 
-  /**
-   * Not implemented.
-  **/
   public ResultSetMetaData getMetaData() throws SQLException
   {
-    throw new NotImplementedException();
+	    if (closed_) throw JDBCError.getSQLException(JDBCError.EXC_FUNCTION_SEQUENCE);
+	    return rsmd_;
   }
 
   public ParameterMetaData getParameterMetaData() throws SQLException
