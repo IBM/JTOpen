@@ -17,16 +17,17 @@ import com.ibm.jtopenlite.command.*;
 
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qgyclst.htm">QGYCLST</a>
+ * @deprecated Use com.ibm.jtopenlite.command.program.openlist.CloseList instead
 **/
 public class CloseList extends ProgramAdapter
 {
-  private byte[] requestHandle_;
+  private com.ibm.jtopenlite.command.program.openlist.CloseList newCloseList_ = null ;
 
   public CloseList(byte[] requestHandle)
   {
     super("QGY", "QGYCLST", 2);
+	newCloseList_ =  new com.ibm.jtopenlite.command.program.openlist.CloseList(requestHandle);
 
-    requestHandle_ = requestHandle;
   }
 
   void clearOutputData()
@@ -35,27 +36,27 @@ public class CloseList extends ProgramAdapter
 
   public byte[] getRequestHandle()
   {
-    return requestHandle_;
+	  return newCloseList_.getRequestHandle(); 
   }
 
   public void setRequestHandle(byte[] requestHandle)
   {
-    requestHandle_ = requestHandle;
+	  newCloseList_.setRequestHandle(requestHandle);
   }
 
   int getParameterInputLengthSubclass(final int parmIndex)
   {
-    return 4;
+	  return newCloseList_.getParameterInputLength(parmIndex);
   }
 
   int getParameterOutputLengthSubclass(final int parmIndex)
   {
-    return parmIndex == 1 ? 4 : 0;
+	  return newCloseList_.getParameterOutputLength(parmIndex);
   }
 
   int getParameterTypeSubclass(final int parmIndex)
   {
-    return parmIndex == 1 ? Parameter.TYPE_INPUT_OUTPUT : Parameter.TYPE_INPUT;
+      return parmIndex == 1 ? Parameter.TYPE_INPUT_OUTPUT : Parameter.TYPE_INPUT;
   }
 
 //  void writeParameterInputDataSubclass(final HostOutputStream out, final int parmIndex) throws IOException
@@ -63,7 +64,7 @@ public class CloseList extends ProgramAdapter
   {
     switch (parmIndex)
     {
-      case 0: return requestHandle_;
+      case 0: return newCloseList_.getRequestHandle();
       case 1: return ZERO;
     }
     return null;
@@ -72,7 +73,6 @@ public class CloseList extends ProgramAdapter
 //  void readParameterOutputDataSubclass(final HostInputStream in, final int parmIndex, final int maxLength) throws IOException
   void setParameterOutputDataSubclass(final int parmIndex, final byte[] tempData, final int maxLength)
   {
-//    in.skipBytes(maxLength);
   }
 }
 
