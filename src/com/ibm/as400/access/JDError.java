@@ -392,7 +392,7 @@ error table.
 
 @exception          SQLException    Always.
 **/
-  public static void throwSQLException (Object thrower, String sqlState)
+  public static SQLException throwSQLException (Object thrower, String sqlState)
   throws SQLException
   {
     // The DB2 for IBM i SQL CLI manual says that
@@ -678,7 +678,7 @@ retrieved from the system.
 
 @exception          SQLException    Always.
 **/
-  public static void throwSQLException (Object thrower,
+  public static SQLException throwSQLException (Object thrower,
                                         AS400JDBCConnection connection,
                                         int id,
                                         int errorClass,
@@ -709,7 +709,7 @@ retrieved from the system.
   }
 
 
-  public static void throwSQLException(Object thrower, SQLException exception)
+  public static SQLException throwSQLException(Object thrower, SQLException exception)
       throws SQLException {
 
     String reason = exception.getMessage();
@@ -756,7 +756,7 @@ endif */
   //
   //@pdc jdbc40 merge public static void throwSQLClientInfoException (Object thrower, String sqlState, Exception e, Map<String,ClientInfoStatus> m)
   /* ifdef JDBC40
-  public static void throwSQLClientInfoException (Object thrower, String sqlState, Exception e, Map m)
+  public static SQLException throwSQLClientInfoException (Object thrower, String sqlState, Exception e, Map m)
   throws SQLClientInfoException
   {
       String reason = getReason(sqlState);
