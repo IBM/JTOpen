@@ -632,10 +632,8 @@ switch (valueType_)
         case TYPE_BYTE_ARRAY:
         case TYPE_BIG_DECIMAL:
         case TYPE_URL:
-	    if (true) {
-		throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of type "+valueType_+" to timestamp not supported.");
-	    }
-          break;
+		    throw JDBCError.getSQLException(JDBCError.EXC_DATA_TYPE_MISMATCH,"Conversion of type "+valueType_+" to timestamp not supported.");
+          
         case TYPE_DATE:
 	  s = dateValue_.toString()+" 00:00:00";
 	    {

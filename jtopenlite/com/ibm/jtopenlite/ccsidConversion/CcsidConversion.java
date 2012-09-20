@@ -15,7 +15,6 @@ package com.ibm.jtopenlite.ccsidConversion;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.util.Hashtable;
 
 /*
  * This class provides conversion routine for CCSID typically not available in a JVM.

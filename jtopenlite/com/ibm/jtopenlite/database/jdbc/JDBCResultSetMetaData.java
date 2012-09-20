@@ -23,7 +23,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData, DatabaseDescrib
   private int offset_;
   private String catalog_;
 
-  private final int serverCCSID_;
+  final int serverCCSID_;
 
   private final Calendar calendar_;
 

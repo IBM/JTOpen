@@ -12,8 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.jtopenlite.ddm;
 
-import com.ibm.jtopenlite.*;
-
 /**
  * Represents information about a file member.
 **/
