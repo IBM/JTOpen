@@ -24,7 +24,7 @@ public final class JDBCBlobLocator implements Blob, DatabaseLOBDataCallback
 
   private long length_ = -1;
 
-  private final byte[] currentBuffer_ = new byte[8192];
+  private  byte[] currentBuffer_ = new byte[8192];
 
   private ByteArrayOutputStream tempOutput_;
 
@@ -46,6 +46,11 @@ public final class JDBCBlobLocator implements Blob, DatabaseLOBDataCallback
   public byte[] getLOBBuffer()
   {
     return currentBuffer_;
+  }
+
+  public void setLOBBuffer(byte[] buf)
+  {
+    currentBuffer_ = buf;
   }
 
   public void newLOBSegment(byte[] buffer, int offset, int length)

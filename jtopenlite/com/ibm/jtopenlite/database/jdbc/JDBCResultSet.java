@@ -24,10 +24,25 @@ import java.util.Calendar;
 import java.util.Map;
 
 /**
- * Result sets created by this JDBC driver are forward-only and read-only.
+ * Result sets created by this JDBC driver are FORWARD-ONLY and READ-ONLY;
+ * getArray(), getObject(), and getRef() are not supported;
+ * and LOBs and LOB locators have not been extensively tested.
 **/
 public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
 {
+	  // Fetch scroll options, for reference.
+	  private static int NEXT =         0x0000;
+	  /*
+	  private static int PREVIOUS =     0x0001;
+	  private static int FIRST =        0x0002;
+	  private static int LAST =         0x0003;
+	  private static int BEFORE_FIRST = 0x0004;
+	  private static int AFTER_LAST =   0x0005;
+	  private static int CURRENT =      0x0006;
+	  private static int RELATIVE =     0x0007;
+	  private static int DIRECT =       0x0008;
+	  */
+	
   private JDBCStatement statement_;
   private JDBCResultSetMetaData md_;
   private String stName_;
@@ -35,6 +50,7 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
 
   private int fetchSize_;
   private boolean closed_;
+  private boolean afterLast_ = false;
 
   private final DataCache dataCache_ = new DataCache();
 
@@ -281,6 +297,7 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
   **/
   public boolean isAfterLast() throws SQLException
   {
+	  if (closed_) JDBCError.throwSQLException(JDBCError.EXC_FUNCTION_SEQUENCE);
     throw new NotImplementedException();
   }
 
@@ -359,6 +376,7 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
       if (lastWarning.getID().equals("SQL0100"))
       {
         // Row not found.
+        afterLast_ = true;
         return false;
       }
     }
@@ -448,7 +466,9 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
   **/
   public void setFetchDirection(int direction) throws SQLException
   {
+	    if (direction != ResultSet.FETCH_FORWARD) {
     throw new NotImplementedException();
+	    }
   }
 
   public void setFetchSize(int rows) throws SQLException
@@ -551,8 +571,8 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
   **/
   public BigDecimal getBigDecimal(String colName) throws SQLException
   {
-   return getBigDecimal(findColumn(colName));
-
+    String s = getString(colName);
+    return s == null ? null : new BigDecimal(s);
   }
 
   /**
@@ -594,19 +614,21 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
   }
 
   /**
-   * Not implemented.
+   * This is a ByteArrayInputStream wrapper around getBytes().
   **/
   public InputStream getBinaryStream(int i) throws SQLException
   {
-    throw new NotImplementedException();
+    byte[] b = getBytes(i);
+    return b == null ? null : new ByteArrayInputStream(b);
   }
 
   /**
-   * Not implemented.
+   * This is a ByteArrayInputStream wrapper around getBytes().
   **/
   public InputStream getBinaryStream(String colName) throws SQLException
   {
-    return getBinaryStream(findColumn(colName));
+    byte[] b = getBytes(colName);
+    return b == null ? null : new ByteArrayInputStream(b);
   }
 
   public Blob getBlob(int i) throws SQLException
@@ -704,20 +726,30 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
     return getCharacterStream(findColumn(colName));
   }
 
-  /**
-   * Not implemented.
-  **/
   public Clob getClob(int i) throws SQLException
   {
-    throw new NotImplementedException();
+    if (closed_) throw new SQLException("ResultSet closed");
+    if (dataCache_.isNull(i-1))
+    {
+      lastNull_ = true;
+      return null;
+    }
+    lastNull_ = false;
+    Column col = md_.getColumn(i-1);
+    return col.convertToClob(dataCache_.getData(), dataCache_.getRowOffset(), (JDBCConnection)statement_.getConnection());
   }
 
-  /**
-   * Not implemented.
-  **/
   public Clob getClob(String colName) throws SQLException
   {
-    throw new NotImplementedException();
+    if (closed_) throw new SQLException("ResultSet closed");
+    if (dataCache_.isNull(md_.getColumnIndex(colName)))
+    {
+      lastNull_ = true;
+      return null;
+    }
+    lastNull_ = false;
+    Column col = md_.getColumn(colName);
+    return col.convertToClob(dataCache_.getData(), dataCache_.getRowOffset(), (JDBCConnection)statement_.getConnection());
   }
 
   public Date getDate(int i) throws SQLException
@@ -969,19 +1001,41 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
   }
 
   /**
+   * This a ByteArrayInputStream wrapper around getString().getBytes("UTF-16").
    * @deprecated
   **/
   public InputStream getUnicodeStream(int i) throws SQLException
   {
-    throw new NotImplementedException();
+    String s = getString(i);
+    try
+    {
+      return s == null ? null : new ByteArrayInputStream(s.getBytes("UTF-16"));
+    }
+    catch (UnsupportedEncodingException uee)
+    {
+      SQLException sql = new SQLException(uee.toString());
+      sql.initCause(uee);
+      throw sql;
+    }
   }
 
   /**
+   * This a ByteArrayInputStream wrapper around getString().getBytes("UTF-16").
    * @deprecated
   **/
   public InputStream getUnicodeStream(String colName) throws SQLException
   {
-    throw new NotImplementedException();
+    String s = getString(colName);
+    try
+    {
+      return s == null ? null : new ByteArrayInputStream(s.getBytes("UTF-16"));
+    }
+    catch (UnsupportedEncodingException uee)
+    {
+      SQLException sql = new SQLException(uee.toString());
+      sql.initCause(uee);
+      throw sql;
+    }
   }
 
   public URL getURL(int i) throws SQLException

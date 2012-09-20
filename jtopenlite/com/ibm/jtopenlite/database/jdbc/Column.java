@@ -3400,10 +3400,39 @@ public static Calendar getGregorianInstance() {
     Calendar gregorianCalendar = new GregorianCalendar();
     return gregorianCalendar;
   }
+}
+
+  Clob convertToClob(final byte[] data, final int rowOffset, JDBCConnection conn) throws SQLException
+  {
+    int offset = rowOffset+offset_;
+    switch (type_)
+    {
+      case 404: // BLOB
+      case 405:
+      case 408: // LOB
+      case 409:
+        int len = Conv.byteArrayToInt(data, offset);
+        return new JDBCClob(data, offset+4, len, ccsid_);
+      case 960: //TODO BLOB locator
+      case 961:
+      case 964: //TODO - CLOB locator
+      case 965:
+        int locatorHandle = Conv.byteArrayToInt(data, offset);
+        DatabaseRetrieveLOBDataAttributes a = new DatabaseRequestAttributes();
+        a.setLOBLocatorHandle(locatorHandle);
+//TODO        JDBCClobLocator locator = new JDBCClobLocator(conn.getDatabaseConnection(), a);
+//        return locator;
+        return null;
+      default:
+        return new JDBCClob(data, offset, length_, ccsid_);
+//      default:
+//        throw new SQLException("Unknown database type: "+type_);
+    }
+  }
 
 }
 
 
 
-}
+
 

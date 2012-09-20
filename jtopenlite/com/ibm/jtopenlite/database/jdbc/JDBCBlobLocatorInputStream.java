@@ -24,7 +24,7 @@ public class JDBCBlobLocatorInputStream extends InputStream implements DatabaseL
   private long numRead_ = 0;
   private long length_;
   private int nextRead_;
-  private final byte[] buffer_ = new byte[8192];
+  private byte[] buffer_;
 
   public JDBCBlobLocatorInputStream(DatabaseConnection conn, DatabaseRetrieveLOBDataAttributes attribs, long length)
   {
@@ -47,6 +47,11 @@ public class JDBCBlobLocatorInputStream extends InputStream implements DatabaseL
     return buffer_;
   }
 
+  public void setLOBBuffer(byte[] buf)
+  {
+    buffer_ = buf;
+  }
+
   public void newLOBSegment(byte[] buffer, int offset, int length)
   {
     nextRead_ = 0;
@@ -55,6 +60,8 @@ public class JDBCBlobLocatorInputStream extends InputStream implements DatabaseL
   public int read() throws IOException
   {
     if (length_ >= 0 && numRead_ >= length_) return -1;
+
+    if (buffer_ == null) buffer_ = new byte[8192];
 
     if (length_ < 0 || nextRead_ == 0 || nextRead_ >= buffer_.length)
     {
