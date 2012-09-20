@@ -13,7 +13,10 @@
 
 package com.ibm.jtopenlite.command.program;
 
-
+/**
+ * @deprecated No longer used.  See com.ibm.jtopenlite.command.program.workmgmt for equivalent API.
+ *
+ */
 public abstract class JobFormatAdapter extends ListEntryFormatAdapter implements OpenListOfJobsFormat
 {
   public final int getMinimumRecordLength()

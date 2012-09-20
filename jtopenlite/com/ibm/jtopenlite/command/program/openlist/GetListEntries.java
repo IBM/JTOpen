@@ -13,7 +13,6 @@ package com.ibm.jtopenlite.command.program.openlist;
 
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
-import java.io.*;
 
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qgygtle.htm">QGYGTLE</a>

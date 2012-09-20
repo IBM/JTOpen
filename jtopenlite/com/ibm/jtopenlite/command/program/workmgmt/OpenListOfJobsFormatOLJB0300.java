@@ -162,7 +162,7 @@ public class OpenListOfJobsFormatOLJB0300 implements OpenListOfJobsFormat<OpenLi
       numRead += 1;
       String jobSubtype = Conv.ebcdicByteArrayToString(data, numRead, 1, charBuffer_);
       numRead += 1;
-      int totalLengthOfDataReturned = Conv.byteArrayToInt(data, numRead);
+      // int totalLengthOfDataReturned = Conv.byteArrayToInt(data, numRead);
       numRead += 4;
       listener.newJobEntry(jobNameUsed, userNameUsed, jobNumberUsed, activeJobStatus, jobType, jobSubtype);
       if (numRead+4 <= maxLength)

@@ -15,7 +15,7 @@ package com.ibm.jtopenlite.command.program.workmgmt;
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
 import com.ibm.jtopenlite.command.program.openlist.*;
-import java.io.*;
+
 
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qgyoljob.htm">QGYOLJOB</a>
@@ -583,8 +583,8 @@ public class OpenListOfJobs implements OpenListProgram<OpenListOfJobsFormat,Open
       case 15:
         if (maxLength >= 16)
         {
-          int bytesReturned = Conv.byteArrayToInt(data, 0);
-          int bytesAvailable = Conv.byteArrayToInt(data, 4);
+          // int bytesReturned = Conv.byteArrayToInt(data, 0);
+          // int bytesAvailable = Conv.byteArrayToInt(data, 4);
           elapsedTime_ = Conv.byteArrayToLong(data, 8);
         }
         break;

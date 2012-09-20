@@ -16,6 +16,9 @@ package com.ibm.jtopenlite.command.program;
 import com.ibm.jtopenlite.*;
 import java.util.*;
 
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsFormatOLJB0300 instead
+ */
 public class OpenListOfJobsFormatOLJB0300 extends JobFormatAdapter
 {
   private OpenListOfJobsKeyField[] keyFields_;
@@ -178,7 +181,7 @@ public class OpenListOfJobsFormatOLJB0300 extends JobFormatAdapter
       numRead += 1;
       String jobSubtype = Conv.ebcdicByteArrayToString(data, numRead, 1, charBuffer_);
       numRead += 1;
-      int totalLengthOfDataReturned = Conv.byteArrayToInt(data, numRead);
+      // int totalLengthOfDataReturned = Conv.byteArrayToInt(data, numRead);
       numRead += 4;
       listener_.newJobEntry(jobNameUsed, userNameUsed, jobNumberUsed, activeJobStatus, jobType, jobSubtype);
       if (numRead+4 <= maxLength)

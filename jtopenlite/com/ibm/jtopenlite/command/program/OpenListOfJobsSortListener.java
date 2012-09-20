@@ -13,6 +13,9 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsSortListener instead
+ */
 public interface OpenListOfJobsSortListener
 {
   public int getNumberOfSortKeys();

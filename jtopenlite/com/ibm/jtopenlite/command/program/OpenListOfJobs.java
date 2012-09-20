@@ -84,6 +84,9 @@ import com.ibm.jtopenlite.command.*;
  * result = conn.call(close);
  * conn.close();
  * </pre>
+ * 
+ * 
+ *  @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobs instead
 **/
 public class OpenListOfJobs extends ProgramAdapter
 {
@@ -585,8 +588,8 @@ public class OpenListOfJobs extends ProgramAdapter
       case 15:
         if (maxLength >= 16)
         {
-          int bytesReturned = Conv.byteArrayToInt(data, 0);
-          int bytesAvailable = Conv.byteArrayToInt(data, 4);
+          // int bytesReturned = Conv.byteArrayToInt(data, 0);
+          // int bytesAvailable = Conv.byteArrayToInt(data, 4);
           elapsedTime_ = Conv.byteArrayToLong(data, 8);
 //          numRead = 16;
         }

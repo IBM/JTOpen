@@ -19,6 +19,11 @@ import com.ibm.jtopenlite.command.*;
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qgygtle.htm">QGYGTLE</a>
 **/
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.openlist instead
+ *
+ */
 public class GetListEntries extends ProgramAdapter
 {
   private int inputLength_;

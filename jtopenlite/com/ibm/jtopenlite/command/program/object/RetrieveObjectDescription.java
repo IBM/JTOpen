@@ -928,8 +928,8 @@ public class RetrieveObjectDescription implements Program
     switch (parmIndex)
     {
       case 0:
-        int bytesReturned = Conv.byteArrayToInt(data, 0);
-        int bytesAvailable = Conv.byteArrayToInt(data, 4);
+        // int bytesReturned = Conv.byteArrayToInt(data, 0);
+        // int bytesAvailable = Conv.byteArrayToInt(data, 4);
         objectName_ = Conv.ebcdicByteArrayToString(data, 8, 10, c);
         objectLibrary_ = Conv.ebcdicByteArrayToString(data, 18, 10, c);
         objectType_ = Conv.ebcdicByteArrayToString(data, 28, 10, c);

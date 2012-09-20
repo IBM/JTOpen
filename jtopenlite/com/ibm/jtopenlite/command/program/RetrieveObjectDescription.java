@@ -19,6 +19,8 @@ import com.ibm.jtopenlite.command.*;
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qusrobjd.htm">QUSROBJD</a>
  * This class fully implements the V5R4 specification of QUSROBJD.
+ * 
+ * @deprecated Use the classes in the com.ibm.jtopenlite.command.object package instead.
 **/
 public class RetrieveObjectDescription extends ProgramAdapter
 {
@@ -896,8 +898,8 @@ public class RetrieveObjectDescription extends ProgramAdapter
     switch (parmIndex)
     {
       case 0:
-        int bytesReturned = Conv.byteArrayToInt(data, 0);
-        int bytesAvailable = Conv.byteArrayToInt(data, 4);
+        //int bytesReturned = Conv.byteArrayToInt(data, 0);
+        //int bytesAvailable = Conv.byteArrayToInt(data, 4);
         objectName_ = Conv.ebcdicByteArrayToString(data, 8, 10, c);
         objectLibrary_ = Conv.ebcdicByteArrayToString(data, 18, 10, c);
         objectType_ = Conv.ebcdicByteArrayToString(data, 28, 10, c);

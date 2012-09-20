@@ -19,6 +19,11 @@ import com.ibm.jtopenlite.command.*;
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/QGYOLMSG.htm">QGYOLMSG</a>
  * This class fully implements the V5R4 specification of QGYOLMSG.
+ * 
+ * 
+ * @deprecated Use com.ibm.jtopenlite.command.program.message.OpenListOfMessages instead
+ *
+
 **/
 public class OpenListOfMessages extends ProgramAdapter
 {

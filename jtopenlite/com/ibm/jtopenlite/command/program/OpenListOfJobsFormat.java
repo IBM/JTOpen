@@ -10,9 +10,11 @@
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
-
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsFormat instead
+ */
 public interface OpenListOfJobsFormat extends ListEntryFormat
 {
   public static final int FORMAT_OLJB0100 = 0;

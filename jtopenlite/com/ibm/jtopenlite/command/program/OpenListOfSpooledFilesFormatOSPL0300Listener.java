@@ -13,6 +13,11 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.print instead
+ *
+ */
 public interface OpenListOfSpooledFilesFormatOSPL0300Listener
 {
   public void newSpooledFileEntry(String jobName, String jobUser, String jobNumber, String spooledFileName,

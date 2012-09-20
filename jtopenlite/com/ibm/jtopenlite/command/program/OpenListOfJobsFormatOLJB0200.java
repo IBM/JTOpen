@@ -15,6 +15,9 @@ package com.ibm.jtopenlite.command.program;
 
 import com.ibm.jtopenlite.*;
 
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsFormatOLJB0200 instead
+ */
 public class OpenListOfJobsFormatOLJB0200 extends JobFormatAdapter
 {
   private OpenListOfJobsKeyField[] keyFields_;

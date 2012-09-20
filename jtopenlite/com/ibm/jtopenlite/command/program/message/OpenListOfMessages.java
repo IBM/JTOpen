@@ -324,7 +324,7 @@ public class OpenListOfMessages implements OpenListProgram<OpenListOfMessagesLST
 
   public void setParameterOutputData(final int parmIndex, final byte[] data, final int maxLength)
   {
-    int numRead = 0;
+    // int numRead = 0;
     switch (parmIndex)
     {
       case 0:

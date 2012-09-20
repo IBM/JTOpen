@@ -145,7 +145,7 @@ public class RetrieveJournalEntries extends CallServiceProgramProcedure implemen
     {
       if (formatName_.equals(FORMAT_RJNE0100))
       {
-        int bytesReturned = Conv.byteArrayToInt(buffer, offset);
+        // int bytesReturned = Conv.byteArrayToInt(buffer, offset);
         offset += 4;
         int offsetToFirstJournalEntryHeader = Conv.byteArrayToInt(buffer, offset);
         offset += 4;
@@ -163,8 +163,8 @@ public class RetrieveJournalEntries extends CallServiceProgramProcedure implemen
           for (int i=0; i<numberOfEntriesRetrieved; ++i)
           {
             int displacementToNextHeader = Conv.byteArrayToInt(buffer, offset);
-            int displacementToNullValueIndicators = Conv.byteArrayToInt(buffer, offset+4);
-            int displacementToEntrySpecificData = Conv.byteArrayToInt(buffer, offset+8);
+            // int displacementToNullValueIndicators = Conv.byteArrayToInt(buffer, offset+4);
+            // int displacementToEntrySpecificData = Conv.byteArrayToInt(buffer, offset+8);
             int pointerHandle = Conv.byteArrayToInt(buffer, offset+12);
             long sequenceNumber = Conv.zonedDecimalToLong(buffer, offset+16, 20);
             char journalCode = Conv.ebcdicByteToChar(buffer[offset+36]);

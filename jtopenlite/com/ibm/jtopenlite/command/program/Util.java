@@ -15,6 +15,11 @@ package com.ibm.jtopenlite.command.program;
 
 import com.ibm.jtopenlite.*;
 
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.openlist instead
+ *
+ */
 class Util
 {
   private Util()

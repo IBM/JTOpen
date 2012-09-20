@@ -188,7 +188,7 @@ public class RetrieveAuthorizedUsers extends ProgramAdapter
         bytesReturned_ = Conv.byteArrayToInt(data, 0);
         bytesAvailable_ = Conv.byteArrayToInt(data, 4);
         numberOfProfileNames_ = Conv.byteArrayToInt(data, 8);
-        int entryLength = Conv.byteArrayToInt(data, 12);
+        // int entryLength = Conv.byteArrayToInt(data, 12);
         break;
       case 0:
         if (listener_ == null)

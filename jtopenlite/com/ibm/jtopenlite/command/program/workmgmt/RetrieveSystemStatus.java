@@ -822,8 +822,8 @@ public class RetrieveSystemStatus implements Program
             numRead += skip;
             if (poolListener_ != null)
             {
-              final byte[] b10 = new byte[10];
-              final char[] c10 = new char[10];
+              //final byte[] b10 = new byte[10];
+              // final char[] c10 = new char[10];
               while (numRead+lengthOfPoolInfoEntry <= maxLength)
               {
                 readBasicPoolInfo(data, numRead, c);

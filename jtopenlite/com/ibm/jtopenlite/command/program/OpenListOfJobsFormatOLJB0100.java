@@ -14,7 +14,9 @@
 package com.ibm.jtopenlite.command.program;
 
 import com.ibm.jtopenlite.*;
-
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsFormatOLJB0100 instead
+ */
 public class OpenListOfJobsFormatOLJB0100 extends JobFormatAdapter
 {
   private OpenListOfJobsFormatOLJB0100Listener listener_;

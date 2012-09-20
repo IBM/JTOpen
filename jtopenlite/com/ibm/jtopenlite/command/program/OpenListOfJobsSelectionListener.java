@@ -13,6 +13,10 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsSelectionListener instead
+ * 
+ */
 public interface OpenListOfJobsSelectionListener
 {
   public String getJobName();

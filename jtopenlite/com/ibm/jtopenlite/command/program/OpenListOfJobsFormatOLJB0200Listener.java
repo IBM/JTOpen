@@ -13,6 +13,9 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsFormatOLJB0200Listener instead
+ */
 public interface OpenListOfJobsFormatOLJB0200Listener extends JobKeyDataListener
 {
   public void newJobEntry(String jobNameUsed, String userNameUsed, String jobNumberUsed,

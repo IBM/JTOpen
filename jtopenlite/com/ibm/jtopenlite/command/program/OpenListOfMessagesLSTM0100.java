@@ -16,6 +16,11 @@ package com.ibm.jtopenlite.command.program;
 import com.ibm.jtopenlite.*;
 import java.util.*;
 
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.message instead
+ *
+ */
 public class OpenListOfMessagesLSTM0100 extends ListEntryFormatAdapter implements OpenListOfMessagesFormat
 {
   private OpenListOfMessagesLSTM0100Listener listener_;
@@ -168,7 +173,7 @@ public class OpenListOfMessagesLSTM0100 extends ListEntryFormatAdapter implement
       for (int i=0; i<numberOfFieldsReturned; ++i)
       {
         int offsetToTheNextFieldInformationReturned = Conv.byteArrayToInt(data, offset);
-        int lengthOfFieldInformationReturned = Conv.byteArrayToInt(data, offset+4);
+        // int lengthOfFieldInformationReturned = Conv.byteArrayToInt(data, offset+4);
         int identifierField = Conv.byteArrayToInt(data, offset+8);
         String typeOfData = Conv.ebcdicByteArrayToString(data, offset+12, 1, c);
         String statusOfData = Conv.ebcdicByteArrayToString(data, offset+13, 1, c);

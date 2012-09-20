@@ -14,8 +14,12 @@
 package com.ibm.jtopenlite.command.program;
 
 import com.ibm.jtopenlite.*;
-import java.io.*;
 
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.print instead
+ *
+ */
 public class OpenListOfSpooledFilesFormatOSPL0200 extends SpooledFileFormatAdapter
 {
   private OpenListOfSpooledFilesFormatOSPL0200Listener listener_;

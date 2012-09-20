@@ -13,6 +13,9 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * @deprecated Use com.ibm.jtopenlite.command.program.workmgmt.OpenListOfJobsKeyField instead
+ */
 public class OpenListOfJobsKeyField
 {
   private int key_;

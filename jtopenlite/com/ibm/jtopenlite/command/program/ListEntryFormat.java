@@ -14,6 +14,11 @@
 package com.ibm.jtopenlite.command.program;
 
 
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.openlist instead
+ *
+ */
 public interface ListEntryFormat
 {
 //  void format(HostInputStream in, int maxLength, int recordLength) throws IOException;

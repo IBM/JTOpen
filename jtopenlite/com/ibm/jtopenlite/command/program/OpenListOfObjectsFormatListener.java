@@ -13,6 +13,11 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.object instead
+ *
+ */
 public interface OpenListOfObjectsFormatListener
 {
   public void newObjectEntry(String objectNameUsed, String objectLibraryUsed,

@@ -13,6 +13,9 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * @deprecated    No longer used.  See package com.ibm.jtopenlite.command.print
+ */
 public abstract class SpooledFileFormatAdapter extends ListEntryFormatAdapter implements OpenListOfSpooledFilesFormat
 {
   public final String getName()

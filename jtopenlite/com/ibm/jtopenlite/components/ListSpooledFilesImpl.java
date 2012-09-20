@@ -12,7 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.jtopenlite.components;
 
-import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
 import com.ibm.jtopenlite.command.program.openlist.*;
 import com.ibm.jtopenlite.command.program.print.*;
@@ -27,7 +26,7 @@ class ListSpooledFilesImpl implements OpenListOfSpooledFilesFormatOSPL0300Listen
   private SpooledFileInfoListener sfiListener_;
   private int counter_ = -1;
   private SpooledFileInfo[] spooledFiles_;
-  private final char[] charBuffer_ = new char[4096];
+  // private final char[] charBuffer_ = new char[4096];
 
   private String userName_;
 

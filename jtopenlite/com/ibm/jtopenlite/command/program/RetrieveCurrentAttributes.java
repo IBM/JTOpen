@@ -18,6 +18,7 @@ import com.ibm.jtopenlite.command.*;
 
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qwcrtvca.htm">QWCRTVCA</a>
+ * @deprecated Use com.ibm.jtopenlit.command.porgram.wrokmgmt.RetrieveCurrentAttrbiutes instead
 **/
 public class RetrieveCurrentAttributes extends ProgramAdapter
 {

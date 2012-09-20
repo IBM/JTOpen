@@ -13,6 +13,11 @@
 
 package com.ibm.jtopenlite.command.program;
 
+/**
+ * 
+ * @deprecated Use classes in package jtopnlite.command.program.openlist instead
+ *
+ */
 public class ListInformation
 {
   public static final int TYPE_COMPLETE = 0;

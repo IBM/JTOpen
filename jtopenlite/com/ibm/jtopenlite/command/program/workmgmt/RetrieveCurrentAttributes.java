@@ -14,7 +14,6 @@ package com.ibm.jtopenlite.command.program.workmgmt;
 
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
-import java.io.*;
 
 /**
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qwcrtvca.htm">QWCRTVCA</a>
