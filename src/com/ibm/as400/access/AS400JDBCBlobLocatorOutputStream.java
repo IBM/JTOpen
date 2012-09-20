@@ -17,7 +17,7 @@ import java.sql.*;
 
 final class AS400JDBCBlobLocatorOutputStream extends AS400JDBCOutputStream
 {
-  static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final String copyright2 = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   private AS400JDBCBlobLocator blob_;
 

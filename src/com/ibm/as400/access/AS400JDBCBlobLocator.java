@@ -208,7 +208,7 @@ Returns the position at which a pattern is found in the BLOB.
       int offset = (int)position-1;
       if (pattern == null || offset < 0 || offset >= locator_.getLength())
       {
-        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
 
       int end = (int)locator_.getLength() - pattern.length;
@@ -256,7 +256,7 @@ Returns the position at which a pattern is found in the BLOB.
       int offset = (int)position-1;
       if (pattern == null || offset < 0 || offset >= locator_.getLength())
       {
-        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
 
       int patternLength = (int)pattern.length();
@@ -334,7 +334,7 @@ Returns the position at which a pattern is found in the BLOB.
 
       if (offset < 0 || offset >= maxLength_ || bytesToWrite == null)
       {
-        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
 
       // We will write as many bytes as we can. If the byte array

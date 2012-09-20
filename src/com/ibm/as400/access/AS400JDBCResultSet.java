@@ -193,6 +193,7 @@ implements ResultSet
     static final int HOLD_CURSORS_OVER_COMMIT = 1;       //@G4A
     static final int CLOSE_CURSORS_AT_COMMIT = 2;        //@G4A
 
+    
     // Private data.
     private String                      catalog_;
     private boolean                     closed_;
@@ -7452,7 +7453,53 @@ protected void addSavedException(SQLException savedException) {
 }
 
  
+
+/* Returns the cursor type based on the requested cursor and the cursor sensitivity property 
+   The doc says the following about the cursor sensitivity property 
+    
+   Specifies the cursor sensitivity to request from the database. The behavior depends on the resultSetType:
+
+    ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Java™ program requests from the database.
+    ResultSet.TYPE_SCROLL_INSENSITIVE causes this property to be ignored.
+    
+    Code taken from JDCursor.java and used there and in AS400JDBCStatement.java
+    
+    @H1A
+*/ 
+
+  static int getDBSQLRequestDSCursorType(String cursorSensitivityProperty,
+      int resultSetType,
+      int resultSetConcurrency ) {
+    switch (resultSetType) {
+    case ResultSet.TYPE_FORWARD_ONLY: {
+      //if ResultSet is updateable, then we cannot have a insensitive cursor
+      if (cursorSensitivityProperty
+          .equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE)  && 
+          (resultSetConcurrency == ResultSet.CONCUR_READ_ONLY))
+        return DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE;
+      else if(cursorSensitivityProperty.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))     //@PDA
+        return DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE;
+      else
+        return DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE;
+    }
+
+    case ResultSet.TYPE_SCROLL_SENSITIVE: {
+      if(cursorSensitivityProperty.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE)) 
+        return DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE;   
+      else if (cursorSensitivityProperty
+          .equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))
+        return DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE;
+      else
+        return DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE;
+    }
+    case ResultSet.TYPE_SCROLL_INSENSITIVE:
+    default:
+      return DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE;
+
+    }
+  }
     
 }
+
 
 

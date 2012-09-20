@@ -372,7 +372,7 @@ Returns the position at which a pattern is found in the CLOB.
 
     if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
     {
-      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
     // We will write as many chars as we can. If our internal char array
@@ -424,7 +424,7 @@ Returns the position at which a pattern is found in the CLOB.
         string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||
         (clobOffset+lengthOfWrite) > maxLength_)
     {
-      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
     // We will write as many chars as we can. If our internal char array

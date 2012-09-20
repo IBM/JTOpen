@@ -20,7 +20,7 @@ import java.util.Hashtable;
 // Internal class representing a character set conversion table.
 abstract class ConvTable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     final static char cic_ = '\uFFFF';  // Used for decompression.
     final static char ric_ = '\uFFFE';  // Used for decompression.

@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 class ConvTable1025 extends ConvTableSingleMap
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     private static final String toUnicode_ = 
       "\u0000\u0001\u0002\u0003\u009C\t\u0086\u007F\u0097\u008D\u008E\u000B\f\r\u000E\u000F" +

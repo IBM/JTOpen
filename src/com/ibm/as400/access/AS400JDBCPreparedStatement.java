@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -95,7 +94,7 @@ a target SQL type.
 //
 public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     PreparedStatement {
-  static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+  static final String copyright2 = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   private boolean dataTruncation_; // @B5A
   private int descriptorHandle_;
@@ -580,7 +579,7 @@ endif */
                     .hashCode()).getBytes()); // @C6C
           } catch (Exception e) {
           }
-          ;
+          
         }
       }
       if (request2 != null) {
@@ -654,9 +653,11 @@ endif */
         } finally { // @P0C
           if (isjvm16Synchronizer) {
             try {
+              if (request != null) { 
               dummyOutputStream
                   .write(("!!!close.inUser_(false): request-id=" + request
                       .hashCode()).getBytes()); // @C6C
+              }
             } catch (Exception e) {
 
             }
@@ -919,7 +920,7 @@ endif */
                 // null.
                 // If the buffer is not zero'ed out old data will be sent to
                 // the system possibily messing up a future request.
-                if ((batchExecute_ && (parameters[i] == null || parameters[i] instanceof Byte))
+                if ((batchExecute_ && (parameters != null) && (parameters[i] == null || parameters[i] instanceof Byte))
                     || // @G9A //@EIC
                     (!batchExecute_ && (parameterNulls_[i]
                         || parameterDefaults_[i] || parameterUnassigned_[i]))) // @B9C
@@ -927,7 +928,7 @@ endif */
                                                                                // //@EIC
                 {
                   short indicatorValue = INDICATOR_NULL; // @EIA
-                  if (batchExecute_) // @EIA
+                  if (batchExecute_ && (parameters != null)) // @EIA
                   { // @EIA
                     if (parameters[i] == null) // @EIA
                       indicatorValue = INDICATOR_NULL; // @EIA
@@ -966,8 +967,10 @@ endif */
                         + parameterOffsets_[i]; // @G1a
                     int parameterDataLength = parameterLengths_[i]
                         + parameterDataOffset;
-                    for (int z = parameterDataOffset; z < parameterDataLength; parameterData[z++] = 0x00)
-                      ;
+                    for (int z = parameterDataOffset; z < parameterDataLength; parameterData[z++] = 0x00) {
+                      
+                    }
+                      
                   }
 
                   // @array If the row contains an array, then we must also set
@@ -1029,7 +1032,7 @@ endif */
 
                   // Put each row's values back into the SQL data type for their
                   // respective columns.
-                  if (batchExecute_) {
+                  if (batchExecute_ && parameters != null ) {
                     // @CRS If the type is a locator, we pass -1 here so the
                     // locator will know
                     // not to reset its length, because the length wasn't saved
@@ -3533,10 +3536,11 @@ endif */
       // is a CHAR and the other is a VARCHAR, then let this
       // slide.
       if (((sqlType == Types.CHAR) || (sqlType == Types.VARCHAR))
-          && ((parameterType == Types.CHAR) || (parameterType == Types.VARCHAR)))
-        ; // Do nothing!
-      else
+          && ((parameterType == Types.CHAR) || (parameterType == Types.VARCHAR))) {
+         // Do nothing!
+      } else {
         JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+      }
     }
   }
 
@@ -3906,8 +3910,9 @@ endif */
    */
   int findParameterIndex(String parameterName) throws SQLException {
     // Throw an exception if null was passed in
-    if (parameterName == null)
-      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+    if (parameterName == null) {
+      throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+    }
 
     // Throw an exception if the Statement is closed (FUNCTION SEQUENCE)
     if (isClosed())

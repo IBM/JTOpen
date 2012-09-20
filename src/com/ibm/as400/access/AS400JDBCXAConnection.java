@@ -62,7 +62,7 @@ public class AS400JDBCXAConnection
 extends AS400JDBCPooledConnection
 implements XAConnection
 {
-  static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final String copyright2 = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 

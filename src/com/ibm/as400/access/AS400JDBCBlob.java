@@ -278,14 +278,16 @@ Returns the position at which a pattern is found in the BLOB.
   **/
   public synchronized int setBytes(long position, byte[] bytesToWrite) throws SQLException
   {      
-    if(data_ == null)//@free
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-     
+    if(data_ == null) { //@free
+        throw JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+    }
+
+
     int offset = (int)position-1;
 
     if (offset < 0 || offset >= maxLength_ || bytesToWrite == null)
     {
-      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
     // We will write as many bytes as we can. If our internal byte array

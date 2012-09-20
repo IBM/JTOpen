@@ -30,8 +30,6 @@ endif */
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;                          // @J3a
-import java.util.logging.Logger;
-
 import javax.sql.DataSource;                      // JDBC2.0 std-ext
 import javax.naming.NamingException;              // JNDI
 import javax.naming.Reference;                    // JNDI

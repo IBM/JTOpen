@@ -26,9 +26,9 @@ import java.io.Writer;
 import java.sql.SQLException;
 /* ifdef JDBC40
 import java.sql.SQLXML;
-endif */
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+endif */
 
 /* ifdef JDBC40
 import javax.xml.stream.XMLInputFactory;
@@ -36,21 +36,21 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-endif */
 import javax.xml.transform.Result;
+endif */
 /* ifdef JDBC40
 import javax.xml.transform.Source;
-endif */
 import javax.xml.transform.dom.DOMResult;
+endif */
 /* ifdef JDBC40
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 import org.xml.sax.InputSource;
+import javax.xml.parsers.ParserConfigurationException;
 endif */
 
-import javax.xml.parsers.ParserConfigurationException;
 /* ifdef JDBC40
 import org.xml.sax.SAXException;
 
@@ -529,17 +529,17 @@ endif */
                         }
                     } catch (IOException e)
                     {
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                        return null;
+                        throw JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                        
                     }
                 } catch (Exception e)
                 {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL);
-                    return null;
+                    throw JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+                    
                 }finally
                 {
                     try{
-                        stream.close();
+                        if (stream != null) stream.close();
                     }catch(Exception e){
                       if(JDTrace.isTraceOn())
                       {
@@ -547,7 +547,7 @@ endif */
                       }
                     }
                     try{
-                        reader.close();
+                        if (reader != null) reader.close();
                     }catch(Exception e){
                       if(JDTrace.isTraceOn())
                       {
@@ -696,7 +696,7 @@ endif */
                                       }
                                     }
                                     try{
-                                        reader.close();
+                                        if (reader != null) reader.close();
                                     }catch(Exception e){
                                       if(JDTrace.isTraceOn())
                                       {

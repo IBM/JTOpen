@@ -541,7 +541,12 @@ implements DatabaseMetaData
                     //--------------------------------------------------------
                     //  Send the request and cache all results from the system
                     //--------------------------------------------------------
-                    if (getBestRowIdentifierReply != null) { getBestRowIdentifierReply.returnToPool(); getBestRowIdentifierReply=null; }
+                    
+                    // Dead code
+                    // if (getBestRowIdentifierReply != null) { 
+                    //    getBestRowIdentifierReply.returnToPool(); 
+                    //    getBestRowIdentifierReply=null; 
+                    //}
                     getBestRowIdentifierReply = connection_.sendAndReceive(request);
 
 
@@ -972,7 +977,8 @@ implements DatabaseMetaData
                     rowCache = new JDSimpleRowCache(formatRow);
             } catch (DBDataStreamException e)
             {
-            	if (reply != null) { reply.returnToPool(); reply = null; }
+                // Dead code
+            	  // if (reply != null) { reply.returnToPool(); reply = null; }
                 JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             }
             finally
@@ -1440,7 +1446,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -1727,7 +1733,7 @@ endif */
                     {
                         int returnCode = reply.getReturnCode();
                     	if (reply != null) { reply.returnToPool(); reply = null; }
-                        JDError.throwSQLException (this, connection_, id_,
+                        throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -1784,7 +1790,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -2191,7 +2197,7 @@ endif */
                     {
                         int returnCode = reply.getReturnCode();
                     	if (reply != null) { reply.returnToPool(); reply = null; }
-                        JDError.throwSQLException (this, connection_, id_,
+                        throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -2243,7 +2249,7 @@ endif */
         }
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -2473,7 +2479,7 @@ endif */
                     {
                         int returnCode = reply.getReturnCode();
                     	if (reply != null) { reply.returnToPool(); reply = null; }
-                        JDError.throwSQLException (this, connection_, id_,
+                        throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -2755,7 +2761,7 @@ endif */
                     {
                         int returnCode = reply.getReturnCode();
                     	if (reply != null) { reply.returnToPool();  reply = null; }
-                        JDError.throwSQLException (this, connection_, id_,
+                        throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -2813,7 +2819,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -3348,7 +3354,7 @@ endif */
                     {
                         int returnCode = reply.getReturnCode();
                     	if (reply != null) { reply.returnToPool(); reply = null; }
-                        JDError.throwSQLException (this, connection_, id_,
+                        throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -3392,7 +3398,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -4325,7 +4331,7 @@ endif */
                     {
                         int returnCode = reply.getReturnCode();
                     	if (reply != null) { reply.returnToPool(); reply = null; }
-                        JDError.throwSQLException (this, connection_, id_,
+                        throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -4369,7 +4375,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -4808,7 +4814,7 @@ endif */
                         {
                             int returnCode = reply.getReturnCode();
                         	if (reply != null) { reply.returnToPool(); reply = null; }
-                            JDError.throwSQLException (this, connection_, id_,
+                            throw JDError.throwSQLException (this, connection_, id_,
                                                        errorClass, returnCode);
                         }
 
@@ -4904,7 +4910,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
@@ -5793,7 +5799,7 @@ endif */
                     {
                         int returnCode = reply.getReturnCode();
                     	if (reply != null) { reply.returnToPool(); reply = null; }
-                        JDError.throwSQLException (this, connection_, id_,
+                        throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -5839,7 +5845,7 @@ endif */
 
         catch (DBDataStreamException e)
         {
-        	if (reply != null) { reply.returnToPool(); reply = null; }
+        	// if (reply != null) { reply.returnToPool(); reply = null; }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 

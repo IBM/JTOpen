@@ -127,7 +127,7 @@ implements Connection
     // requests will not be accurate, since they have not yet
     // been set at the time when the request is dumped.
     //
-    private static final int            DEBUG_COMM_TRACE_       = 0;
+    private static  int            DEBUG_COMM_TRACE_       = 0;
 
 
 
@@ -4821,41 +4821,43 @@ endif */
             {
                 request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
                 tempConverter = ConvTable.getTable(as400_.getCcsid(), null);
+                
+                
             }
 
             if (name.equals(applicationNamePropertyName_))
             {
                 oldValue = applicationName_;
                 applicationName_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null )
                     request.setClientInfoApplicationName(value, tempConverter);
 
             } else if (name.equals(clientUserPropertyName_))
             {
                 oldValue = clientUser_;
                 clientUser_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null )
                     request.setClientInfoClientUser(value, tempConverter);
 
             } else if (name.equals(clientAccountingPropertyName_))
             {
                 oldValue = clientAccounting_;
                 clientAccounting_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null )
                     request.setClientInfoClientAccounting(value, tempConverter);
 
             } else if (name.equals(clientHostnamePropertyName_))
             {
                 oldValue = clientHostname_;
                 clientHostname_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null)
                     request.setClientInfoClientHostname(value, tempConverter);
 
             } else if (name.equals(clientProgramIDPropertyName_))  //@PDA add block for ProgramID
             {
                 oldValue = clientProgramID_;
                 clientProgramID_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null)
                     request.setClientInfoProgramID(value, tempConverter);
 
             } else

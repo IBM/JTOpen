@@ -831,6 +831,8 @@ implements Statement
                         request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
                     }
 
+                    String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@H1A
+
                     // If we are prefetching data and a row format
                     // was returned, then set the blocking factor if a specific number of rows have been asked for
                     // or variable-length field compression is turned off, otherwise set the buffer size.
@@ -848,10 +850,11 @@ implements Statement
                             request.setBufferSize(blockSize_ * 1024);
                         }
                         else {                                                    //@K54
+                          
                         	if (resultRow != null) {  // @B5A -- check for null pointer
-                               request.setBlockingFactor(getBlockingFactor (sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
+                               request.setBlockingFactor(getBlockingFactor (cursorSensitivity, sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
                         	} else {
-                                request.setBlockingFactor(getBlockingFactor (sqlStatement, 0));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
+                                request.setBlockingFactor(getBlockingFactor (cursorSensitivity, sqlStatement, 0));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
                         	}
                         }
                     }
@@ -862,7 +865,7 @@ implements Statement
                     //@K1D //@F8 Change in a future release to send CURSOR_SCROLLABLE_INSENSITIVE and
                     //@K1D //@F8 CURSOR_NOT_SCROLLABLE_INSENSITIVE if resultSetType_ ==
                     //@K1D //@F8 ResultSet.TYPE_SCROLL_INSENSITIVE to v5r1 or later hosts.
-                    String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                    // String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
                     //@K1D if((connection_.getVRM() < JDUtilities.vrm520)                                                    //@F8A
                     //@K1D    || (resultSetType_ == ResultSet.TYPE_SCROLL_INSENSITIVE)                                       //@F8A
                     //@K1D    || (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE)))           //@F8A
@@ -905,31 +908,11 @@ implements Statement
                         // We want to ignore any property or settings specified on the STATEMENT or CONNECTION              //@GKA
                         request.setScrollableCursorFlag(DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);                      //@GKA
                     }                                                                                                       //@GKA
-                    else if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    //@K1A
-                    {
-                        //@K1A
-                        //Determine if user set cursor sensitivity property                                              //@K1A
-                        //if ResultSet is updateable, then we cannot have a insensitive cursor                           //@K1A
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE) && (resultSetConcurrency_ == ResultSet.CONCUR_READ_ONLY))    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@K1A        Option 5
-                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))     //@PDA
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);      //@PDA        Option 4
-                        else    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@K1A        Option 0
-                    }    //@K1A
-                    else if(resultSetType_ == ResultSet.TYPE_SCROLL_SENSITIVE)    //@K1A
-                    {
-                        //@K1A
-                        //Determine if user set cursor sensitivity property                                              //@K1A
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@K1A        Option 1
-                        else    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);   //@K1A        Option 3
-                    }    //@K1A
-                    else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@K1A
-                    {
-                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@K1A        Option 2
-                    }    //@K1A
+                    else {
+                      /* @H1A Use common routine to determine scrollability */ 	
+                      request.setScrollableCursorFlag(
+                          AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivity, resultSetType_, resultSetConcurrency_));
+                    }
 
                     // Check system level before sending new code point
                     if(connection_.getVRM() >= JDUtilities.vrm520)    // @G4A
@@ -1065,12 +1048,12 @@ implements Statement
                         if((fetchFirstBlock) && (resultData != null))
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, rowLength), resultData,
+                                                             getBlockingFactor (cursorSensitivity, sqlStatement, rowLength), resultData,
                                                              lastBlock, resultSetType_, cursor_); //@pdc perf2 - fetch/close
                         else
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, rowLength), lastBlock, resultSetType_, cursor_); //@PDC perf //@pdc perf2 - fetch/close
+                                                             getBlockingFactor (cursorSensitivity, sqlStatement, rowLength), lastBlock, resultSetType_, cursor_); //@PDC perf //@pdc perf2 - fetch/close
 
                         // If the result set concurrency is updatable, check to                            @E1C
                         // see if the system overrode the cursor type to read only.                        @E1C
@@ -1157,7 +1140,8 @@ implements Statement
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
                                                                                                       callResultSetType), settings_);          //@KBA
                             JDServerRowCache rowCache = new JDServerRowCache (row,
-                                                                              connection_, id_, getBlockingFactor (sqlStatement,
+                                                                              connection_, id_, 
+                                                                              getBlockingFactor (cursorSensitivity, sqlStatement,
                                                                                                                    row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
                             //if pre-v5r3 create a FORWARD_ONLY RESULT SET
                             if(preV5R3)                                                           //@KBA
@@ -1634,7 +1618,9 @@ implements Statement
                         JDServerRow row = new JDServerRow (connection_, id_,
                                                            cursor_.openDescribe (openAttributes, resultSetType_),             //@KBA
                                                            settings_);
-                        JDServerRowCache rowCache = new JDServerRowCache (row, connection_, id_, getBlockingFactor (
+                        String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                        
+                        JDServerRowCache rowCache = new JDServerRowCache (row, connection_, id_, getBlockingFactor (cursorSensitivity, 
                                                                                                                    sqlStatement, row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_); //@PDC perf //@pda perf2 - fetch/close
 
                         //if pre-v5r3 create a FORWARD_ONLY RESULT SET
@@ -2780,17 +2766,21 @@ implements Statement
     @param  rowLength       The row length.
     @return                 The blocking factor (in rows).
     **/
-    int getBlockingFactor (JDSQLStatement sqlStatement,
+    int getBlockingFactor (String cursorSensitivityProperty,
+                           JDSQLStatement sqlStatement,
                            int rowLength)    // private protected
     {
         boolean block = false;
         boolean useFetchSize = false;
 
+        // Allow blocking for asensitive cursors @H1A
+        int requestDSCursorType = AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivityProperty, resultSetType_, resultSetConcurrency_); 
         // Only block if the cursor is not updatable
         // and no locators are in the result set.                                  @B2A
         if((cursor_.getConcurrency() != ResultSet.CONCUR_UPDATABLE)    // @B2C @EAC
            && (lastPrepareContainsLocator_ == false)
-           && (resultSetType_ != ResultSet.TYPE_SCROLL_SENSITIVE))  //@KKB we do not want to block if a sensitive cursor is being used
+           && (requestDSCursorType  != DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE) &&
+           (requestDSCursorType != DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE))  //@KKB we do not want to block if a sensitive cursor is being used
         {    // @B2A
 
             // Determine if we should block based on the block
@@ -3082,28 +3072,8 @@ implements Statement
                     if(connection_.getVRM() >= JDUtilities.vrm530)
                     {
                         String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
-                        if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    //@KBA
-                        {
-                            //@KBA
-                            //Determine if user set cursor sensitivity property                                              //@KBA
-                            if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@KBA        Option 5
-                            else    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@KBA        Option 0
-                        }    //@KBA
-                        else if(resultSetType_ == ResultSet.TYPE_SCROLL_SENSITIVE)    //@KBA
-                        {
-                            //@KBA
-                            //Determine if user set cursor sensitivity property                                              //@KBA
-                            if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@KBA        Option 1
-                            else    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@KBA        Option 3
-                        }    //@KBA
-                        else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@KBA
-                        {
-                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@KBA        Option 2
-                        }    //@KBA
+                        /* @H1A Use common routine to determine scrollability */  
+                        request.setScrollableCursorFlag(AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivity, resultSetType_, resultSetConcurrency_));
                     }
 
                     if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply=null; }
@@ -3138,8 +3108,10 @@ implements Statement
                     // Compute the result set.
                     JDServerRow row = new JDServerRow (connection_, id_, dataFormat,
                                                        settings_);
+                    String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                    
                     JDServerRowCache rowCache = new JDServerRowCache (
-                                                                     row, connection_, id_, getBlockingFactor (
+                                                                     row, connection_, id_, getBlockingFactor (cursorSensitivity,
                                                                                                               null, row.getRowLength()), false, resultSetType_, cursor_); //@PDC perf //@pda perf2 - fetch/close
 
                     // If the result set concurrency is updatable, check to                            @E1C
