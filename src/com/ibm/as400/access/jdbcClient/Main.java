@@ -600,7 +600,13 @@ public class Main implements Runnable {
       }
 
       SQLWarning warning = stmt_.getWarnings();
-      // Display all columns and rows from the result set
+      if (warning != null) {
+        if (!silent) {
+          dispWarning(out1, warning, hideWarnings_, html_);
+        }
+      }
+
+     
     } else {
       out1.println("UNABLE to EXECUTE SELECT because not connected");
     }
@@ -2553,7 +2559,11 @@ public class Main implements Runnable {
                   methods = callObject.getClass().getMethods();
                 } else {
                   // Note:  callClass cannot be null because of callObject != null || callClass != null condition above
-                  methods = callClass.getMethods();
+                    if (callClass != null) { 
+                      methods = callClass.getMethods();
+                    } else {
+                      methods = new Method[0]; 
+                    }
                 }
               }
               boolean methodFound = false;
@@ -3114,7 +3124,11 @@ public class Main implements Runnable {
         methods = callObject.getClass().getMethods();
       } else {
         // callClass cannot be null because of callObject != null || callClass != null condition above
-        methods = callClass.getMethods();
+        if (callClass != null) { 
+          methods = callClass.getMethods();
+        } else {
+          methods = new Method[0]; 
+        }
       }
       for (int m = 0; (m < methods.length); m++) {
         String methodInfo;
@@ -3388,10 +3402,8 @@ public class Main implements Runnable {
     int colType[] = new int[numCols + 1];
     for (i = 1; i <= numCols; i++) {
       colType[i] = rsmd.getColumnType(i);
-      if (false)
-        out1.println("Type of column " + i + " is " + colType[i]);
+        /* out1.println("Type of column " + i + " is " + colType[i]); */ 
     }
-
     // Display data, fetching until end of the result set
 
     boolean more = rs.next();
