@@ -136,7 +136,7 @@ public class DDMConnection extends HostServerConnection
 
       final String jobString = extNam != null ? Conv.ebcdicByteArrayToString(extNam, 0, extNam.length) : null;
 
-      long seed = sendACCSECRequest(dout);
+      long seed = sendACCSECRequest(dout, info.getPasswordLevel() >= 2);
       byte[] clientSeed = Conv.longToByteArray(seed);
       dout.flush();
 
@@ -161,12 +161,13 @@ public class DDMConnection extends HostServerConnection
       din.skipBytes(length-28);
       din.end();
 
-      byte[] userBytes = getUserBytes(user);
-      byte[] passwordBytes = getPasswordBytes(password);
+      byte[] userBytes = getUserBytes(user, info.getPasswordLevel());
+      byte[] passwordBytes = getPasswordBytes(password, info.getPasswordLevel());
       password = null;
       byte[] encryptedPassword = getEncryptedPassword(userBytes, passwordBytes, clientSeed, serverSeed, info.getPasswordLevel());
 
-      sendSECCHKRequest(dout, userBytes, encryptedPassword);
+      byte[] userEBCDICBytes = (info.getPasswordLevel() < 2) ? userBytes : getUserBytes(user, 0);
+      sendSECCHKRequest(dout, userEBCDICBytes, encryptedPassword);
       dout.flush();
 
       length = din.readShort();
@@ -212,18 +213,30 @@ public class DDMConnection extends HostServerConnection
     }
   }
 
-  // Copied from SystemInfo.
-  private static byte[] getUserBytes(String user) throws IOException
+  // Copied from HostServerConnection.
+  static byte[] getUserBytes(String user, int level) throws IOException
+  {
+    if (level < 2)
   {
     if (user.length() > 10)
     {
       throw new IOException("User too long");
     }
-    return Conv.blankPadEBCDIC10(user.toUpperCase());
+      byte[] user37 = Conv.blankPadEBCDIC10(user.toUpperCase());
+      return user37;
+    }
+    else
+    {
+      byte[] b = new byte[20];
+      Conv.stringToBlankPadUnicodeByteArray(user.toUpperCase(), b, 0, 20);
+      return b;
+    }
   }
 
-  // Copied from SystemInfo.
-  private static byte[] getPasswordBytes(String password) throws IOException
+  // Copied from HostServerConnection.
+  static byte[] getPasswordBytes(String password, int level) throws IOException
+  {
+    if (level < 2)
   {
     // Prepend a Q to numeric password.
     if (password.length() > 0 && Character.isDigit(password.charAt(0)))
@@ -234,13 +247,28 @@ public class DDMConnection extends HostServerConnection
     {
       throw new IOException("Password too long");
     }
-    return Conv.blankPadEBCDIC10(password.toUpperCase());
+      byte[] password37 = Conv.blankPadEBCDIC10(password.toUpperCase());
+      return password37;
+    }
+    else
+    {
+      return Conv.stringToUnicodeByteArray(password);
+    }
   }
 
   /**
    * Closes the specified file and returns any messages that were issued.
   **/
-  public Message[] close(DDMFile file) throws IOException
+  public Message[] close(DDMFile file) throws IOException {
+	  	List<Message> messageList = closeReturnMessageList(file);
+	  	Message[] outMessages = new Message[messageList.size()]; 
+	  	for (int i = 0; i < messageList.size(); i++) {
+	  		outMessages[i] = messageList.get(i); 
+	  	}
+	  	return outMessages;
+  }
+
+  public List<Message> closeReturnMessageList(DDMFile file) throws IOException
   {
     byte[] dclNam = file.getDCLNAM();
     sendS38CloseRequest(out_, dclNam);
@@ -255,7 +283,7 @@ public class DDMConnection extends HostServerConnection
     int typeCorrelationChainedContinue = in_.read(); // bit mask
     int correlation = in_.readShort();
     int numRead = 8;
-    Vector messages = new Vector();
+    ArrayList<Message> messages = new ArrayList<Message>();
     int[] msgNumRead = new int[1];
     while (numRead+4 < length)
     {
@@ -268,7 +296,7 @@ public class DDMConnection extends HostServerConnection
         numRead += msgNumRead[0];
         if (msg != null)
         {
-          messages.addElement(msg);
+          messages.add(msg);
         }
       }
       else
@@ -279,9 +307,7 @@ public class DDMConnection extends HostServerConnection
     }
     in_.skipBytes(length-numRead);
     in_.end();
-    Message[] msgs = new Message[messages.size()];
-    messages.copyInto(msgs);
-    return msgs;
+    return messages;
   }
 
   private Message getMessage(HostInputStream din, final int ll, int[] saved) throws IOException
@@ -464,6 +490,56 @@ public class DDMConnection extends HostServerConnection
   }
 
   /**
+   * Retrieves the member descriptions for the specified file.
+  **/
+  public List<DDMFileMemberDescription> getFileMemberDescriptions(final String library, final String file) throws IOException
+  {
+    DDMFile f = new DDMFile(library, file, null, null, null, DDMFile.READ_ONLY, 0, 0, 0, 0, 1);
+    return getFileMemberDescriptions(f);
+  }
+
+  /**
+   * Retrieves the member descriptions for the specified file.
+  **/
+  public List<DDMFileMemberDescription> getFileMemberDescriptions(final DDMFile file) throws IOException
+  {
+    List<Message> messages = executeReturnMessageList("DSPFD FILE("+file.getLibrary().trim()+"/"+file.getFile().trim()+") TYPE(*MBR) OUTPUT(*OUTFILE) OUTFILE(QTEMP/TB2FD)");
+    if (messages.size() == 0)
+    {
+      throw new IOException("DSPFFD failed to return success message");
+    }
+    boolean error = false;
+    for (int i=0; !error && i<messages.size(); ++i)
+    {
+      if (DEBUG) System.out.println(messages.get(i));
+      if (!messages.get(i).getID().equals("CPF9861") && // Output file created.
+          !messages.get(i).getID().equals("CPF9862") && // Member added to output file.
+          !messages.get(i).getID().equals("CPF3030")) // Records added to member.
+      {
+        error = true;
+      }
+    }
+    if (error)
+    {
+      DataStreamException dse = DataStreamException.errorMessage("DSPFD", messages.get(0));
+      for (int i=1; i<messages.size(); ++i)
+      {
+        dse.addMessage(messages.get(i));
+      }
+      throw dse;
+    }
+    if (DEBUG) System.out.println("Opening file...");
+    final DDMFile temp = open("QTEMP", "TB2FD", "TB2FD", "QWHFDMBR", DDMFile.READ_ONLY, false, 100, 1);
+    final DDMFileMemberDescriptionReader reader = new DDMFileMemberDescriptionReader(getInfo().getServerCCSID());
+    while (!reader.eof())
+    {
+      readNext(temp, reader);
+    }
+    close(temp);
+    return reader.getMemberDescriptions();
+  }
+
+  /**
    * Retrieves the record format of the specified file. This currently only retrieves the first record format in a multi-format file.
   **/
   public DDMRecordFormat getRecordFormat(final String library, final String file) throws IOException
@@ -477,28 +553,28 @@ public class DDMConnection extends HostServerConnection
   **/
   public DDMRecordFormat getRecordFormat(DDMFile file) throws IOException
   {
-    Message[] messages = execute("DSPFFD FILE("+file.getLibrary().trim()+"/"+file.getFile().trim()+") OUTPUT(*OUTFILE) OUTFILE(QTEMP/TB2FFD)");
-    if (messages.length == 0)
+    List<Message> messages = executeReturnMessageList("DSPFFD FILE("+file.getLibrary().trim()+"/"+file.getFile().trim()+") OUTPUT(*OUTFILE) OUTFILE(QTEMP/TB2FFD)");
+    if (messages.size() == 0)
     {
       throw new IOException("DSPFFD failed to return success message");
     }
     boolean error = false;
-    for (int i=0; !error && i<messages.length; ++i)
+    for (int i=0; !error && i<messages.size(); ++i)
     {
-      if (DEBUG) System.out.println(messages[i]);
-      if (!messages[i].getID().equals("CPF9861") && // Output file created.
-          !messages[i].getID().equals("CPF9862") && // Member added to output file.
-          !messages[i].getID().equals("CPF3030")) // Records added to member.
+      if (DEBUG) System.out.println(messages.get(i));
+      if (!messages.get(i).getID().equals("CPF9861") && // Output file created.
+          !messages.get(i).getID().equals("CPF9862") && // Member added to output file.
+          !messages.get(i).getID().equals("CPF3030")) // Records added to member.
       {
         error = true;
       }
     }
     if (error)
     {
-      DataStreamException dse = DataStreamException.errorMessage("DSPFFD", messages[0]);
-      for (int i=1; i<messages.length; ++i)
+      DataStreamException dse = DataStreamException.errorMessage("DSPFFD", messages.get(0));
+      for (int i=1; i<messages.size(); ++i)
       {
-        dse.addMessage(messages[i]);
+        dse.addMessage(messages.get(i));
       }
       throw dse;
     }
@@ -518,22 +594,22 @@ public class DDMConnection extends HostServerConnection
                                                    reader.getFields(),
                                                    reader.getLength());
 
-    messages = execute("DLTF FILE("+temp.getLibrary().trim()+"/"+temp.getFile().trim()+")");
+    messages = executeReturnMessageList("DLTF FILE("+temp.getLibrary().trim()+"/"+temp.getFile().trim()+")");
     error = false;
-    for (int i=0; !error && i<messages.length; ++i)
+    for (int i=0; !error && i<messages.size(); ++i)
     {
-      if (DEBUG) System.out.println(messages[i]);
-      if (!messages[i].getID().equals("CPC2191")) // Object deleted.
+      if (DEBUG) System.out.println(messages.get(i));
+      if (!messages.get(i).getID().equals("CPC2191")) // Object deleted.
       {
         error = true;
       }
     }
     if (error)
     {
-      DataStreamException dse = DataStreamException.errorMessage("DLTF", messages[0]);
-      for (int i=1; i<messages.length; ++i)
+      DataStreamException dse = DataStreamException.errorMessage("DLTF", messages.get(0));
+      for (int i=1; i<messages.size(); ++i)
       {
-        dse.addMessage(messages[i]);
+        dse.addMessage(messages.get(i));
       }
       throw dse;
     }
@@ -808,16 +884,22 @@ public class DDMConnection extends HostServerConnection
   /**
    * Executes the specified CL command within the DDM host server job.
   **/
-  public Message[] execute(final String command) throws IOException
+  public Message[] execute(final String command) throws IOException {
+	  List<Message> messageList = executeReturnMessageList(command);
+	  Message[] messages = new Message[messageList.size()]; 
+	  for (int i =0; i < messages.length; i++) {
+		  messages[i] = messageList.get(i); 
+	  }
+	  return messages; 
+  }
+  public List<Message> executeReturnMessageList(final String command) throws IOException
   {
-    Vector messages = new Vector();
+    ArrayList<Message> messages = new ArrayList<Message>();
     sendS38CMDRequest(out_, command);
     out_.flush();
 
     handleReply(null, "ddmS38CMD", null, messages);
-    Message[] arr = new Message[messages.size()];
-    messages.copyInto(arr);
-    return arr;
+    return messages;
   }
 
   /**
@@ -852,7 +934,7 @@ public class DDMConnection extends HostServerConnection
     handleReply(file, ds, listener, null);
   }
 
-  private void handleReply(final DDMFile file, final String ds, final DDMReadCallback listener, final Vector messages) throws IOException
+  private void handleReply(final DDMFile file, final String ds, final DDMReadCallback listener, final List<Message> messages) throws IOException
   {
     if (DEBUG) System.out.println("---- HANDLE REPLY ----");
     int length = in_.readShort();
@@ -913,7 +995,7 @@ public class DDMConnection extends HostServerConnection
             if (DEBUG) System.out.println("Got message "+msg);
             if (msg != null)
             {
-              if (messages != null) messages.addElement(msg);
+              if (messages != null) messages.add(msg);
               String id = msg.getID();
               if (id != null)
               {
@@ -989,13 +1071,18 @@ public class DDMConnection extends HostServerConnection
         if (listener == null)
         {
           int toSkip = ioFeedbackOffset - numRead - 4;
+          if (toSkip > 0)
+          {
           in_.skipBytes(toSkip);
           numRead += toSkip;
+        }
         }
         else
         {
           final int recordDataLength = file.getRecordLength();
           final int recordIncrement = file.getRecordIncrement();
+          if (DEBUG) System.out.println("Record data length: "+recordDataLength);
+          if (DEBUG) System.out.println("Record increment: "+recordIncrement);
           while (numRead+recordIncrement <= ioFeedbackOffset)
           {
             final byte[] recordData = file.getRecordDataBuffer();
@@ -1005,6 +1092,7 @@ public class DDMConnection extends HostServerConnection
             {
               // Not enough bytes left.
               int diff = length-numRead;
+              if (DEBUG) System.out.println("Not enough bytes to read another record. Length="+length+", numRead="+numRead+", so remaining="+diff);
               int dataToRead = diff > recordData.length ? recordData.length : diff;
               if (DEBUG) System.out.println("Data to read: "+dataToRead+" will make numRead: "+(numRead+dataToRead));
               in_.readFully(recordData, 0, dataToRead);
@@ -1020,7 +1108,7 @@ public class DDMConnection extends HostServerConnection
                   isContinued = false;
                 }
                 int extraLength = (nextPacketLength & 0x7FFF) - 2;
-                if (DEBUG) System.out.println("Still continued? "+isContinued+"; next packet length: "+extraLength);
+                if (DEBUG) System.out.println("Current length: "+length+"; Still continued? "+isContinued+"; next packet length: "+extraLength);
                 length += extraLength;
                 if (DEBUG) System.out.println("New length: "+length);
                 in_.readFully(recordData, dataToRead, remainingRecordData);
@@ -1028,28 +1116,37 @@ public class DDMConnection extends HostServerConnection
               }
               else
               {
+                //TODO - This section can't be right, it's not handling the null field map.
+
                 diff -= recordData.length;
-                // This reads in the remaining data for the record, including the 2 bytes for the next packet length, if needed.
+                // This reads in the remaining data for the record, including the 2 bytes for the next packet length.
                 byte[] packetBuffer = file.getPacketBuffer();
                 in_.readFully(packetBuffer);
+//                if (DEBUG) System.out.println("JUST read "+packetBuffer.length+" bytes instead of "+diff);
                 numRead += packetBuffer.length;
+//                numRead += diff+2;
                 int nextPacketLength = ((packetBuffer[diff] & 0x00FF) << 8) | (packetBuffer[diff+1] & 0x00FF);
+                if (DEBUG) System.out.println("NEXT packet length: "+nextPacketLength);
                 if (nextPacketLength <= 0x7FFF)
                 {
                   isContinued = false;
                 }
-                int extraLength = (nextPacketLength & 0x7FFF) - 2;
+                int extraLength = (nextPacketLength & 0x7FFF); // - 2;
+                if (DEBUG) System.out.println("CURRENT length: "+length+"; Still continued? "+isContinued+"; next packet length: "+extraLength);
                 length += extraLength;
                 if (DEBUG) System.out.println("NEW length: "+length);
 
+                int relative = 0;
                 int recordNumber = -1;
                 if (diff < 3)
                 {
                   recordNumber = Conv.byteArrayToInt(packetBuffer, 4);
+                  relative = 8;
                 }
                 else if (diff > 5)
                 {
                   recordNumber = Conv.byteArrayToInt(packetBuffer, 2);
+                  relative = 6;
                 }
                 else
                 {
@@ -1061,11 +1158,50 @@ public class DDMConnection extends HostServerConnection
                   if (diff == offset) offset += 2;
                   int b3 = packetBuffer[offset++];
                   if (diff == offset) offset += 2;
-                  int b4 = packetBuffer[offset];
+                  int b4 = packetBuffer[offset++];
                   recordNumber = ((b1 & 0x00FF) << 24) |
                                  ((b2 & 0x00FF) << 16) |
                                  ((b3 & 0x00FF) << 8) |
                                  (b4 & 0x00FF);
+                  relative = offset;
+                }
+
+                if (DEBUG) System.out.println("Relative is "+relative+" and +5 for the null field map.");
+//                relative = file.getNullFieldByteMapOffset()-file.getRecordLength()-relative;
+                relative += 5;
+
+                // Read null field map.
+                final byte[] nullFieldMap = file.getNullFieldMap();
+                final boolean[] nullFieldValues = file.getNullFieldValues();
+                for (int i=0; i<nullFieldValues.length; ++i)
+                {
+//                  nullFieldValues[i] = (packetBuffer[relative++] == (byte)0xF1);
+                  if (relative == diff || relative == diff+1)
+                  {
+                    // Skip the next packet header.
+                    --i;
+                  }
+                  else
+                  {
+                    byte b = packetBuffer[relative];
+                    if (b == (byte)0xF1)
+                    {
+                      nullFieldValues[i] = true;
+                      nullFieldMap[i] = b;
+                    }
+                    else if (b == (byte)0xF0)
+                    {
+                      nullFieldValues[i] = false;
+                      nullFieldMap[i] = b;
+                    }
+                    else
+                    {
+                      if (DEBUG) System.out.println("Packet buffer length is "+packetBuffer.length);
+                      if (DEBUG) System.out.println("Bad null field map value "+i+" at offset "+(relative-1)+": 0x"+Integer.toHexString(b & 0x00FF));
+                      throw new IOException("Bad null field map value: "+Integer.toHexString(b));
+                    }
+                  }
+                  ++relative;
                 }
                 DDMCallbackEvent ev = file.getEventBuffer();
                 ev.setEventType(DDMCallbackEvent.EVENT_READ);
@@ -1074,10 +1210,12 @@ public class DDMConnection extends HostServerConnection
                 listener.newRecord(ev, dataBuffer);
                 file.nextBuffer();
                 didExtraBytes = true;
+                if (DEBUG) System.out.println("Did extra bytes.");
               }
             }
             else
             {
+              if (DEBUG) System.out.println("Read normal record. "+recordData.length+" bytes:");
               in_.readFully(recordData);
               numRead += recordData.length;
             }
@@ -1087,17 +1225,32 @@ public class DDMConnection extends HostServerConnection
               int recordNumber = in_.readInt();
               // Skip bytes between here and null field map.
               numRead += 6;
-              int relative = file.getNullFieldByteMapOffset()-file.getRecordLength()-6;
+//              int relative = file.getNullFieldByteMapOffset()-file.getRecordLength()-6;
+              int relative = 5;
+              if (DEBUG) System.out.println("Skipping "+relative+" bytes because null field map offset is "+file.getNullFieldByteMapOffset());
               in_.skipBytes(relative);
               numRead += relative;
               // Read null field map.
-              byte[] nullFieldMap = file.getNullFieldMap();
+              final byte[] nullFieldMap = file.getNullFieldMap();
               in_.readFully(nullFieldMap);
               numRead += nullFieldMap.length;
-              boolean[] nullFieldValues = file.getNullFieldValues();
+              final boolean[] nullFieldValues = file.getNullFieldValues();
               for (int i=0; i<nullFieldMap.length; ++i)
               {
-                nullFieldValues[i] = nullFieldMap[i] == (byte)0xF1;
+                byte b = nullFieldMap[i];
+                if (b == (byte)0xF1)
+                {
+                  nullFieldValues[i] = true;
+                }
+                else if (b == (byte)0xF0)
+                {
+                  nullFieldValues[i] = false;
+                }
+                else
+                {
+                  throw new IOException("Bad null field map value: "+Integer.toHexString(b));
+                }
+//                nullFieldValues[i] = (nullFieldMap[i] == (byte)0xF1);
               }
               DDMCallbackEvent ev = file.getEventBuffer();
               ev.setEventType(DDMCallbackEvent.EVENT_READ);
@@ -1109,11 +1262,14 @@ public class DDMConnection extends HostServerConnection
             if (DEBUG) System.out.println("NUMREAD: "+numRead);
           }
           int toSkip = ioFeedbackOffset-numRead-4;
-          int lenSkip = length-numRead;
-          if (toSkip > lenSkip) toSkip = lenSkip;
+//          int lenSkip = length-numRead;
+//          if (toSkip > lenSkip) toSkip = lenSkip;
           if (DEBUG) System.out.println("internal skip "+toSkip);
+          if (toSkip > 0)
+          {
           in_.skipBytes(toSkip);
           numRead += toSkip;
+          }
           if (ll < 32768 && ll < file.getRecordIncrement()*file.getBatchSize())
           {
             //TODO: Have probably read all the records??
@@ -1157,7 +1313,7 @@ public class DDMConnection extends HostServerConnection
             numRead += numMsgRead[0];
             if (msg != null)
             {
-              if (messages != null) messages.addElement(msg);
+              if (messages != null) messages.add(msg);
               String id = msg.getID();
               if (id != null)
               {
@@ -1214,7 +1370,7 @@ public class DDMConnection extends HostServerConnection
         {
           if (messages != null)
           {
-            messages.addElement(msg);
+            messages.add(msg);
           }
           else
           {
@@ -1255,7 +1411,7 @@ public class DDMConnection extends HostServerConnection
             numRead += numMsgRead[0];
             if (msg != null)
             {
-              if (messages != null) messages.addElement(msg);
+              if (messages != null) messages.add(msg);
               String id = msg.getID();
               if (id != null)
               {
@@ -1644,7 +1800,7 @@ public class DDMConnection extends HostServerConnection
     out.write(encryptedPassword);
   }
 
-  private static long sendACCSECRequest(HostOutputStream out) throws IOException
+  private static long sendACCSECRequest(HostOutputStream out, boolean useStrongEncryption) throws IOException
   {
     out.writeShort(28); // Length.
     out.write(0xD0); // GDS ID.
@@ -1654,7 +1810,6 @@ public class DDMConnection extends HostServerConnection
     out.writeShort(0x106D); // ACCSEC CP.
     out.writeShort(6); // SECMEC LL.
     out.writeShort(0x11A2); // SECMEC CP.
-    boolean useStrongEncryption = false;
     out.writeShort(useStrongEncryption ? 8 : 6);
     out.writeShort(12); // SECTKN LL.
     out.writeShort(0x11DC); // SECTKN CP.
