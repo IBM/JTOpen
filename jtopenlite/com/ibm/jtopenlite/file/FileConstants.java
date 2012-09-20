@@ -20,14 +20,18 @@ public final class FileConstants
   }
 
   public static final int RC_FILE_NOT_FOUND = 2;
+  public static final int RC_PATH_NOT_FOUND = 3;
   public static final int RC_ACCESS_DENIED = 13;
+  public static final int RC_NO_MORE_FILES = 18;
 
   public static String returnCodeToString(int rc)
   {
     switch (rc)
     {
       case RC_FILE_NOT_FOUND: return "File not found";
+      case RC_PATH_NOT_FOUND: return "Path not found";
       case RC_ACCESS_DENIED: return "Access denied";
+      case RC_NO_MORE_FILES: return "No more files";
     }
     return "Unknown return code";
   }

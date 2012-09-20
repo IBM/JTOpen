@@ -21,7 +21,7 @@ import java.net.*;
 /**
  * Represents a TCP/IP socket connection to the System i Database host server (QUSRWRK/QZDASOINIT job).
 **/
-public class DatabaseConnection extends HostServerConnection //implements Connection
+public class DatabaseConnection extends HostServerConnection implements OperationalResultBitmap
 {
   private final byte[] byteBuffer_ = new byte[1024];
   private char[] charBuffer_ = new char[1024];
@@ -45,6 +45,8 @@ private static final int TYPE_CALL = 3;
   private DatabaseWarningCallback warningCallback_;
   private DatabaseSQLCommunicationsAreaCallback sqlcaCallback_;
 private int streamBytesReadByReadCompressedByte;
+
+  private boolean returnMessageInfo_ = false;
 
   private DatabaseConnection(SystemInfo info, Socket socket, HostInputStream in, HostOutputStream out, String user, String jobName)
   {
@@ -77,6 +79,20 @@ private int streamBytesReadByReadCompressedByte;
         }
       }
     }
+  }
+
+  /**
+   * Indicates if the MESSAGE_ID, FIRST_LEVEL_TEXT, and SECOND_LEVEL_TEXT bits are set on
+   * the operational result bitmap for a database request.
+  **/
+  public boolean isMessageInfoReturned()
+  {
+    return returnMessageInfo_;
+  }
+
+  public void setMessageInfoReturned(boolean b)
+  {
+    returnMessageInfo_ = b;
   }
 
   public void setDebug(boolean b)
@@ -658,7 +674,8 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1800);
-    writeTemplate(parms, 0xF0000000);
+    int template = SEND_REPLY_IMMED; 
+    writeTemplate(parms, template);
 
     if (attribs != null)
     {
@@ -763,7 +780,8 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x180C);
-    writeTemplate(parms, compress_ ? 0xF4040000 : 0xF4000000);
+    int template = SEND_REPLY_IMMED | RESULT_DATA;
+    writeTemplate(parms, template);
 
     if (attribs != null)
     {
@@ -825,7 +843,8 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1813);
-    writeTemplate(parms, 0xF0000000);
+    int template = SEND_REPLY_IMMED; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT;
+    writeTemplate(parms, template);
 
     if (attribs != null)
     {
@@ -854,7 +873,8 @@ private int streamBytesReadByReadCompressedByte;
 
   private void writeTemplate(final int parms) throws IOException
   {
-    writeTemplate(parms, 0xF0000000);
+    int template = SEND_REPLY_IMMED; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT;
+    writeTemplate(parms, template);
   }
 
   private void writeTemplate(final int parms, final int orsBitmap) throws IOException
@@ -867,9 +887,14 @@ private int streamBytesReadByReadCompressedByte;
     writeTemplate(parms, orsBitmap, pmHandle, currentRPB_);
   }
 
+  /** writes the template, adding the SQLCA, REPLY_RELCOMPRESSED, and MESSAGE_ID bits if needed
+   * 
+   */
   private void writeTemplate(final int parms, final int orsBitmap, final int pmHandle, final int rpbHandle) throws IOException
   {
-    int bitmap = sqlcaCallback_ != null ? (orsBitmap | 0x02000000) : orsBitmap;
+    int bitmap = sqlcaCallback_ != null ? (orsBitmap | SQLCA) : orsBitmap;
+    if (compress_) bitmap = bitmap | REPLY_RLE_COMPRESSED;
+    if (returnMessageInfo_) bitmap = bitmap | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT;
     out_.writeInt(bitmap); // Operational result (ORS) bitmap.
     out_.writeInt(0); // Reserved.
 //    out_.writeShort(1); // Return ORS handle - after operation completes.
@@ -964,8 +989,11 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x180B);
-//    writeTemplate(parms, 0xF4040000);
-    writeTemplate(parms, compress_ ? 0x84040000 : 0x84000000);
+    // writeTemplate(parms, compress_ ? 0x84040000 : 0x84000000);
+    // Note:  The new writeTemplate adds compression if needed.  
+    int template = SEND_REPLY_IMMED | RESULT_DATA;
+    writeTemplate(parms, template);
+
 
     if (attribs != null)
     {
@@ -1029,8 +1057,12 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, createOrDelete ? 0x180F : 0x1811);
-    writeTemplate(parms, 0xF2000000);
+    // writeTemplate(parms, 0xF2000000);
 
+    int template = SEND_REPLY_IMMED | SQLCA; 
+    writeTemplate(parms, template);
+
+    
     if (attribs != null)
     {
       if (attribs.isPackageNameSet())
@@ -1098,7 +1130,9 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1815);
-    writeTemplate(parms, 0x80100000);
+    // writeTemplate(parms, 0x80100000);
+    int template = SEND_REPLY_IMMED | PACKAGE_INFORMATION;
+    writeTemplate(parms, template);
 
     if (attribs != null)
     {
@@ -1168,7 +1202,10 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1E01);
-    writeTemplate(parms, 0x80800000, descriptorHandle);
+    // writeTemplate(parms, 0x80800000, descriptorHandle);
+    int template = SEND_REPLY_IMMED | PARAMETER_MARKER_FORMAT;
+    writeTemplate(parms, template, descriptorHandle);
+
 
     if (attribs != null)
     {
@@ -1212,7 +1249,10 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1E00);
-    writeTemplate(parms, 0x00040000, descriptorHandle);
+    // writeTemplate(parms, 0x00040000, descriptorHandle);
+    int template = REPLY_RLE_COMPRESSED;
+    writeTemplate(parms, template, descriptorHandle);
+   
 
     if (attribs != null)
     {
@@ -1269,7 +1309,10 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1802);
-    writeTemplate(parms, 0xF0800000);
+    // writeTemplate(parms, 0xF0800000);
+    int template = SEND_REPLY_IMMED | PARAMETER_MARKER_FORMAT; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | PARAMETER_MARKER_FORMAT;
+    writeTemplate(parms, template);
+
 
     if (attribs != null)
     {
@@ -1335,7 +1378,9 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1801);
-    writeTemplate(parms, 0x88000000);
+    // writeTemplate(parms, 0x88000000);
+    int template = SEND_REPLY_IMMED | DATA_FORMAT;
+    writeTemplate(parms, template);
 
     if (attribs != null)
     {
@@ -1454,6 +1499,9 @@ private int streamBytesReadByReadCompressedByte;
 //    writeTemplate(parms, 0x86040000, pmDescriptorHandle);
     writeTemplate(parms, 0xF8040000, pmDescriptorHandle);
 //    writeTemplate(parms, 0xFE040000, pmDescriptorHandle);
+    int template = SEND_REPLY_IMMED | DATA_FORMAT | REPLY_RLE_COMPRESSED; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | DATA_FORMAT | REPLY_RLE_COMPRESSED;
+    writeTemplate(parms, template, pmDescriptorHandle);
+
 
     if (attribs != null)
     {
@@ -1599,7 +1647,9 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1812);
-    writeTemplate(parms, 0x88000000);
+    // writeTemplate(parms, 0x88000000);
+    int template = SEND_REPLY_IMMED | DATA_FORMAT;
+    writeTemplate(parms, template);
 
     if (attribs != null)
     {
@@ -1756,7 +1806,9 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x180E);
-    writeTemplate(parms, 0x86048000);//0x8C000000);
+    // writeTemplate(parms, 0x86048000);//0x8C000000);
+    int template = SEND_REPLY_IMMED | RESULT_DATA | SQLCA | REPLY_RLE_COMPRESSED | RETURN_RESULT_SET_ATTRIBUTES;
+    writeTemplate(parms, template);//0x8C000000);
 
     if (attribs != null)
     {
@@ -2565,6 +2617,7 @@ private int streamBytesReadByReadCompressedByte;
           {
             int max = 0x00FFFF > lobLL ? lobLL : 0x00FFFF; // 64 kB
             buffer = new byte[max];
+            lobCallback.setLOBBuffer(buffer);
           }
           int remainingLob = lobLL;
           int segmentLimit = buffer.length > remainingLob ? remainingLob : buffer.length;
@@ -2884,7 +2937,9 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1805);
-    writeTemplate(parms, 0xF2000000, pmDescriptorHandle);
+    // writeTemplate(parms, 0xF2000000, pmDescriptorHandle);
+    int template = SEND_REPLY_IMMED | SQLCA ; 
+    writeTemplate(parms, template, pmDescriptorHandle);
 
     if (attribs != null)
     {
@@ -3081,7 +3136,10 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1D02);
-    writeTemplate(parms, 0x80000000, 0, rpbID);
+    // writeTemplate(parms, 0x80000000, 0, rpbID);
+    int template = SEND_REPLY_IMMED;
+    writeTemplate(parms, template, 0, rpbID);
+
 
     // Write template.
 /*    out_.writeInt(0x80000000); // Operational result (ORS) bitmap.
@@ -3462,7 +3520,7 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, datastream);
-    writeTemplate(parms, doReply ? 0x80000000 : 0x00000000, 0, rpbID);
+    writeTemplate(parms, doReply ? SEND_REPLY_IMMED : 0x00000000, 0, rpbID);
 
     if (attribs != null)
     {
@@ -3573,6 +3631,7 @@ private int streamBytesReadByReadCompressedByte;
   {
     int length = 40;
     int parms = 0;
+    boolean hasParameterMarkers = true; // To be on the safe side, default to requesting parameter marker info.
     if (attribs != null)
     {
       if (attribs.isPrepareStatementNameSet())
@@ -3584,6 +3643,7 @@ private int streamBytesReadByReadCompressedByte;
       {
         length += getSQLStatementTextLength(attribs);
         ++parms;
+        if (attribs.getSQLStatementText().indexOf("?") < 0) hasParameterMarkers = false;
       }
       if (attribs.isSQLStatementTypeSet())
       {
@@ -3634,6 +3694,7 @@ private int streamBytesReadByReadCompressedByte;
       {
         length += getExtendedSQLStatementTextLength(attribs);
         ++parms;
+        if (attribs.getExtendedSQLStatementText().indexOf("?") < 0) hasParameterMarkers = false;
       }
     }
 
@@ -3650,13 +3711,20 @@ private int streamBytesReadByReadCompressedByte;
     // Bit  7: Send SQLCA
     // Bit  9: Send Parameter Marker Format
     // Bit 15: Send Extended Column Descriptors
+    int template = SEND_REPLY_IMMED | 
+    		       DATA_FORMAT ; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | DATA_FORMAT | PARAMETER_MARKER_FORMAT | EXTENDED_COLUMN_DESCRIPTORS;
+
+    
     if (attribs.isSQLStatementTypeSet() && attribs.getSQLStatementType() == TYPE_CALL) {
     	// Do not request column descriptors for call statement
-    	writeTemplate(parms, 0xF8800000);
+    	// writeTemplate(parms, 0xF8800000);
     } else {
-    	writeTemplate(parms, 0xF8820000);
+    	// writeTemplate(parms, 0xF8820000); 
+    	template |= EXTENDED_COLUMN_DESCRIPTORS;
     }
-
+    if (hasParameterMarkers) template |= PARAMETER_MARKER_FORMAT;
+    writeTemplate(parms, template);
+    
     if (attribs != null)
     {
       if (attribs.isPrepareStatementNameSet())
@@ -4071,7 +4139,9 @@ private int streamBytesReadByReadCompressedByte;
     }
 
     writeHeader(length, 0x1816);
-    writeTemplate(parms, 0xFC000000, 0, rpbID);
+    // writeTemplate(parms, 0xFC000000, 0, rpbID);
+    int template = SEND_REPLY_IMMED | DATA_FORMAT | RESULT_DATA; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | DATA_FORMAT | RESULT_DATA;
+    writeTemplate(parms, template, 0, rpbID);
 
     if (attribs.isLOBLocatorHandleSet())
     {

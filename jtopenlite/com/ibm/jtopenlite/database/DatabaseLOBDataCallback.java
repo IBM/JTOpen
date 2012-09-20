@@ -21,5 +21,7 @@ public interface DatabaseLOBDataCallback
 
   public byte[] getLOBBuffer();
 
+  public void setLOBBuffer(byte[] buffer);
+
   public void newLOBSegment(byte[] buffer, int offset, int length);
 }

@@ -15,7 +15,9 @@ package com.ibm.jtopenlite.components;
 
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
-import com.ibm.jtopenlite.command.program.*;
+import com.ibm.jtopenlite.command.program.object.*; 
+import com.ibm.jtopenlite.command.program.openlist.OpenListHandler;
+
 import java.io.*;
 
 class ListObjectsImpl implements OpenListOfObjectsFormatListener, OpenListOfObjectsSelectionListener
@@ -23,8 +25,7 @@ class ListObjectsImpl implements OpenListOfObjectsFormatListener, OpenListOfObje
   private static final int[] KEYS = new int[] { 202, 203 }; // Extended object attribute, text description
   private final OpenListOfObjectsFormat format_ = new OpenListOfObjectsFormat();
   private final OpenListOfObjects objectList_ = new OpenListOfObjects(format_, 8, 1, null, null, null, null, null, this, KEYS);
-  private final GetListEntries getObjects_ = new GetListEntries(0, null, 0, 0, 0, format_);
-  private final CloseList close_ = new CloseList(null);
+  private final OpenListHandler handler_ = new OpenListHandler(objectList_, format_, this);
 
   private ObjectInfo[] objects_;
   private int counter_ = -1;
@@ -34,76 +35,31 @@ class ListObjectsImpl implements OpenListOfObjectsFormatListener, OpenListOfObje
   public ListObjectsImpl()
   {
   }
+  public void openComplete()
+  {
+  }
+
+  public void totalRecordsInList(int total)
+  {
+    objects_ = new ObjectInfo[total];
+    counter_ = -1;
+  }
+
+  public boolean stopProcessing()
+  {
+    return false;
+  }
 
   public ObjectInfo[] getObjects(final CommandConnection conn, String name, String library, String type) throws IOException
   {
-    format_.setListener(null);
     objectList_.setObjectName(name);
     objectList_.setObjectLibrary(library);
     objectList_.setObjectType(type);
-
-    CommandResult result = conn.call(objectList_);
-    if (!result.succeeded())
-    {
-      throw new IOException("Object list failed: "+result.toString());
-    }
-
-    ListInformation listInfo = objectList_.getListInformation();
-    byte[] requestHandle = listInfo.getRequestHandle();
-    close_.setRequestHandle(requestHandle);
-
-    try
-    {
-      int recordLength = listInfo.getRecordLength();
-      // Now, the list is building on the server.
-      // Call GetListEntries once to wait for the list to finish building, for example.
-      int receiverSize = 8;
-      int numRecordsToReturn = 0;
-      int startingRecord = -1;
-      getObjects_.setLengthOfReceiverVariable(receiverSize);
-      getObjects_.setRequestHandle(requestHandle);
-      getObjects_.setRecordLength(recordLength);
-      getObjects_.setNumberOfRecordsToReturn(numRecordsToReturn);
-      getObjects_.setStartingRecord(startingRecord);
-      result = conn.call(getObjects_);
-      if (!result.succeeded())
-      {
-        throw new IOException("Get objects failed: "+result.toString());
-      }
-
-      listInfo = getObjects_.getListInformation();
-      int totalRecords = listInfo.getTotalRecords();
-      objects_ = new ObjectInfo[totalRecords];
+    objects_ = null;
       counter_ = -1;
-
-      // Now retrieve each object record in chunks of 800 at a time.
-      numRecordsToReturn = 2800;
-      receiverSize = recordLength * numRecordsToReturn;
-      startingRecord = 1;
-      getObjects_.setLengthOfReceiverVariable(receiverSize);
-      getObjects_.setNumberOfRecordsToReturn(numRecordsToReturn);
-      getObjects_.setStartingRecord(startingRecord);
-      format_.setListener(this); // Ready to process.
-      while (startingRecord <= totalRecords)
-      {
-        result = conn.call(getObjects_);
-        if (!result.succeeded())
-        {
-          throw new IOException("Get objects failed: "+result.toString());
-        }
-        // Assuming it succeeded.
-        listInfo = getObjects_.getListInformation();
-        startingRecord += listInfo.getRecordsReturned();
-        getObjects_.setStartingRecord(startingRecord);
-      }
+    handler_.process(conn, 2800);
       return objects_;
     }
-    finally
-    {
-      // All done.
-      conn.call(close_);
-    }
-  }
 
   ////////////////////////////////////////
   //

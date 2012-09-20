@@ -35,7 +35,12 @@ public class ListDiskStatuses
 
   public DiskStatus[] getDiskStatuses(final CommandConnection cmdConn, final DDMConnection ddmConn, String workingLibrary) throws IOException
   {
-    return impl_.getDiskStatuses(cmdConn, ddmConn, workingLibrary);
+    return impl_.getDiskStatuses(cmdConn, ddmConn, workingLibrary,false);
   }
+  public DiskStatus[] getDiskStatuses(final CommandConnection cmdConn, final DDMConnection ddmConn, String workingLibrary, boolean reset) throws IOException
+  {
+    return impl_.getDiskStatuses(cmdConn, ddmConn, workingLibrary, reset);
+  }
+
 }
 

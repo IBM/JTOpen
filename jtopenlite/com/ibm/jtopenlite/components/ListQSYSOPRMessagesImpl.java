@@ -15,94 +15,78 @@ package com.ibm.jtopenlite.components;
 
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
-import com.ibm.jtopenlite.command.program.*;
+import com.ibm.jtopenlite.command.program.openlist.*;
+import com.ibm.jtopenlite.command.program.message.*;
 import java.io.*;
 
-class ListQSYSOPRMessagesImpl implements OpenListOfMessagesLSTM0100Listener, OpenListOfMessagesSelectionListener
+class ListQSYSOPRMessagesImpl implements OpenListOfMessagesLSTM0100Listener, OpenListOfMessagesSelectionListener, MessageInfoListener
 {
   private final OpenListOfMessagesLSTM0100 messageFormat_ = new OpenListOfMessagesLSTM0100();
   private final OpenListOfMessages messageList_ = new OpenListOfMessages(1200, 1, "0", "1", "QSYSOPR", "QSYS", messageFormat_);
-  private final GetListEntries getEntries_ = new GetListEntries(0, null, 0, 0, 0, messageFormat_);
-  private final CloseList close_ = new CloseList(null);
+  private final OpenListHandler handler_ = new OpenListHandler(messageList_, messageFormat_, this);
 
   private int counter_ = -1;
   private MessageInfo[] messages_;
   private final char[] charBuffer_ = new char[4096];
+
+  private MessageInfoListener miListener_;
 
   public ListQSYSOPRMessagesImpl()
   {
     messageList_.setSelectionListener(this);
   }
 
+  public void setMessageInfoListener(MessageInfoListener listener)
+  {
+    miListener_ = listener;
+  }
+
+  public void openComplete()
+  {
+  }
+
+  public void totalRecordsInList(int totalRecords)
+  {
+    miListener_.totalRecords(totalRecords);
+  }
+
+  public void totalRecords(int totalRecords)
+  {
+    messages_ = new MessageInfo[totalRecords];
+    counter_ = -1;
+  }
+
+  public boolean stopProcessing()
+  {
+    return miListener_.done();
+  }
+
   public synchronized MessageInfo[] getMessages(final CommandConnection conn) throws IOException
   {
-    messageFormat_.setListener(null);
+	    messages_ = null;
+	    counter_ = -1;
+	    handler_.process(conn, 1000);
+	    return messages_;
+  }
 
-    CommandResult result = conn.call(messageList_);
-    if (!result.succeeded())
-    {
-      throw new IOException("Message list failed: "+result.toString());
-    }
+  public boolean done()
+  {
+    return false;
+  }
 
-    ListInformation listInfo = messageList_.getListInformation();
-//    System.out.println(listInfo.getTotalRecords()+","+listInfo.getRecordsReturned()+","+listInfo.getRecordLength()+","+listInfo.getCompleteType()+","+listInfo.getStatus());
-    byte[] requestHandle = listInfo.getRequestHandle();
-    close_.setRequestHandle(requestHandle);
+  public void newMessageInfo(MessageInfo info, int index)
+  {
+    messages_[index] = info;
+  }
 
-    try
-    {
-      //int recordLength = listInfo.getRecordLength();
-      // Now, the list is building on the server.
-      // Call GetListEntries once to wait for the list to finish building, for example.
-      int receiverSize = 100; // Should be good enough for the first call.
-      int numRecordsToReturn = 0; // For some reason, specifying 0 here does not wait until the whole list is built.
-      int startingRecord = -1; // Wait until whole list is built before returning.
-      getEntries_.setLengthOfReceiverVariable(receiverSize);
-      getEntries_.setRequestHandle(requestHandle);
-      //getEntries_.setRecordLength(recordLength);
-      getEntries_.setNumberOfRecordsToReturn(numRecordsToReturn);
-      getEntries_.setStartingRecord(startingRecord);
-      result = conn.call(getEntries_);
-      if (!result.succeeded())
-      {
-        throw new IOException("Get entries failed: "+result.toString());
-      }
+  public void replyStatus(String status, int index)
+  {
+    messages_[index].setReplyStatus(status);
+  }
 
-      listInfo = getEntries_.getListInformation();
-//      System.out.println(listInfo.getTotalRecords()+","+listInfo.getRecordsReturned()+","+listInfo.getRecordLength()+","+listInfo.getCompleteType()+","+listInfo.getStatus());
-      int totalRecords = listInfo.getTotalRecords();
-      messages_ = new MessageInfo[totalRecords];
-      counter_ = -1;
-
-      // Now retrieve each job record in chunks of 300 at a time.
-      numRecordsToReturn = 1000;
-//      System.out.println(recordLength+" * "+numRecordsToReturn);
-      //receiverSize = recordLength * numRecordsToReturn;
-      receiverSize = 100000;
-      startingRecord = 1;
-      getEntries_.setLengthOfReceiverVariable(receiverSize);
-      getEntries_.setNumberOfRecordsToReturn(numRecordsToReturn);
-      getEntries_.setStartingRecord(startingRecord);
-      messageFormat_.setListener(this); // Ready to process.
-      while (startingRecord <= totalRecords)
-      {
-        result = conn.call(getEntries_);
-        if (!result.succeeded())
-        {
-          throw new IOException("Get entries failed: "+result.toString());
-        }
-        // Assuming it succeeded...
-        listInfo = getEntries_.getListInformation();
-        startingRecord += listInfo.getRecordsReturned();
-        getEntries_.setStartingRecord(startingRecord);
-      }
-      return messages_;
-    }
-    finally
-    {
-      // All done.
-      conn.call(close_);
-    }
+  public void messageText(String text, int index)
+  {
+    messages_[index].setText(text);
   }
 
   // LSTM0100 listener.
@@ -114,8 +98,8 @@ class ListQSYSOPRMessagesImpl implements OpenListOfMessagesLSTM0100Listener, Ope
                               String messageQueueName, String messageQueueLibrary,
                               String dateSent, String timeSent, String microseconds)
   {
-    messages_[++counter_] = new MessageInfo(messageSeverity, messageIdentifier, messageType, messageKey, dateSent, timeSent, microseconds);
-//    System.out.println(++counter_+" -------- "+numberOfFieldsReturned+","+messageSeverity+","+messageIdentifier+","+messageType+","+messageKey+","+messageFileName+","+messageFileLibrarySpecifiedAtSendTime+","+messageQueueName+","+messageQueueLibrary+","+dateSent+","+timeSent+","+microseconds);
+//    messages_[++counter_] = new MessageInfo(messageSeverity, messageIdentifier, messageType, messageKey, dateSent, timeSent, microseconds);
+    miListener_.newMessageInfo(new MessageInfo(messageSeverity, messageIdentifier, messageType, messageKey, dateSent, timeSent, microseconds), ++counter_);
   }
 
 
@@ -126,10 +110,12 @@ class ListQSYSOPRMessagesImpl implements OpenListOfMessagesLSTM0100Listener, Ope
     switch (identifierField)
     {
       case 1001:
-        messages_[counter_].setReplyStatus(Conv.ebcdicByteArrayToString(tempData, offsetOfTempData, lengthOfData, charBuffer_));
+//        messages_[counter_].setReplyStatus(Conv.ebcdicByteArrayToString(tempData, offsetOfTempData, lengthOfData, charBuffer_));
+        miListener_.replyStatus(Conv.ebcdicByteArrayToString(tempData, offsetOfTempData, lengthOfData, charBuffer_), counter_);
         break;
       case 302:
-        messages_[counter_].setText(Conv.ebcdicByteArrayToString(tempData, offsetOfTempData, lengthOfData, charBuffer_));
+//        messages_[counter_].setText(Conv.ebcdicByteArrayToString(tempData, offsetOfTempData, lengthOfData, charBuffer_));
+        miListener_.messageText(Conv.ebcdicByteArrayToString(tempData, offsetOfTempData, lengthOfData, charBuffer_), counter_);
         break;
     }
   }

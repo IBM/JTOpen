@@ -33,7 +33,14 @@ public class ListUsers
   **/
   public UserInfo[] getUsers(final DDMConnection conn) throws IOException
   {
+    impl_.setUserInfoListener(impl_);
     return impl_.getUsers(conn);
+  }
+
+  public void getUsers(final DDMConnection conn, final UserInfoListener listener) throws IOException
+  {
+    impl_.setUserInfoListener(listener);
+    impl_.getUsers(conn);
   }
 }
 

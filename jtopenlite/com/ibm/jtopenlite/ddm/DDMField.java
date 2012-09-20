@@ -59,7 +59,7 @@ public final class DDMField
   private final String dateTimeSeparator_;
   private final char[] buffer_;
 
-  private HashMap cache_;
+  private HashMap<ByteArrayKey,String> cache_;
 
   DDMField(final int offset,
            final String name, final int length, final int digits, final int decpos,
@@ -230,7 +230,7 @@ public final class DDMField
   **/
   public void setCacheStrings(final boolean useCache)
   {
-    cache_ = useCache ? new HashMap() : null;
+    cache_ = useCache ? new HashMap<ByteArrayKey,String>() : null;
   }
 
   /**

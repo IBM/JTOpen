@@ -77,7 +77,7 @@ public class MessageInfo
     return microseconds_;
   }
 
-  void setReplyStatus(String s)
+  public void setReplyStatus(String s)
   {
     replyStatus_ = s;
   }
@@ -87,7 +87,7 @@ public class MessageInfo
     return replyStatus_;
   }
 
-  void setText(String s)
+  public void setText(String s)
   {
     text_ = s;
   }

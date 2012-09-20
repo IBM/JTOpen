@@ -18,15 +18,31 @@ import com.ibm.jtopenlite.ddm.*;
 import java.io.*;
 import java.util.*;
 
-final class ListUsersImpl implements DDMReadCallback
+final class ListUsersImpl implements DDMReadCallback, UserInfoListener
 {
   private DDMRecordFormat rf_;
+
+  private UserInfoListener uiListener_;
 
   ListUsersImpl()
   {
   }
 
-  private final Vector users_ = new Vector();
+  public void setUserInfoListener(UserInfoListener listener)
+  {
+    uiListener_ = listener;
+  }
+
+  public void totalRecords(long total)
+  {
+  }
+
+  public void newUserInfo(UserInfo info)
+  {
+    users_.add(info);
+  }
+
+  private final ArrayList<UserInfo> users_ = new ArrayList<UserInfo>();
   private boolean done_ = false;
 
   public void newRecord(DDMCallbackEvent event, DDMDataBuffer dataBuffer) throws IOException
@@ -45,7 +61,8 @@ final class ListUsersImpl implements DDMReadCallback
     long gid = rf_.getField("UPGID").getLong(data);
     UserInfo ui = new UserInfo(userName, userClass, passwordExpired, maxStorage, storageUsed, description,
                                locked, damaged, status, uid, gid);
-    users_.addElement(ui);
+//    users_.addElement(ui);
+    uiListener_.newUserInfo(ui);
   }
 
   public void recordNotFound(DDMCallbackEvent event)
@@ -65,16 +82,16 @@ final class ListUsersImpl implements DDMReadCallback
 
   public UserInfo[] getUsers(final DDMConnection ddmConn) throws IOException
   {
-    Message[] messages = ddmConn.execute("DSPUSRPRF USRPRF(*ALL) TYPE(*BASIC) OUTPUT(*OUTFILE) OUTFILE(QTEMP/TBALLUSERS)");
-    if (messages.length > 0)
+    List<Message> messages = ddmConn.executeReturnMessageList("DSPUSRPRF USRPRF(*ALL) TYPE(*BASIC) OUTPUT(*OUTFILE) OUTFILE(QTEMP/TBALLUSERS)");
+    if (messages.size() > 0)
     {
-      if (messages.length != 1 && !messages[0].getID().equals("CPF9861")) // Output file created.
+      if (messages.size() != 1 && !messages.get(0).getID().equals("CPF9861")) // Output file created.
       {
         throw new MessageException("Error retrieving users: ", messages);
       }
     }
 
-    users_.removeAllElements();
+    users_.clear();
     if (rf_ == null)
     {
       rf_ = ddmConn.getRecordFormat("QTEMP", "TBALLUSERS");
@@ -88,6 +105,13 @@ final class ListUsersImpl implements DDMReadCallback
     done_ = false;
 
     DDMFile file = ddmConn.open("QTEMP", "TBALLUSERS", "TBALLUSERS", "QSYDSUPB", DDMFile.READ_ONLY, false, 160, 1);
+
+    List<DDMFileMemberDescription> desc = ddmConn.getFileMemberDescriptions(file);
+    if (desc != null && desc.size() > 0)
+    {
+      uiListener_.totalRecords(desc.get(0).getRecordCount());
+    }
+
     while (!done())
     {
       ddmConn.readNext(file, this);

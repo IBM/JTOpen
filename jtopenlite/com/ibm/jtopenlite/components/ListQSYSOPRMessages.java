@@ -35,7 +35,14 @@ public class ListQSYSOPRMessages
   **/
   public MessageInfo[] getMessages(final CommandConnection conn) throws IOException
   {
+    impl_.setMessageInfoListener(impl_);
     return impl_.getMessages(conn);
+  }
+
+  public void getMessages(final CommandConnection conn, final MessageInfoListener miListener) throws IOException
+  {
+    impl_.setMessageInfoListener(miListener);
+    impl_.getMessages(conn);
   }
 }
 

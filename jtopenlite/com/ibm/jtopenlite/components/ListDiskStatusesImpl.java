@@ -15,7 +15,8 @@ package com.ibm.jtopenlite.components;
 
 import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
-import com.ibm.jtopenlite.command.program.*;
+import com.ibm.jtopenlite.command.program.print.*;
+import com.ibm.jtopenlite.command.program.openlist.*;
 import com.ibm.jtopenlite.ddm.*;
 import java.io.*;
 import java.util.*;
@@ -41,7 +42,7 @@ class ListDiskStatusesImpl implements
 
 	private int skip_ = 0;
 	private boolean theEnd_ = false;
-	private final Vector statuses_ = new Vector();
+  private final ArrayList<DiskStatus> statuses_ = new ArrayList<DiskStatus>();
 
 	public void newRecord(DDMCallbackEvent event, DDMDataBuffer dataBuffer) {
 		final byte[] data = dataBuffer.getRecordDataBuffer();
@@ -52,8 +53,7 @@ class ListDiskStatusesImpl implements
 			if (index > 0) {
 				int end = line.indexOf("System name", index);
 				if (end > index) {
-					elapsedTime_ = line.substring(index + 1, end - index)
-							.trim();
+          elapsedTime_ = line.substring(index + 1, end - index).trim();
 				}
 			}
 			++skip_;
@@ -83,7 +83,7 @@ class ListDiskStatusesImpl implements
 						ioRequests, requestSizeKB, readRequests, writeRequests,
 						readKB, writeKB, percentBusy, asp, protectionType,
 						protectionStatus, compression);
-				statuses_.addElement(ds);
+				statuses_.add(ds);
 			}
 		}
 	}
@@ -103,6 +103,16 @@ class ListDiskStatusesImpl implements
 	private boolean done() {
 		return done_;
 	}
+
+  public void totalRecordsInList(int total) {
+  }
+
+  public void openComplete() {
+  }
+
+  public boolean stopProcessing() {
+    return false;
+  }
 
 	public void newSpooledFileEntry(String jobName, String jobUser,
 			String jobNumber, String spooledFileName, int spooledFileNumber,
@@ -171,72 +181,69 @@ class ListDiskStatusesImpl implements
 	 * NOTE: The workingLibrary will be deleted when this method is called.
 	 **/
 	public DiskStatus[] getDiskStatuses(final CommandConnection cc,
-			final DDMConnection ddmConn, String workingLibrary)
+      final DDMConnection ddmConn, String workingLibrary, boolean reset)
 			throws IOException {
 		final SystemInfo si1 = cc.getInfo();
 		final SystemInfo si2 = ddmConn.getInfo();
 		if (!si1.getSystem().equals(si2.getSystem())
 				|| si1.getServerLevel() != si2.getServerLevel()) {
-			throw new IOException(
-					"Command connection does not match DDM connection.");
+      throw new IOException("Command connection does not match DDM connection.");
 		}
 
 		skip_ = 0;
 		theEnd_ = false;
-		statuses_.removeAllElements();
+		statuses_.clear();
 		elapsedTime_ = null;
 		done_ = false;
 		outputQueueLibrary_ = workingLibrary;
 
 		// I really wish spooled files could go into QTEMP!
-		// DDMConnection conn = DDMConnection.getConnection("rchasa12",
-		// "csmith", "s1r4l0in");
+    // DDMConnection conn = DDMConnection.getConnection("rchasa12", "csmith",
+    // "s1r4l0in");
 		// CommandConnection conn = CommandConnection.getConnection("rchasa12",
 		// "csmith", "s1r4l0in");
 		// System.out.println(conn.getJobName());
 		CommandResult result = cc.execute("CLROUTQ OUTQ(" + workingLibrary
 				+ "/DSKSTS)");
 		if (!result.succeeded()) {
-			Message[] messages = result.getMessages();
-			if (messages.length != 1 && !messages[0].getID().equals("CPF3357")) {
+      List<Message> messages = result.getMessagesList();
+      if (messages.size() != 1 && !messages.get(0).getID().equals("CPF3357")) {
 				throw new IOException("Error clearing output queue: "
 						+ result.toString());
 			}
 		}
 		result = cc.execute("DLTLIB " + workingLibrary);
 		if (!result.succeeded()) {
-			Message[] messages = result.getMessages();
-			if (messages.length != 1 && !messages[0].getID().equals("CPF2110")) {
-				throw new IOException("Error deleting library: "
-						+ result.toString());
+      List<Message> messages = result.getMessagesList();
+      if (messages.size() != 1 || !messages.get(0).getID().equals("CPF2110")) // Library
+                                                                              // not
+                                                                              // found.
+      {
+        throw new IOException("Error deleting library: " + result.toString());
 			}
 		}
 		result = cc.execute("CRTLIB " + workingLibrary);
 		if (!result.succeeded())
-			throw new IOException("Error creating library: "
-					+ result.toString());
-		result = cc
-				.execute("CRTPF "
-						+ workingLibrary
+      throw new IOException("Error creating library: " + result.toString());
+    result = cc.execute("CRTPF " + workingLibrary
 						+ "/DSKSTS RCDLEN(132) MAXMBRS(*NOMAX) SIZE(*NOMAX) LVLCHK(*NO)");
 		if (!result.succeeded())
 			throw new IOException("Error creating physical file: "
 					+ result.toString());
 		result = cc.execute("CRTOUTQ OUTQ(" + workingLibrary + "/DSKSTS)");
 		if (!result.succeeded())
-			throw new IOException("Error creating output queue: "
-					+ result.toString());
+      throw new IOException("Error creating output queue: " + result.toString());
 		result = cc.execute("CHGJOB OUTQ(" + workingLibrary + "/DSKSTS)");
 		if (!result.succeeded())
 			throw new IOException("Error changing job: " + result.toString());
-		result = cc.execute("WRKDSKSTS OUTPUT(*PRINT)");
+    result = cc.execute("WRKDSKSTS OUTPUT(*PRINT) RESET("
+        + (reset ? "*YES" : "*NO") + ")");
 		if (!result.succeeded())
-			throw new IOException("Error running WRKDSKSTS: "
-					+ result.toString());
-		OpenListOfSpooledFilesFormatOSPL0300 format = new OpenListOfSpooledFilesFormatOSPL0300(
-				this);
-		OpenListOfSpooledFiles list = new OpenListOfSpooledFiles(format, 256,
-				-1, null, this, null, null, null);
+      throw new IOException("Error running WRKDSKSTS: " + result.toString());
+    OpenListOfSpooledFilesFormatOSPL0300 format = new OpenListOfSpooledFilesFormatOSPL0300();
+    OpenListOfSpooledFiles list = new OpenListOfSpooledFiles(format, 256, -1,
+        null, this, null, null, null);
+    list.setFormatListener(this);
 		result = cc.call(list);
 		if (!result.succeeded())
 			throw new IOException("Error retrieving spooled file: "
@@ -249,22 +256,23 @@ class ListDiskStatusesImpl implements
 					+ result.toString());
 		String jobID = jobNumber_.trim() + "/" + jobUser_.trim() + "/"
 				+ jobName_.trim();
-		result = cc.execute("CPYSPLF FILE(" + spooledFileName_.trim()
-				+ ") TOFILE(" + workingLibrary + "/DSKSTS) JOB(" + jobID
-				+ ") SPLNBR(" + spooledFileNumber_ + ") MBROPT(*REPLACE)");
+    result = cc.execute("CPYSPLF FILE(" + spooledFileName_.trim() + ") TOFILE("
+        + workingLibrary + "/DSKSTS) JOB(" + jobID + ") SPLNBR("
+        + spooledFileNumber_ + ") MBROPT(*REPLACE)");
 		if (!result.succeeded())
-			throw new IOException("Error copying spooled file: "
-					+ result.toString());
+      throw new IOException("Error copying spooled file: " + result.toString());
 
-		DDMFile file = ddmConn.open(workingLibrary, "DSKSTS", "DSKSTS",
-				"DSKSTS", DDMFile.READ_ONLY, false, 200, 1);
+    DDMFile file = ddmConn.open(workingLibrary, "DSKSTS", "DSKSTS", "DSKSTS",
+        DDMFile.READ_ONLY, false, 200, 1);
 		while (!done()) {
 			ddmConn.readNext(file, this);
 		}
 		ddmConn.close(file);
+    result = cc.execute("DLTLIB " + workingLibrary);
 
 		DiskStatus[] arr = new DiskStatus[statuses_.size()];
-		return (DiskStatus[]) statuses_.toArray(arr);
+    statuses_.toArray(arr);
+    return arr;
 
 		/*
 		 * Class.forName("com.ibm.jtopenlite.database.jdbc.JDBCDriver");

@@ -10,10 +10,9 @@
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+package com.ibm.jtopenlite.file; 
 
-package com.ibm.jtopenlite.file;
-
-public class FileHandle
+public final class FileHandle implements Comparable<FileHandle>
 {
   public static final int OPEN_READ_ONLY = 1;
   public static final int OPEN_WRITE_ONLY = 2;
@@ -41,6 +40,10 @@ public class FileHandle
 
   private long currentOffset_ = 0;
 
+  private boolean symlink_;
+  private boolean directory_;
+  private String path_;
+
   private FileHandle()
   {
   }
@@ -48,6 +51,65 @@ public class FileHandle
   public static FileHandle createEmptyHandle()
   {
     return new FileHandle();
+  }
+
+  public boolean equals(Object obj)
+  {
+    if (obj != null && obj instanceof FileHandle)
+    {
+      FileHandle h = (FileHandle)obj;
+      return h.handle_ == this.handle_ &&
+             h.id_ == this.id_ &&
+             h.size_ == this.size_ &&
+             ((h.getPath() == null && this.getPath() == null) ||
+              (h.getPath() != null && this.getPath() != null && h.getPath().equals(this.getPath())));
+    }
+    return false;
+  }
+
+  public int hashCode()
+  {
+    return getPath() == null ? super.hashCode() : getPath().hashCode();
+  }
+
+  public int compareTo(FileHandle h)
+  {
+    String p1 = this.getPath();
+    String p2 = h.getPath();
+    if (p1 == null && p2 == null) return 0;
+    if (p1 == null) return -1;
+    if (p2 == null) return 1;
+    return p1.compareTo(p2);
+  }
+
+  void setSymlink(boolean b)
+  {
+    symlink_ = b;
+  }
+
+  public boolean isSymlink()
+  {
+    return symlink_;
+  }
+
+  void setDirectory(boolean b)
+  {
+    directory_ = b;
+  }
+
+  public boolean isDirectory()
+  {
+    return directory_;
+  }
+
+  void setPath(String path)
+  {
+    path_ = path;
+  }
+
+  public String getPath()
+  {
+    return path_ == null ? name_ : path_;
   }
 
   /**
@@ -195,5 +257,11 @@ public class FileHandle
   void setLastStatus(int s)
   {
     lastStatus_ = s;
+  }
+
+  public String toString()
+  {
+    String path = getPath();
+    return path == null ? super.toString() : path;
   }
 }

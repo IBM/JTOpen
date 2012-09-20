@@ -16,6 +16,7 @@ package com.ibm.jtopenlite.database.jdbc;
 import com.ibm.jtopenlite.About;
 import com.ibm.jtopenlite.Message;
 import com.ibm.jtopenlite.MessageException;
+import com.ibm.jtopenlite.SystemInfo;
 import com.ibm.jtopenlite.database.*;
 
 import java.io.*;
@@ -836,7 +837,9 @@ public boolean isValid(int arg0) throws SQLException {
 
 
 
-
+SystemInfo getDatabaseInfo() {
+    return conn_.getInfo(); 
+  }
 
 }
 
