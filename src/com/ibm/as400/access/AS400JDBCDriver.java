@@ -154,7 +154,7 @@ endif */
 		try
 		{
 			// Log where the toolbox is loaded from @B1A
-	        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+	     if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME, Trace.JDBC);
 
 	        DriverManager.registerDriver (new AS400JDBCDriver ());
 			resources_  = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI");
@@ -362,6 +362,9 @@ endif */
                         Trace.setTraceOn(false);
                     }
                 }
+
+                
+  
 
 		JDProperties jdProperties = new JDProperties (urlProperties, info);
 
