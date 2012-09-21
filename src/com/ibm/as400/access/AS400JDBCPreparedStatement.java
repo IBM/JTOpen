@@ -2865,7 +2865,8 @@ endif */
             + " value: NULL"); // @H1A
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
-            + " type: " + parameterValue.getClass().getName()); // @H1A
+            + " type: " + parameterValue.getClass().getName()
+            +" toString():"+parameterValue.toString()); // @H1A
     } // @H1A
 
     setValue(parameterIndex, parameterValue, null, -1); // @P0C
@@ -2911,7 +2912,8 @@ endif */
             + " value: NULL"); // @H1A
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
-            + " type: " + parameterValue.getClass().getName()); // @H1A
+            + " type: " + parameterValue.getClass().getName()
+            +" toString():"+parameterValue.toString()); // @H1A
     } // @H1A
 
     setValue(parameterIndex, parameterValue, null, -1); // @P0C
@@ -2960,7 +2962,8 @@ endif */
             + " value: NULL"); // @H1A
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
-            + " type: " + parameterValue.getClass().getName()); // @H1A
+            + " type: " + parameterValue.getClass().getName()
+            +" toString():"+parameterValue.toString()); // @H1A
     } // @H1A
 
     if (scale < 0)

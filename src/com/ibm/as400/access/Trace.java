@@ -570,6 +570,8 @@ public class Trace implements Runnable
         setFileName (file);
         destination_.println("Toolbox for Java - " + Copyright.version);
         destination_.println(getJvmInfo()); /* @B1A*/ 
+        destination_.println();
+        logLoadPath(CLASSNAME, activeTraceCategory()); 
       }
       catch (IOException e)
       {
@@ -599,9 +601,13 @@ public class Trace implements Runnable
    Each specific class is logged no more than once.
    @param className  The package-qualified class name.
    **/
-  static final void logLoadPath(String className)
+  static final void logLoadPath(String className) {
+    logLoadPath(className, -1); 
+  }
+  
+  static final void logLoadPath(String className, int category)
   {
-    if (traceDiagnostic_ &&
+    if (((category > -1)|| traceDiagnostic_) &&
         className != null)
     {
       String loadPath = null;
@@ -626,7 +632,11 @@ public class Trace implements Runnable
       }
 
       String message = "Class " + className + " was loaded from " + loadPath;
-      logData(null, DIAGNOSTIC, message, null);
+      if (category > -1) {
+        logData(null, category, message, null);
+      } else { 
+        logData(null, DIAGNOSTIC, message, null);
+      }
     }
   }
 
@@ -2006,5 +2016,25 @@ public class Trace implements Runnable
     } else setTraceOn(false); //Categories null, so turn off tracing
   }
 
+  /**
+   * Return a trace category that is active.  If no category is active, then -1 is returned.
+   */
+  static int activeTraceCategory() {
+    if (traceError_) return ERROR; 
+    if (traceWarning_ ) return WARNING; 
+    if (traceInfo_) return INFORMATION; 
+    if (traceDiagnostic_) return DIAGNOSTIC; 
+    if (traceDatastream_) return DATASTREAM; 
+    if (traceConversion_) return CONVERSION; 
+    if (traceProxy_) return PROXY; 
+    if (traceJDBC_) return JDBC; 
+    if (tracePCML_) return PCML; 
+    return -1; 
+  }
+  
+  
+  
   // Note: We don't need a finalize() method, since this class can never be instantiated.
+  
+  
 }
