@@ -199,6 +199,7 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
     try
     {
       DatabaseConnection conn = DatabaseConnection.getConnection(system, user, password);
+      conn.setMessageInfoReturned(true); 
       conn.setDebug(debug);
       DatabaseServerAttributes dsa = new DatabaseServerAttributes();
       dsa.setNamingConventionParserOption(0);
