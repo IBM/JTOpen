@@ -456,14 +456,14 @@ implements DatabaseMetaData
     /**
     Returns the DB2 for IBM i SQL term for "catalog".
 
-    @return     The term "System".
+    @return     The term "Database".
 
     @exception  SQLException    This exception is never thrown.
     **/
     public String getCatalogTerm ()
     throws SQLException
     {
-        return "System";
+        return "Database";
     }
 
 
@@ -3188,14 +3188,14 @@ implements DatabaseMetaData
     /**
     Indicates if expressions in ORDER BY lists are supported.
 
-    @return     Always false. Expression in ORDER BY lists are not supported.
+    @return     Always true. Expression in ORDER BY lists are supported.
 
     @exception  SQLException    This exception is never thrown.
     **/
     public boolean supportsExpressionsInOrderBy ()
     throws SQLException
     {
-        return false;
+        return true;
     }
 
 
