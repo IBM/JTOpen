@@ -1497,8 +1497,9 @@ private int streamBytesReadByReadCompressedByte;
     writeHeader(length, 0x1804);
 //    writeTemplate(parms, 0xF8000000, pmDescriptorHandle);
 //    writeTemplate(parms, 0x86040000, pmDescriptorHandle);
-    writeTemplate(parms, 0xF8040000, pmDescriptorHandle);
 //    writeTemplate(parms, 0xFE040000, pmDescriptorHandle);
+//    Statement before update to use constants. 
+//    writeTemplate(parms, 0xF8040000, pmDescriptorHandle);
     int template = SEND_REPLY_IMMED | DATA_FORMAT | REPLY_RLE_COMPRESSED; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | DATA_FORMAT | REPLY_RLE_COMPRESSED;
     writeTemplate(parms, template, pmDescriptorHandle);
 
