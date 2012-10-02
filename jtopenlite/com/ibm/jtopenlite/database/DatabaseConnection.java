@@ -1992,12 +1992,14 @@ private int streamBytesReadByReadCompressedByte;
     return(b1 << 8) | b2;
   }
 
-  private void readCompressedFully(final byte[] b) throws IOException
+  private int readCompressedFullyReturnCount(final byte[] b) throws IOException
   {
+	streamBytesReadByReadCompressedByte = 0;
     for (int i=0; i<b.length; ++i)
     {
       b[i] = (byte)readCompressedByte();
     }
+    return streamBytesReadByReadCompressedByte;
   }
 
   // Reads compressed bytes from the stream.  Returned the number of bytes actually read.
@@ -2084,15 +2086,16 @@ private int streamBytesReadByReadCompressedByte;
     return rleCompression_ ? readCompressedByte() : in_.readByte();
   }
 
-  private void readFully(byte[] b) throws IOException
+  private int readFullyReturnCount(byte[] b) throws IOException
   {
     if (rleCompression_)
     {
-      readCompressedFully(b);
+      return readCompressedFullyReturnCount(b);
     }
     else
     {
       in_.readFully(b);
+      return b.length; 
     }
   }
 
@@ -2153,13 +2156,15 @@ private int streamBytesReadByReadCompressedByte;
           // Message ID.
           int ccsid = readShort();
           byte[] messageID = new byte[ll-8];
-          readFully(messageID);
+          numRead+= 8 + readFullyReturnCount(messageID);
           if (ll > charBuffer_.length) {
             charBuffer_ = new char[ll];
           }
           warningCallback_.newMessageID(Conv.ebcdicByteArrayToString(messageID, charBuffer_));
+          
+        } else {
+        	numRead += ll;
         }
-        numRead += ll;
       }
       else if (cp == 0x3802 && warningCallback_ != null)
       {
@@ -2169,14 +2174,15 @@ private int streamBytesReadByReadCompressedByte;
           int ccsid = readShort();
           int len = readShort();
           byte[] firstLevelMessageText = new byte[ll-10];
-          readFully(firstLevelMessageText);
+          numRead += 10 + readFullyReturnCount(firstLevelMessageText);
           if (ll > charBuffer_.length) {
             charBuffer_ = new char[ll];
           }
 
           warningCallback_.newMessageText(Conv.ebcdicByteArrayToString(firstLevelMessageText, charBuffer_));
+        } else {
+        	numRead += ll;
         }
-        numRead += ll;
       }
       else if (cp == 0x3803 && warningCallback_ != null)
       {
@@ -2186,13 +2192,14 @@ private int streamBytesReadByReadCompressedByte;
           int ccsid = readShort();
           int len = readShort();
           byte[] secondLevelMessageText = new byte[ll-10];
-          readFully(secondLevelMessageText);
+          numRead += 10 + readFullyReturnCount(secondLevelMessageText);
           if (ll > charBuffer_.length) {
             charBuffer_ = new char[ll];
           }
           warningCallback_.newSecondLevelText(Conv.ebcdicByteArrayToString(secondLevelMessageText, charBuffer_));
+        } else { 
+        	numRead += ll;
         }
-        numRead += ll;
       }
       else if (cp == 0x3811 && describeCallback != null)
       {
@@ -2200,13 +2207,20 @@ private int streamBytesReadByReadCompressedByte;
         {
           int oldNumRead = numRead;
           numRead += 6;
+          int virtualRead = numRead; 
           // Extended column descriptors.
           int numColumns = readInt();
           int[] offsets = new int[numColumns];
           int[] lengths = new int[numColumns];
           numRead += 4 + skipBytesReturnCount(6); // Reserved.
+          virtualRead += 10; 
+          
           for (int i=0; i<numColumns; ++i)
           {
+            if (rleCompression_) {
+              	streamBytesReadByReadCompressedByte = 0; 
+            }
+  
             int updateable = readByte();
             int searchable = readByte();
             int attributeBitmap = readShort();
@@ -2223,15 +2237,22 @@ private int streamBytesReadByReadCompressedByte;
                                               (attributeBitmap & 0x0040) != 0); // Row change timestamp.
             offsets[i] = readInt();
             lengths[i] = readInt();
-            numRead += 12 + skipBytesReturnCount(4); // Reserved.
+            readInt(); // Reserved
+            if (rleCompression_) {
+              	numRead += streamBytesReadByReadCompressedByte; 
+            } else {
+            	numRead += 16;
+            }
+            virtualRead += 16; 
           }
           for (int i=0; i<numColumns; ++i)
           {
-            int base = numRead-oldNumRead;
+            int base = virtualRead-oldNumRead;
             int toSkip = offsets[i] - base;
             if (toSkip > 0)
             {
               numRead += skipBytesReturnCount(toSkip);
+              virtualRead += toSkip; 
             }
             if (lengths[i] >= 8)
             {
@@ -2240,18 +2261,35 @@ private int streamBytesReadByReadCompressedByte;
               while (descRead < lengths[i])
               {
                 int oldDescRead = descRead;
+
+                if (rleCompression_) {
+                  	streamBytesReadByReadCompressedByte = 0; 
+                }
                 int descriptorLength = readInt();
                 int codepoint = readShort();
+                if (rleCompression_) {
+                  	physicalRead += streamBytesReadByReadCompressedByte; 
+                } else {
+                    physicalRead += 6; 
+                }                
                 descRead += 6;
-                physicalRead += 6; 
+                virtualRead += 6; 
                 
                 int ccsid = 37;
                 int len = descriptorLength-6;
                 if (codepoint == 0x3902)
                 {
+                    if (rleCompression_) {
+                      	streamBytesReadByReadCompressedByte = 0; 
+                    }
                   ccsid = readShort();
+                  if (rleCompression_) {
+                    	physicalRead += streamBytesReadByReadCompressedByte; 
+                  } else {
+                     physicalRead += 2;
+                  }
                   descRead += 2;
-                  physicalRead += 2; 
+                  virtualRead += 2; 
                   
                   len = descriptorLength-8;
 		  if (ccsid == 65535) {
@@ -2260,6 +2298,7 @@ private int streamBytesReadByReadCompressedByte;
                 }
                 physicalRead += readFullyReturnCount(byteBuffer_, 0, len);
                 descRead += len;
+                virtualRead += len; 
                 
                 String name = Conv.ebcdicByteArrayToString(byteBuffer_, 0, len, charBuffer_, ccsid);
                 switch (codepoint)
@@ -2276,13 +2315,15 @@ private int streamBytesReadByReadCompressedByte;
                 {
                   physicalRead += skipBytesReturnCount(descSkip);
                   descRead += descSkip;
+                  virtualRead += descSkip; 
                 }
               }
               numRead += physicalRead;
             }
           }
-          int remaining = ll-numRead+oldNumRead;
+          int remaining = ll-virtualRead+oldNumRead;
           numRead += skipBytesReturnCount(remaining);
+          virtualRead += remaining; 
         }
         else
         {
@@ -2299,6 +2340,9 @@ private int streamBytesReadByReadCompressedByte;
           virtualRead += 6; 
           
           // Super extended data format.
+          if (rleCompression_) {
+            	streamBytesReadByReadCompressedByte = 0; 
+          }
           int consistencyToken = readInt();
           int numFields = readInt();
           int dateFormat = readByte();
@@ -2306,34 +2350,53 @@ private int streamBytesReadByReadCompressedByte;
           int dateSeparator = readByte();
           int timeSeparator = readByte();
           int recordSize = readInt();
+          
           describeCallback.resultSetDescription(numFields, dateFormat, timeFormat, dateSeparator, timeSeparator, recordSize);
-          numRead += 16;
-          virtualRead += 16; 
+          
+          if (rleCompression_) {
+          	numRead += streamBytesReadByReadCompressedByte; 
+          } else {
+          	numRead += 16;
+          }
+          virtualRead += 16;
+          
           int[] offsets = new int[numFields];
           int[] lengths = new int[numFields];
           final int fixedLengthRead = 48*numFields;
           for (int i=0; i<numFields; ++i)
           {
+        	if (rleCompression_) {
+              	streamBytesReadByReadCompressedByte = 0; 
+            }
+        	  
             int fieldLL = readShort();
             int fieldType = readShort();
             int fieldLength = readInt();
             int fieldScale = readShort();
             int fieldPrecision = readShort();
             int fieldCCSID = readShort();
-            skipBytesReturnCount(1); // reserved
+            readByte(); // reserved
             int fieldJoinRefPosition = readShort();
-            skipBytesReturnCount(4); // reserved
+            readInt(); // reserved
             int fieldAttributeBitmap = readByte();
-            skipBytesReturnCount(4); // reserved
+            readInt(); // reserved
             int fieldLOBMaxSize = readInt();
-            skipBytesReturnCount(2); // reserved
-            describeCallback.fieldDescription(i, fieldType, fieldLength, fieldScale, fieldPrecision, fieldCCSID, fieldJoinRefPosition, fieldAttributeBitmap, fieldLOBMaxSize);
+            readShort(); // reserved
             int offsetToVariableLengthInformation = readInt();
             int lengthOfVariableLengthInformation = readInt();
+            readInt(); // Reserved
+            readInt(); // Reserved 
+			if (rleCompression_) {
+			  numRead += streamBytesReadByReadCompressedByte;
+			} else {
+			  numRead += 48;
+			}
+            virtualRead += 48; 
+
+            
+            describeCallback.fieldDescription(i, fieldType, fieldLength, fieldScale, fieldPrecision, fieldCCSID, fieldJoinRefPosition, fieldAttributeBitmap, fieldLOBMaxSize);
             offsets[i] = (48*i)+offsetToVariableLengthInformation-fixedLengthRead;
             lengths[i] = lengthOfVariableLengthInformation;
-            numRead += 40 + skipBytesReturnCount(8); // reserved
-            virtualRead += 48; 
           }
           int varLengthRead = 0;
           for (int i=0; i<numFields; ++i)
@@ -2344,11 +2407,21 @@ private int streamBytesReadByReadCompressedByte;
             varLengthRead += toSkip;         /* Also count the skipped bytes */
         	int variableLength =   lengths[i];
         	while (variableLength > 0) {
+            	if (rleCompression_) {
+                  	streamBytesReadByReadCompressedByte = 0; 
+                }
         		int varFieldLL = readInt();
 				int varFieldCP = readShort();
 				int varFieldCCSID = readShort(); // Always 65535?
+				if (rleCompression_) {
+					  numRead += streamBytesReadByReadCompressedByte;
+				} else {
+				   numRead += 8; 
+				}
+				
 				int varFieldNameLength = varFieldLL - 8;
-				numRead+= 8 + readFullyReturnCount(byteBuffer_, 0, varFieldNameLength);
+				numRead+= readFullyReturnCount(byteBuffer_, 0, varFieldNameLength);
+				
 				virtualRead+= varFieldLL; 
 				String varFieldName = Conv.ebcdicByteArrayToString(
 									byteBuffer_, 0, varFieldNameLength,
@@ -2379,15 +2452,24 @@ private int streamBytesReadByReadCompressedByte;
         int virtualRead = numRead; 
         if (numRead+20 <= length)
         {
+          if (rleCompression_) {
+              	streamBytesReadByReadCompressedByte = 0; 
+          }
           // Extended result data.
           int consistencyToken = readInt();
           int rowCount = readInt();
           int columnCount = readShort();
           int indicatorSize = readShort();
-          numRead += 12 + skipBytesReturnCount(4); // reserved
+          readInt(); // reserved
           int rowSize = readInt();
+          
           fetchCallback.newResultData(rowCount, columnCount, rowSize);
-          numRead += 4; 
+			if (rleCompression_) {
+				 numRead += streamBytesReadByReadCompressedByte;
+			} else {
+				numRead += 20;
+			}
+          virtualRead += 20; 
           final byte[] tempIndicator;
           if (indicatorSize == 0) {
              tempIndicator_[0] = 0;
@@ -2400,16 +2482,17 @@ private int streamBytesReadByReadCompressedByte;
           {
             for (int j=0; j<columnCount; ++j)
             {
-              if (indicatorSize > 0) readFully(tempIndicator);
+              if (indicatorSize > 0) {
+            	  numRead +=readFullyReturnCount(tempIndicator);
+            	  virtualRead += indicatorSize; 
+              }
               fetchCallback.newIndicator(i, j, tempIndicator);
             }
           }
-          numRead += rowCount * columnCount * indicatorSize;
+
           byte[] callbackBuffer = fetchCallback.getTempDataBuffer(rowSize);
           final byte[] tempData = callbackBuffer != null && callbackBuffer.length >= rowSize ? callbackBuffer : new byte[rowSize];
           final int max = ll+oldNumRead;
-          // Set the virtualRead count -- up to here it would have match numRead
-          virtualRead = numRead; 
           for (int i=0; i<rowCount && virtualRead < max; ++i)
           {
         	// Todo.. Think about the numRead calculation as well as the
@@ -2429,7 +2512,7 @@ private int streamBytesReadByReadCompressedByte;
         int packageLength = readInt();
         int packageCCSID = readShort();
         byte[] buf18 = new byte[18];
-        readFully(buf18);
+        readFullyReturnCount(buf18);
         String packageDefaultCollection = Conv.ebcdicByteArrayToString(buf18, charBuffer_);
         int numStatements = readShort();
         numRead += 26 + skipBytesReturnCount(16); // Reserved.
@@ -2446,7 +2529,7 @@ private int streamBytesReadByReadCompressedByte;
         {
           int statementNeedsDefaultCollection = readByte();
           int statementType = readShort();
-          readFully(buf18);
+          readFullyReturnCount(buf18);
           String statementName = Conv.ebcdicByteArrayToString(buf18, charBuffer_);
           packageCallback.newStatementInfo(i, statementNeedsDefaultCollection, statementType, statementName);
           numRead+= 21 + skipBytesReturnCount(19); // Reserved.
@@ -2473,7 +2556,7 @@ private int streamBytesReadByReadCompressedByte;
             numRead += skipBytesReturnCount(diff);
             packageOffset += diff;
             byte[] buf = new byte[textLengths[i]];
-            readFully(buf);
+            readFullyReturnCount(buf);
             numRead += textLengths[i];
             packageOffset += textLengths[i];
             String text = Conv.unicodeByteArrayToString(buf, 0, buf.length);
@@ -2485,7 +2568,7 @@ private int streamBytesReadByReadCompressedByte;
             numRead += skipBytesReturnCount(diff);
             packageOffset += diff;
             byte[] statementFormat = new byte[formatLengths[i]];
-            readFully(statementFormat);
+            readFullyReturnCount(statementFormat);
             numRead += formatLengths[i];
             packageOffset += formatLengths[i];
             packageCallback.statementDataFormat(i, statementFormat);
@@ -2496,7 +2579,7 @@ private int streamBytesReadByReadCompressedByte;
             numRead += skipBytesReturnCount(diff);
             packageOffset += diff;
             byte[] parameterMarkerFormat = new byte[parameterMarkerLengths[i]];
-            readFully(parameterMarkerFormat);
+            readFullyReturnCount(parameterMarkerFormat);
             numRead += parameterMarkerLengths[i];
             packageOffset += parameterMarkerLengths[i];
             packageCallback.statementParameterMarkerFormat(i, parameterMarkerFormat);
