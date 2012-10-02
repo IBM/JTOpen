@@ -31,8 +31,8 @@ import java.util.Map;
 public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
 {
 	  // Fetch scroll options, for reference.
-	  private static int NEXT =         0x0000;
 	  /*
+	  private static int NEXT =         0x0000;
 	  private static int PREVIOUS =     0x0001;
 	  private static int FIRST =        0x0002;
 	  private static int LAST =         0x0003;
@@ -571,8 +571,7 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
   **/
   public BigDecimal getBigDecimal(String colName) throws SQLException
   {
-    String s = getString(colName);
-    return s == null ? null : new BigDecimal(s);
+    return getBigDecimal(findColumn(colName)); 
   }
 
   /**
