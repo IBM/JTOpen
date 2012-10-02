@@ -192,7 +192,7 @@ private int streamBytesReadByReadCompressedByte;
   private void readFullReply(String name) throws IOException
   {
     int length = readReplyHeader(name);
-    skipBytes(length-40);
+    skipBytesReturnCount(length-40);
     in_.end();
   }
 
@@ -2012,12 +2012,14 @@ private int streamBytesReadByReadCompressedByte;
     return streamBytesReadByReadCompressedByte;
   }
 
-  private void skipCompressedBytes(final int num) throws IOException
+  private int skipCompressedBytesReturnCount(final int num) throws IOException
   {
+	streamBytesReadByReadCompressedByte = 0;
     for (int i=0; i<num; ++i)
     {
       readCompressedByte();
     }
+    return streamBytesReadByReadCompressedByte;
   }
 
   private int rleRepeatValue1_ = 0;
@@ -2099,7 +2101,7 @@ private int streamBytesReadByReadCompressedByte;
   // Returns the number of bytes actually consumed from the
   // input stream.
   //
-  private int readFully(byte[] b, int off, int len) throws IOException
+  private int readFullyReturnCount(byte[] b, int off, int len) throws IOException
   {
     if (rleCompression_)
     {
@@ -2112,15 +2114,16 @@ private int streamBytesReadByReadCompressedByte;
     }
   }
 
-  private void skipBytes(int num) throws IOException
+  private int skipBytesReturnCount(int num) throws IOException
   {
     if (rleCompression_)
     {
-      skipCompressedBytes(num);
+      return skipCompressedBytesReturnCount(num);
     }
     else
     {
       in_.skipBytes(num);
+      return num; 
     }
   }
 
@@ -2201,8 +2204,7 @@ private int streamBytesReadByReadCompressedByte;
           int numColumns = readInt();
           int[] offsets = new int[numColumns];
           int[] lengths = new int[numColumns];
-          skipBytes(6); // Reserved.
-          numRead += 10;
+          numRead += 4 + skipBytesReturnCount(6); // Reserved.
           for (int i=0; i<numColumns; ++i)
           {
             int updateable = readByte();
@@ -2221,8 +2223,7 @@ private int streamBytesReadByReadCompressedByte;
                                               (attributeBitmap & 0x0040) != 0); // Row change timestamp.
             offsets[i] = readInt();
             lengths[i] = readInt();
-            skipBytes(4); // Reserved.
-            numRead += 16;
+            numRead += 12 + skipBytesReturnCount(4); // Reserved.
           }
           for (int i=0; i<numColumns; ++i)
           {
@@ -2230,31 +2231,36 @@ private int streamBytesReadByReadCompressedByte;
             int toSkip = offsets[i] - base;
             if (toSkip > 0)
             {
-              skipBytes(toSkip);
-              numRead += toSkip;
+              numRead += skipBytesReturnCount(toSkip);
             }
             if (lengths[i] >= 8)
             {
               int descRead = 0;
+              int physicalRead = 0; 
               while (descRead < lengths[i])
               {
                 int oldDescRead = descRead;
                 int descriptorLength = readInt();
                 int codepoint = readShort();
                 descRead += 6;
+                physicalRead += 6; 
+                
                 int ccsid = 37;
                 int len = descriptorLength-6;
                 if (codepoint == 0x3902)
                 {
                   ccsid = readShort();
                   descRead += 2;
+                  physicalRead += 2; 
+                  
                   len = descriptorLength-8;
 		  if (ccsid == 65535) {
 		      ccsid = 37;
 		  }
                 }
-                readFully(byteBuffer_, 0, len);
+                physicalRead += readFullyReturnCount(byteBuffer_, 0, len);
                 descRead += len;
+                
                 String name = Conv.ebcdicByteArrayToString(byteBuffer_, 0, len, charBuffer_, ccsid);
                 switch (codepoint)
                 {
@@ -2268,16 +2274,15 @@ private int streamBytesReadByReadCompressedByte;
                 int descSkip = descriptorLength-descRead+oldDescRead;
                 if (descSkip > 0)
                 {
-                  skipBytes(descSkip);
+                  physicalRead += skipBytesReturnCount(descSkip);
                   descRead += descSkip;
                 }
               }
-              numRead += descRead;
+              numRead += physicalRead;
             }
           }
           int remaining = ll-numRead+oldNumRead;
-          skipBytes(remaining);
-          numRead += remaining;
+          numRead += skipBytesReturnCount(remaining);
         }
         else
         {
@@ -2289,7 +2294,10 @@ private int streamBytesReadByReadCompressedByte;
         if (ll > 6 && describeCallback != null)
         {
           int oldNumRead = numRead;
+          int virtualRead = numRead; 
           numRead += 6;
+          virtualRead += 6; 
+          
           // Super extended data format.
           int consistencyToken = readInt();
           int numFields = readInt();
@@ -2300,6 +2308,7 @@ private int streamBytesReadByReadCompressedByte;
           int recordSize = readInt();
           describeCallback.resultSetDescription(numFields, dateFormat, timeFormat, dateSeparator, timeSeparator, recordSize);
           numRead += 16;
+          virtualRead += 16; 
           int[] offsets = new int[numFields];
           int[] lengths = new int[numFields];
           final int fixedLengthRead = 48*numFields;
@@ -2311,27 +2320,27 @@ private int streamBytesReadByReadCompressedByte;
             int fieldScale = readShort();
             int fieldPrecision = readShort();
             int fieldCCSID = readShort();
-            skipBytes(1); // reserved
+            skipBytesReturnCount(1); // reserved
             int fieldJoinRefPosition = readShort();
-            skipBytes(4); // reserved
+            skipBytesReturnCount(4); // reserved
             int fieldAttributeBitmap = readByte();
-            skipBytes(4); // reserved
+            skipBytesReturnCount(4); // reserved
             int fieldLOBMaxSize = readInt();
-            skipBytes(2); // reserved
+            skipBytesReturnCount(2); // reserved
             describeCallback.fieldDescription(i, fieldType, fieldLength, fieldScale, fieldPrecision, fieldCCSID, fieldJoinRefPosition, fieldAttributeBitmap, fieldLOBMaxSize);
             int offsetToVariableLengthInformation = readInt();
             int lengthOfVariableLengthInformation = readInt();
             offsets[i] = (48*i)+offsetToVariableLengthInformation-fixedLengthRead;
             lengths[i] = lengthOfVariableLengthInformation;
-            skipBytes(8); // reserved
-            numRead += 48;
+            numRead += 40 + skipBytesReturnCount(8); // reserved
+            virtualRead += 48; 
           }
           int varLengthRead = 0;
           for (int i=0; i<numFields; ++i)
           {
             int toSkip = offsets[i] - varLengthRead;
-            skipBytes(toSkip);
-            numRead += toSkip;
+            numRead += skipBytesReturnCount(toSkip);
+            virtualRead += toSkip; 
             varLengthRead += toSkip;         /* Also count the skipped bytes */
         	int variableLength =   lengths[i];
         	while (variableLength > 0) {
@@ -2339,7 +2348,8 @@ private int streamBytesReadByReadCompressedByte;
 				int varFieldCP = readShort();
 				int varFieldCCSID = readShort(); // Always 65535?
 				int varFieldNameLength = varFieldLL - 8;
-				readFully(byteBuffer_, 0, varFieldNameLength);
+				numRead+= 8 + readFullyReturnCount(byteBuffer_, 0, varFieldNameLength);
+				virtualRead+= varFieldLL; 
 				String varFieldName = Conv.ebcdicByteArrayToString(
 									byteBuffer_, 0, varFieldNameLength,
 									charBuffer_);
@@ -2348,24 +2358,25 @@ private int streamBytesReadByReadCompressedByte;
 					case 0x3841:  describeCallback.udtName(i, varFieldName); break;
 				}
 				varLengthRead += varFieldLL;
-				numRead += varFieldLL;
+				// adjusted above by readFully 
+				// numRead += varFieldLL;
 				variableLength -= varFieldLL;
 
         	}
           }
-          int remaining = ll-numRead+oldNumRead;
-          skipBytes(remaining);
+          int remaining = ll-virtualRead+oldNumRead;
+          numRead += skipBytesReturnCount(remaining);
         }
         else
         {
-          skipBytes(ll-6);
-          numRead += ll;
+          numRead += 6 + skipBytesReturnCount(ll-6);
         }
       }
       else if (cp == 0x380E && fetchCallback != null)
       {
         int oldNumRead = numRead;
         numRead += 6;
+        int virtualRead = numRead; 
         if (numRead+20 <= length)
         {
           // Extended result data.
@@ -2373,10 +2384,10 @@ private int streamBytesReadByReadCompressedByte;
           int rowCount = readInt();
           int columnCount = readShort();
           int indicatorSize = readShort();
-          skipBytes(4); // reserved
+          numRead += 12 + skipBytesReturnCount(4); // reserved
           int rowSize = readInt();
           fetchCallback.newResultData(rowCount, columnCount, rowSize);
-          numRead += 20;
+          numRead += 4; 
           final byte[] tempIndicator;
           if (indicatorSize == 0) {
              tempIndicator_[0] = 0;
@@ -2397,17 +2408,19 @@ private int streamBytesReadByReadCompressedByte;
           byte[] callbackBuffer = fetchCallback.getTempDataBuffer(rowSize);
           final byte[] tempData = callbackBuffer != null && callbackBuffer.length >= rowSize ? callbackBuffer : new byte[rowSize];
           final int max = ll+oldNumRead;
-          for (int i=0; i<rowCount && numRead < max; ++i)
+          // Set the virtualRead count -- up to here it would have match numRead
+          virtualRead = numRead; 
+          for (int i=0; i<rowCount && virtualRead < max; ++i)
           {
         	// Todo.. Think about the numRead calculation as well as the
         	// skip bytes calculation below
-            readFully(tempData, 0, rowSize);
+            numRead += readFullyReturnCount(tempData, 0, rowSize);
             fetchCallback.newRowData(i, tempData);
-            numRead += rowSize;
+            virtualRead += rowSize;
           }
         }
-        int remaining = ll-(numRead-oldNumRead);
-        skipBytes(remaining);
+        int remaining = ll-(virtualRead-oldNumRead);
+        numRead += skipBytesReturnCount(remaining);
       }
       else if (cp == 0x380B && packageCallback != null)
       {
@@ -2419,8 +2432,7 @@ private int streamBytesReadByReadCompressedByte;
         readFully(buf18);
         String packageDefaultCollection = Conv.ebcdicByteArrayToString(buf18, charBuffer_);
         int numStatements = readShort();
-        skipBytes(16); // Reserved.
-        numRead += 42;
+        numRead += 26 + skipBytesReturnCount(16); // Reserved.
         packageCallback.newPackageInfo(packageCCSID, packageDefaultCollection, numStatements);
 
         int packageOffset = 48;
@@ -2437,8 +2449,7 @@ private int streamBytesReadByReadCompressedByte;
           readFully(buf18);
           String statementName = Conv.ebcdicByteArrayToString(buf18, charBuffer_);
           packageCallback.newStatementInfo(i, statementNeedsDefaultCollection, statementType, statementName);
-          skipBytes(19); // Reserved.
-          numRead += 40;
+          numRead+= 21 + skipBytesReturnCount(19); // Reserved.
           int formatOffset = readInt();
           int formatLength = readInt();
           formatOffsets[i] = formatOffset;
@@ -2459,8 +2470,7 @@ private int streamBytesReadByReadCompressedByte;
           if (textLengths[i] > 0)
           {
             int diff = textOffsets[i]-packageOffset;
-            skipBytes(diff);
-            numRead += diff;
+            numRead += skipBytesReturnCount(diff);
             packageOffset += diff;
             byte[] buf = new byte[textLengths[i]];
             readFully(buf);
@@ -2472,8 +2482,7 @@ private int streamBytesReadByReadCompressedByte;
           if (formatLengths[i] > 0)
           {
             int diff = formatOffsets[i]-packageOffset;
-            skipBytes(diff);
-            numRead += diff;
+            numRead += skipBytesReturnCount(diff);
             packageOffset += diff;
             byte[] statementFormat = new byte[formatLengths[i]];
             readFully(statementFormat);
@@ -2484,8 +2493,7 @@ private int streamBytesReadByReadCompressedByte;
           if (parameterMarkerLengths[i] > 0)
           {
             int diff = parameterMarkerOffsets[i]-packageOffset;
-            skipBytes(diff);
-            numRead += diff;
+            numRead += skipBytesReturnCount(diff);
             packageOffset += diff;
             byte[] parameterMarkerFormat = new byte[parameterMarkerLengths[i]];
             readFully(parameterMarkerFormat);
@@ -2495,13 +2503,12 @@ private int streamBytesReadByReadCompressedByte;
           }
         }
         int remaining = ll-numRead+oldNumRead;
-        skipBytes(remaining);
-        numRead += remaining;
+        numRead += skipBytesReturnCount(remaining);
       }
       else if (cp == 0x3807 && sqlcaCallback_ != null)
       {
         // SQL CA.
-        int bytesRead = readFully(byteBuffer_, 0, ll-6);
+        int bytesRead = readFullyReturnCount(byteBuffer_, 0, ll-6);
         parseSQLCA();
         numRead += (bytesRead + 6);
       }
@@ -2509,20 +2516,32 @@ private int streamBytesReadByReadCompressedByte;
       {
         // Super extended parameter marker format.
         int oldNumRead = numRead;
+        // The header for the 3813 is a size of virtual bytes, but may not 
+        // match the physical bytes read.  Track the physical and virtual bytes read
+        // separately. 
+        int virtualRead = numRead;   
         numRead += 6;
+        virtualRead += 6; 
+        
         if (numRead+16 <= length && ll > 6)
         {
           int consistencyToken = readInt();
           int numFields = readInt();
-          skipBytes(4); // Reserved.
+          numRead += 8 + skipBytesReturnCount(4); // Reserved.
           int recordSize = readInt();
           pmCallback.parameterMarkerDescription(numFields, recordSize);
-          numRead += 16;
+          numRead += 4;
+          virtualRead += 16; 
+          
           int[] offsets = new int[numFields];
           int[] lengths = new int[numFields];
           final int fixedLengthRead = 48*numFields;
           for (int i=0; i<numFields; ++i)
           {
+            if (rleCompression_) {
+              	streamBytesReadByReadCompressedByte = 0; 
+            }
+        	  
             int descLL = readShort();
             int type = readShort();
             int fieldLength = readInt();
@@ -2531,30 +2550,54 @@ private int streamBytesReadByReadCompressedByte;
             int fieldCCSID = readShort();
             int parmType = readByte();
             int joinRefPosition = readShort();
-//Error in LIPI doc.          skipBytes(2); // Reserved.
+            //Error in LIPI doc.          skipBytes(2); // Reserved.
             int lobLocator = readInt();
-            skipBytes(5); // Reserved.
+            // numRead+= skipBytesReturnCount(5); // Reserved.
+            readInt(); // Reserved
+            readByte(); // Reserved
             int lobMaxSize = readInt();
-            skipBytes(2); // Reserved.
-            pmCallback.parameterMarkerFieldDescription(i, type, fieldLength, scale, precision, fieldCCSID, parmType, joinRefPosition, lobLocator, lobMaxSize);
+            // numRead+= skipBytesReturnCount(2); // Reserved.
+            readShort();                          // Reserved 
             int offsetToVariableLengthInformation = readInt(); // Based on start of fixed length info.
             int lengthOfVariableLengthInformation = readInt();
+            // numRead +=  skipBytesReturnCount(8); // Reserved.
+            readInt() ; // Reserved
+            readInt() ; // Reserved
+            if (rleCompression_) {
+            	numRead += streamBytesReadByReadCompressedByte; 
+            } else {
+            	numRead += 48;
+            }
+            virtualRead += 48; 
+            
+            pmCallback.parameterMarkerFieldDescription(i, type, fieldLength, scale, precision, fieldCCSID, parmType, joinRefPosition, lobLocator, lobMaxSize);
+            
             offsets[i] = (48*i)+offsetToVariableLengthInformation-fixedLengthRead;
             lengths[i] = lengthOfVariableLengthInformation;
-            skipBytes(8); // Reserved.
-            numRead += 48;
+            
           }
+          
           int varLengthRead = 0;
           for (int i=0; i<numFields; ++i)
           {
             int toSkip = offsets[i]-varLengthRead;
-            skipBytes(toSkip);
-            numRead += toSkip;
+            numRead += skipBytesReturnCount(toSkip);
+            virtualRead += toSkip; 
+            
+            if (rleCompression_) {
+            	streamBytesReadByReadCompressedByte = 0; 
+            }
             int varFieldLL = readInt();
             int varFieldCP = readShort();
             int varFieldCCSID = readShort(); // Always 65535?
+            if (rleCompression_) {
+            	numRead += streamBytesReadByReadCompressedByte ;
+            } else {
+            	numRead += 8; 
+            }
+            
             int varFieldNameLength = lengths[i]-8;
-            readFully(byteBuffer_, 0, varFieldNameLength);
+            numRead += readFullyReturnCount(byteBuffer_, 0, varFieldNameLength);
             String varFieldName = Conv.ebcdicByteArrayToString(byteBuffer_, 0, varFieldNameLength, charBuffer_);
             if (varFieldCP == 0x3840)
             {
@@ -2565,7 +2608,11 @@ private int streamBytesReadByReadCompressedByte;
               pmCallback.parameterMarkerUDTName(i, varFieldName);
             }
             varLengthRead += lengths[i];
-            numRead += lengths[i];
+            // 
+            // Actual bytes read is calculated with readFully
+            // numRead += lengths[i];
+            // 
+            virtualRead += lengths[i]; 
           }
         }
         else
@@ -2573,9 +2620,8 @@ private int streamBytesReadByReadCompressedByte;
           // Statement was prepared but has no parameter markers.
           pmCallback.parameterMarkerDescription(0, 0);
         }
-        int remaining = ll-numRead+oldNumRead;
-        skipBytes(remaining);
-        numRead += remaining;
+        int remaining = ll-virtualRead+oldNumRead;
+        numRead += skipBytesReturnCount(remaining);
       }
       else if (cp == 0x3810 && lobCallback != null) // LOB data length
       {
@@ -2601,17 +2647,18 @@ private int streamBytesReadByReadCompressedByte;
           lobCallback.newLOBLength(totalLen);
           moreSkip = 10;
         }
-        skipBytes(ll-6-moreSkip);
-        numRead += ll;
+        numRead += 6 + moreSkip + skipBytesReturnCount(ll-6-moreSkip);
       }
       else if (cp == 0x380F && lobCallback != null) // LOB data
       {
         int oldNumRead = numRead;
         numRead += 6;
+        int virtualRead = numRead; 
         if (numRead+6 <= length && ll > 6)
         {
           int ccsid = readShort();
           int lobLL = readInt();
+          numRead += 6; 
           lobCallback.newLOBData(ccsid, lobLL);
           byte[] buffer = lobCallback.getLOBBuffer();
           if (buffer == null || buffer.length == 0)
@@ -2622,26 +2669,27 @@ private int streamBytesReadByReadCompressedByte;
           }
           int remainingLob = lobLL;
           int segmentLimit = buffer.length > remainingLob ? remainingLob : buffer.length;
-          readFully(buffer, 0, segmentLimit);
+          numRead += readFullyReturnCount(buffer, 0, segmentLimit);
+          virtualRead += segmentLimit; 
+          
           lobCallback.newLOBSegment(buffer, 0, segmentLimit);
           remainingLob -= segmentLimit;
           while (remainingLob > 0)
           {
             segmentLimit = buffer.length > remainingLob ? remainingLob : buffer.length;
-            readFully(buffer, 0, segmentLimit);
+            numRead += readFullyReturnCount(buffer, 0, segmentLimit);
+            virtualRead += segmentLimit; 
+            
             lobCallback.newLOBSegment(buffer, 0, segmentLimit);
             remainingLob -= segmentLimit;
           }
-          numRead += 6+lobLL;
         }
-        int remaining = ll-numRead+oldNumRead;
-        skipBytes(remaining);
-        numRead += remaining;
+        int remaining = ll-virtualRead+oldNumRead;
+        numRead += skipBytesReturnCount(remaining);
       }
       else
       {
-        skipBytes(ll-6);
-        numRead += ll;
+        numRead += 6 + skipBytesReturnCount(ll-6);
       }
     }
     in_.end();
@@ -3019,7 +3067,7 @@ private int streamBytesReadByReadCompressedByte;
     out_.flush();
 
     int length = readReplyHeader("setServerAttributes");
-    int numRead = 40;
+    int virtualRead = 40;
     if (length > 46)
     {
       int ll = readInt();
@@ -3059,36 +3107,36 @@ private int streamBytesReadByReadCompressedByte;
       attributes.setNLSSIdentifier(serverNLSSValue);
       final byte[] buf = new byte[32];
       final char[] cbuf = new char[32];
-      readFully(buf, 0, 3);
+      readFullyReturnCount(buf, 0, 3);
       String serverLanguageID = Conv.ebcdicByteArrayToString(buf, 0, 3, cbuf);
       attributes.setNLSSIdentifierLanguageID(serverLanguageID);
-      readFully(buf, 0, 10);
+      readFullyReturnCount(buf, 0, 10);
       String serverLanguageTableName = Conv.ebcdicByteArrayToString(buf, 0, 10, cbuf);
       attributes.setNLSSIdentifierLanguageTableName(serverLanguageTableName);
-      readFully(buf, 0, 10);
+      readFullyReturnCount(buf, 0, 10);
       String serverLanguageTableLibrary = Conv.ebcdicByteArrayToString(buf, 0, 10, cbuf);
       attributes.setNLSSIdentifierLanguageTableLibrary(serverLanguageTableLibrary);
-      readFully(buf, 0, 4);
+      readFullyReturnCount(buf, 0, 4);
       String serverLanguageFeatureCode = Conv.ebcdicByteArrayToString(buf, 0, 4, cbuf);
       attributes.setLanguageFeatureCode(serverLanguageFeatureCode);
-      readFully(buf, 0, 10);
+      readFullyReturnCount(buf, 0, 10);
       String serverFunctionalLevel = Conv.ebcdicByteArrayToString(buf, 0, 10, cbuf);
       attributes.setServerFunctionalLevel(serverFunctionalLevel);
-      readFully(buf, 0, 18);
+      readFullyReturnCount(buf, 0, 18);
       String relationalDBName = Conv.ebcdicByteArrayToString(buf, 0, 18, cbuf);
       attributes.setRDBName(relationalDBName);
-      readFully(buf, 0, 10);
+      readFullyReturnCount(buf, 0, 10);
       String defaultSQLLibraryName = Conv.ebcdicByteArrayToString(buf, 0, 10, cbuf);
       attributes.setDefaultSQLLibraryName(defaultSQLLibraryName);
-      readFully(buf, 0, 26);
+      readFullyReturnCount(buf, 0, 26);
       String jobName = Conv.ebcdicByteArrayToString(buf, 0, 10, cbuf);
       String userName = Conv.ebcdicByteArrayToString(buf, 10, 10, cbuf);
       String jobNumber = Conv.ebcdicByteArrayToString(buf, 20, 6, cbuf);
       attributes.setServerJob(jobName, userName, jobNumber);
-      skipBytes(ll-122);
-      numRead += ll;
+      skipBytesReturnCount(ll-122);
+      virtualRead += ll;
     }
-    skipBytes(length-numRead);
+    skipBytesReturnCount(length-virtualRead);
     in_.end();
   }
 
@@ -3875,11 +3923,11 @@ private int streamBytesReadByReadCompressedByte;
           }
           else
           {
-            skipBytes(ll-6);
+            skipBytesReturnCount(ll-6);
           }
           numRead += ll;
         }
-        skipBytes(length-numRead);
+        skipBytesReturnCount(length-numRead);
         in_.end();
         if (msgID != null)
         {
