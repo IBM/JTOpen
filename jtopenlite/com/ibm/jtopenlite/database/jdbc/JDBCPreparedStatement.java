@@ -61,7 +61,14 @@ public class JDBCPreparedStatement extends JDBCStatement implements PreparedStat
       }
 
     JDBCParameterMetaData pmd = new JDBCParameterMetaData(calendar);
-    rsmd_ = new JDBCResultSetMetaData(conn.getDatabaseInfo().getServerCCSID(), calendar, conn_.getCatalog());
+    String catalog = conn_.getCatalog();
+    // Getting the catalog may change the current rpb for the connection.  
+    // Reset it after getting back.  Otherwise the call to 
+    // prepareAndDescribe may fail with a PWS0001
+    
+    DatabaseConnection databaseConn = conn_.getDatabaseConnection();
+    databaseConn.setCurrentRequestParameterBlockID(rpbID_);
+    rsmd_ = new JDBCResultSetMetaData(conn.getDatabaseInfo().getServerCCSID(), calendar, catalog);
 
     dpa.setExtendedSQLStatementText(sql);
     conn.prepareAndDescribe(dpa, rsmd_, pmd);
