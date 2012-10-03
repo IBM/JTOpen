@@ -2141,12 +2141,25 @@ private int streamBytesReadByReadCompressedByte;
     rleCompression_ = false;
     while (numRead < length)
     {
+      // Implementation note:  If the datastream has been compressed, if the 
+      // data stream contains 0x1B, then it will be doubled (so 7 bytes) could
+      // possibly have been read. 
+      int headerBytesRead = 0; 
+      if (rleCompression_) {
+        	streamBytesReadByReadCompressedByte = 0; 
+      }
       int ll = readInt();
       int cp = readShort();
+      if (rleCompression_) {
+    	  headerBytesRead = streamBytesReadByReadCompressedByte; 
+      } else {
+    	  headerBytesRead = 6; 
+      }
+      
       if (cp == 0x3832)
       {
         int realLength = readInt();
-        numRead += 10;
+        numRead += headerBytesRead + 4;
         rleCompression_ = true;
       }
       else if (cp == 0x3801 && warningCallback_ != null)
@@ -2154,16 +2167,20 @@ private int streamBytesReadByReadCompressedByte;
         if (ll > 6)
         {
           // Message ID.
+          int shortBytesRead = 2; 	
+          if (rleCompression_) { streamBytesReadByReadCompressedByte = 0;}
           int ccsid = readShort();
+          if (rleCompression_) { shortBytesRead = streamBytesReadByReadCompressedByte;}
+          
           byte[] messageID = new byte[ll-8];
-          numRead+= 8 + readFullyReturnCount(messageID);
+          numRead+= headerBytesRead + shortBytesRead + readFullyReturnCount(messageID);
           if (ll > charBuffer_.length) {
             charBuffer_ = new char[ll];
           }
           warningCallback_.newMessageID(Conv.ebcdicByteArrayToString(messageID, charBuffer_));
           
         } else {
-        	numRead += ll;
+        	numRead += headerBytesRead;
         }
       }
       else if (cp == 0x3802 && warningCallback_ != null)
@@ -2171,17 +2188,21 @@ private int streamBytesReadByReadCompressedByte;
         if (ll > 6)
         {
           // First level message text.
+          if (rleCompression_) { streamBytesReadByReadCompressedByte = 0;}
           int ccsid = readShort();
           int len = readShort();
+          int shortBytesRead = 4; 
+          if (rleCompression_) { shortBytesRead = streamBytesReadByReadCompressedByte;}
+
           byte[] firstLevelMessageText = new byte[ll-10];
-          numRead += 10 + readFullyReturnCount(firstLevelMessageText);
+          numRead += headerBytesRead + shortBytesRead + readFullyReturnCount(firstLevelMessageText);
           if (ll > charBuffer_.length) {
             charBuffer_ = new char[ll];
           }
 
           warningCallback_.newMessageText(Conv.ebcdicByteArrayToString(firstLevelMessageText, charBuffer_));
         } else {
-        	numRead += ll;
+        	numRead += headerBytesRead;
         }
       }
       else if (cp == 0x3803 && warningCallback_ != null)
@@ -2189,16 +2210,19 @@ private int streamBytesReadByReadCompressedByte;
         if (ll > 6)
         {
           // Second level message text.
+          if (rleCompression_) { streamBytesReadByReadCompressedByte = 0;}
           int ccsid = readShort();
           int len = readShort();
+          int shortBytesRead = 4;
+          if (rleCompression_) { shortBytesRead = streamBytesReadByReadCompressedByte ;}
           byte[] secondLevelMessageText = new byte[ll-10];
-          numRead += 10 + readFullyReturnCount(secondLevelMessageText);
+          numRead += headerBytesRead + shortBytesRead + readFullyReturnCount(secondLevelMessageText);
           if (ll > charBuffer_.length) {
             charBuffer_ = new char[ll];
           }
           warningCallback_.newSecondLevelText(Conv.ebcdicByteArrayToString(secondLevelMessageText, charBuffer_));
         } else { 
-        	numRead += ll;
+        	numRead += headerBytesRead;
         }
       }
       else if (cp == 0x3811 && describeCallback != null)
@@ -2206,13 +2230,17 @@ private int streamBytesReadByReadCompressedByte;
         if (ll > 6)
         {
           int oldNumRead = numRead;
-          numRead += 6;
+          numRead += headerBytesRead;
           int virtualRead = numRead; 
           // Extended column descriptors.
+          if (rleCompression_) { streamBytesReadByReadCompressedByte = 0;}
           int numColumns = readInt();
+          int intBytesRead = 4; 
+          if (rleCompression_) { intBytesRead = streamBytesReadByReadCompressedByte;}
+
           int[] offsets = new int[numColumns];
           int[] lengths = new int[numColumns];
-          numRead += 4 + skipBytesReturnCount(6); // Reserved.
+          numRead += intBytesRead + skipBytesReturnCount(6); // Reserved.
           virtualRead += 10; 
           
           for (int i=0; i<numColumns; ++i)
@@ -2327,7 +2355,7 @@ private int streamBytesReadByReadCompressedByte;
         }
         else
         {
-          numRead += ll;
+          numRead += headerBytesRead;
         }
       }
       else if (cp == 0x3812)
@@ -2336,7 +2364,7 @@ private int streamBytesReadByReadCompressedByte;
         {
           int oldNumRead = numRead;
           int virtualRead = numRead; 
-          numRead += 6;
+          numRead += headerBytesRead;
           virtualRead += 6; 
           
           // Super extended data format.
@@ -2442,14 +2470,14 @@ private int streamBytesReadByReadCompressedByte;
         }
         else
         {
-          numRead += 6 + skipBytesReturnCount(ll-6);
+          numRead += headerBytesRead + skipBytesReturnCount(ll-6);
         }
       }
       else if (cp == 0x380E && fetchCallback != null)
       {
         int oldNumRead = numRead;
-        numRead += 6;
-        int virtualRead = numRead; 
+        numRead += headerBytesRead;
+        int virtualRead = oldNumRead + 6; 
         if (numRead+20 <= length)
         {
           if (rleCompression_) {
@@ -2508,14 +2536,19 @@ private int streamBytesReadByReadCompressedByte;
       else if (cp == 0x380B && packageCallback != null)
       {
         int oldNumRead = numRead;
-        numRead += 6;
+        numRead += headerBytesRead;
+        if (rleCompression_) {streamBytesReadByReadCompressedByte = 0; } 
+
         int packageLength = readInt();
         int packageCCSID = readShort();
         byte[] buf18 = new byte[18];
         readFullyReturnCount(buf18);
         String packageDefaultCollection = Conv.ebcdicByteArrayToString(buf18, charBuffer_);
         int numStatements = readShort();
-        numRead += 26 + skipBytesReturnCount(16); // Reserved.
+        int pieceBytesRead = 26;
+        if (rleCompression_) { pieceBytesRead = streamBytesReadByReadCompressedByte; }
+
+        numRead += pieceBytesRead+ skipBytesReturnCount(16); // Reserved.
         packageCallback.newPackageInfo(packageCCSID, packageDefaultCollection, numStatements);
 
         int packageOffset = 48;
@@ -2593,7 +2626,7 @@ private int streamBytesReadByReadCompressedByte;
         // SQL CA.
         int bytesRead = readFullyReturnCount(byteBuffer_, 0, ll-6);
         parseSQLCA();
-        numRead += (bytesRead + 6);
+        numRead += (bytesRead + headerBytesRead); 
       }
       else if (cp == 0x3813 && pmCallback != null)
       {
@@ -2603,17 +2636,23 @@ private int streamBytesReadByReadCompressedByte;
         // match the physical bytes read.  Track the physical and virtual bytes read
         // separately. 
         int virtualRead = numRead;   
-        numRead += 6;
+        numRead += headerBytesRead;
         virtualRead += 6; 
         
         if (numRead+16 <= length && ll > 6)
         {
+            if (rleCompression_) {streamBytesReadByReadCompressedByte = 0; } 
+          
           int consistencyToken = readInt();
           int numFields = readInt();
-          numRead += 8 + skipBytesReturnCount(4); // Reserved.
+          readInt(); // reserved 
           int recordSize = readInt();
+          if (rleCompression_) {
+        	  numRead += streamBytesReadByReadCompressedByte;
+          } else { 
+              numRead += 16;
+          }
           pmCallback.parameterMarkerDescription(numFields, recordSize);
-          numRead += 4;
           virtualRead += 16; 
           
           int[] offsets = new int[numFields];
@@ -2708,6 +2747,7 @@ private int streamBytesReadByReadCompressedByte;
       }
       else if (cp == 0x3810 && lobCallback != null) // LOB data length
       {
+        if (rleCompression_) {streamBytesReadByReadCompressedByte = 0; } 
         int num = readShort();
         int moreSkip = 0;
         if (num == 0)
@@ -2728,20 +2768,27 @@ private int streamBytesReadByReadCompressedByte;
           int lowerLen = readInt();
           long totalLen = ((long)upperLen << 32) | (long)lowerLen;
           lobCallback.newLOBLength(totalLen);
-          moreSkip = 10;
+          moreSkip = 12;
         }
-        numRead += 6 + moreSkip + skipBytesReturnCount(ll-6-moreSkip);
+        int physicalRead = moreSkip; 
+        if (rleCompression_) {physicalRead = streamBytesReadByReadCompressedByte;  } 
+        numRead += headerBytesRead + physicalRead + skipBytesReturnCount(ll-6-moreSkip);
       }
       else if (cp == 0x380F && lobCallback != null) // LOB data
       {
         int oldNumRead = numRead;
-        numRead += 6;
+        numRead += headerBytesRead;
         int virtualRead = numRead; 
         if (numRead+6 <= length && ll > 6)
         {
+            if (rleCompression_) {streamBytesReadByReadCompressedByte = 0; } 
           int ccsid = readShort();
           int lobLL = readInt();
-          numRead += 6; 
+          if (rleCompression_) {
+        	  numRead+=streamBytesReadByReadCompressedByte = 0; 
+          	} else { 
+          numRead += 6;
+          	}
           lobCallback.newLOBData(ccsid, lobLL);
           byte[] buffer = lobCallback.getLOBBuffer();
           if (buffer == null || buffer.length == 0)
@@ -2772,7 +2819,7 @@ private int streamBytesReadByReadCompressedByte;
       }
       else
       {
-        numRead += 6 + skipBytesReturnCount(ll-6);
+        numRead += headerBytesRead + skipBytesReturnCount(ll-6);
       }
     }
     in_.end();
