@@ -386,7 +386,8 @@ public abstract class HostServerConnection implements Connection {
 		private final byte[] longArray_ = new byte[8];
 
 		private PrintStream tracePrintStream = null;
-	    private long bytesReceived_;
+	    private long bytesReceivedAtLastReset_ = 0;
+	    private long latestBytesReceived_ = 0; 
 
 		public static void setAllDebug(boolean debug)
 		 {
@@ -405,9 +406,16 @@ public abstract class HostServerConnection implements Connection {
 
 		}
 
+		public void resetLatestBytesReceived() {
+			bytesReceivedAtLastReset_ += latestBytesReceived_;
+			latestBytesReceived_ = 0; 
+		}
+		public long getLatestBytesReceived() {
+			return latestBytesReceived_; 
+		}
 	    public long getBytesReceived() {
-	        return bytesReceived_;
-	      }
+	        return bytesReceivedAtLastReset_ +latestBytesReceived_;
+	    }
 
 		public void setDebug(boolean debug) {
 			debug_ = debug;
@@ -463,7 +471,7 @@ public abstract class HostServerConnection implements Connection {
 			if (debug_) {
 				debugByte(i);
 			}
-      ++bytesReceived_;
+			++latestBytesReceived_;
 			return i;
 		}
 
@@ -475,18 +483,18 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(shortArray_);
 			if (i != 2) {
 				int numRead = (i >= 0 ? i : 0);
-		        bytesReceived_ += numRead;
+		        latestBytesReceived_ += numRead;
 				while (i >= 0 && numRead < 2) {
 					i = in_.read(shortArray_, numRead, 2 - numRead);
 					numRead += (i >= 0 ? i : 0);
-		          bytesReceived_ += numRead;
+		          latestBytesReceived_ += numRead;
 
 				}
 				if (numRead < 2) {
 					throw new EOFException();
 				}
       } else {
-        bytesReceived_ += 2;
+        latestBytesReceived_ += 2;
 			}
 			if (debug_) {
 				debugBytes(shortArray_, 0, 2);
@@ -498,17 +506,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(intArray_);
 			if (i != 4) {
 				int numRead = (i >= 0 ? i : 0);
-		        bytesReceived_ += numRead;
+		        latestBytesReceived_ += numRead;
 				while (i >= 0 && numRead < 4) {
 					i = in_.read(intArray_, numRead, 4 - numRead);
 					numRead += (i >= 0 ? i : 0);
-			        bytesReceived_ += numRead;
+			        latestBytesReceived_ += numRead;
 				}
 				if (numRead < 4) {
 					throw new EOFException();
 				}
 			} else {
-		        bytesReceived_ += 4;
+		        latestBytesReceived_ += 4;
 			}
 			if (debug_) {
 				debugBytes(intArray_, 0, 4);
@@ -520,17 +528,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(longArray_);
 			if (i != 8) {
 				int numRead = (i >= 0 ? i : 0);
-		        bytesReceived_ += numRead;
+		        latestBytesReceived_ += numRead;
 				while (i >= 0 && numRead < 8) {
 					i = in_.read(longArray_, numRead, 8 - numRead);
 					numRead += (i >= 0 ? i : 0);
-			        bytesReceived_ += numRead;
+			        latestBytesReceived_ += numRead;
 				}
 				if (numRead < 8) {
 					throw new EOFException();
 				}
 			} else {
-		        bytesReceived_ += 8;
+		        latestBytesReceived_ += 8;
 			}
 			if (debug_) {
 				debugBytes(longArray_, 0, 8);
@@ -551,17 +559,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = (int) in_.skip(n);
 			if (i != n) {
 				int numSkipped = (i >= 0 ? i : 0);
-		        bytesReceived_ += numSkipped;
+		        latestBytesReceived_ += numSkipped;
 				while (i >= 0 && numSkipped < n) {
 					i = (int) in_.skip(n - numSkipped);
 					numSkipped += (i >= 0 ? i : 0);
-			        bytesReceived_ += numSkipped;
+			        latestBytesReceived_ += numSkipped;
 				}
 				if (numSkipped < n) {
 					throw new EOFException();
 				}
 			} else {
-		        bytesReceived_ += n;
+		        latestBytesReceived_ += n;
 			}
 			return i;
 		}
@@ -578,17 +586,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(b);
 			if (i != b.length) {
 				int numRead = (i >= 0 ? i : 0);
-		        bytesReceived_ += numRead;
+		        latestBytesReceived_ += numRead;
 				while (i >= 0 && numRead < b.length) {
 					i = in_.read(b, numRead, b.length - numRead);
 					numRead += (i >= 0 ? i : 0);
-			        bytesReceived_ += numRead;
+			        latestBytesReceived_ += numRead;
 				}
 				if (numRead < b.length) {
 					throw new EOFException();
 				}
 			} else {
-		        bytesReceived_ += i;
+		        latestBytesReceived_ += i;
 			}
 			if (debug_) {
 				debugBytes(b, 0, b.length);
@@ -600,17 +608,17 @@ public abstract class HostServerConnection implements Connection {
 			int i = in_.read(b, offset, length);
 			if (i != length) {
 				int numRead = (i >= 0 ? i : 0);
-		        bytesReceived_ += numRead;
+		        latestBytesReceived_ += numRead;
 				while (i >= 0 && numRead < length) {
 					i = in_.read(b, offset + numRead, length - numRead);
 					numRead += (i >= 0 ? i : 0);
-			        bytesReceived_ += numRead;
+			        latestBytesReceived_ += numRead;
 				}
 				if (numRead < length) {
 					throw new EOFException();
 				}
 			} else {
-		        bytesReceived_ += length;
+		        latestBytesReceived_ += length;
 			}
 			if (debug_) {
 				debugBytes(b, offset, length);
