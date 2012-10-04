@@ -332,7 +332,7 @@ Fetches a block of data from the system.
         }   
 
         if (JDTrace.isTraceOn ())
-          JDTrace.logInformation (connection_, "Fetching a block of data from the system");
+          JDTrace.logInformation (connection_, "Fetching a block of data from the system "+fetchScrollOption+","+rows);
 
         if (fetchReply != null) { fetchReply.returnToPool(); fetchReply = null; } 
         fetchReply = connection_.sendAndReceive (request, id_); //@P0C
