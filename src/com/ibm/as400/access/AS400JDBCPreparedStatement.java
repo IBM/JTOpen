@@ -1057,9 +1057,10 @@ endif */
                       sqlData.convertToRawBytes(
                           parameterMarkerData.getRawBytes(), rowDataOffset
                               + parameterOffsets_[i], ccsidConverter);
-                      if (ccsidConverter.getCcsid() == 5035) // @trnc this is
+                      if (ConvTable.isMixedCCSID(ccsidConverter.getCcsid())) // @trnc this is
                                                              // not caught at
                                                              // setX() time
+                                                             // @H2C
                         testDataTruncation(i + 1, sqlData); // @trnc
                     }
 

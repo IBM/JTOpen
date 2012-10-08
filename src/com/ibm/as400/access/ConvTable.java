@@ -387,4 +387,34 @@ abstract class ConvTable
             throw new CharConversionException();
         }
     }
+
+    // @H2A 
+    /**
+     * Determine if a CCSID is a mixed CCSID. 
+     * @param ccsid  CCSID to be tested
+     * @return true if the CCSID is a mixed CCSID, otherwise returns false. 
+     */
+    public static boolean isMixedCCSID(int ccsid) {
+      switch (ccsid) {
+      // This set of mixed/open CCSID was found at.. 
+      // http://publib.boulder.ibm.com/infocenter/iseries/v7r1m0/index.jsp?topic=%2Fdb2%2Frbafzsidvals.htm
+      // See  Mixed CCSIDs for EBCDIC Group 2 (DBCS) Countries or Regions
+      case 930:
+      case 933:
+      case 935:
+      case 936:
+      case 937:
+      case 938:
+      case 939:
+      case 1364:
+      case 1371:
+      case 1388:
+      case 1390:
+      case 1399:
+      case 5026:
+      case 5035:
+          return true; 
+      }
+      return false;
+    }
 }
