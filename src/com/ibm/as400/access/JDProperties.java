@@ -1690,6 +1690,12 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         }                                                                   // @C2A
         catch(NumberFormatException e)
         {                                   // @C2A
+            if(JDTrace.isTraceOn())
+               JDTrace.logInformation (
+                   this, 
+                   "NumberFormatException processing propertyIndex["+index+"]='"+
+                    values_[index]+"'"); 
+
             return 0;                                                       // @C2A
         }                                                                   // @C2A
     }
