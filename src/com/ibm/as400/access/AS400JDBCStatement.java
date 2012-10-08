@@ -3111,8 +3111,14 @@ implements Statement
                     String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
                     
                     JDServerRowCache rowCache = new JDServerRowCache (
-                                                                     row, connection_, id_, getBlockingFactor (cursorSensitivity,
-                                                                                                              null, row.getRowLength()), false, resultSetType_, cursor_); //@PDC perf //@pda perf2 - fetch/close
+                                                                     row, 
+                                                                     connection_, id_, 
+                                                                     getBlockingFactor (cursorSensitivity,
+                                                                                        null, 
+                                                                                        row.getRowLength()), 
+                                                                     false, 
+                                                                     resultSetType_, 
+                                                                     cursor_); //@PDC perf //@pda perf2 - fetch/close
 
                     // If the result set concurrency is updatable, check to                            @E1C
                     // see if the system overrode the cursor type to read only.                        @E1C
