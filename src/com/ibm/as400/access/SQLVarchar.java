@@ -108,6 +108,7 @@ extends SQLDataBase
             BinaryConverter.unsignedShortToByteArray(temp.length, rawBytes, offset);
             if(temp.length > maxLength_)
             {
+                truncated_ = temp.length - maxLength_;  /*@H2C*/
                 maxLength_ = temp.length;
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
             }

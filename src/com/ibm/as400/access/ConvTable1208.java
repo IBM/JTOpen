@@ -246,15 +246,20 @@ class ConvTable1208 extends ConvTable
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
+    final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException {
+      stringToByteArrayTruncation(source, buf, offset, length); 
+    }
+    /* detected truncation  @H2C*/ 
+    final int stringToByteArrayTruncation(String source, byte[] buf, int offset, int length) throws CharConversionException
     {
+        int truncated = 0;                      /*@H2A*/ 
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
         try
         {
             int len = source.length();
             int bufCount = offset;
             int max = offset+length;
-            for (int i = 0; i < len && bufCount < max; ++i)
+            for (int i = 0; i < len ; ++i)           /*@H2C*/
             {
                 int c = source.charAt(i) & 0x00FFFF;
                 if (c > 0xD7FF && c < 0xDC00)
@@ -271,30 +276,68 @@ class ConvTable1208 extends ConvTable
                     {
                         // We're fault tolerant, ignore the high surrogate and just return.
                         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, buf, offset, length);
-                        return;
+                        return truncated ;   /*@H2A*/
                     }
                 }
                 if (c < 0x80)
                 {
-                    buf[bufCount++] = (byte)c;
+                    if (bufCount < max) {              /*@H2A*/
+                      buf[bufCount++] = (byte)c;
+                    } else {
+                      truncated ++; 
+                    }
                 }
                 else if (c < 0x800)
                 {
+                  if (bufCount < max) {                /*@H2A*/ 
                     buf[bufCount++] = (byte)(0xC0 | (c >> 6));
-                    if (bufCount < max) buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
+                  } else {
+                    truncated ++; 
+                  }
+                    
+                    if (bufCount < max) {
+                      buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
+                    } else {
+                      truncated ++;                      /*@H2A*/
+                    }
                 }
                 else if (c < 0x10000)
                 {
-                    buf[bufCount++] = (byte)(0xE0 | (c >> 12));
-                    if (bufCount < max) buf[bufCount++] = (byte)(0x80 | ((c >> 6) & 0x3F));
-                    if (bufCount < max) buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
+          if (bufCount < max) {
+            buf[bufCount++] = (byte) (0xE0 | (c >> 12));
+          } else {
+            truncated++;                         /*@H2A*/
+          }
+          if (bufCount < max) {
+            buf[bufCount++] = (byte) (0x80 | ((c >> 6) & 0x3F));
+          } else {
+            truncated++;                         /*@H2A*/
+          }
+          if (bufCount < max) {
+            buf[bufCount++] = (byte) (0x80 | (c & 0x3F));
+          } else {
+            truncated++;                        /*@H2A*/
+          }
                 }
                 else
                 {
+                  if (bufCount < max) {
                     buf[bufCount++] = (byte)(0xF0 | (c >> 18));
-                    if (bufCount < max) buf[bufCount++] = (byte)(0x80 | ((c >> 12) & 0x3F));
-                    if (bufCount < max) buf[bufCount++] = (byte)(0x80 | ((c >> 6) & 0x3F));
-                    if (bufCount < max) buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
+                  } else {
+                    truncated++;        /*@H2A*/
+                  }
+                    if (bufCount < max) { buf[bufCount++] = (byte)(0x80 | ((c >> 12) & 0x3F));
+                    } else {
+                      truncated++;         /*@H2A*/
+                    }
+                    if (bufCount < max) { buf[bufCount++] = (byte)(0x80 | ((c >> 6) & 0x3F));
+                    } else {
+                      truncated++;            /*@H2A*/
+                    }
+                    if (bufCount < max) { buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
+                    } else {
+                      truncated++;            /*@H2A*/
+                    }
                 }
             }
         }
@@ -303,12 +346,24 @@ class ConvTable1208 extends ConvTable
             throw new CharConversionException();
         }
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, length);
+        return truncated;             /*@H2A*/ 
     }
+
+    /**
+     * Place the string into the specified buffer, beginning at offset for length. 
+     * This returns the number of bytes that did not fit (i.e. number of bytes truncated). 
+     * @param source  String to convert
+     * @param buf     output buffer
+     * @param offset  offset in buffer to put information
+     * @param length  maximum number of bytes to add to the buffer
+     * @param properties  BidiConversionProperties
+     * @return  number of bytes that were truncated 
+     * @throws CharConversionException
+     */
 
     final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         // Don't have a Bidi string type for UTF-8.
-        stringToByteArray(source, buf, offset, length);
-        return 0; //@trnc
+        return stringToByteArrayTruncation(source, buf, offset, length); /*@H2C*/
     }
 }

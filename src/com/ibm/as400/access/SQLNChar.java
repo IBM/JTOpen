@@ -90,7 +90,8 @@ extends SQLDataBase
 
         try
         {
-            ccsidConverter.stringToByteArray(value_, rawBytes, offset, maxLength_, bidiConversionProperties);  
+          // check for truncation after conversion @H2C
+          truncated_ = ccsidConverter.stringToByteArray(value_, rawBytes, offset, maxLength_, bidiConversionProperties);  
         }
         catch(CharConversionException e)
         {

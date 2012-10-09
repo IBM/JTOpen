@@ -366,6 +366,17 @@ abstract class ConvTable
         stringToByteArray(source, buf, offset, length, new BidiConversionProperties(type));
     }
 
+    /**
+     * Place the string into the specified buffer, beginning at offset for length. 
+     * This returns the number of bytes that did not fit (i.e. number of bytes truncated). 
+     * @param source  String to convert
+     * @param buf     output buffer
+     * @param offset  offset in buffer to put information
+     * @param length  maximum number of bytes to add to the buffer
+     * @param properties  BidiConversionProperties
+     * @return  number of bytes that were truncated 
+     * @throws CharConversionException
+     */
     int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         int truncated = 0; //@trnc
@@ -391,6 +402,7 @@ abstract class ConvTable
     // @H2A 
     /**
      * Determine if a CCSID is a mixed CCSID. 
+     * Being mixed means that 1 unicode character may translate into 1 or many bytes. 
      * @param ccsid  CCSID to be tested
      * @return true if the CCSID is a mixed CCSID, otherwise returns false. 
      */
@@ -406,6 +418,7 @@ abstract class ConvTable
       case 937:
       case 938:
       case 939:
+      case 1208:
       case 1364:
       case 1371:
       case 1388:
