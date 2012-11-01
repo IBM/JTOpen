@@ -419,9 +419,9 @@ class SQLDataFactory
             case Types.TIME:
                 return new SQLTime(settings, -1);	// @550C
 
-            case Types.TIMESTAMP:
-                return new SQLTimestamp(settings);
-
+            case Types.TIMESTAMP: {
+                return new SQLTimestamp(maxLength, settings);
+            }
             case Types.VARBINARY:
             {
                 if(vrm >= JDUtilities.vrm530)
@@ -505,8 +505,8 @@ class SQLDataFactory
             case 388:                           // Time.
                 return new SQLTime(settings, timeFormat);
 
-            case 392:                           // Timestamp.
-                return new SQLTimestamp(settings);
+            case 392:                           // Timestamp. 0x188
+                return new SQLTimestamp(length, settings);
 
             case 396:                           // Datalink.
                 return new SQLDatalink(length - 2, settings);
@@ -803,13 +803,13 @@ class SQLDataFactory
             return new SQLTime(settings, -1);	// @550C
 
         else if(nativeType.equals("TIMESTAM"))
-            return new SQLTimestamp(settings);
+            return new SQLTimestamp(length, settings);
 
         else if(nativeType.equals("TIMESTAMP"))
-            return new SQLTimestamp(settings);
+            return new SQLTimestamp(length, settings);
 
         else if(nativeType.equals("TIMESTMP"))
-            return new SQLTimestamp(settings);
+            return new SQLTimestamp(length, settings);
 
         else if(nativeType.equals("VARBINARY"))
         {                                                                  // @M0C - changed to return SQLVarbinary

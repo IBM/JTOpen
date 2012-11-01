@@ -46,23 +46,25 @@ extends SQLDataBase
     private int                     hour_;
     private int                     minute_;
     private int                     second_;
-    private int                     nanos_;
+    private long                    picos_;   /*@H3C*/
+    private int                     length_; 
 
-    SQLTimestamp(SQLConversionSettings settings)
+    SQLTimestamp(int length, SQLConversionSettings settings)
     {
         super(settings);
+        length_ = length; 
         year_       = 0;
         month_      = 0;
         day_        = 0;
         hour_       = 0;
         minute_     = 0;
         second_     = 0;
-        nanos_      = 0;
+        picos_      = 0;
     }
 
     public Object clone()
     {
-        return new SQLTimestamp(settings_);
+        return new SQLTimestamp(length_, settings_);
     }
 
     public static Timestamp stringToTimestamp(String s, Calendar calendar)
@@ -96,32 +98,44 @@ extends SQLDataBase
             calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(14, 16)));
             calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(17, 19)));
 
+            // @F2A@H3C
+            // Remember that the value for nanoseconds is optional.  If we don't check the
+            // length of the string before trying to handle nanoseconds for the timestamp,
+            // we will blow up if there is no value available.  An example of a String value
+            // as a timestamp that would have this problem is:  "1999-12-31 12:59:59"
+            long picos = 0; 
+            if(s.length() > 20)
+            {                                              // @F2A
+                String picosString = s.substring(20).trim() + "00000000000000";            // @F2M
+                picos = Long.parseLong(picosString.substring(0, 12))  ;
+            }
+            else
+            {
+                picos = 0;  // @F2A
+            }
+
+            
+            
             Timestamp ts = null;//@dat1
             try //@dat1
             {
               long millis;
               if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
-                ts = new Timestamp(millis); //@dat1
+                if (picos % 1000 == 0) {   //@H3A
+                  ts = new Timestamp(millis); //@dat1
+                  ts.setNanos((int)(picos / 1000)); 
+                } else {
+                  AS400JDBCTimestamp aTs = new AS400JDBCTimestamp(millis, 32);
+                  aTs.setPicos(picos);
+                  ts = aTs; 
+                }
+                
             }catch(Exception e){
                 if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e); //@dat1
                 JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
                 return null; //@dat1
             }
 
-            // @F2A
-            // Remember that the value for nanoseconds is optional.  If we don't check the
-            // length of the string before trying to handle nanoseconds for the timestamp,
-            // we will blow up if there is no value available.  An example of a String value
-            // as a timestamp that would have this problem is:  "1999-12-31 12:59:59"
-            if(s.length() > 20)
-            {                                              // @F2A
-                String nanos = s.substring(20).trim() + "000000000";            // @F2M
-                ts.setNanos(Integer.parseInt(nanos.substring(0, 6)) * 1000);
-            }
-            else
-            {
-                ts.setNanos(0);  // @F2A
-            }
 
             return ts;
             // @E3D }
@@ -189,7 +203,11 @@ extends SQLDataBase
         //@F6D buffer.append('.');    // @F3C
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.SECOND), 2));
         buffer.append('.');
-        buffer.append(JDUtilities.padZeros(ts.getNanos(), 9)); // @B1C
+        if (ts instanceof AS400JDBCTimestamp) {  /*@H3C*/
+          buffer.append(JDUtilities.padZeros(((AS400JDBCTimestamp) ts).getPicos(), 12)); // @B1C
+        } else { 
+           buffer.append(JDUtilities.padZeros(ts.getNanos(), 9)); // @B1C
+        }
 
         // The Calendar class represents 24:00:00 as 00:00:00.        // @F4A
         // Format of timestamp is YYYY-MM-DD-hh.mm.ss.uuuuuu, so hh is at offset 11.
@@ -232,14 +250,14 @@ extends SQLDataBase
                   + (rawBytes[offset+15] & 0x0f);
         second_ = (rawBytes[offset+17] & 0x0f) * 10
                   + (rawBytes[offset+18] & 0x0f);
-        nanos_ =
-        ((rawBytes[offset+20] & 0x0f) * 100000
+        picos_ =
+        ((long)(rawBytes[offset+20] & 0x0f) * 100000
          + (rawBytes[offset+21] & 0x0f) * 10000
          + (rawBytes[offset+22] & 0x0f) * 1000
          + (rawBytes[offset+23] & 0x0f) * 100
          + (rawBytes[offset+24] & 0x0f) * 10
-         + (rawBytes[offset+25] & 0x0f) ) * 1000;
-        // @E3D }
+         + (rawBytes[offset+25] & 0x0f) ) * 1000000L;
+        // @E3D@H3C }
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
@@ -290,7 +308,7 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            nanos_  = ts.getNanos();
+            picos_  = ts.getNanos()* 1000;
         }
 
         else if(object instanceof Timestamp)
@@ -302,7 +320,7 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            nanos_  = ((Timestamp) object).getNanos();
+            picos_  = ((Timestamp) object).getNanos()*1000;
         }
 
         else if(object instanceof java.util.Date)
@@ -314,7 +332,7 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            nanos_  = calendar.get(Calendar.MILLISECOND) * 1000000;
+            picos_  = calendar.get(Calendar.MILLISECOND) * 1000000000;
         }
 
         else
@@ -529,9 +547,15 @@ extends SQLDataBase
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         long millis;
         if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
-        Timestamp ts = new Timestamp (millis);
-        ts.setNanos(nanos_);
-        return ts;
+        if (picos_ % 1000 == 0) { 
+          Timestamp ts = new Timestamp (millis);
+          ts.setNanos((int)(picos_ / 1000));
+          return ts;
+        } else {
+          AS400JDBCTimestamp ts = new AS400JDBCTimestamp(millis); 
+          ts.setPicos(picos_); 
+          return ts; 
+        }
     }
 
     public short getShort()
@@ -553,9 +577,15 @@ extends SQLDataBase
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         long millis;
         if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
-        Timestamp ts = new Timestamp (millis);
-        ts.setNanos(nanos_);
-        return timestampToString(ts, calendar, hour_);       // @F4C
+    if (picos_ % 1000 == 0) {
+      Timestamp ts = new Timestamp(millis);
+      ts.setNanos((int)(picos_ / 1000));
+      return timestampToString(ts, calendar, hour_); // @F4C
+    } else {
+      AS400JDBCTimestamp ts = new AS400JDBCTimestamp(millis); 
+      ts.setPicos(picos_); 
+      return timestampToString(ts, calendar, hour_); // @F4C
+    }
     }
 
     public Time getTime(Calendar calendar)
@@ -586,9 +616,15 @@ extends SQLDataBase
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         long millis;
         if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
-        Timestamp ts = new Timestamp(millis);
-        ts.setNanos(nanos_);
-        return ts;
+    if (picos_ % 1000 == 0) {
+      Timestamp ts = new Timestamp(millis);
+      ts.setNanos((int)(picos_ / 1000));
+      return ts;
+    } else {
+      AS400JDBCTimestamp ts = new AS400JDBCTimestamp(millis); 
+      ts.setPicos(picos_); 
+      return ts; 
+        }
     }
 
 
@@ -602,9 +638,15 @@ extends SQLDataBase
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         long millis;
         if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
-        Timestamp ts = new Timestamp (millis);
-        ts.setNanos(nanos_);
-        return timestampToString(ts, calendar, hour_);
+        if (picos_ % 1000 == 0) {
+          Timestamp ts = new Timestamp (millis);
+          ts.setNanos((int)(picos_ / 1000));
+          return timestampToString(ts, calendar, hour_);
+        } else {
+          AS400JDBCTimestamp ts = new AS400JDBCTimestamp(millis); 
+          ts.setPicos(picos_); 
+          return timestampToString(ts, calendar, hour_);
+        }
     }
 
     /* ifdef JDBC40

@@ -128,6 +128,12 @@ for use in implementing various pieces of the JDBC driver.
         return temp.substring (temp.length () - digits);
     }
 
+    static final String padZeros (long value, int digits)
+    {
+        String temp = "000000000000" + Long.toString (value); // @A1C
+        return temp.substring (temp.length () - digits);
+    }
+
 
     //@DELIMa
     /**
