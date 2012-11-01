@@ -162,10 +162,15 @@ extends SQLDataBase
 
     // @F4A - New method - Contains the logic from the old method, with the addition of the hourIn parameter.
     public static String timestampToString(Timestamp ts,
-                                           Calendar calendar, int hourIn)
+                                           Calendar calendar, 
+                                           int hourIn)
     {
         // @F3A
-        // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, while we output timestamps like 2100-01-02 03:45:56.000000. The first is apparently the ISO standard while ours follows Java's Timestamp.toString() method. This was pointed out by a user who noticed that although he gets a timestamp from our database in one format, he can't put it back in the database in that same format.
+        // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, 
+        // while we output timestamps like 2100-01-02 03:45:56.000000. 
+        // The first is apparently the ISO standard while ours follows Java's Timestamp.toString() method. 
+        // This was pointed out by a user who noticed that although he gets a timestamp from our database in 
+        // one format, he can't put it back in the database in that same format.
         // @F6A Change back to old format because of service issue.
         StringBuffer buffer = new StringBuffer();
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
@@ -205,8 +210,12 @@ extends SQLDataBase
         buffer.append('.');
         if (ts instanceof AS400JDBCTimestamp) {  /*@H3C*/
           buffer.append(JDUtilities.padZeros(((AS400JDBCTimestamp) ts).getPicos(), 12)); // @B1C
-        } else { 
-           buffer.append(JDUtilities.padZeros(ts.getNanos(), 9)); // @B1C
+        } else {
+           int nanos = ts.getNanos();
+           buffer.append(JDUtilities.padZeros(nanos, 9)); // @B1C
+           if ((nanos % 1000) == 0) {
+             buffer.setLength(26); 
+           }
         }
 
         // The Calendar class represents 24:00:00 as 00:00:00.        // @F4A
@@ -218,9 +227,11 @@ extends SQLDataBase
             // Note: StringBuffer.replace() is available in Java2.
         }
 
-        // Ensure that exactly 26 characters are returned.
-        String tempString = buffer.toString() + "000000";
-        return tempString.substring(0, 26);
+        // Ensure that exactly timestampLength characters are returned.
+        // Seems like redundant code.  Removing to see effect
+        // String tempString = buffer.toString() + "000000000000";
+        // return tempString.substring(0, timestampLength);
+        return buffer.toString(); 
     }
 
     //---------------------------------------------------------//
@@ -250,14 +261,15 @@ extends SQLDataBase
                   + (rawBytes[offset+15] & 0x0f);
         second_ = (rawBytes[offset+17] & 0x0f) * 10
                   + (rawBytes[offset+18] & 0x0f);
-        picos_ =
-        ((long)(rawBytes[offset+20] & 0x0f) * 100000
-         + (rawBytes[offset+21] & 0x0f) * 10000
-         + (rawBytes[offset+22] & 0x0f) * 1000
-         + (rawBytes[offset+23] & 0x0f) * 100
-         + (rawBytes[offset+24] & 0x0f) * 10
-         + (rawBytes[offset+25] & 0x0f) ) * 1000000L;
-        // @E3D@H3C }
+        /*@H3C */ 
+        int picoOffset = 20;
+        long multiplier = 100000000000L;
+        picos_ = 0; 
+        while (picoOffset < length_) {
+        picos_ += ((long)(rawBytes[offset+picoOffset] & 0x0f) * multiplier);
+        multiplier = multiplier / 10;
+        picoOffset++;  
+        }
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
@@ -265,7 +277,9 @@ extends SQLDataBase
     {
         StringBuffer buffer = new StringBuffer(getString().replace(':', '.'));
         buffer.setCharAt(10, '-');
-
+        if (buffer.length() > length_) { 
+          buffer.setLength(length_);
+        }
         try
         {
             ccsidConverter.stringToByteArray(buffer.toString(), rawBytes, offset);
@@ -308,7 +322,7 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            picos_  = ts.getNanos()* 1000;
+            picos_  = ((long) ts.getNanos())* 1000L;
         }
 
         else if(object instanceof Timestamp)
@@ -320,7 +334,7 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            picos_  = ((Timestamp) object).getNanos()*1000;
+            picos_  = ((long)((Timestamp) object).getNanos())*1000L;
         }
 
         else if(object instanceof java.util.Date)
@@ -332,7 +346,7 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            picos_  = calendar.get(Calendar.MILLISECOND) * 1000000000;
+            picos_  = ((long)calendar.get(Calendar.MILLISECOND)) * 1000000000L;
         }
 
         else
@@ -352,7 +366,7 @@ extends SQLDataBase
 
     public int getDisplaySize()
     {
-        return 26;
+        return length_;
     }
 
     //@F1A JDBC 3.0
@@ -378,17 +392,17 @@ extends SQLDataBase
 
     public int getMaximumPrecision()
     {
-        return 26;
+        return length_;
     }
 
     public int getMaximumScale()
     {
-        return 6;
+        return getScale(); 
     }
 
     public int getMinimumScale()
     {
-        return 6;
+        return getScale(); 
     }
 
     public int getNativeType()
@@ -398,7 +412,7 @@ extends SQLDataBase
 
     public int getPrecision()
     {
-        return 26;
+        return length_;
     }
 
     public int getRadix()
@@ -408,7 +422,9 @@ extends SQLDataBase
 
     public int getScale()
     {
-        return 6;
+        int scale = length_ - 20; 
+        if (scale >= 0) return scale; 
+        else return 0; 
     }
 
     public int getType()
@@ -433,7 +449,7 @@ extends SQLDataBase
 
     public int getActualSize()
     {
-        return 26;
+        return length_;
     }
 
     public int getTruncated()
