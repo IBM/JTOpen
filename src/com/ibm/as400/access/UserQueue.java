@@ -13,13 +13,20 @@
 
 package com.ibm.as400.access;
 
+import java.io.CharConversionException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
- The UserQueue class represents an IBM i user queue object.
+ <p>The UserQueue class represents an IBM i user queue object.
  
- This class currently will only function when running on the IBM i using native Methods. 
+ <p> This class is currently in pre-BETA status and its existence serves as a placeholder 
+ for code under development.  
+ 
+ <p>This class currently will only function when running on the IBM i using native Methods. 
+ 
+ <p>This class requires native method support which is still under development. 
  
   <p>As a performance optimization, when running directly on IBM i, it is possible to use native
     methods to access the user space from the current job.  To enable this support, use the 
@@ -51,8 +58,10 @@ public class UserQueue
      Constructs a UserQueue object.
      @param  system  The system object representing the system on which the user queue exists.
      @param  path  The fully qualified integrated file system path name of the user queue.  
+     * @throws UnsupportedEncodingException 
+     * @throws CharConversionException 
      **/
-    public UserQueue(AS400 system, String path) throws Exception 
+    public UserQueue(AS400 system, String path) throws UnsupportedEncodingException, CharConversionException 
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing UserQueue object.");
         system_ = system; 
@@ -61,33 +70,42 @@ public class UserQueue
 		objectNameBytes_ = new byte[20];
 		
 		Arrays.fill(objectNameBytes_, (byte) 0x40); 
-		if (path.indexOf("/QSYS.LIB/") == 0) {
-			path = path.substring(9); 
-		}
+		
+        QSYSObjectPathName ifs = new QSYSObjectPathName(path, "USRQ");
 
-		if (path.charAt(0) != '/') { 
-			throw new Exception("Path does not begin with / : "+path); 
-		}
-		int libIndex = path.indexOf(".LIB/"); 
-		if (libIndex < 2) { 
-			throw new Exception("Path does not contain .LIB / : "+path); 
-		}
-		String lib = path.substring(1,libIndex); 
-		byte[] libBytes = lib.getBytes("IBM-037"); 
-		
-		int usridxIndex = path.indexOf(".USRQ"); 
-		if (usridxIndex < libIndex) { 
-			throw new Exception("Path does not contain .USRQ / : "+path); 
-		}
-		
-		String indexName = path.substring(libIndex+5, usridxIndex); 
-		byte[] indexNameBytes = indexName.getBytes("IBM-037");
+
+        // Set instance variables.
+        String library = ifs.getLibraryName();
+        byte[] libBytes; 
+        try {
+			libBytes = library.getBytes("IBM-037");
+		} catch (UnsupportedEncodingException e) {
+			// Fall back to using system object
+			byte[] newLibBytes = { (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 };
+            libBytes= newLibBytes; 
+            AS400ImplRemote as400Impl = (AS400ImplRemote) system.getImpl(); 
+            ConverterImplRemote converter = ConverterImplRemote.getConverter(as400Impl.getCcsid(), as400Impl);
+	        converter.stringToByteArray(library, libBytes);
+		} 
+        
+        String indexName  = ifs.getObjectName();
+		byte[] indexNameBytes;
+        try {
+		indexNameBytes= indexName.getBytes("IBM-037");
+		} catch (UnsupportedEncodingException e) {
+			// Fall back to using system object
+			byte[] newIndexNameBytes = { (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 };
+            indexNameBytes= newIndexNameBytes; 
+            AS400ImplRemote as400Impl = (AS400ImplRemote) system.getImpl(); 
+            ConverterImplRemote converter = ConverterImplRemote.getConverter(as400Impl.getCcsid(), as400Impl);
+	        converter.stringToByteArray(indexName, indexNameBytes);
+		} 
 
 		System.arraycopy(indexNameBytes, 0, objectNameBytes_, 0, indexNameBytes.length); 
 		System.arraycopy(libBytes, 0, objectNameBytes_, 10, libBytes.length);
 
 		//
-		// Pick the impl
+		// Pick the implementation.  In the future this could be a PASE implementation. 
 		// 
 		
 		impl_ = new UserQueueImplILE(); 
@@ -175,40 +193,42 @@ public class UserQueue
     
     /**
      * Dequeues the next entry from a FIFO or LIFO queue as a string 
+     * @throws IllegalObjectTypeException 
+     * @throws UnsupportedEncodingException 
      */
-    public String dequeue() throws Exception  {
+    public String dequeue() throws IllegalObjectTypeException, UnsupportedEncodingException   {
 		if (handle_ == 0) {
 			open(); 
 		}
 		if (queueType_ == QUEUE_TYPE_FIRST_IN_FIRST_OUT || 
-				queueType_ == QUEUE_TYPE_LAST_IN_FIRST_OUT ) {
+			queueType_ == QUEUE_TYPE_LAST_IN_FIRST_OUT ) {
 			// Queue type is ok 
 		} else { 
-    		// TODO:  Throw invalid queue type exception
-    		throw new Exception("Invalid queue type.  QUEUE must be FIFO or LIFO"); 
+            Trace.log(Trace.ERROR, "Using dequeue for non FIFO / LIFO user queue.");
+			throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_QUEUE_KEYED);
     	}
-    	if (keyLength_ == 0) { 
-    	byte[] deqMsgPrefixBytes = new byte[20];
-    	byte[] outputBytes = new byte[dataSize_]; 
+    	if (keyLength_ == 0) {
+			byte[] deqMsgPrefixBytes = new byte[20];
+			byte[] outputBytes = new byte[dataSize_];
 
-    	int messageDequeued = impl_.dequeue(handle_,
-    					    deqMsgPrefixBytes,
-    					    outputBytes);
+			int messageDequeued = impl_.dequeue(handle_, deqMsgPrefixBytes,
+					outputBytes);
 
-    	if (messageDequeued == 0) {
-    	    return null; 
-    	}  else { 
-    	    int outputLength =
-    	      (0xFF & deqMsgPrefixBytes[16]) * 256 * 16 +
-    	      (0xFF & deqMsgPrefixBytes[17]) * 256  +
-    	      (0xFF & deqMsgPrefixBytes[18]) * 16 +
-    	      (0xFF & deqMsgPrefixBytes[19]);
-
-    	    return new String(outputBytes, 0, outputLength, "IBM-037");
-    	}
+			if (messageDequeued == 0) {
+				return null;
+			} else {
+				int outputLength = (0xFF & deqMsgPrefixBytes[16]) * 256 * 16
+						+ (0xFF & deqMsgPrefixBytes[17]) * 256
+						+ (0xFF & deqMsgPrefixBytes[18]) * 16
+						+ (0xFF & deqMsgPrefixBytes[19]);
+				// This should work because we are running on IBM i, which
+				// supports IBM-037
+				return new String(outputBytes, 0, outputLength, "IBM-037");
+			}
 
     	} else {
-    		throw new Exception("not supported "); 
+            Trace.log(Trace.ERROR, "Using dequeue for keyLength_ == 0.");
+			throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_QUEUE_KEYED);
     	}
     }
     /**
@@ -265,8 +285,10 @@ public class UserQueue
     
     /**
      * Enqueues a string on the user queue
+     * @throws UnsupportedEncodingException 
+     * @throws IllegalObjectTypeException 
      */
-    public void enqueue(String value) throws Exception  {
+    public void enqueue(String value) throws UnsupportedEncodingException, IllegalObjectTypeException   {
         byte[] valueBytes = value.getBytes("IBM-037");
 		if (handle_ == 0) {
 			open(); 
@@ -275,8 +297,8 @@ public class UserQueue
 				queueType_ == QUEUE_TYPE_LAST_IN_FIRST_OUT ) {
 			// Queue type is ok 
 		} else { 
-    		// TODO:  Throw invalid queue type exception
-    		throw new Exception("Invalid queue type.  QUEUE must be FIFO or LIFO"); 
+            Trace.log(Trace.ERROR, "Using dequeue for keyLength_ == 0.");
+			throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_QUEUE_KEYED);
     	}
  	    impl_.enqueue(handle_, null, valueBytes); 
     }
@@ -317,7 +339,8 @@ public class UserQueue
 	   if (enqueueMessagePrefixBytes == null) { 
 		   impl_.enqueue(handle_, null,  entryBytes); 
 	   } else {
-		   throw new Exception("Keyed message queue not yet supported"); 
+           Trace.log(Trace.ERROR, "Keyed message queue not yet supported.");
+			throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_QUEUE_KEYED);
 	   }
    	
    }
