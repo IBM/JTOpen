@@ -2789,42 +2789,100 @@ implements Statement
             {
                 block = true;
                 useFetchSize = true;
-            }
-
-            if(sqlStatement != null)
-            {
+                if(JDTrace.isTraceOn()) {
+                  JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- blockCriteria_="+blockCriteria_); 
+                }
+            //
+            // The documentation for Statement.setFetchSize() says 
+            // that fetchSize is used when the blockSize is 0
+            // 
+            } else if (fetchSize_ > 1 && blockSize_ == 0) {
+              block = true;
+              useFetchSize = true;
+              if(JDTrace.isTraceOn()) {
+                JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- fetchSize="+fetchSize_); 
+              }
+               
+            } else if(sqlStatement != null)  {
                 if((blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_IF_FETCH))
-                   && (sqlStatement.isForFetchOnly()))
+                   && (sqlStatement.isForFetchOnly())) {
+                  
                     block = true;
+                    if(JDTrace.isTraceOn()) {
+                      JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- blockCriteria_="+blockCriteria_+" and isForFetchOnly"); 
+                    }
 
-                else if((blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE))
-                        && (! sqlStatement.isForUpdate()))
+                }  else if((blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE))
+                        && (! sqlStatement.isForUpdate())) {
                     block = true;
+                    if(JDTrace.isTraceOn()) {
+                      JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- blockCriteria_="+blockCriteria_+" and isForFetchOnly"); 
+                    }
+                    
+                } else {
+                  if(JDTrace.isTraceOn()) {
+                    JDTrace.logInformation (this, "getBlockingFactor(): Blocking ="+block+" blockCriteria="+ blockCriteria_); 
+                  }
+                
+                }
+            } else {
+                if(blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE)) {
+                  block = true;
+                } else {
+                  if(JDTrace.isTraceOn()) {
+                    JDTrace.logInformation (this, "getBlockingFactor(): Blocking ="+block+" blockCriteria="+ blockCriteria_+" sqlStatement is null"); 
+                  }
+                }
             }
-            else
-                if(blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE))
-                block = true;
-
+        } else {
+          if(JDTrace.isTraceOn()) {
+            JDTrace.logInformation (this, 
+                  "getBlockingFactor(): Not blocking -- concurrency="+cursor_.getConcurrency()+
+                  " lastPrepareContainsLocator_="+lastPrepareContainsLocator_+
+                  " requestCursorType="+requestDSCursorType);
+          }
         }
 
         // Compute the blocking factor.
         int blockingFactor;
         if(block)
         {
-            if(useFetchSize)
+            if(useFetchSize) {
                 blockingFactor = fetchSize_;
+                if(JDTrace.isTraceOn()) {
+                  JDTrace.logInformation (this, 
+                      "getBlockingFactor: blockFactor taken from fetchSize_"); 
+                }
+                
+            }
             else
             {
+                if (rowLength <= 0) {
+                  blockingFactor = 1;    // Avoid divide by zero -- bug 3119833 
+                } else { 
                 blockingFactor = (blockSize_ * 1024) / rowLength;
-                if(blockingFactor > 32767)
+                if(blockingFactor > 32767) { 
                     blockingFactor = 32767;
-                else if(blockingFactor <= 0)
+                } else if(blockingFactor <= 1) {
                     blockingFactor = 1;
+                    if(JDTrace.isTraceOn()) {
+                      JDTrace.logInformation (this, 
+                          "getBlockingFactor: blockFactor is 1: blockSize_="+blockSize_+" rowLength="+rowLength);  
+                    }
+
+                }
+                }
+            }
+        } else { 
+            blockingFactor = 1;
+            if(JDTrace.isTraceOn()) {
+              JDTrace.logInformation (this, 
+                  "getBlockingFactor: block=false so blockFactor is 1"); 
             }
         }
-        else
-            blockingFactor = 1;
-
+        if(JDTrace.isTraceOn()) {
+          JDTrace.logInformation (this, "getBlockingFactor: blockFactor is "+blockingFactor);  
+        }
         return blockingFactor;
     }
 
@@ -3765,6 +3823,11 @@ implements Statement
     <p>This setting only affects statements that meet the criteria
     specified in the "block criteria" property.  The fetch size
     is only used if the "block size" property is set to "0".
+    
+    <p>This setting only takes effect for result sets that are opened
+    after this method has been called.  Ideally, this method should be
+    called before the statement is executed. 
+    
 
     @param fetchSize    The number of rows.  This must be greater than
                         or equal to 0 and less than or equal to the
@@ -3787,6 +3850,8 @@ implements Statement
 
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Fetch size", fetchSize_);
+            
+            
         }
     }
 

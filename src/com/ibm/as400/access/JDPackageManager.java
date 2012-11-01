@@ -193,7 +193,7 @@ class JDPackageManager
       {
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (connection_,
-                                  "Creating package [" + name_ + "]");
+                                  "Creating package [" + name_ + " in "+libraryName_+"]");
 
         DBSQLRequestDS request = null; //@P0A
         DBReplyRequestedDS reply = null; //@P0A
@@ -235,6 +235,7 @@ class JDPackageManager
           else if (returnCode == -999999)
           {
             enabled_ = false;
+
             postError (JDError.WARN_EXTENDED_DYNAMIC_DISABLED);
           }
 

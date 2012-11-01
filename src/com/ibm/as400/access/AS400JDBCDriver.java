@@ -364,7 +364,19 @@ endif */
                 }
 
                 
-  
+    if (JDTrace.isTraceOn()) {
+      String traceUrl = url; 
+      int passwordIndex = url.indexOf("password=");
+      if (passwordIndex >= 0) {
+        int semicolonIndex = url.indexOf(";",passwordIndex); 
+        if (semicolonIndex < 0) {
+          traceUrl = url.substring(0,passwordIndex)+"password=******"; 
+        } else {
+          traceUrl = url.substring(0,passwordIndex)+"password=******"+url.substring(semicolonIndex); 
+        }
+      }
+      JDTrace.logInformation (this,"connect called with URL: "+traceUrl);  
+    }
 
 		JDProperties jdProperties = new JDProperties (urlProperties, info);
 

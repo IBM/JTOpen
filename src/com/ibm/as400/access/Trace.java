@@ -594,6 +594,8 @@ public class Trace implements Runnable
     }
     
     startTraceMonitorIfNeeded();
+    
+    logLoadPath(CLASSNAME); 
   }
 
   /**
@@ -1629,6 +1631,7 @@ public class Trace implements Runnable
           if (mostRecentTracingChange_ != TURNED_TRACE_OFF) {
             traceOn_ = true;
           }
+
         }
       }
     }
