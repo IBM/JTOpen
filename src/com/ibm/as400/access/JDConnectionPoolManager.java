@@ -39,9 +39,9 @@ import java.util.TreeSet;
 final class JDConnectionPoolManager
 implements ConnectionEventListener
 {
-  private static final boolean DEBUG = false;  // turn on if debugging
-  private static final boolean GATHER_STATS = false;  // turn on to gather/print additional statistics (useful when debugging and performance-tuning)
-  static final boolean TESTING_ERROR_EVENTS = false;
+  static boolean DEBUG = false;  // turn on if debugging
+  static boolean GATHER_STATS = false;  // turn on to gather/print additional statistics (useful when debugging and performance-tuning)
+  static boolean TESTING_ERROR_EVENTS = false;
 
 
   // Terminology for connections:
