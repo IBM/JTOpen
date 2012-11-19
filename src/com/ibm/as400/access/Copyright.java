@@ -90,6 +90,8 @@ package com.ibm.as400.access;
 //@H1   20120830  JDBC:  Allow blocking when using asensitive cursors
 //@H2   20121002  JDBC:  Report Truncation for mixed/open CCSIDs
 //@H3   20121101  JDBC:  Improve timestamp support
+//@H4   20121117  JDBC:  Reduce number of SQLConversionSettingsObjects
+//@H5   20121119  JDBC:  Fix truncation for SQLNumeric and SQLDecimal
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
