@@ -173,7 +173,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_ = connection;
-        settings_ = new SQLConversionSettings (connection);
+        settings_ = SQLConversionSettings.getConversionSettings(connection);
         id_ = id;
     }
 

@@ -160,7 +160,7 @@ for use in implementing various pieces of the JDBC driver.
                                      // are readable one at a time
 
         if (settings == null) {
-          settings = new SQLConversionSettings (connection);
+          settings = SQLConversionSettings.getConversionSettings (connection);
         }
         int id = connection.getID();
         DBReplyRequestedDS reply = null;

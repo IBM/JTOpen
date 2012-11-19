@@ -211,7 +211,7 @@ implements Statement
         rpbCreated_             = false;
         rpbQueryTimeoutChanged_ = false;    //@EFA
         rpbSyncNeeded_          = true;
-        settings_               = new SQLConversionSettings (connection_);
+        settings_               = SQLConversionSettings.getConversionSettings (connection_);
         sqlWarning_             = null;
         packageCriteria_        = packageCriteria;    // @A1A
 
@@ -3882,7 +3882,7 @@ implements Statement
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
             maxFieldSize_ = maxFieldSize;
-            settings_.setMaxFieldSize (maxFieldSize_);
+            SQLConversionSettings.getConversionSettingsWithMaxFieldSize(settings_,maxFieldSize);
 
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Max field size", maxFieldSize_);
