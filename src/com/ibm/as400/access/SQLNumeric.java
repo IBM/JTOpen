@@ -151,7 +151,7 @@ extends SQLDataBase
             truncated_ += otherScale - scale_;
         value_ = bigDecimal.setScale(scale_, BigDecimal.ROUND_DOWN);       // @E3C
 
-        int otherPrecision = SQLDataFactory.getPrecision(value_);
+        int otherPrecision = SQLDataFactory.getDecimalPrecision(value_); /*@H5A*/ 
         if(otherPrecision > precision_)
         {                                 // @E2D @E3C
             int digits = otherPrecision - precision_;                      // @E2D @E3C

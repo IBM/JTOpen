@@ -265,7 +265,45 @@ class SQLDataFactory
         return precision;
     }
 
+    /**
+    Compute the decimal precision of an object.  This is the
+    total number of digits.  This also counts the trailing
+    zeros in the number.  so 1.00 has a precision of 3. 
 
+    @param  object      A Java object.
+    @return             the precision.
+    **/
+    /* @H5A*/ 
+    static int getDecimalPrecision(Object value)
+    {
+        int precision = 0;
+
+        if(value instanceof Boolean)
+            precision = 1;
+
+        else
+        {
+            String toString = value.toString();
+
+            if(toString.charAt(0) == '-')                   
+                toString = toString.substring(1);           
+
+            int length = toString.length();
+
+            int startIndex = 0;                             
+            int endIndex = length - 1;                               
+
+            // Count the characters that are actually digits.        
+            for(int i = startIndex; i <= endIndex; ++i)              
+                if(Character.isDigit(toString.charAt(i)))
+                    ++precision;
+        }
+
+        return precision;
+    }
+
+
+    
     //@DFA
     /**
     Compute the smallest possible precision of a BigDecimal.  This is the

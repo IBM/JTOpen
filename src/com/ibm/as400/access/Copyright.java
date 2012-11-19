@@ -91,7 +91,7 @@ package com.ibm.as400.access;
 //@H2   20121002  JDBC:  Report Truncation for mixed/open CCSIDs
 //@H3   20121101  JDBC:  Improve timestamp support
 //@H4   20121117  JDBC:  Reduce number of SQLConversionSettingsObjects
-//@H5   20121119  JDBC:  Fix truncation for SQLNumeric and SQLDecimal
+//@H5   20121119  JDBC:  Fix truncation for SQLNumeric and SQLDecimal objects
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -99,8 +99,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
-    //                                                                                              built=20121023 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 7.8, codebase 5770-SS1 V7R1M0.08 built=20121023 @H31";  // As of V7R1: JC1 is merged into SS1 Option 3
+    //                                                                                              built=20121119 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 7.8, codebase 5770-SS1 V7R1M0.08 built=20121119 @H5";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9; // ex: "9" indicates V7R1
