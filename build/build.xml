@@ -1083,31 +1083,31 @@
     <fail message="Can't find cvs executable.  Copy cvs.exe to local directory." unless="cvsExeExists"/>
 -->
 
-    <cvspass cvsroot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvspass cvsroot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="src" dest="${build}"/>
   	<!-- The jdbc40 target is used to get the files to be processed by the source-jdbc40 step -->
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="jdbc40" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="contrib" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="include" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="micro" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="build" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="stubs" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="license.html" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="readme.html" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="changes.html" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="jtopenlite" dest="${build}"/>
-    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="androidStubs" dest="${build}"/>
   </target>
 
@@ -1116,8 +1116,8 @@
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="source-build" depends="init">
       <fail message="Trying to source in eclipse"  if="inEclipse"/>
-	    <cvspass cvsroot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
-	    <cvs cvsRoot=":${pvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
+	    <cvspass cvsroot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
+	    <cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
 	             command="checkout -P -A" package="build" dest="${build}"/>
 	  </target>
 
