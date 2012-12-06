@@ -24,6 +24,7 @@ class SignonInfo implements Serializable
     GregorianCalendar currentSignonDate;
     GregorianCalendar lastSignonDate;
     GregorianCalendar expirationDate;
+    int PWDexpirationWarning;
     ServerVersion version;
     int serverCCSID;
     // Note: not maintained as com.ibm.as400.security.auth.ProfileToken.  Class is currently not available in proxy environments, so don't want to force instantiation during signon.

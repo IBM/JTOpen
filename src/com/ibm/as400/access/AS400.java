@@ -307,6 +307,8 @@ public class AS400 implements Serializable
     private static Hashtable defaultUsers = new Hashtable();
     // Number of days previous to password expiration to start to warn user.
     private static int expirationWarning = 7;
+    // Whether to use system value QPWDEXPWRN to calculate days previous to password expiration.
+    private boolean useSystemExpirationWarning_ = false;
 
     private static int alreadyCheckedForMultipleVersions_ = 0;
 
@@ -1639,7 +1641,85 @@ public class AS400 implements Serializable
 
         return (expire == null) ? null : (GregorianCalendar)expire.clone();
     }
+    
+    
+    /**
+     * Set a flag to indicate whether or not to use the password expiration warning days
+     * from the QPWDEXPWRN system value.  This capability is supported with V6R1M0
+     * and later systems with V6R1M0 5761SS1 PTF SI48808 or V7R1M0 5770SS1 PTF SI48809.
+     * @param  useSystem  indicates whether or not to use password expiration warning days
+     *                    from the QPWDEXPWRN system value
+     */
+    public void setUseSystemPasswordExpirationWarningDays(boolean useSystem) {
+    	if (useSystem) {
+    		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning.");
+    		useSystemExpirationWarning_ = true;
+    	} else {
+    		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Don't use system password expiration(QPWDEXPWRN) warning.");
+    		useSystemExpirationWarning_ = false;
+    	}
+    }
+   
+    /**
+     * Returns the number of days before password expiration to start warning the user
+     * based on the value of the QPWDEXPWRN system value.  This capability is supported
+     * with V6R1M0 and later systems with V6R1M0 5761SS1 PTF SI48808 or V7R1M0 5770SS1 PTF SI48809.
+     * @return  The number of days before password expiration to start warning the user.
+     *          If {@link #setUseSystemPasswordExpirationWarningDays} is enabled and supported,
+     *          return the value of the QPWDEXPWRN system value. Otherwise, return
+     *          {@link #getPasswordExpirationWarningDays}.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     */
+	public int getSystemPasswordExpirationWarningDays()throws AS400SecurityException, IOException {
+		if (useSystemExpirationWarning_) {
+			chooseImpl();
+			signon(false);
+			if (signonInfo_.PWDexpirationWarning > 0) {
+				if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning: " + signonInfo_.PWDexpirationWarning);
+				return signonInfo_.PWDexpirationWarning;
+			}
 
+		}
+
+		return getPasswordExpirationWarningDays();
+	}
+   
+	 /**
+     * Determines if the password expiration date for the user profile is within the
+     * password expiration warning days for the system returned by
+     * {@link getSystemPasswordExpirationWarningDays}.
+     * @return  true if the password expiration date for the user profile is within the
+     *          password expiration days; otherwise, return false
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     */
+	public boolean isInPasswordExpirationWarningDays()
+			throws AS400SecurityException, IOException {
+		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if within the password expiration warning days for the system. " );
+		return getDaysToExpiration() <= getSystemPasswordExpirationWarningDays();
+	}
+
+    /**
+     * Returns the number of days until the user profile's password expires.
+     * <p>A connection is required to retrieve this information.  If a connection
+     * has not been established, one is created to retrieve the information.
+     * @return  The number of days until the user profiles' password expires.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     */
+    public int getPasswordExpirationDays() throws AS400SecurityException, IOException {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting password expiration warning days.");
+        
+        chooseImpl();
+        signon(false);
+        
+        int days = getDaysToExpiration();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password expiration days: " + days);
+
+        return days;
+    }
+    
     /**
      Returns the number of days before password expiration to start warning the user.
      @return  The number of days before expiration to warn the user.
@@ -2650,7 +2730,7 @@ public class AS400 implements Serializable
                     }
 
                     // Check for number of days to expiration, and warn if within threshold.
-                    if (getDaysToExpiration() < AS400.expirationWarning)
+                    if (isInPasswordExpirationWarningDays())
                     {
                         SignonEvent soEvent = new SignonEvent(this, reconnecting);
                         proceed = soHandler.passwordAboutToExpire(soEvent, getDaysToExpiration());

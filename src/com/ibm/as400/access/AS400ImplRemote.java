@@ -2283,6 +2283,7 @@ class AS400ImplRemote implements AS400Impl
                 signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
                 signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
                 signonInfo_.expirationDate = signonRep.getExpirationDate();
+                signonInfo_.PWDexpirationWarning = signonRep.getPWDExpirationWarning();
                 signonInfo_.version = version_;
                 signonInfo_.serverCCSID = signonRep.getServerCCSID();
                 if (userId_.length() == 0)

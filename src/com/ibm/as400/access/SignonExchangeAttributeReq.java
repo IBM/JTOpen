@@ -44,7 +44,7 @@ class SignonExchangeAttributeReq extends ClientAccessDataStream
         //   CP
         set16bit(0x1102, 34);
         //   Client level.
-        set16bit(2, 36);
+        set16bit(5, 36);
 
         if (seed != null)
         {

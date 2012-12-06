@@ -48,6 +48,23 @@ class SignonInfoRep extends ClientAccessDataStream
         return getDate(0x1108);
     }
 
+    int getPWDExpirationWarning() {
+    	int offset = findCP(0x112C);
+    	if(offset==-1) return -1;
+    	return get32bit(findCP(0x112C)+6);
+    }
+    
+    int findCP(int cp)
+    {
+        int offset = 24;
+        while (offset < data_.length -1)
+        {
+            if (get16bit(offset + 4) == cp) return offset;
+            offset += get32bit(offset);
+        }
+        return -1;
+    }
+    
     GregorianCalendar getDate(int cp)
     {
         int offset = 24;
