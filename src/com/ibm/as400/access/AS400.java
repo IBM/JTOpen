@@ -1697,7 +1697,14 @@ public class AS400 implements Serializable
 	public boolean isInPasswordExpirationWarningDays()
 			throws AS400SecurityException, IOException {
 		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if within the password expiration warning days for the system. " );
-		return getDaysToExpiration() <= getSystemPasswordExpirationWarningDays();
+
+        chooseImpl();
+        signon(false);
+
+        boolean warn = getDaysToExpiration() <= getSystemPasswordExpirationWarningDays();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "In password expiration warning days: " + warn);
+
+        return warn;
 	}
 
     /**
