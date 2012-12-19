@@ -567,7 +567,7 @@ public class Main implements Runnable {
     else if (commandSize < 10000) clCommandSize155="000000" +commandSize+".00000";
     else                          clCommandSize155="00000" +commandSize+".00000";
 
-    String command = "CALL QSYS.QCMDEXC('"+clCommand+"    ',"+clCommandSize155+")";
+    String command = "CALL QSYS.QCMDEXC('"+clCommand+"    ', "+clCommandSize155+")";
 
     if (connection_ != null) {
       if (stmt_ != null && reuseStatement_) {
@@ -802,6 +802,7 @@ public class Main implements Runnable {
           }
           // Look for more result tests
           if (!manualFetch_) {
+            try { 
             while (cstmt_.getMoreResults()) {
               out1.println("<<<< NEXT RESULT SET >>>>>>>");
               rs = cstmt_.getResultSet();
@@ -809,6 +810,15 @@ public class Main implements Runnable {
               if (closeStatementRS_) {
                 rs.close();
                 rs = null;
+              }
+            }
+            } catch (Exception e) {
+              // Ignore not implemented exception
+              String m = e.toString(); 
+              if (m.indexOf("implemented") >= 0 ) {
+                // ignore 
+              } else {
+                throw e; 
               }
             }
           }
