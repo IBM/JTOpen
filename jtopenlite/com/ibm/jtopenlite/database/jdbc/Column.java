@@ -24,6 +24,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import sun.util.BuddhistCalendar;
 
@@ -3399,6 +3400,17 @@ public static Calendar getGregorianInstance() {
     return gregorianCalendar;
   }
 }
+
+
+/*  Get an instance of a calendar from the GMT timezone  */
+static TimeZone gmtTimeZone = null;
+public static Calendar getGMTInstance() {
+  if (gmtTimeZone == null) {
+    gmtTimeZone = TimeZone.getTimeZone("GMT");
+  }
+  return Calendar.getInstance(gmtTimeZone);
+}
+
 
   Clob convertToClob(final byte[] data, final int rowOffset, JDBCConnection conn) throws SQLException
   {
