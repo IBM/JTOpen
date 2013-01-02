@@ -152,6 +152,12 @@ extends SQLDataBase
         value_ = bigDecimal.setScale(scale_, BigDecimal.ROUND_DOWN);       // @E3C
 
         int otherPrecision = SQLDataFactory.getDecimalPrecision(value_); /*@H5A*/ 
+        // Check for the odd case where the precision = scale and adjust the otherPrecision @H5C
+        if (precision_ == scale_) {
+          if (value_.intValue() == 0) {
+            otherPrecision = otherPrecision - 1; 
+          }
+        }
         if(otherPrecision > precision_)
         {                                 // @E2D @E3C
             int digits = otherPrecision - precision_;                      // @E2D @E3C
