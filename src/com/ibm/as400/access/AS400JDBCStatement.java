@@ -3882,7 +3882,7 @@ implements Statement
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
             maxFieldSize_ = maxFieldSize;
-            SQLConversionSettings.getConversionSettingsWithMaxFieldSize(settings_,maxFieldSize);
+            settings_ = SQLConversionSettings.getConversionSettingsWithMaxFieldSize(settings_,maxFieldSize);
 
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Max field size", maxFieldSize_);
