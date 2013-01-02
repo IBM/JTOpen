@@ -93,6 +93,7 @@ package com.ibm.as400.access;
 //@H4   20121117  JDBC:  Reduce number of SQLConversionSettingsObjects
 //@H5   20121119  JDBC:  Fix truncation for SQLNumeric and SQLDecimal objects
 //@H6   20121206  Add QPWDEXPWRN support
+//@H7   20130102  JDBC:  For CCSID 1208, do not report truncation if extra characters are spaces
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

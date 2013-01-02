@@ -284,7 +284,12 @@ class ConvTable1208 extends ConvTable
                     if (bufCount < max) {              /*@H2A*/
                       buf[bufCount++] = (byte)c;
                     } else {
-                      truncated ++; 
+                      // Don't report the truncation of spaces @H7A
+                      if (c == ' ') {
+                         // No need to count truncation 
+                      } else {
+                         truncated ++;
+                      }
                     }
                 }
                 else if (c < 0x800)
