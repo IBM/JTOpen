@@ -794,7 +794,9 @@ public abstract class SQLDataBase implements SQLData
         return null;
     }
 
-   
+   public void updateSettings(SQLConversionSettings settings) {
+     settings_ = settings; 
+   }
 
  
 

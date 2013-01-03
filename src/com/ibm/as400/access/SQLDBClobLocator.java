@@ -967,5 +967,9 @@ endif */
         return null;
     }
  
+    public void updateSettings(SQLConversionSettings settings) {
+      settings_ = settings; 
+    }
+
 }
 

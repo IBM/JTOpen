@@ -889,7 +889,16 @@ implements JDRow
     }
 
 
-
-
+   /** Update the settings used by this object
+    * 
+    */
+   public void updateSettings(SQLConversionSettings settings) {
+     if (sqlData_ != null) { 
+     for (int i = 0; i < sqlData_.length; i++) {
+     sqlData_[i].updateSettings(settings); 
+     }
+     }
+   }
+     
 
 }

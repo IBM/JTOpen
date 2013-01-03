@@ -1203,4 +1203,9 @@ endif */
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
+    
+    public void updateSettings(SQLConversionSettings settings) {
+      settings_ = settings; 
+    }
+
 }

@@ -3884,6 +3884,9 @@ implements Statement
             maxFieldSize_ = maxFieldSize;
             settings_ = SQLConversionSettings.getConversionSettingsWithMaxFieldSize(settings_,maxFieldSize);
 
+            if (parameterRow_ != null) { 
+              parameterRow_.updateSettings(settings_); 
+            }
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Max field size", maxFieldSize_);
         }

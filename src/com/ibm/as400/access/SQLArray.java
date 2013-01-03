@@ -476,4 +476,8 @@ endif */
         else
             return false;
     }
+    public void updateSettings(SQLConversionSettings settings) {
+    
+    }
+
 }
