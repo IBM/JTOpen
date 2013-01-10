@@ -170,7 +170,7 @@ public class ProgramCall implements Serializable
     private ProgramCallCancelThread cancelThread_;//@D10
     
     private Object cancelLock_ = new CancelLock();//@D10
-    private class CancelLock extends Object implements java.io.Serializable {};//@D10
+    private class CancelLock extends Object implements java.io.Serializable {static final long serialVersionUID = 4L;};//@D10
     
    //@D10A - Start
    /**
