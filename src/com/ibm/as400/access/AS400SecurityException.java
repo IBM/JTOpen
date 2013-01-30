@@ -350,7 +350,9 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
         rc_ =  returnCode;
     }
 
-    // Constructs an AS400SecurityException object. It indicates that a security exception occurred.  Exception message will look like this:  objectName: User is not authorized to object.
+    // Constructs an AS400SecurityException object. 
+    // It indicates that a security exception occurred.  
+    // Exception message will look like this:  objectName: User is not authorized to object.
     // @param  objectName  The name of the object.
     // @param  returnCode  The return code which identifies the message to be returned.
     AS400SecurityException(String objectName, int returnCode)
@@ -363,6 +365,13 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
     AS400SecurityException(int returnCode, AS400Message[] messageList)
     {
         super(ResourceBundleLoader.getText(getMRIKey(returnCode)));
+        rc_ =  returnCode;
+        messageList_ = messageList;
+    }
+
+    AS400SecurityException(int returnCode, AS400Message[] messageList, String info )
+    {
+        super(ResourceBundleLoader.getText(getMRIKey(returnCode))+":"+info);
         rc_ =  returnCode;
         messageList_ = messageList;
     }
