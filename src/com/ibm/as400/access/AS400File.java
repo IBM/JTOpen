@@ -14,18 +14,13 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.Vector;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport; //@B0A
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 
 /**

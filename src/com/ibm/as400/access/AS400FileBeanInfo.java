@@ -28,7 +28,7 @@ import java.lang.reflect.Method; //@B0A
 **/
 public class AS400FileBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   // Bean class
   private final static Class beanClass_ = AS400File.class;
@@ -49,7 +49,7 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
 
 
   // Handles loading the appropriate resource bundle
-  private static ResourceBundleLoader loader_;
+  // private static ResourceBundleLoader loader_;
 
   public AS400FileBeanInfo()
   {
@@ -63,24 +63,24 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
                                             FileListener.class,
                                             listenerMethods, "addFileListener",
                                             "removeFileListener");
-      eventSet_[0].setDisplayName(loader_.getText("EVT_NAME_FILE_EVENT"));
-      eventSet_[0].setShortDescription(loader_.getText("EVT_DESC_FILE_EVENT"));
+      eventSet_[0].setDisplayName(ResourceBundleLoader.getText("EVT_NAME_FILE_EVENT"));
+      eventSet_[0].setShortDescription(ResourceBundleLoader.getText("EVT_DESC_FILE_EVENT"));
 
 
       // PropertyChangeEvent
       eventSet_[1] = new EventSetDescriptor(beanClass_, "propertyChange",
                                             java.beans.PropertyChangeListener.class,
                                             "propertyChange");
-      eventSet_[1].setDisplayName(loader_.getText("EVT_NAME_PROPERTY_CHANGE"));
-      eventSet_[1].setShortDescription(loader_.getText("EVT_DESC_PROPERTY_CHANGE"));
+      eventSet_[1].setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_CHANGE"));
+      eventSet_[1].setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_CHANGE"));
 
 
       // VetoablePropertyChange
       eventSet_[2] = new EventSetDescriptor(beanClass_, "propertyChange", //@A1C
                                             java.beans.VetoableChangeListener.class,
                                             "vetoableChange");
-      eventSet_[2].setDisplayName(loader_.getText("EVT_NAME_PROPERTY_VETO"));
-      eventSet_[2].setShortDescription(loader_.getText("EVT_DESC_PROPERTY_VETO"));
+      eventSet_[2].setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_VETO"));
+      eventSet_[2].setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_VETO"));
 
     }
     catch(IntrospectionException e)
@@ -96,8 +96,8 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
                                                "getFileName", null);
       propertySet_[0].setBound(true);
       propertySet_[0].setConstrained(false);
-      propertySet_[0].setDisplayName(loader_.getText("PROP_NAME_FILE_NAME"));
-      propertySet_[0].setShortDescription(loader_.getText("PROP_DESC_FILE_NAME"));
+      propertySet_[0].setDisplayName(ResourceBundleLoader.getText("PROP_NAME_FILE_NAME"));
+      propertySet_[0].setShortDescription(ResourceBundleLoader.getText("PROP_DESC_FILE_NAME"));
 
 
       // getKeyFields
@@ -105,8 +105,8 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
                                                "getMemberName", null);
       propertySet_[1].setBound(true);
       propertySet_[1].setConstrained(false);
-      propertySet_[1].setDisplayName(loader_.getText("PROP_NAME_MEMBER"));
-      propertySet_[1].setShortDescription(loader_.getText("PROP_DESC_MEMBER"));
+      propertySet_[1].setDisplayName(ResourceBundleLoader.getText("PROP_NAME_MEMBER"));
+      propertySet_[1].setShortDescription(ResourceBundleLoader.getText("PROP_DESC_MEMBER"));
 
 
       // get/setPath
@@ -115,8 +115,8 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
                                                "setPath");
       propertySet_[2].setBound(true);
       propertySet_[2].setConstrained(true);
-      propertySet_[2].setDisplayName(loader_.getText("PROP_NAME_PATH"));
-      propertySet_[2].setShortDescription(loader_.getText("PROP_DESC_PATH"));
+      propertySet_[2].setDisplayName(ResourceBundleLoader.getText("PROP_NAME_PATH"));
+      propertySet_[2].setShortDescription(ResourceBundleLoader.getText("PROP_DESC_PATH"));
 
 
       // get/setRecordFormat
@@ -128,8 +128,8 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
       propertySet_[3] = new PropertyDescriptor("recordFormat", getter, setter); //@B0A
       propertySet_[3].setBound(true);
       propertySet_[3].setConstrained(true);
-      propertySet_[3].setDisplayName(loader_.getText("PROP_NAME_RECORD_FORMAT"));
-      propertySet_[3].setShortDescription(loader_.getText("PROP_DESC_RECORD_FORMAT"));
+      propertySet_[3].setDisplayName(ResourceBundleLoader.getText("PROP_NAME_RECORD_FORMAT"));
+      propertySet_[3].setShortDescription(ResourceBundleLoader.getText("PROP_DESC_RECORD_FORMAT"));
 
 
       // get/setSystem
@@ -138,8 +138,8 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
                                                "setSystem");
       propertySet_[4].setBound(true);
       propertySet_[4].setConstrained(true);
-      propertySet_[4].setDisplayName(loader_.getText("PROP_NAME_SYSTEM"));
-      propertySet_[4].setShortDescription(loader_.getText("PROP_DESC_SYSTEM"));
+      propertySet_[4].setDisplayName(ResourceBundleLoader.getText("PROP_NAME_SYSTEM"));
+      propertySet_[4].setShortDescription(ResourceBundleLoader.getText("PROP_DESC_SYSTEM"));
     }
     catch(Exception e) //@B0C
     {

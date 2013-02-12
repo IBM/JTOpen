@@ -58,7 +58,8 @@ class CurrentUser
         return null;
     }
 
-    static byte[] getUserInfo(int vrm, byte[] clientSeed, byte[] serverSeed) throws AS400SecurityException, IOException
+
+    static byte[] getUserInfo(int vrm, byte[] clientSeed, byte[] serverSeed, String info) throws AS400SecurityException, IOException
     {
         try
         {
@@ -75,7 +76,7 @@ class CurrentUser
         }
         catch (NativeException e)
         {
-            throw AS400ImplRemote.returnSecurityException(BinaryConverter.byteArrayToInt(e.data, 0));
+            throw AS400ImplRemote.returnSecurityException(BinaryConverter.byteArrayToInt(e.data, 0),null,info);
         }
     }
 

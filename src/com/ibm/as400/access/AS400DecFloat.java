@@ -44,7 +44,7 @@ public class AS400DecFloat implements AS400DataType
     private final static long DEC_FLOAT_34_SIGN_MASK = 0x8000000000000000L; // 1 bits
     private final static long DEC_FLOAT_34_COMBINATION_MASK = 0x7c00000000000000L; // 5 bits
     private final static long DEC_FLOAT_34_EXPONENT_CONTINUATION_MASK = 0x03ffc00000000000L; // 12 bits
-    private final static long DEC_FLOAT_34_COEFFICIENT_CONTINUATION_MASK = 0x00003fffffffffffL; // 46 bits + 64 bits = 110 bits
+    final static long DEC_FLOAT_34_COEFFICIENT_CONTINUATION_MASK = 0x00003fffffffffffL; // 46 bits + 64 bits = 110 bits
 
     private static final int[][] tenRadixMagnitude = { { 0x3b9aca00 }, // 10^9
         { 0x0de0b6b3, 0xa7640000 }, // 10^18
@@ -719,7 +719,7 @@ public class AS400DecFloat implements AS400DataType
 
     /** 
      * Converts byte to string */
-    private static final String byteToString(int byteVal)
+    static final String byteToString(int byteVal)
     {
         int leftDigitValue = (byteVal >>> 4) & 0x0F;
         int rightDigitValue = byteVal & 0x0F;

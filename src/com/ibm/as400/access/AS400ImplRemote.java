@@ -542,7 +542,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] rcBytes = new byte[4];
                 BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
                 Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(reply.getRC());
+                throw AS400ImplRemote.returnSecurityException(reply.getRC(),null,userId_);
             }
 
             SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(), profileToken.getTimeoutInterval(), serverLevel_);
@@ -871,7 +871,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] rcBytes = new byte[4];
                 BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
                 Trace.log(Trace.ERROR, "Exchange of random seeds failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(xChgReply.getRC());
+                throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null, null);
             }
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
 
@@ -903,7 +903,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] rcBytes = new byte[4];
                 BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
                 Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(reply.getRC());
+                throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
             }
 
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
@@ -1044,7 +1044,7 @@ class AS400ImplRemote implements AS400Impl
                     byte[] rcBytes = new byte[4];
                     BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
                     Trace.log(Trace.ERROR, "Exchange of random seeds failed with return code:", rcBytes);
-                    throw AS400ImplRemote.returnSecurityException(xChgReply.getRC());
+                    throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null, userId_);
                 }
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
 
@@ -1076,7 +1076,7 @@ class AS400ImplRemote implements AS400Impl
                     byte[] rcBytes = new byte[4];
                     BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
                     Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
-                    throw AS400ImplRemote.returnSecurityException(reply.getRC());
+                    throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
                 }
 
                 jobBytes = reply.getJobNameBytes();
@@ -1189,7 +1189,7 @@ class AS400ImplRemote implements AS400Impl
             if (!mustUseSuppliedProfile_ &&
                 AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
             {
-                encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed);
+                encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed, userId_);
                 Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
             }
             else
@@ -1669,7 +1669,7 @@ class AS400ImplRemote implements AS400Impl
 
     // Create AS400SecurityException from sign-on server return code.
     // Throw or return proper exception if exchange of random seeds or start server request fail.
-    static AS400SecurityException returnSecurityException(int rc) throws ServerStartupException
+    static AS400SecurityException returnSecurityExceptionX(int rc) throws ServerStartupException
     {
         return returnSecurityException(rc, null, null);
     }
@@ -2376,7 +2376,7 @@ class AS400ImplRemote implements AS400Impl
                     byte[] rcBytes = new byte[4];
                     BinaryConverter.intToByteArray(attrRep.getRC(), rcBytes, 0);
                     Trace.log(Trace.ERROR, "Signon server exchange client/server attributes failed, return code:", rcBytes);
-                    throw AS400ImplRemote.returnSecurityException(attrRep.getRC());
+                    throw AS400ImplRemote.returnSecurityException(attrRep.getRC(), null, userId_);
                 }
 
                 version_ = new ServerVersion(attrRep.getServerVersion());

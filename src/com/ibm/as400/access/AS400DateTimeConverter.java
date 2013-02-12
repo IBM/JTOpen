@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.io.UnsupportedEncodingException;
@@ -43,7 +42,7 @@ public class AS400DateTimeConverter
 //@A2D        Trace.log(Trace.INFORMATION,"constructor");
         if (system == null)                         //@A2A
           throw new NullPointerException("system"); //@A2A
-        this.as400_=system;
+        as400_=system;
     }
 
     /**
@@ -174,7 +173,7 @@ public class AS400DateTimeConverter
 
         RecordFormat recordFormat=new RecordFormat();
 
-        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];;
+        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];
         cfd[0] = new CharacterFieldDescription(new AS400Text(4),"year");
         cfd[1] = new CharacterFieldDescription(new AS400Text(2),"month");
         cfd[2] = new CharacterFieldDescription(new AS400Text(2),"day");
@@ -221,7 +220,7 @@ public class AS400DateTimeConverter
 
         RecordFormat recordFormat=new RecordFormat();
 
-        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];;
+        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];
         cfd[0] = new CharacterFieldDescription(new AS400Text(4),"year");
         cfd[1] = new CharacterFieldDescription(new AS400Text(2),"month");
         cfd[2] = new CharacterFieldDescription(new AS400Text(2),"day");

@@ -20,7 +20,7 @@ package com.ibm.as400.access;
 **/
 public class AS400Exception extends ErrorCompletingRequestException
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+   static final String copyright = "Copyright (C) 1997-2013 International Business Machines Corporation and others.";
 
 
 
