@@ -196,33 +196,17 @@ class PortMapper
         // We use the port returned in the previous reply to establish a new socket connection to the requested service...
         if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
-            try
-            {
-                if (useSSL.useSslight_) throw new Exception();
-                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
-                sc.setProperties(socket, null, systemName, srvPort, null);
+         // Refactor code but keep the same logic, try JSSE first, fall back to SSL Light again.
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
+            if (useSSL.useSslight_)
+            { // SSLight is no longer exists since v5r4, instead, using JSSE.
+                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
+                sc.setProperties(socket, null, null, 0, useSSL); 
             }
-            catch (Throwable e)
-            {
-                try 
-                {
-                    if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE; falling back to SSLight:", e);
-                    sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
-                    sc.setProperties(socket, null, null, 0, useSSL); 
-                }
-                catch (NoClassDefFoundError e1)
-                {
-                  Trace.log(Trace.ERROR, "SSLight classes are not found on classpath.", e1);
-                  throw e1; 
-                }
-                catch (VerifyError e1)
-                {
-                  Trace.log(Trace.ERROR, "SSLight classes are not found on classpath.", e1);
-                  throw e1; 
-                }
-            
-
+            else
+            { // JSSE is supported since v5r4.
+            	sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
+                sc.setProperties(socket, null, systemName, srvPort, null);
             }
         }
         else
