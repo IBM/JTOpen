@@ -94,8 +94,7 @@ package com.ibm.as400.access;
 //@H5   20121119  JDBC:  Fix truncation for SQLNumeric and SQLDecimal objects
 //@H6   20121206  Add QPWDEXPWRN support
 //@H7   20130102  JDBC:  For CCSID 1208, do not report truncation if extra characters are spaces
-//@H7   20130225  Refactor code block of SSL socket provider (shift between JSSE and SSL )
-//@I1   2013xxxx  
+//@I1   20130225  Refactor code block of SSL socket provider (shift between JSSE and SSL )
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
