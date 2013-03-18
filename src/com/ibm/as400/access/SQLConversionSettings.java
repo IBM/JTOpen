@@ -23,7 +23,7 @@ Storing these in a single object not only makes it more convenient
 to pass around, but also enables the settings to be changed
 on-the-fly and be reflected in existing data.
 
-To reduce the number of these object, this has been changed to be an immutable object.
+To reduce the number of these objects, this has been changed to be an immutable object.
 If a value is to be changed, then a new instance needs to be created.  @H4A
 
 **/
@@ -347,20 +347,6 @@ Returns the current time separator.
     {
         return timeSeparator_;
     }
-
-
-
-/**
-Sets the current max field size.
-
-@param  maxFieldSize     The maximum field size
-                         (in bytes).
-**/
-    void setMaxFieldSizeOld (int maxFieldSize)
-    {
-        maxFieldSize_ = maxFieldSize;
-    }
-
 
 // @E0A
 /**
