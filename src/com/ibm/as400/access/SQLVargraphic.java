@@ -33,7 +33,7 @@ import java.net.URL;
 final class SQLVargraphic
 extends SQLDataBase
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright2 = "Copyright (C) 1997-2013 International Business Machines Corporation and others.";
 
     // Private data.
      private int                     length_;
@@ -168,7 +168,7 @@ extends SQLDataBase
             value = SQLTime.timeToString((Time)object, settings_, calendar);
 
         else if(object instanceof Timestamp)
-            value = SQLTimestamp.timestampToString((Timestamp)object, calendar);
+            value = SQLTimestamp.timestampToStringTrimTrailingZeros((Timestamp)object, calendar);
 
         else if(object instanceof java.util.Date)
             value = SQLDate.dateToString((java.util.Date)object, settings_, calendar);

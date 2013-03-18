@@ -137,7 +137,7 @@ extends SQLDataBase
             value = SQLTime.timeToString((Time)object, settings_, calendar);        // @C2C
 
         else if(object instanceof Timestamp)
-            value = SQLTimestamp.timestampToString((Timestamp)object, calendar);    // @C2C
+            value = SQLTimestamp.timestampToStringTrimTrailingZeros((Timestamp)object, calendar);    // @C2C
 
         else if(object instanceof java.util.Date)                                   // @F5M @F5C
             value = SQLDate.dateToString((java.util.Date)object, settings_, calendar); // @C2C @F5C

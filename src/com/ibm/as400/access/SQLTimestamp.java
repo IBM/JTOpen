@@ -33,7 +33,7 @@ import java.util.Calendar;
 final class SQLTimestamp
 extends SQLDataBase
 {
-    static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final String copyright2 = "Copyright (C) 1997-2013 International Business Machines Corporation and others.";
     static boolean jdk14 = false;
     static {
       jdk14 = JVMInfo.isJDK14();
@@ -157,13 +157,43 @@ extends SQLDataBase
     public static String timestampToString(Timestamp ts,
                                            Calendar calendar)
     {
-        return timestampToString(ts, calendar, -1);             // @F4C
+        return timestampToString(ts, calendar, -1, 26);             // @F4C
     }
 
+    
+    /**
+     * Convert a timestamp to a string and get rid of trailing zeros. 
+     * To be in JDBC timestamp format, you need to leave at least a
+     * xx:xx:xx.0
+     */
+    /*@I2A*/
+    public static String timestampToStringTrimTrailingZeros(Timestamp ts,
+        Calendar calendar)
+    {
+      String tsString= timestampToString(ts, calendar, -1, 32);
+      int lastZero = 32;
+      while (tsString.charAt(lastZero-1)=='0' && lastZero > 21) {
+        lastZero --; 
+      }
+      if (lastZero < 32) {
+        tsString=tsString.substring(0,lastZero);
+      }
+      return tsString; 
+    }
+
+    
+    public static String timestampToString(Timestamp ts,
+        Calendar calendar, 
+        int hourIn) {
+       return  timestampToString(ts, calendar, hourIn, 26); 
+    }
+
+    
     // @F4A - New method - Contains the logic from the old method, with the addition of the hourIn parameter.
     public static String timestampToString(Timestamp ts,
                                            Calendar calendar, 
-                                           int hourIn)
+                                           int hourIn, 
+                                           int length ) /*@I2C*/
     {
         // @F3A
         // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, 
@@ -207,17 +237,20 @@ extends SQLDataBase
         buffer.append(':');  //@F6C
         //@F6D buffer.append('.');    // @F3C
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.SECOND), 2));
-        buffer.append('.');
-        if (ts instanceof AS400JDBCTimestamp) {  /*@H3C*/
-          buffer.append(JDUtilities.padZeros(((AS400JDBCTimestamp) ts).getPicos(), 12)); // @B1C
-        } else {
-           int nanos = ts.getNanos();
-           buffer.append(JDUtilities.padZeros(nanos, 9)); // @B1C
-           if ((nanos % 1000) == 0) {
-             buffer.setLength(26); 
-           }
+        if (length > 20) {      /*@I2A*/
+          buffer.append('.');
+          if (ts instanceof AS400JDBCTimestamp) {  /*@H3C*/
+            buffer.append(JDUtilities.padZeros(((AS400JDBCTimestamp) ts).getPicos(), 12)); // @B1C
+            buffer.setLength(length);  /*@I2A*/
+          } else {
+             int nanos = ts.getNanos();
+             buffer.append(JDUtilities.padZeros(nanos, 9)); // @B1C
+             if (length > 29) {   /*@I2A*/
+                buffer.append("000");
+             }
+             buffer.setLength(length);  /*@I2C*/
+          }
         }
-
         // The Calendar class represents 24:00:00 as 00:00:00.        // @F4A
         // Format of timestamp is YYYY-MM-DD-hh.mm.ss.uuuuuu, so hh is at offset 11.
         if(hourIn == 24 && hour==0)                                  // @F4A
@@ -596,11 +629,11 @@ extends SQLDataBase
     if (picos_ % 1000 == 0) {
       Timestamp ts = new Timestamp(millis);
       ts.setNanos((int)(picos_ / 1000));
-      return timestampToString(ts, calendar, hour_); // @F4C
+      return timestampToString(ts, calendar, hour_, length_); // @F4C@I2C
     } else {
       AS400JDBCTimestamp ts = new AS400JDBCTimestamp(millis); 
       ts.setPicos(picos_); 
-      return timestampToString(ts, calendar, hour_); // @F4C
+      return timestampToString(ts, calendar, hour_, length_); // @F4C@I2C
     }
     }
 
@@ -646,24 +679,6 @@ extends SQLDataBase
 
 
 
-    //@pda jdbc40
-    public String getNString() throws SQLException
-    {
-        truncated_ = 0; outOfBounds_ = false;
-        Calendar calendar = AS400Calendar.getGMTInstance();           //@G4C
-        calendar.set(year_, month_, day_, hour_, minute_, second_);
-        long millis;
-        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
-        if (picos_ % 1000 == 0) {
-          Timestamp ts = new Timestamp (millis);
-          ts.setNanos((int)(picos_ / 1000));
-          return timestampToString(ts, calendar, hour_);
-        } else {
-          AS400JDBCTimestamp ts = new AS400JDBCTimestamp(millis); 
-          ts.setPicos(picos_); 
-          return timestampToString(ts, calendar, hour_);
-        }
-    }
 
     /* ifdef JDBC40
     //@pda jdbc40
@@ -680,6 +695,49 @@ extends SQLDataBase
         return null;
     }
     endif */
+    
+    
+    
+    
+    /*
+     * Unit test code 
+    public static void main(String[] args) {
+      String[] tests = {
+          "2100-01-02 03:45:56.000000",
+          "2100-01-02 03:45:56.100000",
+          "2100-01-02 03:45:56.120000",
+          "2100-01-02 03:45:56.103000",
+          "2100-01-02 03:45:56.100400",
+          "2100-01-02 03:45:56.100050",
+          "2100-01-02 03:45:56.10000600",
+          "2100-01-02 03:45:56.100000700",
+          "2100-01-02 03:45:56.100000780",
+          "2100-01-02 03:45:56.100000709",
+          "2100-01-02 03:45:56.1000007001000",
+          "2100-01-02 03:45:56.1000007000200",
+          "2100-01-02 03:45:56.1000007000030",
+      }; 
+      
+      for (int i =0 ; i < tests.length; i++) {
+        String inString = tests[i]; 
+        Timestamp ts=null;
+        if (inString.length() <= 29) { 
+          ts = Timestamp.valueOf(inString);
+        } else { 
+          
+          try {
+            ts = stringToTimestamp(inString, null);
+          } catch (SQLException e) {
+            e.printStackTrace();
+          } 
+        }
+        String outString = timestampToStringTrimTrailingZeros(ts, null);
+        System.out.println(inString+"->"+outString); 
+      }
+      
+    }
+     */
+
 
 }
 
