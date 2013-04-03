@@ -220,7 +220,7 @@ public class Main implements Runnable {
   private Hashtable connectionPool = new Hashtable();
   private Hashtable variables = new Hashtable();
   private int conCount;
-  private String conName;
+  private String conName="CON";
   private boolean silent;
 
   private Vector history = new Vector();
@@ -291,8 +291,9 @@ public class Main implements Runnable {
        connection_ = DriverManager.getConnection(url_, userid_, password_);
        addVariable("CON", connection_);
     } catch (SQLException ex ) {
-      System.out.println("Unable to connect to "+url_+" using "+userid_);
-      throw ex;
+      System.out.println("Warning:  Unable to connect to "+url_+" using "+userid_);
+      System.out.println("CON is not defined"); 
+      connection_ = null; 
     }
 
   }
