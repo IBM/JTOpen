@@ -221,7 +221,9 @@ Returns the handle to this CLOB locator in the database.
     	  finally{
     	      try{
     	          if (r != null ) r.close();
-    	      }catch(Exception ee){}
+    	      }catch(Exception ee){
+    	        JDTrace.logException(this, "getSubString r.close() threw exception", ee);  
+    	      }
     	  }
       }
       

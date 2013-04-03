@@ -317,9 +317,9 @@ public class SCS3812Writer extends SCS5219Writer
     {
         byte [] cmd = SFID;
         SCSFontData fd = new SCSFontData();
-
+        int[] fontIDs = fd.fontIDs; 
         /* Make sure font value is valid                             */
-        if ((font < 0) || (font > fd.fontIDs.length))
+        if ((font < 0) || (font > fontIDs.length))
         {
             String arg = "Font (" + String.valueOf(font) + ")";
             throw new ExtendedIllegalArgumentException(arg, 2);

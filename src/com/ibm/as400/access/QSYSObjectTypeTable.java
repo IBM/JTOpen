@@ -202,7 +202,7 @@ public class QSYSObjectTypeTable
 
 
     // No need to be able to instantiate this object.
-    private QSYSObjectTypeTable() { };
+    private QSYSObjectTypeTable() { }
 
 
 /**

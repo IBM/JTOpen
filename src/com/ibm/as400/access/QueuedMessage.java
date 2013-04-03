@@ -481,7 +481,7 @@ public class QueuedMessage extends AS400Message implements Serializable
      **/
     public String getReplyStatus()
     {
-        if (replyStatus_ == "" && values_ != null)
+        if ("".equals(replyStatus_) && values_ != null)
         {
             String s = (String)values_.get(1001);
             if (s != null)

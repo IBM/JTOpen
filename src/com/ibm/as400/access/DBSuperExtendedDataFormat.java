@@ -286,7 +286,7 @@ when it was not previously set by the constructor.
       int offsetToVariableFieldInformation = BinaryConverter.byteArrayToInt(rawBytes_, offset_ + 48 + fieldIndex * REPEATED_FIXED_LENGTH_);
       int lengthOfVariableFieldInformation  = BinaryConverter.byteArrayToInt(rawBytes_, offset_ + 16 + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation);  // Length of the variable information for a specific codepoint
       // retrieve the first codepoint in the variable length information
-      int codePoint = BinaryConverter.byteArrayToShort(rawBytes_, offset_ + 16 + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation + 4);;
+      int codePoint = BinaryConverter.byteArrayToShort(rawBytes_, offset_ + 16 + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation + 4);
 
       // Search until you find the codepoint for the information you want, or until the end of of the variable length info
       // move to the next LL CP in the variable inforamtion

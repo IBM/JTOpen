@@ -22,7 +22,7 @@ package com.ibm.as400.access;
 
 class NPDataAnalyzer extends Object
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     private static final String DT_AFPDS     = "*AFPDS";
     private static final String DT_USERASCII = "*USERASCII";
@@ -300,7 +300,7 @@ class NPDataAnalyzer extends Object
                                   {
                                      len     -= (count + 2);
                                      offset  += (count + 2);
-                                     fRC = true;;
+                                     fRC = true;
                                     break;
                                   } /* endcase */
                                   default:
@@ -579,124 +579,124 @@ class NPDataAnalyzer extends Object
     }
 
     // bunch of constants used for breaking SCS data stream
-        private static final byte ASCII_TRNSPRNT_CC               = (byte)0x03;
-        private static final byte BACKSPACE_CC                    = (byte)0x16;
-        private static final byte UNITBACKSPACE_CC                = (byte)0x1A;
-        private static final byte BEL_CC                          = (byte)0x2F;
-        private static final byte CARRIAGE_RETURN_CC              = (byte)0x0D;
-        private static final byte ENABLE_PRESENTATION_CC          = (byte)0x14;
-        private static final byte EXPANDED_BACKSPACE_CC           = (byte)0x36;
-        private static final byte FORM_FEED_CC                    = (byte)0x0C;
-        private static final byte GRAPHIC_ESCAPE_CC               = (byte)0x08;
-        private static final byte HORIZONTAL_TAB_CC               = (byte)0x05;
-        private static final byte INDENT_TAB_CC                   = (byte)0x39;
-        private static final byte INDEX_RETURN_CC                 = (byte)0x33;
-        private static final byte INHIBIT_PRESENTATION_CC         = (byte)0x24;
-        private static final byte INTERCHANGE_RECORD_SEPARATOR_CC = (byte)0x1E;
-        private static final byte LINE_FEED_CC                    = (byte)0x25;
-        private static final byte NEW_LINE_CC                     = (byte)0x15;
-        private static final byte NULL_CC                         = (byte)0x00;
-        private static final byte PRESENTATION_POSITION_CC        = (byte)0x34;
-        private static final byte REQUIRED_FORM_FEED_CC           = (byte)0x3A;
-        private static final byte REQUIRED_NEW_LINE_CC            = (byte)0x06;
-        private static final byte SPACE_CC                        = (byte)0x40;
-        private static final byte REQUIRED_SPACE_CC               = (byte)0x41;
-        private static final byte SET_ATTRIBUTE_CC                = (byte)0x28;
-        private static final byte SHIFT_OUT_CC                    = (byte)0x0E;
-        private static final byte SHIFT_IN_CC                     = (byte)0x0F;
-        private static final byte SWITCH_CC                       = (byte)0x2A;
-        private static final byte CSP_CC                          = (byte)0x2B;
-        private static final byte SUBSTITUTE_CC                   = (byte)0x3F;
-        private static final byte GRAPHIC_ERROR_ACTION_CC         = (byte)0xC8;
-        private static final byte HORIZONTAL_FORMAT_CC            = (byte)0xC1;
-        private static final byte LINE_DENSITY_CC                 = (byte)0xC6;
-        private static final byte NUMERIC_SPACE_CC                = (byte)0xE1;
-        private static final byte SUBSCRIPT_CC                    = (byte)0x38;
-        private static final byte SUPERSCRIPT_CC                  = (byte)0x09;
-        private static final byte SYLLABLE_HYPHEN_CC              = (byte)0xCA;
-        private static final byte TRANSPARENT_CC                  = (byte)0x35;
-        private static final byte VERTICAL_CHANNEL_SELECT_CC      = (byte)0x04;
-        private static final byte VERTICAL_TAB_CC                 = (byte)0x0B;
-        private static final byte WORD_UNDERSCORE_CC              = (byte)0x23;
+        static final byte ASCII_TRNSPRNT_CC               = (byte)0x03;
+        static final byte BACKSPACE_CC                    = (byte)0x16;
+        static final byte UNITBACKSPACE_CC                = (byte)0x1A;
+        static final byte BEL_CC                          = (byte)0x2F;
+        static final byte CARRIAGE_RETURN_CC              = (byte)0x0D;
+        static final byte ENABLE_PRESENTATION_CC          = (byte)0x14;
+        static final byte EXPANDED_BACKSPACE_CC           = (byte)0x36;
+        static final byte FORM_FEED_CC                    = (byte)0x0C;
+        static final byte GRAPHIC_ESCAPE_CC               = (byte)0x08;
+        static final byte HORIZONTAL_TAB_CC               = (byte)0x05;
+        static final byte INDENT_TAB_CC                   = (byte)0x39;
+        static final byte INDEX_RETURN_CC                 = (byte)0x33;
+        static final byte INHIBIT_PRESENTATION_CC         = (byte)0x24;
+        static final byte INTERCHANGE_RECORD_SEPARATOR_CC = (byte)0x1E;
+        static final byte LINE_FEED_CC                    = (byte)0x25;
+        static final byte NEW_LINE_CC                     = (byte)0x15;
+        static final byte NULL_CC                         = (byte)0x00;
+        static final byte PRESENTATION_POSITION_CC        = (byte)0x34;
+        static final byte REQUIRED_FORM_FEED_CC           = (byte)0x3A;
+        static final byte REQUIRED_NEW_LINE_CC            = (byte)0x06;
+        static final byte SPACE_CC                        = (byte)0x40;
+        static final byte REQUIRED_SPACE_CC               = (byte)0x41;
+        static final byte SET_ATTRIBUTE_CC                = (byte)0x28;
+        static final byte SHIFT_OUT_CC                    = (byte)0x0E;
+        static final byte SHIFT_IN_CC                     = (byte)0x0F;
+        static final byte SWITCH_CC                       = (byte)0x2A;
+        static final byte CSP_CC                          = (byte)0x2B;
+        static final byte SUBSTITUTE_CC                   = (byte)0x3F;
+        static final byte GRAPHIC_ERROR_ACTION_CC         = (byte)0xC8;
+        static final byte HORIZONTAL_FORMAT_CC            = (byte)0xC1;
+        static final byte LINE_DENSITY_CC                 = (byte)0xC6;
+        static final byte NUMERIC_SPACE_CC                = (byte)0xE1;
+        static final byte SUBSCRIPT_CC                    = (byte)0x38;
+        static final byte SUPERSCRIPT_CC                  = (byte)0x09;
+        static final byte SYLLABLE_HYPHEN_CC              = (byte)0xCA;
+        static final byte TRANSPARENT_CC                  = (byte)0x35;
+        static final byte VERTICAL_CHANNEL_SELECT_CC      = (byte)0x04;
+        static final byte VERTICAL_TAB_CC                 = (byte)0x0B;
+        static final byte WORD_UNDERSCORE_CC              = (byte)0x23;
 
         /******************************************************************************/
         /* the following commands all begin with 2BD1                                 */
         /******************************************************************************/
-        private static final byte FONTCLASS                       = (byte)0xD1;
-        private static final byte SCG_CC                          = (byte)0x01;
-        private static final byte SCGL_CC                         = (byte)0x81;
-        private static final byte SFG_CC                          = (byte)0x05;
-        private static final byte BES_CC                          = (byte)0x8A;
-        private static final byte EES_CC                          = (byte)0x8E;
+        static final byte FONTCLASS                       = (byte)0xD1;
+        static final byte SCG_CC                          = (byte)0x01;
+        static final byte SCGL_CC                         = (byte)0x81;
+        static final byte SFG_CC                          = (byte)0x05;
+        static final byte BES_CC                          = (byte)0x8A;
+        static final byte EES_CC                          = (byte)0x8E;
 
         /******************************************************************************/
         /* the following set all begin with = (byte)0x2BD2 and here we define the type byte   */
         /******************************************************************************/
-        private static final byte DOGTWO                          = (byte)0xD2;
-        private static final byte STAB_CC                         = (byte)0x01;
-        private static final byte JUSTIFY_TEXTFIELD_CC            = (byte)0x03;
-        private static final byte SET_INDENTLV_CC                 = (byte)0x07;
-        private static final byte SET_LINESPACE_CC                = (byte)0x09;
-        private static final byte RELEASE_LEFT_MARGIN_CC          = (byte)0x0B;
-        private static final byte SET_JUSTIFYMODE_CC              = (byte)0x0D;
-        private static final byte SET_HORZMARGINS_CC              = (byte)0x11;
-        private static final byte SET_LINEDISTANCE_CC             = (byte)0x15;
-        private static final byte PRINT_DENSITY_CC                = (byte)0x29;
-        private static final byte SET_PRESCOLOR_CC                = (byte)0x2D;
-        private static final byte SET_PRESPAGESIZE_CC             = (byte)0x40;
-        private static final byte SET_INITCOND_CC                 = (byte)0x45;
-        private static final byte SET_PPAGEMEDIA_CC               = (byte)0x48;
-        private static final byte SET_VERTMARGINS_CC              = (byte)0x49;
-        private static final byte SET_PRINTERSETUP_CC             = (byte)0x4C;
-        private static final byte SET_ERROR_ACTION_CC             = (byte)0x85;
-        private static final byte VERTICAL_FORMAT_CC              = (byte)0xC2;
+        static final byte DOGTWO                          = (byte)0xD2;
+        static final byte STAB_CC                         = (byte)0x01;
+        static final byte JUSTIFY_TEXTFIELD_CC            = (byte)0x03;
+        static final byte SET_INDENTLV_CC                 = (byte)0x07;
+        static final byte SET_LINESPACE_CC                = (byte)0x09;
+        static final byte RELEASE_LEFT_MARGIN_CC          = (byte)0x0B;
+        static final byte SET_JUSTIFYMODE_CC              = (byte)0x0D;
+        static final byte SET_HORZMARGINS_CC              = (byte)0x11;
+        static final byte SET_LINEDISTANCE_CC             = (byte)0x15;
+        static final byte PRINT_DENSITY_CC                = (byte)0x29;
+        static final byte SET_PRESCOLOR_CC                = (byte)0x2D;
+        static final byte SET_PRESPAGESIZE_CC             = (byte)0x40;
+        static final byte SET_INITCOND_CC                 = (byte)0x45;
+        static final byte SET_PPAGEMEDIA_CC               = (byte)0x48;
+        static final byte SET_VERTMARGINS_CC              = (byte)0x49;
+        static final byte SET_PRINTERSETUP_CC             = (byte)0x4C;
+        static final byte SET_ERROR_ACTION_CC             = (byte)0x85;
+        static final byte VERTICAL_FORMAT_CC              = (byte)0xC2;
 
 
         /******************************************************************************/
         /* the following set all begin with = (byte)0x2BD3 and here we define the type byte   */
         /******************************************************************************/
-        private static final byte DOGTHREE                        = (byte)0xD3;
-        private static final byte STO_CC                          = (byte)0xF6;
+        static final byte DOGTHREE                        = (byte)0xD3;
+        static final byte STO_CC                          = (byte)0xF6;
 
         /******************************************************************************/
         /* the following set all begin with 0x2BD4 and here we define the type byte   */
         /******************************************************************************/
-        private static final byte DOGFOUR                         = (byte)0xD4;
-        private static final byte BUS_CC                          = (byte)0x0A;
-        private static final byte EUS_CC                          = (byte)0x0E;
-        private static final byte BOS_CC                          = (byte)0x72;
-        private static final byte EOS_CC                          = (byte)0x76;
+        static final byte DOGFOUR                         = (byte)0xD4;
+        static final byte BUS_CC                          = (byte)0x0A;
+        static final byte EUS_CC                          = (byte)0x0E;
+        static final byte BOS_CC                          = (byte)0x72;
+        static final byte EOS_CC                          = (byte)0x76;
 
         /******************************************************************************/
         /* the following set all begin with 0x2BFD and here we define the type byte   */
         /******************************************************************************/
-        private static final byte  FOXDOG                          = (byte)0xFD;
-        private static final byte  DGL_CC                          = (byte)0x00;
-        private static final byte  SIT_CC                          = (byte)0x01;
-        private static final byte  SFSS_CC                         = (byte)0x02;
-        private static final byte  SPCC_CC                         = (byte)0x03;
+        static final byte  FOXDOG                          = (byte)0xFD;
+        static final byte  DGL_CC                          = (byte)0x00;
+        static final byte  SIT_CC                          = (byte)0x01;
+        static final byte  SFSS_CC                         = (byte)0x02;
+        static final byte  SPCC_CC                         = (byte)0x03;
 
         /**********************************************************************
         * Structure for Presentation Position                                 *
         *  0x34ccvv - cc = code; vv = value;                                  *
         ***********************************************************************/
-        private static final byte PP_STRUCT_LEN   = 0x03;      // length of PP structure
+        static final byte PP_STRUCT_LEN   = 0x03;      // length of PP structure
         /* defines for PPcode field                                          */
-        private static final byte PPCODE_AHPP     = (byte)0xC0;  /* Absolute Horizontal        */
-        private static final byte PPCODE_AVPP     = (byte)0xC4;  /* Absolute Veritcal          */
-        private static final byte PPCODE_RHPP     = (byte)0xC8;  /* Relative Horizontal        */
-        private static final byte PPCODE_RVPP     = (byte)0x4C;  /* Relative Veritcal          */
+        static final byte PPCODE_AHPP     = (byte)0xC0;  /* Absolute Horizontal        */
+        static final byte PPCODE_AVPP     = (byte)0xC4;  /* Absolute Veritcal          */
+        static final byte PPCODE_RHPP     = (byte)0xC8;  /* Relative Horizontal        */
+        static final byte PPCODE_RVPP     = (byte)0x4C;  /* Relative Veritcal          */
 
         /**********************************************************************
         * Structure for Set Attribute                                         *
         *   0x28ttvv   tt=type; vv = value                                    *
         **********************************************************************/
-        private static final byte SA_STRUCT_LEN   = 0x03;  // length of SA structure
+        static final byte SA_STRUCT_LEN   = 0x03;  // length of SA structure
         /* Defines for the type field                                        */
-        private static final byte ATTR_RESET      = (byte)0x00;   /* Reset                      */
-        private static final byte ATTR_COLOR      = (byte)0x42;   /* Set color                  */
-        private static final byte ATTR_HILITE     = (byte)0x41;   /* Set highlight              */
-        private static final byte ATTR_CHAR_SET   = (byte)0x43;   /* Set character set          */
+        static final byte ATTR_RESET      = (byte)0x00;   /* Reset                      */
+        static final byte ATTR_COLOR      = (byte)0x42;   /* Set color                  */
+        static final byte ATTR_HILITE     = (byte)0x41;   /* Set highlight              */
+        static final byte ATTR_CHAR_SET   = (byte)0x43;   /* Set character set          */
 
 
 }

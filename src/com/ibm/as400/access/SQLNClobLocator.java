@@ -335,7 +335,9 @@ final class SQLNClobLocator implements SQLLocator
                         }finally{
                             try{
                                 stream.close();
-                            }catch(Exception e){}
+                            }catch(Exception e){
+                              JDTrace.logException(this, "writeToServer stream.close()", e);  
+                            }
                         }
 
                     }
@@ -373,7 +375,9 @@ final class SQLNClobLocator implements SQLLocator
                         }finally{
                             try{
                                 stream.close();
-                            }catch(Exception e){}
+                            }catch(Exception e){
+                              JDTrace.logException(this, "writeToServer stream2.close()", e);  
+                            }
                         }
 
                     }

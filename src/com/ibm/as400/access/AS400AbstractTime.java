@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.CharConversionException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -200,14 +201,14 @@ public abstract class AS400AbstractTime implements AS400DataType
    Note: We don't make this method public here, since not all subclasses surface it to
    @return  The format for this object.
    **/
-  int getFormat()
+  synchronized int getFormat()
   {
     return format_;
   }
 
 
   // Utility method used by subclasses.
-  Character getSeparator()
+  synchronized Character getSeparator()
   {
     return separator_;
   }
@@ -374,7 +375,9 @@ public abstract class AS400AbstractTime implements AS400DataType
     if (centuryDigit == null) return getDateFormatter();
     else
     {
-      getDateFormatter().set2DigitYearStart(getStartDateForCentury(centuryDigit.intValue()));
+      Date d = getStartDateForCentury(centuryDigit.intValue());
+      getDateFormatter();
+      dateFormatter_.set2DigitYearStart(d);
       return dateFormatter_;
     }
 
@@ -465,8 +468,8 @@ public abstract class AS400AbstractTime implements AS400DataType
 
   // Returns a Date object representing, in the contextual time zone, 00:00:00 on January 1 of the first year in the specified century.
   // Note:  The century-numbering convention of IBM i "date" formats is as follows:
-  //     Century '0' indicates years 1900-1999.
-  //     Century '1' indicates years 2000-2099.
+  //     Century '0' indicates years 1901-2000.
+  //     Century '1' indicates years 2001-2100.
   //     ... and so on.
   private synchronized java.util.Date getStartDateForCentury(int century)
   {
@@ -476,10 +479,10 @@ public abstract class AS400AbstractTime implements AS400DataType
 
     if (centuryMap_[century] == null)
     {
-      centuryMap_[century] = getCalendar(100*(19+century),  // year (e.g. 1900)
+      centuryMap_[century] = getCalendar(100*(19+century)+1,  // year (e.g. 1900)
                                          0,  // month == January (0-based)
                                          1,  // day of month     (1-based)
-                                         0,  // hour of day      (0-based)
+                                         12,  // hour of day      (0-based) Set the middle of the day
                                          0,  // minute           (0-based)
                                          0   // second           (0-based)
 

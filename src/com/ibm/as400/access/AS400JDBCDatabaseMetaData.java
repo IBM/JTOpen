@@ -674,7 +674,9 @@ implements DatabaseMetaData
                     try{
                     if(rs != null)
                         rs.close();
-                    }catch(Exception e){} //allow next close to execute
+                    }catch(Exception e){
+                      JDTrace.logException(this, "getCatalogs rs.close()", e);  
+                    } //allow next close to execute
                     if(statement != null)
                         statement.close();
                 }
@@ -3649,7 +3651,9 @@ endif */
                     try{
                     if(serverResultSet != null)
                         serverResultSet.close();
-                    }catch(Exception e){} //allow next close to execute
+                    }catch(Exception e){
+                      JDTrace.logException(this, "getProcedureColumns serverResultSet.close()", e);  
+                    } //allow next close to execute
                     if(statement_ != null)
                         statement_.close ();
                 }

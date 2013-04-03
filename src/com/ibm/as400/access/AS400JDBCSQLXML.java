@@ -385,7 +385,9 @@ endif */
                             {
                                 try{
                                     is.close();
-                                }catch(Exception e){ }
+                                }catch(Exception e){ 
+                                  JDTrace.logException(this, "getString is.close()", e);  
+                                }
                             }
                         }
                         position += len-1;

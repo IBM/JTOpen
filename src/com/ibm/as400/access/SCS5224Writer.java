@@ -154,14 +154,15 @@ public class SCS5224Writer extends SCS5256Writer
         byte [] cmd = SCGL;
         int ccsid = getCcsid();
         SCSFontData fd = new SCSFontData();
-        int length = fd.codePage.length;
+        int[] codePage = fd.codePage; 
+        int length = codePage.length;
 
         /* Loop through the list of code pages looking for a match.  */
         /* If one is found, add the corresponding ID to the command. */
         /* If no match is found, the default ID is sent.             */
         for (int i = 0; i < length; i++)
         {
-            if (ccsid == fd.codePage[i])
+            if (ccsid == codePage[i])
             {
                 cmd[cmd.length-1] = fd.codePageID[i];
                 break;

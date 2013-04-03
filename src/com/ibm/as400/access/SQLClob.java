@@ -35,7 +35,7 @@ import java.sql.SQLXML;  //@PDA jdbc40
 endif */ 
 final class SQLClob extends SQLDataBase
 {
-    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright0 = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
@@ -203,12 +203,12 @@ endif */
                         Reader stream = (Reader)object;
                         StringBuffer buf = new StringBuffer();
                         char[] charBuffer = new char[blockSize];
-                        int totalCharsRead = 0;
+                        // int totalCharsRead = 0;
                         int charsRead = stream.read(charBuffer, 0, blockSize);
                         while(charsRead > -1)
                         {
                             buf.append(charBuffer, 0, charsRead);
-                            totalCharsRead += charsRead;
+                            // totalCharsRead += charsRead;
                             // int charsRemaining = length_ - totalCharsRead;
                           
                             charsRead = stream.read(charBuffer, 0, blockSize);
