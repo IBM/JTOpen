@@ -174,7 +174,7 @@ public class LineDataRecordWriter extends Object
        char delimiter = recfmt.getDelimiter();
        
        // validate parameters passed in 
-       if (recfmtid == "") {                                                           //@A1C
+       if ("".equals(recfmtid)) {                                                           //@A1C
           throw new ExtendedIllegalStateException("recordFormatID",
                            ExtendedIllegalStateException.PROPERTY_NOT_SET);
        }

@@ -968,12 +968,14 @@ Reads an input stream and returns its data as a String.
 
     static Hashtable typeNameHashtable = null ;
 
-    public static int getTypeCode(String typeName) throws SQLException {
-    if (typeNameHashtable == null) {
-      typeNameHashtable = new Hashtable();
-      for (int i = 0; i < typeNameToTypeCode.length; i++) {
-        typeNameHashtable.put(typeNameToTypeCode[i][0], new Integer(
-            typeNameToTypeCode[i][1]));
+  public static int getTypeCode(String typeName) throws SQLException {
+    synchronized (typeNameToTypeCode) {
+      if (typeNameHashtable == null) {
+        typeNameHashtable = new Hashtable();
+        for (int i = 0; i < typeNameToTypeCode.length; i++) {
+          typeNameHashtable.put(typeNameToTypeCode[i][0], new Integer(
+              typeNameToTypeCode[i][1]));
+        }
       }
     }
 
@@ -999,10 +1001,11 @@ Reads an input stream and returns its data as a String.
     public static Hashtable instanceHashtable;
 
     public static boolean classIsInstanceOf(Class thisClass, String interfaceName) {
+      synchronized (typeNameToTypeCode) { 
         if (instanceHashtable == null) {
         instanceHashtable = new Hashtable();
         }
-
+      }
         Hashtable interfaceHash = (Hashtable) instanceHashtable.get(thisClass);
         if (interfaceHash == null) {
           interfaceHash = new Hashtable();

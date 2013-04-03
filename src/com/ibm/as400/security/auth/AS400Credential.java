@@ -547,7 +547,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
                throw new ExtendedIllegalStateException(
                                                       ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
             }
-         };
+         }
          impl.setCredential(this);
       }
       catch ( Exception e )

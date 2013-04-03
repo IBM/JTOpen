@@ -1162,9 +1162,6 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
      {
         m_dataBean.setLanguage(sortLanguage);
      }
-     int x = 1; //Without this allocation of storage, the Cafe' debugger traps if you try
-             // to step thru this code....  It will execute just fine, you just can't
-             // debug it.
      
   // Other Tab
       

@@ -384,6 +384,13 @@ implements IFSRandomAccessFileImpl
         throw new ExtendedIOException(rc);
       }
     }
+    else if (ds == null) { 
+      Trace.log(Trace.ERROR, "Null data stream");
+      throw new
+        InternalErrorException("null",
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+      
+    }
     else
     {
       // Unknown data stream.
@@ -495,7 +502,6 @@ implements IFSRandomAccessFileImpl
   private int readFromCache()
     throws IOException
   {
-    int value = -1;
 
     // If the cache is empty, refill it.
     int bytesInCache = readCacheLength_ - readCacheIndex_;

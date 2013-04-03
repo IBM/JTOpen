@@ -371,7 +371,7 @@ Validates multiple IDs.
             throw new NullPointerException("id");
         for(int i = 0; i < id.length; ++i) {
             if (! metaDataByID_.containsKey(id[i]))
-                throw new ExtendedIllegalArgumentException("id[" + i + "](" + id.toString() + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                throw new ExtendedIllegalArgumentException("id[" + i + "](" + id[i].toString() + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
     }
 

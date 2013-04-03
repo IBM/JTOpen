@@ -668,11 +668,13 @@ public class DateTimeConverter
    */
   static String iTimeZoneToJavaTimeZone(String iTimeZone) {
     iTimeZone = iTimeZone.toUpperCase(); 
+    synchronized(iTimeZoneTojavaTimeZoneMapping) { 
     if (iTimeZoneToJavaTimeZoneHash == null) {
       iTimeZoneToJavaTimeZoneHash = new Hashtable(); 
       for (int i = 0; i < iTimeZoneTojavaTimeZoneMapping.length; i++) { 
         iTimeZoneToJavaTimeZoneHash.put(iTimeZoneTojavaTimeZoneMapping[i][0],iTimeZoneTojavaTimeZoneMapping[i][1]); 
       }
+    }
     }
     return (String) iTimeZoneToJavaTimeZoneHash.get(iTimeZone); 
   }

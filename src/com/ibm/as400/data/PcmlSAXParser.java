@@ -31,7 +31,6 @@ import com.ibm.as400.access.BinaryConverter; //@E1A
 
 import org.xml.sax.XMLReader;
 
-import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -267,10 +266,10 @@ class PcmlSAXParser extends DefaultHandler
     finally
     {
       if (isHeader != null) {
-        try { isHeader.close(); } catch (Exception e) {};
+        try { isHeader.close(); } catch (Exception e) {}
       }
       if (instream != null) {
-        try { instream.close(); } catch (Exception e) {};
+        try { instream.close(); } catch (Exception e) {}
       }
     }
   }
@@ -449,7 +448,7 @@ class PcmlSAXParser extends DefaultHandler
 
     String tagName = qName; //@E0A
     PcmlDocNode newNode = null;
-    String parmName="";
+    // String parmName="";
     String equivQName=qName;
     AttributesImpl uAttrs= new AttributesImpl();
     boolean uDefinedQName=false;
@@ -530,12 +529,12 @@ class PcmlSAXParser extends DefaultHandler
         {
           // User defined parameter.  Need to find it in XSD stream.
           uDefinedQName=true;
-          ByteArrayInputStream xmlIn = new ByteArrayInputStream(xmlOut.toByteArray());
-          if (xmlIn == null)
+          ByteArrayInputStream xmlIn1 = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (xmlIn1 == null)
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
 
           // Cache the line count of the header
-          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(xmlIn));
+          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(xmlIn1));
           try
           {
             String line;
@@ -904,8 +903,8 @@ class PcmlSAXParser extends DefaultHandler
         {
           //@E1A -- XPCML code.  Need to convert XPCML representation of attributes to their PCML
           // equivalents.
-          if (curList.getQName(attr).equals("name"))
-            parmName = curList.getValue(attr);
+          //if (curList.getQName(attr).equals("name"))
+          //  parmName = curList.getValue(attr);
 
           if (curList.getQName(attr).equals("passDirection"))                      //@E1A
           {
@@ -1460,6 +1459,7 @@ class PcmlSAXParser extends DefaultHandler
           try
           {
             int length2 =  ((PcmlData)m_currentNode).getLength(dimensions);
+            Trace.log(Trace.PCML,"length2 is "+length2); 
           }
           catch (Exception e1)
           {
@@ -1478,7 +1478,7 @@ class PcmlSAXParser extends DefaultHandler
   {
 
     String equivQName=qName;
-    boolean uDefinedQName=false;
+    // boolean uDefinedQName=false;
 
     if (!docIsXPCML)
       m_currentNode = (PcmlDocNode) m_currentNode.getParent();
@@ -1491,13 +1491,14 @@ class PcmlSAXParser extends DefaultHandler
         if (!getKnownTypes().contains(qName))
         {
           // User defined parameter.  Need to find it in XSD stream.
-          uDefinedQName=true;
-          ByteArrayInputStream xmlIn = new ByteArrayInputStream(xmlOut.toByteArray());
-          if (xmlIn == null)
-            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
+          // uDefinedQName=true;
+          ByteArrayInputStream xmlIn1 = new ByteArrayInputStream(xmlOut.toByteArray());
+          // Dead code.. 
+          // if (xmlIn1 == null)
+          //   throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
 
           // Cache the line count of the header
-          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(xmlIn));
+          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(xmlIn1));
           try
           {
             String line = lnr.readLine();
@@ -1786,7 +1787,7 @@ class PcmlSAXParser extends DefaultHandler
       while (items.hasMoreElements() && !found)
       {
         child = (PcmlNode) items.nextElement();
-        if (child.getName().equals(pName) && pName != "")
+        if (child.getName().equals(pName) && pName.length() > 0)
           found=true;
       }
     }

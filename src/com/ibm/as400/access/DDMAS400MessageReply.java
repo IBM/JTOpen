@@ -119,7 +119,7 @@ class DDMAS400MessageReply extends DDMReplyDataStream
   {
     int end = offset + len;
     boolean done = false;
-    int codePoint = get16bit(offset + 2);;
+    int codePoint = get16bit(offset + 2);
     int length;
     while (!done && (offset < end))
     { // Extract the information we want (if it exists) from the message data

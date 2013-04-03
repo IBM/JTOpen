@@ -336,10 +336,10 @@ public class ServletHyperlink extends HTMLHyperlink
             }
         }
 
-        StringBuffer url = new StringBuffer();;
+        StringBuffer url = new StringBuffer();
 
         if (response_ != null)
-            url.append(response_.encodeUrl(link.toString()));
+            url.append(response_.encodeURL(link.toString()));
         else
             url.append(link.toString());
 

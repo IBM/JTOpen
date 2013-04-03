@@ -357,20 +357,19 @@ public class MemberList
   private ProgramParameter[] buildProgramParameters(String format)
     throws UnsupportedEncodingException
   {
-    final CharConverter conv = new CharConverter(system_.getCcsid(), system_);
 
     ProgramParameter[] parameterList = new ProgramParameter[6];
 
     // Qualified user space name:
-    parameterList[0] = new ProgramParameter(conv.stringToByteArray(system_, USERSPACE_PATH.toQualifiedObjectName()));
+    parameterList[0] = new ProgramParameter(CharConverter.stringToByteArray(system_, USERSPACE_PATH.toQualifiedObjectName()));
     // Format name:
-    parameterList[1] = new ProgramParameter(conv.stringToByteArray(system_, format));
+    parameterList[1] = new ProgramParameter(CharConverter.stringToByteArray(system_, format));
     // Qualified database file name:
-    parameterList[2] = new ProgramParameter(conv.stringToByteArray(system_, path_.toQualifiedObjectName()));
+    parameterList[2] = new ProgramParameter(CharConverter.stringToByteArray(system_, path_.toQualifiedObjectName()));
     // Member name:
     parameterList[3] = new ProgramParameter(new AS400Text(10).toBytes(memberSelection_));
     // Override processing:  (1 == "overrides are processed")
-    parameterList[4] = new ProgramParameter(conv.stringToByteArray(system_, "1"));
+    parameterList[4] = new ProgramParameter(CharConverter.stringToByteArray(system_, "1"));
     // Error code:
     parameterList[5] = new ErrorCodeParameter();
 
