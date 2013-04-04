@@ -96,6 +96,7 @@ package com.ibm.as400.access;
 //@H7   20130102  JDBC:  For CCSID 1208, do not report truncation if extra characters are spaces
 //@I1   20130225  Refactor code block of SSL socket provider (shift between JSSE and SSL )
 //@I2   20130318  JDBC:  Fix timestamp to String formatting
+//@D11  20130404  Add Serializable interface to CancelLock
 //
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
@@ -105,12 +106,12 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
     //                                                                                              built=20130318 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 7.8, codebase 5770-SS1 V7R1M0.08 built=20130318 @I2";  // As of V7R1: JC1 is merged into SS1 Option 3
+    public static String version   = "Open Source Software, JTOpen 7.10, codebase 5770-SS1 V7R1M0.10 built=20130318 @I2";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9; // ex: "9" indicates V7R1
     static final int    MINOR_VERSION = 11; // ex: "1" indicates PTF #1
-                                           //Note: JTOpen 7.8 is synching with ptf 9.9
-    static final String DRIVER_LEVEL  = "07010009"; //(ex: 07010009 -> V7R1M0 PTF#9) (needed for hidden clientInfo) (each # is 2 digits in length)
+                                           //Note: JTOpen 7.10 is synching with ptf 9.11
+    static final String DRIVER_LEVEL  = "07010011"; //(ex: 07010011 -> V7R1M0 PTF#11) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
