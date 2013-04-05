@@ -28,7 +28,7 @@
                                                                                 outputsize="lengthOfReceiverVariable"/>
         <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="5120"/>
         <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
-        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4" init="10"/> 
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4" init="1"/> 
         <data name="sortInformation"                    usage="input"           type="char" length="1" init="0"/>
         <data name="messageSelectionInformation"        usage="input"           type="struct" struct="messageSelectionInformationFormat"/>
         <data name="sizeOfMessageSelectionInformation"  usage="input"           type="int" length="4" init="102"/> 
