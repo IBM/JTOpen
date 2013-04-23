@@ -137,21 +137,20 @@ Returns the reason text based on a SQL state.
 @return             Reason - error description.
 **/
   @SuppressWarnings("unchecked")
-static final String getReason (String sqlState)
-  {
-      if (reasonHashtable == null) {
-	  reasonHashtable = new Hashtable();
-	  for (int i = 0; i < errors.length; i++) {
-	      reasonHashtable.put(errors[i][0],errors[i][1]);
-	  }
-      }
-
-      String reason = (String) reasonHashtable.get(sqlState);
-      if (reason == null) {
-	  reason = "No message for "+sqlState;
-      }
-      return reason;
-  }
-
+	static final String getReason(String sqlState) {
+		synchronized (errors) {
+			if (reasonHashtable == null) {
+				reasonHashtable = new Hashtable();
+				for (int i = 0; i < errors.length; i++) {
+					reasonHashtable.put(errors[i][0], errors[i][1]);
+				}
+			}
+		}
+		String reason = (String) reasonHashtable.get(sqlState);
+		if (reason == null) {
+			reason = "No message for " + sqlState;
+		}
+		return reason;
+	}
 
 }

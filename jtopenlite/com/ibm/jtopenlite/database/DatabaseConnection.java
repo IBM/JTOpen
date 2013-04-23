@@ -3769,7 +3769,7 @@ private static final int TYPE_CALL = 3;
     		       DATA_FORMAT ; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | DATA_FORMAT | PARAMETER_MARKER_FORMAT | EXTENDED_COLUMN_DESCRIPTORS;
 
     
-    if (attribs.isSQLStatementTypeSet() && attribs.getSQLStatementType() == TYPE_CALL) {
+    if (attribs !=null && attribs.isSQLStatementTypeSet() && attribs.getSQLStatementType() == TYPE_CALL) {
     	// Do not request column descriptors for call statement
     	// writeTemplate(parms, 0xF8800000);
     } else {

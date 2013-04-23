@@ -353,7 +353,7 @@ public class OpenListOfSpooledFiles implements OpenListProgram<OpenListOfSpooled
             offset += 10;
           }
         }
-        else
+        else if (filterListener_ != null)
         {
           OpenListOfSpooledFilesFilterOSPF0100Listener listener = (OpenListOfSpooledFilesFilterOSPF0100Listener)filterListener_;
           int offset = 0;

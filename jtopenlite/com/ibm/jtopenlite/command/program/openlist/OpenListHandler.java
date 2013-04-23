@@ -179,6 +179,7 @@ public class OpenListHandler
       getEntries_.setNumberOfRecordsToReturn(numRecordsToReturn);
       getEntries_.setStartingRecord(startingRecord);
       getEntries_.setFormatListener(listener_); // Ready to process.
+      if (listener_ != null) { 
       while (!listener_.stopProcessing() && startingRecord <= totalRecords)
       {
         result = conn.call(getEntries_);
@@ -190,6 +191,7 @@ public class OpenListHandler
         listInfo = getEntries_.getListInformation();
         startingRecord += listInfo.getRecordsReturned();
         getEntries_.setStartingRecord(startingRecord);
+      }
       }
     }
     finally

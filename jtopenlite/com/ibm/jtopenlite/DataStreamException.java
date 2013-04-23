@@ -54,7 +54,7 @@ public class DataStreamException extends IOException
   protected DataStreamException(String type, String dataStreamName, int value)
   {
     /* BAD_RETURN_CODE is a string so .equals must be used */ 
-    super(type+" on "+dataStreamName+": "+(BAD_RETURN_CODE.equals(type) || type == BAD_REPLY ? ("0x"+Integer.toHexString(value)) : ""+value));
+    super(type+" on "+dataStreamName+": "+(BAD_RETURN_CODE.equals(type) || BAD_REPLY.equals(type) ? ("0x"+Integer.toHexString(value)) : ""+value));
     type_ = type;
     dataStreamName_ = dataStreamName;
     value_ = value;

@@ -388,10 +388,13 @@ implements DatabaseMetaData
             cstmt.execute();
 
             ResultSet rs = cstmt.getResultSet();
-            if(rs != null)
+            if(rs != null) {
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
+            } else { 
                 cstmt.close();
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }
 
             return rs;
 
@@ -425,8 +428,11 @@ implements DatabaseMetaData
             ResultSet rs = cstmt.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cstmt.close();
+            else { 
+                cstmt.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
 
             return rs;
     }
@@ -732,9 +738,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
 
     }  // End of getCrossReference
@@ -987,9 +995,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
     }
 
@@ -1079,9 +1089,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
 
     }
@@ -1166,9 +1178,11 @@ implements DatabaseMetaData
             ResultSet rs = cstmt.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cstmt.close();
-
+            else { 
+                cstmt.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
 
 
@@ -1600,9 +1614,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
     }
 
@@ -1662,9 +1678,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
 
 
@@ -1711,9 +1729,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
 
     }
@@ -1779,9 +1799,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
     }
 
@@ -2035,9 +2057,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else { 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
     }
 
@@ -2140,9 +2164,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else{ 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
 
     }
@@ -2173,9 +2199,11 @@ implements DatabaseMetaData
           ResultSet rs = cs.getResultSet();
           if(rs != null)
               ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-          else
-              cs.close();
-
+          else{ 
+              cs.close();     
+              // It is an error not to have received a result set
+              JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+          }	
           return rs;
 
     }
@@ -2321,9 +2349,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else{ 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
     }
 
@@ -2413,9 +2443,11 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();
             if(rs != null)
                 ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-            else
-                cs.close();
-
+            else{ 
+                cs.close();     
+                // It is an error not to have received a result set
+                JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+            }	
             return rs;
     }
 
@@ -4175,9 +4207,11 @@ implements DatabaseMetaData
         ResultSet rs = cstmt.getResultSet();
         if(rs != null)
             ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-        else
-            cstmt.close();
-
+        else{ 
+            cstmt.close();     
+            // It is an error not to have received a result set
+            JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+        }	
         return rs;
     }
 
@@ -4256,9 +4290,11 @@ implements DatabaseMetaData
         ResultSet rs = cstmt.getResultSet();
         if(rs != null)
             ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-        else
-            cstmt.close();
-
+        else{ 
+            cstmt.close();     
+            // It is an error not to have received a result set
+            JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+        }	
         return rs;
     }
 
@@ -4374,9 +4410,11 @@ implements DatabaseMetaData
         ResultSet rs = cstmt.getResultSet();
         if(rs != null)
             ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-        else
-            cstmt.close();
-
+        else{ 
+            cstmt.close();     
+            // It is an error not to have received a result set
+            JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+        }	
         return rs;
     }
 
@@ -4461,9 +4499,11 @@ implements DatabaseMetaData
       ResultSet rs = cstmt.getResultSet();
       if(rs != null)
           ((JDBCResultSet)rs).isMetadataResultSet_ = true;
-      else
-          cstmt.close();
-
+      else{ 
+          cstmt.close();     
+          // It is an error not to have received a result set
+          JDBCError.throwSQLException(JDBCError.EXC_INTERNAL); 
+      }	
       return rs;
     }
 

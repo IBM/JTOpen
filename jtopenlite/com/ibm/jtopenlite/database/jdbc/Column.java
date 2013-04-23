@@ -66,11 +66,11 @@ final class Column
 
   private boolean useDateCache_ = false;
   private HashMap dateCache_;
-  private Date dateZero_;
+  // private Date dateZero_;
 
   private boolean useTimeCache_ = false;
   private HashMap timeCache_;
-  private Time timeZero_;
+  // private Time timeZero_;
 
   private boolean useStringCache_ = false;
   private boolean cacheLastOnly_ = false;
@@ -1833,6 +1833,7 @@ switch (valueType_)
         break;
       case 1208:
     	outLength = Conv.stringToUtf8ByteArray(s, length, data, offset);
+    	break; 
       default:
         try {
 				  outLength = Conv.stringToEBCDICByteArray(s, length, data, offset, ccsid_);
@@ -2175,7 +2176,7 @@ switch (valueType_)
         } else if (length_ == 8) {
           double d = Conv.byteArrayToDouble(data, offset);
           // Allow these special values to be returned.
-          if (d == Double.NEGATIVE_INFINITY || d == Double.POSITIVE_INFINITY || d == Double.NaN) {
+          if (d == Double.NEGATIVE_INFINITY || d == Double.POSITIVE_INFINITY || Double.isNaN(d)) {
             return (float) d;
           }
           if (d > Float.MAX_VALUE || d < - Float.MAX_VALUE) {
@@ -2190,7 +2191,7 @@ switch (valueType_)
       Double doubleValue = new Double(stringValue);
       double d = doubleValue.doubleValue();
 
-      if (d == Double.NEGATIVE_INFINITY || d==Double.POSITIVE_INFINITY || d == Double.NaN) {
+      if (d == Double.NEGATIVE_INFINITY || d==Double.POSITIVE_INFINITY || Double.isNaN(d)) {
          return (float) d;
       }
 
@@ -2399,7 +2400,7 @@ switch (valueType_)
 
   long convertToLong(final byte[] data, final int rowOffset) throws SQLException
   {
-      String stringValue = null;
+      String stringValue = "";
       try {
     final int offset = rowOffset+offset_;
     switch (type_ & 0xFFFE)
@@ -2491,9 +2492,9 @@ switch (valueType_)
           case 2: return Conv.byteArrayToShort(data, offset+2);
           case 3: return ((data[offset+2] << 16) | Conv.byteArrayToShort(data, offset+3)) & 0x00FFFFFF;
           case 4: return Conv.byteArrayToInt(data, offset+2);
-          case 5: return ((data[offset+2] << 32) | Conv.byteArrayToInt(data, offset+3)) & 0x00FFFFFFFFFFL;
-          case 6: return ((data[offset+2] << 40) + (data[offset+3] << 32) + Conv.byteArrayToInt(data, offset+4)) & 0x00FFFFFFFFFFFFL;
-          case 7: return ((data[offset+2] << 48) + (data[offset+3] << 40) + (data[offset+4] << 32) + Conv.byteArrayToInt(data, offset+5)) & 0x00FFFFFFFFFFFFFFL;
+          case 5: return (((((long)data[offset+2])&0xFFFFFFFF) << 32) | Conv.byteArrayToInt(data, offset+3)) & 0x00FFFFFFFFFFL;
+          case 6: return (((((long)data[offset+2])&0xFFFFFFFF) << 40) + ((((long)data[offset+3])&0xFFFFFFFF) << 32) + Conv.byteArrayToInt(data, offset+4)) & 0x00FFFFFFFFFFFFL;
+          case 7: return (((((long)data[offset+2])&0xFFFFFFFF) << 48) + ((((long)data[offset+3])&0xFFFFFFFF) << 40) + ((((long)data[offset+4])&0xFFFFFFFF) << 32) + Conv.byteArrayToInt(data, offset+5)) & 0x00FFFFFFFFFFFFFFL;
           case 8: return Conv.byteArrayToLong(data, offset+2);
         }
         return 0;
@@ -2509,9 +2510,9 @@ switch (valueType_)
           case 2: return Conv.byteArrayToShort(data, offset);
           case 3: return ((data[offset] << 16) | Conv.byteArrayToShort(data, offset+1)) & 0x00FFFFFF;
           case 4: return Conv.byteArrayToInt(data, offset+2);
-          case 5: return ((data[offset] << 32) | Conv.byteArrayToInt(data, offset+1)) & 0x00FFFFFFFFFFL;
-          case 6: return ((data[offset] << 40) + (data[offset+1] << 32) + Conv.byteArrayToInt(data, offset+2)) & 0x00FFFFFFFFFFFFL;
-          case 7: return ((data[offset] << 48) + (data[offset+1] << 40) + (data[offset+2] << 32) + Conv.byteArrayToInt(data, offset+3)) & 0x00FFFFFFFFFFFFFFL;
+          case 5: return (((((long)data[offset])&0xFFFFFFFF) << 32) | Conv.byteArrayToInt(data, offset+1)) & 0x00FFFFFFFFFFL;
+          case 6: return (((((long)data[offset])&0xFFFFFFFF) << 40) + ((((long)data[offset+1])&0xFFFFFFFF) << 32) + Conv.byteArrayToInt(data, offset+2)) & 0x00FFFFFFFFFFFFL;
+          case 7: return (((((long)data[offset])&0xFFFFFFFF) << 48) + ((((long)data[offset+1])&0xFFFFFFFF) << 40) + ((((long)data[offset+2])&0xFFFFFFFF) << 32) + Conv.byteArrayToInt(data, offset+3)) & 0x00FFFFFFFFFFFFFFL;
           case 8: return Conv.byteArrayToLong(data, offset+2);
         }
         return 0;
@@ -2838,6 +2839,7 @@ switch (valueType_)
 //        System.out.println(length_+", "+offset+", "+buffer_.length+", "+scale_+", "+precision_);
         int locatorHandle = Conv.byteArrayToInt(data, offset);
 //        System.out.println("Handle: "+Integer.toHexString(locatorHandle));
+        throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unhandled database type: "+type_);
       default:
         throw JDBCError.getSQLException(JDBCError.EXC_INTERNAL,"Unknown database type: "+type_);
     }

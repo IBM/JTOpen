@@ -18,8 +18,9 @@ public class RunSql {
 		   Statement statement = connection.createStatement();
 		   BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		   System.out.print(PROMPT);
-		   String line = reader.readLine().trim();
-		   while (! line.equalsIgnoreCase("exit") ) {
+		   String line = reader.readLine();
+		   if (line != null) line = line.trim();
+		   while ((line != null) && ! line.equalsIgnoreCase("exit") ) {
 			   try {
 				   boolean results = statement.execute(line);
 				   if (results) {
@@ -42,7 +43,8 @@ public class RunSql {
 				   System.out.println(sqlex.toString());
 			   }
 			   System.out.print(PROMPT);
-			   line = reader.readLine().trim();
+			   line = reader.readLine(); 
+			   if (line != null) line = line.trim();
 		   }
 
 	   } catch (Exception e) {
