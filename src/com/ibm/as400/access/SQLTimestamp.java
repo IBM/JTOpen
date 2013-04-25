@@ -348,6 +348,7 @@ extends SQLDataBase
 
         if(object instanceof String)
         {
+          
             Timestamp ts = stringToTimestamp((String) object, calendar);
             year_   = calendar.get(Calendar.YEAR);
             month_  = calendar.get(Calendar.MONTH);
@@ -355,7 +356,11 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            picos_  = ((long) ts.getNanos())* 1000L;
+            if (ts instanceof AS400JDBCTimestamp) {
+               picos_ = ((AS400JDBCTimestamp) ts).getPicos(); 
+            } else { 
+               picos_  = ((long) ts.getNanos())* 1000L;
+            }
         }
 
         else if(object instanceof Timestamp)
@@ -367,7 +372,12 @@ extends SQLDataBase
             hour_   = calendar.get(Calendar.HOUR_OF_DAY);
             minute_ = calendar.get(Calendar.MINUTE);
             second_ = calendar.get(Calendar.SECOND);
-            picos_  = ((long)((Timestamp) object).getNanos())*1000L;
+            if (object instanceof AS400JDBCTimestamp) {
+              picos_  = ((AS400JDBCTimestamp) object).getPicos();
+            } else { 
+               picos_  = ((long)((Timestamp) object).getNanos())*1000L;
+            }
+            
         }
 
         else if(object instanceof java.util.Date)
