@@ -387,9 +387,13 @@ public class AS400Timestamp extends AS400AbstractTime
 
   // Implements abstract method of superclass.
   /**
-   Converts the specified Java object into a String representation that is consistent with the format of this data type.
-   @param javaValue The object corresponding to the data type. This must be an instance of {@link java.sql.Timestamp java.sql.Timestamp}, and must be within the range specifiable by this data type.
-   @return A String representation of the specified value, formatted appropriately for this data type.
+   Converts the specified Java object into a String representation that is consistent 
+   with the format of this data type.
+   @param javaValue The object corresponding to the data type. 
+        This must be an instance of {@link java.sql.Timestamp java.sql.Timestamp}, 
+        and must be within the range specifiable by this data type.
+   @return A String representation of the specified value, formatted appropriately 
+        for this data type.
    @throws ExtendedIllegalArgumentException if the specified date is outside of the range representable by this data type.
    **/
   public String toString(Object javaValue)
