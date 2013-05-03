@@ -142,7 +142,9 @@ endif */
 	// Toolbox resources NOT needed in proxy jar file.        @A1A
 	private static ResourceBundle resources2_;
 
-    private static final String CLASSNAME = "com.ibm.as400.access.AS400JDBCDriver";
+  private static final String CLASSNAME = "com.ibm.as400.access.AS400JDBCDriver";
+
+  private static Driver nativeDriver = null;
 
 
 	/**
@@ -1136,17 +1138,19 @@ endif */
 		{									   						                //@C4A
 			// @B2A
 			// Determine whether the native driver is available.
-			Driver nativeDriver;
-			try
-			{
-				nativeDriver = (Driver)Class.forName("com.ibm.db2.jdbc.app.DB2Driver").newInstance();
-				if (JDTrace.isTraceOn())																							// @C2A
-					JDTrace.logInformation(this, "Native IBM Developer Kit for Java JDBC driver implementation was loaded");		// @C2A
-			}
-			catch (Throwable e)
-			{
-				nativeDriver = null;
-			}
+		  
+      if (nativeDriver == null) {
+        try {
+          nativeDriver = (Driver) Class.forName(
+              "com.ibm.db2.jdbc.app.DB2Driver").newInstance();
+          if (JDTrace.isTraceOn()) // @C2A
+            JDTrace
+                .logInformation(this,
+                    "Native IBM Developer Kit for Java JDBC driver implementation was loaded"); // @C2A
+        } catch (Throwable e) {
+          nativeDriver = null;
+        }
+      }
 
 			// @B2A
 			// Decide which JDBC driver implementation to use.  If the
