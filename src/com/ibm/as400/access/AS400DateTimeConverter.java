@@ -30,7 +30,7 @@ public class AS400DateTimeConverter
     /**
        The system.
     **/
-    protected static AS400 as400_;
+    static protected  AS400 as400_;
 
     /**
     * Constructs a AS400DateTimeConverter object.
@@ -84,9 +84,15 @@ public class AS400DateTimeConverter
     public static byte[] convert(AS400 system, byte[] in, String inFormat, String outFormat)
     {
         byte[] out = null;
-        Trace.log(Trace.INFORMATION,"convert");
-        Trace.log(Trace.INFORMATION,"parameters : "+in+" | "+out+" | "
+        if (Trace.isTraceInformationOn()) { 
+          Trace.log(Trace.INFORMATION,"convert");
+          StringBuffer inStringBuffer = new StringBuffer(); 
+          StringBuffer outStringBuffer = new StringBuffer(); 
+          Trace.printByteArray(inStringBuffer, in);
+          Trace.printByteArray(outStringBuffer, out);
+          Trace.log(Trace.INFORMATION,"parameters : "+inStringBuffer.toString()+" | "+outStringBuffer.toString()+" | "
                                                    +inFormat+" | "+outFormat);
+        }
         if(system == null)
         {
             throw new NullPointerException("system");

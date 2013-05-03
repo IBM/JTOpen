@@ -42,6 +42,12 @@ import java.sql.SQLException;
 // JDLobLocator knows that it is graphic and will correctly convert
 // the byte offsets and lengths into character offsets and lengths.
 
+// For the case where the column has a CCSID with variable size 
+// characters, all the data will be needed to be retrieved and
+// translated for request requiring the length of the lob, as 
+// well as for requests requiring a character offset into the lob. 
+
+
 /**
 The AS400JDBCClobLocator class provides access to character large
 objects.  The data is valid only within the current
