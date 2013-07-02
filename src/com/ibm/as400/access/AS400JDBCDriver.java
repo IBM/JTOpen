@@ -47,8 +47,10 @@ jdbc:as400://<em>system-name</em>/<em>default-schema</em>;<em>properties</em>
 </pre>
 
 <p>The driver uses the specified system name to connect
-to a corresponding IBM i system.  If a system name is not
-specified, then the user will be prompted.  
+to a corresponding IBM i system.  
+If an IPV6 address is used as the system name, it must be enclosed within braces, 
+i.e. [fd13:ac12:18:17::16].   
+If a system name is not specified, then the user will be prompted.  
 
 <p>The default SQL schema is optional and the driver uses it to resolve 
 unqualified names in SQL statements.  If no default SQL schema is set, then

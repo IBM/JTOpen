@@ -97,6 +97,7 @@ package com.ibm.as400.access;
 //@I1   20130225  Refactor code block of SSL socket provider (shift between JSSE and SSL )
 //@I2   20130318  JDBC:  Fix timestamp to String formatting
 //@D11  20130404  Add Serializable interface to CancelLock
+//@J1   20130702  JDBC:  Support IPV6 addresses in JDBC URL.
 //
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
@@ -105,8 +106,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
-    //                                                                                              built=20130318 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 7.10, codebase 5770-SS1 V7R1M0.10 built=20130318 @I2";  // As of V7R1: JC1 is merged into SS1 Option 3
+    //                                                                                              built=20130613 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 7.10, codebase 5770-SS1 V7R1M0.10 built=20130613 @J1";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 9; // ex: "9" indicates V7R1
