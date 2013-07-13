@@ -72,6 +72,17 @@ extends SQLDataBase
     {
         try
         {
+            int stringLength = s.length(); 
+            // Check for a valid length 
+            if (stringLength < 10) {
+              if (JDTrace.isTraceOn()) JDTrace.logInformation((Object)null, "Invalid timestamp length "+s); 
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); 
+            }
+            if ( (s.charAt(4) != '-' ) ||
+                 (s.charAt(7) != '-' ) ) {
+              if (JDTrace.isTraceOn()) JDTrace.logInformation((Object)null, "Timestamp missing - "+s); //@dat1
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
+            }
             // @E3D // If the string has a year 1, then it is likely a NULL, so
             // @E3D // just set this to a default date.
             int year = Integer.parseInt(s.substring(0, 4));
@@ -90,21 +101,32 @@ extends SQLDataBase
             else {
               calendar = AS400Calendar.getConversionCalendar(calendar);
             }
-
+            
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(5, 7)) - 1);
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(8, 10)));
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(s.substring(11, 13)));
-            calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(14, 16)));
-            calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(17, 19)));
-
+            if (stringLength >=13) {
+              calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(s.substring(11, 13)));
+            } else {
+              calendar.set(Calendar.HOUR_OF_DAY, 0);
+            }
+            if (stringLength >= 16) { 
+              calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(14, 16)));
+            } else {
+              calendar.set(Calendar.MINUTE, 0); 
+            }
+            if (stringLength >= 19) {
+              calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(17, 19)));
+            }  else {
+              calendar.set(Calendar.SECOND,0); 
+            }
             // @F2A@H3C
             // Remember that the value for nanoseconds is optional.  If we don't check the
             // length of the string before trying to handle nanoseconds for the timestamp,
             // we will blow up if there is no value available.  An example of a String value
             // as a timestamp that would have this problem is:  "1999-12-31 12:59:59"
             long picos = 0; 
-            if(s.length() > 20)
+            if(stringLength > 20)
             {                                              // @F2A
                 String picosString = s.substring(20).trim() + "00000000000000";            // @F2M
                 picos = Long.parseLong(picosString.substring(0, 12))  ;
@@ -711,27 +733,39 @@ extends SQLDataBase
     
     /*
      * Unit test code 
+   
+    
     public static void main(String[] args) {
-      String[] tests = {
-          "2100-01-02 03:45:56.000000",
-          "2100-01-02 03:45:56.100000",
-          "2100-01-02 03:45:56.120000",
-          "2100-01-02 03:45:56.103000",
-          "2100-01-02 03:45:56.100400",
-          "2100-01-02 03:45:56.100050",
-          "2100-01-02 03:45:56.10000600",
-          "2100-01-02 03:45:56.100000700",
-          "2100-01-02 03:45:56.100000780",
-          "2100-01-02 03:45:56.100000709",
-          "2100-01-02 03:45:56.1000007001000",
-          "2100-01-02 03:45:56.1000007000200",
-          "2100-01-02 03:45:56.1000007000030",
+      String[][] tests = {
+          {"2100-01-02 03:45:56.000000","2100-01-02 03:45:56.0"},
+          {"2100-01-02 03:45:56.100000","2100-01-02 03:45:56.1"},
+          {"2100-01-02 03:45:56.120000","2100-01-02 03:45:56.12"},
+          {"2100-01-02 03:45:56.103000","2100-01-02 03:45:56.103"},
+          {"2100-01-02 03:45:56.100400","2100-01-02 03:45:56.1004"},
+          {"2100-01-02 03:45:56.100050","2100-01-02 03:45:56.10005"},
+          {"2100-01-02 03:45:56.10000600","2100-01-02 03:45:56.100006"},
+          {"2100-01-02 03:45:56.100000700","2100-01-02 03:45:56.1000007"},
+          {"2100-01-02 03:45:56.100000780","2100-01-02 03:45:56.10000078"},
+          {"2100-01-02 03:45:56.100000709","2100-01-02 03:45:56.100000709"},
+          {"2100-01-02 03:45:56.1000007001000","2100-01-02 03:45:56.1000007001"},
+          {"2100-01-02 03:45:56.1000007000200","2100-01-02 03:45:56.10000070002"},
+          {"2100-01-02 03:45:56.1000007000030","2100-01-02 03:45:56.100000700003"},
+          {"2100-01-02 03:45:56","2100-01-02 03:45:56.0"},
+          {"2100-01-02 03:45:","2100-01-02 03:45:00.0"},
+          {"2100-01-02 03:45","2100-01-02 03:45:00.0"},
+          {"2100-01-02 03:","2100-01-02 03:00:00.0"},
+          {"2100-01-02 03","2100-01-02 03:00:00.0"},
+          {"2100-01-02 ","2100-01-02 00:00:00.0"},
+          {"2100-01-02","2100-01-02 00:00:00.0"},
+          {"1922-03-04","1922-03-04 00:00:00.0"},
       }; 
-      
+      int failCount = 0; 
       for (int i =0 ; i < tests.length; i++) {
-        String inString = tests[i]; 
+        String inString = tests[i][0];
+        String expected = tests[i][1];
         Timestamp ts=null;
-        if (inString.length() <= 29) { 
+        int inStringLength = inString.length(); 
+        if (inStringLength <= 29 && inStringLength > 20) { 
           ts = Timestamp.valueOf(inString);
         } else { 
           
@@ -742,12 +776,20 @@ extends SQLDataBase
           } 
         }
         String outString = timestampToStringTrimTrailingZeros(ts, null);
+        if (outString.equals(expected)) { 
         System.out.println(inString+"->"+outString); 
+        } else {
+          System.out.println("FAILED:  "+inString+"->"+outString+" sb "+expected); 
+          failCount++; 
+          
+        }
+      } // for  
+      if (failCount > 0) {
+        System.out.println("********** ERROR:some testcases failed.  *********** ");
       }
-      
     }
-     */
-
+     
+*/
 
 }
 
