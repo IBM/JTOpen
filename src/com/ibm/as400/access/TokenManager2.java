@@ -23,7 +23,15 @@ class TokenManager2
 {
     static byte[] getGSSToken(String systemName, Object gssCredential) throws Exception
     {
-        GSSManager manager = GSSManager.getInstance();
+        GSSManager manager = (GSSManager)AS400.getGSSManager();
+        if(manager == null)
+        {
+            manager = GSSManager.getInstance();
+        }
+        else
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using custom GSS manager: '" + manager + "'");
+        }
         if (Trace.isTraceOn())
         {
             Oid[] mechs = manager.getMechs();

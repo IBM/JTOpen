@@ -24,7 +24,15 @@ class TokenManager
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static byte[] getGSSToken(String systemName, String gssName) throws Exception
     {
-        GSSManager manager = GSSManager.getInstance();
+        GSSManager manager = (GSSManager)AS400.getGSSManager();
+        if(manager == null)
+        {
+            manager = GSSManager.getInstance();
+        }
+        else
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using custom GSS manager: '" + manager + "'");
+        }
         if (Trace.isTraceOn())
         {
             Oid[] mechs = manager.getMechs();
