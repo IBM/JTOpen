@@ -18,6 +18,7 @@ import com.ibm.jtopenlite.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Represents a TCP/IP socket connection to the System i Distributed Data Management (DDM) host server (QUSRWRK/QRWTSRVR job).
@@ -57,10 +58,17 @@ public class DDMConnection extends HostServerConnection
   **/
   public static DDMConnection getConnection(String system, String user, String password) throws IOException
   {
-    SignonConnection conn = SignonConnection.getConnection(system, user, password);
+    return getConnection(false, system, user, password);
+  }
+  /**
+   * Establishes a new socket connection to the specified system and authenticates the specified user and password.
+  **/
+  public static DDMConnection getConnection(final boolean isSSL, String system, String user, String password) throws IOException
+  {
+    SignonConnection conn = SignonConnection.getConnection(isSSL, system, user, password);
     try
     {
-      return getConnection(conn.getInfo(), user, password);
+      return getConnection(isSSL, conn.getInfo(), user, password);
     }
     finally
     {
@@ -73,7 +81,15 @@ public class DDMConnection extends HostServerConnection
   **/
   public static DDMConnection getConnection(SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(info, user, password, DEFAULT_DDM_SERVER_PORT);
+    return getConnection(false, info, user, password);
+  }
+
+  /**
+   * Establishes a new socket connection to the specified system and authenticates the specified user and password.
+  **/
+  public static DDMConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
+  {
+    return getConnection(isSSL, info, user, password, DEFAULT_DDM_SERVER_PORT);
   }
 
   /**
@@ -81,13 +97,21 @@ public class DDMConnection extends HostServerConnection
   **/
   public static DDMConnection getConnection(SystemInfo info, String user, String password, int ddmPort) throws IOException
   {
+    return getConnection(false, info, user, password, ddmPort);
+  }
+
+  /**
+   * Establishes a new socket connection to the specified system and port, and authenticates the specified user and password.
+  **/
+  public static DDMConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password, int ddmPort) throws IOException
+  {
     if (ddmPort < 0 || ddmPort > 65535)
     {
       throw new IOException("Bad DDM port: "+ddmPort);
     }
     DDMConnection conn = null;
 
-    Socket ddmServer = new Socket(info.getSystem(), ddmPort);
+    Socket ddmServer = isSSL? SSLSocketFactory.getDefault().createSocket(info.getSystem(), ddmPort) : new Socket(info.getSystem(), ddmPort);
     InputStream in = ddmServer.getInputStream();
     OutputStream out = ddmServer.getOutputStream();
     try

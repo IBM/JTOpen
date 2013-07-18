@@ -15,6 +15,7 @@ package com.ibm.jtopenlite;
 
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Represents a TCP/IP socket connection to the System i Signon host server (QSYSWRK/QZSOSIGN prestart jobs).
@@ -217,17 +218,31 @@ public class SignonConnection extends HostServerConnection //implements Connecti
   **/
   public static SignonConnection getConnection(String system, String user, String password) throws IOException
   {
-    return getConnection(system, user, password, DEFAULT_SIGNON_SERVER_PORT);
+    return getConnection(false, system, user, password);
+  }
+
+  /**
+   * Connects to the Signon host server on the default port and authenticates the specified user.
+  **/
+  public static SignonConnection getConnection(final boolean isSSL, String system, String user, String password) throws IOException
+  {
+    return getConnection(isSSL, system, user, password, DEFAULT_SIGNON_SERVER_PORT);
   }
 
   /**
    * Connects to the Signon host server on the specified port and authenticates the specified user.
   **/
-  public static SignonConnection getConnection(String system, String user, String password, int signonPort) throws IOException
+  public static SignonConnection getConnection(String system, String user, String password, int signonPort) throws IOException {
+      return getConnection(false, system, user, password, signonPort);
+  }
+  /**
+   * Connects to the Signon host server on the specified port and authenticates the specified user.
+  **/
+  public static SignonConnection getConnection(final boolean isSSL, String system, String user, String password, int signonPort) throws IOException
   {
     if (signonPort > 0 && signonPort < 65536)
     {
-      Socket signonServer = new Socket(system, signonPort);
+      Socket signonServer = isSSL? SSLSocketFactory.getDefault().createSocket(system, signonPort) : new Socket(system, signonPort);
       InputStream in = signonServer.getInputStream();
       OutputStream out = signonServer.getOutputStream();
       HostOutputStream dout = new HostOutputStream(new BufferedOutputStream(out));

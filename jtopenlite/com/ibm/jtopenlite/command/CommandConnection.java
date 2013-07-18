@@ -17,6 +17,7 @@ import com.ibm.jtopenlite.*;
 //import com.ibm.jtopenlite.base.experimental.*;
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Represents a TCP/IP socket connection to the System i Remote Command host server (QSYSWRK/QZRCSRVS prestart jobs).
@@ -58,10 +59,19 @@ public class CommandConnection extends HostServerConnection
   **/
   public static CommandConnection getConnection(String system, String user, String password) throws IOException
   {
-    SignonConnection conn = SignonConnection.getConnection(system, user, password);
+    return getConnection(false, system, user, password);
+  }
+
+  /**
+   * Connects to the Remote Command host server on the default port after first connecting
+   * to the Signon host server and authenticating the specified user.
+  **/
+  public static CommandConnection getConnection(final boolean isSSL, String system, String user, String password) throws IOException
+  {
+    SignonConnection conn = SignonConnection.getConnection(isSSL, system, user, password);
     try
     {
-      return getConnection(conn.getInfo(), user, password);
+      return getConnection(isSSL, conn.getInfo(), user, password);
     }
     finally
     {
@@ -74,7 +84,14 @@ public class CommandConnection extends HostServerConnection
   **/
   public static CommandConnection getConnection(SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(info, user, password, DEFAULT_COMMAND_SERVER_PORT, false);
+    return getConnection(false, info, user, password);
+  }
+  /**
+   * Connects to the Remote Command host server on the default port using the specified system information and user.
+  **/
+  public static CommandConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
+  {
+    return getConnection(isSSL, info, user, password, DEFAULT_COMMAND_SERVER_PORT, false);
   }
 
   /**
@@ -82,13 +99,20 @@ public class CommandConnection extends HostServerConnection
   **/
   public static CommandConnection getConnection(SystemInfo info, String user, String password, int commandPort, boolean compress) throws IOException
   {
+      return getConnection(false, info, user, password, commandPort, compress);
+  }
+  /**
+   * Connects to the Remote Command host server on the specified port using the specified system information and user.
+  **/
+  public static CommandConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password, int commandPort, boolean compress) throws IOException
+  {
     if (commandPort < 0 || commandPort > 65535)
     {
       throw new IOException("Bad command port: "+commandPort);
     }
     CommandConnection conn = null;
 
-    Socket commandServer = new Socket(info.getSystem(), commandPort);
+    Socket commandServer = isSSL? SSLSocketFactory.getDefault().createSocket(info.getSystem(), commandPort) : new Socket(info.getSystem(), commandPort);
     InputStream in = commandServer.getInputStream();
     OutputStream out = commandServer.getOutputStream();
     try

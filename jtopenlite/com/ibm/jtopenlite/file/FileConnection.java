@@ -18,6 +18,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Represents a TCP/IP socket connection to the System i File host server (QSERVER/QPWFSERVSO prestart jobs).
@@ -52,10 +53,15 @@ public class FileConnection extends HostServerConnection //implements Connection
 
   public static FileConnection getConnection(String system, String user, String password) throws IOException
   {
-    SignonConnection conn = SignonConnection.getConnection(system, user, password);
+    return getConnection(false, system, user, password);
+  }
+
+  public static FileConnection getConnection(final boolean isSSL, String system, String user, String password) throws IOException
+  {
+    SignonConnection conn = SignonConnection.getConnection(isSSL, system, user, password);
     try
     {
-      return getConnection(conn.getInfo(), user, password);
+      return getConnection(isSSL, conn.getInfo(), user, password);
     }
     finally
     {
@@ -65,10 +71,20 @@ public class FileConnection extends HostServerConnection //implements Connection
 
   public static FileConnection getConnection(SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(info, user, password, DEFAULT_FILE_SERVER_PORT);
+    return getConnection(false, info, user, password);
+  }
+
+  public static FileConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
+  {
+    return getConnection(isSSL, info, user, password, DEFAULT_FILE_SERVER_PORT);
   }
 
   public static FileConnection getConnection(SystemInfo info, String user, String password, int filePort) throws IOException
+  {
+    return getConnection(false, info, user, password, filePort);
+  }
+
+  public static FileConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password, int filePort) throws IOException
   {
     if (filePort < 0 || filePort > 65535)
     {
@@ -76,7 +92,7 @@ public class FileConnection extends HostServerConnection //implements Connection
     }
     FileConnection conn = null;
 
-    Socket fileServer = new Socket(info.getSystem(), filePort);
+    Socket fileServer = isSSL? SSLSocketFactory.getDefault().createSocket(info.getSystem(), filePort) :  new Socket(info.getSystem(), filePort);
     InputStream in = fileServer.getInputStream();
     OutputStream out = fileServer.getOutputStream();
     try

@@ -27,6 +27,7 @@ import com.ibm.jtopenlite.*;
 
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Represents a TCP/IP socket connection to the System i Database host server (QUSRWRK/QZDASOINIT job).
@@ -141,10 +142,14 @@ private static final int TYPE_CALL = 3;
 
   public static DatabaseConnection getConnection(String system, String user, String password) throws IOException
   {
-    SignonConnection conn = SignonConnection.getConnection(system, user, password);
+    return getConnection(false, system, user, password);
+  }
+  public static DatabaseConnection getConnection(final boolean isSSL, String system, String user, String password) throws IOException
+  {
+    SignonConnection conn = SignonConnection.getConnection(isSSL, system, user, password);
     try
     {
-      return getConnection(conn.getInfo(), user, password);
+      return getConnection(isSSL, conn.getInfo(), user, password);
     }
     finally
     {
@@ -154,10 +159,20 @@ private static final int TYPE_CALL = 3;
 
   public static DatabaseConnection getConnection(SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(info, user, password, DEFAULT_DATABASE_SERVER_PORT);
+    return getConnection(false, info, user, password);
   }
 
-  public static DatabaseConnection getConnection(SystemInfo info, String user, String password, int databasePort) throws IOException
+  public static DatabaseConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
+  {
+    return getConnection(isSSL, info, user, password, DEFAULT_DATABASE_SERVER_PORT);
+  }
+
+  public static DatabaseConnection getConnection(SystemInfo info, String user, String password, int databasePort) throws IOException 
+  {
+      return getConnection(false, info, user, password, databasePort);
+  }
+
+  public static DatabaseConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password, int databasePort) throws IOException
   {
     if (databasePort < 0 || databasePort > 65535)
     {
@@ -165,7 +180,7 @@ private static final int TYPE_CALL = 3;
     }
     DatabaseConnection conn = null;
 
-    Socket databaseServer = new Socket(info.getSystem(), databasePort);
+    Socket databaseServer = isSSL? SSLSocketFactory.getDefault().createSocket(info.getSystem(), databasePort) : new Socket(info.getSystem(), databasePort);
 //    databaseServer.setKeepAlive(false);
 //    databaseServer.setReceiveBufferSize(8192);
 //    databaseServer.setSendBufferSize(8192);
@@ -3769,7 +3784,7 @@ private static final int TYPE_CALL = 3;
     		       DATA_FORMAT ; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | DATA_FORMAT | PARAMETER_MARKER_FORMAT | EXTENDED_COLUMN_DESCRIPTORS;
 
     
-    if (attribs !=null && attribs.isSQLStatementTypeSet() && attribs.getSQLStatementType() == TYPE_CALL) {
+    if (attribs.isSQLStatementTypeSet() && attribs.getSQLStatementType() == TYPE_CALL) {
     	// Do not request column descriptors for call statement
     	// writeTemplate(parms, 0xF8800000);
     } else {
