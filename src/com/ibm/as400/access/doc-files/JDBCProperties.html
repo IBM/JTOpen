@@ -147,7 +147,8 @@ attributes. The tables organize the properties into the following categories:</P
         database is accessed:</p>
       <ul>
         <li>When this property is used to specify a database which corresponds to an independent ASP,
-          the connection is made to the independent ASP.
+          the connection is made to the independent ASP. When the specified database does not exist,
+           the connection fails. 
           </li>
         <li>When this property is used to specify *SYSBAS as the database name, 
           the system default database is used.</li>
@@ -527,7 +528,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;package&quot;</TD>
     <TD HEADERS="cat4t2">Specifies the base name of the SQL package. Note 
-      that only the first seven characters are used to generate the name of the 
+      that only the first six characters are used to generate the name of the 
       SQL package on the system. 
       This property has no effect unless the &quot;extended dynamic&quot; property 
       is set to &quot;true&quot;. In addition, this property must be set if the 
@@ -624,6 +625,18 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
 	&quot;2&quot; = Optimize query for entire result set (*ALLIO)<BR></TD>
     <TD HEADERS="cat4t5">&quot;0&quot;</TD>
   </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;query timeout mechanism&quot;</TD>
+    <TD HEADERS="cat4t2">Specifies the mechanism to implement the queryTimeout feature.</TD>
+    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat4t4">
+    &quot;qqrytimlmt&quot; = The queryTimeout feature uses the &quot;QQRYTIMLMT&quot;feature of the database 
+    engine.<BR>
+    &quot;canel&quot; = The queryTimeout feature uses a database CANCEL request to cancel
+    a running SQL statement after the specified timeout expires<BR></TD>
+    <TD HEADERS="cat4t5">&quot;qqrytimlmt&quot;</TD>
+  </TR>
+  
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;query storage limit&quot;</TD>
     <TD HEADERS="cat4t2">Specifies the query storage limit to be used when statements in a connection are executed.  
