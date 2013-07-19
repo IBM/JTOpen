@@ -33,6 +33,8 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.ietf.jgss.GSSManager;
+
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
 
@@ -4243,4 +4245,10 @@ public class AS400 implements Serializable
      */
     public boolean bidiAS400Text = false;
     //@Bidi-HCG3 end
+
+    public static GSSManager getGSSManager() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
 }
