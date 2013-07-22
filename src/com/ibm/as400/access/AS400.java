@@ -33,8 +33,6 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.ietf.jgss.GSSManager;
-
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
 
@@ -313,6 +311,10 @@ public class AS400 implements Serializable
     private boolean useSystemExpirationWarning_ = false;
 
     private static int alreadyCheckedForMultipleVersions_ = 0;
+    
+    
+    // GSS Manager object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
+    private static Object gssManager_ = null;
 
     // System name.
     private String systemName_ = "";
@@ -330,7 +332,7 @@ public class AS400 implements Serializable
     // you must provide a copy of the credential vault.  This is achieved using
     // the clone() method provided by the CredentialVault class.
     private transient CredentialVault credVault_;  // never null after construction
-
+    
     // GSS Credential object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
     private transient Object gssCredential_ = null;
     // GSS name string, for Kerberos.
@@ -496,7 +498,7 @@ public class AS400 implements Serializable
             throw new NullPointerException("profileToken");
         }
 
-    	constructWithProfileToken(systemName, new ProfileTokenVault(profileToken));
+        constructWithProfileToken(systemName, new ProfileTokenVault(profileToken));
     }
 
     /**
@@ -536,10 +538,10 @@ public class AS400 implements Serializable
 
         // Was a refresh threshold specified?
         if (refreshThreshold != null) {
-        	constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider, refreshThreshold.intValue()));
+            constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider, refreshThreshold.intValue()));
         }
         else {
-        	constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider));
+            constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider));
         }
     }
 
@@ -1083,7 +1085,7 @@ public class AS400 implements Serializable
             impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_, mustAddLanguageLibrary_);
             propertiesFrozen_ = true;
         }
-        impl_.setBidiStringType(this.getBidiStringType());				//@Bidi-HCG3
+        impl_.setBidiStringType(this.getBidiStringType());              //@Bidi-HCG3
     }
 
     /**
@@ -1094,7 +1096,7 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache.");
         synchronized (AS400.systemList)
         {
-	        AS400.systemList.removeAllElements();
+            AS400.systemList.removeAllElements();
         }
     }
 
@@ -1104,8 +1106,8 @@ public class AS400 implements Serializable
      **/
     public static void clearPasswordCache(String systemName)
     {
-    	String longName = null;
-    	boolean isLocalHost = false;
+        String longName = null;
+        boolean isLocalHost = false;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache, system name:", systemName);
         if (systemName == null)
         {
@@ -1114,21 +1116,21 @@ public class AS400 implements Serializable
         systemName = resolveSystem(systemName);
         boolean localHost = systemName.equals("localhost");
         if (localHost) {
-        	isLocalHost = true;
-        	try {
-        	systemName = InetAddress.getLocalHost().getHostName();
-        	} catch (Exception e) { /* ignore */ }
+            isLocalHost = true;
+            try {
+            systemName = InetAddress.getLocalHost().getHostName();
+            } catch (Exception e) { /* ignore */ }
         }
         int dotIndex = systemName.indexOf(".");
         if (dotIndex > 0) {
-        	longName = systemName;
-        	systemName = systemName.substring(0,dotIndex);
+            longName = systemName;
+            systemName = systemName.substring(0,dotIndex);
         }
         synchronized (AS400.systemList)
         {
             for (int i = AS400.systemList.size() - 1; i >= 0; i--)
             {
-            	String elementName = (String)((Object[])AS400.systemList.elementAt(i))[0];
+                String elementName = (String)((Object[])AS400.systemList.elementAt(i))[0];
                 if (systemName.equalsIgnoreCase(elementName))
                 {
                     AS400.systemList.removeElementAt(i);
@@ -1653,13 +1655,13 @@ public class AS400 implements Serializable
      *                    from the QPWDEXPWRN system value
      */
     public void setUseSystemPasswordExpirationWarningDays(boolean useSystem) {
-    	if (useSystem) {
-    		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning.");
-    		useSystemExpirationWarning_ = true;
-    	} else {
-    		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Don't use system password expiration(QPWDEXPWRN) warning.");
-    		useSystemExpirationWarning_ = false;
-    	}
+        if (useSystem) {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning.");
+            useSystemExpirationWarning_ = true;
+        } else {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Don't use system password expiration(QPWDEXPWRN) warning.");
+            useSystemExpirationWarning_ = false;
+        }
     }
    
     /**
@@ -1673,21 +1675,21 @@ public class AS400 implements Serializable
      * @throws  AS400SecurityException  If a security or authority error occurs.
      * @throws  IOException  If an error occurs while communicating with the system.
      */
-	public int getSystemPasswordExpirationWarningDays()throws AS400SecurityException, IOException {
-		if (useSystemExpirationWarning_) {
-			chooseImpl();
-			signon(false);
-			if (signonInfo_.PWDexpirationWarning > 0) {
-				if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning: " + signonInfo_.PWDexpirationWarning);
-				return signonInfo_.PWDexpirationWarning;
-			}
+    public int getSystemPasswordExpirationWarningDays()throws AS400SecurityException, IOException {
+        if (useSystemExpirationWarning_) {
+            chooseImpl();
+            signon(false);
+            if (signonInfo_.PWDexpirationWarning > 0) {
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning: " + signonInfo_.PWDexpirationWarning);
+                return signonInfo_.PWDexpirationWarning;
+            }
 
-		}
+        }
 
-		return getPasswordExpirationWarningDays();
-	}
+        return getPasswordExpirationWarningDays();
+    }
    
-	 /**
+     /**
      * Determines if the password expiration date for the user profile is within the
      * password expiration warning days for the system returned by
      * {@link getSystemPasswordExpirationWarningDays}.
@@ -1696,9 +1698,9 @@ public class AS400 implements Serializable
      * @throws  AS400SecurityException  If a security or authority error occurs.
      * @throws  IOException  If an error occurs while communicating with the system.
      */
-	public boolean isInPasswordExpirationWarningDays()
-			throws AS400SecurityException, IOException {
-		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if within the password expiration warning days for the system. " );
+    public boolean isInPasswordExpirationWarningDays()
+            throws AS400SecurityException, IOException {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if within the password expiration warning days for the system. " );
 
         chooseImpl();
         signon(false);
@@ -1707,7 +1709,7 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "In password expiration warning days: " + warn);
 
         return warn;
-	}
+    }
 
     /**
      * Returns the number of days until the user profile's password expires.
@@ -1809,7 +1811,7 @@ public class AS400 implements Serializable
 
           CredentialVault tempVault = (CredentialVault)credVault_.clone();
           tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));  // Don't re-encode our own vault; we might need to reuse it later.
-          impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);	// @mds
+          impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);   // @mds
         }
         signonInfo_.profileToken = profileToken;
         return profileToken;
@@ -1867,7 +1869,7 @@ public class AS400 implements Serializable
           // using random seeds generated and exchanged with the 'impl' object.
           CredentialVault tempVault = (CredentialVault)credVault_.clone();
           tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
-          impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);	// @mds
+          impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);   // @mds
         }
         return profileToken;
     }
@@ -2888,8 +2890,8 @@ public class AS400 implements Serializable
      **/
     public static void removePasswordCacheEntry(String systemName, String userId)
     {
-    	boolean isLocalHost = false;
-    	String longName = null;
+        boolean isLocalHost = false;
+        String longName = null;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing password cache entry, system name: " + systemName + " user ID: " + userId);
         if (systemName == null)
         {
@@ -2907,18 +2909,18 @@ public class AS400 implements Serializable
 
         boolean localHost = systemName.equals("localhost");
         if (localHost) {
-        	isLocalHost = true;
-        	try {
-        	systemName = InetAddress.getLocalHost().getHostName();
-        	} catch (Exception e) { /* ignore */ }
+            isLocalHost = true;
+            try {
+            systemName = InetAddress.getLocalHost().getHostName();
+            } catch (Exception e) { /* ignore */ }
         } else {
-        	// Note. The check to see if the current system was also local host was
-        	// done in resolveSystem.
+            // Note. The check to see if the current system was also local host was
+            // done in resolveSystem.
         }
         int dotIndex = systemName.indexOf(".");
         if (dotIndex > 0) {
-        	longName = systemName;
-        	systemName = systemName.substring(0,dotIndex);
+            longName = systemName;
+            systemName = systemName.substring(0,dotIndex);
         }
 
         userId = resolveUserId(userId.toUpperCase());
@@ -3124,14 +3126,14 @@ public class AS400 implements Serializable
             signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, credVault_, gssName_);  // @mds
 
             if (gssCredential_ != null) impl_.setGSSCredential(gssCredential_);
-            credVault_.empty();  // GSSToken is single use only.	@mds
+            credVault_.empty();  // GSSToken is single use only.    @mds
         }
         else  // Encode the authentication info before sending vault to impl.
         {
           byte[] proxySeed = new byte[9];
           CredentialVault.rng.nextBytes(proxySeed);
           CredentialVault tempVault = (CredentialVault)credVault_.clone();
-          tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));	// @mds
+          tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));   // @mds
 
           if (PASSWORD_TRACE)
           {
@@ -3185,7 +3187,7 @@ public class AS400 implements Serializable
 
             // Now add the new one.
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry for "+systemName+":"+userId+".");
-            AS400.systemList.addElement(new Object[] {systemName, userId, pwVault.clone()} );	// @mds
+            AS400.systemList.addElement(new Object[] {systemName, userId, pwVault.clone()} );   // @mds
         }
     }
 
@@ -3304,6 +3306,20 @@ public class AS400 implements Serializable
         // Already have a default user, fail the op.
         if (Trace.traceOn_) Trace.log(Trace.WARNING, "Default user already set, set default user failed.");
         return false;
+    }
+    
+    /**
+     * Sets the GSS manager to be used for all GSS operations. 
+     * @param  gssMgr  The GSS manager object.  The object's type must be org.ietf.jgss.GSSManager, the object is set to type Object only to avoid a JDK release dependency.
+     **/
+    public static void setGSSManager(Object gssMgr)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS manager: '" + gssMgr + "'");
+        gssManager_ = gssMgr;
+    }
+    static Object getGSSManager()
+    {
+        return gssManager_;
     }
 
     /**
@@ -4229,7 +4245,7 @@ public class AS400 implements Serializable
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      */
     public void setBidiStringType(int bidiStringType){
-    	this.bidiStringType = bidiStringType;
+        this.bidiStringType = bidiStringType;
     }
 
     /**
@@ -4237,7 +4253,7 @@ public class AS400 implements Serializable
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      */
     public int getBidiStringType(){
-    	return bidiStringType;
+        return bidiStringType;
     }
 
     /**
@@ -4245,10 +4261,4 @@ public class AS400 implements Serializable
      */
     public boolean bidiAS400Text = false;
     //@Bidi-HCG3 end
-
-    public static GSSManager getGSSManager() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
 }
