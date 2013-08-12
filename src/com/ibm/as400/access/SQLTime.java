@@ -123,7 +123,23 @@ extends SQLDataBase
         catch(NumberFormatException e)
         {
           if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing time "+s, e);
-          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
+          // Try processing as timestamp @J2A
+          if (s.length()>=19 && s.charAt(4)=='-' &&
+                s.charAt(7)=='-') {
+              try { 
+                Timestamp ts = SQLTimestamp.stringToTimestamp(s, calendar);
+                calendar.set(Calendar.HOUR_OF_DAY, ts.getHours());
+                calendar.set(Calendar.MINUTE, ts.getMinutes());
+                calendar.set(Calendar.SECOND, ts.getSeconds());
+                
+              } catch (Exception e2) { 
+                if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing time as timestamp"+s, e2);
+                JDError.throwSQLException(null, JDError.EXC_DATA_TYPE_MISMATCH, e, s);
+              }
+            
+          } else { 
+            JDError.throwSQLException(null, JDError.EXC_DATA_TYPE_MISMATCH, e, s);
+          }
         }
         catch(StringIndexOutOfBoundsException e)
         {

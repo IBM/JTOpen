@@ -199,7 +199,7 @@ Returns the handle to this CLOB locator in the database.
     synchronized(locator_)
     {
       int offset = (int)position-1;
-      if (offset < 0 || length < 0 || (offset + length) > length())
+      if (offset < 0 || length < 0  || (offset  > length()) )
       {
         JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
