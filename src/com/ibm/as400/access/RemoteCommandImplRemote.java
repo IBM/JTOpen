@@ -820,6 +820,176 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             {
                 messageList[i] = AS400ImplRemote.parseMessage(data, offset + 6, converter);
             }
+            //@P1 - start
+            else if (data[offset + 5] == 0x07)
+            {
+              int mark = offset;
+              
+              offset += 6;
+              AS400Message message = new AS400Message();
+              int messageSeverityLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+              message.setSeverity(BinaryConverter.byteArrayToInt(data, offset));
+              offset += 4;
+              
+              int messageIdLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+              message.setID(converter.byteArrayToString(data, offset, messageIdLength));
+              offset += messageIdLength;
+              
+              int messageTypeLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+              message.setType((data[offset] & 0x0F) * 10 + (data[offset +1] & 0x0F));
+              offset += messageTypeLength; 
+              
+              int messageKeyLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += messageKeyLength;
+              
+//              message.setKey(converter.byteArrayToString(data, offset, messageIdLength));
+              offset += 4;
+              
+              int messageFileNameLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+              message.setFileName(converter.byteArrayToString(data, offset, messageFileNameLength).trim());
+              offset += messageFileNameLength;
+              
+              int messageFileLibraryNameLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+              message.setLibraryName(converter.byteArrayToString(data, offset, messageFileLibraryNameLength).trim());
+              offset += messageFileLibraryNameLength;
+              
+              int messageFileLibraryUsedLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+//              message.setLibraryUsed(converter.byteArrayToString(data, offset, messageFileLibraryUsedLength).trim());
+              offset += messageFileLibraryUsedLength;
+
+              int messageSendingJobLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+//              message.setSendingJob(converter.byteArrayToString(data, offset, messageSendingJobLength).trim());
+              offset += messageSendingJobLength;
+              
+              int messageSendingJobUsrProfileLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+//              message.setSendingJobUsrProfile(converter.byteArrayToString(data, offset, messageSendingJobUsrProfileLength).trim());
+              offset += messageSendingJobUsrProfileLength;
+
+              int messageSendingJobNumberLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+//              message.setSendJobNumber(converter.byteArrayToString(data, offset, messageSendingJobNumberLength).trim());
+              offset += messageSendingJobNumberLength;
+              
+              int messageSendingProgramLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset += 4;
+              
+//              message.setSendingProgram(converter.byteArrayToString(data, offset, messageSendingProgramLength).trim());
+              offset += messageSendingProgramLength;
+              
+              int messageSendingProgramInstructionNumberLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//              message.setMessageSendingProgramInstructionNumber(converter.byteArrayToString(data, offset, messageSendingProgramInstructionNumberLength).trim());
+              offset += messageSendingProgramInstructionNumberLength;
+              
+              int messageDataSentLenght = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+              String dateSent = converter.byteArrayToString(data, offset, messageDataSentLenght).trim();
+              offset += messageDataSentLenght;
+              
+              int messageTimeSentLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+              String timeSent = converter.byteArrayToString(data, offset, messageTimeSentLength).trim();
+              offset += messageTimeSentLength;
+              
+              message.setDate(dateSent, timeSent);
+              
+              int messageRecevingProgramLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//            message.setRecevingProgram(converter.byteArrayToString(data, offset, messageRecevingProgramLength).trim());
+              offset += messageRecevingProgramLength;
+              
+              int messageRecevingProgramInstructionNumberLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//            message.setRecevingProgramInstructionNumber(converter.byteArrayToString(data, offset, messageRecevingProgramInstructionNumberLength).trim());
+              offset += messageRecevingProgramInstructionNumberLength;
+              
+              int messageSendingTypeLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//            message.setSendingType(converter.byteArrayToString(data, offset, messageSendingTypeLength).trim());
+              offset += messageSendingTypeLength;
+              
+              int messageRecevingTypeLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//            message.setRecevingType(converter.byteArrayToString(data, offset, messageRecevingTypeLength).trim());
+              offset += messageRecevingTypeLength;
+              
+              int textCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//              message.setTextCcsidIndicator(BinaryConverter.byteArrayToInt(data, offset));
+              offset += 4;
+              
+              int dataCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//              message.setDataCcsidIndicator(BinaryConverter.byteArrayToInt(data, offset));
+              offset += 4;
+              
+              int messageAlertOptionLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//            message.setAlertOption(converter.byteArrayToString(data, offset, messageAlertOptionLength).trim());
+              offset += messageAlertOptionLength;
+              
+              int messageAndMessageHelpCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+              message.setTextCcsid(BinaryConverter.byteArrayToInt(data, offset));
+              offset +=4;
+              
+              int messageReplacementDataOrImpromptuTextCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//              message.setReplacementDataOrImpromptuTextCcsid(BinaryConverter.byteArrayToInt(data, offset));
+              offset +=4;
+              
+              int messageReplacementDataOrImpromptuTextLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+//            message.setReplacementDataOrImpromptuText(converter.byteArrayToString(data, offset, messageReplacementDataOrImpromptuTextLength).trim());
+              offset += messageReplacementDataOrImpromptuTextLength;
+              
+              int messageLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+              message.setText(converter.byteArrayToString(data, offset, messageLength).trim());
+              offset += messageLength; 
+              
+              int messageHelpLength = BinaryConverter.byteArrayToInt(data, offset);
+              offset +=4;
+              
+              message.setHelp(converter.byteArrayToString(data, offset, messageHelpLength).trim());
+              offset += messageHelpLength; 
+              
+              messageList[i] = message;
+              
+              offset = mark;
+            }
+            //@P1 - end
             else
             {
                 messageList[i] = new AS400Message();
@@ -845,4 +1015,6 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
         return messageList;
     }
+    
+    //This is request 
 }

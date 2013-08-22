@@ -56,11 +56,17 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
 
         // Return messages.
         if (dataStreamLevel < 7 && messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = AS400Message.MESSAGE_OPTION_UP_TO_10;
-        if (dataStreamLevel >= 10)
+        //@P2 - Start
+        if (dataStreamLevel >= 10 && dataStreamLevel < 11)
         {
             if (messageCount == AS400Message.MESSAGE_OPTION_UP_TO_10) messageCount = 3;
             if (messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = 4;
         }
+        if (dataStreamLevel >= 11) {
+          if (messageCount == AS400Message.MESSAGE_OPTION_UP_TO_10) messageCount = 5;
+          if (messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = 6;
+        }
+        //@P2 - End
         data_[40] = (byte)messageCount;
 
         // Set number of program parameters.
