@@ -809,13 +809,26 @@ public class ProgramCall implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting parameter list.");
         if (parameterList == null) {
             throw new NullPointerException("parameterList");
+        } 
+        //@P1 - Start
+        boolean isV7R2 = false;
+        try {
+          isV7R2 = system_.getVRM() == 0x00070200;
+        } catch(Exception e) {
+          e.printStackTrace();
         }
-        else if (parameterList.length > 35)
+        
+        if (isV7R2 && parameterList.length > 255)
         {
-            Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 35 parameters:", parameterList.length);
-            throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+          Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 255 parameters:", parameterList.length);
+          throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-
+        else if (!isV7R2 && parameterList.length > 35)
+        {
+          Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 35 parameters:", parameterList.length);
+          throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        //@P1 - End
         ProgramParameter[] oldValue = parameterList_;
         ProgramParameter[] newValue = parameterList;
 
