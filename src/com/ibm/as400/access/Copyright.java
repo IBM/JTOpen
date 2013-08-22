@@ -99,6 +99,8 @@ package com.ibm.as400.access;
 //@D11  20130404  Add Serializable interface to CancelLock
 //@J1   20130702  JDBC:  Support IPV6 addresses in JDBC URL.
 //@J2   20130812  JDBC:  Support timestamp as time parameter
+//@P1   20130822  Support for up to 255 parameters on a remote program call request
+//@P2   20130822  Support additional message data returned on remote command and remote program call replies
 //
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
