@@ -170,7 +170,7 @@ public class ProgramCall implements Serializable
     private ProgramCallCancelThread cancelThread_;//@D10
     
     private Object cancelLock_ = new CancelLock();//@D10
-    private class CancelLock extends Object implements java.io.Serializable {static final long serialVersionUID = 4L;}//@D10//@D11
+    private class CancelLock extends Object implements java.io.Serializable {static final long serialVersionUID = 4L;}//@D10//@I3
     
    //@D10A - Start
    /**
@@ -810,7 +810,7 @@ public class ProgramCall implements Serializable
         if (parameterList == null) {
             throw new NullPointerException("parameterList");
         } 
-        //@P1 - Start
+        //@J3 - Start
         boolean isV7R2 = false;
         try {
           isV7R2 = system_.getVRM() == 0x00070200;
@@ -828,7 +828,7 @@ public class ProgramCall implements Serializable
           Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 35 parameters:", parameterList.length);
           throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        //@P1 - End
+        //@J3 - End
         ProgramParameter[] oldValue = parameterList_;
         ProgramParameter[] newValue = parameterList;
 

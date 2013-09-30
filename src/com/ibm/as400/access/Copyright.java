@@ -96,11 +96,11 @@ package com.ibm.as400.access;
 //@H7   20130102  JDBC:  For CCSID 1208, do not report truncation if extra characters are spaces
 //@I1   20130225  Refactor code block of SSL socket provider (shift between JSSE and SSL )
 //@I2   20130318  JDBC:  Fix timestamp to String formatting
-//@D11  20130404  Add Serializable interface to CancelLock
+//@I3   20130404  Add Serializable interface to CancelLock
 //@J1   20130702  JDBC:  Support IPV6 addresses in JDBC URL.
 //@J2   20130812  JDBC:  Support timestamp as time parameter
-//@P1   20130822  Support for up to 255 parameters on a remote program call request
-//@P2   20130822  Support additional message data returned on remote command and remote program call replies
+//@J3   20130822  Support for up to 255 parameters on a remote program call request
+//@J4   20130822  Support additional message data returned on remote command and remote program call replies
 //
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
@@ -110,7 +110,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2011 International Business Machines Corporation and others.";
     //                                                                                              built=20130806 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 8.1, codebase 5770-SS1 V7R2M0.00 built=20130806 @J2";  // As of V7R1: JC1 is merged into SS1 Option 3
+    public static String version   = "Open Source Software, JTOpen 8.1, codebase 5770-SS1 V7R2M0.00 built=20130806 @J4";  // As of V7R1: JC1 is merged into SS1 Option 3
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1

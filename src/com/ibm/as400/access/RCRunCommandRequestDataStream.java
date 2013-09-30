@@ -30,7 +30,7 @@ class RCRunCommandRequestDataStream extends ClientAccessDataStream
         setReqRepID(0x1002);
 
         // Return messages.
-        //@P1A - Start
+        //@J3A - Start
         // @A Server data stream level 11 is added, and message count sets to 5 if up to 10 msgs returned, and 6 if all returned.  
         if (dataStreamLevel < 7 && messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = AS400Message.MESSAGE_OPTION_UP_TO_10;
         if (dataStreamLevel >= 10 && dataStreamLevel < 11)
@@ -42,7 +42,7 @@ class RCRunCommandRequestDataStream extends ClientAccessDataStream
           if (messageCount == AS400Message.MESSAGE_OPTION_UP_TO_10) messageCount = 5;
           if (messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = 6;
         }
-        //@P1A - End
+        //@J3A - End
         data_[20] = (byte)messageCount;
 
         if (dataStreamLevel >= 10)

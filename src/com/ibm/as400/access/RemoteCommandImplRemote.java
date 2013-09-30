@@ -820,7 +820,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             {
                 messageList[i] = AS400ImplRemote.parseMessage(data, offset + 6, converter);
             }
-            //@P1 - start
+            //@J3 - start
             else if (data[offset + 5] == 0x07)
             {
               int mark = offset;
@@ -989,7 +989,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
               
               offset = mark;
             }
-            //@P1 - end
+            //@J3 - end
             else
             {
                 messageList[i] = new AS400Message();

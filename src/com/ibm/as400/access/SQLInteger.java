@@ -112,18 +112,18 @@ extends SQLDataBase
             //
             // new ...
 
-            // @P1 First try to convert the string to an int (no extra object creation).  If
+            //     First try to convert the string to an int (no extra object creation).  If
             //     that fails try turning it into a Double, which will involve an extra object
             //     create but Double will accept bigger numbers and floating point numbers so it 
             //     will catch more truncation cases.  The bottom line is don't create an extra
             //     object in the normal case.  If the user does ps.setString(1, "111222333.444.555")
             //     on an integer field, they can't expect the best performance. 
-            boolean tryAgain = false;                                                    // @P1a
+            boolean tryAgain = false;                                                    
 
             try
             {
-                // @P1d long longValue = (long) Double.parseDouble((String) object); 
-                long longValue = (long) Long.parseLong((String) object);              // @P1a
+                //  long longValue = (long) Double.parseDouble((String) object); 
+                long longValue = (long) Long.parseLong((String) object);             
 
                 if(( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))
                 {
@@ -139,37 +139,37 @@ extends SQLDataBase
             }
             catch(NumberFormatException e)
             {
-                tryAgain = true;                                                          // @P1a
-                // @P1d JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                tryAgain = true;                                                          // a
+                // d JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
 
-            if(tryAgain)                                                                // @P1a
+            if(tryAgain)                                                                // a
             {
-                // @P1a
-                try                                                                       // @P1a
+                // a
+                try                                                                       // a
                 {
-                    // @P1a
-                    double doubleValue = Double.valueOf((String) object).doubleValue();  // @P1a
-                                                                                           // @P1a
-                    if(( doubleValue > Integer.MAX_VALUE ) || ( doubleValue < Integer.MIN_VALUE )) // @P1a
+                    // a
+                    double doubleValue = Double.valueOf((String) object).doubleValue();  // a
+                                                                                           // a
+                    if(( doubleValue > Integer.MAX_VALUE ) || ( doubleValue < Integer.MIN_VALUE )) // a
                     {
-                        // @P1a
-                        truncated_ = 4;                                                    // @P1a
+                        // a
+                        truncated_ = 4;                                                    // a
                         outOfBounds_=true;
                         //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
                         if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
                         {                                                                    //@trunc3
                             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
                         }                                                                    //@trunc3
-                    }                                                                      // @P1a
-                    value_ = (int) doubleValue;                                          // @P1a  
-                }                                                                         // @P1a
-                catch(NumberFormatException e)                                           // @P1a
+                    }                                                                      // a
+                    value_ = (int) doubleValue;                                          // a  
+                }                                                                         // a
+                catch(NumberFormatException e)                                           // a
                 {
-                    // @P1a
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);            // @P1a
-                }                                                                         // @P1a
-            }                                                                            // @P1a
+                    // a
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);            // a
+                }                                                                         // a
+            }                                                                            // a
         }
 
         else if(object instanceof Number)

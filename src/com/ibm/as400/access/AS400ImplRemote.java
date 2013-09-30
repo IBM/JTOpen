@@ -988,14 +988,14 @@ class AS400ImplRemote implements AS400Impl
             }
         }
 
-        SocketContainer sc = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service, useSSLConnection_, socketProperties_, mustUseNetSockets_);
-        int connectionID = sc.hashCode();
+        SocketContainer socketContainer = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+        int connectionID = socketContainer.hashCode();
         String jobString = "";
 
         try
         {
-            InputStream inStream = sc.getInputStream();
-            OutputStream outStream = sc.getOutputStream();
+            InputStream inStream = socketContainer.getInputStream();
+            OutputStream outStream = socketContainer.getOutputStream();
             byte[] jobBytes = null;
 
             if (service == AS400.RECORDACCESS)
@@ -1095,17 +1095,17 @@ class AS400ImplRemote implements AS400Impl
         }
         catch (IOException e)
         {
-          forceDisconnect(e, server, sc);
+          forceDisconnect(e, server, socketContainer);
           throw e;
         }
         catch (AS400SecurityException e)
         {
-          forceDisconnect(e, server, sc);
+          forceDisconnect(e, server, socketContainer);
           throw e;
         }
         catch (RuntimeException e)
         {
-          forceDisconnect(e, server, sc);
+          forceDisconnect(e, server, socketContainer);
           throw e;
         }
 
@@ -1116,11 +1116,11 @@ class AS400ImplRemote implements AS400Impl
         // Construct a new server...
         if (threadUsed_)
         {
-            server = new AS400ThreadedServer(this, service, sc, jobString);
+            server = new AS400ThreadedServer(this, service, socketContainer, jobString);
         }
         else
         {
-            server = new AS400NoThreadServer(this, service, sc, jobString);
+            server = new AS400NoThreadServer(this, service, socketContainer, jobString);
         }
 
         // Add the system to our list so we can return it on a subsequent connect()...
