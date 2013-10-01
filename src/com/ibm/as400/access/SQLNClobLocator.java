@@ -492,7 +492,9 @@ final class SQLNClobLocator implements SQLLocator
                     Clob clob = (Clob)object;
                     int length = (int)clob.length();
                     String substring = clob.getSubString(1, length);
-                    locator_.writeData(0L, converter_.stringToByteArray(substring), 0, length, true);         
+                    // @J5C Use length of output array not substring
+                    byte[] outByteArray = converter_.stringToByteArray(substring);
+                    locator_.writeData(0L, outByteArray, 0, outByteArray.length, true);         
                     set = true;
                 }
                 else
@@ -500,15 +502,17 @@ final class SQLNClobLocator implements SQLLocator
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            /* ifdef JDBC40 
+/* ifdef JDBC40 
             else if( object instanceof SQLXML ) //@PDA jdbc40 
             {
                 SQLXML xml = (SQLXML)object;
                
                 String stringVal = xml.getString();
-                locator_.writeData(0L, converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);           
+                 // @J5C Use length of output array not substring
+                byte[] outByteArray = converter_.stringToByteArray(stringVal);
+                locator_.writeData(0L, outByteArray, 0, outByteArray.length, true);           
             }
-            endif */ 
+endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
