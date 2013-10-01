@@ -170,7 +170,10 @@ Returns part of the contents of the CLOB.
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
     int offset = (int)position-1;
-    if (offset < 0 || length < 0 || (offset + length) > data_.length)
+    // Only thread exception if offset if greater than the length
+    // It is valid for the requested length to be greater than the actual length
+    // @J5C
+    if (offset < 0 || length < 0 || (offset  > data_.length))
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
