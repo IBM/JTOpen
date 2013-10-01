@@ -75,6 +75,8 @@ final class SQLClobLocator implements SQLLocator
     public void setHandle(int handle)
     {
         locator_.setHandle(handle);
+        // @J5A reset savedObject after setting handle
+        savedObject_ = null; 
     }
     
     //@loch
@@ -95,6 +97,8 @@ final class SQLClobLocator implements SQLLocator
         int locatorHandle = BinaryConverter.byteArrayToInt(rawBytes, offset);
         locator_.setHandle(locatorHandle);
         locator_.setColumnIndex(columnIndex_);
+        // @J5A reset saved handle after setting new value
+        savedObject_ = null; 
     }
 
     //@CRS - This is only called from AS400JDBCPreparedStatement in one place.
@@ -474,7 +478,11 @@ endif*/
                     Clob clob = (Clob)object;
                     int length = (int)clob.length();
                     String substring = clob.getSubString(1, length);
-                    locator_.writeData(0L, converter_.stringToByteArray(substring), 0, length, true);           //@K1C
+                    // This code used to assume that the input length was the same as the output length
+                    // locator_.writeData(0L, converter_.stringToByteArray(substring), 0, length, true);           //@K1C
+                    // @J5C
+                    byte[] writeByteArray = converter_.stringToByteArray(substring); 
+                    locator_.writeData(0L, writeByteArray, 0, writeByteArray.length, true);
                     set = true;
                 }
                 else
@@ -488,7 +496,9 @@ endif*/
                 SQLXML xml = (SQLXML)object;
                
                 String stringVal = xml.getString();
-                locator_.writeData(0L, converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);           
+                // @J5C
+                byte[] outByteArray = converter_.stringToByteArray(stringVal);
+                locator_.writeData(0L, outByteArray, 0, outByteArray.length, true);           
             }
             endif */ 
             else
@@ -753,7 +763,15 @@ endif*/
             return new AS400JDBCClob(value_, maxLength_); //@loch
         }                       //@loch
         
-        return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
+        AS400JDBCClobLocator locatorReturn = new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
+        if (ConvTable.isMixedCCSID(converter_.ccsid_)) {
+          // Since this is a mixed CCSID, the locator APIs with length, etc.. do not work correctly
+          // @J5A We read the whole thing and convert to a local clob.
+          savedObject_ = locatorReturn.getSubString((long)1, (int) locatorReturn.length());
+          return new AS400JDBCClob((String) savedObject_, maxLength_); //@loch
+        }
+        
+        return locatorReturn;
     }
 
     public Date getDate(Calendar calendar)
