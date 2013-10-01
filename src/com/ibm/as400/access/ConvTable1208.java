@@ -30,7 +30,7 @@ class ConvTable1208 extends ConvTable
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
         char[] out = new char[length];
         int outCount = 0;
-        for (int i=offset; i<offset+length; ++i)
+        for (int i=offset; i<offset+length && i < buf.length; ++i)
         {
             int b = buf[i] & 0x00FF;
             int c = 0;
@@ -41,21 +41,57 @@ class ConvTable1208 extends ConvTable
             else if ((b & 0xE0) == 0xC0)
             {
                 c = (b & 0x1F) << 6;
-                c |= buf[++i] & 0x3F;
+                i++; 
+                // @J5A check i before using it
+                if (i < buf.length) {
+                  c |= buf[i] & 0x3F;
+                } else {
+                  c = dbSubUnic_; 
+                }
             }
             else if ((b & 0xF0) == 0xE0)
             {
                 c = (b & 0x0F) << 12;
-                c |= (buf[++i] & 0x3F) << 6;
-                c |= buf[++i] & 0x3F;
+                i++; 
+                // @J5A check i before using it
+                if (i < buf.length){  
+                    c |= (buf[i] & 0x3F) << 6;
+                    i++; 
+                    // @J5A check i before using it
+                    if (i < buf.length){  
+                      c |= buf[i] & 0x3F;
+                    } else {
+                      c = dbSubUnic_; 
+                    }
+                } else {
+                  c = dbSubUnic_; 
+                }
             }
             else
-            {
-                c = (b & 0x07) << 18;
-                c |= (buf[++i] & 0x3F) << 12;
-                c |= (buf[++i] & 0x3F) << 6;
-                c |= buf[++i] & 0x3F;
+      {
+        c = (b & 0x07) << 18;
+        i++;
+        // @J5A check i before using it
+        if (i < buf.length) {
+          c |= (buf[i] & 0x3F) << 12;
+          i++;
+          // @J5A check i before using it
+          if (i < buf.length) {
+            c |= (buf[i] & 0x3F) << 6;
+            i++;
+            // @J5A check i before using it
+            if (i < buf.length) {
+              c |= buf[i] & 0x3F;
+            } else {
+              c = dbSubUnic_;
             }
+          } else {
+            c = dbSubUnic_;
+          }
+        } else {
+          c = dbSubUnic_;
+        }
+      }
             // Create surrogate pair if necessary.
             if (c > 0x00FFFF)  // Surrogate pair.
             {

@@ -5794,92 +5794,95 @@ endif */
                                 the column index is not valid, or the
                                 requested conversion is not valid.
     **/
-    private void updateValue (int columnIndex,
-                              Object columnValue,
-                              Calendar calendar,
-                              int scale)
-    throws SQLException
-    {
-        synchronized(internalLock_)
-        {                                            // @D1A
-            beforeUpdate ();
+  private void updateValue(int columnIndex, Object columnValue,
+      Calendar calendar, int scale) throws SQLException {
+    synchronized (internalLock_) { // @D1A
+      beforeUpdate();
 
-            // Check that there is a current row.
-            if((positionValid_ == false) && (positionInsert_ == false))
-                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
+      // Check that there is a current row.
+      if ((positionValid_ == false) && (positionInsert_ == false))
+        JDError.throwSQLException(JDError.EXC_CURSOR_POSITION_INVALID);
 
-            // Validate The column index.
-            if((columnIndex < 1) || (columnIndex > columnCount_))
-                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+      // Validate The column index.
+      if ((columnIndex < 1) || (columnIndex > columnCount_))
+        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID);
 
-            // Set the update value.  If there is a type mismatch,
-            // set() with throw an exception.
-            SQLData sqlData = updateRow_.getSQLType(columnIndex); //@P0C
-            int columnIndex0 = columnIndex - 1;
+      // Set the update value. If there is a type mismatch,
+      // set() with throw an exception.
+      SQLData sqlData = updateRow_.getSQLType(columnIndex); // @P0C
+      int columnIndex0 = columnIndex - 1;
 
-            //@G7A If the data is a locator, then set its handle.
-            int sqlType = sqlData.getSQLType();  //@xml3
-            if(columnValue != null && (sqlType == SQLData.CLOB_LOCATOR ||
-                    sqlType == SQLData.BLOB_LOCATOR ||
-                    sqlType == SQLData.DBCLOB_LOCATOR ||
-                    sqlType == SQLData.NCLOB_LOCATOR ||  //@pda jdbc40
-                    sqlType == SQLData.XML_LOCATOR))                   //@xml3
-            {     //@G8C                                              //@G7A
-                statement_.setAssociatedWithLocators(true);   //@KBL
-                try
-                {                                                                                  //@G7A 
-                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A
-                    sqlDataAsLocator.setHandle (((AS400JDBCBlobLocator)columnValue).getHandle());  //@G7A  
-                }                                                                                  //@G7A
-                catch(ClassCastException cce)                                                     //@G7A
-                {
-                    /*ignore*/                                                                       //@G7A
-                }                                                                                  //@G7A
-
-                try
-                {                                                                                  //@G7A 
-                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A
-                    sqlDataAsLocator.setHandle (((AS400JDBCClobLocator)columnValue).getHandle());  //@G7A
-                }                                                                                  //@G7A
-                catch(ClassCastException cce)                                                     //@G7A
-                {
-                    /*ignore*/
-                }                                                                                  //@G7A
-/* ifdef JDBC40                
-                try                                                                              //@PDA jdbc40 -  following upon existing design
-                {                                                                                 //@PDA jdbc40
-                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@PDA jdbc40
-                    sqlDataAsLocator.setHandle (((AS400JDBCNClobLocator)columnValue).getHandle());  //@PDA jdbc40
-                }                                                                                  //@PDA jdbc40
-                catch(ClassCastException cce)                                                     //@PDA jdbc40
-                {
-                    // ignore
-                }            
-                try                                                                              //@olddesc
-                {                                                                                 //@olddesc
-                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@olddesc
-                    sqlDataAsLocator.setHandle (((AS400JDBCSQLXMLLocator)columnValue).getHandle()); //@olddesc
-                }                                                                                 //@olddesc
-                catch(ClassCastException cce)                                                    //@olddesc
-                {
-                    // ignore
-                }    
-                endif */         
-            }
-
-            if(columnValue != null)
-                sqlData.set (columnValue, calendar, scale);
-            updateNulls_[columnIndex0] = (columnValue == null);
-            updateDefaults_[columnIndex0] = false;    //@EIA
-            updateUnassigned_[columnIndex0] = false;  //@EIA
-            updateSet_[columnIndex0] = true;
-
-            if(dataTruncation_)                                    // @B2A
-                testDataTruncation2 (columnIndex, sqlData);         // @B2C
+      // @G7A If the data is a locator, then set its handle.
+      int sqlType = sqlData.getSQLType(); // @xml3
+      if (columnValue != null
+          && (sqlType == SQLData.CLOB_LOCATOR
+              || sqlType == SQLData.BLOB_LOCATOR
+              || sqlType == SQLData.DBCLOB_LOCATOR
+              || sqlType == SQLData.NCLOB_LOCATOR || // @pda jdbc40
+          sqlType == SQLData.XML_LOCATOR)) // @xml3
+      { 
+    	  // @G8C //@G7A
+    	// @J5A  Restructured to use instanceof to avoid ClassCastException
+        if (columnValue instanceof AS400JDBCBlobLocator) { // @J5A
+          try { // @G7A 
+            statement_.setAssociatedWithLocators(true); // @KBL
+            SQLLocator sqlDataAsLocator = (SQLLocator) sqlData; // @G7A
+            sqlDataAsLocator.setHandle(((AS400JDBCBlobLocator) columnValue)
+                .getHandle()); // @G7A
+          } // @G7A
+          catch (ClassCastException cce) // @G7A
+          {
+            /* ignore */// @G7A
+          } // @G7A
+        } else if (columnValue instanceof AS400JDBCClobLocator) { // @J5A
+          try { // @G7A
+            statement_.setAssociatedWithLocators(true); // @KBL
+            SQLLocator sqlDataAsLocator = (SQLLocator) sqlData; // @G7A
+            sqlDataAsLocator.setHandle(((AS400JDBCClobLocator) columnValue)
+                .getHandle()); // @G7A
+          } // @G7A
+          catch (ClassCastException cce) // @G7A
+          {
+            /* ignore */
+          } // @G7A
+        } else if (columnValue instanceof AS400JDBCNClobLocator) { // @J5A
+          try // @PDA jdbc40 - following upon existing design
+          { // @PDA jdbc40
+            statement_.setAssociatedWithLocators(true); // @KBL
+            SQLLocator sqlDataAsLocator = (SQLLocator) sqlData; // @PDA jdbc40
+            sqlDataAsLocator.setHandle(((AS400JDBCNClobLocator) columnValue)
+                .getHandle()); // @PDA jdbc40
+          } // @PDA jdbc40
+          catch (ClassCastException cce) // @PDA jdbc40
+          {
+            // ignore
+          }
+        } else if (columnValue instanceof AS400JDBCSQLXMLLocator) { // @J5A
+          try // @olddesc
+          { // @olddesc
+            statement_.setAssociatedWithLocators(true); // @KBL
+            SQLLocator sqlDataAsLocator = (SQLLocator) sqlData; // @olddesc
+            sqlDataAsLocator.setHandle(((AS400JDBCSQLXMLLocator) columnValue)
+                .getHandle()); // @olddesc
+          } // @olddesc
+          catch (ClassCastException cce) // @olddesc
+          {
+            // ignore
+          }
         }
+      }
+
+      if (columnValue != null)
+        sqlData.set(columnValue, calendar, scale);
+      updateNulls_[columnIndex0] = (columnValue == null);
+      updateDefaults_[columnIndex0] = false; // @EIA
+      updateUnassigned_[columnIndex0] = false; // @EIA
+      updateSet_[columnIndex0] = true;
+
+      if (dataTruncation_) // @B2A
+        testDataTruncation2(columnIndex, sqlData); // @B2C
     }
-
-
+  }
 
 
     //@PDA jdbc40
