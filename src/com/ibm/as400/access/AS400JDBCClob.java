@@ -173,7 +173,7 @@ Returns part of the contents of the CLOB.
     // Only thread exception if offset if greater than the length
     // It is valid for the requested length to be greater than the actual length
     // @J5C
-    if (offset < 0 || length < 0 || (offset  > data_.length))
+    if (offset < 0 || length < 0 || (offset  >= data_.length))
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
