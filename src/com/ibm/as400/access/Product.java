@@ -453,7 +453,7 @@ public class Product
     String id = productID.toUpperCase().trim();
     if (id.length() != 7 && !id.equals(PRODUCT_ID_OPERATING_SYSTEM))
     {
-      throw new ExtendedIllegalArgumentException("productID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("productID("+id+")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     String option = productOption.toUpperCase().trim();
     if (option.equals(PRODUCT_OPTION_BASE))
@@ -462,7 +462,7 @@ public class Product
     }
     if (option.length() > 4)
     {
-      throw new ExtendedIllegalArgumentException("productOption", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      throw new ExtendedIllegalArgumentException(id+".productOption("+option+")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     while (option.length() < 4)
     {
@@ -1067,7 +1067,11 @@ public class Product
       if (Trace.traceOn_) Trace.log(Trace.ERROR, pve);
     }
 
-    ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZLSTFX.SRVPGM", "QpzListPTF", ServiceProgramCall.NO_RETURN_VALUE, parms);
+    ServiceProgramCall pc = new ServiceProgramCall(system_, 
+        "/QSYS.LIB/QPZLSTFX.SRVPGM", 
+        "QpzListPTF", 
+        ServiceProgramCall.NO_RETURN_VALUE,
+        parms);
     // Note: The called API is not thread-safe.
 
     // Determine the needed scope of synchronization.
@@ -1092,7 +1096,8 @@ public class Product
       {
         us.setMustUseSockets(true);
         // Force the use of sockets when running natively but not on-thread.
-        // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+        // We have to do it this way since UserSpace will otherwise make a 
+        // native ProgramCall, and will use a different QTEMP library than that used by the host server.
       }
       try
       {

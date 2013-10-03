@@ -537,14 +537,17 @@ trace for debugging purposes.
     // @J3d }                                                               // @D0A
 
     String reason = getReason(sqlState);
-    StringBuffer buffer = new StringBuffer(reason);                 // @E3A
-    buffer.append(" (");                                             // @E3A
-    String message = e.getMessage();                                // @E3A
-    if (message != null)                                            // @E3A
-      buffer.append(message);                                     // @E3A
-    else                                                            // @E3A
-      buffer.append(e.getClass());                                // @E3A
-    buffer.append(')');                                             // @E7A
+    StringBuffer buffer = new StringBuffer(reason); // @E3A
+    if (e != null) {
+      buffer.append(" ("); // @E3A
+      String message = e.getMessage(); // @E3A
+      if (message != null) // @E3A
+        buffer.append(message); // @E3A
+      else
+        // @E3A
+        buffer.append(e.getClass()); // @E3A
+      buffer.append(')'); // @E7A
+    }
 
     // The DB2 for IBM i SQL CLI manual says that
     // we should set the native error code to -99999
@@ -573,7 +576,9 @@ trace for debugging purposes.
     // Set the cause for JDK 1.4 and later
     //
     if (jdk14) {
-    	e2.initCause(e);
+      if (e != null) { 
+    	  e2.initCause(e);
+      }
     }
     throw e2;
   }
