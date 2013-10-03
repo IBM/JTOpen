@@ -26,9 +26,23 @@ import java.util.TimeZone;
 
 /**
  Represents a user profile object on the system.
- <p>Note: User attribute information is cached internally in the User object, after the first retrieval.  To force an update of the cached information, call {@link #refresh refresh()}.
- <p>Note: Calling any of the attribute getters for the first time (for a given User instance) will result in an implicit call to {@link #refresh refresh()}.  If any exceptions are thrown by the implicit refresh(), they are logged under trace category {@link Trace#ERROR Trace.ERROR} and ignored.  However, if an exception occurs during an <i>explicit</i> call to refresh(), it will be thrown to the caller.
- <p>Implementation note:  This class internally calls the Retrieve User Information (QSYRUSRI) API for the methods that retrieve user profile information.  In order to use those methods, the caller must have *READ authority to the user profile object.  This class internally calls the Change User Profile (CHGUSRPRF) command for the methods that change user profile information.  In order to use those methods, the caller must have security administrator (*SECADM) special authority, and object management (*OBJMGT) and use (*USE) authorities to the user profile being changed.
+ <p>Note: User attribute information is cached internally in the User object, after 
+ the first retrieval.  To force an update of the cached information, 
+ call {@link #refresh refresh()}.
+ <p>Note: Calling any of the attribute getters for the first time (for a given User 
+ instance) will result in an implicit call to {@link #refresh refresh()}. 
+  If any exceptions are thrown by the implicit refresh(), they are logged under 
+  trace category {@link Trace#ERROR Trace.ERROR} and ignored.  However, if an 
+  exception occurs during an <i>explicit</i> call to refresh(), it will be thrown 
+  to the caller.
+ <p>Implementation note:  This class internally calls the Retrieve User Information
+  (QSYRUSRI) API for the methods that retrieve user profile information.  In order 
+  to use those methods, the caller must have *READ authority to the user profile 
+  object.  This class internally calls the Change User Profile (CHGUSRPRF) 
+  command for the methods that change user profile information.  In order to use 
+  those methods, the caller must have security administrator (*SECADM) special 
+  authority, and object management (*OBJMGT) and use (*USE) authorities to the 
+  user profile being changed.
  @see  DirectoryEntry
  @see  UserList
  @see  UserGroup
@@ -190,7 +204,7 @@ public class User implements Serializable
     private String limitDeviceSessions_;
     // Keyboard buffering.
     private String keyboardBuffering_;
-    // Maximum allowed storage.
+    // Maximum allowed storage.  In V7R2 will be -2 if not *NOMAX but larger than 2G
     private int maximumStorageAllowed_;
     // Storage used.
     private int storageUsed_;
@@ -925,6 +939,7 @@ public class User implements Serializable
      @return  The maximum amount of auxiliary storage (in kilobytes) that can be assigned to store permanant objects owned by the user.  Possible values are:
      <ul>
      <li>-1 - The user does not have a maximum amount of allowed storage (*NOMAX).
+     <li>-2 - The maximum amount cannot be represent in an int value. 
      <li>The maximum amount of auxiliary storage (in kilobytes).
      </ul>
      @see #setMaximumStorageAllowed(int)
