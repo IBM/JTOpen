@@ -170,10 +170,10 @@ Returns part of the contents of the CLOB.
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
     int offset = (int)position-1;
-    // Only thread exception if offset if greater than the length
+    // Only throw exception if offset if greater than the length
     // It is valid for the requested length to be greater than the actual length
     // @J5C
-    if (offset < 0 || length < 0 || (offset  >= data_.length))
+    if (offset < 0 || length < 0 || (offset  > data_.length))
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
@@ -185,7 +185,7 @@ Returns part of the contents of the CLOB.
     }
     
     int lengthToUse = data_.length - offset;
-    if (lengthToUse < 0) return "";
+    if (lengthToUse <= 0) return "";
     if (lengthToUse > length) lengthToUse = length;
 
     char[] result = new char[lengthToUse];
