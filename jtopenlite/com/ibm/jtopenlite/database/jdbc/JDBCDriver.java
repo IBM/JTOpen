@@ -36,9 +36,7 @@ features are not supported.
 </li>
 <li>No XML support
 </li>
-<li>No connection properties -- i.e. Only SQL naming, no translate binary, ...
-</li>
-<li>No SSL support
+<li>Minimal connection properties -- i.e. Only SQL naming, no translate binary, ...
 </li>
 <li>No SQLArray support
 </li>
@@ -72,17 +70,60 @@ appropriate driver.  This driver accepts connection requests
 for databases specified by the URLs that match the following syntax:
 
 <pre>
-jdbc:jtopenlite://<em>system-name</em>
+jdbc:jtopenlite://<em>system-name</em>;PROPERTIES
 </pre>
 
 <p>The driver uses the specified system name to connect
 to a corresponding IBM i system.
 
+<p>Only the following properties are supported
+<table>
+<tr>
+<th>Property</th>
+<th>Description</th>
+<th>Choices</th>
+<th>Default</th>
+</tr>
+<tr>
+<td>user</td>
+<td>Specifies the user name for connecting to the server.</td>
+<td>server user</td>
+<td>none</td>
+</tr>
+<tr>
+<td>password</td>
+<td>Specifies the password for connecting to the server</td>
+<td>system password</td>
+<td>none</td>
+</tr>
+<tr>
+<td>secure</td>
+<td>Specifies whether a Secure Sockets Layer (SSL) connection is used to communicate with the server</td>
+<td>
+<ul>
+<li>"true" (encrypt all client/serve communication)</li>
+<li>"false" (encrypt only the password)</li>
+</ul>
+</td>
+<td>"false"</td>
+</tr>
+<tr>
+<td>debug</td>
+<td>Specifies whether debug information should be recorded</td>
+<td>
+<ul>
+<li>"true" (debug information is recorded)</li>
+<li>"false" (no debug information is recorded)</li>
+</ul>
+</td>
+<td>"false"</td>
+</tr>
+</table>
 
 <p>The following example URL specifies a connection to the
 database on system <em>mysystem.helloworld.com</em>.
 <pre>
-jdbc:jtopenlit://mysystem.helloworld.com
+jdbc:jtopenlite://mysystem.helloworld.com
 </pre>
 
 <p>
