@@ -2266,7 +2266,7 @@ implements ResultSet
     {
         // Check for negative scale.
         if(scale < 0)
-            JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
+            JDError.throwSQLException (JDError.EXC_SCALE_INVALID,""+scale);
 
         synchronized(internalLock_)
         {                                            // @D1A

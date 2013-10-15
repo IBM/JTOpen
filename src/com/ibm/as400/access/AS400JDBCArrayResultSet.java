@@ -3119,7 +3119,7 @@ implements ResultSet
     public boolean rowInserted () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"rowInserted()");
         return false;
     }
 
@@ -3135,7 +3135,7 @@ implements ResultSet
     public boolean rowDeleted () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"rowDeleted()");
         return false;
     }
 
@@ -3152,7 +3152,7 @@ implements ResultSet
     public void insertRow () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"insertRow");
        
     }
 
@@ -3166,7 +3166,7 @@ implements ResultSet
     public void updateRow () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"updateRow()");
     }
 
     /**
@@ -3183,7 +3183,7 @@ implements ResultSet
     public void deleteRow () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"deleteRow()");
     }
 
     /**
@@ -3198,7 +3198,7 @@ implements ResultSet
     public void refreshRow () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"refreshRow()");
     }
 
     /**
@@ -3211,7 +3211,7 @@ implements ResultSet
     public void cancelRowUpdates () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"cancelRowUpdates()");
     }
 
     /**
@@ -3225,7 +3225,7 @@ implements ResultSet
     public void moveToInsertRow () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"moveToInsertRow()");
     }
 
     /**
@@ -3238,7 +3238,7 @@ implements ResultSet
     public void moveToCurrentRow () throws java.sql.SQLException
     {
         checkUpdatePreconditions ();
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"moveToCurrentRow()");
     }
 
     // ---------------------- condition checking helper methods ----------------------

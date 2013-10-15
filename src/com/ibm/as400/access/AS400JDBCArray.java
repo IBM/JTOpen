@@ -199,9 +199,15 @@ public class AS400JDBCArray implements Array {
   synchronized public Object getArray(long index, int count)
       throws SQLException {
 
-    if ((index <= 0) || (count < 0) || (index > data_.length)
-        || ((index + count) > (data_.length + 1)))
-      JDError.throwSQLException(JDError.EXC_BUFFER_LENGTH_INVALID);
+    if (index <= 0)
+      JDError.throwSQLException(JDError.EXC_BUFFER_LENGTH_INVALID, "" + index);
+    if (count < 0)
+      JDError.throwSQLException(JDError.EXC_BUFFER_LENGTH_INVALID, "" + count);
+    if (index > data_.length)
+      JDError.throwSQLException(JDError.EXC_BUFFER_LENGTH_INVALID, "" + index);
+    if ((index + count) > (data_.length + 1))
+      JDError.throwSQLException(JDError.EXC_BUFFER_LENGTH_INVALID, index + "+"
+          + count);
 
     return getArrayX(index, count);
   }
@@ -306,7 +312,7 @@ public class AS400JDBCArray implements Array {
    * 
    */
   synchronized public Object getArray(java.util.Map map) throws SQLException {
-    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"getArray(java.util.Map)");
     return null;
   }
 
@@ -342,7 +348,7 @@ public class AS400JDBCArray implements Array {
    */
   synchronized public Object getArray(long index, int count, java.util.Map map)
       throws SQLException {
-    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"getArray(long,int,Java.util.Map)");
     return null;
   }
 
@@ -374,7 +380,7 @@ public class AS400JDBCArray implements Array {
    */
   synchronized public ResultSet getResultSet(java.util.Map map)
       throws SQLException {
-    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"getResultSet(java.util.Map)");
     return null;
   }
 
@@ -412,7 +418,7 @@ public class AS400JDBCArray implements Array {
    */
   synchronized public ResultSet getResultSet(long index, int count,
       java.util.Map map) throws SQLException {
-    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+    JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED,"getResultSet(long,int,java.util.Map)");
     return null;
   }
 
@@ -494,7 +500,7 @@ public class AS400JDBCArray implements Array {
       if (JDTrace.isTraceOn()) {
         JDTrace.logInformation(this, "DB2Array.validate array is null 07006");
       }
-      JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+      JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"null");
       return;
     }
 
@@ -585,7 +591,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is CHAR/VARCHAR but array type is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,arrayType);
       }
 
       break;
@@ -648,7 +654,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is SMALLINT but value at index "
                         + i + " is " + lv);
               } /* debug */
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"SMALLINT("+lv+")");
             } /* not in range */
           } /* not null */
         } /* for i */
@@ -669,7 +675,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is SMALLINT but value at index "
                         + i + " is " + lv);
               } /* JDTrace.isTraceOn() */
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"SMALLINT("+lv+")");
               return;
             } /* not in range */
           } /* not null */
@@ -691,7 +697,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is SMALLINT but value at index "
                         + i + " is " + lv);
               } /* JDTrace.isTraceOn() */
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"SMALLINT("+lv+")");
               return;
             } /* not in range */
           } /* not null */
@@ -714,7 +720,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is SMALLINT but value at index "
                         + i + " is " + lv);
               } /* debug */
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "SMALLINT("+lv+")");
               return;
             } /* not in range */
           } /* not null */
@@ -765,7 +771,7 @@ public class AS400JDBCArray implements Array {
                         "DB2Array.validate 07006 type is SMALLINT but NumberFormatException thrown for string "
                             + inStringArray[i]);
               } /* debug */
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"SMALLINT("+inStringArray[i]+")");
               return;
             } /* catch */
           } /* not null */
@@ -791,7 +797,7 @@ public class AS400JDBCArray implements Array {
                           "DB2Array.validate 07006 type is SMALLINT but NumberFormatException thrown for string "
                               + inObjectArray[i]);
                 } /* debug */
-                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "SMALLINT("+inObjectArray[i]+")");
                 return;
               } /* catch */
             } /* not null */
@@ -804,7 +810,7 @@ public class AS400JDBCArray implements Array {
                 "DB2Array.validate 07006 type is SMALLINT but array types is "
                     + arrayType);
           }
-          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "SMALLINT<>"+arrayType);
         }
       }
       break;
@@ -842,7 +848,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is INTEGER but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "INTEGER("+lv+")");
               return;
             }
           }
@@ -864,7 +870,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is SMALLINT but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "SMALLINT("+lv+")");
               return;
             }
           }
@@ -883,10 +889,10 @@ public class AS400JDBCArray implements Array {
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
-                    "DB2Array.setArray 07006 type is SMALLINT but value at index "
+                    "DB2Array.setArray 07006 type is INTEGER but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "INTEGER("+lv+")");
               return;
             }
           }
@@ -906,10 +912,10 @@ public class AS400JDBCArray implements Array {
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
-                    "DB2Array.setArray 07006 type is SMALLINT but value at index "
+                    "DB2Array.setArray 07006 type is INTEGER but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "INTEGER("+lv+")");
               return;
             }
           }
@@ -977,7 +983,7 @@ public class AS400JDBCArray implements Array {
                         "DB2Array.validate 07006 type is INTEGER but NumberFormatException thrown for string "
                             + inStringArray[i]);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "INTEGER("+inStringArray[i]+")");
               return;
 
             }
@@ -991,7 +997,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is INTEGER but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "INTEGER<>"+arrayType);
       }
       break;
 
@@ -1026,10 +1032,10 @@ public class AS400JDBCArray implements Array {
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
-                    "DB2Array.setArray 07006 type is Long but value at index "
+                    "DB2Array.setArray 07006 type is BIGINT but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "BIGINT("+lv+")");
               return;
             }
           }
@@ -1066,10 +1072,10 @@ public class AS400JDBCArray implements Array {
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
-                    "DB2Array.setArray 07006 type is SMALLINT but value at index "
+                    "DB2Array.setArray 07006 type is LONG but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "BIGINT("+lv+")");
               return;
             }
           }
@@ -1089,10 +1095,10 @@ public class AS400JDBCArray implements Array {
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
-                    "DB2Array.setArray 07006 type is SMALLINT but value at index "
+                    "DB2Array.setArray 07006 type is BIGINT but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "BIGINT("+lv+")");
               return;
             }
           }
@@ -1153,10 +1159,10 @@ public class AS400JDBCArray implements Array {
                 JDTrace
                     .logInformation(
                         this,
-                        "DB2Array.validate 07006 type is INTEGER but NumberFormatException thrown for string "
+                        "DB2Array.validate 07006 type is BIGINT but NumberFormatException thrown for string "
                             + inStringArray[i]);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "BIGINT("+inStringArray[i]+")");
               return;
 
             }
@@ -1170,7 +1176,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is BIGINT but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "BIGINT<>"+arrayType);
         return;
       }
       break;
@@ -1249,7 +1255,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is REAL but value at index "
                         + i + " is " + lv);
               } /* debug */
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"REAL("+lv+")");
               return;
             } /* in range */
           } /* not null */
@@ -1272,7 +1278,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is REAL but value at index "
                         + i + " is " + lv);
               } /* debug */
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"REAL("+lv+")");
               return;
             } /* in range */
           } /* not null */
@@ -1295,7 +1301,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is REAL but value at index "
                         + i + " is " + lv);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"REAL("+lv+")");
               return;
             }
           }
@@ -1316,7 +1322,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is REAL but value at index "
                         + i + " is " + f);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"REAL("+f+")");
               return;
 
             } else {
@@ -1375,7 +1381,7 @@ public class AS400JDBCArray implements Array {
                         "DB2Array.validate 07006 type is REAL but NumberFormatException thrown for string "
                             + inStringArray[i]);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"REAL("+inStringArray[i]+")");
               return;
 
             }
@@ -1389,7 +1395,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is REAL but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"REAL<>"+arrayType);
       }
       break;
 
@@ -1500,7 +1506,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is Double but value at index "
                         + i + " is " + f);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DOUBLE("+f+")");
               return;
 
             } else {
@@ -1559,7 +1565,7 @@ public class AS400JDBCArray implements Array {
                         "DB2Array.validate 07006 type is Double but NumberFormatException thrown for string "
                             + inStringArray[i]);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DOUBLE("+inStringArray[i]+")");
               return;
 
             }
@@ -1570,10 +1576,10 @@ public class AS400JDBCArray implements Array {
       } else {
         if (JDTrace.isTraceOn()) {
           JDTrace.logInformation(this,
-              "DB2Array.validate 07006 type is FLOAT but array types is "
+              "DB2Array.validate 07006 type is DOUBLE but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DOUBLE<>"+arrayType);
       }
 
       break;
@@ -1685,7 +1691,7 @@ public class AS400JDBCArray implements Array {
                     "DB2Array.setArray 07006 type is Double but value at index "
                         + i + " is " + f);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DOUBLE("+f+")");
               return;
 
             } else {
@@ -1744,7 +1750,7 @@ public class AS400JDBCArray implements Array {
                         "DB2Array.validate 07006 type is Double but NumberFormatException thrown for string "
                             + inStringArray[i]);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DOUBLE("+inStringArray[i]+")");
               return;
 
             }
@@ -1758,7 +1764,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is DOUBLE/FLOAT but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DOUBLE<>"+arrayType);
       }
       break;
 
@@ -1914,10 +1920,10 @@ public class AS400JDBCArray implements Array {
                 JDTrace
                     .logInformation(
                         this,
-                        "DB2Array.validate 07006 type is Double but NumberFormatException thrown for string "
+                        "DB2Array.validate 07006 type is DECIMAL/NUMERIC/DECFLOAT but NumberFormatException thrown for string "
                             + inStringArray[i]);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DECIMAL("+inStringArray+")");
               return;
 
             }
@@ -1931,7 +1937,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is DECIMAL/NUMERIC/DECFLOAT but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DECIMAL<>"+arrayType);
         return;
       }
       break;
@@ -1952,7 +1958,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is BINARY/VARBINARY but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"BINARY<>"+arrayType);
       }
       break;
 
@@ -1972,7 +1978,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is BLOB but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"BLOB<>"+arrayType);
       }
       break;
 
@@ -1994,7 +2000,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is CLOB but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "CLOB<>"+arrayType);
       }
       break;
 
@@ -2013,7 +2019,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is DATE but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DATE<>"+arrayType);
       }
       break;
 
@@ -2054,7 +2060,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is TIME but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "TIME<>"+arrayType);
       }
       break;
 
@@ -2074,7 +2080,7 @@ public class AS400JDBCArray implements Array {
               "DB2Array.validate 07006 type is TIMESTAMP but array types is "
                   + arrayType);
         }
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"TIMESTAMP<>"+arrayType);
       }
       break;
 
@@ -2100,7 +2106,7 @@ public class AS400JDBCArray implements Array {
         JDTrace.logInformation(this, "DB2Array.validate 07006 invalid type "
             + typeCode_ + " array type is " + arrayType);
       }
-      JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+      JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,typeCode_+"<>"+arrayType);
 
     }
 

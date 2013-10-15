@@ -517,7 +517,7 @@ implements CallableStatement
     {
         // Check for negative scale.
         if(scale < 0)
-            JDError.throwSQLException(this, JDError.EXC_SCALE_INVALID);
+            JDError.throwSQLException(this, JDError.EXC_SCALE_INVALID,""+scale);
 
         synchronized(internalLock_)
         {
@@ -628,7 +628,7 @@ implements CallableStatement
 
                 // Validate the parameter index.
                 if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID,""+parameterIndex);
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
