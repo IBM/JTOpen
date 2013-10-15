@@ -207,11 +207,12 @@ static
       system = system.trim();
       String user = info.getProperty("user");
       String password = info.getProperty("password");
+      boolean isSSL = Boolean.parseBoolean(info.getProperty("secure","false"));
       boolean debugOn = info.getProperty("debug", "false").equals("true");
       if (Trace.isStreamTracingEnabled()) {
     	  debugOn=true;
       }
-      return JDBCConnection.getConnection(system, user, password, debugOn);
+      return JDBCConnection.getConnection(isSSL, system, user, password, debugOn);
     }
     return null;
   }

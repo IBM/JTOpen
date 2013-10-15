@@ -28,6 +28,7 @@ public class DDMConnection extends HostServerConnection
   private static final boolean DEBUG = false;
 
   public static final int DEFAULT_DDM_SERVER_PORT = 446;
+  public static final int DEFAULT_SSL_DDM_SERVER_PORT = 446;
 
   private final byte[] messageBuf_ = new byte[1024];
   private final char[] charBuffer_ = new char[1024];
@@ -89,7 +90,7 @@ public class DDMConnection extends HostServerConnection
   **/
   public static DDMConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(isSSL, info, user, password, DEFAULT_DDM_SERVER_PORT);
+    return getConnection(isSSL, info, user, password, isSSL ? DEFAULT_SSL_DDM_SERVER_PORT: DEFAULT_DDM_SERVER_PORT);
   }
 
   /**

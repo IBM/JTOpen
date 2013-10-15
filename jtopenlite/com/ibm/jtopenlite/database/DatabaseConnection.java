@@ -40,6 +40,7 @@ public class DatabaseConnection extends HostServerConnection implements Operatio
   private static final boolean DEBUG = false;
 
   public static final int DEFAULT_DATABASE_SERVER_PORT = 8471;
+  public static final int DEFAULT_SSL_DATABASE_SERVER_PORT = 9471;
 private static final int TYPE_CALL = 3;
 
   private int correlationID_ = 1;
@@ -164,7 +165,7 @@ private static final int TYPE_CALL = 3;
 
   public static DatabaseConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(isSSL, info, user, password, DEFAULT_DATABASE_SERVER_PORT);
+    return getConnection(isSSL, info, user, password, isSSL ? DEFAULT_SSL_DATABASE_SERVER_PORT : DEFAULT_DATABASE_SERVER_PORT);
   }
 
   public static DatabaseConnection getConnection(SystemInfo info, String user, String password, int databasePort) throws IOException 
@@ -3784,7 +3785,7 @@ private static final int TYPE_CALL = 3;
     		       DATA_FORMAT ; // | MESSAGE_ID | FIRST_LEVEL_TEXT | SECOND_LEVEL_TEXT | DATA_FORMAT | PARAMETER_MARKER_FORMAT | EXTENDED_COLUMN_DESCRIPTORS;
 
     
-    if (attribs.isSQLStatementTypeSet() && attribs.getSQLStatementType() == TYPE_CALL) {
+    if (attribs !=null && attribs.isSQLStatementTypeSet() && attribs.getSQLStatementType() == TYPE_CALL) {
     	// Do not request column descriptors for call statement
     	// writeTemplate(parms, 0xF8800000);
     } else {

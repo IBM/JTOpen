@@ -27,7 +27,8 @@ public class SignonConnection extends HostServerConnection //implements Connecti
    * If your system has been configured to use a different port, use
    * the {@link PortMapper PortMapper} class to determine the port.
   **/
-  public static final int DEFAULT_SIGNON_SERVER_PORT = 8476;
+    public static final int DEFAULT_SIGNON_SERVER_PORT = 8476;
+    public static final int DEFAULT_SSL_SIGNON_SERVER_PORT = 9476;
 
   private SignonConnection(SystemInfo info, Socket socket, HostInputStream in, HostOutputStream out, String user)
   {
@@ -226,7 +227,7 @@ public class SignonConnection extends HostServerConnection //implements Connecti
   **/
   public static SignonConnection getConnection(final boolean isSSL, String system, String user, String password) throws IOException
   {
-    return getConnection(isSSL, system, user, password, DEFAULT_SIGNON_SERVER_PORT);
+    return getConnection(isSSL, system, user, password, isSSL? DEFAULT_SSL_SIGNON_SERVER_PORT: DEFAULT_SIGNON_SERVER_PORT);
   }
 
   /**

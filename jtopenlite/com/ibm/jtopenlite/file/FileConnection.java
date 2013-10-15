@@ -25,7 +25,8 @@ import javax.net.ssl.SSLSocketFactory;
 **/
 public class FileConnection extends HostServerConnection //implements Connection
 {
-  public static final int DEFAULT_FILE_SERVER_PORT = 8473;
+    public static final int DEFAULT_FILE_SERVER_PORT = 8473;
+    public static final int DEFAULT_SSL_FILE_SERVER_PORT = 9473;
 
   private int ccsid_;
   private int datastreamLevel_;
@@ -76,7 +77,7 @@ public class FileConnection extends HostServerConnection //implements Connection
 
   public static FileConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(isSSL, info, user, password, DEFAULT_FILE_SERVER_PORT);
+    return getConnection(isSSL, info, user, password, isSSL ? DEFAULT_SSL_FILE_SERVER_PORT : DEFAULT_FILE_SERVER_PORT);
   }
 
   public static FileConnection getConnection(SystemInfo info, String user, String password, int filePort) throws IOException

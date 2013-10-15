@@ -196,9 +196,14 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
 
   public static JDBCConnection getConnection(String system, String user, String password, boolean debug) throws SQLException
   {
+    return getConnection(false, system, user, password, debug);
+  }
+  public static JDBCConnection getConnection(boolean isSSL, String system, String user, String password, boolean debug) throws SQLException
+  {
     try
     {
-      DatabaseConnection conn = DatabaseConnection.getConnection(system, user, password);
+      // The first boolean parameter indicates that SSL should be used.
+      DatabaseConnection conn = DatabaseConnection.getConnection(isSSL, system, user, password);
       conn.setMessageInfoReturned(true); 
       conn.setDebug(debug);
       DatabaseServerAttributes dsa = new DatabaseServerAttributes();

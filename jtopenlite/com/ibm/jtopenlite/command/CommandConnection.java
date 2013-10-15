@@ -29,7 +29,8 @@ public class CommandConnection extends HostServerConnection
    * If your system has been configured to use a different port, use
    * the {@link PortMapper PortMapper} class to determine the port.
   **/
-  public static final int DEFAULT_COMMAND_SERVER_PORT = 8475;
+    public static final int DEFAULT_COMMAND_SERVER_PORT = 8475;
+    public static final int DEFAULT_SSL_COMMAND_SERVER_PORT = 9475;
 
   private int ccsid_;
   private int datastreamLevel_;
@@ -91,7 +92,7 @@ public class CommandConnection extends HostServerConnection
   **/
   public static CommandConnection getConnection(final boolean isSSL, SystemInfo info, String user, String password) throws IOException
   {
-    return getConnection(isSSL, info, user, password, DEFAULT_COMMAND_SERVER_PORT, false);
+    return getConnection(isSSL, info, user, password, isSSL ? DEFAULT_SSL_COMMAND_SERVER_PORT :DEFAULT_COMMAND_SERVER_PORT, false);
   }
 
   /**
