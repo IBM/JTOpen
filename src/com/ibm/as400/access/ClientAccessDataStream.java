@@ -121,7 +121,18 @@ class ClientAccessDataStream extends DataStream
       // First look for an instance data stream.
       // If we found it remove it since instance datastreams are only used once.
       // Print is the only thing that uses this.
-      ClientAccessDataStream newDataStream = (ClientAccessDataStream)dataStreams.remove(baseDataStream); //@P0C
+      ClientAccessDataStream newDataStream = (ClientAccessDataStream)dataStreams.get(baseDataStream);
+      if(newDataStream != null && newDataStream instanceof NPDataStream)
+      {
+          NPDataStream npds = (NPDataStream)newDataStream;
+          if(baseDataStream.getCorrelation() == npds.getCorrelationID())
+              dataStreams.remove(baseDataStream);              
+      }
+      if(newDataStream != null && !(newDataStream instanceof NPDataStream))
+      {
+         newDataStream = (ClientAccessDataStream)dataStreams.remove(baseDataStream);
+      }
+      
       if (newDataStream == null) //@P0C
       {
         // If we couldn't find an instance datastream to receive into, look for a prototype data stream to generate one with.

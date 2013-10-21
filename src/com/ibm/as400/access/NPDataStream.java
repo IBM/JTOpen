@@ -201,6 +201,10 @@ class NPDataStream extends ClientAccessDataStream
     {
         this.correlation_ = correlation;
     }
+    int getCorrelationID()
+    {
+        return this.correlation_ ;
+    }
 
     // @B1D void setHostCCSID(int ccsid )
     // @B1D {

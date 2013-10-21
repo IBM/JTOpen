@@ -108,7 +108,7 @@ class NPConversation extends Object
         //reply.setHostCCSID(hostCCSID_);
         request.setConverter(converter_);
         reply.setConverter(converter_);
-        request.setCorrelation(correlation);
+        reply.setCorrelation(correlation);
         DataStream ds;  //@FBA
         //to fix multi-threads bug; server_ clear reply and add reply should be atomic.
         //If no this, sometimes server_.receive will get other type reply stream.
@@ -116,6 +116,7 @@ class NPConversation extends Object
             server_.clearInstanceReplyStreams();
             server_.addInstanceReplyStream(reply);
             server_.send(request, correlation);
+            Trace.log(Trace.DIAGNOSTIC, "makeRequest: send request with correlation" + correlation);
             ds = server_.receive(correlation);  //@D5A
         } //@FBA
         //@D5A begin
