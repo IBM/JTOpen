@@ -164,6 +164,7 @@ class NPSystem extends Object implements Runnable
             if( !(conversation.getServer().isConnected()) )
             {
                  Trace.log(Trace.DIAGNOSTIC, "Conversation was not connected.");
+                 as400System_.disconnectServer(conversation.getServer());
             }
 
         }
