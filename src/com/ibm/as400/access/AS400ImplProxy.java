@@ -138,7 +138,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         }
         catch (PropertyVetoException e) { // will never happen
           Trace.log(Trace.ERROR, e);
-          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
         }
     }
 
@@ -161,7 +161,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         }
         catch (PropertyVetoException e) { // will never happen
           Trace.log(Trace.ERROR, e);
-          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
         }
     }
 

@@ -99,7 +99,7 @@ class ListUtilities
       listStatusIndicator = new CharConverter(37).byteArrayToString(arry,0,1).charAt(0);
     }
     catch (java.io.UnsupportedEncodingException e) { // will never happen
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
 
     switch (listStatusIndicator)
@@ -334,7 +334,7 @@ class ListUtilities
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieved messages, records returned: " + recordsReturned + ", number:", number);
         if (recordsReturned < 0)
         { // This will never happen, but satisfy the static code analyzer.
-          throw new InternalErrorException(InternalErrorException.UNKNOWN, "Records returned: " + recordsReturned);
+          throw new InternalErrorException(InternalErrorException.UNKNOWN, "Records returned: " + recordsReturned, null);
         }
         // Try again, with a larger "receiver variable".
         lengthOfReceiverVariable *= 1 + number / (recordsReturned + 1);

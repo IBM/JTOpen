@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
+
 /**
  *
  * Represents an IBM i job description.
@@ -298,7 +299,11 @@ public class JobDescription implements Serializable
     catch (RuntimeException e) { throw e; }
     catch (Exception e) {
       Trace.log(Trace.ERROR, "Exception rethrown by loadInformation():", e);
-      throw new IllegalStateException(e.getMessage());
+      IllegalStateException throwException = new IllegalStateException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 

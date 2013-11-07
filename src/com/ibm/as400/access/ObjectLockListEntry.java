@@ -211,7 +211,7 @@ public class ObjectLockListEntry
         !(lockState_.equals(LOCK_STATE_EXCLUSIVE_NO_READ)))
     {
       Trace.log(Trace.ERROR, "Invalid lock state: "+ lockState_);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, lockState_);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, lockState_,null);
     }
     return lockState_;
   }
@@ -278,7 +278,7 @@ public class ObjectLockListEntry
     catch (NumberFormatException e)
     {
       Trace.log(Trace.ERROR, "Invalid number conversion for (" + share_ +")");
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
     }
     
     if ((intShare != LOCK_SHARE_FILE_NOT_SHARED) &&
@@ -309,7 +309,7 @@ public class ObjectLockListEntry
     catch (NumberFormatException e)
     {
       Trace.log(Trace.ERROR, "Invalid number conversion for (" + lockScope_ +")");
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
     }
 
     if ((intLockScope != LOCK_SCOPE_JOB) &&

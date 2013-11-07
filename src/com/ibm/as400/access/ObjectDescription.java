@@ -1412,7 +1412,7 @@ public class ObjectDescription
     catch (NumberFormatException e)
     {
       Trace.log(Trace.ERROR, "Invalid number conversion for attribute " + attribute, e);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
     }
   }
 
@@ -1653,7 +1653,7 @@ public class ObjectDescription
    catch(ArrayIndexOutOfBoundsException e)
    {
      Trace.log(Trace.ERROR, "Buffer from QWCLOBJL API was too small.", e);
-     throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
+     throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
    }
 
    return entries;
@@ -1847,7 +1847,7 @@ public class ObjectDescription
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Updated path from returned attributes", path_.getPath());
       }
       catch (PropertyVetoException pve) { // will never happen
-        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve.getMessage());
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve);
       }
     }
     set(OBJECT_ASP_NUMBER, BinaryConverter.byteArrayToInt(data, 48));

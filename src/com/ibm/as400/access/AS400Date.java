@@ -543,7 +543,7 @@ public AS400Date(int format, Character separator)
         else return true;
 
       default:  // should never happen
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format, null);
     }
   }
 
@@ -846,7 +846,7 @@ public AS400Date(int format, Character separator)
       case FORMAT_LONGJUL:  return "yyyy"+sep+"DDD";
 
       default:  // should never happen
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format, null);
     }
   }
 
@@ -882,7 +882,7 @@ public AS400Date(int format, Character separator)
         return PERIOD;  // '.'
 
       default:  // should never happen
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format, null);
     }
   }
 
@@ -950,7 +950,7 @@ public AS400Date(int format, Character separator)
           return 7;
 
         default:  // should never happen
-          throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format);
+          throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format, null);
       }
     }
     else  // the pattern contains separator(s)
@@ -986,7 +986,7 @@ public AS400Date(int format, Character separator)
           return 9;
 
         default:  // should never happen
-          throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format);
+          throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format,null);
       }
     }
   }

@@ -477,7 +477,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       else
       {
         Trace.log(Trace.ERROR, e);
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
       }
     }
   }

@@ -148,7 +148,11 @@ implements IFSFileInputStreamImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted.", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     boolean done = false;
@@ -195,7 +199,11 @@ implements IFSFileInputStreamImpl
         catch(InterruptedException e)
         {
           Trace.log(Trace.ERROR, "Interrupted", e);
-          throw new InterruptedIOException(e.getMessage());
+          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
       }
     }
@@ -241,7 +249,11 @@ implements IFSFileInputStreamImpl
       return fd_.lock(length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -307,7 +319,11 @@ implements IFSFileInputStreamImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify that the open request was successful.
@@ -417,7 +433,11 @@ implements IFSFileInputStreamImpl
       return fd_.read(data, dataOffset, length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -539,7 +559,11 @@ implements IFSFileInputStreamImpl
       fd_.unlock(key);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 

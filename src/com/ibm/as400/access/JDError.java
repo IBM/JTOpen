@@ -633,7 +633,11 @@ trace for debugging purposes.
            + " vendor code -99999";
       JDTrace.logException(thrower, m2, e2);
     }
-
+    if (e != null) {
+      try {
+      e2.initCause(e);
+      } catch (Throwable t) {} 
+    }
     throw e2;
   }
 
@@ -792,6 +796,9 @@ endif */
           JDTrace.logException(thrower, m2, e2);
       }
 
+      if (e != null) { 
+        e2.initCause(e); 
+      }
       throw e2;
   }
   endif */

@@ -2459,7 +2459,7 @@ public class FTP implements java.io.Serializable
             int begin = response.indexOf('(');
             if (begin == -1) {
               Trace.log(Trace.ERROR, "FTP server response does not contain a left parenthesis.");
-              throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, response);
+              throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, response,null);
             }
 
             // Locate the first digit of the port number.
@@ -2468,7 +2468,7 @@ public class FTP implements java.io.Serializable
             for (ii=begin+1; ii<responseLength && !Character.isDigit(response.charAt(ii)); ii++);
             if (ii == responseLength) {
               Trace.log(Trace.ERROR, "FTP server response does not contain a port number.");
-              throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, response);
+              throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, response,null);
             }
 
             // Locate the position after the last digit of the port number.

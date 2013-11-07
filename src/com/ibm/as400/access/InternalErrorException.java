@@ -137,12 +137,47 @@ implements ReturnCodeException {
       @param returnCode The return code which identifies the message to be displayed.
       @param text  The string to add to the end of the message
                    Note: This parameter does not get translated.
+      @param exception The exception that caused this internal error. 
+      If text is exception.getMessage(), use InternalErrorException(int,Exception)
+      instead 
     **/
-    InternalErrorException(int returnCode, String text) {
+    InternalErrorException(int returnCode, String text, Throwable exception) {
         super(loader_.getText(getMRIKey(returnCode)) + " " + text);
+        //
+        // Set the cause, catching the error if not JDK 1.4
+        // 
+        if (exception != null) { 
+        try {
+          initCause(exception); 
+        } catch (Throwable t) { 
+        }
+        }
         rc_ = returnCode;
     }
 
+    /**
+    Constructs an InternalErrorException object. It indicates that
+    an internal error has occurred.  The string is displayed
+    at the end of the message.
+    @param returnCode The return code which identifies the message to be displayed.
+    @param text  The string to add to the end of the message
+                 Note: This parameter does not get translated.
+  **/
+  InternalErrorException(int returnCode, Throwable exception ) {
+      super(loader_.getText(getMRIKey(returnCode)) + " " + exception.getMessage());
+      //
+      // Set the cause, catching the error if not JDK 1.4
+      //
+      if (exception != null) { 
+      try {
+        initCause(exception); 
+      } catch (Throwable t) { 
+      }
+      }
+      rc_ = returnCode;
+  }
+
+    
     /**
        Constructs an InternalErrorException object.
        It indicates that an internal error has occurred.

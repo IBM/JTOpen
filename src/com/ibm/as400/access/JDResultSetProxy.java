@@ -1251,7 +1251,11 @@ implements ResultSet
           iStream = new SerializableInputStream (columnValue);
         }
         catch (java.io.IOException e) {
-          throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
       }
       callMethod ("updateAsciiStream",
@@ -1311,7 +1315,11 @@ implements ResultSet
           iStream = new SerializableInputStream (columnValue);
         }
         catch (java.io.IOException e) {
-          throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
       }
       callMethod ("updateBinaryStream",
@@ -1440,7 +1448,11 @@ implements ResultSet
                                    reader, new Integer (length) });
       }
       catch (java.io.IOException e) {
-        throw new SQLException (e.getMessage ());
+        SQLException throwException = new SQLException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
       }
     }
 
@@ -1998,7 +2010,11 @@ implements ResultSet
                     reader, new Long (length) });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
         
     }
@@ -2093,7 +2109,11 @@ implements ResultSet
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-                throw new SQLException (e.getMessage ());
+              SQLException throwException = new SQLException(e.getMessage());
+              try {
+                throwException.initCause(e); 
+              } catch (Throwable t) {} 
+              throw throwException;
             }
         }
         callMethod ("updateAsciiStream",
@@ -2123,7 +2143,11 @@ implements ResultSet
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-                throw new SQLException (e.getMessage ());
+              SQLException throwException = new SQLException(e.getMessage());
+              try {
+                throwException.initCause(e); 
+              } catch (Throwable t) {} 
+              throw throwException;
             }
         }
         callMethod ("updateBinaryStream",
@@ -2151,7 +2175,11 @@ implements ResultSet
                 iStream = new SerializableInputStream (inputStream);
             }
             catch (java.io.IOException e) {
-                throw new SQLException (e.getMessage ());
+              SQLException throwException = new SQLException(e.getMessage());
+              try {
+                throwException.initCause(e); 
+              } catch (Throwable t) {} 
+              throw throwException;
             }
         }
         callMethod ("updateBlob",
@@ -2183,7 +2211,11 @@ implements ResultSet
                     reader, new Long (length) });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
     }
     
@@ -2208,7 +2240,11 @@ implements ResultSet
                     sReader, new Long (length) });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
     }
     
@@ -2235,7 +2271,11 @@ implements ResultSet
                     sReader, new Long (length) });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
     }
     
@@ -2264,7 +2304,11 @@ implements ResultSet
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-                throw new SQLException (e.getMessage ());
+              SQLException throwException = new SQLException(e.getMessage());
+              try {
+                throwException.initCause(e); 
+              } catch (Throwable t) {} 
+              throw throwException;
             }
         }
         callMethod ("updateAsciiStream",
@@ -2292,7 +2336,11 @@ implements ResultSet
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-                throw new SQLException (e.getMessage ());
+              SQLException throwException = new SQLException(e.getMessage());
+              try {
+                throwException.initCause(e); 
+              } catch (Throwable t) {} 
+              throw throwException;
             }
         }
         callMethod ("updateBinaryStream",
@@ -2321,7 +2369,11 @@ implements ResultSet
                 iStream = new SerializableInputStream (inputStream);
             }
             catch (java.io.IOException e) {
-                throw new SQLException (e.getMessage ());
+              SQLException throwException = new SQLException(e.getMessage());
+              try {
+                throwException.initCause(e); 
+              } catch (Throwable t) {} 
+              throw throwException;
             }
         }
         callMethod ("updateBlob",
@@ -2352,7 +2404,11 @@ implements ResultSet
                     new Object[] { new Integer (columnIndex), sReader });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
     }
 
@@ -2378,7 +2434,11 @@ implements ResultSet
                     new Object[] { new Integer (columnIndex), sReader });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
     }
 
@@ -2403,7 +2463,11 @@ implements ResultSet
                     new Object[] { new Integer (columnIndex), sReader });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
         
     }
@@ -2428,7 +2492,11 @@ implements ResultSet
                     new Object[] { new Integer (columnIndex), sReader });
         }
         catch (java.io.IOException e) {
-            throw new SQLException (e.getMessage ());
+          SQLException throwException = new SQLException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
     }
 

@@ -41,7 +41,7 @@ class Converter implements Serializable
         catch (UnsupportedEncodingException e)
         {
             Trace.log(Trace.ERROR, "Unexpected CCSID returned from getBestGuessAS400Ccsid: " + ccsid_, e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
         }
     }
 

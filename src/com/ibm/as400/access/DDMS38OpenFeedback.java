@@ -404,7 +404,7 @@ class DDMS38OpenFeedback
     { // This should never happen; the AS400 object is connected when
       // it is provided to us on the constructor.  Need to shut up the compiler.
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
     }
     return str.toString();
   }

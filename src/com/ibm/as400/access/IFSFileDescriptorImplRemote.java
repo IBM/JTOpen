@@ -158,7 +158,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Validate the reply.
@@ -261,7 +265,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
     if (ds instanceof IFSReturnCodeRep)
     {
@@ -340,7 +348,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     if (returnCode != IFSReturnCodeRep.SUCCESS)
@@ -440,7 +452,11 @@ implements IFSFileDescriptorImpl
                   Trace.log(Trace.ERROR, "Interrupted", e);
                   system_.disconnectServer(server_);
                   server_ = null;
-                  throw new InterruptedIOException(e.getMessage());
+                  InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+                  try {
+                    throwException.initCause(e); 
+                  } catch (Throwable t) {} 
+                  throw throwException;
               }
               catch(IOException e)
               {
@@ -597,7 +613,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify that the request was successful.
@@ -769,7 +789,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // @A1A
@@ -825,7 +849,11 @@ implements IFSFileDescriptorImpl
         catch(InterruptedException e)
         {
           Trace.log(Trace.ERROR, "Interrupted");
-          throw new InterruptedIOException(e.getMessage());
+          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
       }
     }
@@ -976,7 +1004,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify the reply.
@@ -1067,7 +1099,11 @@ implements IFSFileDescriptorImpl
       catch(InterruptedException e)
       {
         Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
+        InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
       }
 
       // Receive replies until the end of chain.
@@ -1138,7 +1174,11 @@ implements IFSFileDescriptorImpl
           catch(InterruptedException e)
           {
             Trace.log(Trace.ERROR, "Interrupted", e);
-            throw new InterruptedIOException(e.getMessage());
+            InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+            try {
+              throwException.initCause(e); 
+            } catch (Throwable t) {} 
+            throw throwException;
           }
         }
       }
@@ -1213,7 +1253,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
     finally {
       close(fileHandle);  // we don't need this handle anymore
@@ -1363,7 +1407,11 @@ implements IFSFileDescriptorImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify the reply.
@@ -1451,7 +1499,11 @@ implements IFSFileDescriptorImpl
       catch(InterruptedException e)
       {
         Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
+        InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
       }
 
       // Check the reply.

@@ -114,7 +114,11 @@ Loads this datastream by reading from an input stream.
         catch (ClassNotFoundException e) {
             if (Trace.isTraceErrorOn())
                 Trace.log(Trace.ERROR, "Class for deserializing not found", e);
-            throw new IOException ("Class not found:" + e.getMessage ());
+            IOException throwException =new IOException ("Class not found:" + e.getMessage ());
+            try {
+              throwException.initCause(e); 
+            } catch (Throwable t) {} 
+            throw throwException;  
         }
     }
 

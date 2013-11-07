@@ -66,6 +66,22 @@ public class ExtendedIllegalArgumentException  extends IllegalArgumentException 
 	rc_ =  returnCode;
     }
 
+    
+    
+    public ExtendedIllegalArgumentException(String argument, int returnCode, Exception e)
+    {
+        // Create the message
+  super(argument + ": " + ResourceBundleLoader.getCoreText(getMRIKey(returnCode)));
+  //
+  // Set the cause, catching exception if JDK 1.3 or earlier
+  // 
+  try {
+    initCause(e); 
+  } catch (Throwable t) { }
+  rc_ =  returnCode;
+    }
+
+
     /**
       Returns the text associated with the return code.
       @param  returnCode  The return code associated with this exception.

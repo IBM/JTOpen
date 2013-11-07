@@ -1102,7 +1102,7 @@ public class User implements Serializable
             catch (Exception e)
             {
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception while converting datePasswordExpires:", e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
         }
         return passwordExpireDate_;
@@ -1186,7 +1186,7 @@ public class User implements Serializable
             catch (Exception e)
             {
                 Trace.log(Trace.ERROR, "Exception while converting passwordLastChangedDate:", e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
         }
         return passwordLastChangedDate_;
@@ -1457,7 +1457,7 @@ public class User implements Serializable
         catch (Exception e)
         {
           if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception while converting userExpirationDate:", e);
-          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
         }
       }
       return userExpirationDate_;
@@ -1602,7 +1602,7 @@ public class User implements Serializable
             catch (Exception e)
             {
                 Trace.log(Trace.ERROR, "Unexpected Exception constructing User object:", e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
         }
         // Check the supplemental groups.
@@ -1622,7 +1622,7 @@ public class User implements Serializable
                 catch (Exception e)
                 {
                     Trace.log(Trace.ERROR, "Unexpected Exception constructing User object:", e);
-                    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+                    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
                 }
             }
         }
@@ -1776,7 +1776,7 @@ public class User implements Serializable
             catch (PropertyVetoException e)
             {
                 Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
             if (!pc.run())
             {

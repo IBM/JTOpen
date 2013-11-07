@@ -111,7 +111,11 @@ implements IFSRandomAccessFileImpl
       fd_.flush();  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -169,7 +173,11 @@ implements IFSRandomAccessFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     boolean done = false;
@@ -216,7 +224,11 @@ implements IFSRandomAccessFileImpl
         catch(InterruptedException e)
         {
           Trace.log(Trace.ERROR, "Interrupted", e);
-          throw new InterruptedIOException(e.getMessage());
+          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
       }
     }
@@ -260,7 +272,11 @@ implements IFSRandomAccessFileImpl
       return fd_.lock(offset,length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -346,7 +362,11 @@ implements IFSRandomAccessFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify that the open request was successful.
@@ -491,7 +511,11 @@ implements IFSRandomAccessFileImpl
       }
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -512,7 +536,11 @@ implements IFSRandomAccessFileImpl
         readCacheLength_ = read(readCache_, 0, readCache_.length);
       }
       catch (AS400SecurityException e) {
-        throw new IOException(e.getMessage());
+        IOException throwException = new IOException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
       }
       if (readCacheLength_ == -1)
       {
@@ -704,7 +732,11 @@ implements IFSRandomAccessFileImpl
       return sb.toString();
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -784,7 +816,11 @@ implements IFSRandomAccessFileImpl
       fd_.setLength(length);
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -833,7 +869,11 @@ implements IFSRandomAccessFileImpl
       fd_.unlock(key);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -865,7 +905,11 @@ implements IFSRandomAccessFileImpl
       fd_.writeBytes(data, dataOffset, length, forceToStorage_);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 

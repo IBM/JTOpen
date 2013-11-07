@@ -737,7 +737,7 @@ public class DateTimeConverter
     catch (RequestNotSupportedException e)  // this won't happen
     {  // ... but if it does happen, trace it and rethrow as a runtime exception
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
     catch (RuntimeException e)
     {

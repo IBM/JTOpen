@@ -304,7 +304,7 @@ public abstract class AS400AbstractTime implements AS400DataType
     }
     catch (CharConversionException e) { // should never happen
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
     return length_;
   }
@@ -353,7 +353,7 @@ public abstract class AS400AbstractTime implements AS400DataType
     }
     catch (UnsupportedEncodingException e) { // should never happen
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
   }
 

@@ -185,7 +185,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e2)
     {
       Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2);
     }
   }
 
@@ -214,7 +214,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     else if (e2 instanceof Error) {
       throw (Error)e2;
     }
-    else return new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e2.getMessage());
+    else return new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e2);
   }
 
   public void doItNoExceptions(String methodName, Class[] classes, Object[] objects)
@@ -226,7 +226,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e2)
     {
       Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2);
     }
   }
 
@@ -244,7 +244,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e2)
     {
       Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2);
     }
   }
 
@@ -262,7 +262,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e2)
     {
       Trace.log(Trace.ERROR, e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2);
     }
   }
 
@@ -281,7 +281,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e2)
     {
       Trace.log(Trace.ERROR, e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2);
     }
   }
 
@@ -294,7 +294,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e)
     {
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e);
     }
   }
 
@@ -307,7 +307,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e)
     {
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e);
     }
   }
 
@@ -321,7 +321,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     catch (Exception e)
     {
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e);
     }
   }
 

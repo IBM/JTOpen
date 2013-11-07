@@ -450,7 +450,7 @@ class AS400FileImplNative extends AS400FileImplBase
             else
             {
                 Trace.log(Trace.ERROR, e);
-                throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
+                throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
             }
         }
     }

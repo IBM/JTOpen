@@ -94,7 +94,7 @@ abstract class CredentialVault implements Cloneable, Serializable
     }
     catch (CloneNotSupportedException e) {
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
     synchronized(this)
     {

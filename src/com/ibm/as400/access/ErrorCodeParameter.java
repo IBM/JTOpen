@@ -149,7 +149,7 @@ public class ErrorCodeParameter extends ProgramParameter implements Serializable
     catch (PropertyVetoException e)  // will never happen
     {
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
   }
 
@@ -173,7 +173,7 @@ public class ErrorCodeParameter extends ProgramParameter implements Serializable
     if (outputData.length < (offsetToCCSID+4))
     {
       Trace.log(Trace.ERROR, "Output data buffer is too short: " + outputData.length + " bytes. Minimum size required: " + (offsetToCCSID+4));
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Output buffer too short.");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Output buffer too short.",(Exception) null);
     }
 
     return BinaryConverter.byteArrayToInt(outputData, offsetToCCSID);
@@ -197,7 +197,7 @@ public class ErrorCodeParameter extends ProgramParameter implements Serializable
     if (outputData.length < (offsetToID+7))
     {
       Trace.log(Trace.ERROR, "Output data buffer is too short: " + outputData.length + " bytes. Minimum size required: " + (offsetToID+7));
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Output buffer too short.");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Output buffer too short.",null);
     }
 
     String exceptionID = getCharConverter().byteArrayToString(outputData, offsetToID, 7).trim();
@@ -228,7 +228,7 @@ public class ErrorCodeParameter extends ProgramParameter implements Serializable
     if (outputData.length < (offsetToData+1))
     {
       Trace.log(Trace.ERROR, "Output data buffer is too short: " + outputData.length + " bytes. Minimum size required: " + (offsetToData+1));
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Output buffer too short.");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Output buffer too short.",null);
     }
 
     final int bytesAvailable = BinaryConverter.byteArrayToInt(outputData, offsetToBytesAvail);
@@ -256,7 +256,7 @@ public class ErrorCodeParameter extends ProgramParameter implements Serializable
       }
       catch (java.io.UnsupportedEncodingException e) {
         Trace.log(Trace.ERROR, "Received UnsupportedEncodingException for CCSID " + ccsid, e);
-        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
       }
     }
 
@@ -274,7 +274,7 @@ public class ErrorCodeParameter extends ProgramParameter implements Serializable
     catch (java.io.UnsupportedEncodingException e)  // will never happen
     {
       Trace.log(Trace.ERROR, "Received UnsupportedEncodingException for CCSID " + CCSID_EBCDIC, e);
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
   }
 

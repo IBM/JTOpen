@@ -106,7 +106,12 @@ abstract class AS400JDBCOutputStream extends OutputStream
     {
       if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
       closed_ = true;
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try { 
+        throwException.initCause(e); 
+      } catch (Throwable t) {}
+      throw throwException;
+
     }
   }
 
@@ -136,7 +141,11 @@ abstract class AS400JDBCOutputStream extends OutputStream
     {
       if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
       closed_ = true;
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try { 
+        throwException.initCause(e); 
+      } catch (Throwable t) {}
+      throw throwException;
     }
   }
 

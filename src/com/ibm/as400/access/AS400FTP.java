@@ -313,7 +313,11 @@ public class AS400FTP
              if (Trace.isTraceOn())
                 Trace.log(Trace.DIAGNOSTIC,"Security exception in getVRM()", e);
 
-             throw new IOException(e.getMessage());
+             IOException throwException = new IOException(e.getMessage());
+             try { 
+               throwException.initCause(e); 
+             } catch (Throwable t) {}
+             throw throwException;
           }
 
           AS400ImplRemote systemImpl = (AS400ImplRemote)system_.getImpl();                               // @D2a
@@ -938,8 +942,12 @@ public class AS400FTP
                {
                   if (Trace.isTraceOn())
                      Trace.log(Trace.DIAGNOSTIC,"IO Exception running command call ", e);
+                  IOException throwException = new IOException(e.getMessage());
+                  try { 
+                    throwException.initCause(e); 
+                  } catch (Throwable t) {}
+                  throw throwException;
 
-                  throw new IOException(e.getMessage());
                }
 
                // The last step is to set transfer mode to binary.  After

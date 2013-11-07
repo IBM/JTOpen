@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -2312,9 +2313,13 @@ implements Statement
                 System.arraycopy (updateCounts, 0, updateCounts2, 0, i);
 
                 batch_.removeAllElements ();
-                throw new BatchUpdateException (e.getMessage (),
-                                                e.getSQLState (), e.getErrorCode (), updateCounts2);
-            }
+                BatchUpdateException throwException = new BatchUpdateException (e.getMessage (),
+                    e.getSQLState (), e.getErrorCode (), updateCounts2);
+                try { 
+                  throwException.initCause(e); 
+                } catch (Throwable t) {}
+                throw throwException;
+                }
 
             batch_.removeAllElements ();
             return updateCounts;

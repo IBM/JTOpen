@@ -112,7 +112,11 @@ implements IFSFileOutputStreamImpl
         fd_.flush();  // @B4a
       }
       catch (AS400SecurityException e) {
-        throw new IOException(e.getMessage());
+        IOException throwException = new IOException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
       }
   }
 
@@ -140,7 +144,11 @@ implements IFSFileOutputStreamImpl
       return fd_.lock(length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -214,7 +222,11 @@ implements IFSFileOutputStreamImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify that the open request was successful.
@@ -300,7 +312,11 @@ implements IFSFileOutputStreamImpl
       fd_.unlock(key);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -376,7 +392,11 @@ implements IFSFileOutputStreamImpl
       catch(InterruptedException e)
       {
         Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
+        InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
       }
 
       if (ds instanceof IFSListAttrsRep)
@@ -410,7 +430,11 @@ implements IFSFileOutputStreamImpl
       fd_.writeBytes(data, dataOffset, length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      throw new IOException(e.getMessage());
+      IOException throwException = new IOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
   }
 
@@ -508,7 +532,11 @@ implements IFSFileOutputStreamImpl
               catch(InterruptedException e)
               {
                 Trace.log(Trace.ERROR, "Interrupted");
-                throw new InterruptedIOException(e.getMessage());
+                InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+                try {
+                  throwException.initCause(e); 
+                } catch (Throwable t) {} 
+                throw throwException;
               }
             }
           }
@@ -528,7 +556,11 @@ implements IFSFileOutputStreamImpl
         catch(InterruptedException e)
         {
           Trace.log(Trace.ERROR, "Interrupted", e);
-          throw new InterruptedIOException(e.getMessage());
+          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
 
         ccsid = fileCCSID;

@@ -546,7 +546,11 @@ implements IFSFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify that the request was successful.
@@ -565,7 +569,7 @@ implements IFSFileImpl
       Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
-                               Integer.toHexString(ds.getReqRepID()));
+                               Integer.toHexString(ds.getReqRepID()),null);
     }
 
     // Clear any cached file attributes.
@@ -837,7 +841,11 @@ implements IFSFileImpl
       catch(InterruptedException e)
       {
         Trace.log(Trace.ERROR, "Interrupted");
-        throw new InterruptedIOException(e.getMessage());
+        InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
       }
 
       // Verify that we got a handle back.
@@ -882,7 +890,11 @@ implements IFSFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify the reply.
@@ -912,7 +924,7 @@ implements IFSFileImpl
                 ds.getReqRepID());
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
-                               Integer.toHexString(ds.getReqRepID()));
+                               Integer.toHexString(ds.getReqRepID()),null);
     }
 
     return amountOfSpace;
@@ -2089,7 +2101,11 @@ implements IFSFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     return returnCode;
@@ -2193,7 +2209,11 @@ implements IFSFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
@@ -2213,7 +2233,7 @@ implements IFSFileImpl
       Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
-                               Integer.toHexString(ds.getReqRepID()));
+                               Integer.toHexString(ds.getReqRepID()),null);
     }
 
     if (success)
@@ -2275,7 +2295,11 @@ implements IFSFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     if (ds instanceof IFSReturnCodeRep)
@@ -2296,7 +2320,7 @@ implements IFSFileImpl
       Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
-                               Integer.toHexString(ds.getReqRepID()));
+                               Integer.toHexString(ds.getReqRepID()),null);
     }
 
     return success;
@@ -2346,7 +2370,11 @@ implements IFSFileImpl
     catch(InterruptedException e)
     {
       Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
     }
 
     // Verify the reply.
@@ -2366,7 +2394,7 @@ implements IFSFileImpl
       Trace.log(Trace.ERROR, "Unknown reply data stream", ds.data_);
       throw new
         InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
-                               Integer.toHexString(ds.getReqRepID()));
+                               Integer.toHexString(ds.getReqRepID()),null);
     }
 
     // Clear any cached attributes.
@@ -2446,7 +2474,11 @@ implements IFSFileImpl
           catch(InterruptedException e)
           {
              Trace.log(Trace.ERROR, "Interrupted");
-             throw new InterruptedIOException(e.getMessage());
+             InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+             try {
+               throwException.initCause(e); 
+             } catch (Throwable t) {} 
+             throw throwException;
           }
 
           if (ds instanceof IFSReturnCodeRep)
@@ -2564,7 +2596,11 @@ implements IFSFileImpl
         catch(InterruptedException e)
         {
           Trace.log(Trace.ERROR, "Interrupted");
-          throw new InterruptedIOException(e.getMessage());
+          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
         }
 
         // Verify the reply.
@@ -2733,7 +2769,11 @@ implements IFSFileImpl
           catch(InterruptedException e)
           {
              Trace.log(Trace.ERROR, "Interrupted");
-             throw new InterruptedIOException(e.getMessage());
+             InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+             try {
+               throwException.initCause(e); 
+             } catch (Throwable t) {} 
+             throw throwException;
           }
 
           if (ds instanceof IFSReturnCodeRep)

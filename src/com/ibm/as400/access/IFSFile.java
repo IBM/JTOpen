@@ -1585,7 +1585,7 @@ public class IFSFile
       IFSFile parent = new IFSFile();
       try { parent.setPath(parentPath); }
       catch (PropertyVetoException e) {  // will never happen
-        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
       }
       return parent;
     }

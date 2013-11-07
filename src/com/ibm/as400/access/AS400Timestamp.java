@@ -288,7 +288,7 @@ public class AS400Timestamp extends AS400AbstractTime
           break;
         }
       default:  // this will never happen
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + getFormat());
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + getFormat(), null);
 
     }
 
@@ -380,7 +380,7 @@ public class AS400Timestamp extends AS400AbstractTime
     }
     catch (java.text.ParseException e) { // should never happen
       Trace.log(Trace.ERROR, e);
-      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
     }
   }
 
@@ -475,7 +475,7 @@ public class AS400Timestamp extends AS400AbstractTime
       // Assume that the exception is because we got bad input.
       Trace.log(Trace.ERROR, e.getMessage(), source);
       Trace.log(Trace.ERROR, "Timestamp string is expected to be in format: " + patternFor(getFormat(), getSeparator()) + ".ssssss");
-      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID,e);
     }
   }
 
@@ -528,7 +528,7 @@ public class AS400Timestamp extends AS400AbstractTime
       // Assume that the exception is because we got bad input.
       Trace.log(Trace.ERROR, e.getMessage(), source);
       Trace.log(Trace.ERROR, "Timestamp string is expected to be in standard XML Schema 'timestamp' format: " + TIMESTAMP_PATTERN_XSD+".sssssssss");
-      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID, e);
     }
   }
 
@@ -640,7 +640,7 @@ public class AS400Timestamp extends AS400AbstractTime
   static final String to6Digits(int value)
   {
     if (value < 0 || value > 999999) {
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "to6Digits("+value+")");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, "to6Digits("+value+")",null);
     }
     StringBuffer buf = new StringBuffer(Integer.toString(value));
     int zerosToPrepend = 6 - buf.length();
@@ -656,7 +656,7 @@ public class AS400Timestamp extends AS400AbstractTime
   static final String to9Digits(int value)
   {
     if (value < 0 || value > 999999999) {
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "to9Digits("+value+")");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, "to9Digits("+value+")",null);
     }
     StringBuffer buf = new StringBuffer(Integer.toString(value));
     int zerosToPrepend = 9 - buf.length();

@@ -60,6 +60,11 @@ public class ConnectionPoolException extends Exception
   {
     super(exception.getMessage());
     exception_ = exception;
+    // Remember the cause of the exception
+    // This method does not exist prior to jdk14 
+    try { 
+      initCause(exception); 
+    } catch (Throwable t) { } 
   }
 
   //@A1A

@@ -186,7 +186,7 @@ class AS400ImplRemote implements AS400Impl
         catch (NoSuchAlgorithmException e)
         {
             Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
         }
     }
 
@@ -212,7 +212,7 @@ class AS400ImplRemote implements AS400Impl
         catch (NoSuchAlgorithmException e)
         {
             Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
         }
     }
 
@@ -563,7 +563,7 @@ class AS400ImplRemote implements AS400Impl
             catch (PropertyVetoException e)
             {
                 Trace.log(Trace.ERROR, e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
         }
         catch (IOException e)
@@ -692,7 +692,7 @@ class AS400ImplRemote implements AS400Impl
             catch (PropertyVetoException e)
             {
                 Trace.log(Trace.ERROR, e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
         }
         catch (IOException e)

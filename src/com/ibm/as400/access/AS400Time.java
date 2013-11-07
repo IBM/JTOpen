@@ -586,7 +586,7 @@ public AS400Time(int format)
 
       default:  // none of the above formats
         // Should never happen.
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, "Unrecognized format: " + format, null);
     }
   }
 

@@ -1183,7 +1183,7 @@ public class ObjectList implements Serializable
           else
           {
             Trace.log(Trace.ERROR, "Unknown key type for key "+key+": "+type);
-            throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, key+": "+type);
+            throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, key+": "+type,null);
           }
           fieldOffset += infoLength;
         }

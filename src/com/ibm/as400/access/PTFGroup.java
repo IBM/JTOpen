@@ -240,7 +240,7 @@ public class PTFGroup
       }
       catch (PropertyVetoException pve) { // will never happen, but the compiler doesn't know that
         Trace.log(Trace.ERROR, pve);
-        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve.getMessage());
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve);
       }
     }
 
@@ -462,7 +462,7 @@ public class PTFGroup
       }
       catch (PropertyVetoException pve) { // will never happen, but the compiler doesn't know that
         Trace.log(Trace.ERROR, pve);
-        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve.getMessage());
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve);
       }
     }
 }
