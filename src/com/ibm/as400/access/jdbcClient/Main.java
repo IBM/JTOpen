@@ -312,6 +312,8 @@ public class Main implements Runnable {
       if (prompt_)
         out1.print(promptString);
       query = input.readLine();
+      /* if we happen to get no input */ 
+      if (query == null) running = false; 
       while (running) {
         running = executeTopLevelCommand(query, out1);
         if (running) {
