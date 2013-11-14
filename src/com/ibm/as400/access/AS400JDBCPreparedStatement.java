@@ -4130,7 +4130,12 @@ endif */
     // Throw an exception if the column name is not found (COLUMN NOT FOUND).
     if (returnParm == 0)
       JDError.throwSQLException(this, JDError.EXC_COLUMN_NOT_FOUND);
-
+    
+    // If the statement is using the return value parameter, increment the value to
+    // compensate for the return value parameter.  @K2A. 
+    if (useReturnValueParameter_) {
+      returnParm ++; 
+    }
     return returnParm;
   }
 
