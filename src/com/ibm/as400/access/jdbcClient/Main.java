@@ -942,7 +942,7 @@ public class Main implements Runnable {
    *
    * @param command
    * @param out1
-   * @return
+   * @return  false if the top level command is exit or quit
    */
   public boolean executeTopLevelCommand(String command, PrintStream out1) {
     boolean returnCode = true;
@@ -1051,7 +1051,7 @@ public class Main implements Runnable {
    *
    * @param command1
    * @param out1
-   * @return
+   * @return false if the command is exit or quit
    */
   public boolean executeCommand(String command1, PrintStream out1) {
     boolean returnCode = true;
