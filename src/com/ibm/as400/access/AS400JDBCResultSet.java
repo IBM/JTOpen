@@ -7433,7 +7433,7 @@ endif */
  * supported and are vendor defined.
  *@param columnLabel - the label for the column specified with the SQL AS clause. If the SQL AS clause was not specified, then the label is the name of the column
  *@param type - Class representing the Java data type to convert the designated column to.
- *@returns  an instance of type holding the column value
+ *@return   an instance of type holding the column value
  *@exception  SQLException - if conversion is not supported, type is null or another error occurs. The getCause() method of the exception may provide a more detailed exception, for example, if a conversion error occurs
  *@exception SQLFeatureNotSupportedException - if the JDBC driver does not support this method
  */

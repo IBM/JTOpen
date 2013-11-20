@@ -221,12 +221,17 @@
   <property name="jdk14" value="/jdk1.4"/>
   <property name="jdk15" value="/jdk1.5"/>
   <property name="jdk16" value="/jdk1.6.0"/>
+  <property name="jdk18" value="/jdk1.8.0"/>
 
   <!-- Set the id used to access cvs -->
   <property name="cvsUserid" value="anoncvs"/>
   <property name="cvsPassword" value=""/>
   <property name="cvsProtocol" value="pserver"/>
 
+  <!-- Set the javadoc compiler --> 
+  <property name="javadocExecDefault" value="${jdk15}/bin/javadoc"/>	
+  <property name="javadoc6ExecDefault" value="${jdk16}/bin/javadoc"/>	
+  <property name="ibmjavadocExec"  value="${build}/bin/ibmjavadoc.bat"/> 	
   <property name="bin" value="${build}/bin"/>
   <property name="source" value="${sourceroot}/src"/>
   <property name="source-jdbc40" value="${sourceroot}/jdbc40"/>
@@ -830,20 +835,55 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: javadoc
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="javadoc" depends="init,checkJavadocIncludes">
+	
+    <condition property="ibmjavadocExists" value="true">
+      <length file="${include}/ibmjavadoc.jar" when="greater" length="0" />
+    </condition>
+
+
+	<target name="setJavadocExecOverride" if="ibmjavadocExists">
+		<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
+			c:\JVMS\IBM\Java60\jre\bin\java  -Xbootclasspath/p:C:\jtopen_build\include\ibmjavadoc.jar com.sun.tools.javadoc.Main %*
+		</echo>
+	  <property name="javadocExec" value="${ibmjavadocExec}"/>
+	  <echo> Using ibmjavadoc ${javadocExec}  </echo>
+	</target>
+
+	<target name="setJavadocExec" depends="setJavadocExecOverride">
+	    <property name="javadocExec" value="${javadocExecDefault}"/>
+		<echo> Using default javadoc ${javadocExec}  </echo>
+	</target>
+
+	<target name="setJavadoc6ExecOverride" if="ibmjavadocExists">
+		<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
+			c:\JVMS\IBM\Java60\jre\bin\java  -Xbootclasspath/p:C:\jtopen_build\include\ibmjavadoc.jar com.sun.tools.javadoc.Main %*
+		</echo>
+		  <property name="javadoc6Exec" value="${ibmjavadocExec}"/>
+		<echo> Using ibmjavadoc ${javadoc6Exec}   </echo>
+	</target>
+
+	<target name="setJavadoc6Exec" depends="setJavadoc6ExecOverride">
+		<property name="javadoc6Exec" value="${javadoc6ExecDefault}"/>
+		<echo> Using javadoc6 ${javadoc6Exec} </echo>
+	</target>
+
+	
+	
+  <target name="javadoc" depends="init,checkJavadocIncludes,setJavadocExec">
     <javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
              sourcepath="${source}:${source-contrib}:${source-jtopenlite}:${source-micro}:${include}"
              destdir="${javadoc}"
              use="false"
              link="${doclink}"
-             maxmemory="256m"
              failonerror="true"
              additionalparam="-breakiterator"
-    	     executable="${jdk15}/bin/javadoc">
+    	     executable="${javadocExec}">
       <classpath>
+      	<!-- Removed maxmemory="256m" from above --> 
         <!-- Include these if the user happens to have them, just so
-             javadoc generates without any extra warnings. -->
+             javadoc generates without any extra warnings.
+              -->
         <pathelement path="${include}"/>
         <pathelement location="${include}/sslightx.zip"/> <!-- Need this for SecureAS400 in the com.ibm.as400.access package. -->
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
@@ -860,7 +900,7 @@
     </javadoc>
   </target>
 
-  <target name="javadoc-jtopenlite" depends="init">
+  <target name="javadoc-jtopenlite" depends="init,setJavadocExec">
         <echo>  Generating javadoc from source-jtopenlite=${source-jtopenlite} basedir=${basedir} inEclipse=${inEclipse}</echo>
   	    <echo>  sourceroot=${sourceroot} </echo>
 	    <javadoc packagenames="com.ibm.jtopenlite,com.ibm.jtopenlite.*"
@@ -868,13 +908,14 @@
 	             destdir="${javadoc-jtopenlite}"
 	             use="false"
 	             link="${doclink}"
-	             maxmemory="256m"
 	             failonerror="true"
 	             additionalparam="-breakiterator"
-	    	     executable="${jdk15}/bin/javadoc" >
+	    	     executable="${javadocExec}" >
 	      <group title="JTOpenLite Packages" packages="com.ibm.jtopenlite"/>
 	      <!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
 	           com.ibm.as400.access package will get erroneously linked to our stubs. -->
+          <!-- Removed maxmemory="256m" from above --> 
+
 	    </javadoc>
    </target>
 
@@ -890,20 +931,21 @@
     </echo>
   </target>
 
-	  <target name="javadoc6" depends="init,source6,checkJavadocIncludes">
+	  <target name="javadoc6" depends="init,source6,checkJavadocIncludes,setJavadoc6Exec">
 	    <javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
                  sourcepath="${source-java6}:${source-contrib}:${include}"
 	             destdir="${javadoc6}"
 	             use="false"
 	             link="${doclink}"
-	             maxmemory="256m"
 	             failonerror="true"
 	             additionalparam="-breakiterator"
-	    	     executable="${jdk16}/bin/javadoc">
+	    	     executable="${javadoc6Exec}">
 	      <classpath>
 	        <!-- Include these if the user happens to have them, just so
 	             javadoc generates without any extra warnings. -->
+	      	<!-- Removed maxmemory="256m" from above --> 
+
 	        <pathelement path="${include}"/>
 	        <pathelement location="${include}/sslightx.zip"/> <!-- Need this for SecureAS400 in the com.ibm.as400.access package. -->
 	        <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->

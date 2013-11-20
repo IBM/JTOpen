@@ -51,7 +51,7 @@ public class AS400JDBCTimestamp extends Timestamp {
   /**
    * Get this Timestamp objects' picos value. 
    * 
-   * @return
+   * @return the picos value for this timestamp object
    */
   public long getPicos() {
     return picos_; 
@@ -68,7 +68,6 @@ public class AS400JDBCTimestamp extends Timestamp {
  
   /**
    * Gets this Timestamp object's nanos value.
-   * @see  java.sql.Timestamp#getNanos() 
    * @return this Timestamp object's factional seconds component 
    */
 
@@ -79,7 +78,6 @@ public class AS400JDBCTimestamp extends Timestamp {
 
   /**
    * Sets the nanos values for this Timestamp object. 
-   * @see java.sql.Timestamp#setNanos(int)
    */
   public void setNanos(int nanos) {
       setPicos(nanos * 1000L); 
@@ -127,7 +125,7 @@ public class AS400JDBCTimestamp extends Timestamp {
    * 
    * @override   setTime in class Timestmap
    * 
-   * @param  time -- the number of milliseconds
+   * @param  millis -- the number of milliseconds
    * @see java.sql.Timestamp#setTime(long)
    */
   public void setTime(long millis) {

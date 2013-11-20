@@ -5436,7 +5436,7 @@ endif */
     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed.
     * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method
     * throws a java.lang.SecurityException.
-    *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the
+    *@param timeout - The time in milliseconds to wait for the database operation to complete. If the
     * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second.
     * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of
     * 0 indicates that there is not timeout for database operations.
@@ -5446,7 +5446,7 @@ endif */
     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
     *  setNetworkTimeout.
     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-    * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
+    * @see  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
     *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
     */
 
@@ -5499,7 +5499,7 @@ endif */
     * @throws SQLException - if a database access error occurs or this method is called on a closed Connection
     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
     * @since JTOpen 7.X
-    * @see setNetworkTimeout(java.util.concurrent.Executor, int)
+    * @see #setNetworkTimeout(java.util.concurrent.Executor, int)
     */
   public int getNetworkTimeout() throws SQLException {
     checkOpen ();

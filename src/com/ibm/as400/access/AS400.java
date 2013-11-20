@@ -1692,7 +1692,7 @@ public class AS400 implements Serializable
      /**
      * Determines if the password expiration date for the user profile is within the
      * password expiration warning days for the system returned by
-     * {@link getSystemPasswordExpirationWarningDays}.
+     * {@link #getPasswordExpirationDays()}.
      * @return  true if the password expiration date for the user profile is within the
      *          password expiration days; otherwise, return false
      * @throws  AS400SecurityException  If a security or authority error occurs.
@@ -2162,7 +2162,7 @@ public class AS400 implements Serializable
     /**
      * Returns the timezone of the IBM i, if available.  If the timezone is not available,
      * then the default timezone for the client will be return.
-     * @param as400   System to get the timezone from
+     * @param system   System to get the timezone from
      * @return  The timezone of the IBM i if available.
      */
     public static TimeZone getDefaultTimeZone(AS400 system) {

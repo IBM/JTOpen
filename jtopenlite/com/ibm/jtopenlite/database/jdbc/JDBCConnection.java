@@ -739,7 +739,7 @@ public class JDBCConnection implements java.sql.Connection, DatabaseWarningCallb
   }
   /**
    * Return the version level.  See SystemInfo.VERSION_VxRx constants for possible values.
-   * @return
+   * @return the version level of the server
    */
   protected int getServerVersion() throws SQLException  {
   	checkOpen();

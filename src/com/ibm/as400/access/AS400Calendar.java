@@ -91,7 +91,7 @@ public class AS400Calendar {
    * If the user passes in a non-Gregorian calendar, then use the timezone to
    * create a gregorian calendar.  This is the observed behavior of the jcc driver.
    * @param calendar
-   * @return
+   * @return Calendar to use for java.util.Date based objects.
    */
   public static Calendar getConversionCalendar(Calendar calendar) {
     if (calendar == null) {

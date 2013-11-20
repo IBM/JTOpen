@@ -295,11 +295,11 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             proxyServer.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PROXY_SERVER"));
             proxyServer.setShortDescription(AS400JDBCDriver.getResource("PROXY_SERVER_DESC"));
 
-            PropertyDescriptor qaqqiniLibrary = new PropertyDescriptor("qaqqiniLibrary", beanClass, "getQaqqiniLibrary", "setQaqqiniLibrary");  //@K3A
-            qaqqiniLibrary.setBound(true);                                                                                                  //@K3A
-            qaqqiniLibrary.setConstrained(false);                                                                                           //@K3A
-            qaqqiniLibrary.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QAQQINILIB"));                                          //@K3A
-            qaqqiniLibrary.setShortDescription(AS400JDBCDriver.getResource("QAQQINILIB_DESC"));                                          //@K3A
+            PropertyDescriptor qaqqiniLibrary = new PropertyDescriptor("qaqqiniLibrary", beanClass, "getQaqqiniLibrary", "setQaqqiniLibrary");  
+            qaqqiniLibrary.setBound(true);                                                                                                  
+            qaqqiniLibrary.setConstrained(false);                                                                                           
+            qaqqiniLibrary.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QAQQINILIB"));                                         
+            qaqqiniLibrary.setShortDescription(AS400JDBCDriver.getResource("QAQQINILIB_DESC"));                                          
 
 
             PropertyDescriptor remarks = new PropertyDescriptor("remarks", beanClass, "getRemarks", "setRemarks");
@@ -627,7 +627,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
                 queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, concurrentAccessResolution, jvm16Synchronize, socketTimeout, maximumBlockedInputRows, queryTimeoutMechanism}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
         }
         catch(Exception e)

@@ -4476,7 +4476,7 @@ implements DatabaseMetaData
      * @param columnNamePattern - a column name pattern; must match the column name as it is stored in the database
      * @return  ResultSet - each row is a column description
      * @exception  SQLException - if a database access error occurs
-     * @see PseudoColumnUsage
+     * @see java.sql.PseudoColumnUsage
      */
 
     public ResultSet getPseudoColumns(String catalog, String schemaPattern,

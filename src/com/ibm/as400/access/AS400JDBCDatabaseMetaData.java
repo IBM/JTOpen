@@ -4596,14 +4596,14 @@ endif */
                 // Information (ROI) function based on the types array
                 // provided. ROI uses the following values:
                 //  '0001'x = all files
-                //  '0002'x = physical files and alias files                    //@K3C  changed to match host server LIPI
-                //  '0003'x = logical files and alias files                     //@K3C
-                //  '0004'x = tables and alias files                            //@K3C
-                //  '0005'x = views and alias files                             //@K3C
+                //  '0002'x = physical files and alias files                   
+                //  '0003'x = logical files and alias files                    
+                //  '0004'x = tables and alias files                            
+                //  '0005'x = views and alias files                             
                 //  '0006'x = system tables
-                //  '0007'x = tables and views and alias files                  //@K3C
-                //  '0008'x = tables and system tables and alias files          //@K3C
-                //  '0009'x = views and system tables and alias files           //@K3C
+                //  '0007'x = tables and views and alias files                  
+                //  '0008'x = tables and system tables and alias files          
+                //  '0009'x = views and system tables and alias files           
                 //  '000A'x = alias files                                       //@K1A
                 //  '000B'x = tables and materialized query tables              //@K1A
                 //  '000C'x = views and materialized query tables               //@K1A
@@ -4622,14 +4622,14 @@ endif */
                 // be created. No request is sent to the system.
                 //--------------------------------------------------------
                 int fileAttribute;
-                boolean needToRemoveAliases = true;         //@K3A
+                boolean needToRemoveAliases = true;        
                 if (tableTypes != null)
                 {
                     boolean typeTable       = false;  // false = don't include table type
                     boolean typeView        = false;
                     boolean typeSystemTable = false;
-                    boolean typeMQTable     = false;  //@K1A
-                    boolean typeAlias       = false;  //@K3A
+                    boolean typeMQTable     = false;  
+                    boolean typeAlias       = false;  
 
                     // Walk thru table types to determine which ones we need to include
                     for (int i = 0; i < tableTypes.length; ++i)
@@ -4642,12 +4642,12 @@ endif */
                             typeSystemTable = true;  // Include system tables
                         else if (tableTypes[i].equalsIgnoreCase ("MATERIALIZED QUERY TABLE") && connection_.getVRM() >= JDUtilities.vrm530)   //@K1A
                             typeMQTable = true;                                                 //@K1A
-                        else if(tableTypes[i].equalsIgnoreCase("ALIAS"))    //@K3A
-                            typeAlias = true;                               //@K3A
+                        else if(tableTypes[i].equalsIgnoreCase("ALIAS"))    
+                            typeAlias = true;                               
                     }   // end of for loop
 
-                    if(typeAlias)                                           //@K3A
-                        needToRemoveAliases = false;                              //@K3A
+                    if(typeAlias)                                           
+                        needToRemoveAliases = false;                              
 
                     if (typeTable)
                     {
@@ -4658,7 +4658,7 @@ endif */
                             else if(typeMQTable)                                    //@K1A
                             {
                                 fileAttribute = 14; //tables, views, and MQT's      //@K1A
-                                needToRemoveAliases = false;      //@K3A no aliases are returned
+                                needToRemoveAliases = false;     
                             }
                             else
                                 fileAttribute = 7;  // Tables and views
@@ -4668,7 +4668,7 @@ endif */
                             if(typeMQTable)                                         //@K1A
                             {
                                 fileAttribute = 15;                                 //@K1A
-                                needToRemoveAliases = false;                              //@K3A no aliases are returned
+                                needToRemoveAliases = false;                        // no aliases are returned
                             }
                             else                                                    //@K1A
                                 fileAttribute = 8;  // Tables and system tables
@@ -4676,7 +4676,7 @@ endif */
                         else if(typeMQTable)                                        //@K1A  Not Views and not system tables
                         {                                                           //@K1A
                             fileAttribute = 11;                                     //@K1A
-                            needToRemoveAliases = false;                                  //@K3A no aliases are returned
+                            needToRemoveAliases = false;                                  // no aliases are returned
                         }                                                           //@K1A
                         else
                             fileAttribute = 4;  // Tables
@@ -4694,7 +4694,7 @@ endif */
                             fileAttribute = 13;         //system tables and MQT's           //@K1A
                         else                                                                //@K1A
                             fileAttribute = 17;         //MQT's                             //@K1A
-                        needToRemoveAliases = false;                                              //@K3A no aliases are returned
+                        needToRemoveAliases = false;                                              //no aliases are returned
                     }                                                                       //@K1A
                     else
                     {           // Not tables
@@ -4710,10 +4710,10 @@ endif */
                             if (typeSystemTable)
                             {
                                 fileAttribute = 6;  // System tables
-                                needToRemoveAliases = false;      //@K3A no aliases are returned
+                                needToRemoveAliases = false;      // no aliases are returned
                             }
-                            else if(typeAlias && connection_.getVRM() >= JDUtilities.vrm430)    //@K3A  Aliases are only supported on V4R3 and higher
-                                fileAttribute = 10;                                             //@K3A
+                            else if(typeAlias && connection_.getVRM() >= JDUtilities.vrm430)    //  Aliases are only supported on V4R3 and higher
+                                fileAttribute = 10;                                             
                             else
                                 fileAttribute = -1; // Unknown type
                             // Will return empty results
@@ -4830,8 +4830,8 @@ endif */
                         if (resultData != null)
                         {
                             // If the user didn't request aliases
-                            if(needToRemoveAliases)                                       //@K3A
-                                parseResultData(resultData, dataFormat);            //@K3A
+                            if(needToRemoveAliases)                                       
+                                parseResultData(resultData, dataFormat);           
 
                             // Put the data format into a row format. Handles data types
                             JDServerRow row = new JDServerRow (connection_, id_, dataFormat, settings_);
@@ -4922,7 +4922,7 @@ endif */
                                        "Tables", connection_, reply); //@in2
     }
 
-//@K3A
+
 // Parses the result data from the system to determine if any aliases were returned.
     void parseResultData(DBData resultData, DBDataFormat dataFormat) {
         try{
@@ -8018,7 +8018,7 @@ endif */
      * @param columnNamePattern - a column name pattern; must match the column name as it is stored in the database
      * @return  ResultSet - each row is a column description
      * @exception  SQLException - if a database access error occurs
-     * @see PseudoColumnUsage
+     * @see java.sql.PseudoColumnUsage
      */
 
     public ResultSet getPseudoColumns(String catalog, String schemaPattern,

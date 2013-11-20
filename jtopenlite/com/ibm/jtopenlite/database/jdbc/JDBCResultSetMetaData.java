@@ -432,7 +432,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData, DatabaseDescrib
 
    /**
     Indicates if the column is a currency value.
-    @param  columnIndex     The column index (1-based).
+    @param  column     The column index (1-based).
     @return                 Always false.  DB2 for IBM i
                             does not directly support currency
                             values.

@@ -4,8 +4,8 @@
  * This package provides the ability to access IFS files on an IBM i host.
  *
  *<p>
- *  The {@link com.ibm.jtopenlite.file.FiledConnection } class is used to establish
- *  a connection to the file server.  A {@linke com.ibm.jtopenlite.file.FileHandle} is used in conjunction with a
+ *  The {@link com.ibm.jtopenlite.file.FileConnection } class is used to establish
+ *  a connection to the file server.  A {@link com.ibm.jtopenlite.file.FileHandle} is used in conjunction with a
  *  connection to read and write the file.
  *  The following is a simple example of a program to
  *  create, read, and delete a file on the server.
