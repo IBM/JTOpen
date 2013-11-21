@@ -2,6 +2,10 @@ package com.ibm.jtopenlite.samples;
 
 import com.ibm.jtopenlite.command.*;
 
+/**
+ * Sample program that uses JTOpenLite to call a command on an IBM i server.
+ * @see com.ibm.jtopenlite.command.CommandConnection 
+ */
 public class CallCommand {
     public static void main(String args[]) {
 	try {

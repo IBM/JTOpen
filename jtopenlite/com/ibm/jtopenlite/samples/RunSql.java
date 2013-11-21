@@ -4,7 +4,8 @@ import java.io.*;
 
 
 /**
- * Sample class to run sql statements
+ * <p>Sample class to run sql statements using the jtopenlite JDBC driver.
+ * <p>Run using java com.ibm.jtopenlite.samples.RunSql JDBCURL USERID PASSWORD.
  */
 public class RunSql {
    public final static String PROMPT="ENTER SQL STATEMENT or exit > ";

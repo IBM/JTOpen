@@ -21,7 +21,9 @@ import java.util.List;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
- * Represents a TCP/IP socket connection to the System i File host server (QSERVER/QPWFSERVSO prestart jobs).
+ * <p>Represents a TCP/IP socket connection to the System i File host server
+ *  (QSERVER/QPWFSERVSO prestart jobs).
+ * <p>For an example, see {@link com.ibm.jtopenlite.samples.AccessIfsFile}. 
 **/
 public class FileConnection extends HostServerConnection //implements Connection
 {

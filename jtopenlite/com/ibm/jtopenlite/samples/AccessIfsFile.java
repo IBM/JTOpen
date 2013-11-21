@@ -2,6 +2,11 @@ package com.ibm.jtopenlite.samples;
 
 import com.ibm.jtopenlite.file.*;
 
+/**
+ * <p>Sample program that uses JTOpenLite to write and read an IFS file.
+ * <p>Usage:   java com.ibm.jtopenlite.samples.AccessIfsFile SYSTEM USERID PASSWORD FILENAME
+ *
+ */
 public class AccessIfsFile {
 	public static void main(String args[]) {
 		try {

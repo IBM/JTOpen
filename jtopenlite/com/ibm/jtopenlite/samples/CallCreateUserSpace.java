@@ -4,6 +4,10 @@ import com.ibm.jtopenlite.command.CommandConnection;
 import com.ibm.jtopenlite.command.CommandResult;
 import com.ibm.jtopenlite.command.program.object.CreateUserSpace;
 
+/**
+ * <p>Sample program that uses JTOpenLite to create a user space.
+ * <p>Usage: java com.ibm.jtopenlite.samples.CallCreateUserSpace SYSTEM USERID PASSWORD LIBRARY SPACENAME 
+ */
 public class CallCreateUserSpace {
 	public static void usage() {
 		System.out.println("Usage:  java com.ibm.jtopenlite.samples.CallCreateUserSpace "+

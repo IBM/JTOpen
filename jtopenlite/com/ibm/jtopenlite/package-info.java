@@ -15,6 +15,8 @@
  * </li>
  * <li><a href="file/package-summary.html">com.ibm.jtopenlite.file</a> Allows access to stream files in IFS.
  * </li>
+ * <li><a href="samples/package-summary.html">com.ibm.jtopenlite.samples</a> Provides samples of using JTOpenLite.
+ * </li>
  *
  * </ul>
  * <p>For tracing information see {@link com.ibm.jtopenlite.Trace}.

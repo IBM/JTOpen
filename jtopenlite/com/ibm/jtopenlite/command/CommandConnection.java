@@ -20,7 +20,10 @@ import java.net.*;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
- * Represents a TCP/IP socket connection to the System i Remote Command host server (QSYSWRK/QZRCSRVS prestart jobs).
+ * Represents a TCP/IP socket connection to the System i Remote Command host server 
+ * (QSYSWRK/QZRCSRVS prestart jobs).  This connection can be used to call programs
+ * and execute CL commands. 
+   * See {@link com.ibm.jtopenlite.samples.CallCommand} for sample program that uses CommandConnection.
 **/
 public class CommandConnection extends HostServerConnection
 {
@@ -28,6 +31,7 @@ public class CommandConnection extends HostServerConnection
    * The default TCP/IP port the Remote Command host server listens on.
    * If your system has been configured to use a different port, use
    * the {@link PortMapper PortMapper} class to determine the port.
+   *
   **/
     public static final int DEFAULT_COMMAND_SERVER_PORT = 8475;
     public static final int DEFAULT_SSL_COMMAND_SERVER_PORT = 9475;
@@ -42,6 +46,7 @@ public class CommandConnection extends HostServerConnection
     datastreamLevel_ = datastreamLevel;
   }
 
+  
   protected void sendEndJobRequest() throws IOException
   {
     out_.writeInt(20); // Length is 40 if server ID is E004.

@@ -22,6 +22,8 @@ import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Represents a TCP/IP socket connection to the System i Distributed Data Management (DDM) host server (QUSRWRK/QRWTSRVR job).
+ * 
+ * See {@link com.ibm.jtopenlite.samples.DDMRead} for an example of using DDM. 
 **/
 public class DDMConnection extends HostServerConnection
 {
