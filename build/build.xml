@@ -934,7 +934,7 @@
 	  <target name="javadoc6" depends="init,source6,checkJavadocIncludes,setJavadoc6Exec">
 	    <javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
-                 sourcepath="${source-java6}:${source-contrib}:${include}"
+                 sourcepath="${source-java6}:${source-jtopenlite}:${source-contrib}:${include}"
 	             destdir="${javadoc6}"
 	             use="false"
 	             link="${doclink}"
@@ -953,7 +953,10 @@
 	        <pathelement location="${include}/midpapi10.jar"/> <!-- Need this for the server-side Micro Edition classes. -->
 	        <pathelement location="${include}/cldcapi10.jar"/> <!-- Need this for the server-side Micro Edition classes. -->
 	      </classpath>
-	      <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
+	      <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.security.auth"/>
+	        <group title="Toolbox Utility Packages" packages="com.ibm.as400.access.jdbcClient,com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
+	        <group title="JTOpenLite Packages" packages="com.ibm.jtopenlite,com.ibm.jtopenlite.ccsidConversion,com.ibm.jtopenlite.command,com.ibm.jtopenlite.command.program,com.ibm.jtopenlite.command.program.journal,com.ibm.jtopenlite.command.program.message,com.ibm.jtopenlite.command.program.object,com.ibm.jtopenlite.command.program.openlist,com.ibm.jtopenlite.command.program.perf,com.ibm.jtopenlite.command.program.print,com.ibm.jtopenlite.command.program.security,com.ibm.jtopenlite.command.program.workmgmt,com.ibm.jtopenlite.components,com.ibm.jtopenlite.database,com.ibm.jtopenlite.database.jdbc,com.ibm.jtopenlite.ddm,com.ibm.jtopenlite.file,com.ibm.jtopenlite.samples"/>
+	    	<group title="Deprecated Packages" packages="com.ibm.as400.resource,com.ibm.as400.vaccess,com.ibm.as400.micro"/>
 	      <!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
 	           com.ibm.as400.access package will get erroneously linked to our stubs. -->
 
