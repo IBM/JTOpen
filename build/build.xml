@@ -843,7 +843,7 @@
 
 	<target name="setJavadocExecOverride" if="ibmjavadocExists">
 		<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
-			c:\JVMS\IBM\Java60\jre\bin\java  -Xbootclasspath/p:C:\jtopen_build\include\ibmjavadoc.jar com.sun.tools.javadoc.Main %*
+			c:\JVMS\IBM\Java60\jre\bin\java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
 		</echo>
 	  <property name="javadocExec" value="${ibmjavadocExec}"/>
 	  <echo> Using ibmjavadoc ${javadocExec}  </echo>
@@ -856,7 +856,7 @@
 
 	<target name="setJavadoc6ExecOverride" if="ibmjavadocExists">
 		<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
-			c:\JVMS\IBM\Java60\jre\bin\java  -Xbootclasspath/p:C:\jtopen_build\include\ibmjavadoc.jar com.sun.tools.javadoc.Main %*
+			c:\JVMS\IBM\Java60\jre\bin\java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
 		</echo>
 		  <property name="javadoc6Exec" value="${ibmjavadocExec}"/>
 		<echo> Using ibmjavadoc ${javadoc6Exec}   </echo>
