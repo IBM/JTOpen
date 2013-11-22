@@ -17,7 +17,8 @@ import com.ibm.jtopenlite.command.*;
 
 
 /**
- * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/QPMWKCOL.htm">QPMWKCOL</a>
+ * Obtain performance data using the <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/QPMWKCOL.htm">QPMWKCOL</a>
+ * API. 
 **/
 public class WorkWithCollector implements Program
 {

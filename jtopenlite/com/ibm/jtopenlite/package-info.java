@@ -1,7 +1,6 @@
 
 /**
- * <p>
- * JTOpenLite provides basic access to IBM i resources in a lightweight package that is
+ * Provides basic access to IBM i resources in a lightweight package that is
  * suitable for use on mobile devices.
  * <p>The following packages are provided
  * <ul>

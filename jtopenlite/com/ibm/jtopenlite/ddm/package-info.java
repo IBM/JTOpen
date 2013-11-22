@@ -1,6 +1,6 @@
 
 /**
- * This package provides the ability to database files on an IBM i host using DDM.
+ * Provides classes to access database files on an IBM i host using DDM.
  *
  *<p>
  *  The {@link com.ibm.jtopenlite.file.DDMConnection } class is used to establish

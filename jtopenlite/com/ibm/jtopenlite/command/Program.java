@@ -13,8 +13,6 @@
 
 package com.ibm.jtopenlite.command;
 
-// Unnecessary import
-// import com.ibm.jtopenlite.*;
 
 /**
  * Used by classes that wish to implement a program call, this essentially represents a System i program (PGM).

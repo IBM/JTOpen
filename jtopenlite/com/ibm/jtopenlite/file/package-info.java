@@ -1,7 +1,7 @@
 
 /**
  * <p>
- * This package provides the ability to access IFS files on an IBM i host.
+ * Provides classes to access IFS files on an IBM i host.
  *
  *<p>
  *  The {@link com.ibm.jtopenlite.file.FileConnection } class is used to establish

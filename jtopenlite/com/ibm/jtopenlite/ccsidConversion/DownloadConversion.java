@@ -12,10 +12,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.jtopenlite.ccsidConversion;
-
-public class DownloadConversion {
+/**
+ * Future class to download conversion tables from the server
+ * when the tables do not exist on the current client. 
+ */
+class DownloadConversion {
 	/* TODO */
-	public static SingleByteConversion downloadSingeByteConversion(String system,
+	static SingleByteConversion downloadSingeByteConversion(String system,
 				String userid, 	String password, int ccsid) {
 
 		return null;

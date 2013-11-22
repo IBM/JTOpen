@@ -20,7 +20,7 @@ import java.io.PrintStream;
  * Class representing the Tracing provided by JTOpenLite.
  *
  * <p>Trace can be enabled by setting the JVM property com.ibm.jtopenlite.Trace.category to ALL or TRUE.
- * <p>The trace output can be directed to a file by setting com.ibm.jtopenlite.Trace.file.
+ * <p>The trace output can be directed to a file by setting the JVM property com.ibm.jtopenlite.Trace.file.
  * <p>The trace currently consists only of the datastream information.
  */
 public class Trace {

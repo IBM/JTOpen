@@ -18,7 +18,8 @@ import com.ibm.jtopenlite.command.program.openlist.*;
 
 
 /**
- * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qgyoljob.htm">QGYOLJOB</a>
+ * Use the <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qgyoljob.htm">QGYOLJOB</a>
+ * API to access the list of job on the IBM i. 
  * This class fully implements the V5R4 specification of QGYOLJOB.
  *
  * <p></p>

@@ -1,7 +1,6 @@
 
 /**
- * <p>
- * This package provides the ability to call commands on an IBM i host.
+ * Provides classes to call commands on an IBM i host.
  *
  *<p>
  *  The {@link com.ibm.jtopenlite.command.CommandConnection } class is used to establish
