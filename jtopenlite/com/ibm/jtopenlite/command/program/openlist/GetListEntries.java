@@ -15,6 +15,7 @@ import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
 
 /**
+ * Get list entries using the System API: 
  * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qgygtle.htm">QGYGTLE</a>
 **/
 public class GetListEntries implements OpenListProgram<ListEntryFormat,ListFormatListener>
