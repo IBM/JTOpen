@@ -524,10 +524,15 @@ public class SystemStatus implements Serializable
     }
 
     /**
-     Returns the percentage of processor database capability that was used during the elapsed time.  Database capability is the maximum CPU utilization available for database processing on this system.  <tt>-1</tt> is returned if this system does not report the amount of CPU used for database processing.
-     @return  The percentage of processor database capability that was used during the elapsed time.
+     Returns the percentage of processor database capability that was used during the elapsed 
+     time.  Database capability is the maximum CPU utilization available for database 
+     processing on this system.  <tt>-1</tt> is returned if this system does not report 
+     the amount of CPU used for database processing.
+     @return  The percentage of processor database capability that was used during the 
+     elapsed time.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is 
+     completed.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
@@ -676,10 +681,14 @@ public class SystemStatus implements Serializable
     }
 
     /**
-     Returns the percentage of the uncapped shared processing capacity for the partition that was used during the elapsed time.  <tt>-1</tt> is returned if this partition can not use more than its configured processing capacity.
-     @return  The percentage of the uncapped shared processing capacity for the partition that was used during the elapsed time.
+     Returns the percentage of the uncapped shared processing capacity for the partition that 
+     was used during the elapsed time.  <tt>-1</tt> is returned if this partition can not 
+     use more than its configured processing capacity.
+     @return  The percentage of the uncapped shared processing capacity for the partition 
+     that was used during the elapsed time.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is 
+     completed.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
@@ -930,6 +939,7 @@ public class SystemStatus implements Serializable
     }
 
     /**
+ 
      Returns the current cache status.  The default behavior is no caching.
      @return  true if caching is enabled, false otherwise.
      @see  #refreshCache
