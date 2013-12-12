@@ -2240,6 +2240,14 @@ class AS400ImplRemote implements AS400Impl
         {
             byte[] swapToPH = new byte[12];
             byte[] swapFromPH = new byte[12];
+            // If -Xshareclasses is specified when using Java on an IBM i system
+            // then classes cannot be loaded when the profile is swapped.
+            // Load the classes before doing the swap. @K4A
+            Class x = BinaryConverter.class; 
+            x = GregorianCalendar.class;
+            x = SignonInfo.class; 
+            x = com.ibm.as400.access.NLSImplNative.class;
+            x = com.ibm.as400.access.NLSImplRemote.class; 
             boolean didSwap = swapTo(swapToPH, swapFromPH);
             try
             {
