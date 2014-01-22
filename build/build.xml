@@ -337,10 +337,14 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: clean
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="clean" depends="clean-javadoc,clean-dist,clean-output,clean-javadoc6,clean-dist6,clean-output6"/>
+  <target name="clean" depends="clean-javadoc,clean-dist,clean-output,clean-javadoc6,clean-dist6,clean-output6,clean-android"/>
 
   <target name="clean-dist">
     <delete dir="${dist}"/>
+  </target>
+	
+  <target name="clean-android">
+	<delete dir="${source-android}"/>
   </target>
 
   <target name="clean-javadoc">
@@ -1178,7 +1182,7 @@
 
     <target name="source-android" >
         <!-- copy source files from source -->
-        <copy todir="${source-android}" >
+        <copy encoding="ISO-8859-1" todir="${source-android}" >
             <fileset dir="${build}/src" >
                 <include name="com/**/*.java" />
 
@@ -1272,15 +1276,15 @@
 	    ///////////////////////////////////////////////////////////////////////////-->
 	  <target name="source6" depends="init, source-jdbc40">
 	<!-- copy all source to new dir, and then copy the new jdbc40 specific files replacing any pre-jdbc40 files -->
-	    <copy todir="${source-java6}"  preservelastmodified="yes">
+	    <copy  encoding="ISO-8859-1" todir="${source-java6}"  preservelastmodified="yes">
 	         <fileset dir="${source}"/>
 	    </copy>
-	    <copy todir="${source-java6}"  preservelastmodified="yes">
+	    <copy  encoding="ISO-8859-1" todir="${source-java6}"  preservelastmodified="yes">
 	         <fileset dir="${source-jdbc40}"/>
 	   </copy>
 
 	    <!-- jdbc 4.0 driver manifest -->
-	    <copy tofile="${sourceroot}/build/META-INF/services/java.sql.Driver"
+	    <copy  encoding="ISO-8859-1" tofile="${sourceroot}/build/META-INF/services/java.sql.Driver"
 	          overwrite="yes"
 	          preservelastmodified="yes"
 	          file="${sourceroot}/build/java.sql.Driver" />
