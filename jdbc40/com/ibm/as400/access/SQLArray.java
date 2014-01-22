@@ -476,4 +476,8 @@ class SQLArray implements SQLData
         else
             return false;
     }
+    public void updateSettings(SQLConversionSettings settings) {
+    
+    }
+
 }

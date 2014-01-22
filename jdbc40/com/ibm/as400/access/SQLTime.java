@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SQLTime.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -35,12 +35,17 @@ extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
+    static boolean jdk14 = false;
+    static {
+      jdk14 = JVMInfo.isJDK14();
+    }
+
     // Private data.
     private int			    timeFormat_;
     private int                     hour_;
     private int                     minute_;
     private int                     second_;
-    
+
     SQLTime(SQLConversionSettings settings, int timeFormat)	// @550C
     {
         super( settings);
@@ -70,13 +75,13 @@ extends SQLDataBase
 
             // Parse the string according to the format and separator.
             // else if(format.equalsIgnoreCase(JDProperties.TIME_FORMAT_USA)) {
-            if(calendar == null) 
+            if(calendar == null)
             {
                 calendar = AS400Calendar.getGregorianInstance(); //@P0A
                 calendar.setLenient(false); //@dat1
             }
             else {
-              calendar = AS400Calendar.getConversionCalendar(calendar); 
+              calendar = AS400Calendar.getConversionCalendar(calendar);
             }
 
             switch(settings.getTimeFormat())
@@ -118,7 +123,23 @@ extends SQLDataBase
         catch(NumberFormatException e)
         {
           if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing time "+s, e);
-          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
+          // Try processing as timestamp @J2A
+          if (s.length()>=19 && s.charAt(4)=='-' &&
+                s.charAt(7)=='-') {
+              try { 
+                Timestamp ts = SQLTimestamp.stringToTimestamp(s, calendar);
+                calendar.set(Calendar.HOUR_OF_DAY, ts.getHours());
+                calendar.set(Calendar.MINUTE, ts.getMinutes());
+                calendar.set(Calendar.SECOND, ts.getSeconds());
+                
+              } catch (Exception e2) { 
+                if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing time as timestamp"+s, e2);
+                JDError.throwSQLException(null, JDError.EXC_DATA_TYPE_MISMATCH, e, s);
+              }
+            
+          } else { 
+            JDError.throwSQLException(null, JDError.EXC_DATA_TYPE_MISMATCH, e, s);
+          }
         }
         catch(StringIndexOutOfBoundsException e)
         {
@@ -128,7 +149,10 @@ extends SQLDataBase
 
         try //@dat1
         {
-            return new Time(calendar.getTime().getTime());
+          long millis;
+          if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+
+            return new Time(millis);
         }catch(Exception e){
             if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing time "+s, e); //@dat1
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
@@ -153,7 +177,7 @@ extends SQLDataBase
         String separator = dataFormat.getTimeSeparator();
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.setTime(t);
@@ -172,14 +196,14 @@ extends SQLDataBase
                 // @E3D int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 char amPm;
                 //@PDc - translate to ampm based on hour,min,sec
-                
+
                 //13-23 -> (x-12)pm
                 //12 -> 12pm
                 //1-11 -> xam
                 //0 -> 12am
                 //0:0:0 -> 00:00:00am (special case)
                 //24:0:0 -> 12:00:00am (special case) //hour=0, hourIn=24 since 0 and 24 both map to 0 in Calendar
-             
+
                 if(hour > 12)
                 {
                     hour -= 12;
@@ -196,13 +220,13 @@ extends SQLDataBase
                         hour = 12;
                     amPm = 'A';
                 }
-                else 
-                { 
+                else
+                {
                     //0 hour case
                     hour = 12;
                     amPm = 'A';
-                } 
-                    
+                }
+
                 buffer.append(JDUtilities.padZeros(hour, 2));
                 buffer.append(':');
                 buffer.append(JDUtilities.padZeros(minute, 2));            // @E3C
@@ -264,12 +288,12 @@ extends SQLDataBase
     	// @550 If the time is from a stored procedure result set, it could be in a different time format than the connection's format
     	switch(((timeFormat_ != -1) && (timeFormat_ != connectionTimeFormat)) ? timeFormat_ : connectionTimeFormat)	// @550C
         {
-            
+
             case SQLConversionSettings.TIME_FORMAT_USA:                      // hh:mm AM or PM
                 hour_   = (rawBytes[offset] & 0x0f) * 10 + (rawBytes[offset+1] & 0x0f);
                 minute_ = (rawBytes[offset+3] & 0x0f) * 10 + (rawBytes[offset+4] & 0x0f);
                 second_ = 0;
-                
+
                 //translate from ampm to 24hour
                 //since we can get back duplicate values of 00:00 (00:00am) and 24:00 (12:00am) (which map to
                 //the same time of day in Calendar), we need a way to differentiate the two.
@@ -323,13 +347,13 @@ extends SQLDataBase
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(calendar == null) 
+        if(calendar == null)
         {
             calendar = AS400Calendar.getGregorianInstance(); //@P0A
             calendar.setLenient(false); //@dat1
         }
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         if(object instanceof String)
@@ -467,7 +491,7 @@ extends SQLDataBase
         return truncated_;
     }
     public boolean getOutOfBounds() {
-      return outOfBounds_; 
+      return outOfBounds_;
     }
 
     //---------------------------------------------------------//
@@ -558,11 +582,14 @@ extends SQLDataBase
     public Object getObject()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
-        return new Time(calendar.getTime().getTime());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+
+        return new Time(millis);
     }
 
     public short getShort()
@@ -575,21 +602,23 @@ extends SQLDataBase
     public String getString()
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
-        Time t = new Time(calendar.getTime().getTime());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Time t = new Time(millis);
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 
     public Time getTime(Calendar calendar)
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A  
+        truncated_ = 0; outOfBounds_ = false;
+        if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         // @F2A
@@ -604,7 +633,9 @@ extends SQLDataBase
         // SQL Time objects do not track this field.
         calendar.set(Calendar.MILLISECOND, 0);  // @F2A
 
-        return new Time(calendar.getTime().getTime());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        return new Time(millis);
     }
 
     public Timestamp getTimestamp(Calendar calendar)
@@ -625,12 +656,14 @@ extends SQLDataBase
         truncated_ = 0; outOfBounds_ = false;                                                                 //@54A
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance();                         //@54A
         else {
-          calendar = AS400Calendar.getConversionCalendar(calendar); 
+          calendar = AS400Calendar.getConversionCalendar(calendar);
         }
 
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);               //@54A
         calendar.set(Calendar.MILLISECOND, 0);                                          //@54A
-        Timestamp ts = new Timestamp(calendar.getTime().getTime());                     //@54A
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Timestamp ts = new Timestamp(millis);                     //@54A
         ts.setNanos(0);                                                                 //@54A
         return ts;                                                                      //@54A
 
@@ -638,15 +671,17 @@ extends SQLDataBase
     }
 
 
-    
+
     //@pda jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(Calendar.MILLISECOND, 0);
-        Time t = new Time(calendar.getTime().getTime());
+        long millis;
+        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        Time t = new Time(millis);
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 

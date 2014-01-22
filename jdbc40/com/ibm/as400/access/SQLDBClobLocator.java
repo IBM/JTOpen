@@ -486,8 +486,9 @@ final class SQLDBClobLocator implements SQLLocator
             SQLXML xml = (SQLXML)object;
            
             String stringVal = xml.getString();
-            
-            locator_.writeData(0L, converter_.stringToByteArray(stringVal), 0, stringVal.length()*2, true); //@xml4           
+            // @J2C Use the length of the output array (not input String)
+            byte[] outByteArray = converter_.stringToByteArray(stringVal); 
+            locator_.writeData(0L, outByteArray, 0, outByteArray.length, true); //@xml4           
         }
 /* endif */ 
         else
@@ -967,5 +968,9 @@ final class SQLDBClobLocator implements SQLLocator
         return null;
     }
  
+    public void updateSettings(SQLConversionSettings settings) {
+      settings_ = settings; 
+    }
+
 }
 

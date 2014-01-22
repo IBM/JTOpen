@@ -47,8 +47,10 @@ jdbc:as400://<em>system-name</em>/<em>default-schema</em>;<em>properties</em>
 </pre>
 
 <p>The driver uses the specified system name to connect
-to a corresponding IBM i system.  If a system name is not
-specified, then the user will be prompted.  
+to a corresponding IBM i system.  
+If an IPV6 address is used as the system name, it must be enclosed within braces, 
+i.e. [fd13:ac12:18:17::16].   
+If a system name is not specified, then the user will be prompted.  
 
 <p>The default SQL schema is optional and the driver uses it to resolve 
 unqualified names in SQL statements.  If no default SQL schema is set, then
@@ -142,7 +144,9 @@ implements java.sql.Driver
 	// Toolbox resources NOT needed in proxy jar file.        @A1A
 	private static ResourceBundle resources2_;
 
-    private static final String CLASSNAME = "com.ibm.as400.access.AS400JDBCDriver";
+  private static final String CLASSNAME = "com.ibm.as400.access.AS400JDBCDriver";
+
+  private static Driver nativeDriver = null;
 
 
 	/**
@@ -154,7 +158,7 @@ implements java.sql.Driver
 		try
 		{
 			// Log where the toolbox is loaded from @B1A
-	        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+	     if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME, Trace.JDBC);
 
 	        DriverManager.registerDriver (new AS400JDBCDriver ());
 			resources_  = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI");
@@ -362,6 +366,21 @@ implements java.sql.Driver
                         Trace.setTraceOn(false);
                     }
                 }
+
+                
+    if (JDTrace.isTraceOn()) {
+      String traceUrl = url; 
+      int passwordIndex = url.indexOf("password=");
+      if (passwordIndex >= 0) {
+        int semicolonIndex = url.indexOf(";",passwordIndex); 
+        if (semicolonIndex < 0) {
+          traceUrl = url.substring(0,passwordIndex)+"password=******"; 
+        } else {
+          traceUrl = url.substring(0,passwordIndex)+"password=******"+url.substring(semicolonIndex); 
+        }
+      }
+      JDTrace.logInformation (this,"connect called with URL: "+traceUrl);  
+    }
 
 		JDProperties jdProperties = new JDProperties (urlProperties, info);
 
@@ -1121,17 +1140,19 @@ implements java.sql.Driver
 		{									   						                //@C4A
 			// @B2A
 			// Determine whether the native driver is available.
-			Driver nativeDriver;
-			try
-			{
-				nativeDriver = (Driver)Class.forName("com.ibm.db2.jdbc.app.DB2Driver").newInstance();
-				if (JDTrace.isTraceOn())																							// @C2A
-					JDTrace.logInformation(this, "Native IBM Developer Kit for Java JDBC driver implementation was loaded");		// @C2A
-			}
-			catch (Throwable e)
-			{
-				nativeDriver = null;
-			}
+		  
+      if (nativeDriver == null) {
+        try {
+          nativeDriver = (Driver) Class.forName(
+              "com.ibm.db2.jdbc.app.DB2Driver").newInstance();
+          if (JDTrace.isTraceOn()) // @C2A
+            JDTrace
+                .logInformation(this,
+                    "Native IBM Developer Kit for Java JDBC driver implementation was loaded"); // @C2A
+        } catch (Throwable e) {
+          nativeDriver = null;
+        }
+      }
 
 			// @B2A
 			// Decide which JDBC driver implementation to use.  If the

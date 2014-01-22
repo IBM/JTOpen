@@ -357,7 +357,7 @@ implements java.sql.DatabaseMetaData
       }
       catch (SQLException e)
       {
-        throw new InternalErrorException (e.getMessage (), InternalErrorException.UNEXPECTED_EXCEPTION);
+        throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION, e); 
       }
     }
 
@@ -369,7 +369,7 @@ implements java.sql.DatabaseMetaData
       }
       catch (SQLException e)
       {
-        throw new InternalErrorException (e.getMessage (), InternalErrorException.UNEXPECTED_EXCEPTION);
+        throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION, e); 
       }
     }
 

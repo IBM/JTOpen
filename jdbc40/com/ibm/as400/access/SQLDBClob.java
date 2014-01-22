@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SQLDBClob.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -47,7 +47,7 @@ final class SQLDBClob extends SQLDataBase
     //
     SQLDBClob(int maxLength, SQLConversionSettings settings)
     {
-      super(settings); 
+      super(settings);
         length_         = 0;
         maxLength_      = maxLength;
         value_          = "";
@@ -73,7 +73,7 @@ final class SQLDBClob extends SQLDataBase
 
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1) bidiStringType = ccsidConverter.bidiStringType_;
-        
+
         BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
         bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
@@ -95,7 +95,7 @@ final class SQLDBClob extends SQLDataBase
         {
             int bidiStringType = settings_.getBidiStringType();
             if(bidiStringType == -1) bidiStringType = ccsidConverter.bidiStringType_;
-            
+
             BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
             bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
             bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
@@ -124,15 +124,15 @@ final class SQLDBClob extends SQLDataBase
             String s = (String)object;
             int byteLength = s.length() * 2; //@selins1
             truncated_ = (byteLength > maxLength_ ? byteLength-maxLength_ : 0); //@selins1
-            outOfBounds_ = false; 
+            outOfBounds_ = false;
         } else if( !(object instanceof Reader) &&
                 !(object instanceof InputStream) &&
                 (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob))
 /* ifdef JDBC40 */
                   && !(object instanceof SQLXML)
 /* endif */ 
-                
-                
+
+
                 )
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -195,7 +195,7 @@ final class SQLDBClob extends SQLDataBase
                         {
                             buf.append(charBuffer, 0, charsRead);
                             totalCharsRead += charsRead;
-                          
+
                             charsRead = stream.read(charBuffer, 0, blockSize);
                         }
                         value_ = buf.toString();
@@ -217,7 +217,7 @@ final class SQLDBClob extends SQLDataBase
             }
 /* ifdef JDBC40 */
 
-            else if(object instanceof SQLXML)  //@PDA jdbc40 
+            else if(object instanceof SQLXML)  //@PDA jdbc40
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
@@ -234,11 +234,11 @@ final class SQLDBClob extends SQLDataBase
             {
                 value_ = value_.substring(0, maxLength_);
                 truncated_ = valueLength - maxLength_;
-                outOfBounds_ = false; 
+                outOfBounds_ = false;
             }
             else
             {
-                truncated_ = 0; outOfBounds_ = false; 
+                truncated_ = 0; outOfBounds_ = false;
             }
 
             length_ = value_.length();
@@ -262,7 +262,7 @@ final class SQLDBClob extends SQLDataBase
 
     public String getCreateParameters()
     {
-        return AS400JDBCDriver.getResource("MAXLENGTH"); 
+        return AS400JDBCDriver.getResource("MAXLENGTH");
     }
 
     public int getDisplaySize()
@@ -288,7 +288,7 @@ final class SQLDBClob extends SQLDataBase
 
     public String getLocalName()
     {
-        return "DBCLOB"; 
+        return "DBCLOB";
     }
 
     public int getMaximumPrecision()
@@ -313,7 +313,7 @@ final class SQLDBClob extends SQLDataBase
 
     public int getPrecision()
     {
-        return maxLength_;
+        return maxLength_ / 2 ;
     }
 
     public int getRadix()
@@ -357,7 +357,7 @@ final class SQLDBClob extends SQLDataBase
     }
 
     public boolean getOutOfBounds() {
-      return outOfBounds_; 
+      return outOfBounds_;
     }
 
     //---------------------------------------------------------//
@@ -378,7 +378,7 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return new HexReaderInputStream(new StringReader(value_));
     }
 
@@ -386,7 +386,7 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         try
         {
             return new AS400JDBCBlob(BinaryConverter.stringToBytes(value_), maxLength_);
@@ -417,7 +417,7 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         try
         {
             return BinaryConverter.stringToBytes(value_);
@@ -434,7 +434,7 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return new StringReader(value_);
     }
 
@@ -442,7 +442,7 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return new AS400JDBCClob(value_, maxLength_);
     }
 
@@ -485,7 +485,7 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return new AS400JDBCClob(value_, maxLength_);
     }
 
@@ -500,8 +500,8 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return value_;     
+        truncated_ = 0; outOfBounds_ = false;
+        return value_;
     }
 
     public Time getTime(Calendar calendar)
@@ -522,7 +522,7 @@ final class SQLDBClob extends SQLDataBase
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         try
         {
             return new ReaderInputStream(new StringReader(value_), 13488);
@@ -533,23 +533,23 @@ final class SQLDBClob extends SQLDataBase
             return null;
         }
     }
-    
+
 
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return new StringReader(value_);
     }
-    
+
     //@pda jdbc40
 /* ifdef JDBC40 */
 
     public NClob getNClob() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
+        truncated_ = 0; outOfBounds_ = false;
         return new AS400JDBCNClob(value_, maxLength_);
     }
 /* endif */ 
@@ -557,8 +557,8 @@ final class SQLDBClob extends SQLDataBase
     public String getNString() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return value_;     
+        truncated_ = 0; outOfBounds_ = false;
+        return value_;
     }
 
     //@pda jdbc40
@@ -566,9 +566,9 @@ final class SQLDBClob extends SQLDataBase
 
     public RowId getRowId() throws SQLException
     {
-        
+
         //if(savedObject_ != null) doConversion();
-        //truncated_ = 0; outOfBounds_ = false; 
+        //truncated_ = 0; outOfBounds_ = false;
         //try
         //{
         //    return new AS400JDBCRowId(BinaryConverter.stringToBytes(value_));
@@ -584,14 +584,14 @@ final class SQLDBClob extends SQLDataBase
         return null;
     }
 /* endif */ 
-    
+
     //@pda jdbc40
 /* ifdef JDBC40 */
     public SQLXML getSQLXML() throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        truncated_ = 0; outOfBounds_ = false; 
-        return new AS400JDBCSQLXML(value_);     
+        truncated_ = 0; outOfBounds_ = false;
+        return new AS400JDBCSQLXML(value_);
     }
 /* endif */ 
     // @array

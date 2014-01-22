@@ -127,7 +127,7 @@ implements Connection
     // requests will not be accurate, since they have not yet
     // been set at the time when the request is dumped.
     //
-    private static final int            DEBUG_COMM_TRACE_       = 0;
+    private static  int            DEBUG_COMM_TRACE_       = 0;
 
 
 
@@ -260,6 +260,12 @@ implements Connection
 	protected final static int QUERY_TIMEOUT_CANCEL     = 1;
 
 	private int queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT;
+
+	// @K3 determine variable field compression settings 
+  boolean variableFieldCompressionPropertyEvaluated_ = false; 
+  boolean useVariableFieldCompression_ = false; 
+  boolean useVariableFieldInsertCompression_ = false; 
+
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -392,8 +398,12 @@ implements Connection
         // If we only have read only access, then anything other
         // than a SELECT can not be executed.
         if ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
-            && (! sqlStatement.isSelect ()))
-            JDError.throwSQLException (this, JDError.EXC_ACCESS_MISMATCH);
+            && (! sqlStatement.isSelect ())) {
+            // Do not throw exception if we have a metadata call @K5A
+            if (! sqlStatement.getIsMetaDataCall()) { 
+              JDError.throwSQLException (this, JDError.EXC_ACCESS_MISMATCH);
+            }
+        }
 
         // If we have read call access, then anything other than
         // a SELECT or CALL can not be executed.
@@ -4821,41 +4831,43 @@ void handleAbort() {
             {
                 request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
                 tempConverter = ConvTable.getTable(as400_.getCcsid(), null);
+                
+                
             }
 
             if (name.equals(applicationNamePropertyName_))
             {
                 oldValue = applicationName_;
                 applicationName_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null )
                     request.setClientInfoApplicationName(value, tempConverter);
 
             } else if (name.equals(clientUserPropertyName_))
             {
                 oldValue = clientUser_;
                 clientUser_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null )
                     request.setClientInfoClientUser(value, tempConverter);
 
             } else if (name.equals(clientAccountingPropertyName_))
             {
                 oldValue = clientAccounting_;
                 clientAccounting_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null )
                     request.setClientInfoClientAccounting(value, tempConverter);
 
             } else if (name.equals(clientHostnamePropertyName_))
             {
                 oldValue = clientHostname_;
                 clientHostname_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null)
                     request.setClientInfoClientHostname(value, tempConverter);
 
             } else if (name.equals(clientProgramIDPropertyName_))  //@PDA add block for ProgramID
             {
                 oldValue = clientProgramID_;
                 clientProgramID_ = value;
-                if (getVRM() >= JDUtilities.vrm610)
+                if (request != null)
                     request.setClientInfoProgramID(value, tempConverter);
 
             } else
@@ -5434,7 +5446,7 @@ void handleAbort() {
     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed.
     * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method
     * throws a java.lang.SecurityException.
-    *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the
+    *@param timeout - The time in milliseconds to wait for the database operation to complete. If the
     * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second.
     * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of
     * 0 indicates that there is not timeout for database operations.
@@ -5444,7 +5456,7 @@ void handleAbort() {
     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
     *  setNetworkTimeout.
     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-    * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
+    * @see  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
     *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
     */
 
@@ -5497,7 +5509,7 @@ void handleAbort() {
     * @throws SQLException - if a database access error occurs or this method is called on a closed Connection
     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
     * @since JTOpen 7.X
-    * @see setNetworkTimeout(java.util.concurrent.Executor, int)
+    * @see #setNetworkTimeout(java.util.concurrent.Executor, int)
     */
   public int getNetworkTimeout() throws SQLException {
     checkOpen ();
@@ -5624,6 +5636,68 @@ void handleAbort() {
     return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL;
   }
 
+
+  /**
+   * Setup the variableFieldCompression flags @K3A
+   */
+  void setupVariableFieldCompression() {
+    if (!variableFieldCompressionPropertyEvaluated_) {
+
+      boolean variableFieldInsertCompressionAvailable = false;
+      if (serverFunctionalLevel_ >= 16) {
+        variableFieldInsertCompressionAvailable = true;
+      }
+      if (serverFunctionalLevel_ >= 14) {
+        String property = null;
+        try {
+          property = getProperties().getString(
+              JDProperties.VARIABLE_FIELD_COMPRESSION);
+        } catch (Exception e) {
+          // Just use defaults
+        }
+        if (property == null)
+          property = "default";
+        property = property.toLowerCase().trim();
+        if ("false".equals(property)) {
+          useVariableFieldCompression_ = false;
+          useVariableFieldInsertCompression_ = false;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        } else if ("true".equals(property)) {
+          useVariableFieldCompression_ = true;
+          useVariableFieldInsertCompression_ = false;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        } else if ("insert".equals(property)) {
+          useVariableFieldCompression_ = false;
+          useVariableFieldInsertCompression_ = variableFieldInsertCompressionAvailable;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        } else {
+          // Default is to use all possible compression
+          useVariableFieldCompression_ = true;
+          useVariableFieldInsertCompression_ = variableFieldInsertCompressionAvailable;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        }
+      } else {
+        // server does not support any form of compression
+        useVariableFieldCompression_ = false;
+        useVariableFieldInsertCompression_ = false;
+        variableFieldCompressionPropertyEvaluated_ = true;
+      }
+    }
+  }
+
+  boolean useVariableFieldCompression() {
+    if (!variableFieldCompressionPropertyEvaluated_) {
+      setupVariableFieldCompression(); 
+    }
+    return useVariableFieldCompression_; 
+  }
+
+  boolean useVariableFieldInsertCompression() {
+    if (!variableFieldCompressionPropertyEvaluated_) {
+      setupVariableFieldCompression(); 
+    }
+    return useVariableFieldInsertCompression_; 
+  }
 
 
 }

@@ -170,7 +170,10 @@ Returns part of the contents of the CLOB.
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
     int offset = (int)position-1;
-    if (offset < 0 || length < 0 || (offset + length) > data_.length)
+    // Only throw exception if offset if greater than the length
+    // It is valid for the requested length to be greater than the actual length
+    // @J5C
+    if (offset < 0 || length < 0 || (offset  > data_.length))
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
@@ -182,7 +185,7 @@ Returns part of the contents of the CLOB.
     }
     
     int lengthToUse = data_.length - offset;
-    if (lengthToUse < 0) return "";
+    if (lengthToUse <= 0) return "";
     if (lengthToUse > length) lengthToUse = length;
 
     char[] result = new char[lengthToUse];
@@ -372,7 +375,7 @@ Returns the position at which a pattern is found in the CLOB.
 
     if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
     {
-      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
     // We will write as many chars as we can. If our internal char array
@@ -424,7 +427,7 @@ Returns the position at which a pattern is found in the CLOB.
         string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||
         (clobOffset+lengthOfWrite) > maxLength_)
     {
-      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
     // We will write as many chars as we can. If our internal char array

@@ -451,7 +451,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   final AS400JDBCConnection createPhysicalConnection() throws SQLException
   {
     // If we have an AS400JDBCManagedConnectionPoolDataSource, delegate the connection creation.
-    if (cpds_ != null) {
+    if (cpds_ != null && cpds_ != this) {
       return cpds_.createPhysicalConnection();
     }
     else
@@ -492,7 +492,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       throw new NullPointerException("password");
 
     // If we have an AS400JDBCManagedConnectionPoolDataSource, delegate the connection creation.
-    if (cpds_ != null) {
+    if (cpds_ != null && cpds_ != this) {
       return cpds_.createPhysicalConnection(user, password);
     }
     else
@@ -716,7 +716,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     // Note: This method will return either an AS400JDBCConnection or an AS400JDBCConnectionHandle.
     Connection connection;
 
-    if (dataSourceNameSpecified_)  // A datasource name has been specified, so use pooling.
+    if (dataSourceNameSpecified_ || (this instanceof AS400JDBCManagedConnectionPoolDataSource))  // A datasource name has been specified, so use pooling.
     {
       connection = getConnectionFromPool(null, null);  // 'null' indicates "use default key".
       // Returns a connection handle or null.
@@ -789,7 +789,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       throw new NullPointerException("password");
 
     Connection connection = null;
-    if (dataSourceNameSpecified_)  // A datasource name has been specified, so use pooling.
+    if (dataSourceNameSpecified_  )  // A datasource name has been specified, so use pooling.
     {
       // Note: xpwConfuse() generates different output each time it's called against the same password, so we can't use it bo build the pool key.
       JDConnectionPoolKey key = new JDConnectionPoolKey(user, password.hashCode());
@@ -1624,7 +1624,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   void initializeConnectionPool() throws SQLException
   {
-    if (!dataSourceNameSpecified_)
+    logWarning("initializeConnectionPool");
+    if (!dataSourceNameSpecified_ && !(this instanceof AS400JDBCManagedConnectionPoolDataSource))
     {
       logWarning("No datasource name was specified, so connections will not be pooled");
       return;
@@ -1632,27 +1633,35 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     synchronized(this) { /*@A7A */  
         inUse_ = true;
     }
-    if (poolManager_ == null)
+    try
     {
-      try
-      {
-        // Assume that the Context.INITIAL_CONTEXT_FACTORY system property has been set.
-        Context ctx = new InitialContext();
-        cpds_ = (AS400JDBCManagedConnectionPoolDataSource)ctx.lookup(dataSourceName_);
-        if (cpds_ == null) {
-          logError("Data source name is not bound in JNDI: " + dataSourceName_);
-          JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
+      if (poolManager_ == null) {
+        if (this instanceof AS400JDBCManagedConnectionPoolDataSource) {
+          cpds_ = (AS400JDBCManagedConnectionPoolDataSource) this;
+          dataSourceNameSpecified_ = true;
+        } else {
+          // Assume that the Context.INITIAL_CONTEXT_FACTORY system property has
+          // been set.
+          Context ctx = new InitialContext();
+          cpds_ = (AS400JDBCManagedConnectionPoolDataSource) ctx
+              .lookup(dataSourceName_);
+          if (cpds_ == null) {
+            logError("Data source name is not bound in JNDI: "
+                + dataSourceName_);
+            JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
+          }
         }
 
         getConnectionPoolKey(); // initialize the default connection pool key
         poolManager_ = new JDConnectionPoolManager(this, cpds_);
-        // Implementation note: The JNDI lookup() tends to lose the LogWriter value of cpds_, so we need to give the pool manager access to our own LogWriter.
+        // Implementation note: The JNDI lookup() tends to lose the LogWriter
+        // value of cpds_, so we need to give the pool manager access to our own
+        // LogWriter.
       }
-      catch (NamingException ne)
-      {
-        ne.printStackTrace();
-        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
-      }
+    }    catch (NamingException ne)
+    {
+      ne.printStackTrace();
+      JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
     }
 
     poolManagerInitialized_ = true;

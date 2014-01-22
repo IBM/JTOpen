@@ -66,7 +66,7 @@ public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatement
 implements CallableStatement
 {
-    static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright2 = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     static final int    NO_VALIDATION_  = -9999;
 
@@ -517,7 +517,7 @@ implements CallableStatement
     {
         // Check for negative scale.
         if(scale < 0)
-            JDError.throwSQLException(this, JDError.EXC_SCALE_INVALID);
+            JDError.throwSQLException(this, JDError.EXC_SCALE_INVALID,""+scale);
 
         synchronized(internalLock_)
         {
@@ -628,7 +628,7 @@ implements CallableStatement
 
                 // Validate the parameter index.
                 if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID,""+parameterIndex);
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -2665,7 +2665,13 @@ implements CallableStatement
             JDTrace.logInformation(this, "setBytes()");                   // @G7A
             if(parameterValue == null)                                  // @G7A
                 JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");  // @G7A
-            else JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+            else {
+              StringBuffer parameterStringBuffer = new StringBuffer(); 
+              Trace.printByteArray(parameterStringBuffer, parameterValue);
+              JDTrace.logInformation(this, "parameter index: " + 
+              findParameterIndex(parameterName) + " value: " + 
+                  parameterStringBuffer.toString()); // @G7A
+            }
         }                                                                  // @G7A
 
         setBytes(findParameterIndex(parameterName), parameterValue);

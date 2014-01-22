@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -128,7 +129,8 @@ implements Statement
     int                     behaviorOverride_ = 0;    // @F9a
     private boolean     associatedWithLocators_ = false;        //@KBL set to true, if this statement was used to access a locator
     private boolean     holdStatement_ = false;                //@KBL set to true, if rpb and ors for this statement should be left open until a transaction boundary
-    private boolean     useVariableFieldCompression_ = false;    //@K54
+    protected boolean     useVariableFieldCompression_ = false;    //@K54  does connection allow compression
+    protected boolean     useVariableFieldInsertCompression_ = false;    //@K54 does connection allow compressions
     private boolean     isPoolable_ = false;         //@PDA  jdbc40
     JDServerRow         parameterRow_;          // private protected //@re-prep moved from preparedStatement so that it has visibility here
     private boolean     threadInterrupted = false;
@@ -211,7 +213,7 @@ implements Statement
         rpbCreated_             = false;
         rpbQueryTimeoutChanged_ = false;    //@EFA
         rpbSyncNeeded_          = true;
-        settings_               = new SQLConversionSettings (connection_);
+        settings_               = SQLConversionSettings.getConversionSettings (connection_);
         sqlWarning_             = null;
         packageCriteria_        = packageCriteria;    // @A1A
 
@@ -221,10 +223,11 @@ implements Statement
         String idString4 = idString.substring (idString.length() - 4);
         name_ = "STMT" + idString4;
 
+        useVariableFieldInsertCompression_ = connection_.useVariableFieldInsertCompression();
         if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    // @B1A
         {
             cursorDefaultName_ = "CRSR" + idString4;
-            if((connection_.getServerFunctionalLevel() >= 14) && (connection_.getProperties().getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION)))   //@K54
+            if(connection_.useVariableFieldCompression())   //@K54
                useVariableFieldCompression_ = true;                                                                                                   //@K54
         }
         else    // @B1A
@@ -802,8 +805,9 @@ implements Statement
                             requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    //@F3A  //@541C  undeleted
                          }                                                                                          //@F3A  //@541C  undeleted
                     }                                                                                              //@F3A   //@541C  undeleted
-                    if(connection_.getVRM() >= JDUtilities.vrm610 )     //@cur request cursor attributes  //@isol
+                    if(connection_.getVRM() >= JDUtilities.vrm610 )  {   //@cur request cursor attributes  //@isol
                         requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES; //@cur
+                    }
                     //@P0A
                     request = DBDSPool.getDBSQLRequestDS(functionId, id_, requestedORS, 0);    //@P0C @F3C @F5C //@541C
 
@@ -831,6 +835,8 @@ implements Statement
                         request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
                     }
 
+                    String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@H1A
+
                     // If we are prefetching data and a row format
                     // was returned, then set the blocking factor if a specific number of rows have been asked for
                     // or variable-length field compression is turned off, otherwise set the buffer size.
@@ -848,10 +854,11 @@ implements Statement
                             request.setBufferSize(blockSize_ * 1024);
                         }
                         else {                                                    //@K54
+                          
                         	if (resultRow != null) {  // @B5A -- check for null pointer
-                               request.setBlockingFactor(getBlockingFactor (sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
+                               request.setBlockingFactor(getBlockingFactor (cursorSensitivity, sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
                         	} else {
-                                request.setBlockingFactor(getBlockingFactor (sqlStatement, 0));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
+                                request.setBlockingFactor(getBlockingFactor (cursorSensitivity, sqlStatement, 0));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
                         	}
                         }
                     }
@@ -862,7 +869,7 @@ implements Statement
                     //@K1D //@F8 Change in a future release to send CURSOR_SCROLLABLE_INSENSITIVE and
                     //@K1D //@F8 CURSOR_NOT_SCROLLABLE_INSENSITIVE if resultSetType_ ==
                     //@K1D //@F8 ResultSet.TYPE_SCROLL_INSENSITIVE to v5r1 or later hosts.
-                    String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                    // String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
                     //@K1D if((connection_.getVRM() < JDUtilities.vrm520)                                                    //@F8A
                     //@K1D    || (resultSetType_ == ResultSet.TYPE_SCROLL_INSENSITIVE)                                       //@F8A
                     //@K1D    || (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE)))           //@F8A
@@ -905,31 +912,11 @@ implements Statement
                         // We want to ignore any property or settings specified on the STATEMENT or CONNECTION              //@GKA
                         request.setScrollableCursorFlag(DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);                      //@GKA
                     }                                                                                                       //@GKA
-                    else if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    //@K1A
-                    {
-                        //@K1A
-                        //Determine if user set cursor sensitivity property                                              //@K1A
-                        //if ResultSet is updateable, then we cannot have a insensitive cursor                           //@K1A
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE) && (resultSetConcurrency_ == ResultSet.CONCUR_READ_ONLY))    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@K1A        Option 5
-                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))     //@PDA
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);      //@PDA        Option 4
-                        else    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@K1A        Option 0
-                    }    //@K1A
-                    else if(resultSetType_ == ResultSet.TYPE_SCROLL_SENSITIVE)    //@K1A
-                    {
-                        //@K1A
-                        //Determine if user set cursor sensitivity property                                              //@K1A
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@K1A        Option 1
-                        else    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);   //@K1A        Option 3
-                    }    //@K1A
-                    else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@K1A
-                    {
-                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@K1A        Option 2
-                    }    //@K1A
+                    else {
+                      /* @H1A Use common routine to determine scrollability */ 	
+                      request.setScrollableCursorFlag(
+                          AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivity, resultSetType_, resultSetConcurrency_));
+                    }
 
                     // Check system level before sending new code point
                     if(connection_.getVRM() >= JDUtilities.vrm520)    // @G4A
@@ -1048,10 +1035,12 @@ implements Statement
 
                     //@F5D This belongs on the prepare, not the execute
                     //@F5D @F3A If user asked us to parse out extended metadata, then make an object
-                    //@F5D if (extendedMetaData)                                                         //@F3A
-                    //@F5D {                                                                             //@F3A
-                    //@F5D     extendedColumnDescriptors_ = reply.getExtendedColumnDescriptors();        //@F3A
-                    //@F5D }                                                                             //@F3A
+                    //@K3A Added back.. This belongs here for stored procedure result sets
+                    // extendedMetaData is set to true only for all statements. 
+                    if (extendedMetaData)                                                         //@F3A
+                     {                                                                             //@F3A
+                         extendedColumnDescriptors_ = commonExecuteReply.getExtendedColumnDescriptors();        //@F3A
+                     }                                                                             //@F3A
 
                     // Compute the update count and result set .
                     if(openNeeded)
@@ -1065,12 +1054,12 @@ implements Statement
                         if((fetchFirstBlock) && (resultData != null))
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, rowLength), resultData,
+                                                             getBlockingFactor (cursorSensitivity, sqlStatement, rowLength), resultData,
                                                              lastBlock, resultSetType_, cursor_); //@pdc perf2 - fetch/close
                         else
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, rowLength), lastBlock, resultSetType_, cursor_); //@PDC perf //@pdc perf2 - fetch/close
+                                                             getBlockingFactor (cursorSensitivity, sqlStatement, rowLength), lastBlock, resultSetType_, cursor_); //@PDC perf //@pdc perf2 - fetch/close
 
                         // If the result set concurrency is updatable, check to                            @E1C
                         // see if the system overrode the cursor type to read only.                        @E1C
@@ -1122,6 +1111,7 @@ implements Statement
                     if(extendedMetaData)    //@541A
                     {
                         extendedColumnDescriptors_ = commonExecuteReply.getExtendedColumnDescriptors ();    //@F5A
+                        cursor_.setExtendedMetaData(extendedMetaData);                                      //@K3A
                     }
 
                     // If this is a CALL and result sets came back, but
@@ -1157,9 +1147,11 @@ implements Statement
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
                                                                                                       callResultSetType), settings_);          //@KBA
                             JDServerRowCache rowCache = new JDServerRowCache (row,
-                                                                              connection_, id_, getBlockingFactor (sqlStatement,
+                                                                              connection_, id_, 
+                                                                              getBlockingFactor (cursorSensitivity, sqlStatement,
                                                                                                                    row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
                             //if pre-v5r3 create a FORWARD_ONLY RESULT SET
+                            
                             if(preV5R3)                                                           //@KBA
                             {
                                 resultSet_ = new AS400JDBCResultSet (this,
@@ -1179,6 +1171,14 @@ implements Statement
 
                             if(resultSet_.getConcurrency () != resultSetConcurrency_)
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+                            
+                            /*@K3A*/
+                            if (extendedMetaData) {
+                                DBExtendedColumnDescriptors newExtendedColumnDescriptors = cursor_.getExtendedColumnDescriptors();
+                                if (newExtendedColumnDescriptors != null) {
+                                  extendedColumnDescriptors_ = newExtendedColumnDescriptors; 
+                                }
+                            }
                         }
                     }
 
@@ -1631,10 +1631,15 @@ implements Statement
                     if((isCall == true) && (numberOfResults_ > 0))
                     {
                         boolean preV5R3 = connection_.getVRM() < JDUtilities.vrm530;
+                        if (extendedMetaData) {  /*@K3A*/
+                          cursor_.setExtendedMetaData(extendedMetaData); 
+                        }
                         JDServerRow row = new JDServerRow (connection_, id_,
                                                            cursor_.openDescribe (openAttributes, resultSetType_),             //@KBA
                                                            settings_);
-                        JDServerRowCache rowCache = new JDServerRowCache (row, connection_, id_, getBlockingFactor (
+                        String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                        
+                        JDServerRowCache rowCache = new JDServerRowCache (row, connection_, id_, getBlockingFactor (cursorSensitivity, 
                                                                                                                    sqlStatement, row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_); //@PDC perf //@pda perf2 - fetch/close
 
                         //if pre-v5r3 create a FORWARD_ONLY RESULT SET
@@ -2326,9 +2331,13 @@ implements Statement
                 System.arraycopy (updateCounts, 0, updateCounts2, 0, i);
 
                 batch_.removeAllElements ();
-                throw new BatchUpdateException (e.getMessage (),
-                                                e.getSQLState (), e.getErrorCode (), updateCounts2);
-            }
+                BatchUpdateException throwException = new BatchUpdateException (e.getMessage (),
+                    e.getSQLState (), e.getErrorCode (), updateCounts2);
+                try { 
+                  throwException.initCause(e); 
+                } catch (Throwable t) {}
+                throw throwException;
+                }
 
             batch_.removeAllElements ();
             return updateCounts;
@@ -2780,17 +2789,21 @@ implements Statement
     @param  rowLength       The row length.
     @return                 The blocking factor (in rows).
     **/
-    int getBlockingFactor (JDSQLStatement sqlStatement,
+    int getBlockingFactor (String cursorSensitivityProperty,
+                           JDSQLStatement sqlStatement,
                            int rowLength)    // private protected
     {
         boolean block = false;
         boolean useFetchSize = false;
 
+        // Allow blocking for asensitive cursors @H1A
+        int requestDSCursorType = AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivityProperty, resultSetType_, resultSetConcurrency_); 
         // Only block if the cursor is not updatable
         // and no locators are in the result set.                                  @B2A
         if((cursor_.getConcurrency() != ResultSet.CONCUR_UPDATABLE)    // @B2C @EAC
            && (lastPrepareContainsLocator_ == false)
-           && (resultSetType_ != ResultSet.TYPE_SCROLL_SENSITIVE))  //@KKB we do not want to block if a sensitive cursor is being used
+           && (requestDSCursorType  != DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE) &&
+           (requestDSCursorType != DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE))  //@KKB we do not want to block if a sensitive cursor is being used
         {    // @B2A
 
             // Determine if we should block based on the block
@@ -2799,42 +2812,100 @@ implements Statement
             {
                 block = true;
                 useFetchSize = true;
-            }
-
-            if(sqlStatement != null)
-            {
+                if(JDTrace.isTraceOn()) {
+                  JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- blockCriteria_="+blockCriteria_); 
+                }
+            //
+            // The documentation for Statement.setFetchSize() says 
+            // that fetchSize is used when the blockSize is 0
+            // 
+            } else if (fetchSize_ > 1 && blockSize_ == 0) {
+              block = true;
+              useFetchSize = true;
+              if(JDTrace.isTraceOn()) {
+                JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- fetchSize="+fetchSize_); 
+              }
+               
+            } else if(sqlStatement != null)  {
                 if((blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_IF_FETCH))
-                   && (sqlStatement.isForFetchOnly()))
+                   && (sqlStatement.isForFetchOnly())) {
+                  
                     block = true;
+                    if(JDTrace.isTraceOn()) {
+                      JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- blockCriteria_="+blockCriteria_+" and isForFetchOnly"); 
+                    }
 
-                else if((blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE))
-                        && (! sqlStatement.isForUpdate()))
+                }  else if((blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE))
+                        && (! sqlStatement.isForUpdate())) {
                     block = true;
+                    if(JDTrace.isTraceOn()) {
+                      JDTrace.logInformation (this, "getBlockingFactor(): Blocking -- blockCriteria_="+blockCriteria_+" and isForFetchOnly"); 
+                    }
+                    
+                } else {
+                  if(JDTrace.isTraceOn()) {
+                    JDTrace.logInformation (this, "getBlockingFactor(): Blocking ="+block+" blockCriteria="+ blockCriteria_); 
+                  }
+                
+                }
+            } else {
+                if(blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE)) {
+                  block = true;
+                } else {
+                  if(JDTrace.isTraceOn()) {
+                    JDTrace.logInformation (this, "getBlockingFactor(): Blocking ="+block+" blockCriteria="+ blockCriteria_+" sqlStatement is null"); 
+                  }
+                }
             }
-            else
-                if(blockCriteria_.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_UNLESS_UPDATE))
-                block = true;
-
+        } else {
+          if(JDTrace.isTraceOn()) {
+            JDTrace.logInformation (this, 
+                  "getBlockingFactor(): Not blocking -- concurrency="+cursor_.getConcurrency()+
+                  " lastPrepareContainsLocator_="+lastPrepareContainsLocator_+
+                  " requestCursorType="+requestDSCursorType);
+          }
         }
 
         // Compute the blocking factor.
         int blockingFactor;
         if(block)
         {
-            if(useFetchSize)
+            if(useFetchSize) {
                 blockingFactor = fetchSize_;
+                if(JDTrace.isTraceOn()) {
+                  JDTrace.logInformation (this, 
+                      "getBlockingFactor: blockFactor taken from fetchSize_"); 
+                }
+                
+            }
             else
             {
+                if (rowLength <= 0) {
+                  blockingFactor = 1;    // Avoid divide by zero -- bug 3119833 
+                } else { 
                 blockingFactor = (blockSize_ * 1024) / rowLength;
-                if(blockingFactor > 32767)
+                if(blockingFactor > 32767) { 
                     blockingFactor = 32767;
-                else if(blockingFactor <= 0)
+                } else if(blockingFactor <= 1) {
                     blockingFactor = 1;
+                    if(JDTrace.isTraceOn()) {
+                      JDTrace.logInformation (this, 
+                          "getBlockingFactor: blockFactor is 1: blockSize_="+blockSize_+" rowLength="+rowLength);  
+                    }
+
+                }
+                }
+            }
+        } else { 
+            blockingFactor = 1;
+            if(JDTrace.isTraceOn()) {
+              JDTrace.logInformation (this, 
+                  "getBlockingFactor: block=false so blockFactor is 1"); 
             }
         }
-        else
-            blockingFactor = 1;
-
+        if(JDTrace.isTraceOn()) {
+          JDTrace.logInformation (this, "getBlockingFactor: blockFactor is "+blockingFactor);  
+        }
         return blockingFactor;
     }
 
@@ -3070,11 +3141,20 @@ implements Statement
                 DBSQLRequestDS request = null;    //@P0A
                 try
                 {
-                    if((connection_.getVRM() >= JDUtilities.vrm610))                           //@cur //@isol
-                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES, 0);    //@cur
-                    else
-                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);    //@P0C
+                    if((connection_.getVRM() >= JDUtilities.vrm610)) {
+                    	/*@K3A*/
+                      int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES;
+                           boolean extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); 
+                           if (extendedMetaData)                                                                      
+                           {                                                                                          
+                               requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    
+                           }                                                                                         
 
+                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, requestedORS, 0);    //@cur
+                        
+                    } else {
+                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);    //@P0C
+                    }
                     int openAttributes = cursor_.getOpenAttributes(null, blockCriteria_);    // @E1A
                     request.setOpenAttributes(openAttributes);    // @E1C
 
@@ -3082,28 +3162,8 @@ implements Statement
                     if(connection_.getVRM() >= JDUtilities.vrm530)
                     {
                         String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
-                        if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    //@KBA
-                        {
-                            //@KBA
-                            //Determine if user set cursor sensitivity property                                              //@KBA
-                            if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@KBA        Option 5
-                            else    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@KBA        Option 0
-                        }    //@KBA
-                        else if(resultSetType_ == ResultSet.TYPE_SCROLL_SENSITIVE)    //@KBA
-                        {
-                            //@KBA
-                            //Determine if user set cursor sensitivity property                                              //@KBA
-                            if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@KBA        Option 1
-                            else    //@KBA
-                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@KBA        Option 3
-                        }    //@KBA
-                        else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@KBA
-                        {
-                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@KBA        Option 2
-                        }    //@KBA
+                        /* @H1A Use common routine to determine scrollability */  
+                        request.setScrollableCursorFlag(AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivity, resultSetType_, resultSetConcurrency_));
                     }
 
                     if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply=null; }
@@ -3138,9 +3198,17 @@ implements Statement
                     // Compute the result set.
                     JDServerRow row = new JDServerRow (connection_, id_, dataFormat,
                                                        settings_);
+                    String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                    
                     JDServerRowCache rowCache = new JDServerRowCache (
-                                                                     row, connection_, id_, getBlockingFactor (
-                                                                                                              null, row.getRowLength()), false, resultSetType_, cursor_); //@PDC perf //@pda perf2 - fetch/close
+                                                                     row, 
+                                                                     connection_, id_, 
+                                                                     getBlockingFactor (cursorSensitivity,
+                                                                                        null, 
+                                                                                        row.getRowLength()), 
+                                                                     false, 
+                                                                     resultSetType_, 
+                                                                     cursor_); //@PDC perf //@pda perf2 - fetch/close
 
                     // If the result set concurrency is updatable, check to                            @E1C
                     // see if the system overrode the cursor type to read only.                        @E1C
@@ -3787,6 +3855,11 @@ implements Statement
     <p>This setting only affects statements that meet the criteria
     specified in the "block criteria" property.  The fetch size
     is only used if the "block size" property is set to "0".
+    
+    <p>This setting only takes effect for result sets that are opened
+    after this method has been called.  Ideally, this method should be
+    called before the statement is executed. 
+    
 
     @param fetchSize    The number of rows.  This must be greater than
                         or equal to 0 and less than or equal to the
@@ -3809,6 +3882,8 @@ implements Statement
 
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Fetch size", fetchSize_);
+            
+            
         }
     }
 
@@ -3839,8 +3914,11 @@ implements Statement
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
             maxFieldSize_ = maxFieldSize;
-            settings_.setMaxFieldSize (maxFieldSize_);
+            settings_ = SQLConversionSettings.getConversionSettingsWithMaxFieldSize(settings_,maxFieldSize);
 
+            if (parameterRow_ != null) { 
+              parameterRow_.updateSettings(settings_); 
+            }
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Max field size", maxFieldSize_);
         }
@@ -4175,7 +4253,6 @@ implements Statement
                     cancelThread_.interrupt();
             }
         }
-
 
 
 

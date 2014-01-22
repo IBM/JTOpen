@@ -42,6 +42,12 @@ import java.sql.SQLException;
 // JDLobLocator knows that it is graphic and will correctly convert
 // the byte offsets and lengths into character offsets and lengths.
 
+// For the case where the column has a CCSID with variable size 
+// characters, all the data will be needed to be retrieved and
+// translated for request requiring the length of the lob, as 
+// well as for requests requiring a character offset into the lob. 
+
+
 /**
 The AS400JDBCClobLocator class provides access to character large
 objects.  The data is valid only within the current
@@ -193,7 +199,7 @@ Returns the handle to this CLOB locator in the database.
     synchronized(locator_)
     {
       int offset = (int)position-1;
-      if (offset < 0 || length < 0 || (offset + length) > length())
+      if (offset < 0 || length < 0  || (offset  > length()) )
       {
         JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
@@ -221,7 +227,9 @@ Returns the handle to this CLOB locator in the database.
     	  finally{
     	      try{
     	          if (r != null ) r.close();
-    	      }catch(Exception ee){}
+    	      }catch(Exception ee){
+    	        JDTrace.logException(this, "getSubString r.close() threw exception", ee);  
+    	      }
     	  }
       }
       
@@ -303,7 +311,7 @@ Returns the handle to this CLOB locator in the database.
       int offset = (int)position-1;
       if (pattern == null || offset < 0 || offset >= length())
       {
-        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
 
       char[] charPattern = pattern.toCharArray();
@@ -354,7 +362,7 @@ Returns the handle to this CLOB locator in the database.
       int offset = (int)position-1;
       if (pattern == null || offset < 0 || offset >= length())
       {
-        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
 
       int patternLength = (int)pattern.length();
@@ -469,7 +477,7 @@ Returns the handle to this CLOB locator in the database.
 
       if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
       {
-        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
 
       // We will write as many chars as we can. If our internal char array
@@ -524,7 +532,7 @@ Returns the handle to this CLOB locator in the database.
           string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||
           (clobOffset+lengthOfWrite) > maxLength_)
       {
-        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
 
       // We will write as many chars as we can. If our internal char array
@@ -661,4 +669,10 @@ Returns the handle to this CLOB locator in the database.
       }
   }
   
+  /** Get the locator handle corresponding to this ClobLocator
+   * 
+   */
+  public int getLocator() { 
+    return locator_.getHandle(); 
+  }
 }

@@ -575,4 +575,5 @@ extends Cloneable
     public abstract Array getArray()
     throws SQLException;
 
+    public abstract void updateSettings(SQLConversionSettings settings); 
 }

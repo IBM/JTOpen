@@ -411,7 +411,9 @@ implements ResultSetMetaData
             try{
             if(rs != null)
                 rs.close();
-            }catch(Exception e){} //allow next close to execute
+            }catch(Exception e){
+              JDTrace.logException(this, "isAutoIncrement rs.close()", e);  
+            } //allow next close to execute
             if(ps != null)
                 ps.close();
         }

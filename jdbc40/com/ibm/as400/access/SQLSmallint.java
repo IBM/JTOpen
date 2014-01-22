@@ -166,7 +166,7 @@ extends SQLDataBase
                 catch(NumberFormatException e)                                           // @P1a
                 {
                     // @P1a
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);            // @P1a
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH,e);            // @P1a
                 }                                                                         // @P1a
             }                                                                            // @P1a
         }                                                                                // @P1a
