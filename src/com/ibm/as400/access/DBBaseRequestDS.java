@@ -700,6 +700,23 @@ Adds a DBOverlay parameter.
   }
 
 
+  /**
+  Adds a DBOverlay parameter and return the offset of
+  where the parameter length should be updated.
+  **/
+  /* @K3A*/
+  protected int addParameterReserve(int codePoint,
+      DBOverlay value)
+throws DBDataStreamException
+{
+    int offset = lockReserve(value.getLength(), codePoint);
+
+    value.overlay(data_, currentOffset_);
+
+  unlock();
+  return offset; 
+}
+
 
 /**
 Clears an operation result from the operation result bitmap.
@@ -885,7 +902,44 @@ byte array and grow it as needed.
     currentOffset_ += 6;
   }
 
+  /**
+  "LocksReserve" the request datastream for addition of a parameter.
+  This will determine if there is space left in the data
+  byte array and grow it as needed.
+  This returns the offset of where the length should be updated
+  via a call to request.updateLength()
 
+  @param length The length to be added to the data stream,
+                in bytes, not including the LL and CP.
+  **/
+  /*@K3A*/
+    private int lockReserve(int length, int codePoint)
+    throws DBDataStreamException
+    {
+      int lengthOffset; 
+      if (storage_.checkSize(currentOffset_ + length + 6))
+        data_ = storage_.getData(); //@P0C
+      lockedLength_ = length;
+
+      lengthOffset = currentOffset_; 
+      set32bit(length + 6, currentOffset_);          // LL
+      set16bit(codePoint, currentOffset_ + 4);       // CP
+
+      currentOffset_ += 6;
+      return lengthOffset; 
+    }
+
+    /** update the length of the block using the previously saved
+     *  offset.  Add 6 to the length to include the 6 bytes at the 
+     *  beginning 
+     */
+    public void updateLength(int offset, int length) { 
+      set32bit(length + 6, offset);       
+      currentOffset_ = currentOffset_ - lockedLength_ + length;  // TODO:  Check this..  
+    }
+
+  
+  
 
 /**
 Sets the numeric value of the "based-on" Operation Results

@@ -49,8 +49,9 @@ class JDCursor
   private int                 updatable_ = -1;           //@cur (if on 550 hostserver, can use this instead of concurrency_)
   private int                 sensitive_ = -1;           //@cur
   private int                 isolationLevel_ = -1;      //@isol  
-
-  private DBReplyRequestedDS openReply = null; 
+  private boolean             extendedMetaData_ = false; 
+  private DBReplyRequestedDS openReply = null;
+  private DBExtendedColumnDescriptors extendedColumnDescriptors_ = null; 
 
 /**
 Constructs a JDCursor object.
@@ -262,11 +263,15 @@ Opens the cursor and describes the data format.
       DBSQLRequestDS request = null; //@P0A
       try
       {
+        int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
+            + DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT              
+            + DBSQLRequestDS.ORS_BITMAP_SQLCA; 
+        if (extendedMetaData_) { 
+          requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS; 
+        }
         request = DBDSPool.getDBSQLRequestDS ( //@P0C
                                              DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE,
-                                             id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
-                                             + DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT              
-                                             + DBSQLRequestDS.ORS_BITMAP_SQLCA,                                  // @E1A
+                                             id_, requestedORS,                                  // @E1A
                                              0);   //@isol  Note:  ORS_BITMAP_CURSOR_ATTRIBUTES not needed here since it is specified by callers before this point
 
       request.setOpenAttributes (openAttributes);
@@ -326,6 +331,11 @@ Opens the cursor and describes the data format.
 
       processConcurrencyOverride(openAttributes, openReply);                            // @E1A @E4C
       dataFormat = openReply.getDataFormat ();
+      if (extendedMetaData_) { 
+      extendedColumnDescriptors_  = openReply.getExtendedColumnDescriptors();
+      } else { 
+        extendedColumnDescriptors_ =null; 
+      }
       // @550A  NOTE:  openDescribe() currently is only called for a result set returned from a CallableStatement
       // if that were to change, this method needs to be modified so that it correctly indicates to the data format
       // when the data is from a stored procedure result set.
@@ -461,8 +471,16 @@ Processes a cursor attributes from a reply.
  {
      return isolationLevel_;
  }
- 
 
+ /**
+  * Sets whether extended metadata should be requested when the cursor is
+  * opened. 
+  * @param extendedMetaData
+  */
+void setExtendedMetaData(boolean extendedMetaData) {
+  extendedMetaData_=extendedMetaData; 
+}
+ 
 /**
 Set the cursor name.
 
@@ -497,8 +515,13 @@ request implicitly opens or closes the cursor.
     }
   }
 
-
-
+/**
+ * Returns the extended column descriptors
+ */
+  DBExtendedColumnDescriptors getExtendedColumnDescriptors() {
+    return extendedColumnDescriptors_;
+  }
+  
 /**
 Returns the cursor name.
 

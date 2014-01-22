@@ -260,6 +260,12 @@ implements Connection
 	protected final static int QUERY_TIMEOUT_CANCEL     = 1;
 
 	private int queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT;
+
+	// @K3 determine variable field compression settings 
+  boolean variableFieldCompressionPropertyEvaluated_ = false; 
+  boolean useVariableFieldCompression_ = false; 
+  boolean useVariableFieldInsertCompression_ = false; 
+
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -392,8 +398,12 @@ implements Connection
         // If we only have read only access, then anything other
         // than a SELECT can not be executed.
         if ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
-            && (! sqlStatement.isSelect ()))
-            JDError.throwSQLException (this, JDError.EXC_ACCESS_MISMATCH);
+            && (! sqlStatement.isSelect ())) {
+            // Do not throw exception if we have a metadata call @K5A
+            if (! sqlStatement.getIsMetaDataCall()) { 
+              JDError.throwSQLException (this, JDError.EXC_ACCESS_MISMATCH);
+            }
+        }
 
         // If we have read call access, then anything other than
         // a SELECT or CALL can not be executed.
@@ -5626,6 +5636,68 @@ endif */
     return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL;
   }
 
+
+  /**
+   * Setup the variableFieldCompression flags @K3A
+   */
+  void setupVariableFieldCompression() {
+    if (!variableFieldCompressionPropertyEvaluated_) {
+
+      boolean variableFieldInsertCompressionAvailable = false;
+      if (serverFunctionalLevel_ >= 16) {
+        variableFieldInsertCompressionAvailable = true;
+      }
+      if (serverFunctionalLevel_ >= 14) {
+        String property = null;
+        try {
+          property = getProperties().getString(
+              JDProperties.VARIABLE_FIELD_COMPRESSION);
+        } catch (Exception e) {
+          // Just use defaults
+        }
+        if (property == null)
+          property = "default";
+        property = property.toLowerCase().trim();
+        if ("false".equals(property)) {
+          useVariableFieldCompression_ = false;
+          useVariableFieldInsertCompression_ = false;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        } else if ("true".equals(property)) {
+          useVariableFieldCompression_ = true;
+          useVariableFieldInsertCompression_ = false;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        } else if ("insert".equals(property)) {
+          useVariableFieldCompression_ = false;
+          useVariableFieldInsertCompression_ = variableFieldInsertCompressionAvailable;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        } else {
+          // Default is to use all possible compression
+          useVariableFieldCompression_ = true;
+          useVariableFieldInsertCompression_ = variableFieldInsertCompressionAvailable;
+          variableFieldCompressionPropertyEvaluated_ = true;
+        }
+      } else {
+        // server does not support any form of compression
+        useVariableFieldCompression_ = false;
+        useVariableFieldInsertCompression_ = false;
+        variableFieldCompressionPropertyEvaluated_ = true;
+      }
+    }
+  }
+
+  boolean useVariableFieldCompression() {
+    if (!variableFieldCompressionPropertyEvaluated_) {
+      setupVariableFieldCompression(); 
+    }
+    return useVariableFieldCompression_; 
+  }
+
+  boolean useVariableFieldInsertCompression() {
+    if (!variableFieldCompressionPropertyEvaluated_) {
+      setupVariableFieldCompression(); 
+    }
+    return useVariableFieldInsertCompression_; 
+  }
 
 
 }

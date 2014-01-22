@@ -129,7 +129,8 @@ implements Statement
     int                     behaviorOverride_ = 0;    // @F9a
     private boolean     associatedWithLocators_ = false;        //@KBL set to true, if this statement was used to access a locator
     private boolean     holdStatement_ = false;                //@KBL set to true, if rpb and ors for this statement should be left open until a transaction boundary
-    private boolean     useVariableFieldCompression_ = false;    //@K54
+    protected boolean     useVariableFieldCompression_ = false;    //@K54  does connection allow compression
+    protected boolean     useVariableFieldInsertCompression_ = false;    //@K54 does connection allow compressions
     private boolean     isPoolable_ = false;         //@PDA  jdbc40
     JDServerRow         parameterRow_;          // private protected //@re-prep moved from preparedStatement so that it has visibility here
     private boolean     threadInterrupted = false;
@@ -222,10 +223,11 @@ implements Statement
         String idString4 = idString.substring (idString.length() - 4);
         name_ = "STMT" + idString4;
 
+        useVariableFieldInsertCompression_ = connection_.useVariableFieldInsertCompression();
         if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    // @B1A
         {
             cursorDefaultName_ = "CRSR" + idString4;
-            if((connection_.getServerFunctionalLevel() >= 14) && (connection_.getProperties().getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION)))   //@K54
+            if(connection_.useVariableFieldCompression())   //@K54
                useVariableFieldCompression_ = true;                                                                                                   //@K54
         }
         else    // @B1A
@@ -803,8 +805,9 @@ implements Statement
                             requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    //@F3A  //@541C  undeleted
                          }                                                                                          //@F3A  //@541C  undeleted
                     }                                                                                              //@F3A   //@541C  undeleted
-                    if(connection_.getVRM() >= JDUtilities.vrm610 )     //@cur request cursor attributes  //@isol
+                    if(connection_.getVRM() >= JDUtilities.vrm610 )  {   //@cur request cursor attributes  //@isol
                         requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES; //@cur
+                    }
                     //@P0A
                     request = DBDSPool.getDBSQLRequestDS(functionId, id_, requestedORS, 0);    //@P0C @F3C @F5C //@541C
 
@@ -1032,10 +1035,12 @@ implements Statement
 
                     //@F5D This belongs on the prepare, not the execute
                     //@F5D @F3A If user asked us to parse out extended metadata, then make an object
-                    //@F5D if (extendedMetaData)                                                         //@F3A
-                    //@F5D {                                                                             //@F3A
-                    //@F5D     extendedColumnDescriptors_ = reply.getExtendedColumnDescriptors();        //@F3A
-                    //@F5D }                                                                             //@F3A
+                    //@K3A Added back.. This belongs here for stored procedure result sets
+                    // extendedMetaData is set to true only for all statements. 
+                    if (extendedMetaData)                                                         //@F3A
+                     {                                                                             //@F3A
+                         extendedColumnDescriptors_ = commonExecuteReply.getExtendedColumnDescriptors();        //@F3A
+                     }                                                                             //@F3A
 
                     // Compute the update count and result set .
                     if(openNeeded)
@@ -1106,6 +1111,7 @@ implements Statement
                     if(extendedMetaData)    //@541A
                     {
                         extendedColumnDescriptors_ = commonExecuteReply.getExtendedColumnDescriptors ();    //@F5A
+                        cursor_.setExtendedMetaData(extendedMetaData);                                      //@K3A
                     }
 
                     // If this is a CALL and result sets came back, but
@@ -1145,6 +1151,7 @@ implements Statement
                                                                               getBlockingFactor (cursorSensitivity, sqlStatement,
                                                                                                                    row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
                             //if pre-v5r3 create a FORWARD_ONLY RESULT SET
+                            
                             if(preV5R3)                                                           //@KBA
                             {
                                 resultSet_ = new AS400JDBCResultSet (this,
@@ -1164,6 +1171,14 @@ implements Statement
 
                             if(resultSet_.getConcurrency () != resultSetConcurrency_)
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+                            
+                            /*@K3A*/
+                            if (extendedMetaData) {
+                                DBExtendedColumnDescriptors newExtendedColumnDescriptors = cursor_.getExtendedColumnDescriptors();
+                                if (newExtendedColumnDescriptors != null) {
+                                  extendedColumnDescriptors_ = newExtendedColumnDescriptors; 
+                                }
+                            }
                         }
                     }
 
@@ -1616,6 +1631,9 @@ implements Statement
                     if((isCall == true) && (numberOfResults_ > 0))
                     {
                         boolean preV5R3 = connection_.getVRM() < JDUtilities.vrm530;
+                        if (extendedMetaData) {  /*@K3A*/
+                          cursor_.setExtendedMetaData(extendedMetaData); 
+                        }
                         JDServerRow row = new JDServerRow (connection_, id_,
                                                            cursor_.openDescribe (openAttributes, resultSetType_),             //@KBA
                                                            settings_);
@@ -3123,11 +3141,20 @@ implements Statement
                 DBSQLRequestDS request = null;    //@P0A
                 try
                 {
-                    if((connection_.getVRM() >= JDUtilities.vrm610))                           //@cur //@isol
-                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES, 0);    //@cur
-                    else
-                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);    //@P0C
+                    if((connection_.getVRM() >= JDUtilities.vrm610)) {
+                    	/*@K3A*/
+                      int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES;
+                           boolean extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); 
+                           if (extendedMetaData)                                                                      
+                           {                                                                                          
+                               requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    
+                           }                                                                                         
 
+                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, requestedORS, 0);    //@cur
+                        
+                    } else {
+                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);    //@P0C
+                    }
                     int openAttributes = cursor_.getOpenAttributes(null, blockCriteria_);    // @E1A
                     request.setOpenAttributes(openAttributes);    // @E1C
 
@@ -4226,7 +4253,6 @@ implements Statement
                     cancelThread_.interrupt();
             }
         }
-
 
 
 

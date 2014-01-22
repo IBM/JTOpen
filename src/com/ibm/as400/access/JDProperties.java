@@ -307,7 +307,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         CURSOR_SENSITIVITY_ASENSITIVE   = "asensitive";   //@F6A
     static final String         CURSOR_SENSITIVITY_INSENSITIVE  = "insensitive";   //@F6A
     static final String         CURSOR_SENSITIVITY_SENSITIVE    = "sensitive";   //@F6A
-    //@K6D static final String         CURSOR_SENSITIVITY_NOT_SET      = EMPTY_;           //@K3A
+    //@K6D static final String         CURSOR_SENSITIVITY_NOT_SET      = EMPTY_;         
 
     static final String         DATE_FORMAT_JULIAN              = "julian";
     static final String         DATE_FORMAT_MDY                 = "mdy";
@@ -440,6 +440,9 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String              TRACE_TOOLBOX_THREAD        = "thread";         // @K1A
     static final String              TRACE_TOOLBOX_NONE          = NONE_;            // @K1A
     static final String              TRACE_TOOLBOX_NOT_SET       = EMPTY_;
+
+    static final String        VARIABLE_FIELD_COMPRESSION_INSERT = "insert";
+    static final String        VARIABLE_FIELD_COMPRESSION_ALL = "all"; 
 
     static final String         QUERY_OPTIMIZE_GOAL_DEFAULT             = "0";  //@540
     static final String         QUERY_OPTIMIZE_GOAL_FIRSTIO             = "1";  //@540
@@ -1222,10 +1225,12 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i] = new DriverPropertyInfo (VARIABLE_FIELD_COMPRESSION_, "");
         dpi_[i].description = "VARIABLE_FIELD_COMPRESSION_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[2];
+        dpi_[i].choices     = new String[4];
         dpi_[i].choices[0]  = FALSE_;
         dpi_[i].choices[1]  = TRUE_;
-        defaults_[i]        = TRUE_;
+        dpi_[i].choices[2]  = VARIABLE_FIELD_COMPRESSION_INSERT; 
+        dpi_[i].choices[3]  = VARIABLE_FIELD_COMPRESSION_ALL; 
+        defaults_[i]        = VARIABLE_FIELD_COMPRESSION_ALL;
 
         // Query Optimize Goal  //@540
         i = QUERY_OPTIMIZE_GOAL;

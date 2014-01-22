@@ -370,6 +370,23 @@ extends DBBaseRequestDS
             throw new DBDataStreamException ();
 	}
 
+ /** This is a version of setParameterMarkerData that returns the offset where the 
+  * length in the request should be updated using request.updateLength(offset, newLength); 
+    */
+ // @K3A    
+ public int setParameterMarkerDataReserve(DBData value) throws DBDataStreamException{
+   int offset; 
+   if (value instanceof DBOriginalData)
+     offset = addParameterReserve (0x3811, value);
+     else if (value instanceof DBExtendedData)
+         offset = addParameterReserve (0x381F, value);
+     else if (value instanceof DBVariableData)               
+         offset = addParameterReserve (0x382F, value);                       
+     else
+         throw new DBDataStreamException ();
+ 
+   return offset; 
+ }
 
 
 /**
@@ -589,6 +606,12 @@ extends DBBaseRequestDS
 	{
 		addParameter (0x3834, value);
 	}
+
+
+
+
+
+
 }
 
 

@@ -7392,20 +7392,20 @@ endif */
         return getTime(columnIndex); 
       } else if (type == java.sql.Timestamp.class){
         return getTimestamp(columnIndex); 
-      } else if (type == byteArrayClass_){
-        return getBytes(columnIndex);
-      } else if (type == InputStream.class){
-        return getBinaryStream(columnIndex); 
-      } else if (type == Reader.class){
-        return getCharacterStream(columnIndex); 
-      } else if (type == Clob.class){
-        return getClob(columnIndex);
-      } else if (type == Blob.class){
-        return getBlob(columnIndex);
-      } else if (type == Array.class){
-        return getArray(columnIndex);
-      } else if (type == Ref.class){
-        return getRef(columnIndex);
+    } else if (type == byteArrayClass_) {
+      return getBytes(columnIndex);
+    } else if (type == InputStream.class) {
+      return getBinaryStream(columnIndex);
+    } else if (type == Reader.class) {
+      return getCharacterStream(columnIndex);
+    } else if (type == Clob.class) {
+      return getClob(columnIndex);
+    } else if (type == Array.class) {
+      return getArray(columnIndex);
+    } else if (type == Blob.class) {
+      return getBlob(columnIndex);
+    } else if (type == Ref.class) {
+      return getRef(columnIndex);
       } else if (type == URL.class){
         return getURL(columnIndex);
 /* ifdef JDBC40 

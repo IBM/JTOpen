@@ -50,23 +50,24 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
-<p>The AS400JDBCPreparedStatement class precompiles and stores an
-SQL statement.  This provides the ability to efficiently run
-the statement multiple times.  In addition, the statement may
-contain parameters.  Use Connection.prepareStatement() to create
-new PreparedStatement objects.
-
-<p>When setting input parameter values, the caller must specify types
-that are compatible with the defined SQL type of the input parameter.
-For example, if the input parameter has SQL type INTEGER, then the
-caller must call setInt() to set the IN parameter value.  If
-arbitrary type conversions are required, then use setObject() with
-a target SQL type.
-
-<p>For method that sets parameters, the application should not modify the parameter
-   value until after the execute completes.  Modifying a value
-   between the setXXXX method and the execute method may result in unpredictable
-   behavior.
+ * <p>
+ * The AS400JDBCPreparedStatement class precompiles and stores an SQL statement.
+ * This provides the ability to efficiently run the statement multiple times. In
+ * addition, the statement may contain parameters. Use
+ * Connection.prepareStatement() to create new PreparedStatement objects.
+ * 
+ * <p>
+ * When setting input parameter values, the caller must specify types that are
+ * compatible with the defined SQL type of the input parameter. For example, if
+ * the input parameter has SQL type INTEGER, then the caller must call setInt()
+ * to set the IN parameter value. If arbitrary type conversions are required,
+ * then use setObject() with a target SQL type.
+ * 
+ * <p>
+ * For method that sets parameters, the application should not modify the
+ * parameter value until after the execute completes. Modifying a value between
+ * the setXXXX method and the execute method may result in unpredictable
+ * behavior.
  **/
 //
 // Implementation notes:
@@ -425,8 +426,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
               sqlType == SQLData.BLOB_LOCATOR || // @KBA
               sqlType == SQLData.DBCLOB_LOCATOR || // @KBA //@pdc jdbc40
 /* ifdef JDBC40 
-               sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
-endif */
+                   sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
+endif */ 
+
+              
+              
               sqlType == SQLData.XML_LOCATOR) // @xml3
           { // @KBA
             containsLocator_ = LOCATOR_FOUND; // @KBA
@@ -579,7 +583,7 @@ endif */
                     .hashCode()).getBytes()); // @C6C
           } catch (Exception e) {
           }
-          
+
         }
       }
       if (request2 != null) {
@@ -653,10 +657,10 @@ endif */
         } finally { // @P0C
           if (isjvm16Synchronizer) {
             try {
-              if (request != null) { 
-              dummyOutputStream
-                  .write(("!!!close.inUser_(false): request-id=" + request
-                      .hashCode()).getBytes()); // @C6C
+              if (request != null) {
+                dummyOutputStream
+                    .write(("!!!close.inUser_(false): request-id=" + request
+                        .hashCode()).getBytes()); // @C6C
               }
             } catch (Exception e) {
 
@@ -726,7 +730,8 @@ endif */
   void commonExecuteBefore(JDSQLStatement sqlStatement, DBSQLRequestDS request)
       throws SQLException {
     super.commonExecuteBefore(sqlStatement, request);
-
+    int requestLengthOffset = 0;    /*@K3A*/
+    int initialRawOffset = 0;       /*@K3A*/
     if (prepared_) {
       // Close the result set before executing again.
       closeResultSet(JDCursor.REUSE_YES);
@@ -877,6 +882,17 @@ endif */
             // indicators @G9A
             DBData parameterMarkerData;
             int rowCount = batchExecute_ ? batchParameterRows_.size() : 1;
+
+            //
+            // Determine if compression on insert is to be used.
+            // @K3A
+            boolean useVariableFieldInsertCompression = false;
+            if (batchExecute_) {
+              if (rowCount > 0 && useVariableFieldInsertCompression()) {
+                useVariableFieldInsertCompression = true;
+              }
+            }
+
             // @array create new x382f here if parms contain array
             if (parameterRow_.containsArray_) // @array
             { // @array
@@ -885,6 +901,10 @@ endif */
                                                                                // x382f
                                                                                // codepoint
                                                                                // //@array4
+              // Dont use variableFieldInsertCompression with arrays @K3A
+              if (useVariableFieldInsertCompression) {
+                useVariableFieldInsertCompression = false;
+              }
             } // @array
             else if (connection_.useExtendedFormats()) {
               parameterMarkerData = new DBExtendedData(rowCount,
@@ -892,7 +912,15 @@ endif */
             } else {
               parameterMarkerData = new DBOriginalData(rowCount,
                   parameterCount_, 2, parameterTotalSize_);
+              // If extended formats are not used, then 
+              // variableFieldInsertCompression cannot be used @K3A
+              if (useVariableFieldInsertCompression) {
+                useVariableFieldInsertCompression = false;
+              }
             }
+
+            int parameterOffset = 0;         /*Track the offset to the parameter within the row @K3A*/
+            int rowDataOffset = 0;           /*Track the offset to the start of the row @K3A*/
             for (int rowLoop = 0; rowLoop < rowCount; ++rowLoop) // @G9a
             {
               Object[] parameters = null; // @G9A
@@ -910,17 +938,55 @@ endif */
               // Data code point and consistency token only once @G9A
               if (rowLoop == 0) // @G9A
               {
-                request.setParameterMarkerData(parameterMarkerData);
+                 
+                // The call to setParameterMarkerData sets the calculated length of the parameter marker data  
+                // in the request.  This value is stored in request.lockedLength_ and
+                // request.currentOffset_ has been updated. 
+                if (useVariableFieldInsertCompression) { /*@K3A*/
+                  // For variable field insert compression, we need to record where the 
+                  // parameter length was stored so it can be updated. 
+                  // This is done after processing the parameters by calling request.updateLength
+                  requestLengthOffset = request.setParameterMarkerDataReserve(parameterMarkerData);
+                  ((DBExtendedData) parameterMarkerData)
+                      .setParameterMarkerInputCompression(true);
+                } else { 
+                  request.setParameterMarkerData(parameterMarkerData);
+                }
+
                 parameterMarkerData.setConsistencyToken(1); // @G9M
               } // @G9A
 
-              int rowDataOffset = parameterMarkerData.getRowDataOffset(rowLoop); // @G9C
+              /* calculate the rowDataOffset.  This calculation is different
+               * the first time through the look.  The calculation is different
+               * if variableFieldInsertCompression is used. 
+               */
+              if (rowLoop == 0) {
+                if (useVariableFieldInsertCompression) {
+                  // Save the initialRawOffset so that the size can
+                  // be calculated after all the parameter has been added
+                  initialRawOffset = ((DBExtendedData)parameterMarkerData).getRawOffset(); 
+                }
+                // Get the initial row offset. 
+                rowDataOffset = parameterMarkerData.getRowDataOffset(rowLoop); // @G9C
+                 
+              } else {
+                if (useVariableFieldInsertCompression) {
+                  // calculate the row offset base on the parameters last added
+                  rowDataOffset += parameterOffset;
+                } else {
+                  rowDataOffset = parameterMarkerData.getRowDataOffset(rowLoop); // @G9C
+                }
+              }
+              parameterOffset = 0;
               for (int i = 0; i < parameterCount_; ++i) {
                 // @G1 -- zero out the comm buffer if the parameter marker is
                 // null.
                 // If the buffer is not zero'ed out old data will be sent to
                 // the system possibily messing up a future request.
-                if ((batchExecute_ && (parameters != null) && (parameters[i] == null || parameters[i] instanceof Byte))
+                if ((batchExecute_ && 
+                    (parameters != null) && 
+
+                    (parameters[i] == null || parameters[i] instanceof Byte))
                     || // @G9A //@EIC
                     (!batchExecute_ && (parameterNulls_[i]
                         || parameterDefaults_[i] || parameterUnassigned_[i]))) // @B9C
@@ -963,14 +1029,37 @@ endif */
                   if (sqlData.getType() != java.sql.Types.ARRAY) // @array
                   {
                     byte[] parameterData = parameterMarkerData.getRawBytes(); // @G1a
+
+                    if (useVariableFieldInsertCompression) {   /*@K3A*/
+                      if (sqlData instanceof SQLVariableCompressible) {
+                    	// If a variable compressible field, initialize the
+                    	// size to zero for null data
+                        parameterData[rowDataOffset + parameterOffset]=0; 
+                        parameterOffset++; 
+                        parameterData[rowDataOffset + parameterOffset]=0; 
+                        parameterOffset++; 
+                      } else {
+                    	// initialize the value to zero and adjust the parameter offset
+                        int parameterDataOffset = rowDataOffset + parameterOffset; 
+                        int parameterDataLength = parameterLengths_[i]
+                            + parameterDataOffset;
+                        for (int z = parameterDataOffset; 
+                            z < parameterDataLength; 
+                            parameterData[z++] = 0x00) {
+                        }
+                        parameterOffset += parameterLengths_[i];
+                      }
+                    } else {
+
+                    
                     int parameterDataOffset = rowDataOffset
                         + parameterOffsets_[i]; // @G1a
                     int parameterDataLength = parameterLengths_[i]
                         + parameterDataOffset;
                     for (int z = parameterDataOffset; z < parameterDataLength; parameterData[z++] = 0x00) {
-                      
+
                     }
-                      
+                    }
                   }
 
                   // @array If the row contains an array, then we must also set
@@ -992,7 +1081,7 @@ endif */
                         (short) indicatorValue, (short) elementType, size,
                         (short) arrayLen); // @array
                   } // @array
-                } else {
+                } else { /* Data is not null */ 
                   SQLData sqlData = parameterRow_.getSQLType(i + 1); // @array
                   if (!parameterRow_.containsArray_
                       || parameterRow_.isInput(i + 1)) // @array4
@@ -1032,7 +1121,7 @@ endif */
 
                   // Put each row's values back into the SQL data type for their
                   // respective columns.
-                  if (batchExecute_ && parameters != null ) {
+                  if (batchExecute_ && parameters != null) {
                     // @CRS If the type is a locator, we pass -1 here so the
                     // locator will know
                     // not to reset its length, because the length wasn't saved
@@ -1054,13 +1143,35 @@ endif */
                     {
                       // @CRS - This is the only place convertToRawBytes is ever
                       // called.
-                      sqlData.convertToRawBytes(
-                          parameterMarkerData.getRawBytes(), rowDataOffset
-                              + parameterOffsets_[i], ccsidConverter);
-                      if (ConvTable.isMixedCCSID(ccsidConverter.getCcsid())) // @trnc this is
-                                                             // not caught at
-                                                             // setX() time
-                                                             // @H2C
+                    	// @K3A compress the data if needed using variable field compression
+                      if (useVariableFieldInsertCompression) {
+                        if (sqlData instanceof SQLVariableCompressible) {
+                        	// @K3A  write the compressed bytes for the field. 
+                          int written = ((SQLVariableCompressible) sqlData)
+                              .convertToCompressedBytes(
+                                  parameterMarkerData.getRawBytes(),
+                                  rowDataOffset + parameterOffset,
+                                  ccsidConverter);
+                          parameterOffset += written;
+                        } else {
+                          sqlData.convertToRawBytes(
+                              parameterMarkerData.getRawBytes(), rowDataOffset
+                                  + parameterOffset, ccsidConverter);
+                          // Increment by the length of the parameter
+                          parameterOffset += parameterLengths_[i];
+                        }
+                      } else {
+                        sqlData.convertToRawBytes(
+                            parameterMarkerData.getRawBytes(), rowDataOffset
+                                + parameterOffsets_[i], ccsidConverter);
+                      }
+
+                      if (ConvTable.isMixedCCSID(ccsidConverter.getCcsid())) // @trnc
+                                                                             // this
+                                                                             // is
+                        // not caught at
+                        // setX() time
+                        // @H2C
                         testDataTruncation(i + 1, sqlData); // @trnc
                     }
 
@@ -1126,6 +1237,15 @@ endif */
               }
               if (descriptorChangeNeeded)
                 changeDescriptor();
+            } /* for loop */ 
+            
+            // For variable field compression update the length of the parameter block
+            // by calculating the parameters length.  @K3A
+            if (useVariableFieldInsertCompression) {
+              rowDataOffset += parameterOffset;
+              int parametersLength = rowDataOffset - initialRawOffset;  
+              
+              request.updateLength(requestLengthOffset, parametersLength);
             }
           } while (descriptorChangeNeeded);
           request.setParameterMarkerBlockIndicator(0);
@@ -1139,6 +1259,35 @@ endif */
       } catch (DBDataStreamException e) {
         JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
       }
+    }
+  }
+
+  /**
+   * Should variable field compression be used for these parameters.
+   * We will compress if at least 1/3 of the row is VARIABLE data. 
+   * 
+   * @throws SQLException
+   */
+  /*@K3A*/
+  private boolean useVariableFieldInsertCompression() throws SQLException {
+    if (useVariableFieldInsertCompression_) {
+      int totalSize = 0; 
+      int compressibleSize = 0; 
+      for (int parameterNumber = 0; parameterNumber < parameterCount_; parameterNumber++) {
+    	int parameterSize =   parameterRow_.getLength(parameterNumber+1);
+        SQLData sqlData = parameterRow_.getSQLType(parameterNumber + 1);
+        if (sqlData instanceof SQLVariableCompressible) {
+          compressibleSize += parameterSize; 
+        }
+        totalSize += parameterSize; 
+      }
+      if (compressibleSize > (totalSize / 3)) {
+    	  return true; 
+      } else {
+         return false;
+      }
+    } else {
+      return false;
     }
   }
 
@@ -1159,6 +1308,7 @@ endif */
     if (prepared_) {
       parameterRow_ = new JDServerRow(connection_, id_,
           reply.getParameterMarkerFormat(), settings_);
+
     }
   }
 
@@ -2077,8 +2227,8 @@ endif */
               || sqlType == SQLData.BLOB_LOCATOR
               || sqlType == SQLData.DBCLOB_LOCATOR || // @pdc jdbc40
 /* ifdef JDBC40 
-               sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
-endif */
+              sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
+ endif */
               sqlType == SQLData.XML_LOCATOR) // @xml3
           {
             SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -2866,8 +3016,8 @@ endif */
             + " value: NULL"); // @H1A
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
-            + " type: " + parameterValue.getClass().getName()
-            +" toString():"+parameterValue.toString()); // @H1A
+            + " type: " + parameterValue.getClass().getName() + " toString():"
+            + parameterValue.toString()); // @H1A
     } // @H1A
 
     setValue(parameterIndex, parameterValue, null, -1); // @P0C
@@ -2913,8 +3063,8 @@ endif */
             + " value: NULL"); // @H1A
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
-            + " type: " + parameterValue.getClass().getName()
-            +" toString():"+parameterValue.toString()); // @H1A
+            + " type: " + parameterValue.getClass().getName() + " toString():"
+            + parameterValue.toString()); // @H1A
     } // @H1A
 
     setValue(parameterIndex, parameterValue, null, -1); // @P0C
@@ -2963,8 +3113,8 @@ endif */
             + " value: NULL"); // @H1A
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
-            + " type: " + parameterValue.getClass().getName()
-            +" toString():"+parameterValue.toString()); // @H1A
+            + " type: " + parameterValue.getClass().getName() + " toString():"
+            + parameterValue.toString()); // @H1A
     } // @H1A
 
     if (scale < 0)
@@ -3541,7 +3691,7 @@ endif */
       // slide.
       if (((sqlType == Types.CHAR) || (sqlType == Types.VARCHAR))
           && ((parameterType == Types.CHAR) || (parameterType == Types.VARCHAR))) {
-         // Do nothing!
+        // Do nothing!
       } else {
         JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
       }
@@ -3813,7 +3963,7 @@ endif */
                  break;                                                             //@xmlspec
              default:                                                               //@xmlspec
     setValue (parameterIndex, xmlObject, null, -1);
-         }
+  }
      }
 endif */
 
@@ -4130,11 +4280,11 @@ endif */
     // Throw an exception if the column name is not found (COLUMN NOT FOUND).
     if (returnParm == 0)
       JDError.throwSQLException(this, JDError.EXC_COLUMN_NOT_FOUND);
-    
+
     // If the statement is using the return value parameter, increment the value to
-    // compensate for the return value parameter.  @K2A. 
+    // compensate for the return value parameter. @K2A.
     if (useReturnValueParameter_) {
-      returnParm ++; 
+      returnParm++;
     }
     return returnParm;
   }

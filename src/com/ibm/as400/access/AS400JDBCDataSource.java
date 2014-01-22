@@ -1395,7 +1395,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return as400_.getUserId();
     }
 
-    // @K3A
+   
     /**
     *  Returns the QAQQINI library name.
     *  @return The QAQQINI library name.
@@ -1580,7 +1580,22 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public boolean isVariableFieldCompression()
     {
-        return properties_.getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION);
+       /*@K3A*/
+        String value = properties_.getString(JDProperties.VARIABLE_FIELD_COMPRESSION);
+        if ("true".equals(value) ||
+            "all".equals(value) ||
+            "insert".equals(value)) {
+          return true; 
+        } else {
+          return false; 
+        }
+    }
+
+    
+    public String getVariableFieldCompression()
+    {
+    	/*@K3A*/
+        return  properties_.getString(JDProperties.VARIABLE_FIELD_COMPRESSION);
     }
 
     //@AC1
@@ -4390,6 +4405,41 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + compress);  
     }
 
+    
+    /**
+    *  Specifies how variable-length fields should be compressed. 
+    *  @param compress  Possible values are
+    *  <ul>
+    *  <li>"true" -- compression will be used for result set data
+    *  <li>"false" -- no compression will be used
+    *  <li>"insert" -- compression will only be used for batched insert data
+    *  <li> "all" -- compression will be used for result set data and for batched insert data
+    *  <ul>
+    *  The default value is  "all" when connected to a server that supports compression of batched insert data and
+    *  "true" when the server does not support compression of batched insert date
+    **/
+    /*@K3A*/
+    public void setVariableFieldCompression(String compress)
+    {
+        String property = "variableFieldCompression";
+
+        String oldValue = getVariableFieldCompression();
+          
+        if ("true".equals(compress) ||
+            "false".equals(compress) ||
+            "insert".equals(compress) ||
+            "all".equals(compress) ) {
+          
+          properties_.setString(JDProperties.VARIABLE_FIELD_COMPRESSION, compress);
+
+        changes_.firePropertyChange(property, oldValue, compress);
+
+        if (JDTrace.isTraceOn()) {
+            JDTrace.logInformation (this, property + ": " + compress);
+        }
+    }
+    }
+
     // @F1A Added the below methods to set socket options
     /**
     * Gets the socket keepalive option.
@@ -4796,7 +4846,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + parseOption);
     }
 
-    //@K3A
+
     /**
     *  Sets the QAQQINI library name.  
     *  @param libraryName The QAQQINI library name.

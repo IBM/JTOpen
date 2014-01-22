@@ -518,7 +518,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             rollbackCursorHold.setShortDescription(AS400JDBCDriver.getResource("ROLLBACK_CURSOR_HOLD_DESC"));   //@K94
                                                                                                                                                
             // @K54 - added support for variable-length field compression
-            PropertyDescriptor variableFieldCompression = new PropertyDescriptor("variableFieldCompression", beanClass, "isVariableFieldCompression", "setVariableFieldCompression");   //@K54
+            PropertyDescriptor variableFieldCompression = new PropertyDescriptor("variableFieldCompression", beanClass, "getVariableFieldCompression", "setVariableFieldCompression");   //@K3A
             variableFieldCompression.setBound(true);                                                                      //@K54
             variableFieldCompression.setConstrained(false);                                                               //@K54
             variableFieldCompression.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_VARIABLE_FIELD_COMPRESSION"));                //@K54

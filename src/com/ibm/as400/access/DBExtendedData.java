@@ -14,7 +14,6 @@
 package com.ibm.as400.access;
 
 
-
 /**
 The DBExtendedData class is an implementation of DBData which
 describes the data used in datastreams for V4R4 and later
@@ -43,9 +42,9 @@ implements DBData
     private int     dataOffset_         = -1;
     private int     length_             = -1;
 
-    private int     offsetToRowInformationHeader_ = -1;                 //@K54
-    private int     offsetToRowInformationArray_  = -1;                 //@K54
-    private int     aliasCount_ = 0;                                    //@K3A
+    private int     offsetToRowInformationHeader_ = -1;                 
+    private int     offsetToRowInformationArray_  = -1;                 
+    private int     aliasCount_ = 0;                                    
 
 
 /**
@@ -218,14 +217,20 @@ when it was not previously set by the constructor.
 		else
 			return BinaryConverter.byteArrayToShort (rawBytes_,
 			    indicatorOffset_ + indicatorSize_
-			    * ((rowIndex + aliasCount_) * columnCount_ + columnIndex));     //@K3A  If aliasCount_ > 0, then DatabaseMetaData.getTables(...) was called and our result data contains aliases.  We want to skip the rows that are aliases.
+			    * ((rowIndex + aliasCount_) * columnCount_ + columnIndex));     // If aliasCount_ > 0, then DatabaseMetaData.getTables(...) was called and our result data contains aliases.  We want to skip the rows that are aliases.
 	}
 
+	
+	/** the current offset_ value */ 
+	//@K3A
+	public int getRawOffset() {
+	  return offset_; 
+	}
 
 
 	public int getRowDataOffset (int rowIndex)
 	{
-            //if variable-length fields are comrpessed return row offset
+            //if variable-length fields are compressed return row offset
             if(vlfCompressed_)                                      //@K54
             {
                 if((rowIndex >= rowCount_) || rowIndex < 0)                //We do not have data for that row.
@@ -235,7 +240,7 @@ when it was not previously set by the constructor.
             }
             else                                                    //@K54
             {
-                return dataOffset_ + ((rowIndex + aliasCount_) * rowSize_);       //@K3C If aliasCount_ > 0, then DatabaseMetaData.getTables(...) was called and our result data contains aliases.  We want to skip the rows that are aliases.
+                return dataOffset_ + ((rowIndex + aliasCount_) * rowSize_);       //If aliasCount_ > 0, then DatabaseMetaData.getTables(...) was called and our result data contains aliases.  We want to skip the rows that are aliases.
             }
 	}
 
@@ -254,6 +259,18 @@ when it was not previously set by the constructor.
             offset_);
     }
 
+
+    /**
+     * Set the flag that variable length parameter marker input compression is used.
+     */
+    // @K3A
+    public void setParameterMarkerInputCompression(boolean b) {
+      if (b) { 
+        rawBytes_[offset_ + 12] =  -128; /* 0x80*/ 
+      } else {
+        rawBytes_[offset_ + 12] = -0;
+      }
+    }
 
 
     public void setRowCount (int rowCount)
@@ -310,13 +327,13 @@ when it was not previously set by the constructor.
 
     // Resets the number of rows to the total number of rows minus the number of rows that contain aliases.
     // This method is called by AS400JDBCDatabaseMetaData.parseResultData().
-    public void resetRowCount(int rowCount){           //@K3A
+    public void resetRowCount(int rowCount){           //
         rowCount_ = rowCount;
     }
 
     // Sets the number of aliases the result data contains.
     // This method is called by AS400JDBCDatabaseMetaData.parseResultData().
-    public void setAliasCount(int aliases){        //@K3A
+    public void setAliasCount(int aliases){        //
         aliasCount_ = aliases;
     }
     
@@ -331,6 +348,8 @@ when it was not previously set by the constructor.
     public int getDataTotalSize (int colIndex){
         return -9999; //valid in DBVariableData 
     }
+
+
   
 }
 
