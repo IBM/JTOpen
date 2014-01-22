@@ -86,6 +86,8 @@ class JDSQLStatement
     private static final String     VALUES_         = "VALUES";
     private static final String     WITH_           = "WITH";   // @B3A
     private static final String     MERGE_          = "MERGE"; //@blksql
+    
+    static final String METADATA_CALL = "CALL SYSIBM";  /*@K5A*/
 
 
 
@@ -117,7 +119,7 @@ class JDSQLStatement
     // private String          valueForServer_             = null;     // @E1A
     private boolean         selectTableNotSet_          = true;     //@K1A boolean to determine if selectTable_ has been set, if so, then selectTableNotSet_ is false
   private boolean         selectFromInsert_           = false;    // @GKA
-
+    private boolean       isMetaDataCall_ = false;                //@K5A
 
     // Contains a list of AS400JDBCStatementListener objects to be invoked when events occur
     // related to a JDSQLStatement.
@@ -512,6 +514,10 @@ class JDSQLStatement
         {                                      // @E1A
             isCall_ = true;
             nativeType_ = TYPE_CALL;
+            // Check for metadata call @K5A
+            if (value_.indexOf(METADATA_CALL) == 0) {
+              isMetaDataCall_ = true; 
+            }
         }
         else if((firstWord.equals(CALL0_)) || (firstWord.equals(CALL1_)) || (firstWord.equals(CALL2_))) //@E1A
         {
@@ -1257,6 +1263,9 @@ class JDSQLStatement
         return value_;                                                     // @E1C
     }
 
-
+    
+    boolean getIsMetaDataCall() { 
+      return isMetaDataCall_; 
+    } /*@K5A*/
 
 }

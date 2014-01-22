@@ -404,7 +404,7 @@ implements DatabaseMetaData
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLSPECIALCOLUMNS(?,?,?,?,?,?,?)");
+            CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator () + "SQLSPECIALCOLUMNS(?,?,?,?,?,?,?)");
 
             cstmt.setShort(1, (short)SQL_BEST_ROWID);
             cstmt.setString(2, normalize(catalog));
@@ -620,7 +620,7 @@ implements DatabaseMetaData
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cstmt = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
+            CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
 
             cstmt.setString(1, "%");
             cstmt.setString(2, "%");
@@ -811,7 +811,7 @@ implements DatabaseMetaData
             // If null, do not set parameter. The system default
             // value of *ALL is used.
 
-            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
+            CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
 
             cstmt.setString(1, normalize(catalog));
             cstmt.setString(2, normalize(schema));
@@ -1055,7 +1055,7 @@ implements DatabaseMetaData
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLCOLUMNS(?,?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLCOLUMNS(?,?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schemaPattern));
@@ -1072,7 +1072,9 @@ endif */
 /* ifndef JDBC40 */
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
 /* endif */
+           
             cs.execute();
+            
 
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
@@ -1584,7 +1586,7 @@ endif */
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
             CallableStatement cs = connection_.prepareCall(
-              "CALL SYSIBM"+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
+                JDSQLStatement.METADATA_CALL+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
 
             cs.setString(1, normalize(primaryCatalog));
             cs.setString(2, normalize(primarySchema));
@@ -2051,7 +2053,7 @@ endif */
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schema));
@@ -2336,7 +2338,7 @@ endif */
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
 
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, null);
@@ -2615,7 +2617,7 @@ endif */
                Reserved        Smallint,
                Options         varchar(4000))
         	 */
-        	CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLSTATISTICS(?,?,?,?,?,?)");
+        	CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator () + "SQLSTATISTICS(?,?,?,?,?,?)");
 
         	cstmt.setString(1, normalize(catalog));
         	cstmt.setString(2, normalize(schema));
@@ -3246,7 +3248,7 @@ endif */
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () +"SQLPRIMARYKEYS(?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL+ getCatalogSeparator () +"SQLPRIMARYKEYS(?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schema));
@@ -3454,7 +3456,7 @@ endif */
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLPROCEDURECOLS(?,?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL+ getCatalogSeparator () + "SQLPROCEDURECOLS(?,?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schemaPattern));
@@ -3709,7 +3711,7 @@ endif */
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLPROCEDURES(?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL+ getCatalogSeparator () + "SQLPROCEDURES(?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schemaPattern));
@@ -3941,7 +3943,7 @@ endif */
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLTABLES(?,?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL+ getCatalogSeparator () + "SQLTABLES(?,?,?,?,?)");
 
             cs.setString(1, "%");
             cs.setString(2, "%");
@@ -4208,7 +4210,7 @@ endif */
         //@mdsp SYSIBM SP Call
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLTABLEPRIVILEGES(?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL+ getCatalogSeparator () + "SQLTABLEPRIVILEGES(?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schemaPattern));
@@ -4480,7 +4482,7 @@ endif */
             }
 
 
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator ()
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator ()
                     + "SQLTABLES(?,?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
@@ -4968,7 +4970,7 @@ endif */
       //@mdsp SYSIBM SP Call
       if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
       {
-          CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
+          CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
 
           cs.setString(1, "%");
           cs.setString(2, "%");
@@ -5064,7 +5066,7 @@ endif */
 
 
             CallableStatement cs = connection_
-            .prepareCall("CALL SYSIBM" +getCatalogSeparator() + "SQLGETTYPEINFO(?,?)");
+            .prepareCall(JDSQLStatement.METADATA_CALL +getCatalogSeparator() + "SQLGETTYPEINFO(?,?)");
 
             cs.setShort(1, (short) SQL_ALL_TYPES);
 /* ifdef  JDBC40
@@ -5356,7 +5358,7 @@ endif */
 
 
 
-            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator()+ "SQLUDTS(?,?,?,?,?)");
+            CallableStatement cs = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator()+ "SQLUDTS(?,?,?,?,?)");
 
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schemaPattern));
@@ -5675,7 +5677,7 @@ endif */
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
 
-            CallableStatement cs =   connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLSPECIALCOLUMNS(?,?,?,?, ?,?,?)");
+            CallableStatement cs =   connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLSPECIALCOLUMNS(?,?,?,?, ?,?,?)");
 
             cs.setShort(1, (short) SQL_ROWVER);
             cs.setString(2, normalize(catalog));
@@ -7707,7 +7709,7 @@ endif */
     {
         connection_.checkOpen();
 
-        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLTABLES  (?, ?, ?, ?, ?)");
+        CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLTABLES  (?, ?, ?, ?, ?)");
 
         cstmt.setString(1, normalize(catalog));
         cstmt.setString(2, normalize(schemaPattern));
@@ -7807,7 +7809,7 @@ endif */
          Options         varchar(4000))
         */
 
-        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONS  ( ?, ?, ?, ?)");
+        CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLFUNCTIONS  ( ?, ?, ?, ?)");
 
         cstmt.setString(1, normalize(catalog));
         cstmt.setString(2, normalize(schemaPattern));
@@ -7938,7 +7940,7 @@ endif */
           Options         varchar(4000))
         */
 
-        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONCOLS  ( ?, ?, ?, ?, ?)");
+        CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLFUNCTIONCOLS  ( ?, ?, ?, ?, ?)");
 
         cstmt.setString(1, normalize(catalog));
         cstmt.setString(2, normalize(schemaPattern));
@@ -8027,7 +8029,7 @@ endif */
 
       connection_.checkOpen();
 
-      CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLPSEUDOCOLUMNS  ( ?, ?, ?, ?, ?)");
+      CallableStatement cstmt = connection_.prepareCall(JDSQLStatement.METADATA_CALL + getCatalogSeparator() + "SQLPSEUDOCOLUMNS  ( ?, ?, ?, ?, ?)");
 
       cstmt.setString(1, normalize(catalog));
       cstmt.setString(2, normalize(schemaPattern));

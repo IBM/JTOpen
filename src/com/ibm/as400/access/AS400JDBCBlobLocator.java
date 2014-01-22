@@ -496,5 +496,13 @@ Returns the position at which a pattern is found in the BLOB.
           return new AS400JDBCInputStream(locator_, pos, length);
       }
   }
+  
+  /** Get the locator handle corresponding to this ClobLocator
+   * 
+   */
+  public int getLocator() { 
+    return locator_.getHandle(); 
+  }
+
 
 }

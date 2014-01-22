@@ -669,4 +669,10 @@ Returns the handle to this CLOB locator in the database.
       }
   }
   
+  /** Get the locator handle corresponding to this ClobLocator
+   * 
+   */
+  public int getLocator() { 
+    return locator_.getHandle(); 
+  }
 }
