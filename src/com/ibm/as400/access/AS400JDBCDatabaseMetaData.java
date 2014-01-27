@@ -3999,50 +3999,110 @@ endif */
 
     /**
     Returns the list of all of the database's SQL keywords
-    that are not also SQL92 keywords.
+    that are not also SQL-XXXX keywords. 
+    For JDK 1.5 and earlier, SQL-XXXX refers to SQL-92 keywords.
+    For JDK 1.6 and later, SQL-XXXX refers to SQL-2003 keywords. 
 
     @return     The list of SQL keywords, separated by commas.
 
     @exception  SQLException    This exception is never thrown.
     **/
-    public String getSQLKeywords ()
-    throws SQLException
-    {
-        return "AFTER,ALIAS,ALLOW,APPLICATION,ASSOCIATE,ASUTIME,AUDIT," +                 // @J2M
-               "AUX,AUXILIARY,BEFORE,BINARY," +                                           // @J2A
-               "BUFFERPOOL,CACHE,CALL,CALLED,CAPTURE,CARDINALITY,CCSID,CLUSTER," +        // @J2A
-               "COLLECTION,COLLID,COMMENT,CONCAT,CONDITION,CONTAINS,COUNT_BIG," +         // @J2A
-               "CURRENT_LC_CTYPE," +                                                      // @J2A
-               "CURRENT_PATH,CURRENT_SERVER,CURRENT_TIMEZONE,CYCLE,DATA," +               // @J2A
-               "DATABASE,DAYS," +                                                         // @J2A
-               "DB2GENERAL,DB2GENRL,DB2SQL,DBINFO,DEFAULTS,DEFINITION," +                 // @J2A
-               "DETERMINISTIC," +                                                         // @J2A
-               "DISALLOW,DO,DSNHATTR,DSSIZE,DYNAMIC,EACH,EDITPROC,ELSEIF," +              // @J2A
-               "ENCODING,END-EXEC1," +                                                    // @J2A
-               "ERASE,EXCLUDING,EXIT,FENCED,FIELDPROC,FILE,FINAL,FREE,FUNCTION," +        // @J2A
-               "GENERAL," +                                                               // @J2A
-               "GENERATED,GRAPHIC,HANDLER,HOLD,HOURS,IF,INCLUDING,INCREMENT," +           // @J2A
-               "INDEX," +                                                                 // @J2A
-               "INHERIT,INOUT,INTEGRITY,ISOBID,ITERATE,JAR,JAVA,LABEL,LC_CTYPE," +        // @J2A
-               "LEAVE," +                                                                 // @J2A
-               "LINKTYPE,LOCALE,LOCATOR,LOCATORS,LOCK,LOCKMAX,LOCKSIZE,LONG,LOOP," +      // @J2A
-               "MAXVALUE,MICROSECOND,MICROSECONDS,MINUTES,MINVALUE,MODE,MODIFIES," +      // @J2A
-               "MONTHS," +                                                                // @J2A
-               "NEW,NEW_TABLE,NOCACHE,NOCYCLE,NODENAME,NODENUMBER,NOMAXVALUE," +          // @J2A
-               "NOMINVALUE," +                                                            // @J2A
-               "NOORDER,NULLS,NUMPARTS,OBID,OLD,OLD_TABLE,OPTIMIZATION,OPTIMIZE," +       // @J2A
-               "OUT,OVERRIDING,PACKAGE,PARAMETER,PART,PARTITION,PATH,PIECESIZE," +        // @J2A
-               "PLAN," +                                                                  // @J2A
-               "PRIQTY,PROGRAM,PSID,QUERYNO,READS,RECOVERY,REFERENCING,RELEASE," +        // @J2A
-               "RENAME,REPEAT,RESET,RESIGNAL,RESTART,RESULT,RESULT_SET_LOCATOR," +        // @J2A
-               "RETURN," +                                                                // @J2A
-               "RETURNS,ROUTINE,ROW,RRN,RUN,SAVEPOINT,SCRATCHPAD,SECONDS,SECQTY," +       // @J2A
-               "SECURITY,SENSITIVE,SIGNAL,SIMPLE,SOURCE,SPECIFIC,SQLID,STANDARD," +       // @J2A
-               "START,STATIC,STAY,STOGROUP,STORES,STYLE,SUBPAGES,SYNONYM,SYSFUN," +       // @J2A
-               "SYSIBM," +                                                                // @J2A
-               "SYSPROC,SYSTEM,TABLESPACE,TRIGGER,TYPE,UNDO,UNTIL,VALIDPROC," +           // @J2A
-               "VARIABLE," +                                                              // @J2A
-               "VARIANT,VCAT,VOLUMES,WHILE,WLM,YEARS";                                    // @J2A
+  public String getSQLKeywords() throws SQLException {
+/* ifdef JDBC40 
+    // Updated 2014/01/24
+    return  "ACCORDING,ACCTNG,ACTION,ACTIVATE,"
+        + "ALIAS,ALLOW,APPEND,APPLNAME,ARRAY_AGG,ASC,"
+        + "ASSOCIATE,ATTRIBUTES,AUTONOMOUS,BEFORE,BIND,"
+        + "BIT,BUFFERPOOL,CACHE,CARDINALITY,CCSID,CL,"
+        + "CLUSTER,COLLECT,COLLECTION,COMMENT,COMPACT,"
+        + "COMPRESS,CONCAT,CONCURRENT,CONNECT_BY_ROOT,"
+        + "CONNECTION,CONSTANT,CONTAINS,CONTENT,COPY,"
+        + "COUNT,COUNT_BIG,CURRENT_SCHEMA,CURRENT_SERVER,"
+        + "CURRENT_TIMEZONE,DATA,DATABASE,DATAPARTITIONNAME,"
+        + "DATAPARTITIONNUM,DAYS,DBINFO,DBPARTITIONNAME,"
+        + "DBPARTITIONNUM,DB2GENERAL,DB2GENRL,DB2SQL,"
+        + "DEACTIVATE,DEFAULTS,DEFER,DEFINE,DEFINITION,"
+        + "DELETING,DENSERANK,DENSE_RANK,DESC,DESCRIPTOR,"
+        + "DIAGNOSTICS,DISABLE,DISALLOW,DOCUMENT,ENABLE,"
+        + "ENCRYPTION,ENDING,ENFORCED,"
+        + "EVERY,EXCEPTION,EXCLUDING,EXCLUSIVE,EXTEND,"
+        + "EXTRACT,FENCED,FIELDPROC,FILE,FINAL,"
+        + "FREEPAGE,GBPCACHE,GENERAL,GENERATED,GO,"
+        + "GOTO,GRAPHIC,HASH,HASHED_VALUE,HINT,HOURS,"
+        + "ID,IGNORE,IMPLICITLY,INCLUDE,INCLUDING,"
+        + "INCLUSIVE,INCREMENT,INDEX,INDEXBP,INF,"
+        + "INFINITY,INHERIT,INSERTING,INTEGRITY,ISOLATION,"
+        + "JAVA,KEEP,KEY,LABEL,LEVEL2,LINKTYPE,"
+        + "LOCALDATE,LOCATION,LOCATOR,LOCK,LOCKSIZE,"
+        + "LOG,LOGGED,LONG,MAINTAINED,MASK,MATCHED,"
+        + "MATERIALIZED,MAXVALUE,MICROSECOND,MICROSECONDS,"
+        + "MINPCTUSED,MINUTES,MINVALUE,MIXED,MODE,"
+        + "MONTHS,NAMESPACE,NAN,NEW_TABLE,NEXTVAL,"
+        + "NOCACHE,NOCYCLE,NODENAME,NODENUMBER,NOMAXVALUE,"
+        + "NOMINVALUE,NOORDER,NORMALIZED,NULLS,NVARCHAR,"
+        + "OBID,OLD_TABLE,OPTIMIZE,OPTION,ORDINALITY,"
+        + "ORGANIZE,OVERRIDING,PACKAGE,PADDED,PAGE,"
+        + "PAGESIZE,PART,PARTITIONED,PARTITIONING,"
+        + "PARTITIONS,PASSING,PASSWORD,PATH,PCTFREE,"
+        + "PERMISSION,PIECESIZE,PLAN,POSITION,PREVVAL,"
+        + "PRIOR,PRIQTY,PRIVILEGES,PROGRAM,PROGRAMID,"
+        + "QUERY,RANK,RCDFMT,READ,RECOVERY,REFRESH,"
+        + "RENAME,RESET,RESTART,RESULT_SET_LOCATOR,RID,"
+        + "ROUTINE,ROWNUMBER,ROW_NUMBER,RRN,RUN,SBCS,"
+        + "SCHEMA,SCRATCHPAD,SECONDS,SECQTY,SECURED,"
+        + "SEQUENCE,SESSION,SIMPLE,SKIP,SNAN,SOURCE,"
+        + "SQLID,STACKED,STARTING,STATEMENT,STOGROUP,"
+        + "SUBSTRING,SUMMARY,SYNONYM,TABLESPACE,"
+        + "TABLESPACES,THREADSAFE,TRANSACTION,TRANSFER,"
+        + "TRIM,TRIM_ARRAY,TRUNCATE,TYPE,UNIT,"
+        + "UPDATING,URI,USAGE,USE,USERID,VARIABLE,"
+        + "VARIANT,VCAT,VERSION,VIEW,VOLATILE,WAIT,"
+        + "WRAPPED,WRITE,WRKSTNNAME,XMLAGG,XMLATTRIBUTES,"
+        + "XMLCAST,XMLCOMMENT,XMLCONCAT,XMLDOCUMENT,"
+        + "XMLELEMENT,XMLFOREST,XMLGROUP,XMLNAMESPACES,"
+        + "XMLPARSE,XMLPI,XMLROW,XMLSERIALIZE,XMLTABLE,"
+        + "XMLTEXT,XMLVALIDATE,XSLTRANSFORM,XSROBJECT,"
+        + "YEARS,YES";
+endif */
+/* ifndef JDBC40 */
+      return "AFTER,ALIAS,ALLOW,APPLICATION,ASSOCIATE,ASUTIME,AUDIT," +                 // @J2M
+      "AUX,AUXILIARY,BEFORE,BINARY," +                                           // @J2A
+      "BUFFERPOOL,CACHE,CALL,CALLED,CAPTURE,CARDINALITY,CCSID,CLUSTER," +        // @J2A
+      "COLLECTION,COLLID,COMMENT,CONCAT,CONDITION,CONTAINS,COUNT_BIG," +         // @J2A
+      "CURRENT_LC_CTYPE," +                                                      // @J2A
+      "CURRENT_PATH,CURRENT_SERVER,CURRENT_TIMEZONE,CYCLE,DATA," +               // @J2A
+      "DATABASE,DAYS," +                                                         // @J2A
+      "DB2GENERAL,DB2GENRL,DB2SQL,DBINFO,DEFAULTS,DEFINITION," +                 // @J2A
+      "DETERMINISTIC," +                                                         // @J2A
+      "DISALLOW,DO,DSNHATTR,DSSIZE,DYNAMIC,EACH,EDITPROC,ELSEIF," +              // @J2A
+      "ENCODING,END-EXEC1," +                                                    // @J2A
+      "ERASE,EXCLUDING,EXIT,FENCED,FIELDPROC,FILE,FINAL,FREE,FUNCTION," +        // @J2A
+      "GENERAL," +                                                               // @J2A
+      "GENERATED,GRAPHIC,HANDLER,HOLD,HOURS,IF,INCLUDING,INCREMENT," +           // @J2A
+      "INDEX," +                                                                 // @J2A
+      "INHERIT,INOUT,INTEGRITY,ISOBID,ITERATE,JAR,JAVA,LABEL,LC_CTYPE," +        // @J2A
+      "LEAVE," +                                                                 // @J2A
+      "LINKTYPE,LOCALE,LOCATOR,LOCATORS,LOCK,LOCKMAX,LOCKSIZE,LONG,LOOP," +      // @J2A
+      "MAXVALUE,MICROSECOND,MICROSECONDS,MINUTES,MINVALUE,MODE,MODIFIES," +      // @J2A
+      "MONTHS," +                                                                // @J2A
+      "NEW,NEW_TABLE,NOCACHE,NOCYCLE,NODENAME,NODENUMBER,NOMAXVALUE," +          // @J2A
+      "NOMINVALUE," +                                                            // @J2A
+      "NOORDER,NULLS,NUMPARTS,OBID,OLD,OLD_TABLE,OPTIMIZATION,OPTIMIZE," +       // @J2A
+      "OUT,OVERRIDING,PACKAGE,PARAMETER,PART,PARTITION,PATH,PIECESIZE," +        // @J2A
+      "PLAN," +                                                                  // @J2A
+      "PRIQTY,PROGRAM,PSID,QUERYNO,READS,RECOVERY,REFERENCING,RELEASE," +        // @J2A
+      "RENAME,REPEAT,RESET,RESIGNAL,RESTART,RESULT,RESULT_SET_LOCATOR," +        // @J2A
+      "RETURN," +                                                                // @J2A
+      "RETURNS,ROUTINE,ROW,RRN,RUN,SAVEPOINT,SCRATCHPAD,SECONDS,SECQTY," +       // @J2A
+      "SECURITY,SENSITIVE,SIGNAL,SIMPLE,SOURCE,SPECIFIC,SQLID,STANDARD," +       // @J2A
+      "START,STATIC,STAY,STOGROUP,STORES,STYLE,SUBPAGES,SYNONYM,SYSFUN," +       // @J2A
+      "SYSIBM," +                                                                // @J2A
+      "SYSPROC,SYSTEM,TABLESPACE,TRIGGER,TYPE,UNDO,UNTIL,VALIDPROC," +           // @J2A
+      "VARIABLE," +                                                              // @J2A
+      "VARIANT,VCAT,VOLUMES,WHILE,WLM,YEARS";                                    // @J2A
+
+/* endif */
+
     }
 
 
@@ -5071,7 +5131,7 @@ endif */
             cs.setShort(1, (short) SQL_ALL_TYPES);
 /* ifdef  JDBC40
             cs.setString(2, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
-/* endif */
+endif */
 /* ifndef JDBC40 */
             cs.setString(2, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
 /* endif */
