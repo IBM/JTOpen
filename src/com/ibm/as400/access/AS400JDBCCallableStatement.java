@@ -46,6 +46,11 @@ import java.util.Map;
 import java.util.Hashtable;             //@G4A
 import java.util.Vector;
 endif */ 
+/* ifdef JDBC42
+import java.sql.SQLType; 
+import java.sql.JDBCType; 
+import java.sql.SQLFeatureNotSupportedException;
+endif */
 
 
 /**
@@ -66,7 +71,7 @@ public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatement
 implements CallableStatement
 {
-    static final String copyright2 = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
+    static final String copyright2 = "Copyright (C) 1997-2014 International Business Machines Corporation and others.";
 
     static final int    NO_VALIDATION_  = -9999;
 
@@ -4624,7 +4629,336 @@ endif */
       }
       }
 
+    /**
+     * converts an SQLType to its corresponding java.sql.Types value
+     */
+    
+    int mapSQLType(
+        /* ifdef JDBC42        
+        SQLType  
+  endif*/ 
+  /* ifndef JDBC42 */
+  Object
+  /* endif */
+        targetSqlType ) throws SQLException {
+       /* ifdef JDBC42 
+         
+      if (targetSqlType instanceof JDBCType) {
+        return targetSqlType.getVendorTypeNumber(); 
+      }
+        throw new SQLFeatureNotSupportedException("targetSqlType="+targetSqlType);    
+   
+        endif */
+      /* ifndef JDBC42 */
+         return 0; 
+      /* endif */ 
+    }
+    
+    
+    /**
+     * Sets the value of the designated parameter with the given object. If the second
+     * argument is an InputStream then the stream must contain the number of bytes 
+     * specified by scaleOrLength. If the second argument is a Reader then the reader
+     * must contain the number of characters specified by scaleOrLength. If these 
+     * conditions are not true the driver will generate a SQLException when the 
+     * prepared statement is executed.
+     * <p>The given Java object will be converted to the given targetSqlType before 
+     * being sent to the database. If the object has a custom mapping (is of a 
+     * class implementing the interface SQLData), the JDBC driver should call 
+     * the method SQLData.writeSQL to write it to the SQL data stream. If, on 
+     * the other hand, the object is of a class implementing Ref, Blob, Clob, 
+     * NClob, Struct, java.net.URL, or Array, the driver should pass it to the
+     * database as a value of the corresponding SQL type.
+     * <p>Note that this method may be used to pass database-specific abstract 
+     * data types.
+     * @param parameterName - the name of the parameter
+     * @param x - the object containing the input parameter value
+     * @param targetSqlType - the SQL type to be sent to the database. The scale argument
+     *  may further qualify this type.
+     * @param scaleOrLength - for java.sql.JDBCType.DECIMAL or java.sql.JDBCType.NUMERIC
+     *  types, this is the number of digits after the decimal point. For Java Object 
+     *  types InputStream and Reader, this is the length of the data in the stream or 
+     *  reader. For all other types, this value will be ignored.
+  
+     * @throws SQLException - if parameterName does not correspond to a named parameter;
+     *  if a database access error occurs or this method is called on a closed 
+     *  CallableStatement or if the Java Object specified by x is an InputStream or 
+     *  Reader object and the value of the scale parameter is less than zero
+     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
+     * this data type
+     */
+    public void setObject(String parameterName,
+                           Object x,
+                           /* ifdef JDBC42        
+                           SQLType  
+                     endif*/ 
+                     /* ifndef JDBC42 */
+                     Object
+                     /* endif */
+                           targetSqlType,
+                           int scaleOrLength)                    throws SQLException
+           {
+                    
+      int intType = mapSQLType(targetSqlType);
+      setObject(parameterName, x, intType, scaleOrLength); 
+                    }
 
+    
+    /**
+     * Sets the value of the designated parameter with the given object. This method is similar to setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength), except that it assumes a scale of zero.
+
+     * @param parameterName - the name of the parameter 
+     * @param x - the object containing the input parameter value
+     * @param targetSqlType  - the SQL type to be sent to the database
+     * @throws SQLException  - if parameterName does not correspond to a named parameter;
+     *  if a database access error occurs or this method is called on a closed 
+     *  CallableStatement
+     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
+     *   this data type
+     */
+
+   public void setObject(String parameterName,
+                           Object x,
+/* ifdef JDBC42        
+                           SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+                     Object
+/* endif */
+                           targetSqlType)
+                    throws SQLException
+                    {
+     
+     int intType = mapSQLType(targetSqlType);
+     setObject(parameterName, x, intType); 
+                    
+                    }
+
+
+   /**
+    * Registers the OUT parameter in ordinal position parameterIndex to the JDBC type 
+    * sqlType. All OUT parameters must be registered before a stored procedure is 
+    * executed.
+    * <p>The JDBC type specified by sqlType for an OUT parameter determines the 
+    * Java type that must be used in the get method to read the value of that 
+    * parameter.
+    * <p>If the JDBC type expected to be returned to this output parameter is 
+    * specific to this particular database, sqlType may be JDBCType.OTHER or a 
+    * SQLType that is supported by the JDBC driver. The method getObject(int) 
+    * retrieves the value.
+    * @param parameterIndex - the first parameter is 1, the second is 2, and so on
+    * @param sqlType - the JDBC type code defined by SQLType to use to register 
+    * the OUT Parameter. If the parameter is of JDBC type JDBCType.NUMERIC 
+    * or JDBCType.DECIMAL, the version of registerOutParameter that accepts 
+    * a scale value should be used.
+    * @throws SQLException - if the parameterIndex is not valid; if a database access 
+    * error occurs or this method is called on a closed CallableStatement
+    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
+    * this data type
+    */
+    public void registerOutParameter(int parameterIndex,
+/* ifdef JDBC42        
+        SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+        Object
+/* endif */
+                                      sqlType)
+                               throws SQLException{
+      int intType = mapSQLType(sqlType);
+      registerOutParameter(parameterIndex, intType); 
+    }
+
+    /**
+     * Registers the parameter in ordinal position parameterIndex to be 
+     * of JDBC type sqlType. All OUT parameters must be registered before 
+     * a stored procedure is executed.
+     * <p>The JDBC type specified by sqlType for an OUT parameter 
+     * determines the Java type that must be used in the get method 
+     * to read the value of that parameter.
+     * <p>This version of registerOutParameter should be used when the 
+     * parameter is of JDBC type JDBCType.NUMERIC or JDBCType.DECIMAL.
+     * @param parameterIndex - the first parameter is 1, the second is 2, and so on
+     * @param sqlType - the JDBC type code defined by SQLType to use to register 
+     * the OUT Parameter.        
+     * @param scale - the desired number of digits to the right of the decimal 
+     * point. It must be greater than or equal to zero.
+     * @throws SQLException - if the parameterIndex is not valid; if a database 
+     * access error occurs or this method is called on a closed CallableStatement
+     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
+     * support this data type
+     */
+    
+    public void registerOutParameter(int parameterIndex,
+        /* ifdef JDBC42        
+        SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+        Object
+/* endif */
+                                      sqlType,
+                                      int scale)
+                               throws SQLException {
+      int intType = mapSQLType(sqlType);
+      registerOutParameter(parameterIndex, intType, scale); 
+    }
+
+/**
+ * Registers the designated output parameter. This version of the method 
+ * registerOutParameter should be used for a user-defined or REF output 
+ * parameter. Examples of user-defined types include: STRUCT, DISTINCT, 
+ * JAVA_OBJECT, and named array types.
+ * <p>All OUT parameters must be registered before a stored procedure 
+ * is executed.
+ * <p>For a user-defined parameter, the fully-qualified SQL type name 
+ * of the parameter should also be given, while a REF parameter requires
+ * that the fully-qualified type name of the referenced type be given. 
+ * A JDBC driver that does not need the type code and type name 
+ * information may ignore it. To be portable, however, applications 
+ * should always provide these values for user-defined and REF 
+ * parameters. Although it is intended for user-defined and REF 
+ * parameters, this method may be used to register a parameter of 
+ * any JDBC type. If the parameter does not have a user-defined 
+ * or REF type, the typeName parameter is ignored.
+ * <p>Note: When reading the value of an out parameter, you must use the getter method whose Java type corresponds to the parameter's registered SQL type.
+ * @param parameterIndex  - the first parameter is 1, the second is 2,...
+ * @param sqlType - the JDBC type code defined by SQLType to use to register 
+ * the OUT Parameter.
+ * @param typeName - the fully-qualified name of an SQL structured type
+ * @throws SQLException - if the parameterIndex is not valid; if a database 
+ * access error occurs or this method is called on a closed CallableStatement
+ * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
+ * support this data type
+ */
+    public void registerOutParameter(int parameterIndex,
+/* ifdef JDBC42        
+        SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+        Object
+/* endif */
+                                      sqlType,
+                                      String typeName)
+                               throws SQLException {
+      int intType = mapSQLType(sqlType);
+      registerOutParameter(parameterIndex, intType, typeName); 
+      
+    }
+
+/**
+ * Registers the OUT parameter named parameterName to the JDBC type sqlType. 
+ * All OUT parameters must be registered before a stored procedure is executed.
+ * <p>The JDBC type specified by sqlType for an OUT parameter determines the 
+ * Java type that must be used in the get method to read the value of that parameter.
+ * <p>If the JDBC type expected to be returned to this output parameter is 
+ * specific to this particular database, sqlType should be JDBCType.OTHER or a 
+ * SQLType that is supported by the JDBC driver.. The method getObject(int) 
+ * retrieves the value.
+ * @param parameterName - the name of the parameter
+ * @param sqlType - the JDBC type code defined by SQLType to use to register the 
+ * OUT Parameter. If the parameter is of JDBC type JDBCType.NUMERIC or 
+ * JDBCType.DECIMAL, the version of registerOutParameter that accepts a 
+ * scale value should be used.
+ * @throws SQLException - if parameterName does not correspond to a named 
+ * parameter; if a database access error occurs or this method is called 
+ * on a closed CallableStatement
+ * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
+ * support this data type or if the JDBC driver does not support this method
+ */
+   public void registerOutParameter(String parameterName,
+       /* ifdef JDBC42        
+       SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+       Object
+/* endif */
+                                      sqlType)
+                               throws SQLException {
+     int intType = mapSQLType(sqlType);
+     registerOutParameter(parameterName, intType); 
+     
+   }
+
+   /**
+    * Registers the parameter named parameterName to be of JDBC type sqlType. 
+    * All OUT parameters must be registered before a stored procedure is executed.
+    * <p>The JDBC type specified by sqlType for an OUT parameter determines the 
+    * Java type that must be used in the get method to read the value of that 
+    * parameter.
+    * <p>This version of registerOutParameter should be used when the parameter
+    * is of JDBC type JDBCType.NUMERIC or JDBCType.DECIMAL.
+    * @param parameterName  - the name of the parameter
+    * @param sqlType - the JDBC type code defined by SQLType to use to register 
+    * the OUT Parameter.
+    * @param scale - the desired number of digits to the right of the decimal 
+    * point. It must be greater than or equal to zero.
+    * @throws SQLException - if parameterName does not correspond to a named 
+    * parameter; if a database access error occurs or this method is called 
+    * on a closed CallableStatement
+    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
+    * support this data type or if the JDBC driver does not support this method
+    */
+  public void registerOutParameter(String parameterName,
+      /* ifdef JDBC42        
+      SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+      Object
+/* endif */
+                                      sqlType,
+                                      int scale)
+                               throws SQLException {
+    int intType = mapSQLType(sqlType);
+    registerOutParameter(parameterName, intType, scale); 
+    
+  }
+
+
+  /**
+   * Registers the designated output parameter. This version of the 
+   * method registerOutParameter should be used for a user-named or 
+   * REF output parameter. Examples of user-named types include: 
+   * STRUCT, DISTINCT, JAVA_OBJECT, and named array types.
+   * <p> All OUT parameters must be registered before a stored 
+   * procedure is executed.
+   * <p>For a user-named parameter the fully-qualified SQL type name 
+   * of the parameter should also be given, while a REF parameter 
+   * requires that the fully-qualified type name of the referenced 
+   * type be given. A JDBC driver that does not need the type code 
+   * and type name information may ignore it. To be portable, 
+   * however, applications should always provide these values for 
+   * user-named and REF parameters. Although it is intended for 
+   * user-named and REF parameters, this method may be used to 
+   * register a parameter of any JDBC type. If the parameter does
+   *  not have a user-named or REF type, the typeName parameter is ignored.
+   *  <p> Note: When reading the value of an out parameter, you 
+   *  must use the getXXX method whose Java type XXX corresponds 
+   *  to the parameter's registered SQL type.
+   * @param parameterName - the name of the parameter
+   * @param sqlType - the JDBC type code defined by SQLType to use to register
+   * the OUT Parameter.
+   * @param typeName - the fully-qualified name of an SQL structured type
+   * @throws SQLException - if parameterName does not correspond to a named 
+   * parameter; if a database access error occurs or this method is called 
+   * on a closed CallableStatement
+   * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
+   * support this data type or if the JDBC driver does not support this method
+   */
+  public void registerOutParameter(String parameterName,
+      /* ifdef JDBC42        
+      SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+      Object
+/* endif */
+                                      sqlType,
+                                      String typeName)
+                               throws SQLException
+        {
+    int intType = mapSQLType(sqlType);
+    registerOutParameter(parameterName, intType, typeName); 
+    
+         }
 
     
 }

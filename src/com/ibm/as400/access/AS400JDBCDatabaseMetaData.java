@@ -8111,6 +8111,21 @@ endif */
       return rs;  //@mdrs
     }
 
+    
+    
+    /**
+     * Retrieves the maximum number of bytes this database allows for the logical size
+     *  for a LOB.
+     * For IBM i, this will return 2147483647, which is the maximum number of bytes
+     * in a DBCLOB. 
+     * @return the maximum number of bytes allowed; a result of zero means that there is no limit or the limit is not known
+     * @exception SQLException - if a database access error occurs
+     */
+
+    public long getMaxLogicalLobSize() throws SQLException {
+       return 2147483647;
+    }
+
 
 
 }

@@ -81,6 +81,7 @@ public class AS400JDBCTimestamp extends Timestamp {
    */
   public void setNanos(int nanos) {
       setPicos(nanos * 1000L); 
+      super.setNanos(nanos); 
   }
   
   /* 
@@ -122,8 +123,6 @@ public class AS400JDBCTimestamp extends Timestamp {
   
   /**
    * Sets this Timestamp object to represent a point in time that is time milliseconds after January 1, 1970 00:00:00 GMT.
-   * 
-   * @override   setTime in class Timestmap
    * 
    * @param  millis -- the number of milliseconds
    * @see java.sql.Timestamp#setTime(long)
@@ -261,5 +260,28 @@ public class AS400JDBCTimestamp extends Timestamp {
     }
     return returnTimestamp; 
   }
+  
+  /*
+   * JDBC 42 methods
+   */
+  
+  /* Note:  public static Timestamp valueOf(LocalDateTime dateTime) 
+   * is not implemented because LocalDateTime only has nanosecond precision.
+   * The base class implementation will suffice. 
+   */
+  
+  /* Note:  public LocalDateTime toLocalDateTime() 
+   * is not implemented because LocalDateTime only has nanosecond precision. 
+   */
+  
+  /* Note:  public static Timestamp from(Instant instant) 
+   * is not implemented because Instant only has nanosecond precision. 
+   */
+
+  /* Note: Instant toInstant() 
+   * is not implemented because Instant only has nanosecond precision. 
+   */
+    
+  
   
 }
