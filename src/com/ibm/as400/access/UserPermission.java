@@ -283,7 +283,7 @@ public class UserPermission
     /**
      * Sets the committed signal.
      * @param commit The committed signal.
-     * @see #isCommitted
+     * @see #getCommitted()
     **/
     void setCommitted(int commit)
     {

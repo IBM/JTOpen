@@ -5456,8 +5456,11 @@ endif */
     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
     *  setNetworkTimeout.
     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-    * @see  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
-    *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
+    * @see SecurityManager#checkPermission(java.security.Permission)
+    * @see Statement#setQueryTimeout(int)
+    * @see #getNetworkTimeout()
+    * @see #abort(java.util.concurrent.Executor)
+    * @see Executor
     */
 
    public void setNetworkTimeout(int timeout) throws SQLException {
@@ -5565,9 +5568,12 @@ endif */
 //JDBC40DOC     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
 //JDBC40DOC     *  setNetworkTimeout.
 //JDBC40DOC     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
-//JDBC40DOC     * @also  SecurityManager.checkPermission(java.security.Permission), Statement.setQueryTimeout(int),
-//JDBC40DOC     *  getNetworkTimeout(), abort(java.util.concurrent.Executor), Executor
-
+//JDBC40DOC     * @see  SecurityManager#checkPermission(java.security.Permission)
+//JDBC40DOC     * @see  Statement#setQueryTimeout(int)
+//JDBC40DOC     * @see  #getNetworkTimeout()
+//JDBC40DOC     * @see  #abort(java.util.concurrent.Executor)
+//JDBC40DOC     * @see  Executor
+//JDBC40DOC     **/
 /* ifdef JDBC40
   public void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException {
