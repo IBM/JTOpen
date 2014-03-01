@@ -21,6 +21,7 @@ class ConvTable930 extends ConvTableMixedMap
     {
         super(930, 290, 16684);  // 16684 is a superset of 300.
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");
-        ConvTable4396.makeAlternateMap(dbTable_.toUnicode_, dbTable_.fromUnicode_);
+        dbTable_.toUnicode_   = ConvTable4396.makeAlternateToUnicodeMap(dbTable_.toUnicode_);
+        dbTable_.fromUnicode_ = ConvTable4396.makeAlternateFromUnicodeMap(dbTable_.fromUnicode_);
     }
 }
