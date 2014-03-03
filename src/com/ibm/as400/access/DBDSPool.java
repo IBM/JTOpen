@@ -102,107 +102,116 @@ final class DBDSPool
 	  return dbreplyrequesteddsPool_.length; 
   }
   
-  static final DBReplyRequestedDS getDBReplyRequestedDS()
-  {
-	if (noDBReplyPooling) { 
-		DBReplyRequestedDS unpooledDS = new DBReplyRequestedDS(monitor, -1);                    //@B5C
-		unpooledDS.canUse();                                                 
-		unpooledDS.setInPool(false);                                                                                                // @B5A
-		return unpooledDS; 
-	} else { 
-    synchronized(dbreplyrequesteddsPoolLock_) //@P1C
-    {
-      // This pools is maintained as weak references to 
-      // all the garbage collector to free up as needed.
-      // DBReplyRequestedDS[] pool = dbreplyrequesteddsPool_; //@P1M
-      SoftReference[] pool = dbreplyrequesteddsPool_; //@P1M
-      int max = pool.length;
-      
-      // Periodically begin the search for free items at the beginning of the pool @B5A
-      int searchStart = dbReplyRequestedPoolSearchStart_;
-      if (dbReplyRequestedPoolFull_) {
-    	  searchStart = pool.length;
-      }
-      if (dbReplyRequestedPoolSearchCount_ > DB_REPLY_REQUEST_POOL_SEARCH_RESET) {
-    	  dbReplyRequestedPoolFull_ = false; 
-    	  searchStart = 0; 
-    	  dbReplyRequestedPoolSearchCount_ = 0; 
-      }
-   	  dbReplyRequestedPoolSearchCount_++; 
-   	  
-   	  
-      for (int i=searchStart; i<pool.length; ++i)
+  static final DBReplyRequestedDS getDBReplyRequestedDS() {
+    if (noDBReplyPooling) {
+      DBReplyRequestedDS unpooledDS = new DBReplyRequestedDS(monitor, -1); // @B5C
+      unpooledDS.canUse();
+      unpooledDS.setInPool(false); // @B5A
+      return unpooledDS;
+    } else {
+      synchronized (dbreplyrequesteddsPoolLock_) // @P1C
       {
-        if (pool[i] == null )
-        {
-          DBReplyRequestedDS pooledDs =  new DBReplyRequestedDS(monitor, i);
-          pooledDs.canUse(); 
-          pooledDs.setInPool(true); 
-          pool[i] = new SoftReference(pooledDs);
-          dbReplyRequestedPoolSearchStart_ = i+1; 
-          return pooledDs;
-        
-        } else {
-            DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get(); 
-          if (ds == null) { 
-              ds =  new DBReplyRequestedDS(monitor, i);
-              ds.canUse(); 
-              ds.setInPool(true); 
+        // This pools is maintained as weak references to
+        // all the garbage collector to free up as needed.
+        // DBReplyRequestedDS[] pool = dbreplyrequesteddsPool_; //@P1M
+        SoftReference[] pool = dbreplyrequesteddsPool_; // @P1M
+        int max = pool.length;
+
+        // Periodically begin the search for free items at the beginning of the
+        // pool @B5A
+        int searchStart = dbReplyRequestedPoolSearchStart_;
+        if (dbReplyRequestedPoolFull_) {
+          searchStart = pool.length;
+        }
+        if (dbReplyRequestedPoolSearchCount_ > DB_REPLY_REQUEST_POOL_SEARCH_RESET) {
+          dbReplyRequestedPoolFull_ = false;
+          searchStart = 0;
+          dbReplyRequestedPoolSearchCount_ = 0;
+        }
+        dbReplyRequestedPoolSearchCount_++;
+
+        for (int i = searchStart; i < pool.length; ++i) {
+          if (pool[i] == null) {
+            DBReplyRequestedDS pooledDs = new DBReplyRequestedDS(monitor, i);
+            pooledDs.canUse();
+            pooledDs.setInPool(true);
+            pool[i] = new SoftReference(pooledDs);
+            dbReplyRequestedPoolSearchStart_ = i + 1;
+            return pooledDs;
+
+          } else {
+            DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get();
+            // Sometimes the pool gets unpooled entries.  If this is the case
+            // just remove it from the pool. 
+            // Sometimes ds.storage_ can be null because of a
+            // GC bug.  If so, do not use it. 
+            if (ds == null || ds.storage_ == null   ) {
+              ds = new DBReplyRequestedDS(monitor, i);
+              ds.canUse();
+              ds.setInPool(true);
               pool[i] = new SoftReference(ds);
-              dbReplyRequestedPoolSearchStart_ = i+1; 
-       		  // pool[i].setPoolIndex(i); 
+              dbReplyRequestedPoolSearchStart_ = i + 1;
+              // pool[i].setPoolIndex(i);
               return ds;
-        	  
-          } else { 
-        	   if ((ds.inUse_ == false) && (ds.canUse())) {
-        		ds.initialize();
-        		// pool[i].setPoolIndex(i); 
-                dbReplyRequestedPoolSearchStart_ = i+1; 
-        		return ds;
-        	   }
+
+            } else {
+              if ((ds.inUse_ == false) && (ds.canUse())) {
+            	  
+                // More code for the GC bug.  If the finalize
+            	  // happened to run after we checked then storage could have been null  
+                if (ds.storage_ == null) {
+                  // If the storage_ happens to be null, don't use it.
+                  // Keep looking for another one.  This will be cleaned 
+                  // up on the next search (see above). 
+                } else {
+                  ds.initialize();
+                  // pool[i].setPoolIndex(i);
+                  dbReplyRequestedPoolSearchStart_ = i + 1;
+                  return ds;
+                }
+              }
+            }
           }
         }
-      }
-      // All are in use, so expand the pool but keep the pool less than 16384
-	  if (max * 2 < 16385) {
-	    // Have a monitor so we can see the usage of these items  @B5A
-		if (monitor) {
-		   System.out.println("Expanding DBDSPool to size "	+ (max * 2));
-		   for (int i = 0; i < max; i++) {
-			   DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get();
-			   if (ds == null) { 
-				   System.out.println("Entry " + i + " : null"); 
-			   } else {
-			   System.out.println("Entry " + i + " : "
-								+ ds.getAllocatedLocation());
-			   }
-		   }
-		}
-		SoftReference[] temp = new SoftReference[max*2];
-        System.arraycopy(pool, 0, temp, 0, max);
-        DBReplyRequestedDS pooledDs = new DBReplyRequestedDS(monitor, max); 
-        temp[max] = new SoftReference(pooledDs); 
-        pooledDs.canUse();
-		pooledDs.setInPool(true);              //@B5A
-		// temp[max].setPoolIndex(max); 
+        // All are in use, so expand the pool but keep the pool less than 16384
+        if (max * 2 < 16385) {
+          // Have a monitor so we can see the usage of these items @B5A
+          if (monitor) {
+            System.out.println("Expanding DBDSPool to size " + (max * 2));
+            for (int i = 0; i < max; i++) {
+              DBReplyRequestedDS ds = (DBReplyRequestedDS) pool[i].get();
+              if (ds == null) {
+                System.out.println("Entry " + i + " : null");
+              } else {
+                System.out.println("Entry " + i + " : "
+                    + ds.getAllocatedLocation());
+              }
+            }
+          }
+          SoftReference[] temp = new SoftReference[max * 2];
+          System.arraycopy(pool, 0, temp, 0, max);
+          DBReplyRequestedDS pooledDs = new DBReplyRequestedDS(monitor, max);
+          pooledDs.canUse(); 
+          pooledDs.setInPool(true); // @B5A
+          temp[max] = new SoftReference(pooledDs);
+          // temp[max].setPoolIndex(max);
 
-        dbreplyrequesteddsPool_ = temp;
-        // Start the search at zero after expanding 
-        dbReplyRequestedPoolSearchStart_ = 0;  //@B5A
-        return pooledDs;
-      } else {
-  		DBReplyRequestedDS nonpooledDS = new DBReplyRequestedDS(monitor, -1);
-		nonpooledDS.canUse(); 
-		nonpooledDS.setInPool(false);
-		if (!dbReplyRequestedPoolFull_) {
-			dbReplyRequestedPoolFull_ = true; 
-		}
-		return nonpooledDS; 
-      }
-    }
+          dbreplyrequesteddsPool_ = temp;
+          // Start the search at zero after expanding
+          dbReplyRequestedPoolSearchStart_ = 0; // @B5A
+          return pooledDs;
+        } else {
+          DBReplyRequestedDS nonpooledDS = new DBReplyRequestedDS(monitor, -1);
+          nonpooledDS.canUse();
+          nonpooledDS.setInPool(false);
+          if (!dbReplyRequestedPoolFull_) {
+            dbReplyRequestedPoolFull_ = true;
+          }
+          return nonpooledDS;
+        }
+      } /* synchronized */ 
     }
   }
-
   
   static final DBXARequestDS getDBXARequestDS(int a, int b, int c, int d)
   {
@@ -214,9 +223,10 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBXARequestDS(a,b,c,d);
-          pool[i].canUse();
-          return pool[i];
+          DBXARequestDS request = new DBXARequestDS(a,b,c,d);
+          request.canUse();
+          pool[i] = request; 
+          return request;
         }
          if (( pool[i].inUse_ == false) && pool[i].canUse())
            {
@@ -227,10 +237,11 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBXARequestDS[] temp = new DBXARequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBXARequestDS(a,b,c,d);
-      temp[max].canUse();
+      DBXARequestDS request = new DBXARequestDS(a,b,c,d);
+      request.canUse();
+      temp[max] = request; 
       dbxarequestdsPool_ = temp;
-      return temp[max];
+      return request;
     }
   }
 
@@ -244,9 +255,10 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBSQLAttributesDS(a,b,c,d);
-          pool[i].canUse();
-          return pool[i];
+          DBSQLAttributesDS request = new DBSQLAttributesDS(a,b,c,d);
+          request.canUse(); 
+          pool[i] = request; 
+          return request;
         }
 
           if (( pool[i].inUse_ == false) && pool[i].canUse())
@@ -258,10 +270,11 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBSQLAttributesDS[] temp = new DBSQLAttributesDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBSQLAttributesDS(a,b,c,d);
-      temp[max].canUse();
+      DBSQLAttributesDS ds = new DBSQLAttributesDS(a,b,c,d);
+      ds.canUse();
+      temp[max]= ds;
       dbsqlattributesdsPool_ = temp;
-      return temp[max];
+      return ds;
     }
   }
 
@@ -275,9 +288,11 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBNativeDatabaseRequestDS(a,b,c,d);
-          pool[i].canUse();
-          return pool[i];
+          DBNativeDatabaseRequestDS request =  new DBNativeDatabaseRequestDS(a,b,c,d);
+          // Mark as used before placing in the pool
+          request.canUse(); 
+          pool[i] =request; 
+          return request;
         }
           if (( pool[i].inUse_ == false) && pool[i].canUse())
           {
@@ -288,10 +303,13 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBNativeDatabaseRequestDS[] temp = new DBNativeDatabaseRequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBNativeDatabaseRequestDS(a,b,c,d);
-      temp[max].canUse();
+      DBNativeDatabaseRequestDS newRequest = new DBNativeDatabaseRequestDS(a,b,c,d);
+      // Mark as inuse before adding to the pool
+      newRequest.canUse(); 
+      temp[max] = newRequest; 
+  
       dbnativedatabaserequestdsPool_ = temp;
-      return temp[max];
+      return newRequest;
     }
   }
 
@@ -305,9 +323,11 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBReturnObjectInformationRequestDS(a,b,c,d);
-          pool[i].canUse();
-          return pool[i];
+          DBReturnObjectInformationRequestDS request = new DBReturnObjectInformationRequestDS(a,b,c,d);
+          request.canUse(); 
+          pool[i] = request; 
+          
+          return request;
         }
     	synchronized(pool[i]) {   // @A7A  
 
@@ -321,10 +341,11 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBReturnObjectInformationRequestDS[] temp = new DBReturnObjectInformationRequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBReturnObjectInformationRequestDS(a,b,c,d);
-      temp[max].canUse();
+      DBReturnObjectInformationRequestDS newRequest = new DBReturnObjectInformationRequestDS(a,b,c,d);
+      newRequest.canUse(); 
+      temp[max] = newRequest; 
       dbreturnobjectinformationrequestdsPool_ = temp;
-      return temp[max];
+      return newRequest;
     }
   }
 
@@ -338,9 +359,10 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBSQLDescriptorDS(a,b,c,d);
-          pool[i].canUse();
-          return pool[i];
+          DBSQLDescriptorDS ds = new DBSQLDescriptorDS(a,b,c,d);
+          ds.canUse();
+          pool[i] = ds;
+          return ds;
         }
     	synchronized(pool[i]) {   // @A7A  
 
@@ -354,10 +376,11 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBSQLDescriptorDS[] temp = new DBSQLDescriptorDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBSQLDescriptorDS(a,b,c,d);
-      temp[max].canUse();
+      DBSQLDescriptorDS ds = new DBSQLDescriptorDS(a,b,c,d);
+      ds.canUse();
+      temp[max] = ds; 
       dbsqldescriptordsPool_ = temp;
-      return temp[max];
+      return ds;
     }
   }
 
@@ -390,10 +413,11 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBSQLRequestDS(a,b,c,d);
-          pool[i].canUse();
+          DBSQLRequestDS ds = new DBSQLRequestDS(a,b,c,d);
+          ds.canUse();
+          pool[i] = ds; 
           if (i > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = i;   // @A8A
-          return pool[i];
+          return ds;
         }
           if (( pool[i].inUse_ == false) && pool[i].canUse())
           {
@@ -405,11 +429,12 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBSQLRequestDS[] temp = new DBSQLRequestDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBSQLRequestDS(a,b,c,d);
-      temp[max].canUse();
+      DBSQLRequestDS ds = new DBSQLRequestDS(a,b,c,d);
+      ds.canUse();
+      temp[max]=ds; 
       dbsqlrequestdsPool_ = temp;
       if (max > dbsqlrequestdsPoolHighMark_) dbsqlrequestdsPoolHighMark_ = max;   // @A8A
-      return temp[max];
+      return ds;
     }
   }
 
@@ -423,9 +448,10 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBSQLResultSetDS(a,b,c,d);
-          pool[i].canUse();
-          return pool[i];
+          DBSQLResultSetDS ds = new DBSQLResultSetDS(a,b,c,d);
+          ds.canUse();
+          pool[i] = ds; 
+          return ds;
         }
           if (( pool[i].inUse_ == false) && pool[i].canUse())
           {
@@ -436,10 +462,11 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBSQLResultSetDS[] temp = new DBSQLResultSetDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBSQLResultSetDS(a,b,c,d);
-      temp[max].canUse();
+      DBSQLResultSetDS ds = new DBSQLResultSetDS(a,b,c,d);
+      ds.canUse();
+      temp[max] = ds; 
       dbsqlresultsetdsPool_ = temp;
-      return temp[max];
+      return ds;
     }
   }
 
@@ -453,9 +480,10 @@ final class DBDSPool
       {
         if (pool[i] == null)
         {
-          pool[i] = new DBSQLRPBDS(a,b,c,d);
-          pool[i].canUse();
-          return pool[i];
+          DBSQLRPBDS ds = new DBSQLRPBDS(a,b,c,d);
+          ds.canUse();
+          pool[i] = ds; 
+          return ds;
         }
           if (( pool[i].inUse_ == false) && pool[i].canUse())
           {
@@ -466,10 +494,11 @@ final class DBDSPool
       // All are in use, so expand the pool.
       DBSQLRPBDS[] temp = new DBSQLRPBDS[max*2];
       System.arraycopy(pool, 0, temp, 0, max);
-      temp[max] = new DBSQLRPBDS(a,b,c,d);
-      temp[max].canUse();
+      DBSQLRPBDS ds = new DBSQLRPBDS(a,b,c,d);
+      ds.canUse();
+      temp[max] = ds; 
       dbsqlrpbdsPool_ = temp;
-      return temp[max];
+      return ds;
     }
   }
 
