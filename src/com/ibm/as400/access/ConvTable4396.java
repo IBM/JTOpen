@@ -13,7 +13,8 @@
 
 package com.ibm.as400.access;
 
-import org.apache.xalan.xsltc.runtime.Hashtable;
+import java.util.Hashtable;
+
 
 // This is a Japanese character set.
 class ConvTable4396 extends ConvTable16684
