@@ -827,78 +827,113 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
               
               offset += 6;
               AS400Message message = new AS400Message();
+              // Note:  These values are retrieved using the QMHRCVPM API.  
+              // For descriptions see http://pic.dhe.ibm.com/infocenter/iseries/v7r1m0/index.jsp?topic=%2Fapis%2FQMHRCVPM.htm 
               // BIN(32) - Length of Message severity
               int messageSeverityLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // BIN(32) - Message severity
               message.setSeverity(BinaryConverter.byteArrayToInt(data, offset));
-              offset += 4;
+              offset += messageSeverityLength;
+              
               // BIN(32) - Length of Message identifier
               int messageIdLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Message identifier
               message.setID(converter.byteArrayToString(data, offset, messageIdLength));
               offset += messageIdLength;
+              
               // BIN(32) - Length of Message type
               int messageTypeLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Message type
               message.setType((data[offset] & 0x0F) * 10 + (data[offset +1] & 0x0F));
-              offset += messageTypeLength; 
+              offset += messageTypeLength;
+              
               // BIN(32) - Length of Message key
               int messageKeyLength = BinaryConverter.byteArrayToInt(data, offset);
-              offset += 4;//offset += messageKeyLength;
-              // CHAR(4) - Message key
-//              message.setKey(converter.byteArrayToString(data, offset, messageIdLength));
               offset += 4;
+              // CHAR(4) - Message key (Actually binary) 
+              byte[] messageKey = new byte[messageKeyLength]; 
+              System.arraycopy(data, offset, messageKey, 0, messageKeyLength);
+              message.setKey(messageKey); 
+              offset += messageKeyLength;
+              
               // BIN(32) - Length of Message file name
               int messageFileNameLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Message file name
               message.setFileName(converter.byteArrayToString(data, offset, messageFileNameLength).trim());
               offset += messageFileNameLength;
+              
               // BIN(32) - Length of Message file library specified
               int messageFileLibraryNameLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Message file library specified
-              message.setLibraryName(converter.byteArrayToString(data, offset, messageFileLibraryNameLength).trim());
+              message.setMessageFileLibrarySpecified(converter.byteArrayToString(data, offset, messageFileLibraryNameLength).trim());
               offset += messageFileLibraryNameLength;
+
               // BIN(32) - Length of Message file library used
               int messageFileLibraryUsedLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
-              // CHAR(*) - Message file library used
-//              message.setLibraryUsed(converter.byteArrayToString(data, offset, messageFileLibraryUsedLength).trim());
+              // CHAR(*) - Message file library used @K8C 
+              message.setLibraryName(converter.byteArrayToString(data, offset, messageFileLibraryUsedLength).trim());
               offset += messageFileLibraryUsedLength;
+
+              // Note: The documentation for QMHRCVPM states
+              // Sending job. The name of the job in which the message being received was sent. 
+              // Because the sending job also must be the receiving job for call message queues, 
+              // this field is always blank.
+              // Because this does not provide useful information, it is not stored in the 
+              // message 
               // BIN(32) - Length of Sending job
               int messageSendingJobLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Sending job
-//              message.setSendingJob(converter.byteArrayToString(data, offset, messageSendingJobLength).trim());
+              // message.setSendingJob(converter.byteArrayToString(data, offset, messageSendingJobLength).trim());
               offset += messageSendingJobLength;
+              
+              // Note: The documentation for QMHRCVPM states
+              // Sending job's user profile. The name of the user profile in the qualified 
+              // job name of the job that sent the message being received. Because the 
+              // sending job also must be the receiving job for call message queues, 
+              // this field is always blank.
+              // Because this does not provide useful information, it is not stored in the 
+              // message 
               // BIN(32) - Length of Sending job's user profile
               int messageSendingJobUsrProfileLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Sending job's user profile
-//              message.setSendingJobUsrProfile(converter.byteArrayToString(data, offset, messageSendingJobUsrProfileLength).trim());
+              // message.setSendingJobUserProfile(converter.byteArrayToString(data, offset, messageSendingJobUsrProfileLength).trim());
               offset += messageSendingJobUsrProfileLength;
+              
+              // Note: The documentation for QMHRCVPM states
+              // Sending job's number. The job number of the job in which the message being received
+              // was sent. Because the sending job also must be the receiving job for call message 
+              // queues, this field is always blank.
               // BIN(32) - Length of Sending job's number
+              // Because this does not provide useful information, it is not stored in the 
+              // message 
               int messageSendingJobNumberLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Sending job's number
-//              message.setSendJobNumber(converter.byteArrayToString(data, offset, messageSendingJobNumberLength).trim());
+              //  message.setSendJobNumber(converter.byteArrayToString(data, offset, messageSendingJobNumberLength).trim());
               offset += messageSendingJobNumberLength;
+              
               // BIN(32) - Length of Sending program name
               int messageSendingProgramLength = BinaryConverter.byteArrayToInt(data, offset);
               offset += 4;
               // CHAR(*) - Sending program name
-//              message.setSendingProgram(converter.byteArrayToString(data, offset, messageSendingProgramLength).trim());
+              message.setSendingProgramName(converter.byteArrayToString(data, offset, messageSendingProgramLength).trim());
               offset += messageSendingProgramLength;
+              
               // BIN(32) - Length of Sending program's instruction number
               int messageSendingProgramInstructionNumberLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Sending program's instruction number
-//              message.setMessageSendingProgramInstructionNumber(converter.byteArrayToString(data, offset, messageSendingProgramInstructionNumberLength).trim());
+              message.setSendingProgramInstructionNumber(converter.byteArrayToString(data, offset, messageSendingProgramInstructionNumberLength).trim());
               offset += messageSendingProgramInstructionNumberLength;
+
               // BIN(32) - Length of Date sent
               int messageDataSentLenght = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
@@ -912,62 +947,71 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
               String timeSent = converter.byteArrayToString(data, offset, messageTimeSentLength).trim();
               offset += messageTimeSentLength;
               message.setDate(dateSent, timeSent);
+
               // BIN(32) - Length of Receiving program name
-              int messageRecevingProgramLength = BinaryConverter.byteArrayToInt(data, offset);
+              int messageReceivingProgramLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Receiving program name
-//            message.setRecevingProgram(converter.byteArrayToString(data, offset, messageRecevingProgramLength).trim());
-              offset += messageRecevingProgramLength;
+              message.setReceivingProgramName(converter.byteArrayToString(data, offset, messageReceivingProgramLength).trim());
+              offset += messageReceivingProgramLength;
+              
               // BIN(32) - Length of Receiving program's instruction number
-              int messageRecevingProgramInstructionNumberLength = BinaryConverter.byteArrayToInt(data, offset);
+              int messageReceivingProgramInstructionNumberLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Receiving program's instruction number
-//            message.setRecevingProgramInstructionNumber(converter.byteArrayToString(data, offset, messageRecevingProgramInstructionNumberLength).trim());
-              offset += messageRecevingProgramInstructionNumberLength;
+              message.setReceivingProgramInstructionNumber(converter.byteArrayToString(data, offset, messageReceivingProgramInstructionNumberLength).trim());
+              offset += messageReceivingProgramInstructionNumberLength;
+              
               // BIN(32) - Length of Sending type
               int messageSendingTypeLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Sending type
-//            message.setSendingType(converter.byteArrayToString(data, offset, messageSendingTypeLength).trim());
+              message.setSendingType(converter.byteArrayToString(data, offset, messageSendingTypeLength).trim());
               offset += messageSendingTypeLength;
+              
               // BIN(32) - Length of Receiving type
-              int messageRecevingTypeLength = BinaryConverter.byteArrayToInt(data, offset);
+              int messageReceivingTypeLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Receiving type
-//            message.setRecevingType(converter.byteArrayToString(data, offset, messageRecevingTypeLength).trim());
-              offset += messageRecevingTypeLength;
+              message.setReceivingType(converter.byteArrayToString(data, offset, messageReceivingTypeLength).trim());
+              offset += messageReceivingTypeLength;
+              
               // BIN(32) - Length of text CCSID conversion status indicator
               int textCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // BIN(32) - CCSID conversion status indicator for text
-//              message.setTextCcsidIndicator(BinaryConverter.byteArrayToInt(data, offset));
+              message.setTextCcsidConversionStatusIndicator(BinaryConverter.byteArrayToInt(data, offset));
               offset += 4;
+              
               // BIN(32) - Length of data CCSID conversion status indicator
               int dataCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // BIN(32) - CCSID conversion status indicator for data
-//              message.setDataCcsidIndicator(BinaryConverter.byteArrayToInt(data, offset));
+              message.setDataCcsidConversionStatusIndicator(BinaryConverter.byteArrayToInt(data, offset));
               offset += 4;
+
               // BIN(32) - Length of Alert option
               int messageAlertOptionLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Alert option
-//            message.setAlertOption(converter.byteArrayToString(data, offset, messageAlertOptionLength).trim());
+              message.setAlertOption(converter.byteArrayToString(data, offset, messageAlertOptionLength).trim());
               offset += messageAlertOptionLength;
+              
               // BIN(32) - Length of message and message help CCSID
               int messageAndMessageHelpCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // BIN(32) - CCSID of message and message help
               message.setTextCcsid(BinaryConverter.byteArrayToInt(data, offset));
               offset +=4;
+              
               // BIN(32) - Length of replacement data or impromptu message text CCSID
               int messageReplacementDataOrImpromptuTextCCSIDLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // BIN(32) - CCSID of replacement data or impromptu message text
               int messageReplacementDataOrImpromptuTextCCSID = BinaryConverter.byteArrayToInt(data, offset);
-//              message.setReplacementDataOrImpromptuTextCcsid(BinaryConverter.byteArrayToInt(data, offset));
               message.setSubstitutionDataCcsid(messageReplacementDataOrImpromptuTextCCSID);
               offset +=4;
+              
               // BIN(32) - Length of replacement data or impromptu message text returned
               int messageReplacementDataOrImpromptuTextLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
@@ -976,12 +1020,14 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
               System.arraycopy(data, offset, substitutionData, 0, messageReplacementDataOrImpromptuTextLength);
               message.setSubstitutionData(substitutionData);
               offset += messageReplacementDataOrImpromptuTextLength;
+              
               // BIN(32) - Length of message returned
               int messageLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Message
               message.setText(converter.byteArrayToString(data, offset, messageLength).trim());
-              offset += messageLength; 
+              offset += messageLength;
+              
               // BIN(32) - Length of message help returned
               int messageHelpLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
