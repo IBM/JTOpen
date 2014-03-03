@@ -111,6 +111,7 @@ package com.ibm.as400.access;
 //@K7   20140221  JDBC:  JDBC 4.2 Support
 //@K8   20140225  Command Call:  Correct library name in returned message.
 //@K9   20140303  Conversion:  Fix corruption of 16684 table by loading of CCSIDs 5026,5035,930, and 939. 
+//@KA   20140303  Command Call:  Additional message information
 // 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
