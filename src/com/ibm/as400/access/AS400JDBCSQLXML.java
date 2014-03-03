@@ -166,7 +166,7 @@ endif */
       // For simplicity's sake, just check for an opening <
       data = data.trim();
       if ((data.length() == 0) || (data.charAt(0) != '<')) {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "NOT XML");
       }
 
 
