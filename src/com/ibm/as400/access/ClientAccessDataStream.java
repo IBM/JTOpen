@@ -29,7 +29,10 @@ class ClientAccessDataStream extends DataStream
   private class InUseLock extends Object {}          //@C7A
 
   private InUseLock  inUseLock_ = new InUseLock(); 
-  boolean inUse_; //@P0A
+  // Note:  All references to inUse_ in subclass should be followed by
+  // a call to canUse, which which acquire the lock to validate that
+  // the DataStream can actually be used. 
+  boolean inUse_; //@P0A 
   private CADSPool fromPool_ = null;
   private int fromPoolIndex_ = 0;
 

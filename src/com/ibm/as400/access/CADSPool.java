@@ -59,8 +59,9 @@ final class CADSPool
       {
         if (streams_[i] == null)
         {
-          streams_[i] = new ClientAccessDataStream(this, i);
-          streams_[i].canUse();
+         ClientAccessDataStream ds = new ClientAccessDataStream(this, i);
+          ds.canUse(); 
+          streams_[i] = ds; 
           searchStart_ = i+1; 
           return streams_[i];
         }
@@ -73,8 +74,9 @@ final class CADSPool
       // Need more streams
       ClientAccessDataStream[] newStreams = new ClientAccessDataStream[max*2];
       System.arraycopy(streams_, 0, newStreams, 0, max);
-      newStreams[max] = new ClientAccessDataStream(this, max);
-      newStreams[max].canUse(); 
+      ClientAccessDataStream ds = new ClientAccessDataStream(this, max);
+      ds.canUse(); 
+      newStreams[max] = ds; 
       streams_ = newStreams;
       searchStart_ = max+1; 
       return newStreams[max];
