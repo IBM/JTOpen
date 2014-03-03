@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 // This is the parent class for all ConvTableXXX classes that represent double-byte ccsids.
-abstract class ConvTableDoubleMap extends ConvTable
+class ConvTableDoubleMap extends ConvTable
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
@@ -44,6 +44,16 @@ abstract class ConvTableDoubleMap extends ConvTable
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Successfully loaded double-byte map for ccsid: " + ccsid_);
     }
 
+    // Constructor
+    ConvTableDoubleMap(ConvTableDoubleMap oldMap)
+    {
+        super(oldMap.ccsid_);
+        toUnicode_ = oldMap.toUnicode_; 
+        fromUnicode_ = oldMap.fromUnicode_;
+        toUnicodeSurrogate_ = oldMap.toUnicodeSurrogate_; 
+    }
+    
+    
     // Helper method used to decompress conversion tables when they are initialized.
     char[] decompress(char[] arr)
     {

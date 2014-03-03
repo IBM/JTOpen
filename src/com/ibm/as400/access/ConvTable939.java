@@ -21,7 +21,6 @@ class ConvTable939 extends ConvTable1399
     {
         super(939);
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");
-        dbTable_.toUnicode_   = ConvTable4396.makeAlternateToUnicodeMap(dbTable_.toUnicode_);
-        dbTable_.fromUnicode_ = ConvTable4396.makeAlternateFromUnicodeMap(dbTable_.fromUnicode_);
+        dbTable_ = ConvTable4396.makeAlternateMap(dbTable_); 
     }
 }

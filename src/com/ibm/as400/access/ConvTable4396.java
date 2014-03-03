@@ -46,8 +46,11 @@ class ConvTable4396 extends ConvTable16684
     // 
     
     static Hashtable alternateToUnicodeMap = new Hashtable(); 
+    static Hashtable alternateFromUnicodeMap = new Hashtable(); 
     
-    static char[] makeAlternateToUnicodeMap(char[] toUnicode) {
+    static ConvTableDoubleMap makeAlternateMap(ConvTableDoubleMap inMap) {
+      ConvTableDoubleMap newMap = new ConvTableDoubleMap(inMap);  
+      char[] toUnicode = inMap.toUnicode_; 
       char [] newToUnicode = (char []) alternateToUnicodeMap.get(toUnicode); 
       if (newToUnicode == null) { 
           newToUnicode = new char[toUnicode.length]; 
@@ -58,13 +61,10 @@ class ConvTable4396 extends ConvTable16684
           newToUnicode[0x4260] = '\uFF0D';
           newToUnicode[0x426A] = '\uFFE4';
           alternateToUnicodeMap.put(toUnicode, newToUnicode); 
-          
       }
-      return newToUnicode; 
-    }
-    
-    static Hashtable alternateFromUnicodeMap = new Hashtable(); 
-    static char[] makeAlternateFromUnicodeMap(char[] fromUnicode) {
+      newMap.toUnicode_ = newToUnicode; 
+
+      char[] fromUnicode = inMap.fromUnicode_; 
       char[] newFromUnicode = (char[]) alternateFromUnicodeMap.get(fromUnicode);
       if (newFromUnicode == null) { 
         newFromUnicode = new char[fromUnicode.length]; 
@@ -76,6 +76,8 @@ class ConvTable4396 extends ConvTable16684
         newFromUnicode[0xFFE4] = '\u426A';
         alternateToUnicodeMap.put(fromUnicode, newFromUnicode); 
       }
-      return newFromUnicode; 
+      newMap.toUnicode_ = newFromUnicode; 
+      return newMap; 
     }
+    
 }
