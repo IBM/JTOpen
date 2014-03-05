@@ -225,7 +225,7 @@
 	<property name="jdk18" value="/jdk1.8.0"/>
 
 	<!-- Set the id used to access cvs -->
-	<property name="cvsUserid" value="anoncvs"/>
+	<property name="cvsUserid" value="anonymous"/>
 	<property name="cvsPassword" value=""/>
 	<property name="cvsProtocol" value="pserver"/>
 
@@ -1400,7 +1400,7 @@
     <fail message="Can't find cvs executable.  Copy cvs.exe to local directory." unless="cvsExeExists"/>
 -->
 
-		<cvspass cvsroot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
+		<cvs cvsroot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" command="login"/>
 		<cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="src" dest="${build}"/>
 		<!-- The jdbc40 target is used to get the files to be processed by the source-jdbc40 step -->
@@ -1433,7 +1433,7 @@
 	    ///////////////////////////////////////////////////////////////////////////-->
 	<target name="source-build" depends="init">
 		<fail message="Trying to source in eclipse"  if="inEclipse"/>
-		<cvspass cvsroot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" password="${cvsPassword}"/>
+		<cvs cvsroot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400" command="login"/>
 		<cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
 	             command="checkout -P -A" package="build" dest="${build}"/>
 	</target>
