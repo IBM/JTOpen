@@ -1027,7 +1027,7 @@ public class AS400Message implements Serializable
 
     /**
      * set the receiving type 
-     * @param trim
+     * @param receivingType
      */
     public void setReceivingType(String receivingType) {
       this.receivingType_ = receivingType; 
@@ -1109,7 +1109,7 @@ public class AS400Message implements Serializable
 
 /**
  * set the alert option    
- * @param trim
+ * @param alertOption
  */
 
     public void setAlertOption(String alertOption) {
