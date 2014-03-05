@@ -703,7 +703,8 @@
 		<checksum file="${dist}/jt400.jar"/>
 	</target>
 
-	<target name="jar-jt400Micro" depends="init,compile-micro,micro-preverify">
+	<!-- micro-preverify removed since source is not changing -->  
+	<target name="jar-jt400Micro" depends="init,compile-micro">
 		<jar jarfile="${dist}/jt400Micro.jar" manifest="${sourceroot}/build/jt400Micro_manifest.txt">
 			<fileset dir="${output-micro-verified}" includesfile="${sourceroot}/build/micro.includes"/>
 			<fileset dir="${build}" includes="license.html"/>
