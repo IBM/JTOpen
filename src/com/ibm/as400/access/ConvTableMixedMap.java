@@ -76,7 +76,9 @@ abstract class ConvTableMixedMap extends ConvTable
                     try
                     {
                         // Normal character. Perform double-byte lookup.
-                        dest[destPos++] = dbTable_.toUnicode_[((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])];
+                        int unicodeLength = dbTable_.toUnicode(dest, destPos, ((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])); /*@KDC*/
+                        destPos += unicodeLength; 
+                        // dest[destPos++] = dbTable_.toUnicode_[((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])];
                     }
                     catch (ArrayIndexOutOfBoundsException aioobe)
                     {
@@ -107,8 +109,8 @@ abstract class ConvTableMixedMap extends ConvTable
 
         byte sbLookup = 0x00;
         char dbLookup = '\u0000';
-
-        int destPos = 0;
+        int[] increment = new int[1];   /*@KDA*/
+        int destPos = 0;                /*@KDA*/
         for (int srcPos = 0; srcPos < src.length; ++srcPos)
         {
             char curChar = src[srcPos];
@@ -122,7 +124,12 @@ abstract class ConvTableMixedMap extends ConvTable
                 if (sbLookup == sbSubChar_ && curChar != sbSubUnic_)
                 {
                     // Character wasn't in single-byte table. Check double-byte table next.
-                    dbLookup = dbTable_.fromUnicode_[curChar];
+                    dbLookup = dbTable_.fromUnicode(src,srcPos,increment);
+                    if (increment[0] == 2) {
+                      // move an extra byte in the source @KDA 
+                      srcPos++; 
+                    }
+                    // dbLookup = dbTable_.fromUnicode_[curChar]; @KDC
                     if (dbLookup == dbSubChar_)
                     {
                         // Character wasn't in the double-byte table either, so use single-byte substitution character.
@@ -159,7 +166,12 @@ abstract class ConvTableMixedMap extends ConvTable
             else
             {
                 // Use double-byte table first.
-                dbLookup = dbTable_.fromUnicode_[curChar];
+                // dbLookup = dbTable_.fromUnicode_[curChar];
+              dbLookup = dbTable_.fromUnicode(src,srcPos,increment);
+              if (increment[0] == 2) {
+                // move an extra byte in the source @KDA 
+                srcPos++; 
+              }
                 if (dbLookup == dbSubChar_ && curChar != dbSubUnic_)
                 {
                     // Character wasn't in double-byte table. Check single-byte table next.

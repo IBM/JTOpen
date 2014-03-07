@@ -24,6 +24,14 @@ class NLSExchangeAttrReply extends ClientAccessDataStream
     int secondaryRC_=0;          // return code returned by server
     int ccsid_=0;                // host CCSCID
 
+    /* @KDA */ 
+    private int dataStreamLevel_;
+    private int serverVersion_;
+    private int function1Level_;
+    private int function2Level_;
+    private int function3Level_;
+    private int[] ccsidList_;
+
     NLSExchangeAttrReply()
     {
         super();
@@ -32,6 +40,26 @@ class NLSExchangeAttrReply extends ClientAccessDataStream
     public int getCcsid()
     {
         return ccsid_;
+    }
+
+    /*@KDA */ 
+    public int getDataStreamLevel() {
+      return dataStreamLevel_; 
+    }
+    public int getServerVersion() {
+      return serverVersion_;
+    }
+    public int getFunction1Level() {
+      return function1Level_;
+    }
+    public int getFunction2Level() {
+      return function2Level_;
+    }
+    public int getFunction3Level() {
+      return function3Level_;
+    }
+    public int[] getCcsidList() {
+      return ccsidList_; 
     }
 
     public Object getNewDataStream()
@@ -51,8 +79,26 @@ class NLSExchangeAttrReply extends ClientAccessDataStream
         // get return codes
         primaryRC_ = get16bit(HEADER_LENGTH+2);
         secondaryRC_ = get16bit(HEADER_LENGTH+4);
+        dataStreamLevel_ = get16bit(HEADER_LENGTH+6);
         ccsid_ = get32bit(HEADER_LENGTH+8);
-        // Note: chain, datastream level, version, function levels
+        /* Adding new surrogate information @KDA*/ 
+        serverVersion_ = get32bit(HEADER_LENGTH+12);
+        function1Level_ = get16bit(HEADER_LENGTH+16);
+        function2Level_ = get16bit(HEADER_LENGTH+18);
+        function3Level_ = get16bit(HEADER_LENGTH+20);
+        if (function3Level_ > 0 && (bytes > 22) ) {
+           
+           int codepoint = get16bit(HEADER_LENGTH+26);
+           if (codepoint == 0x8) { // CCSID LIST
+             int count = get32bit(HEADER_LENGTH+28);
+             ccsidList_ = new int[count]; 
+             for (int i = 0; i < count ; i ++) {
+               ccsidList_[i] = get32bit(HEADER_LENGTH+32+4*i); 
+             }
+                 
+           }
+        }
+        // Note: chain,  version, function levels
         // not currently used.
         return bytes;
     }

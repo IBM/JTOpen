@@ -41,5 +41,32 @@ class NLSExchangeAttrRequest extends ClientAccessDataStream
         set16bit(0, 34);        // system management level
         set16bit(0, 36);        // NLS level
     }
+    
+    /* SurrogateSupport @KDA */ 
+    NLSExchangeAttrRequest(boolean surrogateSupport)
+    {
+        super();
+        data_ = new byte [38];
+        setLength(38);
+        setHeaderID(0);
+        setServerID(0xe000);
+        setCSInstance(0);
+        setCorrelation(0);
+        setTemplateLen(18);
+        setReqRepID(0x1301);
+
+        set16bit(0, 20);        // chain, not used
+        set16bit(0, 22);        // datastream level
+        set32bit(13488, 24);    // client CCSID
+        set32bit(0x0310, 28);   // client version, not currently used
+                                // by server, always set to v3r1m0
+        set16bit(0, 32);        // license management level
+        set16bit(0, 34);        // system management level
+        if (surrogateSupport) { 
+          set16bit(1, 36);        // NLS level
+        } else { 
+          set16bit(0, 36);        // NLS level
+        }
+    }
 }
 

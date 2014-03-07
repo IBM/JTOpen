@@ -18,22 +18,56 @@ class ConvTableDoubleMap extends ConvTable
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    char[] toUnicode_ = null;
+    // These tables are private since there is not always a 1 to 1 lookup of the values. @KDC 
+    private char[] toUnicode_ = null;
+    private char[] fromUnicode_ = null;
+    
     char[][] toUnicodeSurrogate_ = null; 
-    char[] fromUnicode_ = null;
+    // To convert from unicode, @KDA 
+    // The first index is based off of D800
+    // The second index is based off of DC00
+    // The length of each dimension is 0x400
+    public static final int LEADING_SURROGATE_BASE = 0xD800; 
+    public static final int TRAILING_SURROGATE_BASE = 0xDC00; 
+    public static final int FROM_UNICODE_SURROGATE_DIMENSION_LENGTH = 0x400; 
+    char[][] fromUnicodeSurrogate_ = null; 
 
     
     // Constructor.
-    ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode, char[][] toUnicodeSurrogateMapping) {
-      this(ccsid, toUnicode, fromUnicode); 
-      toUnicodeSurrogate_ = new char[65535][]; 
-      for (int i = 0; i < toUnicodeSurrogateMapping.length; i++) {
-        char[] pair = new char[2]; 
-        pair[0] = toUnicodeSurrogateMapping[i][1]; 
-        pair[1] = toUnicodeSurrogateMapping[i][2]; 
-        toUnicodeSurrogate_[0xffff & (int) toUnicodeSurrogateMapping[i][0]] = pair; 
+  ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode,
+      char[][] toUnicodeSurrogateMapping) {
+    this(ccsid, toUnicode, fromUnicode);
+    toUnicodeSurrogate_ = new char[65535][];
+    fromUnicodeSurrogate_ = new char[FROM_UNICODE_SURROGATE_DIMENSION_LENGTH][];
+    for (int i = 0; i < toUnicodeSurrogateMapping.length; i++) {
+      char ebcdicChar = toUnicodeSurrogateMapping[i][0];
+      char leadingSurrogate = toUnicodeSurrogateMapping[i][1];
+      char trailingSurrogate = toUnicodeSurrogateMapping[i][2];
+
+      char[] pair = new char[2];
+      pair[0] = leadingSurrogate;
+      pair[1] = trailingSurrogate;
+      toUnicodeSurrogate_[0xffff & (int) ebcdicChar] = pair;
+
+      // Create fromUnicodeSurrogate mapping @KDA
+      int leadingIndex = leadingSurrogate - LEADING_SURROGATE_BASE;
+      int trailingIndex = trailingSurrogate - TRAILING_SURROGATE_BASE;
+      if (leadingIndex >= 0
+          && leadingIndex < FROM_UNICODE_SURROGATE_DIMENSION_LENGTH) {
+        if (fromUnicodeSurrogate_[leadingIndex] == null) {
+          fromUnicodeSurrogate_[leadingIndex] = new char[FROM_UNICODE_SURROGATE_DIMENSION_LENGTH];
+        }
+        char[] fromUnicodeSurrogate2 = fromUnicodeSurrogate_[leadingIndex];
+        if (trailingIndex >= 0 && trailingIndex < FROM_UNICODE_SURROGATE_DIMENSION_LENGTH) {
+           fromUnicodeSurrogate2[trailingIndex] = ebcdicChar;
+        } else {
+          // Error case here.. Should never happen. 
+        }
+      } else {
+        // Error case here.. Should never happen
       }
     }
+  }
 
     // Constructor.
     ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode)
@@ -51,6 +85,7 @@ class ConvTableDoubleMap extends ConvTable
         toUnicode_ = oldMap.toUnicode_; 
         fromUnicode_ = oldMap.fromUnicode_;
         toUnicodeSurrogate_ = oldMap.toUnicodeSurrogate_; 
+        fromUnicodeSurrogate_ = oldMap.fromUnicodeSurrogate_; 
     }
     
     
@@ -138,31 +173,10 @@ class ConvTableDoubleMap extends ConvTable
         {
             try
             { 
-              int fromIndex = ((0x00FF & buf[(i * 2) + offset]) << 8) + (0x00FF & buf[(i * 2) + 1 + offset]); 
-                dest[to] = toUnicode_[fromIndex];
-                // Check if surrogate lookup needed. 
-                if (dest[to] == 0xD800) {
-                  if (toUnicodeSurrogate_ != null) {
-                    char[] surrogates = toUnicodeSurrogate_[fromIndex];
-                    if (surrogates != null) {
-                      dest[to] = surrogates[0];
-                      to++;
-                      dest[to] = surrogates[1];
-                      to++;
-                    } else { 
-                      // surrogate not defined, replace with sub
-                      dest[to] = dbSubUnic_; 
-                      to++; 
-                    }
-                  } else {
-                    // Not handling surrogates, replace with sub
-                    dest[to] = dbSubUnic_; 
-                    to++; 
-                  }
-                } else {
-                  // Single character.  Increment counter; 
-                  to++; 
-                }
+              int fromIndex = ((0x00FF & buf[(i * 2) + offset]) << 8) + (0x00FF & buf[(i * 2) + 1 + offset]);
+              int unicodeLength = toUnicode(dest,  to,  fromIndex);
+              to += unicodeLength; 
+              
             }
             catch(ArrayIndexOutOfBoundsException aioobe)
             {
@@ -177,18 +191,122 @@ class ConvTableDoubleMap extends ConvTable
         return String.copyValueOf(dest,0,to);
     }
 
+    public int toUnicode(char[] dest, int to, int fromIndex) {
+      int length = 0; 
+      dest[to] = toUnicode_[fromIndex];
+      // Check if surrogate lookup needed. 
+      if (dest[to] == 0xD800) {
+        if (toUnicodeSurrogate_ != null) {
+          char[] surrogates = toUnicodeSurrogate_[fromIndex];
+          if (surrogates != null) {
+            dest[to] = surrogates[0];
+            to++;
+            length++;
+            dest[to] = surrogates[1];
+            to++;
+            length++;
+          } else { 
+            // surrogate not defined, replace with sub
+            dest[to] = dbSubUnic_; 
+            to++; 
+            length++;
+          }
+        } else {
+          // Not handling surrogates, replace with sub
+          dest[to] = dbSubUnic_; 
+          to++;
+          length++; 
+        }
+      } else {
+        // Single character.  Increment counter; 
+        to++;
+        length++; 
+      }
+      return length;
+    }
+
+    
+    
     // Perform a Unicode to AS/400 CCSID conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
         char[] src = source.toCharArray();
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
-        byte[] dest = new byte[src.length * 2];
-        for (int i = 0; i < src.length; ++i)
+        byte[] dest;
+        // Note.. with surrogates, the output array can be shorter @KDA
+        dest = new byte[src.length * 2];
+        int destIndex = 0; 
+        int[] increment = new int[0]; 
+        for (int i = 0; i < src.length; ++i, destIndex++)
         {
-            dest[i * 2] = (byte)(fromUnicode_[src[i]] >>> 8);
-            dest[i * 2 + 1] = (byte)(0x00FF & fromUnicode_[src[i]]);
+          char c = fromUnicode(src, i, increment);
+          dest[destIndex * 2] = (byte)(c >>> 8);
+          dest[destIndex * 2 + 1] = (byte)(0x00FF & c);
+          if (increment[0] > 1) {
+            i++; 
+          }
+        }
+        if (destIndex != dest.length) {
+          byte[] newDest = new byte[destIndex]; 
+          System.arraycopy(dest, 0, newDest, 0, destIndex);
+          dest = newDest; 
         }
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
         return dest;
     }
+
+    public char fromUnicode(char[] src, int i, int[] increment) {
+      int incrementValue = 1; 
+      char returnChar = 0; 
+      if (src[i] < LEADING_SURROGATE_BASE || src[i] >= TRAILING_SURROGATE_BASE ) {
+        returnChar = fromUnicode_[src[i]];
+     } else { 
+        int leadingIndex = src[i] - LEADING_SURROGATE_BASE;
+        i++;    /* We handle a leading surrogate, which must be following by a trailing */
+        incrementValue++; 
+        /* We don't need to check the leadingIndex since we know it is already in range*/
+        char[] fromUnicodeSurrogate2 = fromUnicodeSurrogate_[leadingIndex];
+        if (fromUnicodeSurrogate2 != null) { 
+          int trailingIndex = src[i] - TRAILING_SURROGATE_BASE;
+          /* Check for valid index and for existing mapping */ 
+          if (trailingIndex >= 0  && 
+              trailingIndex < FROM_UNICODE_SURROGATE_DIMENSION_LENGTH
+              && fromUnicodeSurrogate2[trailingIndex] != 0 ) {
+            returnChar = fromUnicodeSurrogate2[trailingIndex] ; 
+          } else {
+            /* We could not handle.  Add substitution character */
+            returnChar = dbSubChar_;
+          }
+        } else {
+          /* We could not handle.  Add substitution character */ 
+          returnChar = dbSubChar_;
+        }
+     }
+
+      
+      increment[0] = incrementValue;
+      return returnChar; 
+    }
+
+    
+    char[] getFromUnicode() {
+      return fromUnicode_;
+    }
+
+    void setFromUnicode(char[] fromUnicode) { 
+      fromUnicode_ = fromUnicode; 
+    }
+
+    char[] getToUnicode() {
+      return toUnicode_;
+    }
+
+    void setToUnicode(char[] toUnicode) { 
+      toUnicode_ = toUnicode; 
+    }
+
+
+
+    
+    
 }
