@@ -183,6 +183,7 @@ public class JDMRI extends ListResourceBundle
       { "SORT_WEIGHT_DESC", "Specifies how the system treats case while sorting records." },                        //@550
       { "THREAD_USED_DESC", "Specifies whether to use threads in communication with the host servers." },  //@E1A
       { "TIME_FORMAT_DESC", "Specifies the time format used in time literals within SQL statements." },
+      { "TIMESTAMP_FORMAT_DESC", "Specifies the timestamp format used by JDBC getString methods." },
       { "TIME_SEPARATOR_DESC", "Specifies the time separator used in time literals within SQL statements." },
       { "TRACE_DESC", "Specifies whether trace messages should be logged." },
       { "TRACE_SERVER_DESC", "Specifies whether the job on the system should be traced." },     //@J1a @550

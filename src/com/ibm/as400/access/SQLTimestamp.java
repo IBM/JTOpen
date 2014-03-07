@@ -177,9 +177,10 @@ extends SQLDataBase
     }
 
     public static String timestampToString(Timestamp ts,
-                                           Calendar calendar)
+                                           Calendar calendar,
+                                           SQLConversionSettings settings)
     {
-        return timestampToString(ts, calendar, -1, 26);             // @F4C
+        return timestampToString(ts, calendar, -1, 26, settings);             // @F4C
     }
 
     
@@ -190,9 +191,9 @@ extends SQLDataBase
      */
     /*@I2A*/
     public static String timestampToStringTrimTrailingZeros(Timestamp ts,
-        Calendar calendar)
+        Calendar calendar, SQLConversionSettings settings)
     {
-      String tsString= timestampToString(ts, calendar, -1, 32);
+      String tsString= timestampToString(ts, calendar, -1, 32, settings);
       int lastZero = 32;
       while (tsString.charAt(lastZero-1)=='0' && lastZero > 21) {
         lastZero --; 
@@ -206,8 +207,9 @@ extends SQLDataBase
     
     public static String timestampToString(Timestamp ts,
         Calendar calendar, 
-        int hourIn) {
-       return  timestampToString(ts, calendar, hourIn, 26); 
+        int hourIn,
+        SQLConversionSettings settings ) {
+       return  timestampToString(ts, calendar, hourIn, 26, settings); 
     }
 
     
@@ -215,8 +217,21 @@ extends SQLDataBase
     public static String timestampToString(Timestamp ts,
                                            Calendar calendar, 
                                            int hourIn, 
-                                           int length ) /*@I2C*/
+                                           int length,
+                                           SQLConversionSettings settings) /*@I2C*/
     {
+        // @KE3
+        // Support the settings.timestampFormat
+        char dayHourSep=' '; 
+        char hourMinuteSep=':';
+        char minuteSecondSep=':'; 
+        
+        if (settings.getTimestampFormat() == SQLConversionSettings.TIMESTAMP_FORMAT_IBMSQL) {
+          dayHourSep='-'; 
+          hourMinuteSep='.';
+          minuteSecondSep='.'; 
+          
+        }
         // @F3A
         // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, 
         // while we output timestamps like 2100-01-02 03:45:56.000000. 
@@ -248,15 +263,18 @@ extends SQLDataBase
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
         buffer.append('-');
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
-        buffer.append(' '); //@F6C
+        buffer.append(dayHourSep); //@KEA 
+        // buffer.append(' '); //@F6C
         //@F6D buffer.append('-');    // @F3C
         hour = calendar.get(Calendar.HOUR_OF_DAY);       // @F4A //@tim2
         // @F4D buffer.append(JDUtilities.padZeros(calendar.get(Calendar.HOUR_OF_DAY), 2));
         buffer.append(JDUtilities.padZeros(hour, 2));       // @F4C
-        buffer.append(':');  //@F6C
+        buffer.append(hourMinuteSep);  //@KEA
+        // buffer.append(':');  //@F6C
         //@F6D buffer.append('.');    // @F3C
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MINUTE), 2));
-        buffer.append(':');  //@F6C
+        buffer.append(minuteSecondSep);  //@KEA
+        // buffer.append(':');  //@F6C
         //@F6D buffer.append('.');    // @F3C
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.SECOND), 2));
         if (length > 20) {      /*@I2A*/
@@ -661,11 +679,11 @@ extends SQLDataBase
     if (picos_ % 1000 == 0) {
       Timestamp ts = new Timestamp(millis);
       ts.setNanos((int)(picos_ / 1000));
-      return timestampToString(ts, calendar, hour_, length_); // @F4C@I2C
+      return timestampToString(ts, calendar, hour_, length_, settings_); // @F4C@I2C
     } else {
       AS400JDBCTimestamp ts = new AS400JDBCTimestamp(millis); 
       ts.setPicos(picos_); 
-      return timestampToString(ts, calendar, hour_, length_); // @F4C@I2C
+      return timestampToString(ts, calendar, hour_, length_, settings_); // @F4C@I2C
     }
     }
 

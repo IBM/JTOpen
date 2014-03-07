@@ -164,10 +164,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              QUERY_TIMEOUT_MECHANISM    = 84;
     static final int              DESCRIBE_OPTION            = 85;  //@F6A
     static final int              DECIMAL_DATA_ERRORS        = 86;
+    static final int              TIMESTAMP_FORMAT           = 87;  //@KEA 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 87;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 88;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -228,6 +229,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String SORT_WEIGHT_            = "sort weight";
     private static final String THREAD_USED_            = "thread used";            // @E1A
     private static final String TIME_FORMAT_            = "time format";
+    private static final String TIMESTAMP_FORMAT_       = "timestamp format";
     private static final String TIME_SEPARATOR_         = "time separator";
     private static final String TRACE_                  = "trace";
     private static final String TRACE_SERVER_           = "server trace";           // @j1a
@@ -369,6 +371,9 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         TIME_SEPARATOR_COMMA            = COMMA_;
     static final String         TIME_SEPARATOR_SPACE            = SPACE_;
     static final String         TIME_SEPARATOR_NOTSET           = EMPTY_;
+
+    static final String         TIMESTAMP_FORMAT_ISO                 = "iso";
+    static final String         TIMESTAMP_FORMAT_IBMSQL              = "ibmsql";
 
     static final String         TRANSACTION_ISOLATION_NONE                  = NONE_;
     static final String         TRANSACTION_ISOLATION_READ_COMMITTED        = "read committed";
@@ -1025,6 +1030,20 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[3]  = TIME_SEPARATOR_SPACE;
         defaults_[i]        = TIME_SEPARATOR_NOTSET;
 
+        
+        // Timestamp format.  
+        // Control the format of timestamp returned by getString(),
+        // i.e. controlled by SQLTimestamp.java. 
+        i = TIMESTAMP_FORMAT;
+        dpi_[i] = new DriverPropertyInfo (TIMESTAMP_FORMAT_, "");
+        dpi_[i].description = "TIMESTAMP_FORMAT_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = TIMESTAMP_FORMAT_ISO;
+        dpi_[i].choices[1]  = TIMESTAMP_FORMAT_IBMSQL;
+        defaults_[i]        = TIMESTAMP_FORMAT_ISO;
+        
+        
         // Trace.
         i = TRACE;
         dpi_[i] = new DriverPropertyInfo (TRACE_, "");

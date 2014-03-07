@@ -1551,6 +1551,19 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getString(JDProperties.TIME_SEPARATOR);
   }
 
+  /**
+  Returns the timestamp format used by getString.
+  @return The timestamp format.
+  <p>Valid values include:
+  <ul>
+  <li> "iso"
+  <li> "ibmsql"
+  </ul>
+  **/
+ public String getTimestampFormat()
+ {
+   return properties_.getString(JDProperties.TIMESTAMP_FORMAT);
+ }
 
   /**
    Returns the IBM i system's transaction isolation.
@@ -3938,6 +3951,26 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     properties_.setString(JDProperties.TIME_SEPARATOR, timeSeparator);
   }
+
+  
+  /**
+  Sets the timestamp format used by getString.
+  @param timestampFormat The timestamp format.
+  <p>Valid values include:
+  <ul>
+  <li> "iso"
+  <li> "ibmsql"
+  </ul>
+  **/
+ public void setTimestampFormat(String timestampFormat)
+ {
+   final String property = "timestampFormat";
+   if (timestampFormat == null)
+     throw new NullPointerException(property);
+   validateProperty(property, timestampFormat, JDProperties.TIMESTAMP_FORMAT);
+
+   properties_.setString(JDProperties.TIMESTAMP_FORMAT, timestampFormat);
+ }
 
   /**
    Sets whether trace messages should be logged.  Trace messages are

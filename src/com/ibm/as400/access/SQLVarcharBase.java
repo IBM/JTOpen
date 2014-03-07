@@ -216,7 +216,7 @@ extends SQLDataBase  implements SQLVariableCompressible
             value = SQLTime.timeToString((Time) object, settings_, calendar);      // @C1C
 
         else if(object instanceof Timestamp)
-            value = SQLTimestamp.timestampToStringTrimTrailingZeros((Timestamp) object, calendar);  // @C1C
+            value = SQLTimestamp.timestampToStringTrimTrailingZeros((Timestamp) object, calendar, settings_);  // @C1C
 
         else if(object instanceof java.util.Date)                                  // @F5M @F5C
             value = SQLDate.dateToString((java.util.Date) object, settings_, calendar); // @C1C @F5C

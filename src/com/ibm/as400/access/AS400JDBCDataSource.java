@@ -1366,6 +1366,22 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.TIME_SEPARATOR);
     }
 
+    /**
+    *  Returns the timestamp format used by getString methods. 
+    *  @return The timestamp format.
+    *  <p>Valid values include:
+    *  <ul>
+    *    <li> "iso"
+    *    <li> "ibmsql"
+    *  </ul>
+    *  The default value is based on the server job.
+    **/
+    public String getTimestampFormat()
+    {
+        return properties_.getString(JDProperties.TIMESTAMP_FORMAT);
+    }
+
+
 
     /**
     *  Returns the system's transaction isolation.
@@ -4213,6 +4229,34 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + timeSeparator);   //@A8C
     }
 
+    /**
+    *  Sets the timestamp format used by getString methods. 
+    *  @param timestampFormat The timestamp format.
+    *  <p>Valid values include:
+    *  <ul>
+    *    <li> "iso"
+    *    <li> "ibmsql"
+    *  </ul>
+    *  The default value is based on the server job.
+    **/
+    public void setTimestampFormat(String timestampFormat)
+    {
+        String property = "timestampFormat";
+        if (timestampFormat == null)
+            throw new NullPointerException(property);
+        validateProperty(property, timestampFormat, JDProperties.TIMESTAMP_FORMAT);
+
+        String old = getTimeFormat();
+        properties_.setString(JDProperties.TIMESTAMP_FORMAT, timestampFormat);
+
+        changes_.firePropertyChange(property, old, timestampFormat);
+
+        if (JDTrace.isTraceOn()) //@A8C
+            JDTrace.logInformation (this, property + ": " + timestampFormat);  //@A8C
+    }
+    
+    
+    
     /**
     *  Sets whether trace messages should be logged.  Trace messages are
     *  useful for debugging programs that call JDBC.  However, there is a

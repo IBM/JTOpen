@@ -53,6 +53,8 @@ class SQLConversionSettings
     public static final int TIME_FORMAT_EUR             = 3;
     public static final int TIME_FORMAT_JIS             = 4;
 
+    public static final int TIMESTAMP_FORMAT_ISO        = 0;
+    public static final int TIMESTAMP_FORMAT_IBMSQL     = 1;
 
 
 
@@ -62,6 +64,7 @@ class SQLConversionSettings
     private String              decimalSeparator_;
     private int                 maxFieldSize_;
     private int                 timeFormat_;
+    private int                 timestampFormat_; 
     private String              timeSeparator_;
     private boolean             useBigDecimal_;                     // @E0A
     private int                 bidiStringType_;                    // @E1A
@@ -118,6 +121,7 @@ Constructs a SQLConversionSettings object.
         dateSeparator_      = properties.getString (JDProperties.DATE_SEPARATOR);
         decimalSeparator_   = properties.getString (JDProperties.DECIMAL_SEPARATOR);
         timeFormat_         = properties.getIndex (JDProperties.TIME_FORMAT);
+        timestampFormat_         = properties.getIndex (JDProperties.TIMESTAMP_FORMAT);
         timeSeparator_      = properties.getString (JDProperties.TIME_SEPARATOR);
         bidiStringType_     = getInt(properties.getString (JDProperties.BIDI_STRING_TYPE)); // @E1A
         bidiImplicitReordering_ = properties.getBoolean(JDProperties.BIDI_IMPLICIT_REORDERING); //@KBA
@@ -141,6 +145,7 @@ Constructs a SQLConversionSettings object.
       decimalSeparator_   = oldSettings.decimalSeparator_;
       timeFormat_         = oldSettings.timeFormat_;
       timeSeparator_      = oldSettings.timeSeparator_;
+      timestampFormat_    = oldSettings.timestampFormat_;
       bidiStringType_     = oldSettings.bidiStringType_;
       bidiImplicitReordering_ = oldSettings.bidiImplicitReordering_;
       bidiNumericOrdering_ = oldSettings.bidiNumericOrdering_;
@@ -203,6 +208,12 @@ Constructs a SQLConversionSettings object.
               timeSeparatorCompare = JDProperties.TIME_SEPARATOR_SPACE;
             }
         }
+        
+        
+        if (timestampFormat_ != properties.getIndex (JDProperties.TIMESTAMP_FORMAT)) {
+          return false; 
+        }
+
         if (!(stringRefsEqual(timeSeparatorCompare, properties.getString (JDProperties.TIME_SEPARATOR)))){
           return false; 
         }
@@ -348,6 +359,20 @@ Returns the current time separator.
         return timeSeparator_;
     }
 
+
+    /**
+    Returns the current timestamp format.
+
+    @return     The timestamp format.
+    **/
+        int getTimestampFormat ()
+        {
+            return timestampFormat_;
+        }
+
+
+    
+    
 // @E0A
 /**
 Indicates if packed/zoned decimal conversions should
