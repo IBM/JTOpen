@@ -163,8 +163,11 @@ public class Main implements Runnable {
 
       "!CALLMETHOD [METHODCALL]          Calls a method on a variable",
       "  Hint:  To see a result set use CALLMETHOD com.ibm.as400.access.jdbcClient.Main.dispResultSet(RS)",
+      "  Hint:  To access an array use SET LIST=java.util.Arrays.asList(ARRAYVARIABLE)",
       "",
       "!THREAD [COMMAND]                 Runs a command in its own thread.",
+      "!THREADPERSIST [THREADNAME]       Create a thread that persist.",
+      "!THREADEXEC [THREADNAME] [COMMAND] Execute a command in a persistent thread.",  
       "!REPEAT [NUMBER] [COMMAND]        Repeat a command a number of times.",
       "" };
 
@@ -360,12 +363,52 @@ public class Main implements Runnable {
     this.out_ = out;
   }
 
-  public void run() {
-    Thread thisThread = Thread.currentThread();
-    out_.println("Thread " + thisThread + " running " + command_);
-    executeTopLevelCommand(command_, out_);
-    out_.println("Thread " + thisThread + " ending");
-  }
+
+
+   public void run() {
+       Thread thisThread = Thread.currentThread();
+       out_.println("Thread "+thisThread+" running "+command_);
+       String upcaseCommand = command_.toUpperCase();
+       if (upcaseCommand.startsWith("PERSIST")) {
+	   command_ = null;
+	   while (command_ == null) {
+	       synchronized(this) {
+		   while (command_ == null) {
+		       try {
+            wait(1000);
+          } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          } 
+		   }
+	       }
+	       upcaseCommand = command_.toUpperCase().trim();
+	       if (upcaseCommand.equals("QUIT") ||
+		   upcaseCommand.equals("EXIT")) {
+		       // leave command set so we exit loop
+	       } else { 
+		   out_.println("Thread "+thisThread+" running "+command_);
+		   executeTopLevelCommand(command_,  out_);
+		       // Null command so we keep running 
+		   command_ = null; 
+
+
+	       }
+	   } /* while */ 
+	   
+       } else {
+	   out_.println("Thread " + thisThread + " running " + command_);
+	   executeTopLevelCommand(command_, out_);
+	   out_.println("Thread " + thisThread + " ending");
+       }
+       out_.println("Thread "+thisThread+" ending");
+   }
+
+
+   synchronized public void setCommand(String command) {
+       this.command_ = command;
+       notify(); 
+   } 
 
   public void useConnectionPool(boolean value) {
     useConnectionPool_ = value;
@@ -983,7 +1026,8 @@ public class Main implements Runnable {
       } else if (upcaseCommand.startsWith("CL:")) {
         String clCommand = command.substring(3).trim();
         executeCLCommand(clCommand, out1);
-      } else if (upcaseCommand.startsWith("!ECHO")
+      } else if ((upcaseCommand.startsWith("!ECHO") &&
+                  !upcaseCommand.startsWith("!ECHOCOMMAND"))
           || upcaseCommand.startsWith("--") || upcaseCommand.startsWith("//")
           || upcaseCommand.startsWith("/*")) {
 
@@ -1244,7 +1288,8 @@ public class Main implements Runnable {
           out1
               .println("UNABLE to SETPARM because prepared statement does not exist");
         }
-      } else if (upcaseCommand.startsWith("ECHO")
+      } else if ((upcaseCommand.startsWith("ECHO") &&
+                  !upcaseCommand.startsWith("ECHOCOMMAND"))
           || upcaseCommand.startsWith("--") || upcaseCommand.startsWith("//")
           || upcaseCommand.startsWith("/*")) {
 
@@ -2374,6 +2419,32 @@ public class Main implements Runnable {
         Thread t = new Thread(runnable);
         t.start();
         threads_.add(t);
+      } else if (upcaseCommand.startsWith("THREADPERSIST ")) {
+	  history.addElement(command_);
+	  String threadName = command_.substring(14).trim();
+	  out_.println("Starting thread "+threadName);
+	  String newcommand = "PERSIST"; 
+	  Main runnable = new Main(newcommand, out_);
+	  variables.put(threadName, runnable); 
+	  Thread t = new Thread(runnable);
+	  t.setName(threadName); 
+	  t.start();
+      } else if (upcaseCommand.startsWith("THREADEXEC ")) {
+	  history.addElement(command_);
+	  String remaining = command_.substring(11).trim();
+	  int spaceIndex = remaining.indexOf(' ');
+	  if (spaceIndex > 0) {
+	      String threadName = remaining.substring(0,spaceIndex);
+	      String threadCommand = remaining.substring(spaceIndex+1); 
+	      Main runnable = (Main) variables.get(threadName);
+	      if (runnable != null) {
+		  runnable.setCommand(threadCommand); 
+	      } else {
+		  out_.println("ERROR: Unable to find thread "+threadName); 
+	      } 
+	  } else {
+	      out_.println("ERROR:  THREADEXEC: no space after thread name"); 
+	  } 
       } else if (upcaseCommand.startsWith("REPEAT ")) {
         history.addElement("!"+command1);
         String left = command1.substring(7).trim();
