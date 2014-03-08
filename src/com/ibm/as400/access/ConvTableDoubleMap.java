@@ -236,7 +236,7 @@ class ConvTableDoubleMap extends ConvTable
         // Note.. with surrogates, the output array can be shorter @KDA
         dest = new byte[src.length * 2];
         int destIndex = 0; 
-        int[] increment = new int[0]; 
+        int[] increment = new int[1]; 
         for (int i = 0; i < src.length; ++i, destIndex++)
         {
           char c = fromUnicode(src, i, increment);
