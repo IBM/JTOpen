@@ -58,6 +58,12 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#82">Fixes and enhancements in JTOpen 8.2</A><br>
+<A HREF="#81">Fixes and enhancements in JTOpen 8.1</A><br>
+<A HREF="#710">Fixes and enhancements in JTOpen 7.10</A><br>
+<A HREF="#79">Fixes and enhancements in JTOpen 7.9</A><br>
+<A HREF="#78">Fixes and enhancements in JTOpen 7.8</A><br>
+<A HREF="#77">Fixes and enhancements in JTOpen 7.7</A><br>
 <A HREF="#76">Fixes and enhancements in JTOpen 7.6</A><br>
 <A HREF="#75_1">Fixes and enhancements in JTOpen 7.5.1</A><br>
 <A HREF="#75">Fixes and enhancements in JTOpen 7.5</A><br>
@@ -94,6 +100,90 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+
+
+<HR>
+<H3><A NAME="82">Fixes and enhancements in JTOpen 8.2</A> <i>(released 2014-03-30)</i></H3>
+<PRE>
+Command Call:  Correct library name in returned message.
+Command Call:  Additional message information
+Conversion:  Fix corruption of 16684 table by loading of CCSIDs 5026,5035,930, and 939.
+Conversion:  Add surrogate support and update 16684 table
+JDBC:  Fix concurrent access resolution property
+JDBC:  Fix named parameters for CALL with return parameter
+JDBC:  Fix for JVM crash when -Xshareclasses is used with jt400Native.jar
+JDBC:  Variable Field compression
+JDBC:  Fix DatabaseMetaData calls on READONLY connection
+JDBC:  Fix DatabaseMetaData.getSQLKeywords
+JDBC:  JDBC 4.2 Support
+JDBC:  timestamp format property
+</PRE>
+
+
+<HR>
+<H3><A NAME="81">Fixes and enhancements in JTOpen 8.1</A> <i>(released 2013-10-30)</i></H3>
+<PRE>
+CALL: Support for up to 255 parameters on a remote program call request
+CALL: Support additional message data returned on remote command and remote program call replies
+JDBC: Support IPV6 addresses in JDBC URL.
+JDBC: Support timestamp as time parameter
+JDBC: Fix UTF-8 clobs
+</PRE>
+
+
+<HR>
+<H3><A NAME="710">Fixes and enhancements in JTOpen 7.10</A> <i>(released 2013-07-25)</i></H3>
+<PRE>
+JDBC:  Fix timestamp to String formatting
+JDBC:  For CCSID 1208, do not report truncation if extra characters are spaces
+MISC:  Add QPWDEXPWRN support
+MISC:  Refactor code block of SSL socket provider (shift between JSSE and SSL )
+MISC:  Add Serializable interface to CancelLock
+</PRE>
+
+
+<HR>
+<H3><A NAME="79">Fixes and enhancements in JTOpen 7.9</A> <i>(released 2013-01-22)</i></H3>
+<PRE>
+JDBC:  Allow blocking when using asensitive cursors
+JDBC:  Report Truncation for mixed/open CCSIDs
+JDBC:  Improve timestamp support
+JDBC:  Reduce number of SQLConversionSettingsObjects
+JDBC:  Fix truncation for SQLNumeric and SQLDecimal objects
+</PRE>
+
+
+<HR>
+<H3><A NAME="78">Fixes and enhancements in JTOpen 7.8</A> <i>(released 2012-09-03)</i></H3>
+<PRE>
+JDBC:  Fix array input parameters on reused CallableStatement
+JDBC:  Array parameter fixes
+JDBC:  Handle java.version of "0"
+JDBC:  Correct timestamp conversion.
+JDBC:  Fix named parameter support
+JDBC:  Fix DatabaseMetadata getCatalogTerm() and supportsExpressionsInOrderBy()
+JDBC:  Fix array input parameter when reusing callable statement
+JDBC:  Fix array output parameter after null returned
+</PRE>
+
+
+
+<HR>
+<H3><A NAME="77">Fixes and enhancements in JTOpen 7.7</A> <i>(released 2012-03-30)</i></H3>
+<PRE>
+APAR:  SE50631 -- TOOLBOXJAVA-JT400-ACCESS-JDBC-THREADS-INCORROUT HY010 FUNCTION SEQUENCE ERROR
+JDBC: Report fetch errors correctly
+JDBC: Honor decimal separator for PreparedStatement.setString()
+JDBC: describe option property
+JDBC: Ignore exceptions during race condition
+JDBC:  decimal data errors property
+JDBC:  Fix java.util.NoSuchElementException: Vector Enumeration thrown by rollback
+PCML: parser performance tuning
+MISC:  Ignore all exceptions when loading Buddhist calendar
+MISC: Improve CADSPool performance
+</PRE>
+
 
 <HR>
 <H3><A NAME="76">Fixes and enhancements in JTOpen 7.6</A> <i>(released 2011-10-17)</i></H3>
