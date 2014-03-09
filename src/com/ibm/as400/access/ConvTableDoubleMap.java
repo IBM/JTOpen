@@ -265,6 +265,7 @@ class ConvTableDoubleMap extends ConvTable
         i++;    /* We handle a leading surrogate, which must be following by a trailing */
         incrementValue++; 
         /* We don't need to check the leadingIndex since we know it is already in range*/
+        if (fromUnicodeSurrogate_ != null) {
         char[] fromUnicodeSurrogate2 = fromUnicodeSurrogate_[leadingIndex];
         if (fromUnicodeSurrogate2 != null) { 
           int trailingIndex = src[i] - TRAILING_SURROGATE_BASE;
@@ -279,6 +280,10 @@ class ConvTableDoubleMap extends ConvTable
           }
         } else {
           /* We could not handle.  Add substitution character */ 
+          returnChar = dbSubChar_;
+        }
+        } else {
+          /* no surrogate values for this CCSID  */ 
           returnChar = dbSubChar_;
         }
      }
