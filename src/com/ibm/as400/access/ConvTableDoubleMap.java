@@ -247,8 +247,8 @@ class ConvTableDoubleMap extends ConvTable
           }
         }
         if (destIndex != dest.length) {
-          byte[] newDest = new byte[destIndex]; 
-          System.arraycopy(dest, 0, newDest, 0, destIndex);
+          byte[] newDest = new byte[destIndex * 2]; 
+          System.arraycopy(dest, 0, newDest, 0, destIndex * 2);
           dest = newDest; 
         }
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
