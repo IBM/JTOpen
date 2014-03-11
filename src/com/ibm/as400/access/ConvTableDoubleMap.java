@@ -13,6 +13,11 @@
 
 package com.ibm.as400.access;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+
+import java.util.Hashtable;
+
 // This is the parent class for all ConvTableXXX classes that represent double-byte ccsids.
 class ConvTableDoubleMap extends ConvTable
 {
@@ -30,7 +35,12 @@ class ConvTableDoubleMap extends ConvTable
     public static final int LEADING_SURROGATE_BASE = 0xD800; 
     public static final int TRAILING_SURROGATE_BASE = 0xDC00; 
     public static final int FROM_UNICODE_SURROGATE_DIMENSION_LENGTH = 0x400; 
-    char[][] fromUnicodeSurrogate_ = null; 
+    char[][] fromUnicodeSurrogate_ = null;
+
+    // combining characters used for unicode to ebcdic conversion 
+    char[] combiningCharacters_;
+    char[][] combiningCombinations_; 
+    
 
     
     // Constructor.
@@ -39,6 +49,8 @@ class ConvTableDoubleMap extends ConvTable
     this(ccsid, toUnicode, fromUnicode);
     toUnicodeSurrogate_ = new char[65535][];
     fromUnicodeSurrogate_ = new char[FROM_UNICODE_SURROGATE_DIMENSION_LENGTH][];
+    ArrayList combiningCombinationArrayList = new ArrayList();
+    Hashtable combiningCharacterHashtable  = new Hashtable(); 
     for (int i = 0; i < toUnicodeSurrogateMapping.length; i++) {
       char ebcdicChar = toUnicodeSurrogateMapping[i][0];
       char leadingSurrogate = toUnicodeSurrogateMapping[i][1];
@@ -49,6 +61,7 @@ class ConvTableDoubleMap extends ConvTable
       pair[1] = trailingSurrogate;
       toUnicodeSurrogate_[0xffff & (int) ebcdicChar] = pair;
 
+      
       // Create fromUnicodeSurrogate mapping @KDA
       int leadingIndex = leadingSurrogate - LEADING_SURROGATE_BASE;
       int trailingIndex = trailingSurrogate - TRAILING_SURROGATE_BASE;
@@ -64,9 +77,32 @@ class ConvTableDoubleMap extends ConvTable
           // Error case here.. Should never happen. 
         }
       } else {
-        // Error case here.. Should never happen
+        // Leading index not surrogate, must be combining combination
+        char[] triplet = new char[3]; 
+        triplet[0] = leadingSurrogate;
+        triplet[1] = trailingSurrogate; 
+        triplet[2] = ebcdicChar; 
+        combiningCombinationArrayList.add(triplet); 
+        combiningCharacterHashtable.put(new Integer(trailingSurrogate), pair); 
+        
       }
+    } /* for i */ 
+    int combiningCharacterSize = combiningCharacterHashtable.size(); 
+    combiningCharacters_ = new char[combiningCharacterSize]; 
+    int i = 0; 
+    Enumeration keys = combiningCharacterHashtable.keys();
+    while (keys.hasMoreElements()) {
+      Integer x = (Integer) keys.nextElement(); 
+      combiningCharacters_[i] = (char) x.intValue(); 
+      i++; 
     }
+    
+    int combiningCombinationSize = combiningCombinationArrayList.size(); 
+    combiningCombinations_ = new char[combiningCombinationSize][]; 
+    for (i = 0; i < combiningCombinationSize; i++) {
+      combiningCombinations_[i] = (char[]) combiningCombinationArrayList.get(i); 
+    }
+    
   }
 
     // Constructor.
@@ -86,6 +122,8 @@ class ConvTableDoubleMap extends ConvTable
         fromUnicode_ = oldMap.fromUnicode_;
         toUnicodeSurrogate_ = oldMap.toUnicodeSurrogate_; 
         fromUnicodeSurrogate_ = oldMap.fromUnicodeSurrogate_; 
+        combiningCharacters_ = oldMap.combiningCharacters_;
+        combiningCombinations_ = oldMap.combiningCombinations_;
     }
     
     
@@ -258,8 +296,31 @@ class ConvTableDoubleMap extends ConvTable
     public char fromUnicode(char[] src, int i, int[] increment) {
       int incrementValue = 1; 
       char returnChar = 0; 
-      if (src[i] < LEADING_SURROGATE_BASE || src[i] >= TRAILING_SURROGATE_BASE ) {
-        returnChar = fromUnicode_[src[i]];
+      char currentChar = src[i]; 
+      if (currentChar < LEADING_SURROGATE_BASE || currentChar >= TRAILING_SURROGATE_BASE ) {
+        int next = i + 1; 
+        
+        boolean found = false; 
+        if ( (combiningCharacters_ != null) && (next < src.length) ) {
+           char nextChar = src[next]; 
+           for (int j = 0; !found && j < combiningCharacters_.length; j++ ) {
+              if (nextChar == combiningCharacters_[j]) {
+                for (int k = 0; !found && k < combiningCombinations_.length; k++) { 
+                    if ((currentChar == combiningCombinations_[k][0]) &&
+                        (nextChar    == combiningCombinations_[k][1])) {
+                        found = true; 
+                        returnChar  = combiningCombinations_[k][2]; 
+                        i++;    /* We handle a leading surrogate, which must be following by a trailing */
+                        incrementValue++; 
+                        
+                    }
+                }
+              }
+           }
+        }     
+        if (!found) { 
+          returnChar = fromUnicode_[src[i]];
+        }
      } else { 
         int leadingIndex = src[i] - LEADING_SURROGATE_BASE;
         i++;    /* We handle a leading surrogate, which must be following by a trailing */
