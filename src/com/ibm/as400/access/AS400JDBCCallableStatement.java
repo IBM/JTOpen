@@ -4622,6 +4622,7 @@ endif */
         case Types.VARCHAR:
         case Types.LONGVARCHAR:
         case Types.JAVA_OBJECT:
+        case Types.OTHER:      
           /* types are good */ 
           break; 
         default:

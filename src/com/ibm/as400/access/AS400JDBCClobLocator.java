@@ -670,9 +670,13 @@ Returns the handle to this CLOB locator in the database.
   }
   
   /** Get the locator handle corresponding to this ClobLocator
+   * @throws SQLException 
    * 
    */
-  public int getLocator() { 
+  public int getLocator() throws SQLException { 
+    if(locator_ == null)//@free
+      JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+
     return locator_.getHandle(); 
   }
 }
