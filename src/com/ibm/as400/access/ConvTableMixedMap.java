@@ -87,7 +87,8 @@ abstract class ConvTableMixedMap extends ConvTable
                         {
                             throw aioobe;
                         }
-                        --destPos;
+                        // No need to decrement because increment in dest[destPost++] not longer occurs 
+                        // --destPos;
                     }
                 }
             }
