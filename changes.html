@@ -5,11 +5,11 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2011 International Business Machines Corporation and
+Copyright (C) 1997-2014 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: June 1, 2012
+Last updated: March 13, 2014
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
 the open source community. JTOpen, which is supported by IBM and
@@ -22,17 +22,7 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 IBM Toolbox for Java web site:
 <A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
-<!-- On 2011-08-16: cvs log -rJTOpen_7_4:JTOpen_7_5 -N -d>2011-05-11 -->
-<!-- On 2011-01-11: cvs log -rJTOpen_7_2:JTOpen_7_3 -N -d>2010-11-30 -->
-<!-- On 2010-11-22: cvs log -rJTOpen_7_1:JTOpen_7_2 -N -d>2010-08-25 -->
-<!-- On 2010-08-25: cvs log -rJTOpen_7_0:JTOpen_7_1 -N -d>2010-05-12 -->
-<!-- On 2010-05-12: cvs log -rJTOpen_6_7:JTOpen_7_0 -N -d>2010-01-27 -->
-<!-- On 2010-01-19: cvs log -rJTOpen_6_6:JTOpen_6_7 -N -d>2009-08-27 -->
-<!-- On 2009-08-25: cvs log -rJTOpen_6_5_1:JTOpen_6_6 -N -d>2009-05-05 -->
-<!-- On 2009-05-05: cvs log -rJTOpen_6_4:JTOpen_6_5 -N -d>2008-12-08 -->
-<!-- On 2008-12-08: cvs log -rJTOpen_6_3:JTOpen_6_4 -N -d>2008-08-13 -->
-<!-- On 2008-08-13: cvs log -rJTOpen_6_2:JTOpen_6_3 -N -d>2008-04-25 -->
-<!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d>2007-12-14 -->
+<!-- On 2014-03-13: cvs log -rJTOpen_8_1:JTOpen_8_2 -N '-d>2013-10-22' -->
 
 <H4>Known deficiencies</H4>
 <PRE>
@@ -58,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#82">Fixes and enhancements in JTOpen 8.2</A><br>
 <A HREF="#81">Fixes and enhancements in JTOpen 8.1</A><br>
 <A HREF="#710">Fixes and enhancements in JTOpen 7.10</A><br>
 <A HREF="#79">Fixes and enhancements in JTOpen 7.9</A><br>
@@ -101,6 +92,27 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
 
+<HR>
+<H3><A NAME="81">Fixes and enhancements in JTOpen 8.1</A> <i>(released 2013-10-01)</i></H3>
+<Pre>
+- All:  Set cause exception for thrown exceptions 
+- Command Call:  Additional message information
+- Command Call:  Fix issue that "message substitution text" in 7.1 is equivalent to "replacement data or impromptu message" in 7.2 (piguangming)
+- Conversion:  Add surrogate support and update 16684 table
+- Conversion:  Fix corruption of 16684 table by loading of CCSIDs 5026,5035,930, and 939. (jeberhard)
+- DataStream:  Fix timing problem 
+- JDBC:  Fix DatabaseMetaData.getSQLKeywords 
+- JDBC:  Fix concurrent access resolution property 
+- JDBC:  Fix for -Xshareclasses 
+- JDBC:  Fix named parameters for CALL with return parameter 
+- JDBC:  JDBC 4.2 Support 
+- JDBC:  timestamp format property 
+- JDBC:  Allow DatabaseMetaData calls when connection is read-only 
+- JDBC:  Variable Field Compression for Blocked Insert 
+- JDBCClient:  Support for persistent threads 
+- Misc: Javadoc updates 
+- Misc: Trace enhancements 
+</Pre>
 <HR>
 <H3><A NAME="81">Fixes and enhancements in JTOpen 8.1</A> <i>(released 2013-10-01)</i></H3>
 <Pre>- JDBC:  Support IPV6 addresses in JDBC URL<br>- JDBC:  Support timestamp as time parameter<br>- Support for up to 255 parameters on a remote program call request<br>- Support additional message data returned on remote command and remote program call replies
