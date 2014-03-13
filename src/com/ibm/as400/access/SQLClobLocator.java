@@ -924,12 +924,12 @@ endif*/
         }                       //@loch
         
  
-        AS400JDBCNClobLocator locatorReturn = new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
+        AS400JDBCNClobLocator locatorReturn = new AS400JDBCNClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
         if (ConvTable.isMixedCCSID(converter_.ccsid_)) {
           // Since this is a mixed CCSID, the locator APIs with length, etc.. do not work correctly
           // @J5A We read the whole thing and convert to a local clob.
           savedObject_ = locatorReturn.getSubString((long)1, (int) locatorReturn.length());
-          return new AS400JDBCClob((String) savedObject_, maxLength_); //@loch
+          return new AS400JDBCNClob((String) savedObject_, maxLength_); //@loch
         }
         
         return locatorReturn;
