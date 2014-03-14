@@ -19,18 +19,20 @@
 //   - JDK 1.5   (for JTOpenLite)
 //   - JDK 1.6   (for java6 version)
 //   - JDK 1.8   (for java8 version)
-//   - Apache Ant 1.5
+//   - Apache Ant 1.8
 //   - CVS client (to download source)
 //
 // 1. In this file, change the value of the "build" property to be the directory
 //    where you want the JTOpen files to be downloaded and built to. It
 //    defaults to "/jtopen_build" (which is C:\jtopen_build on Windows).
+//    If you are using the shipped source zip file, set build to where the files
+//    were unzipped.  An alternative is to start ant using ant -Dbuild=.
 //
 // 2. Make sure Ant is installed and in your CLASSPATH, and you are familiar
 //    with how to run builds using Ant.
 //    See http://ant.apache.org to download and read up on it.
 //    For those with less time on their hands, get the binary from:
-//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.5/bin/
+//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.8/bin/
 //    Once installed, add the ant.jar to your CLASSPATH.
 //    To run a build:
 //      java org.apache.tools.ant.Main target1 target2 target3 ...
@@ -191,7 +193,7 @@
        subdirectories required by this build stem off of this
        directory. -->
 	<!-- This can be overridden on the ant command line using
-	    -Dbuild=/build/JTOpen -->
+	    -Dbuild=/build/JTOpen or -Dbuild=. -->
 
 	<condition property="build" value="/jtopen_build">
 		<not>
@@ -1002,7 +1004,7 @@
     ///////////////////////////////////////////////////////////////////////////-->
 
 	<condition property="ibmjavadocExists" value="true">
-		<length file="${include}/ibmjavadoc.jar" when="greater" length="0" />
+		<available file="${include}/ibmjavadoc.jar" type="file"/>
 	</condition>
 
 
@@ -1668,12 +1670,14 @@ Available Ant targets for the JTOpen build script include:
 
 	<target name="zip-source">
 		<zip zipfile="${dist}/src.zip" update="false">
-			<zipfileset dir="${source}"  excludes=".project"/>
-			<zipfileset dir="${source-contrib}"  excludes=".project"/>
-			<zipfileset dir="${source-micro}"  excludes=".project"/>
-			<zipfileset dir="${source-jtopenlite}"  excludes=".project"/>
-			<zipfileset dir="${include}" excludes="**/*.zip,**/*.jar,.project"/>
-			<zipfileset dir="${sourceroot}/build" excludes="**/mypasswd,.project"/>
+			<zipfileset dir="${source}"             prefix="src"        excludes=".project,bin/**"/>
+			<zipfileset dir="${source-contrib}"     prefix="contrib"    excludes=".project,bin/**"/>
+			<zipfileset dir="${source-micro}"       prefix="micro"      excludes=".project,bin/**"/>
+			<zipfileset dir="${source-jtopenlite}"  prefix="jtopenlite" excludes=".project,bin/**"/>
+			<zipfileset dir="${include}"            prefix="include"    excludes="**/*.zip,**/*.jar,.project,bin/**"/>
+			<zipfileset dir="${source-androidStubs}"  prefix="androidStubs" excludes=".project,bin/**"/>
+			<zipfileset dir="${sourceroot}/build"     prefix="build"      excludes="**/mypasswd,.project,bin/**"/>
+			<zipfileset dir="${sourceroot}/build"     includes="build.xml"/>
 			<zipfileset dir="${build}" includes="license.html"/>
 			<zipfileset dir="${build}" includes="readme.html"/>
 			<zipfileset dir="${build}" includes="changes.html"/>
