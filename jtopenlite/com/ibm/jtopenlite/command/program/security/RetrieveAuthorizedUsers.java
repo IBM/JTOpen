@@ -16,8 +16,13 @@ import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.*;
 
 /**
- * Use the <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qsyrautu.htm">QSYRAUTU</a>
+ * Use the 
+ * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qsyrautu.htm">
+ * QSYRAUTU</a>
  * API to retrieve authorized users. 
+ * 
+ * To utilize the output of the API, the user of this class must implement a 
+ * RetrieveAuthorizedUsersListener to process the API output. 
 **/
 public class RetrieveAuthorizedUsers implements Program
 {

@@ -17,12 +17,125 @@ import com.ibm.jtopenlite.*;
 import com.ibm.jtopenlite.command.program.*;
 
 /**
- * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/QJORJRNE.htm">QJOURNAL.QjoRetrieveJournalEntries</a>
+ * <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/QJORJRNE.htm">
+ * QJOURNAL.QjoRetrieveJournalEntries
+ * </a>
 **/
 public class RetrieveJournalEntries extends CallServiceProgramProcedure implements CallServiceProgramParameterFormat
 {
   public static final String FORMAT_RJNE0100 = "RJNE0100";
   public static final String FORMAT_RJNE0200 = "RJNE0200";
+  
+	/**
+	 * KEY_RANGE_OF_JOURNAL_RECEIVERS corresponds to RCVRNG parameter of RCVJRNE
+	 * Command. Type is CHAR(40)
+	 */
+	public static final int KEY_RANGE_OF_JOURNAL_RECEIVERS = 1;
+
+	/**
+	 * KEY_STARTING_SEQUENCE_NUMBER corresponds to FROMENT parameter of RCVJRNE
+	 * Command. Type is CHAR(20)
+	 */
+	public static final int KEY_STARTING_SEQUENCE_NUMBER = 2;
+	/**
+	 * KEY_STARTING_TIME_STAMP corresponds to FROMTIME parameter of RCVJRNE
+	 * Command. Type is CHAR(26)
+	 */
+	public static final int KEY_STARTING_TIME_STAMP = 3;
+	/**
+	 * KEY_ENDING_SEQUENCE_NUMBER corresponds to TOENT parameter of RCVJRNE
+	 * Command. Type is CHAR(20)
+	 */
+	public static final int KEY_ENDING_SEQUENCE_NUMBER = 4;
+	/**
+	 * KEY_ENDING_TIME_STAMP corresponds to TOTIME parameter of RCVJRNE Command.
+	 * Type is CHAR(26)
+	 */
+	public static final int KEY_ENDING_TIME_STAMP = 5;
+	/**
+	 * KEY_NUMBER_OF_ENTRIES corresponds to NBRENT parameter of RCVJRNE Command.
+	 * Type is BINARY(4)
+	 */
+	public static final int KEY_NUMBER_OF_ENTRIES = 6;
+	/**
+	 * KEY_JOURNAL_CODES corresponds to JRNCDE parameter of RCVJRNE Command.
+	 * Type is CHAR(*)
+	 */
+	public static final int KEY_JOURNAL_CODES = 7;
+	/**
+	 * KEY_JOURNAL_ENTRY_TYPES corresponds to ENTTYP parameter of RCVJRNE
+	 * Command. Type is CHAR(*)
+	 */
+	public static final int KEY_JOURNAL_ENTRY_TYPES = 8;
+	/**
+	 * KEY_JOB corresponds to JOB parameter of RCVJRNE Command. Type is CHAR(26)
+	 */
+	public static final int KEY_JOB = 9;
+	/**
+	 * KEY_PROGRAM corresponds to PGM parameter of RCVJRNE Command. Type is
+	 * CHAR(10)
+	 */
+	public static final int KEY_PROGRAM = 10;
+	/**
+	 * KEY_USER_PROFILE corresponds to USRPRF parameter of RCVJRNE Command. Type
+	 * is CHAR(10)
+	 */
+	public static final int KEY_USER_PROFILE = 11;
+	/**
+	 * KEY_COMMIT_CYCLE_IDENTIFIER corresponds to CMTCYCID parameter of RCVJRNE
+	 * Command. Type is CHAR(20)
+	 */
+	public static final int KEY_COMMIT_CYCLE_IDENTIFIER = 12;
+	/**
+	 * KEY_DEPENDENT_ENTRIES corresponds to DEPENT parameter of RCVJRNE Command.
+	 * Type is CHAR(10)
+	 */
+	public static final int KEY_DEPENDENT_ENTRIES = 13;
+	/**
+	 * KEY_INCLUDE_ENTRIES corresponds to INCENT parameter of RCVJRNE Command.
+	 * Type is CHAR(10)
+	 */
+	public static final int KEY_INCLUDE_ENTRIES = 14;
+	/**
+	 * KEY_NULL_VALUE_INDICATORS_LENGTH corresponds to NULLINDLEN parameter of
+	 * RCVJRNE Command. Type is CHAR(10)
+	 */
+	public static final int KEY_NULL_VALUE_INDICATORS_LENGTH = 15;
+	/**
+	 * KEY_FILE corresponds to FILE parameter of RCVJRNE Command. Type is
+	 * CHAR(*)
+	 */
+	public static final int KEY_FILE = 16;
+	/**
+	 * KEY_OBJECT corresponds to OBJ parameter of RCVJRNE Command. Type is
+	 * CHAR(*)
+	 */
+	public static final int KEY_OBJECT = 17;
+	/**
+	 * KEY_OBJECT_PATH corresponds to OBJPATH parameter of RCVJRNE Command. Type
+	 * is CHAR(*)
+	 */
+	public static final int KEY_OBJECT_PATH = 18;
+	/**
+	 * KEY_OBJECT_FILE_IDENTIFIER corresponds to OBJFID parameter of RCVJRNE
+	 * Command. Type is CHAR(*)
+	 */
+	public static final int KEY_OBJECT_FILE_IDENTIFIER = 19;
+	/**
+	 * KEY_DIRECTORY_SUBTREE corresponds to SUBTREE parameter of RCVJRNE
+	 * Command. Type is CHAR(5)
+	 */
+	public static final int KEY_DIRECTORY_SUBTREE = 20;
+	/**
+	 * KEY_NAME_PATTERN corresponds to PATTERN parameter of RCVJRNE Command.
+	 * Type is CHAR(*)
+	 */
+	public static final int KEY_NAME_PATTERN = 21;
+	/**
+	 * KEY_FORMAT_MINIMIZED_DATA corresponds to FMTMINDTA parameter of RCVJRNE
+	 * Command. Type is CHAR(10)
+	 */
+	public static final int KEY_FORMAT_MINIMIZED_DATA = 22;
 
   private int inputLength_;
   private String journalName_;
@@ -128,7 +241,7 @@ public class RetrieveJournalEntries extends CallServiceProgramProcedure implemen
             Conv.intToByteArray(recLen, buffer, offset);
             Conv.intToByteArray(selection_.getVariableLengthRecordKey(i), buffer, offset+4);
             Conv.intToByteArray(len, buffer, offset+8);
-            selection_.setVariableLengthRecordData(buffer, offset+12);
+            selection_.setVariableLengthRecordData(i, buffer, offset+12);
             offset += recLen;
           }
         }

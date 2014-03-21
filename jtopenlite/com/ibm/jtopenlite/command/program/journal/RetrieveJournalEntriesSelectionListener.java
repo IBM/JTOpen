@@ -11,14 +11,16 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.jtopenlite.command.program.journal;
-
+/**
+ * Listener interface used to pass parameters to a call to 
+ * RetrieveJournalEntries, which uses the QjoRetrieveJournalEntries API.
+ *
+ */
 public interface RetrieveJournalEntriesSelectionListener
 {
   public int getNumberOfVariableLengthRecords();
-
   public int getVariableLengthRecordKey(int index);
 
   public int getVariableLengthRecordDataLength(int index);
-
-  public void setVariableLengthRecordData(byte[] buffer, int offset);
+  public void setVariableLengthRecordData(int index, byte[] buffer, int offset);
 }
