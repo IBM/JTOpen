@@ -568,7 +568,9 @@ public class Trace implements Runnable
       try
       {
         setFileName (file);
-        destination_.println("Toolbox for Java - " + Copyright.version);
+        destination_.println("Toolbox for Java - JDBC "+
+          AS400JDBCDriver.JDBC_MAJOR_VERSION_+"."+
+          AS400JDBCDriver.JDBC_MINOR_VERSION_+" " + Copyright.version);
         destination_.println(getJvmInfo()); /* @B1A*/ 
         destination_.println();
         logLoadPath(CLASSNAME, activeTraceCategory()); 
@@ -1626,7 +1628,9 @@ public class Trace implements Runnable
         logger_ = ToolboxLogger.getLogger(); // returns null if no Logger activated
         if (logger_ != null && logger_.isLoggingOn())
         {
-          logger_.info("Toolbox for Java - " + Copyright.version);
+          logger_.info("Toolbox for Java - JDBC "+
+          AS400JDBCDriver.JDBC_MAJOR_VERSION_+"."+
+          AS400JDBCDriver.JDBC_MINOR_VERSION_+"  " + Copyright.version);
           logger_.info(getJvmInfo());  /* @B1A*/
           if (mostRecentTracingChange_ != TURNED_TRACE_OFF) {
             traceOn_ = true;
@@ -1654,7 +1658,10 @@ public class Trace implements Runnable
       findLogger();
       if (traceOn_ &&                                    //$D1A
           (logger_ == null || userSpecifiedDestination_)) {
-        destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
+        destination_.println("Toolbox for Java - JDBC "+
+          AS400JDBCDriver.JDBC_MAJOR_VERSION_+"."+
+          AS400JDBCDriver.JDBC_MINOR_VERSION_+" "+
+          Copyright.version);   // @A1C //@W1A //@D4C
         destination_.println(getJvmInfo()); /* @B1A*/
       }
 
