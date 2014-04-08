@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
 
 
 /**
-A JDBC 3.0/4.0 driver that accesses DB2 for IBM i databases.
+A JDBC 3.0/4.0/4.2 driver that accesses DB2 for IBM i databases.
 
 <p>To use this driver, the application or caller must register 
 the driver with the JDBC DriverManager.  This class also registers 
@@ -124,8 +124,13 @@ implements java.sql.Driver
 endif */ 
 /* ifndef JDBC40 */ 
     public static final int JDBC_MAJOR_VERSION_ = 3; // JDBC spec version: 3.0
-/* endif */ 
+/* endif */
+/* ifdef JDBC42 
+    public static final int JDBC_MINOR_VERSION_ = 2;
+endif */ 
+/* ifndef JDBC42 */ 
     public static final int JDBC_MINOR_VERSION_ = 0;
+/* endif */
 
 
 	// This string "9999:9999" is returned when resource
