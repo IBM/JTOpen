@@ -274,6 +274,44 @@ when it was not previously set by the constructor.
       }
   }
 
+  /*@L1A*/  
+  public int getUDTNameCCSID (int fieldIndex)
+  {
+      // CCSID of the UTF name.  Usually the same as the job ccsid.
+      int length = findCodePoint(fieldIndex, 0x3841);
+      if(length >=0)
+      {
+          return BinaryConverter.byteArrayToShort (rawBytes_,
+                                             offset_ + 16 + length + 6 + (fieldIndex * REPEATED_FIXED_LENGTH_));
+      }
+      else
+      {
+        return -1; 
+      }
+  }
+
+  /*@L1A*/
+  public String getUDTName (int fieldIndex, ConvTable converter)
+  {
+      int length = findCodePoint(fieldIndex, 0x3841);
+
+      if(length >= 0)
+      {
+          int udtNameLength = BinaryConverter.byteArrayToInt(rawBytes_, 
+              offset_ + 16 + length + (fieldIndex * REPEATED_FIXED_LENGTH_)) - 8;
+          return converter.byteArrayToString (rawBytes_,
+                                        offset_ + 16 + length + 8 + (fieldIndex * REPEATED_FIXED_LENGTH_),
+                                        udtNameLength);
+      }
+      else
+      {
+          JDTrace.logInformation("Did not find the code point for the field name.");
+          return null;
+      }
+  }
+  
+  
+  
   // Finds a specified codepoint in the variable length information and returns a length that can be used when calculating offsets
   // for the variable length information
   private int findCodePoint(int fieldIndex, int cp){
@@ -293,8 +331,12 @@ when it was not previously set by the constructor.
       while((codePoint != cp) && (length < lengthOfVariableInformation))
       {
           length += lengthOfVariableFieldInformation;
-          lengthOfVariableFieldInformation = BinaryConverter.byteArrayToInt(rawBytes_, offset_ + 16 + length + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation);
-          codePoint = BinaryConverter.byteArrayToShort(rawBytes_, offset_ + 16 + length + offsetToVariableFieldInformation + (fieldIndex * REPEATED_FIXED_LENGTH_));
+          if (length < lengthOfVariableInformation) {  /*@L1A*/
+          lengthOfVariableFieldInformation = BinaryConverter.byteArrayToInt(rawBytes_, 
+              offset_ + 16 + length + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation);
+          codePoint = BinaryConverter.byteArrayToShort(rawBytes_, 
+              offset_ + 16 + length + (fieldIndex * REPEATED_FIXED_LENGTH_) + offsetToVariableFieldInformation + 4); /*@L1C*/
+          }
       }
 
       // Check to see if we found the codepoint, otherwise we looped through all of the information and didn't find the codepoint we wanted

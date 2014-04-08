@@ -420,6 +420,19 @@ implements DBDataFormat
       return -1;
   }
 
+
+  // UDTName not available /*@L1A*/
+  public int getUDTNameCCSID(int fieldIndex) throws DBDataStreamException {
+    return -1;  
+  }
+
+
+  // UDTName not available /*@L1A*/
+  public String getUDTName(int fieldIndex, ConvTable converter)
+      throws DBDataStreamException {
+    return null;
+  }
+
 }
 
 

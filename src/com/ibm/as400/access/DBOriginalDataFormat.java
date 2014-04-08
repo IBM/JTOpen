@@ -361,4 +361,19 @@ when it was not previously set by the constructor.
       return -1;
   }
 
+
+  // not available in original data stream
+  /*@L1A*/
+  public int getUDTNameCCSID(int fieldIndex) throws DBDataStreamException {
+    return -1 ;
+  }
+
+
+  // not available in original data stream 
+  /*@L1A*/
+  public String getUDTName(int fieldIndex, ConvTable converter)
+      throws DBDataStreamException {
+    return null;
+  }
+
 }

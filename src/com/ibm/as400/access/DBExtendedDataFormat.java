@@ -206,8 +206,24 @@ when it was not previously set by the constructor.
                                         getFieldNameLength (fieldIndex));
   }
 
+  /**
+   * UDTName is not available with ExtendedDataFormat, return -1
+   */
+  /*@L1A*/
+  public int getUDTNameCCSID(int fieldIndex) { 
+    return -1; 
+  }
 
 
+  /**
+   * UDTName is not available with ExtendedDataFormat, return 0
+   */
+  /*@L1A*/
+  public String getUDTName(int fieldIndex, ConvTable converter) { 
+    return null; 
+  }
+
+  
   public void setConsistencyToken (int consistencyToken)
   {
     BinaryConverter.intToByteArray (consistencyToken, rawBytes_,

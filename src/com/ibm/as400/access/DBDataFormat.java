@@ -90,6 +90,19 @@ extends DBOverlay
     public abstract String getFieldName (int fieldIndex, ConvTable converter) //@P0C
         throws DBDataStreamException;
 
+    /** 
+     * Return the CCSID for the UDTName.  If not available, return -1.
+     */
+    /*@L1A*/
+    public abstract int getUDTNameCCSID (int fieldIndex)
+        throws DBDataStreamException;
+
+    /** 
+     * Return the UDTName.  If not available, return null. 
+     */
+    /*@L1A*/
+    public abstract String getUDTName (int fieldIndex, ConvTable converter) 
+        throws DBDataStreamException;
 
 
     public abstract void setConsistencyToken (int consistencyToken)
