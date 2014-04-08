@@ -159,7 +159,9 @@ implements Connection
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
     //        The IBM i passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching.
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R1M01   "; // @EDA F8c H2c pdc 610
+    // The 2nd and 4th digits are used to turn on variable field compression
+    // @L3C
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R2M01   "; // @EDA F8c H2c pdc 610
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA

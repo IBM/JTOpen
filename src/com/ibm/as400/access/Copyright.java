@@ -116,7 +116,8 @@ package com.ibm.as400.access;
 //@KE   20140307  JDBC:  timestamp format property
 //      20140408  JDBC: Set Minor Version for JDBC 4.2
 //@L1   20140408  JDBC: Fix UDT Name in ResultSetMetaData
-//@L2   20140408  JDBC: Correct DatabaseMetaData.getXXXFunctions 
+//@L2   20140408  JDBC: Correct DatabaseMetaData.getXXXFunctions
+//@L3   20140408  JDBC: Variable Field Compression fixes
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

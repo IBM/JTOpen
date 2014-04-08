@@ -161,6 +161,7 @@ when it was not previously set by the constructor.
 	        setColumnCount (columnCount_);
 	        setIndicatorSize (indicatorSize_);
 	        setRowSize (rowSize_);
+	        initializeReserved();  /*@L3A*/
 	    }
 
         dataOffset_         = indicatorOffset_ + (rowCount_ * columnCount_ * indicatorSize_);
@@ -270,6 +271,13 @@ when it was not previously set by the constructor.
       } else {
         rawBytes_[offset_ + 12] = -0;
       }
+    }
+
+    /* @L3A*/
+    public void initializeReserved()
+    {
+        BinaryConverter.intToByteArray (0, rawBytes_,
+            offset_ + 12);
     }
 
 
