@@ -306,6 +306,10 @@ implements JDRow
         }
     }
 
+    /*@L1A*/
+    public String getSQLTypeName(int index) throws SQLException {
+      return getSQLData (index).getTypeName();
+    }
 
 
 }

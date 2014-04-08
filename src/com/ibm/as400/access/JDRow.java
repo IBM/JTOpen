@@ -164,6 +164,18 @@ interface JDRow
     public abstract int isNullable (int index)
     throws SQLException;
 
+    /**
+    Return the SQL type name. 
+    
+    @param  index   The field index (1-based).
+    @return         The SQL typename 
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+    **/
+    /*@L1A*/
+    public abstract String getSQLTypeName (int index)
+    throws SQLException;
 
 
 }

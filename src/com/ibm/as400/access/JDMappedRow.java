@@ -198,4 +198,10 @@ implements JDRow
     }
 
 
+    /*@L1A*/
+    public String getSQLTypeName(int index) throws SQLException {
+          return toRow_.getSQLData (index).getTypeName();
+    }
+
+
 }

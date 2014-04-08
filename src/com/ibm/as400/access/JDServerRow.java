@@ -50,6 +50,7 @@ implements JDRow
     private DBDataFormat            serverFormat_;
     private SQLData[]               sqlData_;
     private int[]                   sqlTypes_;
+    private String[]                sqlTypeNames_;   /*@L1A*/
     private boolean[]               translated_;
     private boolean                 wasCompressed = false;   // set to true if variable length field compression is used
     private Hashtable               insensitiveColumnNames_; // @PDA maps strings to column indexes
@@ -179,6 +180,7 @@ implements JDRow
             scales_     = new int[count];
             sqlData_    = new SQLData[count];
             sqlTypes_   = new int[count];
+            sqlTypeNames_ = new String[count];  /*@L1A*/
             translated_ = new boolean[count];
             insensitiveColumnNames_ = null;  //@PDA
             containsLob_ = false;   //@re-prep
@@ -536,6 +538,59 @@ implements JDRow
     }
 
 
+    /*@L1A*/    
+    public String getSQLTypeName (int index)
+    throws SQLException
+    {
+        try
+        {
+            // We need to trim() the field name before
+            // returning it, since in some cases (e.g.
+            // stored procedure written in RPG) the
+            // field names have spaces at end of the name.
+            //
+            // Cache the field names so we only translate them once.
+            //
+            int index0 = index-1;
+            if(sqlTypeNames_[index0] == null) {
+                int ccsid = serverFormat_.getUDTNameCCSID (index0);
+                if (ccsid > -1 )  { 
+                  if (ccsid == 0) {
+                    // There is a bug in the host server where the CCSID was not returned
+                    // To keep working, just use CCSID 37
+                    ccsid = 37; 
+                  }
+                sqlTypeNames_[index0] = 
+                    serverFormat_.getUDTName (index0,
+                                              connection_.getConverter (ccsid)).trim();
+                
+
+                }
+                if (sqlTypeNames_[index0] == null) {
+                  sqlTypeNames_[index0] = sqlData_[index0].getTypeName(); 
+                }
+            }
+            if (sqlTypeNames_[index0] != null) { 
+            boolean reorder = connection_.getProperties().getBoolean(JDProperties.BIDI_IMPLICIT_REORDERING);
+            if(reorder){
+              String value_ = sqlTypeNames_[index0];
+              value_ = AS400BidiTransform.convertDataFromHostCCSID(value_, connection_, serverFormat_.getFieldNameCCSID (index0));
+              return value_;
+            }
+            }
+            //Bidi-HCG end
+            return sqlTypeNames_[index0];
+        }
+        catch(DBDataStreamException e)
+        {
+            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
+            return null;
+        }
+    }
+
+
+    
+    
     /* @C1D
     public int getFieldPrecision (int index)
         throws SQLException

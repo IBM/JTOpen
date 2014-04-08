@@ -267,7 +267,7 @@ implements ResultSetMetaData
     throws SQLException
     {
         checkIndex(columnIndex);
-        return row_.getSQLType(columnIndex).getTypeName();
+        return row_.getSQLTypeName(columnIndex);    /*@L1C*/ 
     }
 
     /**
