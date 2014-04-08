@@ -70,24 +70,16 @@ class JDEscapeClause
         // String functions.
         //
         // Supported by system:
-        // V4R5:
-        //    concat,left,locate,ltrim,rtrim,substring,ucase
-        // V5R1:
-        //    concat,difference,left,locate,ltrim,rtrim,soundex,space,substring,ucase
-        // >=V5R2:
-        //    concat,difference,insert,lcase,left,locate,ltrim,repeat,replace,right,rtrim,soundex,space,substring,ucase
+        // >=V6R1:
+        //    ascii, concat,difference,insert,
+        //    lcase,left,locate,ltrim,repeat,replace,
+        //    right,rtrim,soundex,space,substring,ucase
         // 
         // Supported by mapping:
-        // <=V5R2:
-        //    insert,length,right
-        // V5R3:
+        // V6R1:
         //    length
         //
-        // Not supported:
-        //    ascii,char
         //
-        scalarFunctionTable_.put("insert", "SUBSTR(%1, 1, %2 - 1) || %4 || SUBSTR(%1, %2 + %3)", JDUtilities.vrm530);
-        scalarFunctionTable_.put("right", "SUBSTR(%1, LENGTH(%1) - %2 + 1)", JDUtilities.vrm530);
         scalarFunctionTable_.put("length", "LENGTH(STRIP(%1,T))", JDScalarTable.NOT_SUPPORTED);
 
         // System functions.
@@ -473,15 +465,23 @@ Get a list of supported math functions.
 @param  vrm                 The version of the host OS.
 @return                     A list of function names, separated by commas.
 **/
-    static String getNumericFunctions(int vrm) {
-        // @C1A the below if/else block was added to report the correct functions through DatabaseMetaData
-        if (vrm < JDUtilities.vrm510) {
-            // we are running to a V4R5 or older host
-            return "abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log,log10,mod,pi,power,round,sin,sign,sqrt,tan,truncate";
-        } else {
-            // we are running to a V5R1 or newer host 
-            return "abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log,log10,mod,pi,power,radians,rand,round,sin,sign,sqrt,tan,truncate";
-        }
+  static String getNumericFunctions(int vrm) {
+    if (vrm >= JDUtilities.vrm610) {
+      return "abs,acos,asin,atan,atan2,ceiling,character_length,cos,cot,degrees," +
+      		"exp,floor,log,log10,mod,octet_length,pi,power," +
+      		"position,radians,rand,round,sign,sin,sqrt,tan,truncate";
+    } else {
+      // @C1A the below if/else block was added to report the correct functions
+      // through DatabaseMetaData
+
+      if (vrm < JDUtilities.vrm510) {
+        // we are running to a V4R5 or older host
+        return "abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log,log10,mod,pi,power,round,sin,sign,sqrt,tan,truncate";
+      } else {
+        // we are running to a V5R1 or newer host
+        return "abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log,log10,mod,pi,power,radians,rand,round,sin,sign,sqrt,tan,truncate";
+      }
+    }
     }
 
 
@@ -492,6 +492,12 @@ Get a list of supported string functions.
 @return                     A list of function names, separated by commas.
 **/
     static String getStringFunctions(int vrm) {
+        if (vrm >= JDUtilities.vrm610) { 
+          return "ascii,char,char_length,character_length,concat,difference," +
+          		"insert,lcase,left,length,locate,ltrim," +
+          		"octet_length,position,repeat,replace,right,rtrim," +
+          		"soundex,space,substring,ucase";
+        } else { 
         // @C1A the below if/else block was added to report the correct functions through DatabaseMetaData
         if (vrm < JDUtilities.vrm510) {
             // we are running to a V4R5M0 or older host
@@ -504,7 +510,8 @@ Get a list of supported string functions.
             return "char,concat,difference,insert,lcase,left,length,locate,ltrim,right,rtrim,soundex,space,substring,ucase";
         } else {
             // we are running to a V5R3 or newer host
-            return "char,concat,difference,insert,lcase,left,length,locate,ltrim,repeat,replace,right,rtrim,soundex,space,substring,ucase";
+          return "ascii,char,concat,difference,insert,lcase,left,length,locate,ltrim,repeat,replace,right,rtrim,soundex,space,substring,ucase";
+        }
         }
     }
 
@@ -527,6 +534,13 @@ Get a list of supported time and date functions.
 @return                     A list of function names, separated by commas.
 **/
     static String getTimeDateFunctions(int vrm) {
+        if (vrm >= JDUtilities.vrm610) { 
+          return "current_date,current_time,current_timestamp," +
+          		"curdate,curtime,dayname,dayofmonth,dayofweek,dayofyear," +
+          		"extract,hour,minute,month,monthname,now,quarter,second," +
+          		"timestampdiff,week,year";
+          
+        } else {
         // @C1A the below if/else block was added to report the correct functions through DatabaseMetaData
         if (vrm < JDUtilities.vrm510) {
             // we are running to a V4R5 or older host
@@ -537,6 +551,7 @@ Get a list of supported time and date functions.
         } else {
             // we are running to a V5R3 or newer host
             return "curdate,curtime,dayname,dayofmonth,dayofweek,dayofyear,hour,minute,month,monthname,now,quarter,second,timestampdiff,week,year";
+        }
         }
     }
 
