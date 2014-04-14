@@ -235,7 +235,12 @@ Returns the message text for the last operation on the IBM i system.
     }
     catch (SQLException e)
     {
-      return getReason (EXC_INTERNAL);
+      // We can get a connection does not exist error.  If that is the case, just bubble it back
+      if (e.getSQLState().equals(EXC_CONNECTION_NONE)) { 
+    	  return getReason (EXC_CONNECTION_NONE);
+      } else { 
+         return getReason (EXC_INTERNAL);
+      }
     }
   }
 
