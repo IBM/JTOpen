@@ -194,7 +194,15 @@ class PcmlSAXParser extends DefaultHandler
       if (docIsXPCML)
         setFeatures(factory);
 
-      SAXParser parser = factory.newSAXParser(); //@E0A
+      SAXParser parser;
+      // Android do not support the validating parser. 
+      // If this fails, request a non-validating parser. @L4A
+      try { 
+         parser = factory.newSAXParser(); //@E0A
+      } catch (javax.xml.parsers.ParserConfigurationException pce ) {
+        factory.setValidating(false);
+        parser = factory.newSAXParser(); 
+      }
       //@E0D        SAXParser parser = new SAXParser();                                         // @C2C
       //@E0D        try {                                                                       // @C2A
       //@E0D            parser.setFeature("http://xml.org/sax/features/validation", true);      // @C2A

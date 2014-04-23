@@ -118,6 +118,7 @@ package com.ibm.as400.access;
 //@L1   20140408  JDBC: Fix UDT Name in ResultSetMetaData
 //@L2   20140408  JDBC: Correct DatabaseMetaData.getXXXFunctions
 //@L3   20140408  JDBC: Variable Field Compression fixes
+//@L4   20140423  PCML: Use non-validating parser if validating parser not available.
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -125,13 +126,13 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2014 International Business Machines Corporation and others.";
-    //                                                                                              built=20140313 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 8.2, codebase 5770-SS1 V7R2M0.00 built=20140313 @KD";  
+    //                                                                                              built=20140423 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 8.3, codebase 5770-SS1 V7R2M0.00 built=20140423 @L4";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1
-    static final int    MINOR_VERSION = 2; // ex: "2" indicates PTF #2 (1 is first PTF in a release)
-                                           //Note: JTOpen 8.2 is synching with ptf 10.2
-    static final String DRIVER_LEVEL  = "07020002"; //(ex: 07020002 -> V7R2M0 PTF#2, while 07010011 -> V7R1M0 PTF#11) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final int    MINOR_VERSION = 3; // ex: "3" indicates PTF #3 (1 is first PTF in a release)
+                                           //Note: JTOpen 8.3 is synching with ptf 10.3
+    static final String DRIVER_LEVEL  = "07020003"; //(ex: 07020003 -> V7R2M0 PTF#3) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
