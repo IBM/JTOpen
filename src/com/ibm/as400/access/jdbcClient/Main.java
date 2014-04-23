@@ -2428,6 +2428,7 @@ public class Main implements Runnable {
 	  variables.put(threadName, runnable); 
 	  Thread t = new Thread(runnable);
 	  t.setName(threadName); 
+	  t.setDaemon(true); 
 	  t.start();
       } else if (upcaseCommand.startsWith("THREADEXEC ")) {
 	  history.addElement(command_);
