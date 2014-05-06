@@ -664,9 +664,14 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
     <TD HEADERS="cat4">&quot;variable field compression&quot;</TD>
     <TD HEADERS="cat4t2">Specifies whether variable-length fields should be compressed.</TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;true&quot;<BR>
-      &quot;false&quot;</TD>
-    <TD HEADERS="cat4t5">&quot;true&quot;</TD>
+    <TD HEADERS="cat4t4">
+    &quot;true&quot; -- compression will be used for result set data<br>
+    &quot;false&quot; -- no compression will be used<br>
+    &quot;insert&quot; -- compression will only be used for batched insert data<BR>
+    &quot;all&quot;  -- compression will be used for result set data and for batched insert data
+    </TD>
+    <TD HEADERS="cat4t5">&quot;all&quot; when connected to a server that supports compression of batched insert data<br>
+                         &quot;true&quot; when the server does not support compression of batched insert date</TD>
   </TR>
 </TABLE>
 
