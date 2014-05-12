@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.taskdefs.MatchingTask;
@@ -14,7 +16,14 @@ public class Jdbc40Task extends MatchingTask
                           // existing files will be overwritten by processed source files
   private File srcDir_;   // source directory where source files will come from
 
+  private File sourcelist_; 
+  
   private int numFilesProcessed_ = 0; // count of class files processed
+
+  public void setSourcelist(File sourcelist)
+  {
+    sourcelist_ = sourcelist;
+  }
 
   public void setDestdir(File destDir)
   {
@@ -35,8 +44,35 @@ public class Jdbc40Task extends MatchingTask
   public void execute() throws BuildException
   {
 	BuildException lastException = null; 
-    DirectoryScanner scanner = getDirectoryScanner(destDir_);
-    String[] destFileNames = scanner.getIncludedFiles();
+	ArrayList list = new ArrayList();
+	try { 
+		BufferedReader reader = new BufferedReader(new FileReader(sourcelist_)); 
+		String line = reader.readLine(); 
+		while (line != null) { 
+			line = line.trim(); 
+			if (line.length() > 0) {
+				if (line.charAt(0)=='#') {
+					// Skip 
+				} else { 
+					list.add(line);
+				}
+			}
+			line = reader.readLine();
+		}
+	} catch (Exception e) { 
+        if (verbose_) { 
+       		System.out.println("Error ("+e+ ") processing "+sourcelist_);
+       		e.printStackTrace(System.out); 
+        }
+		BuildException be = new BuildException("Error ("+e+ ") processing "+sourcelist_);
+		be.initCause(e); 
+		throw be; 
+	}
+	
+    String[] destFileNames = new String[list.size()];
+    for (int i = 0; i < destFileNames.length; i++) { 
+    	destFileNames[i] = (String) list.get(i); 
+    }
 
     for (int i=0; i<destFileNames.length; ++i)
     {
@@ -141,7 +177,13 @@ public class Jdbc40Task extends MatchingTask
       
       File inputFile  = new File(srcDir_+"/"+filename);
       File outputFile = new File(destDir_+"/"+filename); 
-      
+      File outputParent = outputFile.getParentFile(); 
+      if (! outputParent.exists()) {
+    	  if (verbose_) {
+    		  System.out.println("Creating "+outputParent.getAbsolutePath()+" because it does not exist"); 
+    	  }
+    	  outputParent.mkdirs(); 
+      }
       PrintWriter writer = new PrintWriter(new FileWriter(outputFile)); 
       BufferedReader reader = new BufferedReader(new FileReader(inputFile)); 
       

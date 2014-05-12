@@ -1366,9 +1366,11 @@
 	<target name="source-jdbc40" depends="init">
 		<echo> Processing jdbc40 file from ${source} to ${source-jdbc40} </echo>
 		<taskdef name="jdbc40src" classname="Jdbc40Task" classpath="."/>
-		<jdbc40src destdir="${source-jdbc40}"
-	               srcdir="${source}"
-	               verbose="${show-progress}"/>
+		<jdbc40src sourcelist="${source}/jdbc40list.txt"
+				       destdir="${source-jdbc40}"
+		               srcdir="${source}"
+		               verbose="${show-progress}"/>
+		
 	</target>
 
 	<!--///////////////////////////////////////////////////////////////////////////
