@@ -96,6 +96,14 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
                     set16bit(usage, index + 10);
                 }
             }
+            //@L5A start
+            else if (usage == ProgramParameter.OUTPUT)    
+            {   
+                usage += 20;   
+                parameterList[i].usage_ = usage;
+                set16bit(usage, index + 10);
+            }
+            //@L5A end
             else
             {
                 set16bit(usage + 10, index + 10);
