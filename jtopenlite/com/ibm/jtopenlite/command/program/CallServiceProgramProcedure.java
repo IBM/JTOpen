@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 2011-2012 International Business Machines Corporation and
+// Copyright (C) 2011-2014 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,23 @@ import com.ibm.jtopenlite.command.*;
 
 /**
  * Service program call - <a href="http://publib.boulder.ibm.com/infocenter/iseries/v5r4/topic/apis/qzruclsp.htm">QZRUCLSP</a>
- * This class fully implements the V5R4 specification of QZRUCLSP.
+ * This class fully implements the V5R4 specification of QZRUCLSP.  This API supports up to seven parameters.
+ * 
+ * 
+ * <p>This is designed so that classes to call a service program procedure can 
+ * be created by extending this class.  For examples, see the Direct Known Subclasses 
+ * information in the javadoc. 
+ * 
+ * <p>A class that extends this class must implement the following methods corresponding to
+ * CallServiceProgramParameterFormat. 
+ * <ul>
+ * <li>void 	fillInputData(int index, byte[] dataBuffer, int offset) 
+ * <li>int 	getParameterCount() 
+ * <li>int 	getParameterFormat(int index) 
+ * <li>int 	getParameterLength(int index) 
+ * <li>void 	setOutputData(int index, byte[] dataBuffer, int offset) 
+ * </ul>
+ * @see com.ibm.jtopenlite.command.program.CallServiceProgramParameterFormat
 **/
 public class CallServiceProgramProcedure implements Program
 {
