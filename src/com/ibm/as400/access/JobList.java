@@ -1089,6 +1089,10 @@ public class JobList implements Serializable
                     }
                     else
                     {
+                      //@L6A START
+                      if ((keyFieldsReturned_[j] == Job.TEMP_STORAGE_USED_LARGE) || (keyFieldsReturned_[j] == Job.MAX_TEMP_STORAGE_LARGE))
+                        jobs[i].setAsLong(keyFieldsReturned_[j], BinaryConverter.byteArrayToLong(data, offset + keyOffset));
+                      else//@L6A END
                         jobs[i].setAsInt(keyFieldsReturned_[j], BinaryConverter.byteArrayToInt(data, offset + keyOffset));
                     }
                 }
