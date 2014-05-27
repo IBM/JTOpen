@@ -806,7 +806,7 @@ class PcmlSAXParser extends DefaultHandler
         }
       }  // end if xsdStream not null
 
-      if (!getKnownArrayTypes().contains(equivQName))
+      if (getKnownArrayTypes().contains(equivQName)) //@L7C
       {
         curDim++;
 
@@ -1758,7 +1758,7 @@ class PcmlSAXParser extends DefaultHandler
         m_currentNode = (PcmlDocNode) m_currentNode.getParent();
 
       // Backing up tree.  Reset dimensions and current dimension
-      if (!getKnownArrayTypes().contains(equivQName))
+      if (getKnownArrayTypes().contains(equivQName)) //@L7C
       {
         dimensions.set(curDim, 0); //reset
         curDim--;
