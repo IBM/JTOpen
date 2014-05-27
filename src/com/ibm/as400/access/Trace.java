@@ -685,10 +685,46 @@ public class Trace implements Runnable
     buf.append("  ");
   }
 
+  private static void logSource(Object source, StringBuffer buffer) {           //@L8
+      if(source==null) return;
+      buffer.append('[');
+      String simpleName =source.getClass().getName(); 
+      int dotIndex = simpleName.lastIndexOf('.');
+      if (dotIndex > 0) { 
+        simpleName = simpleName.substring(dotIndex+1); 
+      }
+      buffer.append(simpleName);
+      buffer.append('@');
+      buffer.append(source.hashCode());
+      buffer.append("] ");
+  }
+  
+  private static void logSource(Object source, PrintWriter writer) {            //@L8
+      if(source==null) return;
+      writer.print('[');
+      String simpleName =source.getClass().getName(); 
+      int dotIndex = simpleName.lastIndexOf('.');
+      if (dotIndex > 0) { 
+        simpleName = simpleName.substring(dotIndex+1); 
+      }
+      writer.print(simpleName);
+      writer.print('@');
+      writer.print(source.hashCode());
+      writer.print("] ");
+  }
+
 
   // This is the routine that actually writes to the log.
   private static final void logData(Object    component,
                                     int       category,
+                                    String    message,
+				    Throwable e)          {
+      logData(component, category, null, message, e); 
+  }
+
+  private static final void logData(Object    component,
+                                    int       category,
+                                    Object source,    //@L8
                                     String    message,
                                     Throwable e)
   {
@@ -711,6 +747,7 @@ public class Trace implements Runnable
           {
             //$W2A
             logTimeStamp(component, destination_);                         //$W2A
+            logSource(source, destination_);                                    //@L8
             destination_.println(message);                                 //$W2A
           }                                                                 //$W2A
           else                                                              //$W2A
@@ -723,6 +760,7 @@ public class Trace implements Runnable
             {
               //$W2A
               logTimeStamp(null, destination_);                           //$W2A
+              logSource(source, destination_);                                  //@L8
               destination_.println(message);                              //$W2A
             }                                                              //$W2A
           }                                                                 //$W2A
@@ -744,6 +782,7 @@ public class Trace implements Runnable
           synchronized(pw)
           {
             logTimeStamp(component, pw);
+            logSource(source, pw);                                              //@L8
             pw.println(message);
             if (e != null)
               e.printStackTrace(pw);
@@ -759,6 +798,7 @@ public class Trace implements Runnable
         // Don't bother splitting up into separate component-specific trace files.
         StringBuffer buf = new StringBuffer();
         logTimeStamp(component, buf);
+        logSource(source, buf);                                                 //@L8
         buf.append(message);
 
         if (e != null) {
@@ -785,9 +825,19 @@ public class Trace implements Runnable
    **/
   public static final void log(int category, String message)
   {
-    logData(null, category, message, null);
+    logData(null, category, null, message, null); 
   }
 
+  /** 
+   * Logs a message in the specified category.  If the category is disabled 
+   * nothing is logged.
+   * @param category The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+   * @param message The message to log.
+   * @param source Object that is posting this message.
+   **/
+  public static final void log(int category, Object source, String message) {   //@L8
+      logData(null, category, source, message, null);
+  }
 
   /**
     Logs a message for the specified component for the specified category.
@@ -800,22 +850,45 @@ public class Trace implements Runnable
    **/
   public static final void log(Object component, int category, String message)
   {
-    logData(component, category, message, null);
+    logData(component, category, null, message, null);                          //@L8
   }
 
 
   /**
-    Logs a message in the specified category.  If the category is disabled, nothing is logged.
-    @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION,
-    WARNING, CONVERSION, PROXY, JDBC].
+  Logs a message for the specified component for the specified category.
+  If the category is disabled, nothing is logged.  If no print writer
+  or file name has been set for the component, nothing is logged.
+  @param  component The component to trace.
+  @param  category  The message category [DATASTREAM, DIAGNOSTIC,
+  ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
-    @param  e  The Throwable object that contains the stack trace to log.
+  @param source The object posting this message.
+ **/
+  public static final void log(Object component, int category, Object source, String message) { //@L8
+      logData(component, category, source, message, null);
+  }
+
+  /**
+   * Logs a message in the specified category.  If the category is disabled, nothing is logged.
+   * @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC]. 
+   * @param  message  The message to log. 
+   * @param  e  The Throwable object that contains the stack trace to log.
    **/
   public static final void log(int category, String message, Throwable e)
   {
-    logData(null, category, message, e);
+    logData(null, category, null, message, e);                                  //@L8
   }
 
+  /**
+   * Logs a message in the specified category.  If the category is disabled, nothing is logged.
+   * @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC]. 
+   * @param  message  The message to log. 
+   * @param  e  The Throwable object that contains the stack trace to log.
+   * @param source The object posting this message.
+   **/
+  public static final void log(int category, Object source, String message, Throwable e) { //@L8
+    logData(null, category, source, message, e ); 
+  }
 
   /**
     Logs a message in the specified category for the specified component.
@@ -828,7 +901,7 @@ public class Trace implements Runnable
    **/
   public static final void log(Object component, int category, String message, Throwable e)
   {
-    logData(component, category, message, e);
+    logData(component, category, null,  message, e);                             //@L8
   }
 
   /**
@@ -879,6 +952,20 @@ public class Trace implements Runnable
     log(category, message + "  " + value);
   }
 
+  /**
+  Logs a message and an integer value in the specified category.  If the
+  category is disabled, nothing is logged.  The integer value is appended
+  to the end of the message, preceded by two blanks.
+  @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
+                    INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+  @param  message  The message to log.
+  @param  value  The integer value to log.
+    @param source The object posting this message.
+ **/
+  public static final void log(int category, Object source, String message, int value) { //@L8
+      if (message == null) message = "(null)";
+      log(category, source, message + "  " + value);
+  }
 
 
   /**
@@ -950,6 +1037,23 @@ public class Trace implements Runnable
   }
 
   /**
+  Logs a message and a boolean value in the specified category.
+  If the category is disabled, nothing is logged.  The boolean
+  value is appended to the end of the message, preceded by two blanks.
+  true is logged for true, and false is logged for false.
+  @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
+                    INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+  @param  message  The message to log.
+  @param  value  The boolean data to log.
+    @param source The object posting this message.
+ **/
+  public static final void log(int category, Object source, String message, boolean value) {
+    if (message == null) message = "(null)";
+      log(category, source, message + "  " + value);
+  }
+
+
+  /**
     Logs a message and a boolean value in the specified category
     for the specified component.
     If the category is disabled, nothing is logged.  The boolean
@@ -989,6 +1093,20 @@ public class Trace implements Runnable
     }
   }
 
+  /**
+  Logs a message and byte data in the specified category.  If the category is disabled, nothing is logged.  The byte data is appended to the end of the message, sixteen bytes per line.
+  @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+  @param  message  The message to log.
+  @param  data  The bytes to log.
+ **/
+public static final void log(int category, Object source, String message, byte[] data) { //@L8
+  if (data == null) {
+    if (message == null) message = "(null)";
+    log(category, source, message + "  " + "(null)");
+  } else {
+    log(category, source, message, data, 0, data.length);
+  }
+}
 
 
 
@@ -1062,6 +1180,51 @@ public class Trace implements Runnable
     }
   }
 
+  /**
+  Logs a message and byte data in the specified category.  If the
+  category is disabled, nothing is logged.  The byte data is
+  appended to the end of the message, sixteen bytes per line.
+  @param category The message category [DATASTREAM, DIAGNOSTIC, ERROR,
+                  INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+  @param  message  The message to log.
+  @param  data  The bytes to log.
+  @param  offset  The start offset in the data.
+  @param  length  The number of bytes of data to log.
+ **/
+
+private static final void log(int category, Object source, String message, byte[] data, int offset, int length) { //@L8
+  if ((traceOn_ && traceCategory(category)) ||
+      (findLogger() && logger_.isLoggable(category)))
+  {
+    if (logger_ == null || userSpecifiedDestination_)  // traditional trace
+    {  // log to destination_
+      synchronized(destination_)
+      {
+        logTimeStamp(null, destination_);
+        logSource(source, destination_);
+        if (message != null) destination_.println(message);
+        printByteArray(destination_, data, offset, length);
+        if (category == ERROR)
+        {
+          new Throwable().printStackTrace(destination_);
+        }
+      }
+    }
+    else  // log to logger_
+    {
+      StringBuffer buf = new StringBuffer();
+      logTimeStamp(null, buf);
+      logSource(source, buf);
+      printByteArray(buf, data, offset, length);
+      if (category == ERROR) {
+        logger_.log(category, buf.toString(), new Throwable());
+      }
+      else {
+        logger_.log(category, buf.toString());
+      }
+    }
+  }
+}
 
   /**
     Logs a message and byte data in the specified category

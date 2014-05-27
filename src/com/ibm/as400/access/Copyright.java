@@ -122,6 +122,7 @@ package com.ibm.as400.access;
 //@L5   20140516  Program Call: Compress output parameters for performance.
 //@L6   20140523  Joblist: update attribute type.
 //@L7   20140527  PCML: Fix xpcml parsing issue with struct_i tag.
+//@L8   20140527  Program Call: Identify object in trace
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -130,7 +131,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2014 International Business Machines Corporation and others.";
     //                                                                                              built=20140516 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 8.3, codebase 5770-SS1 V7R2M0.00 built=20140527 @L7";  
+    public static String version   = "Open Source Software, JTOpen 8.3, codebase 5770-SS1 V7R2M0.00 built=20140527 @L8";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1

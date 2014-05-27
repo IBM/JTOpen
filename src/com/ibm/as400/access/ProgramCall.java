@@ -204,14 +204,14 @@ public class ProgramCall implements Serializable
       synchronized(cancelLock_) {
         cancelling_ = true;
         if (Trace.traceOn_)
-          Trace.log(Trace.INFORMATION, "Cancelling program " + this.getProgram());
+          Trace.log(Trace.INFORMATION, this, "Cancelling program " + this.getProgram()); //@L8
         try {
           Job job = new Job (new AS400(this.system_), job_.getName(), job_.getUser(), job_.getNumber());
           job.end(0);
         } catch (Exception e) {
           // Do nothing
           if (Trace.traceOn_)
-            Trace.log(Trace.INFORMATION, "Cancelling program " + this.getProgram(), e);
+            Trace.log(Trace.INFORMATION, this, "Cancelling program " + this.getProgram(), e); //@L8
         }  finally {
           cancelling_ = false;
           cancelLock_.notifyAll();
@@ -270,7 +270,7 @@ public class ProgramCall implements Serializable
      **/
     public ProgramCall()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramCall object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramCall object."); //@L8
         checkThreadSafetyProperty();
     }
 
@@ -280,7 +280,7 @@ public class ProgramCall implements Serializable
      **/
     public ProgramCall(AS400 system)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramCall object, system: " + system);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramCall object, system: " + system); //@L8
         if (system == null) {
             throw new NullPointerException("system");
         }
@@ -296,7 +296,7 @@ public class ProgramCall implements Serializable
      **/
     public ProgramCall(AS400 system, String program, ProgramParameter[] parameterList)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramCall object, system: " + system + " program: " + program);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramCall object, system: " + system + " program: " + program); //@L8
         if (system == null) {
             throw new NullPointerException("system");
         }
@@ -310,7 +310,7 @@ public class ProgramCall implements Serializable
         }
         catch (PropertyVetoException e)
         {
-            Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
+            Trace.log(Trace.ERROR, this, "Unexpected PropertyVetoException:", e); //@L8
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
         }
     }
@@ -321,7 +321,7 @@ public class ProgramCall implements Serializable
      **/
     public void addActionCompletedListener(ActionCompletedListener listener)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding action completed listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Adding action completed listener."); //@L8
         if (listener == null) {
             throw new NullPointerException("listener");
         }
@@ -343,7 +343,7 @@ public class ProgramCall implements Serializable
      **/
     public void addParameter(ProgramParameter parameter) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding parameter to parameter list.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Adding parameter to parameter list."); //@L8
         if (parameter == null) {
             throw new NullPointerException("parameter");
         }
@@ -361,7 +361,7 @@ public class ProgramCall implements Serializable
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Adding property change listener."); //@L8
         if (listener == null) {
             throw new NullPointerException("listener");
         }
@@ -382,7 +382,7 @@ public class ProgramCall implements Serializable
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Adding vetoable change listener."); //@L8
         if (listener == null) {
             throw new NullPointerException("listener");
         }
@@ -411,7 +411,7 @@ public class ProgramCall implements Serializable
                     impl_ = (RemoteCommandImpl)AS400.loadImpl("com.ibm.as400.access.RemoteCommandImplNative");
                     if (impl_ != null) return;
                 }*/
-                Trace.log(Trace.ERROR, "Attempt to connect to command server before setting system." );
+                Trace.log(Trace.ERROR, this, "Attempt to connect to command server before setting system."); //@L8
                 throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
             }
 
@@ -462,7 +462,7 @@ public class ProgramCall implements Serializable
      **/
     public AS400Message[] getMessageList()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message list.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Getting message list."); //@L8
         return messageList_;
     }
 
@@ -477,7 +477,7 @@ public class ProgramCall implements Serializable
      **/
     public int getMessageOption()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message option:", messageOption_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Getting message option:", messageOption_); //@L8
         return messageOption_;
     }
 
@@ -487,7 +487,7 @@ public class ProgramCall implements Serializable
      **/
     public ProgramParameter[] getParameterList()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting parameter list.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Getting parameter list."); //@L8
         return parameterList_;
     }
 
@@ -497,7 +497,7 @@ public class ProgramCall implements Serializable
      **/
     public String getProgram()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting program: " + program_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Getting program: " + program_); //@L8
         return program_;
     }
 
@@ -516,10 +516,10 @@ public class ProgramCall implements Serializable
      **/
     public Job getServerJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Getting job."); //@L8
         chooseImpl();
         String jobInfo = impl_.getJobInfo(threadSafetyValue_);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing Job for job: " + jobInfo);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Constructing Job for job: " + jobInfo); //@L8
         // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
         return new Job(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
     }
@@ -530,7 +530,7 @@ public class ProgramCall implements Serializable
      **/
     public AS400 getSystem()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system: " + system_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Getting system: " + system_); //@L8
         return system_;
     }
 
@@ -546,10 +546,10 @@ public class ProgramCall implements Serializable
      **/
     public Thread getSystemThread() throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system thread.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Getting system thread."); //@L8
         chooseImpl();
         Thread currentThread = impl_.isNative() ? Thread.currentThread() : null;
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System thread: " + currentThread);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "System thread: " + currentThread); //@L8
         return currentThread;
     }
 
@@ -570,14 +570,14 @@ public class ProgramCall implements Serializable
         String property = getThreadSafetyProperty();
         if (property == null)  // Property not set.
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property not set, thread safety property remains unspecified.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Thread safe system property not set, thread safety property remains unspecified."); //@L8
         }
         else
         {
           threadSafetyValue_ = (property.equals("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
           threadSafety_ = (THREADSAFE_TRUE.equals(threadSafetyValue_));
           threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " +  property);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Thread safe system property: " +  property); //@L8
         }
     }
 
@@ -592,11 +592,11 @@ public class ProgramCall implements Serializable
      **/
     public boolean isStayOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will actually get run on the current thread.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Checking if program will actually get run on the current thread."); //@L8
         chooseImpl();
         boolean isStayOnThread = ((THREADSAFE_TRUE.equals(threadSafetyValue_)) &&
                                   impl_.isNative());
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Will program actually get run on the current thread:", isStayOnThread);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Will program actually get run on the current thread:", isStayOnThread); //@L8
         return isStayOnThread;
     }
 
@@ -608,19 +608,19 @@ public class ProgramCall implements Serializable
      **/
     public boolean isThreadSafe()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will be assumed thread-safe.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Checking if program will be assumed thread-safe."); //@L8
         return threadSafetyValue_.booleanValue();
     }
 
     // Deserializes and initializes the transient data.
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "De-serializing ProgramCall object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "De-serializing ProgramCall object."); //@L8
         in.defaultReadObject();
         
         if (cancelLock_ == null) {
-        	 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "cancelLock is NULL, recreate it.");
-        	 cancelLock_ =  new CancelLock();
+           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "cancelLock is NULL, recreate it."); //@L8
+           cancelLock_ =  new CancelLock();
         }
 
         // impl_ remains null.
@@ -641,13 +641,13 @@ public class ProgramCall implements Serializable
             {
                 threadSafetyValue_ = THREADSAFE_FALSE;
                 threadSafetyDetermined_ = UNSPECIFIED;
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property not set, thread safety property changed to unspecified.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Thread safe system property not set, thread safety property changed to unspecified."); //@L8
             }
             else  // Property is set.
             {
                 threadSafetyValue_ = (property.equals("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
                 threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " + property);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Thread safe system property: " + property); //@L8
             }
             threadSafety_ = (THREADSAFE_TRUE.equals(threadSafetyValue_));
         }
@@ -659,7 +659,7 @@ public class ProgramCall implements Serializable
      **/
     public void removeActionCompletedListener(ActionCompletedListener listener)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing action completed listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Removing action completed listener."); //@L8
         if (listener == null) {
             throw new NullPointerException("listener");
         }
@@ -676,7 +676,7 @@ public class ProgramCall implements Serializable
      **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Removing property change listener."); //@L8
         if (listener == null) {
             throw new NullPointerException("listener");
         }
@@ -693,7 +693,7 @@ public class ProgramCall implements Serializable
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Removing vetoable change listener."); //@L8
         if (listener == null) {
             throw new NullPointerException("listener");
         }
@@ -717,10 +717,10 @@ public class ProgramCall implements Serializable
     {
 
       
-      if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Running program: " + program_);
+      if (Trace.traceOn_) Trace.log(Trace.INFORMATION, this, "Running program: " + program_); //@L8
       if (program_.length() == 0)
       {
-          Trace.log(Trace.ERROR, "Attempt to run before setting program.");
+          Trace.log(Trace.ERROR, this, "Attempt to run before setting program."); //@L8
           throw new ExtendedIllegalStateException("program", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
 
@@ -806,7 +806,7 @@ public class ProgramCall implements Serializable
      **/
     public void setParameterList(ProgramParameter[] parameterList) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting parameter list.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Setting parameter list."); //@L8
         if (parameterList == null) {
             throw new NullPointerException("parameterList");
         } 
@@ -820,12 +820,12 @@ public class ProgramCall implements Serializable
         
         if (isV7R2 && parameterList.length > 255)
         {
-          Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 255 parameters:", parameterList.length);
+          Trace.log(Trace.ERROR, this, "Parameter list length exceeds limit of 255 parameters:", parameterList.length); //@L8
           throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         else if (!isV7R2 && parameterList.length > 35)
         {
-          Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 35 parameters:", parameterList.length);
+          Trace.log(Trace.ERROR, this, "Parameter list length exceeds limit of 35 parameters:", parameterList.length); //@L8
           throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         //@J3 - End
@@ -864,13 +864,14 @@ public class ProgramCall implements Serializable
      **/
     public void setProgram(String program) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting program: " + program);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Setting program: " + program); //@L8
         if (program == null) {
             throw new NullPointerException("program");
         }
         if (Trace.traceOn_ && program.length() == 0)
         {
-            Trace.log(Trace.WARNING, "Parameter 'program' is has length of 0.");
+
+          Trace.log(Trace.WARNING, this, "Parameter 'program' is has length of 0."); //@L8
         }
         // Verify program is valid IFS path name.
         QSYSObjectPathName ifs = new QSYSObjectPathName(program, "PGM");
@@ -902,7 +903,7 @@ public class ProgramCall implements Serializable
      **/
     public void setMessageOption(int messageOption)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message option:", messageOption);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Setting message option:", messageOption); //@L8
         // Validate the messageOption parameter.
         if (messageOption < 0 || messageOption > 2)
         {
@@ -918,13 +919,13 @@ public class ProgramCall implements Serializable
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system: " + system);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Setting system: " + system); //@L8
         if (system == null) {
             throw new NullPointerException("system");
         }
         if (impl_ != null)
         {
-            Trace.log(Trace.ERROR, "Cannot set property 'system' after connect.");
+            Trace.log(Trace.ERROR, this, "Cannot set property 'system' after connect."); //@L8
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
@@ -953,7 +954,7 @@ public class ProgramCall implements Serializable
     {
         // Note to maintenance programmer:
         // Currently all host server jobs are single-threaded.  If that ever changes, then we'll need to communicate the threadsafety of the called program to the host server.
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting thread safe: " + threadSafe);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Setting thread safe: " + threadSafe); //@L8
         Boolean newValue = (threadSafe ? THREADSAFE_TRUE : THREADSAFE_FALSE);
 
         if (propertyChangeListeners_ != null)

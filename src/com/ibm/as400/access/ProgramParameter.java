@@ -72,7 +72,7 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramParameter object."); //@L8
     }
 
     /**
@@ -81,7 +81,7 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter(byte[] inputData)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, input data:", inputData);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramParameter object, input data:", inputData); //@L8
         nullParameter_ = false;
         inputData_ = inputData;
     }
@@ -92,10 +92,10 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter(int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, output data length:", outputDataLength);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramParameter object, output data length:", outputDataLength); //@L8
         if (outputDataLength < 0)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'outputDataLength' is not valid:", outputDataLength); //@L8
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         nullParameter_ = false;
@@ -109,10 +109,10 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter(byte[] inputData, int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, output data length: " + outputDataLength + " input data:", inputData);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramParameter object, output data length: " + outputDataLength + " input data:", inputData); //@L8
         if (outputDataLength < 0)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'outputDataLength' is not valid:", outputDataLength); //@L8
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         nullParameter_ = false;
@@ -128,10 +128,10 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter(int parameterType, byte[] inputData)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " input data:", inputData);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " input data:", inputData); //@L8
         if (parameterType < PASS_BY_VALUE || parameterType > PASS_BY_REFERENCE)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'parameterType' is not valid:", parameterType); //@L8
             throw new ExtendedIllegalArgumentException("parameterType (" + parameterType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         parameterType_ = parameterType;
@@ -147,15 +147,15 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter(int parameterType, int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " output data length:", outputDataLength);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " output data length:", outputDataLength); //@L8
         if (parameterType < PASS_BY_VALUE || parameterType > PASS_BY_REFERENCE)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'parameterType' is not valid:", parameterType); //@L8
             throw new ExtendedIllegalArgumentException("parameterType (" + parameterType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         if (outputDataLength < 0)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'outputDataLength' is not valid:", outputDataLength); //@L8
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         parameterType_ = parameterType;
@@ -172,15 +172,15 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter(int parameterType, byte[] inputData, int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " output data length: " + outputDataLength + " input data:", inputData);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " output data length: " + outputDataLength + " input data:", inputData); //@L8
         if (parameterType < PASS_BY_VALUE || parameterType > PASS_BY_REFERENCE)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'parameterType' is not valid:", parameterType); //@L8
             throw new ExtendedIllegalArgumentException("parameterType (" + parameterType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         if (outputDataLength < 0)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'outputDataLength' is not valid:", outputDataLength); //@L8
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         parameterType_ = parameterType;
@@ -195,10 +195,10 @@ public class ProgramParameter implements Serializable
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Adding property change listener."); //@L8
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            Trace.log(Trace.ERROR, this, "Parameter 'listener' is null."); //@L8
             throw new NullPointerException("listener");
         }
         if (propertyChangeListeners_ == null)
@@ -214,10 +214,10 @@ public class ProgramParameter implements Serializable
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Adding vetoable change listener."); //@L8
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            Trace.log(Trace.ERROR, this, "Parameter 'listener' is null."); //@L8
             throw new NullPointerException("listener");
         }
         if (vetoableChangeListeners_ == null)
@@ -231,9 +231,9 @@ public class ProgramParameter implements Serializable
     // @return  The parameter max length (number of bytes).
     int getMaxLength()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting max length.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Getting max length."); //@L8
         int maxLength = (inputData_ == null) ? outputDataLength_ : Math.max(inputData_.length, outputDataLength_);
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Max length:", maxLength);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Max length:", maxLength); //@L8
         return maxLength;
     }
 
@@ -243,7 +243,7 @@ public class ProgramParameter implements Serializable
      **/
     public byte[] getInputData()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting input data:", inputData_);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Getting input data:", inputData_); //@L8
         return inputData_;
     }
 
@@ -253,7 +253,7 @@ public class ProgramParameter implements Serializable
      **/
     public byte[] getOutputData()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting output data.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Getting output data."); //@L8
         return outputData_;
     }
 
@@ -263,7 +263,7 @@ public class ProgramParameter implements Serializable
      **/
     public int getOutputDataLength()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting output data length:", outputDataLength_);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Getting output data length:", outputDataLength_); //@L8
         return outputDataLength_;
     }
 
@@ -277,16 +277,16 @@ public class ProgramParameter implements Serializable
      **/
     public int getParameterType()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting parameter type:", parameterType_);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Getting parameter type:", parameterType_); //@L8
         return parameterType_;
     }
 
     // Returns the parameter usage.
     int getUsage()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting parameter usage.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Getting parameter usage."); //@L8
         int usage = nullParameter_ ? NULL : outputDataLength_ == 0 ? INPUT : inputData_ == null ? OUTPUT : INOUT;
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Parameter usage:", usage);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Parameter usage:", usage); //@L8
         return usage;
     }
 
@@ -296,14 +296,14 @@ public class ProgramParameter implements Serializable
      **/
     public boolean isNullParameter()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if null parameter:", nullParameter_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Checking if null parameter:", nullParameter_); //@L8
         return nullParameter_;
     }
 
     // Deserialize and initialize transient data.
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "De-serializing ProgramParameter object.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "De-serializing ProgramParameter object."); //@L8
         in.defaultReadObject();
 
 //        propertyChangeListeners_ = new PropertyChangeSupport(this);
@@ -316,10 +316,10 @@ public class ProgramParameter implements Serializable
      **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Removing property change listener."); //@L8
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            Trace.log(Trace.ERROR, this, "Parameter 'listener' is null."); //@L8
             throw new NullPointerException("listener");
         }
         if (propertyChangeListeners_ != null) propertyChangeListeners_.removePropertyChangeListener(listener);
@@ -331,10 +331,10 @@ public class ProgramParameter implements Serializable
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Removing vetoable change listener."); //@L8
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            Trace.log(Trace.ERROR, this, "Parameter 'listener' is null."); //@L8
             throw new NullPointerException("listener");
         }
         if (vetoableChangeListeners_ != null) vetoableChangeListeners_.removeVetoableChangeListener(listener);
@@ -347,7 +347,7 @@ public class ProgramParameter implements Serializable
      **/
     public void setInputData(byte[] inputData) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting input data:", inputData);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Setting input data:", inputData); //@L8
         byte[] oldValue = inputData_;
         byte[] newValue = inputData;
         if (vetoableChangeListeners_ != null) vetoableChangeListeners_.fireVetoableChange("inputData", oldValue, newValue);
@@ -362,7 +362,7 @@ public class ProgramParameter implements Serializable
      **/
     public void setNullParameter(boolean nullParameter)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting null parameter:", nullParameter);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, this, "Setting null parameter:", nullParameter); //@L8
         nullParameter_ = nullParameter;
         inputData_ = null;
         outputDataLength_ = 0;
@@ -372,7 +372,7 @@ public class ProgramParameter implements Serializable
     // @param  outputData  The data to be returned from the program.
     void setOutputData(byte[] outputData)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting output data:", outputData);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Setting output data:", outputData); //@L8
         outputData_ = outputData;
     }
 
@@ -383,10 +383,10 @@ public class ProgramParameter implements Serializable
      **/
     public void setOutputDataLength(int outputDataLength) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting output data length:", outputDataLength);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Setting output data length:", outputDataLength); //@L8
         if (outputDataLength < 0)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'outputDataLength' is not valid:", outputDataLength); //@L8
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         Integer oldValue = null;
@@ -414,10 +414,10 @@ public class ProgramParameter implements Serializable
      **/
     public void setParameterType(int parameterType) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting parameter type:", parameterType);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, this, "Setting parameter type:", parameterType); //@L8
         if (parameterType < PASS_BY_VALUE || parameterType > PASS_BY_REFERENCE)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
+            Trace.log(Trace.ERROR, this, "Value of parameter 'parameterType' is not valid:", parameterType); //@L8
             throw new ExtendedIllegalArgumentException("parameterType (" + parameterType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         Integer oldValue = null;
