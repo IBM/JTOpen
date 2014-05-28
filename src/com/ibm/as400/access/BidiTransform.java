@@ -43,7 +43,7 @@ import java.util.Vector;
  *
  */
 
-class BidiTransform {
+public class BidiTransform {
 
 /**
  *  Option: Bidi flags of destination BidiText
