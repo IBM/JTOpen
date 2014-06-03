@@ -152,6 +152,7 @@ implements Statement
     protected AS400JDBCQueryCancelThread cancelThread_;    /*@D4A*/
 
 
+    protected boolean disableRllCompression_ = false; //@L9A 
 
     /**
     Constructs an AS400JDBCStatement object.
@@ -932,12 +933,18 @@ implements Statement
                         // so don't send the code point because the user did not tell us to            // @G4A
                     }
 
+                    disableRllCompression_ = false; //@L9A
                     commonExecuteBefore(sqlStatement, request);
 
                     if (commonExecuteReply != null) { commonExecuteReply.returnToPool(); commonExecuteReply=null; }
 
+                    if (disableRllCompression_) {  //@L9A
+                      connection_.setDisableCompression(true); 
+                    }
                     commonExecuteReply = connection_.sendAndReceive(request, id_);    //@P0C
-
+                    if (disableRllCompression_) {  //@L9A
+                      connection_.setDisableCompression(false); 
+                    }
 
                     // Gather information from the reply.
                     cursor_.processConcurrencyOverride(openAttributes, commonExecuteReply);    // @E1A @EAC

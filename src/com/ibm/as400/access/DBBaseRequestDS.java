@@ -935,7 +935,7 @@ byte array and grow it as needed.
      */
     public void updateLength(int offset, int length) { 
       set32bit(length + 6, offset);       
-      currentOffset_ = currentOffset_ - lockedLength_ + length;  // TODO:  Check this..  
+      currentOffset_ = currentOffset_ - lockedLength_ + length;  // TODO:  Check this..
     }
 
   
@@ -1032,7 +1032,26 @@ Overrides the superclass to write the datastream.
           int compressedSize = DataStreamCompression.compressRLE(data_, 40,               // @E3A
                                                                  dataLength, compressedBytes, 50,                                            // @E3A @E5C
                                                                  DataStreamCompression.DEFAULT_ESCAPE);                                      // @E3A
-          if (compressedSize > 0)
+          boolean useCompression; 
+          if (compressedSize > 0)  {
+            useCompression = true;
+            
+            // If the data is LARGE and we do not have a great benefit from compression, 
+            // then do not compress the data.  This will save server cycles, but 
+            // we have already spend the cycles on the client. 
+            // Note: There is another check that states if VFC has compressed enough then RLL compression
+            // will not be used. @L9A
+            int savingsLength = dataLength - compressedSize;
+            long savingsPercentage = (100L * savingsLength) / dataLength; 
+            if ((savingsPercentage < 10 ) || (savingsLength < 512)) { 
+              useCompression = false; 
+            }
+            
+          } else { 
+            useCompression = false; 
+          }
+          
+          if (useCompression)
           {                                                       // @E3A
             int compressedSizeWithHeader = compressedSize + 50;                         // @E3A @E5C
             BinaryConverter.intToByteArray(compressedSizeWithHeader, compressedBytes, 0); // @E3A

@@ -190,6 +190,7 @@ implements Connection
     private boolean                     aborted_ = false;  // @D7A
             ConvTable                   converter_; //@P0C
     private int                         dataCompression_            = -1;               // @ECA
+    private boolean                     disableCompression_ = false;   //@L9A
     private JDDataSourceURL             dataSourceUrl_;
     private boolean                     drda_;                          // @B1A
     private String                      defaultSchema_;
@@ -2719,7 +2720,7 @@ void handleAbort() {
             request.setBasedOnORSHandle (0);                 // @DAC @EKC
             // DBReplyRequestedDS reply = null;
 
-            if (dataCompression_ == DATA_COMPRESSION_RLE_)
+            if (dataCompression_ == DATA_COMPRESSION_RLE_ && !disableCompression_)  //@L9C
             {                                // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
@@ -2862,7 +2863,7 @@ void handleAbort() {
 
             request.setBasedOnORSHandle(0);                  // @DAC @EKC
 
-            if (dataCompression_ == DATA_COMPRESSION_RLE_)
+            if (dataCompression_ == DATA_COMPRESSION_RLE_ && !disableCompression_)    //@L9C
             {                                // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
@@ -2958,7 +2959,7 @@ void handleAbort() {
         {
             request.setBasedOnORSHandle (0);                 // @DAC @EKC
 
-            if (dataCompression_ == DATA_COMPRESSION_RLE_)
+            if (dataCompression_ == DATA_COMPRESSION_RLE_ && !disableCompression_)         //@L9C
             {                                // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
@@ -3026,7 +3027,7 @@ void handleAbort() {
         {
             request.setBasedOnORSHandle (0);                 // @DAC @EKC
 
-            if (dataCompression_ == DATA_COMPRESSION_RLE_)
+            if (dataCompression_ == DATA_COMPRESSION_RLE_ && !disableCompression_)          //@L9C
             {                                // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
                 request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
@@ -5705,6 +5706,11 @@ endif */
       setupVariableFieldCompression(); 
     }
     return useVariableFieldInsertCompression_; 
+  }
+
+//@L9A
+  public void setDisableCompression(boolean disableCompression_) {
+    this.disableCompression_ = disableCompression_;
   }
 
 

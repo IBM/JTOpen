@@ -738,6 +738,9 @@ endif */
     super.commonExecuteBefore(sqlStatement, request);
     int requestLengthOffset = 0;    /*@K3A*/
     int initialRawOffset = 0;       /*@K3A*/
+    int variableDataLength = 0;      //@L9A 
+    disableRllCompression_ = false;  //@L9A
+    
     if (prepared_) {
       // Close the result set before executing again.
       closeResultSet(JDCursor.REUSE_YES);
@@ -1044,6 +1047,7 @@ endif */
                         parameterOffset++; 
                         parameterData[rowDataOffset + parameterOffset]=0; 
                         parameterOffset++; 
+                        variableDataLength+=2;   //@L9A
                       } else {
                     	// initialize the value to zero and adjust the parameter offset
                         int parameterDataOffset = rowDataOffset + parameterOffset; 
@@ -1158,6 +1162,7 @@ endif */
                                   parameterMarkerData.getRawBytes(),
                                   rowDataOffset + parameterOffset,
                                   ccsidConverter);
+                          variableDataLength += written;        //@L9A
                           parameterOffset += written;
                         } else {
                           sqlData.convertToRawBytes(
@@ -1252,6 +1257,17 @@ endif */
               int parametersLength = rowDataOffset - initialRawOffset;  
               
               request.updateLength(requestLengthOffset, parametersLength);
+              
+              // Determine if enough space was saved by VFC to disable rll compression
+              // We will disable if at least 80 % of  the data was VFC data
+              // This means that 20 % of the data can still be compressed using RLL
+              // It is still possible then when compression is on, that the client
+              // may decide not to send the compressed data if the compression
+              // is large enough. //@L9A
+              if ( variableDataLength > (80 * parametersLength / 100 )) {
+                disableRllCompression_ = true; 
+              }
+              
             }
           } while (descriptorChangeNeeded);
           request.setParameterMarkerBlockIndicator(0);
@@ -1288,7 +1304,7 @@ endif */
         totalSize += parameterSize; 
       }
       if (compressibleSize > (totalSize / 3)) {
-    	  return true; 
+    	   return true; 
       } else {
          return false;
       }
