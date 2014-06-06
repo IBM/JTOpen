@@ -67,7 +67,9 @@ class AuthenticationSystem
           for (int msg = 0; msg < messageList.length; msg++)
             Trace.log(Trace.ERROR, messageList[msg].toString());
         }
-        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        InternalErrorException iee = new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        iee.initCause(t); 
+        throw iee; 
     }
 
     // Indicates if the given IBM i system and its user ID match the current environment.
