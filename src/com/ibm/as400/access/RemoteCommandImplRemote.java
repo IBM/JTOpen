@@ -75,6 +75,35 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // @return  Information about the job in which the command/program would be run.  This is a String consisting of a 10-character simple job name, a 10-character user name, and a 6-character job number.
     public String getJobInfo(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
+      //@L11A START
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job information from server_ object.");
+
+      openOffThread();  //Make sure we have a server object
+      if(null != server_){
+        String jobInfo = server_.getJobString();
+        if(null != jobInfo && jobInfo.split("/").length==3){
+          String[] info = server_.getJobString().split("/");
+          StringBuffer buf = new StringBuffer();
+          
+          buf.append(info[2].trim()); //job name
+          while(buf.length()<10) 
+            buf.append(' ');
+          
+          buf.append(info[1].trim()); //user name
+          while(buf.length()<20) 
+            buf.append(' ');
+          
+          buf.append(info[0].trim());//job number
+          while(buf.length()<26) 
+            buf.append(' ');
+          
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job information retrieved:", buf.toString());
+
+          return buf.toString();
+        }
+      }
+      //@L11A END      
+      
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job information from implementation object.");
 
         // Note: The runProgram() method that we call below, will call the appropriate open() method.
@@ -412,7 +441,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
         if (serverDataStreamLevel_ >= 10)
         {
-            return runCommandOffThread(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
+           return runCommandOffThread(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
         }
         //@Bidi-HCG3 return runCommandOffThread(converter_.stringToByteArray(command), messageOption, 0);
         //@Bidi-HCG3 start
