@@ -24,17 +24,65 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
         int dataStreamLength = 43;  // Data stream length is 43 + length of the parameters.
 
         // Compress parameters and calculate length of datastream.
+        //@L10A START
         for (int i = 0; i < parameterList.length; ++i)
         {
             byte[] inputData = parameterList[i].getInputData();
-            if (inputData != null)
+
+            int parameterLength = 0;
+            int parameterMaxLength = parameterList[i].getMaxLength();
+            int parameterUsage = parameterList[i].getUsage();
+            byte[] compressedInputData = null;
+
+            if (parameterUsage == ProgramParameter.OUTPUT)
             {
-                parameterList[i].length_ = inputData.length;
+                parameterUsage += 20;
             }
-
-            dataStreamLength +=  12 + parameterList[i].length_;
+            else
+            {
+                if (inputData == null) inputData = new byte[0];
+                if (parameterMaxLength > 1024)
+                {
+                    byte[] tempInputData;
+                    if (inputData.length == parameterMaxLength)
+                    {
+                        tempInputData = inputData;
+                    }
+                    else
+                    {
+                        tempInputData = new byte[parameterMaxLength];
+                        System.arraycopy(inputData, 0, tempInputData, 0, inputData.length);
+                    }
+                    compressedInputData = DataStreamCompression.compressRLE(tempInputData, 0, tempInputData.length, DataStreamCompression.DEFAULT_ESCAPE);
+                    if (compressedInputData != null)
+                    {
+                        parameterLength = compressedInputData.length;
+                        parameterUsage += 20;
+                    }
+                }
+            }
+            if (parameterUsage < 20)
+            {
+                for (parameterLength = inputData.length; parameterLength >= 1 && inputData[parameterLength - 1] == 0; --parameterLength);
+                compressedInputData = inputData;
+                if (parameterUsage == ProgramParameter.INOUT && dataStreamLevel >= 5)
+                {
+                    // Server allows 33 value.
+                    parameterUsage += 30;
+                }
+                else
+                {
+                    parameterUsage += 10;
+                }
+            }
+            dataStreamLength +=  12 + parameterLength;
+            parameterList[i].length_ = parameterLength;
+            parameterList[i].maxLength_ = parameterMaxLength;
+            parameterList[i].usage_ = parameterUsage;
+            parameterList[i].compressedInputData_ = compressedInputData;
         }
-
+        //@L10A END
+        
         // Initialize header.
         data_ = new byte[dataStreamLength];
         setLength(dataStreamLength);
@@ -75,7 +123,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
         // Now convert the parameter list into data stream.
         for (int index = 43, i = 0; i < parameterList.length; ++i) // Start at 43 in data_
         {
-            int usage = parameterList[i].getUsage();
+            int usage = parameterList[i].usage_;//@L10C
             int parameterLength = parameterList[i].length_;
             // Set LL for this parameter.
             set32bit(parameterLength + 12, index);
@@ -97,20 +145,20 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
                 }
             }
             //@L5A start
-            else if (usage == ProgramParameter.OUTPUT)    
+            /*else if (usage == ProgramParameter.OUTPUT)    
             {   
                 usage += 20;   
                 parameterList[i].usage_ = usage;
                 set16bit(usage, index + 10);
-            }
+            }*/
             //@L5A end
             else
             {
-                set16bit(usage + 10, index + 10);
+                set16bit(usage, index + 10); //@L10C
                 // Write the input data into the data stream.
                 if (parameterLength > 0)
                 {
-                    System.arraycopy(parameterList[i].getInputData(), 0, data_, index + 12, parameterLength);
+                  System.arraycopy(parameterList[i].compressedInputData_, 0, data_, index + 12, parameterLength);//@L10C
                 }
             }
 
