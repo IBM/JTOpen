@@ -130,7 +130,11 @@ public class PTFGroupList
         offset += 4;
         int ptfGroupStatus = BinaryConverter.byteArrayToInt(buf, offset);
         offset += 4;
-        ptfs[i] = new PTFGroup(system_, ptfGroupName, ptfGroupDescription, ptfGroupLevel, ptfGroupStatus);
+        //@L12A START
+        String targetRelease = conv.byteArrayToString(buf, offset, 6);
+        offset += 6;
+        //@L12A END
+        ptfs[i] = new PTFGroup(system_, ptfGroupName, ptfGroupDescription, ptfGroupLevel, ptfGroupStatus,targetRelease);//@L12C
       }
       return ptfs;
     }

@@ -58,7 +58,9 @@ public class PTF
   //private String currentServerIPLSource_; // V5R3
   private int serverIPLRequired_ = -1;    // V5R3
   private String creationDateAndTime_;    // V5R3
-
+  private String productStatus_;//@L12A
+  private String omitStatus_;//@L12A
+  
   private boolean loaded_ = false;
   private boolean partiallyLoaded_ = false;
   private boolean partiallyLoadedGroup_ = false;     //@K1A
@@ -396,10 +398,13 @@ public class PTF
   PTF(AS400 system, String ptfID, String productID, String ptfReleaseLevel, String ptfProductOption, String ptfProductLoad,
       String minimumLevel, String maximumLevel, String loadedStatus, int iplAction, String actionPending, String actionRequired,
       String coverLetterStatus, String onOrderStatus, String saveFileStatus, String saveFileName, String saveFileLibraryName,
-      String supersededByPTFId, String latestSupersedingPTFId, String productStatus)
+      String supersededByPTFId, String latestSupersedingPTFId, String productStatus, String omitStatus)
   {
     this(system, productID, ptfID, ptfReleaseLevel, ptfProductOption, ptfProductLoad);
-    //currently no getters for 'Save file library name', 'latest superseding ptf', 'product status'
+    //Get product id and release level here. PTF getting from PTFGroup.getPTFs() may not exist on the system
+    returnedProductID_ = productID; //@L12A 
+    returnedReleaseLevel_ = ptfReleaseLevel;//@L12A
+    //currently no getters for 'Save file library name', 'latest superseding ptf'
     loadedStatus_ = loadedStatus;
     saveFileExists_ = saveFileStatus.equals("0") ? false : true;
     hasCoverLetter_ = coverLetterStatus.equals("0") ? false : true;
@@ -411,10 +416,31 @@ public class PTF
     maximumLevel_ = maximumLevel;
     saveFile_ = saveFileName;
     supersedingPTF_ = supersededByPTFId;
+    productStatus_ = productStatus;//@L12A
+    omitStatus_ = omitStatus;//@L12A
     partiallyLoadedGroup_ = true;
 
   }
 
+   /**
+   * Return product status for PTF getting by PTFGroup.getPTFs()
+   */
+  public String getProductStatus() {  //@L12A
+    if (!partiallyLoadedGroup_) {
+      return "";
+    }
+    return productStatus_;
+  }
+  
+  /**
+   * Return omit status for PTF getting by PTFGroup.getPTFs()
+   */
+  public String getOmitStatus() { //@L12A
+    if (!partiallyLoadedGroup_) {
+        return "";
+    }
+    return omitStatus_;
+  }
   
   /**
    * Returns the action required to make this PTF active when it is applied.
@@ -851,7 +877,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100); //@L12C
     return ptfProductLoad_;
   }
 
@@ -1058,7 +1084,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh(100);
+    if (!loaded_ && !partiallyLoadedGroup_) refresh(100); //@L12A
     return supersedingPTF_;
   }
 
