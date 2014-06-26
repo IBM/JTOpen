@@ -35,10 +35,11 @@ public class PTFGroup
     private boolean includeRelatedPTFGroups_ = false;
 
     // GRPR0500 format
-    private String relatedPTFGroupName_;
+    //private String relatedPTFGroupName_; //@L12D
     private String PTFgroupDescription_;
     private int PTFGroupLevel_;
     private int PTFGroupStatus_;
+    private String targetRelease_; //@L12A
 
 
     /**
@@ -114,16 +115,17 @@ public class PTFGroup
     }
 
     /**
-     * This constructor is used by ListPTFGroups.
+     * This constructor is used by ListPTFGroups. 
     **/
-    PTFGroup(AS400 system, String ptfGroupName, String ptfDescription, int ptfLevel, int ptfStatus)
+    PTFGroup(AS400 system, String ptfGroupName, String ptfDescription, int ptfLevel, int ptfStatus, String targetRelease)
     {
         this(system, ptfGroupName);
         PTFGroupLevel_ = ptfLevel;
         PTFgroupDescription_ = ptfDescription;
         PTFGroupStatus_ = ptfStatus;
+        targetRelease_ = targetRelease.trim(); //Add with targetRelease info.
     }
-
+    
     /**
      * Returns the system.
      * @return The system.
@@ -226,15 +228,16 @@ public class PTFGroup
         for (int i=0; i<numEntries; ++i)
         {
           offset = startingOffset + (i*entrySize);
-          relatedPTFGroupName_ = conv.byteArrayToString(buf, offset, 60);
+          String relatedPTFGroupName = conv.byteArrayToString(buf, offset, 60);//@L12C Does not change current group ptf info with local member
           offset += 60;
-          PTFgroupDescription_ = conv.byteArrayToString(buf, offset, 100);
+          String relatedPTFgroupDescription = conv.byteArrayToString(buf, offset, 100);//@L12C
           offset += 100;
-          PTFGroupLevel_ = BinaryConverter.byteArrayToInt(buf, offset);
+          int relatedPTFGroupLevel = BinaryConverter.byteArrayToInt(buf, offset);//@L12C
           offset += 4;
-          PTFGroupStatus_ = BinaryConverter.byteArrayToInt(buf, offset);
+          int relatedPTFGroupStatus = BinaryConverter.byteArrayToInt(buf, offset);//@L12C
           offset +=4;
-          ptfs[i] = new PTFGroup(system_, relatedPTFGroupName_, PTFgroupDescription_, PTFGroupLevel_, PTFGroupStatus_);
+          
+          ptfs[i] = new PTFGroup(system_, relatedPTFGroupName, relatedPTFgroupDescription, relatedPTFGroupLevel, relatedPTFGroupStatus, "");//@L12C
         }
         return ptfs;
       }
@@ -316,6 +319,11 @@ public class PTFGroup
         return PTFGroupStatus_;
     }
 
+    //@L12A
+    public String getTargetRelease() {
+      return targetRelease_;
+  }
+    
     /**
     * Specifies whether information from all related PTF groups should be included when the list of
     * PTFs or related PTF groups are returned.  By default the information is not included.
@@ -456,7 +464,8 @@ public class PTFGroup
             String latestSupersedingPTFId_ = conv.byteArrayToString(buf, offset, 7);
             offset +=7;
             String productStatus_ = conv.byteArrayToString(buf, offset++, 1);
-            ptfs[i] = new PTF(system_, PTFId_, productId_, release_, productOption_, productLoadId_, minimumLevel_, maximumLevel_, loadedStatus_, IPLaction_, actionPending_, actionRequired_, coverLetterStatus_, onOrderStatus_, saveFileStatus_, saveFileName_, saveFileLibraryName_, supersededByPTFId_, latestSupersedingPTFId_, productStatus_);
+            String omitStatus_ = conv.byteArrayToString(buf, offset++, 1);//@L12A
+            ptfs[i] = new PTF(system_, PTFId_, productId_, release_, productOption_, productLoadId_, minimumLevel_, maximumLevel_, loadedStatus_, IPLaction_, actionPending_, actionRequired_, coverLetterStatus_, onOrderStatus_, saveFileStatus_, saveFileName_, saveFileLibraryName_, supersededByPTFId_, latestSupersedingPTFId_, productStatus_, omitStatus_); //@L12C
         }
         return ptfs;
       }
