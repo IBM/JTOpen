@@ -643,7 +643,9 @@ public class MessageFile implements Serializable
     		 String centuryAddedDate = (input.charAt(0) == '0' ? "19" : "20") + input.substring(1);
     		 
     		 try {
-		 		 		 output = YYYYMMDD_FORMAT.parse(centuryAddedDate);
+    		   synchronized(YYYYMMDD_FORMAT){ //@L13A
+    		     output = YYYYMMDD_FORMAT.parse(centuryAddedDate);
+    		   }
 		 		 } catch (ParseException e) {
 		         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Invalid date " + input);
 		 		 		 throw new IllegalArgumentException(e.toString());
