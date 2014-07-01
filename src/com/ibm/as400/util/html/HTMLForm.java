@@ -327,7 +327,9 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
                 catch (PropertyVetoException e)
                 {
                 }
-                addElement(h);
+                //addElement(h); //@L14D
+                s.append(h.getTag()); //@L14A
+                s.append("\n"); //@L14A
             }
         }
 
