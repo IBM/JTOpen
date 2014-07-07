@@ -131,7 +131,17 @@ extends SQLDataBase
                 //        for the code that checks it to do the right
                 //        thing.
                 truncated_ = 1;                                                       // @D9a
-                outOfBounds_ = true; 
+                outOfBounds_ = true;
+                
+                //@L15 Fixed to be consistent with earlier changes
+                // NOTE: The getMethods do not used this code because
+                // the RSGet and CSGet methods call testDataTruncation
+                // which will throw the error 
+                if(vrm_ >= JDUtilities.vrm610)                                       //@
+                {                                                                    //@
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@
+                }                                                                    //@
+
 
             }
 
@@ -403,10 +413,11 @@ extends SQLDataBase
             {
                 truncated_ = 6;   outOfBounds_ = true; 
 
+
             }
             else
             {
-                truncated_ = 2;   outOfBounds_ = true; 
+                truncated_ = 2;   outOfBounds_ = true;
             }
         }
 
