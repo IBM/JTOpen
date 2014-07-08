@@ -193,6 +193,12 @@ extends SQLDataBase
                 //        bytes) without some data truncation.
                 truncated_ = 4;                                                           // @D9c
                 outOfBounds_=true;
+                //@L13 Fixed to be consistent with earlier changes 
+                if(vrm_ >= JDUtilities.vrm610)                                       //@L13
+                {                                                                    //@L13
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@L13
+                }                                                                    //@L13
+
             }
 
             // Store the value.
@@ -384,10 +390,22 @@ extends SQLDataBase
             if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
             {
                 truncated_ = 3; outOfBounds_ = true;
+                //@ Fixed to be consistent with earlier changes 
+                if(vrm_ >= JDUtilities.vrm610)                                       //@
+                {                                                                    //@
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@
+                }                                                                    //@
+
             }
             else
             {
                 truncated_ = 1;  outOfBounds_ = true;
+                //@ Fixed to be consistent with earlier changes 
+                if(vrm_ >= JDUtilities.vrm610)                                       //@
+                {                                                                    //@
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@
+                }                                                                    //@
+
             }
         }
         return(byte) value_;
@@ -457,6 +475,12 @@ extends SQLDataBase
         if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
         {
             truncated_ = 2;  outOfBounds_ = true;
+            //@ Fixed to be consistent with earlier changes 
+            if(vrm_ >= JDUtilities.vrm610)                                       //@
+            {                                                                    //@
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@
+            }                                                                    //@
+
         }
         return(short) value_;
     }
