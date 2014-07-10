@@ -15,7 +15,7 @@
 //
 //
 // Pre-requisites:
-//   - JDK 1.4.1 (or higher)
+//   - JDK 1.4.1 (or JDK 1.5)
 //   - JDK 1.5   (for JTOpenLite)
 //   - JDK 1.6   (for java6 version)
 //   - JDK 1.8   (for java8 version)
@@ -27,20 +27,26 @@
 //    defaults to "/jtopen_build" (which is C:\jtopen_build on Windows).
 //    If you are using the shipped source zip file, set build to where the files
 //    were unzipped.  
-//    An alternative is to start ant using ant -Dbuild=.
+//    An alternative is to start ant using 
+//    > ant -Dbuild=.
 //
-// 2. Make sure Ant is installed and in your CLASSPATH, and you are familiar
+// 2. In this file, change the values of the "jdkXX" property to be the directory
+//    where the corresponding JDK is installed.   
+//    An alternative is to start ant with something similar to 
+//    > ant -Djdk14=/usr/local/java/java14 -Djdk15=/usr/local/java/java5
+//
+// 3. Make sure Ant is installed and in your CLASSPATH, and you are familiar
 //    with how to run builds using Ant.
 //    See http://ant.apache.org to download and read up on it.
 //    For those with less time on their hands, get the binary from:
-//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.8/bin/
+//    http://archive.apache.org/dist/ant/binaries/
 //    Once installed, add the ant.jar to your CLASSPATH.
 //    To run a build:
 //      java org.apache.tools.ant.Main target1 target2 target3 ...
 //    This assumes that a "build.xml" file (such as this one) exists in your
 //    current directory. Override this by using the -file flag.
 //
-// 3. In order to download the source, you need a CVS client installed and in
+// 4. In order to download the source, you need a CVS client installed and in
 //    your path.  If you don't, Ant will not be able to automatically
 //    download the JTOpen source repository... you will have to do it by hand.
 //    Most distributions of Linux ship a 'cvs' client.  See http://www.wincvs.org
@@ -49,7 +55,7 @@
 //    If you get an "access method is not installed on this system" error,
 //    try moving cvs.exe to a different directory than where build.xml is located.)
 //
-// 4. To download the source, run the "source" target for this build. 
+//    To download the source, run the "source" target for this build. 
 //    This will download the additional Ant tasks that are required, 
 //    and set up the initial directory structure. 
 //    Ironically, this file will get downloaded in his step... so if 
@@ -95,6 +101,10 @@
 // Location: http://java.sun.com/products/servlet/archive.html
 // Description: JSDK 2.1 Servlet APIs needed for the com.ibm.as400.util.servlet package.
 //              Extract the servlet.jar from the jsdk zip file after download.
+//   Note:  As of July 2014, the latest servlet package (3.0) can be obtained from 
+//          http://download.oracle.com/otndocs/jcp/servlet-3.0-fr-eval-oth-JSpec/.
+//          If you use this version, you will need to use JDK 15 instead of JDK 14
+//          for the compile, and also change the -target specification from 1.1 to 1.5.  
 //
 // Filename:  jui400.jar
 // Location:   http://jt400.sourceforge.net/  
