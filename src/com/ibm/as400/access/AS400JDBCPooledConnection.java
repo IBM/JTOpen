@@ -108,6 +108,13 @@ public class AS400JDBCPooledConnection implements PooledConnection
   long timeWhenPoolStatusLastModified_;  // time when this connection's pooling status last changed.
   boolean fatalConnectionErrorOccurred_; // this clues the pool manager not to reuse connection
 
+  // @L16A
+  private boolean defaultAutoCommit_;
+  private int defaultTransactionIsolation_;
+  private int defaultHoldability_;
+  private String defaultSchema_;
+  private boolean defaultReadOnly_; 
+
 
   /**
   *  Constructs an AS400JDBCPooledConnection object.
@@ -118,7 +125,14 @@ public class AS400JDBCPooledConnection implements PooledConnection
   {
     if (connection == null) throw new NullPointerException("connection");
     connection_ = (AS400JDBCConnection)connection;
-
+    
+    // Save default settings for several changeable properties @L16A
+    defaultAutoCommit_ = connection_.getAutoCommit(); 
+    defaultTransactionIsolation_ = connection_.getTransactionIsolation(); 
+    defaultHoldability_ = connection_.getInternalHoldability(); 
+    defaultSchema_ = connection_.getSchema();
+    defaultReadOnly_ = connection_.readOnly_; 
+    
     properties_ = new PoolItemProperties();
     eventManager_ = new AS400JDBCConnectionEventSupport();
     hashCode_ = connection_.hashCode();
@@ -381,10 +395,20 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
     try {                                                                      //@CPMa
       connection_.clearWarnings();  // This seems safe and reasonable enough.
-      connection_.setHoldability(AS400JDBCResultSet.HOLDABILITY_NOT_SPECIFIED);  // This is the default for all new instances of AS400JDBCConnection.
-      boolean readOnly = connection_.isReadOnlyAccordingToProperties();  // Get default from props.
-      connection_.setReadOnly(readOnly);  // In case the user forgot to reset.
-      connection_.setAutoCommit(true);    // Ditto.
+
+      // @L16A
+      connection_.setAutoCommit(defaultAutoCommit_); 
+      connection_.setTransactionIsolation(defaultTransactionIsolation_); 
+      connection_.setHoldability(defaultHoldability_);
+      try { 
+         connection_.setSchema(defaultSchema_);
+      } catch (Exception e) { 
+        // Ignore errors on setSchema. If this code
+        // cannot set the schema, then other code
+        // code not set the schema. 
+      }
+      connection_.readOnly_ = defaultReadOnly_; 
+      
       if (handle_ != null) //@pda handle
       {
           AS400JDBCConnectionHandle handle = (AS400JDBCConnectionHandle)handle_.get();

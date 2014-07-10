@@ -204,7 +204,8 @@ implements Connection
     private AS400JDBCDatabaseMetaData   metaData_;
     private JDPackageManager            packageManager_;
     private JDProperties                properties_;
-    private boolean                     readOnly_;
+    // Make this visible to classes that pool @L16C
+    boolean                     readOnly_;
     //@P0D private BitSet                      requestPending_;                // @DAC
     //@P1Dprivate final boolean[] requestPending_ = new boolean[MAX_STATEMENTS_]; //@P0A
     private AS400Server                 server_;
