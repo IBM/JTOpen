@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2012 International Business Machines Corporation and
+// Copyright (C) 1997-2014 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,8 @@
 //    where you want the JTOpen files to be downloaded and built to. It
 //    defaults to "/jtopen_build" (which is C:\jtopen_build on Windows).
 //    If you are using the shipped source zip file, set build to where the files
-//    were unzipped.  An alternative is to start ant using ant -Dbuild=.
+//    were unzipped.  
+//    An alternative is to start ant using ant -Dbuild=.
 //
 // 2. Make sure Ant is installed and in your CLASSPATH, and you are familiar
 //    with how to run builds using Ant.
@@ -48,11 +49,12 @@
 //    If you get an "access method is not installed on this system" error,
 //    try moving cvs.exe to a different directory than where build.xml is located.)
 //
-// 4. Run the "source" target for this build. This will download the
-//    additional Ant tasks that are required, and set up the initial
-//    directory structure. Ironically, this file will get downloaded in
-//    this step... so if you're reading this, you've already done that,
-//    or you've just overwritten your own build.xml with this one.  :)
+// 4. To download the source, run the "source" target for this build. 
+//    This will download the additional Ant tasks that are required, 
+//    and set up the initial directory structure. 
+//    Ironically, this file will get downloaded in his step... so if 
+//    you're reading this, you've already done that, or you've just 
+//    overwritten your own build.xml with this one.  :)
 //
 // 5. Obtain the necessary include files from the list of requisite jars and
 //    place them in the "/jtopen_build/include" directory. Also obtain the
@@ -68,6 +70,10 @@
 //    suggested that you run it like this:
 //
 //      java org.apache.tools.ant.Main clean clean-source source all
+//
+//    If you do not want the source to be downloaded from CVS, then run it like this:
+//
+//      java org.apache.tools.ant.Main clean all
 //
 // 8. Output files will appear in the "/jtopen_build/dist" directory, as well as
 //    "/jtopen_build/javadoc" and the various "/jtopen_build/output*" directories.
@@ -90,7 +96,15 @@
 // Description: JSDK 2.1 Servlet APIs needed for the com.ibm.as400.util.servlet package.
 //              Extract the servlet.jar from the jsdk zip file after download.
 //
-//
+// Filename:  jui400.jar
+// Location:   http://jt400.sourceforge.net/  
+// Description:   APIs needed for deprecated com.ibm.as400.vaccess package.
+//              Extract jui400.jar from the jtopen_X_X.zip file after download.    
+// 
+// 
+// .. The following jars are needed for the micro package, which since July 2014
+//    is no longer built or maintained. 
+// 
 // Filename: midpapi10.jar
 // Location: http://java.sun.com/products/sjwtoolkit/
 // Description: J2ME Wireless Toolkit MIDP APIs needed for the com.ibm.as400.micro package.
@@ -109,6 +123,18 @@
 // Requisite executables
 //
 //
+// Filename: cvs or cvs.exe
+// Location: http://www.wincvs.org
+// Description: Required to access the JTOpen CVS repository using the "source" target.
+//              This file must be in the PATH when this Ant script is run.
+//              It may need to be in a different directory than the build.xml file.
+//              Most versions of Linux already include a cvs executable.
+//              The location link is for Windows users to obtain a CVS client.
+//
+//
+// .. The following executables are needed for the micro package, which since July 2014
+//    is no longer built or maintained. 
+//
 // Filename: preverify or preverify.exe
 // Location: http://java.sun.com/products/sjwtoolkit/
 // Description: J2ME Wireless Toolkit preverification tool required to build the
@@ -123,15 +149,6 @@
 //              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
 //              Note:  The J2ME Wireless Toolkit can only be installed on Windows or Linux.
 //              (The preverify1.1.exe file can be found in C:\WTKxx\bin after the install, where "xx" is the J2ME WTK version number.)
-//
-//
-// Filename: cvs or cvs.exe
-// Location: http://www.wincvs.org
-// Description: Required to access the JTOpen CVS repository using the "source" target.
-//              This file must be in the PATH when this Ant script is run.
-//              It may need to be in a different directory than the build.xml file.
-//              Most versions of Linux already include a cvs executable.
-//              The location link is for Windows users to obtain a CVS client.
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -256,6 +273,7 @@
 	<property name="stubs" value="${build}/stubs"/>
 	<!-- stubs are classes we need for compiling, but we don't ship. -->
 	<property name="javadoc" value="${build}/javadoc"/>
+	<property name="javadoc-micro" value="${build}/javadoc-micro"/>
 	<property name="javadoc6" value="${build}/javadoc6"/>
 	<property name="javadoc8" value="${build}/javadoc8"/>
 	<property name="javadoc-jtopenlite" value="${build}/javadoc-jtopenlite"/>
@@ -678,7 +696,7 @@
 	<!--///////////////////////////////////////////////////////////////////////////
     // Target: jar
     ///////////////////////////////////////////////////////////////////////////-->
-	<target name="jar" depends="jar-jt400,jar-jt400Micro,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jtopenlite,jar-jt400android"/>
+	<target name="jar" depends="jar-jt400,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jtopenlite,jar-jt400android"/>
 	<target name="jar6" depends="jar-jt4006,jar-jt400Native6,jar-jt400Proxy6,jar-jt400Servlet6"/>
 	<target name="jar8" depends="jar-jt4008,jar-jt400Native8,jar-jt400Proxy8,jar-jt400Servlet8"/>
 
@@ -1051,7 +1069,7 @@
 	<target name="javadoc" depends="init,checkJavadocIncludes,setJavadocExec">
 		<javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
-             sourcepath="${source}:${source-contrib}:${source-jtopenlite}:${source-micro}:${include}"
+             sourcepath="${source}:${source-contrib}:${source-jtopenlite}:${include}"
              destdir="${javadoc}"
              use="false"
              link="${doclink}"
@@ -1070,20 +1088,41 @@
 				<!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
 				<pathelement location="${include}/jui400.jar"/>
 				<!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
-				<pathelement location="${include}/midpapi10.jar"/>
-				<!-- Need this for the server-side Micro Edition classes. -->
-				<pathelement location="${include}/cldcapi10.jar"/>
-				<!-- Need this for the server-side Micro Edition classes. -->
 			</classpath>
 			<group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
 			<group title="Toolbox Utility Packages" packages="com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
-			<group title="Toolbox Micro Edition Packages" packages="com.ibm.as400.micro"/>
 			<group title="JTOpenLite Packages" packages="com.ibm.jtopenlite"/>
 			<!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
            com.ibm.as400.access package will get erroneously linked to our stubs. -->
 		</javadoc>
 	</target>
 
+	<target name="javadoc-micro" depends="init,checkJavadocIncludes,setJavadocExec">
+		<javadoc packagenames="com.*,utilities"
+             excludepackagenames="com.ibm.as400.security"
+             sourcepath="${source-micro}:${include}"
+             destdir="${javadoc-micro}"
+             use="false"
+             link="${doclink}"
+             failonerror="true"
+             additionalparam="-breakiterator"
+    	     executable="${javadocExec}">
+			<classpath>
+				<!-- Removed maxmemory="256m" from above -->
+				<!-- Include these if the user happens to have them, just so
+             javadoc generates without any extra warnings.
+              -->
+				<pathelement path="${include}"/>
+				<pathelement location="${include}/midpapi10.jar"/>
+				<!-- Need this for the server-side Micro Edition classes. -->
+				<pathelement location="${include}/cldcapi10.jar"/>
+				<!-- Need this for the server-side Micro Edition classes. -->
+			</classpath>
+			<group title="JTOpenLite Packages" packages="com.ibm.jtopenlite"/>
+		</javadoc>
+	</target>
+
+	
 	<target name="javadoc-jtopenlite" depends="init,setJavadocExec">
 		<echo>  Generating javadoc from source-jtopenlite=${source-jtopenlite} basedir=${basedir} inEclipse=${inEclipse}</echo>
 		<echo>  sourceroot=${sourceroot} </echo>
@@ -1137,10 +1176,6 @@
 				<!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
 				<pathelement location="${include}/jui400.jar"/>
 				<!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
-				<pathelement location="${include}/midpapi10.jar"/>
-				<!-- Need this for the server-side Micro Edition classes. -->
-				<pathelement location="${include}/cldcapi10.jar"/>
-				<!-- Need this for the server-side Micro Edition classes. -->
 			</classpath>
 			<group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.security.auth"/>
 			<group title="Toolbox Utility Packages" packages="com.ibm.as400.access.jdbcClient,com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
@@ -1176,15 +1211,11 @@
 				<!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
 				<pathelement location="${include}/jui400.jar"/>
 				<!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
-				<pathelement location="${include}/midpapi10.jar"/>
-				<!-- Need this for the server-side Micro Edition classes. -->
-				<pathelement location="${include}/cldcapi10.jar"/>
-				<!-- Need this for the server-side Micro Edition classes. -->
 			</classpath>
 			<group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.security.auth"/>
 			<group title="Toolbox Utility Packages" packages="com.ibm.as400.access.jdbcClient,com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
 			<group title="JTOpenLite Packages" packages="com.ibm.jtopenlite,com.ibm.jtopenlite.ccsidConversion,com.ibm.jtopenlite.command,com.ibm.jtopenlite.command.program,com.ibm.jtopenlite.command.program.journal,com.ibm.jtopenlite.command.program.message,com.ibm.jtopenlite.command.program.object,com.ibm.jtopenlite.command.program.openlist,com.ibm.jtopenlite.command.program.perf,com.ibm.jtopenlite.command.program.print,com.ibm.jtopenlite.command.program.security,com.ibm.jtopenlite.command.program.workmgmt,com.ibm.jtopenlite.components,com.ibm.jtopenlite.database,com.ibm.jtopenlite.database.jdbc,com.ibm.jtopenlite.ddm,com.ibm.jtopenlite.file,com.ibm.jtopenlite.samples"/>
-			<group title="Deprecated Packages" packages="com.ibm.as400.resource,com.ibm.as400.vaccess,com.ibm.as400.micro"/>
+			<group title="Deprecated Packages" packages="com.ibm.as400.resource,com.ibm.as400.vaccess"/>
 			<!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
 	           com.ibm.as400.access package will get erroneously linked to our stubs. -->
 
@@ -1674,7 +1705,6 @@ Available Ant targets for the JTOpen build script include:
 		<zip zipfile="${dist}/src.zip" update="false">
 			<zipfileset dir="${source}"             prefix="src"        excludes=".project,bin/**"/>
 			<zipfileset dir="${source-contrib}"     prefix="contrib"    excludes=".project,bin/**"/>
-			<zipfileset dir="${source-micro}"       prefix="micro"      excludes=".project,bin/**"/>
 			<zipfileset dir="${source-jtopenlite}"  prefix="jtopenlite" excludes=".project,bin/**"/>
 			<zipfileset dir="${include}"            prefix="include"    excludes="**/*.zip,**/*.jar,.project,bin/**"/>
 			<zipfileset dir="${source-androidStubs}"  prefix="androidStubs" excludes=".project,bin/**"/>
