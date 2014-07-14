@@ -9,7 +9,7 @@ Copyright (C) 1997-2014 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: March 13, 2014
+Last updated: July 14, 2014
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
 the open source community. JTOpen, which is supported by IBM and
@@ -22,7 +22,7 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 IBM Toolbox for Java web site:
 <A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
-<!-- On 2014-03-13: cvs log -rJTOpen_8_1:JTOpen_8_2 -N '-d>2013-10-22' -->
+<!-- On 2014-07-14: cvs log -rJTOpen_8_2:JTOpen_8_3 -N '-d>2014-03-13' -->
 
 <H4>Known deficiencies</H4>
 <PRE>
@@ -48,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#83">Fixes and enhancements in JTOpen 8.3</A><br>
 <A HREF="#82">Fixes and enhancements in JTOpen 8.2</A><br>
 <A HREF="#81">Fixes and enhancements in JTOpen 8.1</A><br>
 <A HREF="#710">Fixes and enhancements in JTOpen 7.10</A><br>
@@ -93,7 +94,27 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <P>
 
 <HR>
-<H3><A NAME="82">Fixes and enhancements in JTOpen 8.2</A> <i>(released 2013-03-30)</i></H3>
+<H3><A NAME="83">Fixes and enhancements in JTOpen 8.3</A> <i>(released 2014-07-30)</i></H3>
+<Pre>
+- Cmd/pgm call: Improve performance about getjobinfo
+- HTMLForm: make hidden field in top
+- JDBC: Correct DatabaseMetaData.getXXXFunctions
+- JDBC:  Correct error message when value overflow when setting BIGINT
+- JDBC:  Correct default connection properties in AS400JDBCPooledConnection
+- JDBC: Improve variable field compression performance
+- JDBC: Fix UDT Name in ResultSetMetaData
+- JDBC: Variable Field Compression fixes
+- Joblist: update attribute type.
+- Message: make DateFormate thread safe
+- PCML: Use non-validating parser if validating parser not available.
+- PCML: Fix xpcml parsing issue with struct_i tag.
+- Program Call: Identify object in trace
+- Program Call: bi-direction RLE compression
+- PTFGroup: get additional attributes
+</Pre>
+
+<HR>
+<H3><A NAME="82">Fixes and enhancements in JTOpen 8.2</A> <i>(released 2014-04-10)</i></H3>
 <Pre>
 - All:  Set cause exception for thrown exceptions 
 - Command Call:  Additional message information
