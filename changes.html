@@ -96,21 +96,26 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <HR>
 <H3><A NAME="83">Fixes and enhancements in JTOpen 8.3</A> <i>(released 2014-07-30)</i></H3>
 <Pre>
-- Cmd/pgm call: Improve performance for getjobinfo
-- HTMLForm: make hidden field in top
+- Changes to enable Bidi Testing 
+- Documentation fixes
+- Improve performance about getjobinfo
+- JDBC:  Correct default connection properties in AS400JDBCPooledConnection 
+- JDBC:  Correct error message when value overflow when setting BIGINT
+- JDBC:  Correct error message when value overflow when setting INT
+- JDBC:  Fix error returned after Connection.abort called.
+- JDBC:  Trace enhancements
 - JDBC: Correct DatabaseMetaData.getXXXFunctions
-- JDBC: Correct error message when value overflow when setting BIGINT
-- JDBC: Correct default connection properties in AS400JDBCPooledConnection
-- JDBC: Improve variable field compression performance
 - JDBC: Fix UDT Name in ResultSetMetaData
+- JDBC: Improve variable field compression performance
+- JDBC: Set Minor Version for JDBC 4.2
 - JDBC: Variable Field Compression fixes
-- Joblist: update attribute type.
-- Message: make DateFormat thread safe
+- Make DateFormate thread safe
+- Make HTML hidden field in top
+- Misc:  Save cause with exception
+- PCML: Fix xpcml parsing issue with struct_i tag
 - PCML: Use non-validating parser if validating parser not available.
-- PCML: Fix xpcml parsing issue with struct_i tag.
 - Program Call: Identify object in trace
-- Program Call: bi-direction RLE compression
-- PTFGroup: get additional attributes
+- bi-direction RLE compression
 </Pre>
 
 <HR>
