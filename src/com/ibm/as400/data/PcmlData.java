@@ -50,7 +50,7 @@ class PcmlData extends PcmlDocNode
     public static final int TIMESTAMP   = 10; // PCML version 6.0
 
     // Largest length= supported for type="char" and type="byte"
-    public static final int MAX_STRING_LENGTH = 16*1024*1024;          // @C6C @L17C
+    public static final int MAX_STRING_LENGTH = 16*1024*1024-4112;          // @C6C @L17C Support max size of 16MB. 4112 is the header size for single level store
 
     // Serial verion unique identifier
     static final long serialVersionUID = 8578048664805881489L;
