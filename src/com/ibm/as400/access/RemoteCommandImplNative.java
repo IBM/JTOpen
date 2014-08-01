@@ -217,6 +217,78 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       }
     }
 
+    //For native and thread safe, it gets the jvm job info. Otherwise, get the job info of host server.
+    public String getJobInfo(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job information from implementation object.");
+
+      // Note: The runProgram() method that we call below, will call the appropriate open() method.
+
+      // Set up the parameter list for the program that we will use to get the job information (QWCRTVCA).
+      ProgramParameter[] parameterList = new ProgramParameter[6];
+
+      // First parameter:  receiver variable - output - char(*).
+      // RTVC0100's 20-byte header, plus 26 bytes for "job name" field.
+      byte[] dataReceived = new byte[46];
+      parameterList[0] = new ProgramParameter(dataReceived.length);
+
+      // Second parameter:  length of receiver variable - input - binary(4).
+      byte[] receiverLength = BinaryConverter.intToByteArray(dataReceived.length);
+      parameterList[1] = new ProgramParameter(receiverLength);
+
+      // Third parameter:  format name - input - char(8).
+      // Set to EBCDIC "RTVC0100".
+      byte[] formatName = {(byte)0xD9, (byte)0xE3, (byte)0xE5, (byte)0xC3, (byte)0xF0, (byte)0xF1, (byte)0xF0, (byte)0xF0};
+      parameterList[2] = new ProgramParameter(formatName);
+
+      // Fourth parameter:  number of attributes to return - input - binary(4).
+      byte[] numAttributes = BinaryConverter.intToByteArray(1); // 1 attribute.
+      parameterList[3] = new ProgramParameter(numAttributes);
+
+      // Fifth parameter:  key of attributes to be returned - input - array(*) of binary(4).
+      byte[] attributeKey = BinaryConverter.intToByteArray(1009); // "Job name."
+      parameterList[4] = new ProgramParameter(attributeKey);
+
+      // Sixth parameter:  error code - input/output - char(*).
+      // Eight bytes of zero's indicates to throw exceptions.
+      // Send as input because we are not interested in the output.
+      parameterList[5] = new ProgramParameter(new byte[8]);
+
+      // Prepare to call the "Retrieve Current Attributes" API.
+      // Design note: QWCRTVCA is documented to be conditionally threadsafe.
+
+      // Note: Depending upon whether the program represented by this ProgramCall object will be run on-thread or through the host servers (as indicated by the 'threadsafety' flag), we will issue the job info query accordingly, either on-thread or through the host servers, in order to get the appropriate Job.
+
+      // Retrieve Current Attributes.  Failure is returned as a message list.
+      try
+      {
+          boolean succeeded;
+          if (ON_THREAD.equals(threadSafety)) {
+            succeeded = runProgramOnThread("QSYS", "QWCRTVCA", parameterList, MESSAGE_OPTION_DEFAULT, false);
+          }
+          else {
+            succeeded = runProgramOffThread("QSYS", "QWCRTVCA", parameterList, MESSAGE_OPTION_DEFAULT);
+          }
+          if (!succeeded)
+          {
+              Trace.log(Trace.ERROR, "Unable to retrieve job information.");
+              throw new AS400Exception(messageList_);
+          }
+      }
+      catch (ObjectDoesNotExistException e)
+      {
+          Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+      }
+
+      // Get the data returned from the program.
+      dataReceived = parameterList[0].getOutputData();
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job information retrieved:", dataReceived);
+
+      // Examine the "job name" field.  26 bytes starting at offset 20.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
+      return converter_.byteArrayToString(dataReceived, 20, 26);
+    }
 
     // This method is reserved for use by other Impl classes in this package.
     public boolean runCommand(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException

@@ -78,7 +78,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
       //@L11A START
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job information from server_ object.");
 
-      //openOffThread();  //Remove this line.
+      openOffThread();
       if(null != server_){
         String jobInfo = server_.getJobString();
         if(null != jobInfo && jobInfo.split("/").length==3){
