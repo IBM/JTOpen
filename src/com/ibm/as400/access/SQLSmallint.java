@@ -128,7 +128,11 @@ extends SQLDataBase
                 if(( intValue > Short.MAX_VALUE ) || ( intValue < Short.MIN_VALUE ))
                 {
                     truncated_ = 6;  outOfBounds_ = true;
+                    //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
+                    if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
+                    {                                                                    //@trunc3
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
+                    }                                                                    //@trunc3
                 }
                 value_ = (short) intValue;                                                // @D9c
             }
@@ -151,7 +155,11 @@ extends SQLDataBase
                         // @P1a
                         truncated_ = 6; outOfBounds_ = true;                                     // @P1a
                         
+                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
+                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
+                        {                                                                    //@trunc3
                             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
+                        }                                                                    //@trunc3
                     }                                                                      // @P1a
                     value_ = (short) doubleValue;                                          // @P1a  
                 }                                                                         // @P1a
@@ -183,7 +191,6 @@ extends SQLDataBase
                 //        float (4 bytes) that didn't fit into a bigint (8
                 //        bytes) without some data truncation.
                 truncated_ = 6;    outOfBounds_ = true;                              // @D9c
-	            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@L16
             }
 
 
