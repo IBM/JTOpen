@@ -38,12 +38,14 @@ public class CommandConnection extends HostServerConnection
 
   private int ccsid_;
   private int datastreamLevel_;
-
-  private CommandConnection(SystemInfo info, Socket socket, HostInputStream in, HostOutputStream out, int ccsid, int datastreamLevel, String user, String jobName)
+  private String NLV_ ; 
+  
+  private CommandConnection(SystemInfo info, Socket socket, HostInputStream in, HostOutputStream out, int ccsid, int datastreamLevel, String user, String jobName, String NLV)
   {
     super(info, user, jobName, socket, in, out);
     ccsid_ = ccsid;
     datastreamLevel_ = datastreamLevel;
+    NLV_ = NLV; 
   }
 
   
@@ -58,6 +60,21 @@ public class CommandConnection extends HostServerConnection
     out_.writeShort(0x1004); // ReqRep ID for remote command server.
     out_.flush();
   }
+
+  /**
+   * Get the NLV used by the connection
+   * @return NLV used by the connection
+   */
+  public String getNLV() {
+		return NLV_;
+	}
+/**
+ * Get the CCSID used by the connection
+ * @return CCSID used by the connection 
+ */
+  public int  getCcsid() {
+		return ccsid_;
+	}
 
   /**
    * Connects to the Remote Command host server on the default port after first connecting
@@ -135,7 +152,8 @@ public class CommandConnection extends HostServerConnection
       HostInputStream din = new HostInputStream(new BufferedInputStream(in));
       String jobName = connect(info, dout, din, 0xE008, user, password);
 
-      sendExchangeAttributesRequest(dout);
+      String NLV = Conv.getDefaultNLV(); 
+      sendExchangeAttributesRequest(dout, NLV);
       dout.flush();
 
       int length = din.readInt();
@@ -145,18 +163,34 @@ public class CommandConnection extends HostServerConnection
       }
       din.skipBytes(16);
       int rc = din.readShort();
-      if (rc != 0 &&
-          rc != 0x0100) // Limited user.
+      // We ignore the same return codes that JTOPEN ignores
+      if (rc != 0x0100 &&  // Limited user.
+          rc != 0x0104 &&  // Invalid CCSID.
+          rc != 0x0105 &&  // Invalid NLV, default to primary NLV:  
+          rc != 0x0106 &&  // NLV not installed, default to primary NLV:  
+                           // The NLV may not be supported or it may not be installed on the system.
+          rc != 0x0107 &&  // Error retrieving product information.  Can't validate NLV.
+          rc != 0x0108 &&  // Error trying to add NLV library to system library list:  
+                           // One possible reason for failure is the user may not be authorized to CHGSYSLIBL command.
+          rc != 0 )
       {
         throw DataStreamException.badReturnCode("commandExchangeAttributes", rc);
       }
       int ccsid = din.readInt();
-      din.skipBytes(8);
+      byte[] nlvBytes = new byte[4]; 
+      nlvBytes[0] = (byte) din.readByte(); 
+      nlvBytes[1] = (byte) din.readByte(); 
+      nlvBytes[2] = (byte) din.readByte(); 
+      nlvBytes[3] = (byte) din.readByte();
+      NLV = Conv.ebcdicByteArrayToString(nlvBytes, 0, 4); 
+      // Server version 
+      din.skipBytes(4);
+
       int datastreamLevel = din.readShort();
       din.skipBytes(length-36);
       din.end();
 
-      conn = new CommandConnection(info, commandServer, din, dout, ccsid, datastreamLevel, user, jobName);
+      conn = new CommandConnection(info, commandServer, din, dout, ccsid, datastreamLevel, user, jobName, NLV);
       return conn;
     }
     finally
@@ -546,7 +580,7 @@ public class CommandConnection extends HostServerConnection
     }
   }
 
-  private static void sendExchangeAttributesRequest(HostOutputStream out) throws IOException
+  private static void sendExchangeAttributesRequest(HostOutputStream out, String NLV) throws IOException
   {
     out.writeInt(34); // Length.
     out.writeShort(0); // Header ID.
@@ -557,11 +591,12 @@ public class CommandConnection extends HostServerConnection
     out.writeShort(0x1001); // ReqRep ID.
     out.writeInt(1200); // CCSID.
     // out.write("2924".getBytes("Cp037")); // NLV.
-    out.writeByte(0xF2);
-    out.writeByte(0xF9);
-    out.writeByte(0xF2);
-    out.writeByte(0xF4);
+    byte[] NLVbytes = Conv.stringToEBCDICByteArray37(NLV);
+    out.write(NLVbytes); 
     out.writeInt(1); // Client version.
     out.writeShort(0); // Client datastream level.
   }
+
+
+
 }

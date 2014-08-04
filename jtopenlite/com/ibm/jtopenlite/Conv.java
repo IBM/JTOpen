@@ -1969,6 +1969,14 @@ public final class Conv
 		  if (locale != null) { 
 		    String localeString = locale.toString();
 		    defaultNLV = (String) localeNlvMap_.get(localeString);
+		    if (defaultNLV == null) { 
+		    	// Check for underscore index in locale
+		    	int underscoreIndex = localeString.indexOf('_'); 
+		    	if (underscoreIndex > 0) { 
+		    		localeString = localeString.substring(0,underscoreIndex); 
+				    defaultNLV = (String) localeNlvMap_.get(localeString);
+		    	}
+		    }
 		  }
 	  } catch (Exception e) { 
 		  // Ignore any errors 
