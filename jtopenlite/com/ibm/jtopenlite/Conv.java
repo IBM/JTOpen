@@ -24,6 +24,9 @@ import com.ibm.jtopenlite.ccsidConversion.CcsidConversion;
 **/
 public final class Conv
 {
+	
+  private static Hashtable localeNlvMap_;
+
   private static final char[] NUM = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
   private static final byte[] CHAR_HIGH = new byte[10];
   private static final byte[] CHAR_LOW = new byte[10];
@@ -1874,6 +1877,105 @@ public final class Conv
     {
       buffer[offset+numDigits-1] = (byte) ((buffer[offset+numDigits-1] & ((byte) 0x0F)) | (byte) 0xD0);
     }
+  }
+
+
+  /**
+   * Return the default NLV for the client corresponding to the Java locale.
+   * @return the default client NLV
+   */
+  public static String getDefaultNLV() {
+	  if (localeNlvMap_ == null) { 
+		  localeNlvMap_ = new Hashtable(100); // 74 actual entries.
+	        // 74 entries.
+	        localeNlvMap_.put("ar", "2954");
+	        localeNlvMap_.put("ar_SA", "2954");
+	        localeNlvMap_.put("be", "2979");
+	        localeNlvMap_.put("bg", "2974");
+	        localeNlvMap_.put("ca", "2931");
+	        localeNlvMap_.put("cs", "2975");
+	        localeNlvMap_.put("da", "2926");
+	        localeNlvMap_.put("de", "2929");
+	        localeNlvMap_.put("de_CH", "2939");
+	        localeNlvMap_.put("de_DE", "2929");
+	        localeNlvMap_.put("el", "2957");
+	        localeNlvMap_.put("en", "2924");
+	        localeNlvMap_.put("en_BE", "2909");
+	        localeNlvMap_.put("en_CN", "2984");
+	        localeNlvMap_.put("en_JP", "2938");
+	        localeNlvMap_.put("en_KR", "2984");
+	        localeNlvMap_.put("en_SG", "2984");
+	        localeNlvMap_.put("en_TW", "2984");
+	        localeNlvMap_.put("es", "2931");
+	        localeNlvMap_.put("es_ES", "2931");
+	        localeNlvMap_.put("et", "2902");
+	        localeNlvMap_.put("fa", "2998");
+	        localeNlvMap_.put("fi", "2925");
+	        localeNlvMap_.put("fr", "2928");
+	        localeNlvMap_.put("fr_BE", "2966");
+	        localeNlvMap_.put("fr_CA", "2981");
+	        localeNlvMap_.put("fr_CH", "2940");
+	        localeNlvMap_.put("fr_FR", "2928");
+	        localeNlvMap_.put("hr", "2912");
+	        localeNlvMap_.put("hu", "2976");
+	        localeNlvMap_.put("is", "2958");
+	        localeNlvMap_.put("it", "2932");
+	        localeNlvMap_.put("it_CH", "2942");
+	        localeNlvMap_.put("iw", "2961");
+	        localeNlvMap_.put("ja", "2962");
+	        localeNlvMap_.put("ji", "2961");
+	        localeNlvMap_.put("ka", "2979");
+	        localeNlvMap_.put("kk", "2979");
+	        localeNlvMap_.put("ko", "2986");
+	        localeNlvMap_.put("ko_KR", "2986");
+	        localeNlvMap_.put("lo", "2906");
+	        localeNlvMap_.put("lt", "2903");
+	        localeNlvMap_.put("lv", "2904");
+	        localeNlvMap_.put("mk", "2913");
+	        localeNlvMap_.put("nl", "2923");
+	        localeNlvMap_.put("nl_BE", "2963");
+	        localeNlvMap_.put("nl_NL", "2923");
+	        localeNlvMap_.put("no", "2933");
+	        localeNlvMap_.put("pl", "2978");
+	        localeNlvMap_.put("pt", "2996");
+	        localeNlvMap_.put("pt_BR", "2980");
+	        localeNlvMap_.put("pt_PT", "2922");
+	        localeNlvMap_.put("ro", "2992");
+	        localeNlvMap_.put("ru", "2979");
+	        localeNlvMap_.put("sh", "2912");
+	        localeNlvMap_.put("sk", "2994");
+	        localeNlvMap_.put("sl", "2911");
+	        localeNlvMap_.put("sq", "2995");
+	        localeNlvMap_.put("sr", "2914");
+	        localeNlvMap_.put("sv", "2937");
+	        localeNlvMap_.put("sv_SE", "2937");
+	        localeNlvMap_.put("th", "2972");
+	        localeNlvMap_.put("th_TH", "2972");
+	        localeNlvMap_.put("tr", "2956");
+	        localeNlvMap_.put("uk", "2979");
+	        localeNlvMap_.put("uz", "2979");
+	        localeNlvMap_.put("vi", "2905");
+	        localeNlvMap_.put("zh", "2989");
+	        localeNlvMap_.put("zh_CN", "2989");
+	        localeNlvMap_.put("zh_HK", "2987");
+	        localeNlvMap_.put("zh_SG", "2989");
+	        localeNlvMap_.put("zh_TW", "2987");
+	        localeNlvMap_.put("cht", "2987");  // Chinese/Taiwan
+	        localeNlvMap_.put("cht_CN", "2987");  // Chinese/Taiwan
+	  }
+	  String defaultNLV = null; 
+	  try { 
+		  Locale locale = Locale.getDefault(); 
+		  if (locale != null) { 
+		    String localeString = locale.toString();
+		    defaultNLV = (String) localeNlvMap_.get(localeString);
+		  }
+	  } catch (Exception e) { 
+		  // Ignore any errors 
+	  }
+	  if (defaultNLV == null) defaultNLV="2924"; 
+	  return defaultNLV; 
+
   }
 
 

@@ -10,6 +10,15 @@
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+//
+// Major Change Log
+// Date       Description
+// ---------- ---------------------------------------
+// 2014.08.04 Use client NLV for remote command server. 
+//            Ignore various error responses which exchanging attributes with remote
+//            command server. 
+//           
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.jtopenlite;
 
@@ -24,5 +33,7 @@ public class About {
      * we just use the current date.  This date is automatically adjusted
      * each time jtopenlite.jar is built.
      */
-    public static String INTERFACE_LEVEL="20140523";
+    public static String INTERFACE_LEVEL="20140804";
+    
+    
 }
