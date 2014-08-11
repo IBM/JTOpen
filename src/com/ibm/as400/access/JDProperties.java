@@ -165,10 +165,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              DESCRIBE_OPTION            = 85;  //@F6A
     static final int              DECIMAL_DATA_ERRORS        = 86;
     static final int              TIMESTAMP_FORMAT           = 87;  //@KEA 
+    static final int              USE_DRDA_METADATA_VERSION  = 88; 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 88;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 89;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -237,7 +238,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String TRANSACTION_ISOLATION_  = "transaction isolation";
     private static final String TRANSLATE_BINARY_       = "translate binary";
     private static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
-    static final String USER_                           = "user";                   //@native
+    static final String USER_                           = "user";                  //@native
+    private static final String USE_DRDA_METADATA_VERSION_ = "use drda metadata version"; 
     private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
     private static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
     private static final String TRUE_AUTO_COMMIT_            = "true autocommit";            //@KBA //@true
@@ -1114,6 +1116,19 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;
+
+        // Use drda metadata version.  
+        // Control the format of 
+        // DatabaseMetaData.getDatabaseProductVersion
+        i = USE_DRDA_METADATA_VERSION; 
+        dpi_[i] = new DriverPropertyInfo (USE_DRDA_METADATA_VERSION_, "");
+        dpi_[i].description = "USE_DRDA_METADATA_VERSION_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = TRUE_;
+        dpi_[i].choices[1]  = TRUE_;
+        defaults_[i]        = FALSE_;
+        
 
         // @M0A - Support sending statements in UTF-16 and storing them in a UTF-16 package
         i = PACKAGE_CCSID;

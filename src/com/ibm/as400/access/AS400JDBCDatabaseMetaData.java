@@ -28,6 +28,7 @@ import java.util.Vector;                            // @D0A
 
 
 
+
 // @E4C
 /**
 The AS400JDBCDatabaseMetaData class provides information
@@ -117,6 +118,7 @@ implements DatabaseMetaData
     private AS400JDBCConnection     connection_;
     private int                     id_;
     private SQLConversionSettings   settings_;
+    private boolean                 useDRDAversion_; 
 
     //@mdsp misc constants for sysibm stored procedures
     final static int SQL_NO_NULLS            = 0;   //@mdsp
@@ -169,12 +171,13 @@ implements DatabaseMetaData
     @param   id          The ID the caller has assigned to this
                          AS400JDBCDatabaseMetaData.
     **/
-    AS400JDBCDatabaseMetaData (AS400JDBCConnection connection, int id)
+    AS400JDBCDatabaseMetaData (AS400JDBCConnection connection, int id, boolean useDRDAversion)
     throws SQLException
     {
         connection_ = connection;
         settings_ = SQLConversionSettings.getConversionSettings(connection);
         id_ = id;
+        useDRDAversion_ = useDRDAversion; 
     }
 
 
@@ -1896,7 +1899,15 @@ endif */
     @exception  SQLException    If the connection is not open
                                 or an error occurs.
     **/
-    public String getDatabaseProductVersion ()
+    public String getDatabaseProductVersion () throws SQLException {
+      if (useDRDAversion_) { 
+         return getDatabaseProductVersionDRDA();
+      } else { 
+         return getDatabaseProductVersionI();
+      }
+    }
+
+    public String getDatabaseProductVersionI ()
     throws SQLException
     {
         // The ODBC specification suggests the
@@ -1936,6 +1947,39 @@ endif */
         buffer.append (r);
         buffer.append ("m");
         buffer.append (m);
+        return buffer.toString ();
+    }
+
+    /**
+    Returns the DRDA format version of this database product.
+
+    @return     The product version.
+
+    @exception  SQLException    If the connection is not open
+                                or an error occurs.
+    **/
+    
+    public String getDatabaseProductVersionDRDA ()
+    throws SQLException
+    {
+      // The DRDA format is QSQvvrrm
+      // for example        QSQ07020
+      // 
+      connection_.checkOpen();
+      AS400ImplRemote as400_ = (AS400ImplRemote) connection_.getAS400 ();
+        int v, r, m;
+        int vrm = as400_.getVRM ();
+        v = (vrm & 0xffff0000) >>> 16;                   // @D1C
+        r = (vrm & 0x0000ff00) >>>  8;                   // @D1C
+        m = (vrm & 0x000000ff);                          // @D1C
+
+        StringBuffer buffer = new StringBuffer ();
+        buffer.append("QSQ"); 
+        if (v < 10)  buffer.append("0");
+        buffer.append(v);
+        if (r < 10)  buffer.append("0");
+        buffer.append(r);
+        buffer.append(m);
         return buffer.toString ();
     }
 

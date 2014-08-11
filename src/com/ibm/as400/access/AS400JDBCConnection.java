@@ -3516,6 +3516,7 @@ void handleAbort() {
         setServerAttributes ();
         libraryList.addOnServer (this, id_);
 
+        boolean useDRDAversion = properties_.getBoolean(JDProperties.USE_DRDA_METADATA_VERSION); 
         // @E7D // Initialize a transaction manager for this connection.  Turn on                                @E7A
         // @E7D // new auto-commit support when the server functional level is                                   @E7A
         // @E7D // greater than or equal to 3.                                                                   @E7A
@@ -3526,7 +3527,7 @@ void handleAbort() {
         // The metadata object should share the id of the
         // connection, since it operates on a connection-wide
         // scope.
-        metaData_ = new AS400JDBCDatabaseMetaData (this, id_);
+        metaData_ = new AS400JDBCDatabaseMetaData (this, id_, useDRDAversion);
 
         // The conversation was initialized to a certain
         // transaction isolation.  It is now time to turn on auto-
