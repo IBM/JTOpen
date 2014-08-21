@@ -480,7 +480,14 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     else                                            // @C3A
                     if (dataLength == 8)                            // @C3A
                     { // dataLength == 8                            // @C3A
-                        return Class.forName("java.lang.Long");     // @C3A
+                      if (dataPrecision == 64) 
+                      {
+                          return Class.forName("java.math.BigInteger");
+                      }
+                      else 
+                      { // dataPrecision == 63 or defaulted
+                          return Class.forName("java.lang.Integer");  // @C3A
+                      }  
                     }                                               // @C3A
     
                 case PcmlData.PACKED:
