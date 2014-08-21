@@ -789,7 +789,7 @@ class PcmlDocument extends PcmlDocRoot
       throws IOException, XmlException
     {
       PrintWriter xmlFile = new PrintWriter(outStream);
-
+      
       //@E1A -- New variables for XPCML.  These are used to control dimensioning
       // of a node.
       int num_dim =0;                     //@E1A
@@ -2324,6 +2324,7 @@ class PcmlDocument extends PcmlDocRoot
                        }
                        else {
                          strVal = objVal.toString();
+                         strVal = escapeSpecialCharaceters(strVal); //@M1
                        }
                      }
                   }
@@ -2837,4 +2838,73 @@ class PcmlDocument extends PcmlDocRoot
   public TimeZone getTimeZone() {
     return AS400.getDefaultTimeZone(getAs400());
   }
+  
+  //@M1A START
+  private static final char[] SPECIAL_LT   = {'&','l','t',';'};
+  private static final char[] SPECIAL_GT   = {'&','g','t',';'};
+  private static final char[] SPECIAL_APOS = {'&','a','p','o','s',';'};
+  private static final char[] SPECIAL_QUOT = {'&','q','u','o','t',';'};
+  private static final char[] SPECIAL_AMP  = {'&','a','m','p',';'};
+  
+  /**
+   * Compares portions of two character arrays for equality.  Returns true if
+   * the specified portions match.
+   * @param array1 First array to compare.
+   * @param offset1 Offset in first array to begin comparison.
+   * @param array2 Second array to compare.
+   * @param offset2 Offset in second array to begin comparison.
+   * @param length Number of elements to compare.
+   * @return True if both portions are identical, else false.
+   */                                     
+  private static boolean compareCharArrays(char[] array1, int offset1, char[] array2, int offset2, int length) {
+     if(array1.length-offset1<length || array2.length-offset2<length) return false;     //Don't continue if not enough data.
+     for(int i=0; i<length; i++)
+       if(array1[offset1+i]!=array2[offset2+i]) 
+         return false; //False if anything does not match
+     return true;                                                                       //If here, all elements matched
+  }
+  public static String escapeSpecialCharaceters(String input){
+    StringBuffer output = new StringBuffer();
+    if(null==input || input.length()==0) return input;
+    char[] data = input.toCharArray();
+    for(int i=0; i<data.length; i++) {
+      switch(data[i]) {
+      case '<':
+        output.append("&lt;");
+        break;
+      case '>':
+        output.append("&gt;");
+        break;
+      case '\'':
+        output.append("&apos;");
+        break;
+      case '"':
+        output.append("&quot;");
+        break;
+      case '&':  //Need to determine if it's followed by special sequence
+        if(compareCharArrays(data, i, SPECIAL_AMP, 0, SPECIAL_AMP.length)) {
+          output.append("&amp;");
+          i+= (SPECIAL_AMP.length-1);                                   //-1 because the loop will add 1
+        } else if(compareCharArrays(data, i, SPECIAL_LT, 0, SPECIAL_LT.length)) {
+          output.append("&lt;");
+          i+= (SPECIAL_GT.length-1);
+        } else if(compareCharArrays(data, i, SPECIAL_GT, 0, SPECIAL_GT.length)) {
+          output.append("&gt;");
+          i+= (SPECIAL_GT.length-1);
+        } else if(compareCharArrays(data, i, SPECIAL_APOS, 0, SPECIAL_APOS.length)) {
+          output.append("&apos;");
+          i+= (SPECIAL_APOS.length-1);
+        } else if(compareCharArrays(data, i, SPECIAL_QUOT, 0, SPECIAL_QUOT.length)) {
+          output.append("&quot;");
+          i+= (SPECIAL_GT.length-1);
+        } else
+          output.append("&amp;");
+        break;
+      default:
+        output.append(data[i]);            
+      }
+    }
+    return output.toString();
+  }
+  //@M1A END
 }
