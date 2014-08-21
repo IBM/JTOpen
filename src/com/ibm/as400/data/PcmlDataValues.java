@@ -486,7 +486,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                       }
                       else 
                       { // dataPrecision == 63 or defaulted
-                          return Class.forName("java.lang.Integer");  // @C3A
+                          return Class.forName("java.lang.Long");  // @C3A
                       }  
                     }                                               // @C3A
     
