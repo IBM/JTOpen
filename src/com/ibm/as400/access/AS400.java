@@ -603,6 +603,25 @@ public class AS400 implements Serializable
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
+    //@M2A
+    /**
+     * Set ASP group for the AS400 connection. 
+     * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
+     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
+     * @param IASPGroup asp group name
+     */
+    public void setIASPGroup(String IASPGroup){
+      try{
+        String SetASPGrp = "SETASPGRP "+ IASPGroup;
+        CommandCall commandCall = new CommandCall(this);
+        if (commandCall.run(SetASPGrp) != true) {
+          Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
+        } 
+        }catch (Exception e){
+          e.printStackTrace();
+        }
+    }
+   
     // Private constructor for use when a new object is needed and the password is already twiddled.
     // Used by password cache and password verification code.
     private AS400(String systemName, String userId, CredentialVault pwVault)
