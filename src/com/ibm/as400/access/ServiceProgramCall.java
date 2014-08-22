@@ -299,6 +299,21 @@ public class ServiceProgramCall extends ProgramCall
             Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 7 parameters:", parameterList_.length);
             throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList_.length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+        
+       //@M2A Add support for running program located on IASP and path set starting with iasp name.
+        String prg = program_.toUpperCase();
+        if(!prg.startsWith("/QSYS.LIB")){
+          String iasp=prg.substring(1, prg.indexOf("/QSYS.LIB"));
+          try{
+            String SetASPGrp = "SETASPGRP "+ iasp;
+            CommandCall commandCall = new CommandCall(system_);
+            if (commandCall.run(SetASPGrp) != true) {
+              Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);
+            } 
+            }catch (Exception e){
+              e.printStackTrace();
+            }
+        }
 
         chooseImpl();
 

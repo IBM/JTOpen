@@ -724,7 +724,7 @@ public class ProgramCall implements Serializable
           throw new ExtendedIllegalStateException("program", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
 
-      //@M2A Add support for running program on IASP and path set starting with iasp name.
+      //@M2A Add support for running program located on IASP and path set starting with iasp name.
       String prg = program_.toUpperCase();
       if(!prg.startsWith("/QSYS.LIB")){
         String iasp=prg.substring(1, prg.indexOf("/QSYS.LIB"));
