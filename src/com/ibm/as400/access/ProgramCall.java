@@ -715,7 +715,7 @@ public class ProgramCall implements Serializable
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-
+      
       
       if (Trace.traceOn_) Trace.log(Trace.INFORMATION, this, "Running program: " + program_); //@L8
       if (program_.length() == 0)
@@ -724,6 +724,21 @@ public class ProgramCall implements Serializable
           throw new ExtendedIllegalStateException("program", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
 
+      //@M2A Add support for running program on IASP and path set starting with iasp name.
+      String prg = program_.toUpperCase();
+      if(!prg.startsWith("/QSYS.LIB")){
+        String iasp=prg.substring(1, prg.indexOf("/QSYS.LIB"));
+        try{
+          String SetASPGrp = "SETASPGRP "+ iasp;
+          CommandCall commandCall = new CommandCall(system_);
+          if (commandCall.run(SetASPGrp) != true) {
+            Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);
+          } 
+          }catch (Exception e){
+            e.printStackTrace();
+          }
+      }
+      
       // Validate that all the program parameters have been set.
       for (int i = 0; i < parameterList_.length; ++i)
       {
