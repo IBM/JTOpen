@@ -4541,7 +4541,17 @@ endif */
         //@mdsp SYSIBM SP Call and Native logic
         if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
         {
-            // Handle processing the array of table types.
+           // Handle the old schema pattern of *ALLUSR by changing 
+           // it to null.  This will allow the SQuirreL JDBC client to 
+           // work without changing their logic.  Otherwise, they
+           // would need to know that, by default, *ALLUSR is supported
+           // when running to V6R1 with metadata source=0 and not
+           // supported when running to V7R1 and later with metatdata source=1. 
+           if ("*ALLUSR".equals(schemaPattern)) { 
+             schemaPattern = null; 
+           }
+          
+          // Handle processing the array of table types.
             //bite the bullet and follow Native JDBC logic
             boolean rsEmpty = false;
             String typeString = EMPTY_STRING;

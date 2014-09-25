@@ -134,6 +134,7 @@ package com.ibm.as400.access;
 //@L17   20140718  PCML: Update max string length to support 16MB
 //@M1    20140821  PCML: Escape special characters when generateXPCML
 //@M2    20140821  Program Call: Support program on IASP
+//@M3    20140925  JDBC: Support *ALLUSR schema name on DatabaseMetaData.getTables
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
