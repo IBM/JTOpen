@@ -267,16 +267,16 @@ implements Statement
         if(JDTrace.isTraceOn())
         {
             JDTrace.logOpen (this, connection_);    // @J33c
-            JDTrace.logProperty (this, "Escape processing", escapeProcessing_);
-            JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
-            JDTrace.logProperty (this, "Fetch size", fetchSize_);
-            JDTrace.logProperty (this, "Max field size", maxFieldSize_);
-            JDTrace.logProperty (this, "Max rows", maxRows_);
-            JDTrace.logProperty (this, "Query timeout", queryTimeout_);
-            JDTrace.logProperty (this, "Result set concurrency", resultSetConcurrency_);
-            JDTrace.logProperty (this, "Result set holdability", resultSetHoldability_);    //@F4A
-            JDTrace.logProperty (this, "Result set type", resultSetType_);
-            JDTrace.logProperty (this, "Behavior Override", behaviorOverride_);    // @F9a
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Escape processing", escapeProcessing_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Fetch direction", fetchDirection_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Fetch size", fetchSize_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Max field size", maxFieldSize_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Max rows", maxRows_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Query timeout", queryTimeout_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Result set concurrency", resultSetConcurrency_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Result set holdability", resultSetHoldability_);    //@F4A
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Result set type", resultSetType_);
+            JDTrace.logProperty (this, "AS400JDBCStatement.init", "Behavior Override", behaviorOverride_);    // @F9a
             String cursorAsString = JDTrace.objectToString(cursor_);    // @J33a
             JDTrace.logInformation(this, "Data to correlate statement with cursor " + cursorAsString);    // @J33a
         }
@@ -3803,7 +3803,7 @@ implements Statement
             escapeProcessing_ = escapeProcessing;
 
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Escape processing", escapeProcessing_);
+                JDTrace.logProperty (this, "set..", "Escape processing", escapeProcessing_);
         }
     }
 
@@ -3848,7 +3848,7 @@ implements Statement
             fetchDirection_ = fetchDirection;
 
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
+                JDTrace.logProperty (this, "set..", "Fetch direction", fetchDirection_);
         }
     }
 
@@ -3890,7 +3890,7 @@ implements Statement
             fetchSize_ = fetchSize;
 
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Fetch size", fetchSize_);
+                JDTrace.logProperty (this, "set..", "Fetch size", fetchSize_);
             
             
         }
@@ -3929,7 +3929,7 @@ implements Statement
               parameterRow_.updateSettings(settings_); 
             }
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Max field size", maxFieldSize_);
+                JDTrace.logProperty (this, "set..", "Max field size", maxFieldSize_);
         }
     }
 
@@ -3973,7 +3973,7 @@ implements Statement
             longMaxRows_ = maxRows; 
             
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Max rows", maxRows_);
+                JDTrace.logProperty (this, "set..", "Max rows", maxRows_);
         }
     }
 
@@ -4021,7 +4021,7 @@ implements Statement
             }
 
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Query timeout", queryTimeout_);
+                JDTrace.logProperty (this, "set..", "Query timeout", queryTimeout_);
         }
     }
 

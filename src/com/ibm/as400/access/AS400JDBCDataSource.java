@@ -2035,7 +2035,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     private void logProperty(String property, String value)
     {
         if (Trace.isTraceOn())
-            JDTrace.logProperty (this, property, value);
+            JDTrace.logProperty (this, "log1", property, value);
 
         //@A8D if (log_ != null)
         //@A8D log_.log(property + ": " + value);
@@ -2367,8 +2367,13 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         properties_.setString(JDProperties.BLOCK_SIZE, new Integer(blockSize).toString());
         changes_.firePropertyChange(property, oldBlockSize, newBlockSize);
 
-        if (JDTrace.isTraceOn()) //@A8C
+        if (JDTrace.isTraceOn())  { //@A8C
             JDTrace.logInformation (this, property + ": " + blockSize);  //@A8C
+            if (blockSize == 0) { 
+              Exception setLocation = new Exception("Set Location"); 
+              JDTrace.logException(this, "setBlockSize", setLocation); 
+            }
+        } 
     }
 
     //@cc1

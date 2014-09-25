@@ -2196,7 +2196,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   {
     // NOTE: JDTrace logs nothing unless JDTrace.isTraceOn() is true.
     if (JDTrace.isTraceOn())
-      JDTrace.logProperty (this, property, value);
+      JDTrace.logProperty (this, "log2", property, value);
   }
 
   final void logDiagnostic(String text)
@@ -2466,6 +2466,16 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     validateProperty(property, Integer.toString(blockSize), JDProperties.BLOCK_SIZE);
 
     properties_.setString(JDProperties.BLOCK_SIZE, new Integer(blockSize).toString());
+    
+    if (JDTrace.isTraceOn())  { //@A8C
+      JDTrace.logInformation (this, property + ": " + blockSize);  //@A8C
+      if (blockSize == 0) { 
+        Exception setLocation = new Exception("Set Location"); 
+        JDTrace.logException(this, "setBlockSize", setLocation); 
+      }
+    } 
+
+    
   }
   
   //@cc1

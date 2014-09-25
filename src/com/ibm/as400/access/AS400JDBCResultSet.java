@@ -344,11 +344,11 @@ implements ResultSet
         if(JDTrace.isTraceOn())
         {
             JDTrace.logOpen (this, statement_);                           // @J33a
-            JDTrace.logProperty (this, "Conncurrency", concurrency_);
-            JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
-            JDTrace.logProperty (this, "Fetch size", fetchSize_);
-            JDTrace.logProperty (this, "Max rows", maxRows_);
-            JDTrace.logProperty (this, "Type", type_);
+            JDTrace.logProperty (this, "AS400JDBCResultSet", "Conncurrency", concurrency_);
+            JDTrace.logProperty (this, "AS400JDBCResultSet", "Fetch direction", fetchDirection_);
+            JDTrace.logProperty (this, "AS400JDBCResultSet", "Fetch size", fetchSize_);
+            JDTrace.logProperty (this, "AS400JDBCResultSet", "Max rows", maxRows_);
+            JDTrace.logProperty (this, "AS400JDBCResultSet", "Type", type_);
         }
     }
 
@@ -925,7 +925,7 @@ implements ResultSet
             fetchDirection_ = fetchDirection;
 
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
+                JDTrace.logProperty (this, "setFetchDirection", "Fetch direction", fetchDirection_);
         }
     }
 
@@ -969,7 +969,7 @@ implements ResultSet
                 ((JDServerRowCache) rowCache_).setFetchSize (fetchSize_);
 
             if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, "Fetch size", fetchSize_);
+                JDTrace.logProperty (this, "setFetchSize", "Fetch size", fetchSize_);
         }
     }
 

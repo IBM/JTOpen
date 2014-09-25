@@ -491,7 +491,7 @@ Set the cursor name.
     name_ = name;
 
     if (JDTrace.isTraceOn())
-      JDTrace.logProperty (this, "Name", name_);
+      JDTrace.logProperty (this, "setName", "Name", name_);
   }
 
 

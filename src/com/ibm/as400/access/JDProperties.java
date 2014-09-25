@@ -1971,7 +1971,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         	if(sendCCSIDInt > 0)
         		values_[index] = value;
         	if(JDTrace.isTraceOn())
-                JDTrace.logProperty (this, dpi_[index].name, value);
+                JDTrace.logProperty (this, "setString", dpi_[index].name, value);
         	return;
         	}catch(NumberFormatException e){
         		//do nothing, will be handled by  code below
@@ -1999,9 +1999,17 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
                 values_[index] = defaults_[index];
         }
 
-        if(JDTrace.isTraceOn())
-            JDTrace.logProperty (this, dpi_[index].name,
+        if(JDTrace.isTraceOn()) { 
+            JDTrace.logProperty (this, 
+                  "setString",
+                  		dpi_[index].name,
                                  ((index != PASSWORD && index != KEY_RING_PASSWORD) ? values_[index] : ""));  //@F1C
+          
+            if (index == BLOCK_SIZE) { 
+                Exception setLocation = new Exception("Set Location"); 
+                JDTrace.logException(this, "setBlockSize", setLocation); 
+            }            
+        } 
     }
 
 

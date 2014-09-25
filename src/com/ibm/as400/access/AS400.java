@@ -4047,6 +4047,7 @@ public class AS400 implements Serializable
                 else
                 {  // Tolerate the exception - we don't require GSS.
                     Trace.log(Trace.DIAGNOSTIC, "GSSToken is not available:", e.getMessage());
+                    Trace.log(Trace.DIAGNOSTIC, "Tolerated exception retrieving GSSToken:", e);
                 }
             }
 

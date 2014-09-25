@@ -3134,7 +3134,7 @@ void handleAbort() {
         transactionManager_.setAutoCommit (autoCommit);
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "Auto commit", transactionManager_.getAutoCommit ());
+            JDTrace.logProperty (this, "setAutoCommit", "Auto commit", transactionManager_.getAutoCommit ());
     }
 
 
@@ -3279,7 +3279,7 @@ void handleAbort() {
         drda_ = drda;
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "DRDA", drda_);
+            JDTrace.logProperty (this, "setDRDA", "DRDA", drda_);
     }
 
 
@@ -3317,7 +3317,7 @@ void handleAbort() {
             transactionManager_.setHoldIndicator(JDProperties.CURSORHOLD_TRUE);  //@F5A
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "Holdability", holdability_);
+            JDTrace.logProperty (this, "setHoldability", "Holdability", holdability_);
     }
 
 
@@ -3543,9 +3543,9 @@ void handleAbort() {
         if (JDTrace.isTraceOn())
         {
             JDTrace.logOpen (this, null);                                              // @J33a
-            JDTrace.logProperty (this, "Auto commit", transactionManager_.getAutoCommit ());
-            JDTrace.logProperty (this, "Read only", readOnly_);
-            JDTrace.logProperty (this, "Transaction isolation", transactionManager_.getIsolation ());
+            JDTrace.logProperty (this, "setProperties", "Auto commit", transactionManager_.getAutoCommit ());
+            JDTrace.logProperty (this, "setProperties", "Read only", readOnly_);
+            JDTrace.logProperty (this, "setProperties", "Transaction isolation", transactionManager_.getIsolation ());
             if (packageManager_.isEnabled ())
                 JDTrace.logInformation (this, "SQL package = "
                                         + packageManager_.getLibraryName() + "/"
@@ -3736,7 +3736,7 @@ void handleAbort() {
         readOnly_ = readOnly;
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "Read only", readOnly_);
+            JDTrace.logProperty (this, "setProperties", "Read only", readOnly_);
     }
 
 
@@ -4562,7 +4562,7 @@ void handleAbort() {
         transactionManager_.setIsolation (level);
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "Transaction isolation", transactionManager_.getIsolation ());
+            JDTrace.logProperty (this, "setTransactionIsolation", "Transaction isolation", transactionManager_.getIsolation ());
     }
 
 

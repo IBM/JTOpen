@@ -2596,7 +2596,7 @@ implements RowSet, Serializable             // @A3C
         createNewStatement_ = true;
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, property, command);
+            JDTrace.logProperty (this, "setCommand", property, command);
     }
 
     /**
@@ -2626,7 +2626,7 @@ implements RowSet, Serializable             // @A3C
         createNewStatement_ = true;
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "concurrency", concurrency);
+            JDTrace.logProperty (this, "setConcurrency", "concurrency", concurrency);
     }
 
     //@A1A
@@ -3148,7 +3148,7 @@ implements RowSet, Serializable             // @A3C
         createNewStatement_ = true;
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, property, type);
+            JDTrace.logProperty (this, "setType", property, type);
     }
 
     /**
@@ -3192,7 +3192,7 @@ implements RowSet, Serializable             // @A3C
         useDataSource_ = false;
 
         if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, property, url);
+            JDTrace.logProperty (this, "setUrl", property, url);
     }
 
     /**

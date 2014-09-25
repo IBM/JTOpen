@@ -283,12 +283,14 @@ Logs a property trace message.
 @param  propertyName    The property name.
 @param  propertyValue   The property value.
 **/
-  static void logProperty(Object object, String propertyName, String propertyValue)
+  static void logProperty(Object object, String callingMethod, String propertyName, String propertyValue)
   {
     if (isTraceOn())
     {
       StringBuffer buffer = new StringBuffer();
-      buffer.append("as400: ");
+      buffer.append("as400@");
+      buffer.append(callingMethod);
+      buffer.append(": ");
       buffer.append(objectToString(object));
       buffer.append(": ");
       buffer.append(propertyName);
@@ -309,12 +311,12 @@ Logs a property trace message.
 @param  propertyName    The property name.
 @param  propertyValue   The property value.
 **/
-  static void logProperty(Object object, String propertyName, boolean propertyValue)
+  static void logProperty(Object object, String callingMethod, String propertyName, boolean propertyValue)
   {
     if (isTraceOn())
     {
       Boolean b = new Boolean(propertyValue);
-      logProperty(object, propertyName, b.toString());
+      logProperty(object, callingMethod, propertyName, b.toString());
     }
   }
 
@@ -327,11 +329,11 @@ Logs a property trace message.
 @param  propertyName    The property name.
 @param  propertyValue   The property value.
 **/
-  static void logProperty(Object object, String propertyName, int propertyValue)
+  static void logProperty(Object object, String callingMethod, String propertyName, int propertyValue)
   {
     if (isTraceOn())
     {
-      logProperty(object, propertyName, Integer.toString(propertyValue));
+      logProperty(object, callingMethod, propertyName, Integer.toString(propertyValue));
     }
   }
 
