@@ -349,6 +349,23 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
         super(ResourceBundleLoader.getText(getMRIKey(returnCode)));
         rc_ =  returnCode;
     }
+    
+    /**
+     * @M4A
+    Constructs an AS400SecurityException.
+    <p>An AS400SecurityException indicates that a security error has occurred.
+    @param  returnCode  The return code which identifies the message to be returned.  Possible values are defined as constants on this class.
+    @param e cause of the exception
+    **/
+   protected AS400SecurityException(int returnCode, Throwable e)
+   {
+       super(ResourceBundleLoader.getText(getMRIKey(returnCode)));
+       rc_ =  returnCode;
+       // Remember the cause of the exception
+       try { 
+         initCause(e); 
+       } catch (Throwable t) { } 
+   }
 
     // Constructs an AS400SecurityException object. 
     // It indicates that a security exception occurred.  
