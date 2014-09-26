@@ -602,7 +602,8 @@ class AS400ImplRemote implements AS400Impl
                     catch (Exception e)
                     {
                         Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-                        throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+                        //@M4C
+                        throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE,e);                                            
                     }
                     break;
                 case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
@@ -1168,7 +1169,8 @@ class AS400ImplRemote implements AS400Impl
             }
             catch (Throwable e) {
                 Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+                //@M4C
+                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE,e);                              
             }
         }
         else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN ||

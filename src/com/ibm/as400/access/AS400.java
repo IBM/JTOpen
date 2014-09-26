@@ -4042,7 +4042,8 @@ public class AS400 implements Serializable
                 if (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ == AS400.GSS_OPTION_MANDATORY)
                 {
                     Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-                    throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+                    //@M4C
+                    throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE,e);
                 }
                 else
                 {  // Tolerate the exception - we don't require GSS.
