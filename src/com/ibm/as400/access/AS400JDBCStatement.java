@@ -154,6 +154,8 @@ implements Statement
 
     protected boolean disableRllCompression_ = false; //@L9A 
 
+    JDSQLStatement currentJDSQLStatement_ = null;
+    
     /**
     Constructs an AS400JDBCStatement object.
 
@@ -305,7 +307,7 @@ implements Statement
             JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
                                                               packageCriteria_, connection_);    //@G4C
-
+            currentJDSQLStatement_ = sqlStatement; 
             // Validate that no parameters are set, since parameters
             // imply the need for a PreparedStatement.
             if(sqlStatement.countParameters () > 0)
@@ -487,7 +489,7 @@ implements Statement
                         {    // @EDA
                             try
                             {    // @EDA
-                                JDError.throwSQLException(connection_, id_, errorClass, returnCode);    // @EDA
+                                JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);    // @EDA
                             }    // @EDA
                             catch(SQLException e2)
                             {    // @EDA
@@ -596,7 +598,7 @@ implements Statement
                         {
                             try
                             {
-                                JDError.throwSQLException(connection_, id_, errorClass, returnCode);
+                                JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
                             }
                             catch(SQLException e2)
                             {
@@ -714,6 +716,7 @@ implements Statement
     throws SQLException
     {
       SQLException savedException = null;   /*@F3A*/
+      currentJDSQLStatement_ = sqlStatement; 
 
       try {
         cancelled_ = false;
@@ -1012,13 +1015,13 @@ implements Statement
                           if ( errd6 == 1) {
                              // Delay error
                               try {
-                                JDError.throwSQLException(connection_, id_, errorClass, returnCode);
+                                JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
                               } catch (SQLException e) {
                                 savedException = e;
                               }
                           } else {
 
-                            JDError.throwSQLException(connection_, id_, errorClass, returnCode);
+                            JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
                           }
                         }
                         else
@@ -1269,6 +1272,8 @@ implements Statement
                              DBReplyRequestedDS reply)    // private protected
     throws SQLException
     {
+      currentJDSQLStatement_ = null; 
+
         // Nothing.
     }
 
@@ -1290,6 +1295,7 @@ implements Statement
     throws SQLException
     {
         // Clear warnings.
+        currentJDSQLStatement_ = sqlStatement; 
         clearWarnings ();
     }
 
@@ -1312,6 +1318,8 @@ implements Statement
     throws SQLException
     {
       JDServerRow resultRow = null;
+      currentJDSQLStatement_ = sqlStatement; 
+
       try {
         /*@D4A*/
         if (connection_.isQueryTimeoutMechanismCancel()) {
@@ -1460,7 +1468,7 @@ implements Statement
                         positionOfSyntaxError_ = connectReply.getSQLCA().getErrd(5);    //@F10A
 
                         if(returnCode < 0)
-                            JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+                            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
                         else
                             postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
                     }
@@ -1592,7 +1600,7 @@ implements Statement
                     {
                         positionOfSyntaxError_ = sqlca.getErrd(5);    //@F10A
                         if(returnCode < 0)
-                            JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+                            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
                         else
                             postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
                     }
@@ -1788,7 +1796,7 @@ implements Statement
                         positionOfSyntaxError_ = normalPrepareReply.getSQLCA().getErrd(5);    //@F10A
 
                         if(returnCode < 0)
-                            JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+                            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
                         else
                             postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
                     }
@@ -1881,6 +1889,7 @@ implements Statement
                              DBReplyRequestedDS reply)    // private protected
     throws SQLException
     {
+        currentJDSQLStatement_ = sqlStatement; 
         // Nothing.
     }
 
@@ -1903,6 +1912,8 @@ implements Statement
     {
         // Close the result set before preparing another.
         closeResultSet (JDCursor.REUSE_YES);
+        currentJDSQLStatement_ = sqlStatement; 
+
     }
 
 
@@ -1923,6 +1934,8 @@ implements Statement
     throws SQLException
     {
         // Nothing.
+      currentJDSQLStatement_ = sqlStatement; 
+
     }
 
 
@@ -1960,6 +1973,7 @@ implements Statement
             JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
                                                               packageCriteria_, connection_);    // @A1A @G4C
+            currentJDSQLStatement_ = sqlStatement; 
 
             if(JDTrace.isTraceOn())    // @D0A
                 JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");    // @D0A
@@ -2042,6 +2056,7 @@ implements Statement
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                                   settings_.getDecimalSeparator (), escapeProcessing_,
                                                                   packageCriteria_, connection_);
+                currentJDSQLStatement_ = sqlStatement; 
 
                 if(JDTrace.isTraceOn())
                     JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
@@ -2066,6 +2081,8 @@ implements Statement
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
                     sqlStatement.setSelectFromInsert(true);
+                    currentJDSQLStatement_ = sqlStatement; 
+
                 }
 
                 // Prepare and execute.
@@ -2125,6 +2142,7 @@ implements Statement
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
                                                               packageCriteria_, connection_);
+                currentJDSQLStatement_ = sqlStatement; 
 
                 if(JDTrace.isTraceOn())
                     JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
@@ -2146,6 +2164,7 @@ implements Statement
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, columnIndexes, null);
                     sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+                    currentJDSQLStatement_ = sqlStatement; 
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
 
@@ -2212,6 +2231,7 @@ implements Statement
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
                                                               packageCriteria_, connection_);
+                currentJDSQLStatement_ = sqlStatement; 
 
                 if(JDTrace.isTraceOn())
                     JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
@@ -2233,6 +2253,7 @@ implements Statement
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, null, columnNames);
                     sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+                    currentJDSQLStatement_ = sqlStatement; 
 
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
@@ -2311,6 +2332,7 @@ implements Statement
                     // some stored procedures, we can't catch it until
                     // the execute.
                     JDSQLStatement sqlStatement = (JDSQLStatement) list.nextElement ();
+                    currentJDSQLStatement_ = sqlStatement; 
 
                     if(JDTrace.isTraceOn())    // @D0A
                         JDTrace.logInformation (this, "Executing from batch SQL Statement -->[" + sqlStatement + "]");    // @D0A
@@ -2379,6 +2401,7 @@ implements Statement
             JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
                                                               packageCriteria_, connection_);    // @A1A @G4C
+            currentJDSQLStatement_ = sqlStatement; 
 
             if(JDTrace.isTraceOn())    // @D0A
                 JDTrace.logInformation (this, "Executing query, SQL Statement -->[" + sqlStatement + "]");    // @D0A
@@ -2438,6 +2461,7 @@ implements Statement
             JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               settings_.getDecimalSeparator (), escapeProcessing_,
                                                               packageCriteria_, connection_);    // @A1A @G4A
+            currentJDSQLStatement_ = sqlStatement; 
 
 
             if(JDTrace.isTraceOn())    // @D0A
@@ -2521,6 +2545,7 @@ implements Statement
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                                   settings_.getDecimalSeparator (), escapeProcessing_,
                                                                   packageCriteria_, connection_);
+                currentJDSQLStatement_ = sqlStatement; 
 
                 if(JDTrace.isTraceOn())
                     JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");
@@ -2544,6 +2569,7 @@ implements Statement
                     sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator(), escapeProcessing_, packageCriteria_, connection_);
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
+                    currentJDSQLStatement_ = sqlStatement; 
 
                     sqlStatement.setSelectFromInsert(true);
                     // Prepare and execute.
@@ -2611,6 +2637,7 @@ implements Statement
 
                 //create the sql statement object.
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+                currentJDSQLStatement_ = sqlStatement; 
 
                 if(JDTrace.isTraceOn())
                     JDTrace.logInformation (this, "Executing update, SQL Statement -->[" + sqlStatement + "]");
@@ -2633,6 +2660,7 @@ implements Statement
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, columnIndexes, null);
                     sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+                    currentJDSQLStatement_ = sqlStatement; 
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
 
@@ -2709,6 +2737,7 @@ implements Statement
 
                 //create the sql statement object.
                 JDSQLStatement sqlStatement = new JDSQLStatement (sql, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+                currentJDSQLStatement_ = sqlStatement; 
 
                 if(JDTrace.isTraceOn())
                     JDTrace.logInformation (this, "Executing update, SQL Statement -->[" + sqlStatement + "]");
@@ -2731,6 +2760,7 @@ implements Statement
                 {
                     String selectStatement = connection_.makeGeneratedKeySelectStatement(sql, null, columnNames);
                     sqlStatement = new JDSQLStatement(selectStatement, settings_.getDecimalSeparator (), escapeProcessing_, packageCriteria_, connection_);
+                    currentJDSQLStatement_ = sqlStatement; 
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Generated keys, SQL Statement -->[" + sqlStatement + "]");
 
@@ -2804,6 +2834,7 @@ implements Statement
     {
         boolean block = false;
         boolean useFetchSize = false;
+        currentJDSQLStatement_ = sqlStatement; 
 
         // Allow blocking for asensitive cursors @H1A
         int requestDSCursorType = AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivityProperty, resultSetType_, resultSetConcurrency_); 
@@ -3191,7 +3222,7 @@ implements Statement
                     if(errorClass != 0)
                     {
                         if(returnCode < 0)
-                            JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+                            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
                         else
                             postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
                     }
@@ -4495,6 +4526,9 @@ implements Statement
     return (long) executeUpdate(sql, columnNames); 
     
   }
-                           
+             
+  JDSQLStatement getJDSQLStatement() {
+    return currentJDSQLStatement_ ;  
+  }
 
 }

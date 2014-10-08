@@ -167,7 +167,7 @@ Commit the current transaction.
 
         if (errorClass != 0) { 
             int returnCode = reply.getReturnCode();
-          JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+          JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
         }
       }
       finally
@@ -443,7 +443,7 @@ enabled, then do nothing.
 
         if (errorClass != 0) { 
         	int returnCode = reply.getReturnCode();
-          JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+          JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
         }
       }
       finally
@@ -563,7 +563,7 @@ Set the auto-commit mode.
               }                  
             	  
               if (errorClass != 0) // @KBA
-            	  JDError.throwSQLException(connection_, id_,
+            	  JDError.throwSQLException(this, connection_, id_,
             			  errorClass, returnCode); // @KBA
               persistenceUpdated();
               
@@ -678,7 +678,7 @@ Set the commit mode on the system.
           int returnCode = reply.getReturnCode();
 
           if (errorClass != 0)
-            JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
         }
         finally
         {
@@ -779,7 +779,7 @@ java.sql.Connection.TRANSACTION_* values.
                       returnCode = reply.getReturnCode();                                         //@KBA
                   }
                   if(errorClass != 0)                                                             //@KBA
-                      JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+                      JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);        //@KBA
                   persistenceUpdated(); 
               }                                                                               //@KBA
           }                                                                                   //@KBA
@@ -865,7 +865,7 @@ can not be called directly on this object.
                   returnCode = reply.getReturnCode();
               }
               if(errorClass != 0)                                                             
-                  JDError.throwSQLException(connection_, id_, errorClass, returnCode); 
+                  JDError.throwSQLException(this, connection_, id_, errorClass, returnCode); 
               persistenceUpdated();
           }                                                                                   
           catch(DBDataStreamException e)                                                      
@@ -921,7 +921,7 @@ can not be called directly on this object.
                   returnCode = reply.getReturnCode();                                         //@KBA
               }            	  
               if(errorClass != 0)                                                             //@KBA
-                  JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+                  JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);        //@KBA
               persistenceUpdated();
           }                                                                                   //@KBA
           catch(DBDataStreamException e)                                                      //@KBA

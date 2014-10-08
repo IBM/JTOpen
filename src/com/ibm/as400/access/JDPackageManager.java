@@ -619,7 +619,7 @@ class JDPackageManager
   {
     if (error_.equalsIgnoreCase (JDProperties.PACKAGE_ERROR_EXCEPTION))
     {
-      JDError.throwSQLException (connection, id, errorClass, returnCode);
+      JDError.throwSQLException (this, connection, id, errorClass, returnCode);
     }
 
     else if (error_.equalsIgnoreCase (JDProperties.PACKAGE_ERROR_WARNING))

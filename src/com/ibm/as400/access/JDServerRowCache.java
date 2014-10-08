@@ -356,7 +356,7 @@ Fetches a block of data from the system.
         {                                                                                // @D1a
            // JDError.throwSQLException (connection_, id_, errorClass, returnCode);      // @D1d
            if (returnCode < 0)    {                                                      // @D1a
-              JDError.throwSQLException (connection_, id_, errorClass, returnCode);      // @D1a
+              JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);      // @D1a
            } else  {                                                                     // @D1a
               // Post the warning to the resultSet, not the connection @D9A
              if (resultSet_ != null) { 

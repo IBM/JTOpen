@@ -346,7 +346,7 @@ implements Connection
                         int errorClass = cancelReply.getErrorClass();
                         int returnCode = cancelReply.getReturnCode();
                         if (errorClass != 0)
-                            JDError.throwSQLException(this, id_, errorClass, returnCode);
+                            JDError.throwSQLException(this, this, id_, errorClass, returnCode);
                     }
                     catch (DBDataStreamException e)
                     {
@@ -3204,7 +3204,7 @@ void handleAbort() {
                 reply = sendAndReceive(request);
                 int errorClass = reply.getErrorClass();
                 if (errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+                    JDError.throwSQLException(this, this, id_, errorClass, reply.getReturnCode());
             }
         } catch( Exception e)
         {
@@ -3251,7 +3251,7 @@ void handleAbort() {
                 reply = sendAndReceive(request);
                 int errorClass = reply.getErrorClass();
                 if(errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+                    JDError.throwSQLException(this, this, id_, errorClass, reply.getReturnCode());
             }
             catch(DBDataStreamException e)
             {
@@ -4888,7 +4888,7 @@ endif */
                 int errorClass = setClientInfoReply.getErrorClass();
                 //throw SQLException
                 if (errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
+                    JDError.throwSQLException(this, this, id_, errorClass, setClientInfoReply.getReturnCode());
 
             }
         } catch (Exception e)
@@ -5021,7 +5021,7 @@ endif */
                 setClientInfoReply = sendAndReceive(request);
                 int errorClass = setClientInfoReply.getErrorClass();
                 if (errorClass != 0)
-                    JDError.throwSQLException(this, id_, errorClass, setClientInfoReply.getReturnCode());
+                    JDError.throwSQLException(this, this, id_, errorClass, setClientInfoReply.getReturnCode());
             }
 
             //update local values after request/reply in case of exception

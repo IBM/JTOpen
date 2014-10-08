@@ -327,7 +327,7 @@ Opens the cursor and describes the data format.
       int returnCode = openReply.getReturnCode();
 
       if (errorClass != 0)
-        JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+        JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
 
       processConcurrencyOverride(openAttributes, openReply);                            // @E1A @E4C
       dataFormat = openReply.getDataFormat ();

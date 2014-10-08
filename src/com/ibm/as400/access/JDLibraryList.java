@@ -329,7 +329,7 @@ in the server job's library list.
           }                                                                        // @D1A
           else
           {
-            JDError.throwSQLException (connection, id, errorClass, returnCode);
+            JDError.throwSQLException (this, connection, id, errorClass, returnCode);
           }                                                                  // @D1A
         }                                                                    // @D1A
       }
