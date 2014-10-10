@@ -47,6 +47,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.CRC32;
 
+import com.ibm.as400.access.AS400JDBCSQLSyntaxErrorException;
 import com.ibm.as400.access.JVMInfo;
 
 
@@ -943,6 +944,21 @@ public class Main implements Runnable {
           String exMessage = ex.getMessage();
           exMessage = cleanupMessage(exMessage);
           out1.println("Message:  " + exMessage);
+          if (t instanceof AS400JDBCSQLSyntaxErrorException) {
+            AS400JDBCSQLSyntaxErrorException see = (AS400JDBCSQLSyntaxErrorException) t;
+            int locationOfSyntaxError = see.getLocationOfSyntaxError();
+            String sqlStatementText = see.getSqlStatementText(); 
+            out1.println("... Syntax error at "+locationOfSyntaxError+" in "+sqlStatementText);
+            if (locationOfSyntaxError > 0 && sqlStatementText != null) {
+              try {
+              out1.println("... "+
+                            sqlStatementText.substring(0, locationOfSyntaxError - 1) +
+                            "=====>"+ sqlStatementText.substring(locationOfSyntaxError-1));
+              } catch (Exception e) {
+                // ignore 
+              }
+            }
+          }
           out1.println("Vendor:   " + ex.getErrorCode());
           if (debug_  || printStackTrace_ )
             ex.printStackTrace(out1);
