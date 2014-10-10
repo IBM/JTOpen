@@ -3911,11 +3911,15 @@ void handleAbort() {
                     JDTrace.logInformation (this, "Client functional level = " + CLIENT_FUNCTIONAL_LEVEL_); // @EDC
 
                 // Sort sequence.
+                // Moved below.. This must be set after setting the IASP, since the 
+                // table may be on the IASP. @M6C
+                /* 
                 if (! properties_.equals (JDProperties.SORT, JDProperties.SORT_HEX))  //@pdc only send if not default (hex)
                 {
                     JDSortSequence sortSequence = new JDSortSequence (
                                                                      properties_.getString (JDProperties.SORT),
                                                                      properties_.getString (JDProperties.SORT_LANGUAGE),
+                        
                                                                      properties_.getString (JDProperties.SORT_TABLE),
                                                                      properties_.getString (JDProperties.SORT_WEIGHT));
                     request.setNLSSortSequence (sortSequence.getType (),
@@ -3924,7 +3928,8 @@ void handleAbort() {
                                                 sortSequence.getLanguageId (),
                                                 tempConverter);
                 }
-
+                */ 
+                
                 request.setTranslateIndicator (0xF0);                       // @E2C
                 request.setDRDAPackageSize (1);
                 //Note:  newAutoCommitSupport is trueAutoCommitSupport
@@ -4211,6 +4216,27 @@ void handleAbort() {
                     }                                                                                             // @J2a
                 }                                                                                                 // @J2a
 
+                
+                // Set the sort table after setting the RDB name @M6M 
+                // This allows the used of a sort table in the IASP 
+                
+                // Sort sequence.
+                if (! properties_.equals (JDProperties.SORT, JDProperties.SORT_HEX))  //@pdc only send if not default (hex)
+                {
+                    JDSortSequence sortSequence = new JDSortSequence (
+                                                                     properties_.getString (JDProperties.SORT),
+                                                                     properties_.getString (JDProperties.SORT_LANGUAGE),
+                        
+                                                                     properties_.getString (JDProperties.SORT_TABLE),
+                                                                     properties_.getString (JDProperties.SORT_WEIGHT));
+                    request.setNLSSortSequence (sortSequence.getType (),
+                                                sortSequence.getTableFile (),
+                                                sortSequence.getTableLibrary (),
+                                                sortSequence.getLanguageId (),
+                                                tempConverter);
+                }
+
+                
                 //@PDA 550 client interface info settings
                 //These three settings cannot be updated by user apps.
                 //This gives driver information to host server for any logging or future diagnostics.
