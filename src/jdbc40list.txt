@@ -22,6 +22,7 @@ com/ibm/as400/access/AS400JDBCResultSet.java
 com/ibm/as400/access/AS400JDBCResultSetMetaData.java
 com/ibm/as400/access/AS400JDBCRowId.java
 com/ibm/as400/access/AS400JDBCRowSet.java
+com/ibm/as400/access/AS400JDBCSQLSyntaxErrorException.java
 com/ibm/as400/access/AS400JDBCSQLXML.java
 com/ibm/as400/access/AS400JDBCSQLXMLLocator.java
 com/ibm/as400/access/AS400JDBCStatement.java
