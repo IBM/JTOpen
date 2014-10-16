@@ -32,6 +32,21 @@ extends SQLException
 {
     static final String copyright = "Copyright (C) 2014-2014 International Business Machines Corporation and others.";
     private static final long serialVersionUID = -202038790097280171L;
+    
+    private static boolean includeLocationAndText = false; 
+    static {
+      try { 
+        String property = System.getProperty("com.ibm.as400.access.AS400JDBCSQLSyntaxErrorException.includeLocationAndText");
+        if (property != null) {
+          property = property.toLowerCase(); 
+          if (!"false".equals(property)) {
+            includeLocationAndText=true; 
+          }
+        }
+      } catch (Throwable e) {
+        
+      }
+    }
 
     private int locationOfSyntaxError_; 
     private String sqlStatementText_; 
@@ -147,7 +162,18 @@ extends SQLException
      * returns null if the statement is not available.  
      */
     public String getSqlStatementText() { 
+      
       return sqlStatementText_; 
     }
+
+    public String getMessage() { 
+      String message = super.getMessage(); 
+      if (includeLocationAndText) {
+        message += " @"+locationOfSyntaxError_+":"+sqlStatementText_; 
+      }
+      return message; 
+    }
+    
+    
     
 }
