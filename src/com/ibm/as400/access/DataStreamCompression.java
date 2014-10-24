@@ -441,7 +441,7 @@ class DataStreamCompression
       destination = new byte[decompressedLength];
     }
 
-    return decompressRLEInternal(source, sourceOffset, length, destination, 0, escape, true); // @A1A
+    return decompressRLEInternal(source, sourceOffset, length, destination, 0, escape, true, true); // @A1A
   }
 
 
@@ -459,7 +459,8 @@ class DataStreamCompression
   @param destinationOffset   The offset in the destination bytes at which to
                              assign decompressed bytes.
   @param escape              The escape character. Use DEFAULT_ESCAPE.
-  
+  @param emptyDestination    If set to true, assumes that the destination contains only 
+                             zeros and the decompression can be optimized
   @return  The decompressed bytes.
   
   **/                                         
@@ -468,7 +469,8 @@ class DataStreamCompression
                              int length,
                              byte[] destination,
                              int destinationOffset,
-                             byte escape)
+                             byte escape,
+                             boolean emptyDestination)
   {
     // Validate the input byte array.
     if (source == null)
@@ -500,7 +502,7 @@ class DataStreamCompression
       throw new ExtendedIllegalArgumentException("destinationOffset", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
-    decompressRLEInternal(source, sourceOffset, length, destination, destinationOffset, escape, false);
+    decompressRLEInternal(source, sourceOffset, length, destination, destinationOffset, escape, false, emptyDestination);
   }
 
 
@@ -519,6 +521,9 @@ class DataStreamCompression
   @param escape              The escape character. Use DEFAULT_ESCAPE.
   @param reallocate          true to reallocate the destination array, if needed,
                              false otherwise.
+  @parm  emptyDestination    true if the destination is initially empty
+                             This is is the case, then expansion of 0 bytes can be
+                             optimized.                              
                              
   @return  The decompressed bytes.
   **/                                         
@@ -528,7 +533,8 @@ class DataStreamCompression
                                                byte[] destination,
                                                int destinationOffset,
                                                byte escape,
-                                               boolean reallocate)
+                                               boolean reallocate,
+                                               boolean emptyDestination)
   {
     // Set flags to indicate which type of tracing, if any, should be done.
     boolean traceDiagnostic = Trace.isTraceOn() && Trace.isTraceDiagnosticOn();
@@ -604,21 +610,39 @@ class DataStreamCompression
 
               // Get repeater
               //@P0D int repeater = BinaryConverter.byteArrayToUnsignedShort(source, i + ESCAPE_SIZE); // @A2C
-              int repeater = ((source[i+ESCAPE_SIZE] & 0xFF) <<  8) + (source[i+ESCAPE_SIZE+1] & 0xFF); //@P0A
+              // int repeater = ((source[i+ESCAPE_SIZE] & 0xFF) <<  8) + (source[i+ESCAPE_SIZE+1] & 0xFF); //@P0A
+              //@M7C
+              byte repeatByte1 = source[i+ESCAPE_SIZE]; 
+              byte repeatByte2 = source[i+ESCAPE_SIZE+1]; 
+
               // Get repeat count
               //@P0D int count = BinaryConverter.byteArrayToUnsignedShort(source, i + ESCAPE_SIZE + REPEATER_SIZE); // @A2C
               int count = ((source[i+ESCAPE_SIZE+REPEATER_SIZE] & 0xFF) << 8) + (source[i+ESCAPE_SIZE+REPEATER_SIZE+1] & 0xFF); //@P0A
+
               
               // Bytes fit in destination array
               if ((j + (count * REPEATER_SIZE)) <= destinationLength)
               {
+                
+                // Check to see if we can skip copying the zero'd bytes if the
+                // destination is still empty. @M7A
+
+                if (repeatByte1 == 0 && repeatByte2 == 0 && emptyDestination ) {
+                  j += count * REPEATER_SIZE; 
+                } else { 
+
                 // Write out the bytes to destination array  
                 for (int k = 1; k <= count; ++k)
-                { // @A2C
-                  //@P0D BinaryConverter.unsignedShortToByteArray(repeater, destination, j); // @A2C
-                  destination[j]   = (byte)(repeater >>> 8); //@P0A
-                  destination[j+1] = (byte) repeater; //@P0A
-                  j += REPEATER_SIZE;
+                  {   // @A2C
+                    //@P0D BinaryConverter.unsignedShortToByteArray(repeater, destination, j); // @A2C
+                    // destination[j]   = (byte)(repeater >>> 8); //@P0A
+                    // destination[j+1] = (byte) repeater; //@P0A
+                	//@M7C
+                    destination[j]   = repeatByte1; 
+                    destination[j+1] = repeatByte2; //@P0A
+                  
+                    j += REPEATER_SIZE;
+                  }
                 }
               }
               // Destination array overflow
@@ -776,7 +800,7 @@ class DataStreamCompression
           }
         }
 
-        // No RLE record found; just copy bytes from source to destination arrray
+        // No RLE record found; just copy bytes from source to destination array
         else
         {
           returnBytes[j++] = source[i++];

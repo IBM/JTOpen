@@ -138,6 +138,7 @@ package com.ibm.as400.access;
 //@M4    20140926  Cause chain support
 //@M5    20141008  JDBC:  Add getPositionOfSyntaxError to syntax exceptions
 //@M6    20141010  JDBC:  Allow use of sort sequence table in IASP
+//@M7    20141024  Misc:  Improve performance of RLE decompression
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -145,8 +146,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2014 International Business Machines Corporation and others.";
-    //                                                                                              built=20141010 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 8.4, codebase 5770-SS1 V7R2M0.00 built=20141010 @M6";  
+    //                                                                                              built=20141021 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 8.4, codebase 5770-SS1 V7R2M0.00 built=20141024 @M7";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1

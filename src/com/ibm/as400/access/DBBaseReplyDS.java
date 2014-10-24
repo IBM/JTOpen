@@ -593,7 +593,7 @@ Parses the datastream.
       BinaryConverter.intToByteArray(newData.length, newData, 0);             // @E2A
       System.arraycopy(data_, 4, newData, 4, 36);                             // @E2A
       DataStreamCompression.decompressRLE(data_, 50, get32bit(0)-50,          // @E2A @E3C
-                                          newData, 40, DataStreamCompression.DEFAULT_ESCAPE);                 // @E2A
+                                          newData, 40, DataStreamCompression.DEFAULT_ESCAPE, true);                 // @E2A
       data_ = newData;                                                        // @E2A
       byteCount_ = data_.length - 20;                                         // @E2A
     }                                                                           // @E2A
