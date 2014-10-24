@@ -299,12 +299,15 @@ class DataStreamCompression
       {
         int saveOffset = i;
         //@P0D int repeater = BinaryConverter.byteArrayToUnsignedShort(source, i); // @A2C
-        int repeater = ((source[i] & 0xFF) << 8) + (source[i+1] & 0xFF); //@P0A
+        // int repeater = ((source[i] & 0xFF) << 8) + (source[i+1] & 0xFF); //@P0A
+        // @M7C
+        byte repeaterByte1 = source[i];
+        byte repeaterByte2 = source[i+1]; 
         int count = 1;                                                      // @A2C
         i += 2;
         // Calculate the number of times these two bytes are repeated.
-        while (((i+1) < sourceLength) && repeater == (((source[i] & 0xFF) << 8) + (source[i+1] & 0xFF)) && count < 65535) //@P0C @B1A
-               //@P0D (BinaryConverter.byteArrayToUnsignedShort(source, i) == repeater))
+        // while (((i+1) < sourceLength) && repeater == (((source[i] & 0xFF) << 8) + (source[i+1] & 0xFF)) && count < 65535) //@P0C @B1A
+        while (((i+1) < sourceLength) && repeaterByte1 == source[i] && repeaterByte2 == source[i+1] && count < 65535) //@P0C @B1A
         { // @A2C
           count++;
           i += 2;
@@ -321,8 +324,10 @@ class DataStreamCompression
             // Bytes fit in destination array; write out the repeated bytes.
             destination[j] = escape; //@P0C
             //@P0D BinaryConverter.unsignedShortToByteArray(repeater, destination, j); // @A2C
-            destination[++j] = (byte)(repeater >>> 8); //@P0A
-            destination[++j] = (byte) repeater; //@P0A
+            // destination[++j] = (byte)(repeater >>> 8); //@P0A
+            // destination[++j] = (byte) repeater; //@P0A
+            destination[++j] = repeaterByte1; 
+            destination[++j] = repeaterByte2;
             //@P0D BinaryConverter.unsignedShortToByteArray(count, destination, j+2); // @A2C
             //@P0D j += 4;
             destination[++j] = (byte)(count >>> 8); //@P0A
