@@ -36,8 +36,8 @@ class PoolItemProperties
    **/
    public void clear()
    {
-      creationTime_ = 0;
-      timeIdleInPool_ = 0;
+      creationTime_ = System.currentTimeMillis();
+      timeIdleInPool_ = creationTime_;
       lastUseTime_ = 0;
       timesUsedCount_ = 0;
    }
