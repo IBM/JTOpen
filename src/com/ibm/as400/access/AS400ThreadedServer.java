@@ -476,6 +476,14 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         int correlationID = send(requestStream);
         discardList_.add(correlationID);
     }
+    
+    //@M8a
+    final void sendAndDiscardReply(DataStream requestStream,int correlationID) throws IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
+        send(requestStream,correlationID);
+        discardList_.add(correlationID);
+    }
 
     final DataStream sendAndReceive(DataStream requestStream) throws IOException, InterruptedException
     {

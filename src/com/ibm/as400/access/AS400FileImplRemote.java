@@ -98,7 +98,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       synchronized(server_) //@F1A
       { //@F1A
-        server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CLOSE(dclName_));
+        server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CLOSE(dclName_),newCorrelationId());//@M8C
       } //@F1A
     }
     else
@@ -529,7 +529,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       synchronized(server_) //@F1A
       { //@F1A
-        server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CMD(cmd, system_)); //@C0C
+        server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CMD(cmd, system_),newCorrelationId()); //@C0C  @M8C
       } //@F1A
     }
     else

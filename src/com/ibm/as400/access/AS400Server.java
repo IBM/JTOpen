@@ -114,6 +114,7 @@ abstract class AS400Server
     abstract void clearInstanceReplyStreams();
     abstract DataStream sendAndReceive(DataStream requestStream) throws IOException, InterruptedException;
     abstract void sendAndDiscardReply(DataStream requestStream) throws IOException;
+    abstract void sendAndDiscardReply(DataStream requestStream,int correlationId) throws IOException;//@M8A
     abstract int send(DataStream requestStream) throws IOException;
     abstract int newCorrelationId();
     abstract void send(DataStream requestStream, int correlationId) throws IOException;
