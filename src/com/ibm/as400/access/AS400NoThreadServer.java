@@ -117,6 +117,14 @@ class AS400NoThreadServer extends AS400Server
         discardList_.addElement(new Integer(correlationID));
     }
 
+    //@M8a
+    final void sendAndDiscardReply(DataStream requestStream,int correlationID) throws IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
+        send(requestStream,correlationID);
+        discardList_.addElement(new Integer(correlationID));
+    }
+    
     int send(DataStream requestStream) throws IOException
     {
       if (Trace.traceOn_) {
