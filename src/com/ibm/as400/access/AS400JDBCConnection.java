@@ -5653,14 +5653,19 @@ endif */
    */
   public void setSchema(String schema) throws SQLException {
     checkOpen ();
-    PreparedStatement ps = prepareStatement("SET CURRENT SCHEMA ? ");
     if (schema.length() > 0 && schema.charAt(0) == '"') {
       // If delimited name pass as is
     } else {
       // Name is not delimited, make sure it is upper case
       schema = schema.toUpperCase();
     }
-    ps.setString(1, schema);
+    PreparedStatement ps;
+    if ("DEFAULT".equals(schema)) { 
+      ps = prepareStatement("SET CURRENT SCHEMA DEFAULT ");
+    } else { 
+      ps = prepareStatement("SET CURRENT SCHEMA ? ");
+      ps.setString(1, schema);
+    }
     ps.executeUpdate();
     ps.close();
   }

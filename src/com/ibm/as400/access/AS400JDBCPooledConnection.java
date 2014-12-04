@@ -131,6 +131,9 @@ public class AS400JDBCPooledConnection implements PooledConnection
     defaultTransactionIsolation_ = connection_.getTransactionIsolation(); 
     defaultHoldability_ = connection_.getInternalHoldability(); 
     defaultSchema_ = connection_.getSchema();
+    if ("*LIBL".equals(defaultSchema_)) { 
+      defaultSchema_="DEFAULT"; 
+    }
     defaultReadOnly_ = connection_.readOnly_; 
     
     properties_ = new PoolItemProperties();
