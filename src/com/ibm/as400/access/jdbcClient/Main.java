@@ -359,14 +359,73 @@ public class Main implements Runnable {
   private long startTime_;
   private long finishTime_;
 
-  public Main(String command, PrintStream out) {
+  public Main(Main originalMain, String command, PrintStream out) {
+    inheritVariables(originalMain); 
     this.command_ = command;
     this.out_ = out;
   }
 
 
 
-   public void run() {
+   private void inheritVariables(Main originalMain) {
+       variables = originalMain.variables; 
+       url_ = originalMain.url_; 
+       userid_= originalMain.userid_  ; 
+       password_= originalMain.password_  ; 
+       prompt_ =  originalMain.prompt_  ;
+       echoCommand_ =  originalMain.echoCommand_  ; 
+       printStackTrace_ =  originalMain.printStackTrace_  ; 
+       queryTimeout_ = originalMain.queryTimeout_  ;
+       measureExecute_ = originalMain.measureExecute_  ;
+       manualFetch_ =  originalMain.manualFetch_  ;
+       resultSetType_ =  originalMain.resultSetType_  ;
+       resultSetConcurrency_ =  originalMain.resultSetConcurrency_  ;
+       resultSetHoldability_ =  originalMain.resultSetHoldability_  ;
+       jdk14_ = originalMain.jdk14_  ;
+       jdk16_ = originalMain.jdk16_  ;
+       hideWarnings_ = originalMain.hideWarnings_  ;
+       toolboxDriver_ = originalMain.toolboxDriver_  ;
+
+       connection_= originalMain.connection_  ;
+       stmt_= originalMain.stmt_  ;
+       manualResultSetNumCols_= originalMain.manualResultSetNumCols_  ;
+       manualResultSet_= originalMain.manualResultSet_  ;
+       manualResultSetColumnLabel_= originalMain.manualResultSetColumnLabel_ ;
+       showLobThreshold_ =  originalMain.showLobThreshold_  ;
+       characterDetails_ = originalMain.characterDetails_  ;
+       stringSampleSize_ = originalMain.stringSampleSize_  ;
+       showMixedUX_= originalMain.showMixedUX_  ;
+        manualResultSetColType_= originalMain.manualResultSetColType_  ;
+        closeStatementRS_= originalMain.closeStatementRS_  ;
+        pstmt_= originalMain.pstmt_  ;
+       savedStringParm_  =originalMain.savedStringParm_  ;
+        echoComments_ = originalMain.echoComments_  ;
+        urlArgs_= originalMain.urlArgs_  ;
+       debug_ =  originalMain.debug_  ;
+       conLabel_= originalMain.conLabel_  ;
+        cstmt_= originalMain.cstmt_ ;
+         cstmtSql_= originalMain.cstmtSql_  ; 
+        threads_ =  originalMain.threads_  ;
+
+        html_ =  originalMain.html_  ;
+        xml_ =  originalMain.xml_  ;
+
+        useConnectionPool_ =  originalMain.useConnectionPool_  ;
+        reuseStatement_ =  originalMain. reuseStatement_ ;
+        poolConnection =  originalMain. poolConnection ;
+        poolUserId =  originalMain.poolUserId  ;
+        poolPassword =  originalMain.poolPassword  ;
+        poolUrl =  originalMain.poolUrl  ;
+        connectionPool =  originalMain. connectionPool ;
+        conCount= originalMain.conCount  ;
+        conName= originalMain.conName  ;
+        silent= originalMain.silent  ;
+
+       history = originalMain.history  ;
+
+   }
+
+  public void run() {
        Thread thisThread = Thread.currentThread();
        out_.println("Thread "+thisThread+" running "+command_);
        String upcaseCommand = command_.toUpperCase();
@@ -2431,7 +2490,7 @@ public class Main implements Runnable {
         history.addElement("!"+command1);
         String newcommand = command1.substring(7).trim();
         out1.println("Starting thread for " + newcommand);
-        Main runnable = new Main(newcommand, out1);
+        Main runnable = new Main(this, newcommand, out1);
         Thread t = new Thread(runnable);
         t.start();
         threads_.add(t);
@@ -2440,7 +2499,7 @@ public class Main implements Runnable {
 	  String threadName = command_.substring(14).trim();
 	  out_.println("Starting thread "+threadName);
 	  String newcommand = "PERSIST"; 
-	  Main runnable = new Main(newcommand, out_);
+	  Main runnable = new Main(this,  newcommand, out_);
 	  variables.put(threadName, runnable); 
 	  Thread t = new Thread(runnable);
 	  t.setName(threadName); 
