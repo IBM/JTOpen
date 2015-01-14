@@ -38,7 +38,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 final class SQLVarcharForBitData
-extends SQLDataBase
+extends SQLDataBase implements SQLVariableCompressible /*@N3C*/ 
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
@@ -84,6 +84,19 @@ extends SQLDataBase
         typeConverter.toBytes(value_, rawBytes, offset + 2);
     }
 
+    /* @N3A */ 
+    public int convertToCompressedBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
+    throws SQLException
+    {
+      AS400ByteArray typeConverter = new AS400ByteArray(length_);
+      BinaryConverter.unsignedShortToByteArray(length_, rawBytes, offset);
+      int bytesWritten = 2; 
+      typeConverter.toBytes(value_, rawBytes, offset + 2);
+      bytesWritten+= length_;
+      return bytesWritten; 
+    }
+    
+    
     //---------------------------------------------------------//
     //                                                         //
     // SET METHODS                                             //
