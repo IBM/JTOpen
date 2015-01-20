@@ -9,8 +9,8 @@
 // Copyright (C) 1997-2014 International Business Machines Corporation and
 // others.  All rights reserved.
 //
-// Generated Fri Jan 16 15:58:23 CST 2015 from z1014p14
-// Using Open Source Software, JTOpen 8.4+, codebase 5770-SS1 V7R2M0.00 built=20150116 @N3
+// Generated Tue Jan 20 08:45:33 CST 2015 from z1014p14
+// Using Open Source Software, JTOpen 8.4+, codebase 5770-SS1 V7R2M0.00 built=20150120 @N4
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,7 +18,7 @@ package com.ibm.as400.access;
 class ConvTable16684 extends ConvTableDoubleMap
 {
   private static char[] toUnicodeArray_;  /*@KDA*/
-  private static final String toUnicode_ = 
+  protected static final String toUnicode_ = 
     "\uFFFF\u4040\uFFFD\u3000\uFFFF\u0100\uFFFD\uFFFE\u0011\u03B1\uFFFE\u0007\u03C3\uFFFF\b\uFFFD" +
     "\uFFFE\u0011\u0391\uFFFE\u0007\u03A3\uFFFF\u0007\uFFFD\uFFFE\u0006\u0430\u0451\uFFFE\u001A\u0436" +
     "\uFFFF\u0010\uFFFD\uFFFE\n\u2170\uFFFF\u0005\uFFFD\uFFFE\u0006\u0410\u0401\uFFFE\u001A\u0416" +
@@ -702,12 +702,12 @@ class ConvTable16684 extends ConvTableDoubleMap
     "\uFFFD\uFFFE\u0005\u031C\uFFFD\uFFFD\uFFFD\u0324\u0325\uFFFD\uFFFD\uFFFD\u0329\u032A\uFFFD\u032C" +
     "\uFFFD\uFFFD\u032F\u0330\uFFFD\uFFFD\uFFFD\u0334\uFFFF\u0004\uFFFD\uFFFE\u0005\u0339\uFFFF\u0023" +
     "\uFFFD\u0361\uFFFF\u0031\uFFFD\u2423\uFFFF\u0092\uFFFD\u2934\u2935\uFFFF\u00CB\uFFFD\u29BF\uFFFF" +
-    "\u003A\uFFFD\u29FA\u29FB\uFFFF\u0004\uFFFD\uFFFE\u0010\u31F0\uFFFF\u0020\uFFFD\uFFFF\u0019\uD800" +
-    "\uFFFF\u1332\uFFFD";
+    "\u003A\uFFFD\u29FA\u29FB\uFFFF\u0004\uFFFD\uFFFE\u0010\u31F0\uFFFF\u0015\uFFFD\uFE45\uFE46\uFFFF" +
+    "\t\uFFFD\uFFFF\u0019\uD800\uFFFF\u1332\uFFFD";
 
 
 /*@KDA*/
-  private static final char[][] toUnicodeSurrogateMappings = { 
+  protected static final char[][] toUnicodeSurrogateMappings = { 
 {'\uB342','\uD840','\uDC0B'},
 {'\uB346','\uD840','\uDC89'},
 {'\uB348','\uD840','\uDCA2'},
@@ -1040,7 +1040,7 @@ class ConvTable16684 extends ConvTableDoubleMap
 
 
   private static char[] fromUnicodeArray_; 
-  private static final String fromUnicode_ = 
+  protected static final String fromUnicode_ = 
     "\uFFFF\u00A0\uFEFE\uD641\uD642\uFEFE\uFEFE\uD643\uFEFE\u426A\u446A\u4460\uD644\uD645\uD646\uFEFE" +
     "\uD647\uD648\uD649\u44ED\u444B\uD64A\uD64B\u4450\uD64C\u4379\uFFFE\u0020\uD64D\u447A\uFFFE\u001F" +
     "\uD66D\u447B\uFFFE\b\uD68C\uFFFE\u0047\uD6B8\uFFFE\u0039\uD741\uFFFF\u0012\uFEFE\uD77A\uD793" +
@@ -2353,4 +2353,11 @@ class ConvTable16684 extends ConvTableDoubleMap
   {
     super(ccsid, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings);
   }
+  
+  ConvTable16684(int ccsid, char[] toUnicodeArray, char[] fromUnicodeArray)
+  {
+    super(ccsid, toUnicodeArray, fromUnicodeArray,toUnicodeSurrogateMappings);
+  }
+  
+  
 }

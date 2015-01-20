@@ -143,7 +143,7 @@ package com.ibm.as400.access;
 //@N1    20141204  JDBC:  Fix default setting of schema in AS400JDBCPooledConnect for system naming
 //@N2    20141212  JDBC:  Fix !THREAD command of jdbc client to inherit environment
 //@N3    20150113  JDBC:  Fix CHAR FOR BIT DATA parameters in input variable field compression
-//@N4    20150119  Convert: update 16684 conversion table
+//@N4    20150119  Convert: update 16684, 300, 4396 conversion table  
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
