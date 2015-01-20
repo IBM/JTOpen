@@ -128,9 +128,13 @@ class ConvTableDoubleMap extends ConvTable
     
     
     // Helper method used to decompress conversion tables when they are initialized.
-    char[] decompress(char[] arr)
+    char[] decompress(char[] arr) { 
+      return decompress(arr, ccsid_); 
+    }
+    // @N4 make this a static method for ConvTable300 can use it
+    static char[] decompress(char[] arr, int ccsid )
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Decompressing double-byte conversion table for ccsid: " + ccsid_, arr.length);
+        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Decompressing double-byte conversion table for ccsid: " + ccsid, arr.length);
         char[] buf = new char[65536];
         int c = 0;
         for (int i = 0; i < arr.length; ++i)
