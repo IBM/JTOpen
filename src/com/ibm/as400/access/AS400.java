@@ -1231,6 +1231,26 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Port connected:", s.getPort());
         return s;
     }
+    
+    /**
+    Connects to a port on the server, via DHCP.  Security is validated and a connection is established.
+    @param  port  The port number to connect to.
+    @param  forceNonLocalhost whether to use localhost when connect to the port if running on as400
+    @return  A Socket object representing the connection.
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  IOException  If an error occurs while communicating with the system.
+    **/
+    //@N5A Add this interface for L1C for the issue of DHCP server has listened on 942 for STRTCPSVR on localhost. 
+   public Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
+   {
+       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting port:", port);
+
+       chooseImpl();
+       signon(false);
+       Socket s = impl_.connectToPort(port,forceNonLocalhost);
+       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Port connected:", s.getPort());
+       return s;
+   }
 
     // Common code for all the constuctors and readObject.
     private void construct()

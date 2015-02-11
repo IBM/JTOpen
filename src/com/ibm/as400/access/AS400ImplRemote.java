@@ -407,6 +407,12 @@ class AS400ImplRemote implements AS400Impl
     {
       return getConnection(0, port);
     }
+    
+    //@N5A Establish a DHCP connection to the specified port. Add this interface for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
+    public Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
+    {
+      return getConnection(0, port,forceNonLocalhost);
+    }
 
     // Implementation for disconnect.
     public void disconnect(int service)
@@ -850,6 +856,100 @@ class AS400ImplRemote implements AS400Impl
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:", port);
         Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_, port);
+        int connectionID = socket.hashCode();
+        try
+        {
+            PortMapper.setSocketProperties(socket, socketProperties_);
+            InputStream inStream = socket.getInputStream();
+            OutputStream outStream = socket.getOutputStream();
+
+            // The first request we send is "exchange random seeds"...
+            int serverId = AS400Server.getServerId(AS400.COMMAND);
+            AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
+            if (Trace.traceOn_) xChgReq.setConnectionID(connectionID);
+            xChgReq.write(outStream);
+
+            AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
+            if (Trace.traceOn_) xChgReply.setConnectionID(connectionID);
+            xChgReply.read(inStream);
+
+            if (xChgReply.getRC() != 0)
+            {
+                byte[] rcBytes = new byte[4];
+                BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
+                Trace.log(Trace.ERROR, "Exchange of random seeds failed with return code:", rcBytes);
+                throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null, null);
+            }
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
+
+            // Next we send the "start server job" request...
+            byte[] clientSeed = xChgReq.getClientSeed();
+            byte[] serverSeed = xChgReply.getServerSeed();
+            byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+            byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
+            if (PASSWORD_TRACE)
+            {
+                Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+                Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
+                Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+                Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
+                Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
+                Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
+            }
+
+            AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType());
+            if (Trace.traceOn_) req.setConnectionID(connectionID);
+            req.write(outStream);
+
+            AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
+            if (Trace.traceOn_) reply.setConnectionID(connectionID);
+            reply.read(inStream);
+
+            if (reply.getRC() != 0)
+            {
+                byte[] rcBytes = new byte[4];
+                BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
+                Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
+                throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
+            }
+
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
+            return socket;
+        }
+        catch (IOException e)
+        {
+            Trace.log(Trace.ERROR, "Establishing DHCP connection failed:", e);
+            try
+            {
+                socket.close();
+            }
+            catch (IOException ee)
+            {
+                Trace.log(Trace.ERROR, "Error closing socket:", ee);
+            }
+            throw e;
+        }
+        catch (AS400SecurityException e)
+        {
+            Trace.log(Trace.ERROR, "Establishing DHCP connection failed:", e);
+            try
+            {
+                socket.close();
+            }
+            catch (IOException ee)
+            {
+                Trace.log(Trace.ERROR, "Error closing socket:", ee);
+            }
+            throw e;
+        }
+    }
+    
+    // Note: The 'dhcp' argument is a dummy argument, whose sole purpose is to differentiate this method from getConnection(int port).  The value of 'dhcp' is ignored.
+    //@N5A Add this interface for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
+    synchronized Socket getConnection(int dhcp, int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:", port);
+        Socket socket = new Socket((systemNameLocal_&& !forceNonLocalhost) ? "localhost" : systemName_, port);
         int connectionID = socket.hashCode();
         try
         {

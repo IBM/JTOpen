@@ -32,6 +32,8 @@ interface AS400Impl
     void connect(int service) throws AS400SecurityException, IOException;
     // Establish a DHCP connection to the specified port.
     Socket connectToPort(int port) throws AS400SecurityException, IOException;
+    //@N5A Establish a DHCP connection to the specified port. Add this interface for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
+    Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException;
     // Disconnect from service.
     void disconnect(int service);
     // Exchange seeds with remote implementation.
