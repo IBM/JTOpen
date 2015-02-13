@@ -827,18 +827,20 @@ public class ProgramCall implements Serializable
         } 
         //@J3 - Start
         boolean isV7R2 = false;
+        boolean isV7R1 = false;//@N6A
         try {
           isV7R2 = system_.getVRM() == 0x00070200;
+          isV7R1 = system_.getVRM() == 0x00070100;//@N6A V7R1 with ptf SI55519 supported parameter with max 255
         } catch(Exception e) {
           e.printStackTrace();
         }
         
-        if (isV7R2 && parameterList.length > 255)
+        if ((isV7R2 || isV7R1)&& parameterList.length > 255)//@N6C
         {
           Trace.log(Trace.ERROR, this, "Parameter list length exceeds limit of 255 parameters:", parameterList.length); //@L8
           throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        else if (!isV7R2 && parameterList.length > 35)
+        else if (!isV7R2 && !isV7R1 && parameterList.length > 35)//@N6C
         {
           Trace.log(Trace.ERROR, this, "Parameter list length exceeds limit of 35 parameters:", parameterList.length); //@L8
           throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
