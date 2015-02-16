@@ -2546,7 +2546,7 @@ endif */
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
             + " length: " + parameterValue.length + " value: "
-            + new String(parameterValue)); // @H1A //@PDC
+            + Trace.toHexString(parameterValue)); // @H1A //@PDC
     } // @H1A
 
     setValue(parameterIndex, parameterValue, null, -1);
