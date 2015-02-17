@@ -1012,7 +1012,8 @@ implements Statement
                           // If so, delay error until fetch occurs.  @F3A
                           //
                           int errd6 = sqlca.getErrd(6);
-                          if ( errd6 == 1) {
+                          String errp = sqlca.getErrp(connection_.converter_);   /*@N7A*/ 
+                          if ( errd6 == 1 || "QSQFETCH".equals(errp)) {
                              // Delay error
                               try {
                                 JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);

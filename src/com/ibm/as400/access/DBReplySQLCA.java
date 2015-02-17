@@ -34,7 +34,6 @@ class DBReplySQLCA
     private static final int[]   locationFromOffset_ = {96, 100, 104, 108, 112, 116};  //@F1A @F4C
 
 
-
     public DBReplySQLCA (byte[] data,
                          int offset,
                          int length)
@@ -108,7 +107,10 @@ class DBReplySQLCA
         return converter.byteArrayToString(data_, offset_ + 18, errml);        // @E3A
     }                                                                          // @E3A
 
-
+    // @N7A 
+    final public String getErrp(ConvTable converter)  {
+      return converter.byteArrayToString(data_, offset_ + 88, 8);
+    }
 
     // @E5A
     final public String getErrmc(int substitutionVariable,                     // @E5A

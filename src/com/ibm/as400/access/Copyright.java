@@ -146,6 +146,7 @@ package com.ibm.as400.access;
 //@N4    20150119  Convert: update 16684, 300, 4396 conversion table  
 //@N5    20150211  DHCP connect to port with non-localhost  
 //@N6    20150213  Program Call: Support max 255 parameters in program call
+//@N7    20150217  JDBC:   Delay errors from combined open/fetch
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
