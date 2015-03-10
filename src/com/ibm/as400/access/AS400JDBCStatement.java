@@ -3045,17 +3045,10 @@ implements Statement
     //@G4A JDBC 3.0
     /**
     Retrieves any auto-generated keys created as a result of executing this Statement object.
-    Currently DB2 for IBM i supports returning only one auto-generated key to the Toolbox JDBC driver
-    -- the key for the last inserted row.  Be aware that the generated key returned is not
-    guaranteed to be unique unless a unique constraint is created on the table.
-
+    
     <p>In order for this method to return auto-generated keys, the statement must be executed on
     a table with an identity column.  For more information about identity columns, Go to the
     IBM i Information Center, and search on the phrase "identity column".
-
-
-    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier,
-    an exception will be thrown.
 
     <p>This method will return null if the user did not request auto-generated keys
     during the execute of a Statement or during the prepare of a PreparedStatement.
