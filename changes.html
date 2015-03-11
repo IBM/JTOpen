@@ -9,7 +9,7 @@ Copyright (C) 1997-2014 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: July 14, 2014
+Last updated: March 11, 2015
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
 the open source community. JTOpen, which is supported by IBM and
@@ -22,7 +22,7 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 IBM Toolbox for Java web site:
 <A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
-<!-- On 2014-07-14: cvs log -rJTOpen_8_2:JTOpen_8_3 -N '-d>2014-03-13' -->
+<!-- On 2015-03-11: cvs log -rJTOpen_8_4:JTOpen_8_5 -N '-d>2014-11-26' -->
 
 <H4>Known deficiencies</H4>
 <PRE>
@@ -48,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#85">Fixes and enhancements in JTOpen 8.5</A><br>
 <A HREF="#84">Fixes and enhancements in JTOpen 8.4</A><br>
 <A HREF="#83">Fixes and enhancements in JTOpen 8.3</A><br>
 <A HREF="#82">Fixes and enhancements in JTOpen 8.2</A><br>
@@ -95,6 +96,19 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <P>
 
 <HR>
+<H3><A NAME="85">Fixes and enhancements in JTOpen 8.5</A> <i>(released 2015-04-01)</i></H3>
+<Pre>
+- JDBC:  Delay errors from combined open/fetch
+- JDBC:  Fix !THREAD command of jdbc client to inherit environment
+- JDBC:  Fix CHAR FOR BIT DATA parameters in input variable field compression
+- JDBC:  Fix default setting of schema in AS400JDBCPooledConnect for system naming
+- JDBC:  Fix tracing of binary parameters
+- Misc: javadoc fixes
+- Convert: update 16684, 300, 4396 conversion table for system updates
+- Program Call: Support max 255 parameters in program call for V7R1
+</Pre>
+
+<HR>
 <H3><A NAME="84">Fixes and enhancements in JTOpen 8.4</A> <i>(released 2014-12-31)</i></H3>
 <Pre>
 - Add setIASPGroup interface in AS400
@@ -112,7 +126,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 </Pre>
 
 <HR>
-<H3><A NAME="83">Fixes and enhancements in JTOpen 8.3</A> <i>(released 2014-08-06)</i></H3>
+<H3><A NAME="83">Fixes and enhancements in JTOpen 8.3</A> <i>(released 2014-11-26)</i></H3>
 <Pre>
 - Changes to enable Bidi Testing 
 - Documentation fixes
