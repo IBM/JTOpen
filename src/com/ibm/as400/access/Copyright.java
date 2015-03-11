@@ -153,7 +153,7 @@ package com.ibm.as400.access;
 public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
-    public static String copyright = "Copyright (C) 1997-2014 International Business Machines Corporation and others.";
+    public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
     //                                                                                              built=20150210 is automatically set by the build (see build.xml)
     public static String version   = "Open Source Software, JTOpen 8.5, codebase 5770-SS1 V7R2M0.00 built=20150311 @N7";  
 
