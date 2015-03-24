@@ -147,6 +147,7 @@ package com.ibm.as400.access;
 //@N5    20150211  DHCP connect to port with non-localhost  
 //@N6    20150213  Program Call: Support max 255 parameters in program call
 //@N7    20150217  JDBC:   Delay errors from combined open/fetch
+//@N8    20150324  JDBC:   Fix LONG CHAR FOR BIT DATA parameter in input variable field compression
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -154,8 +155,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
-    //                                                                                              built=20150210 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 8.5, codebase 5770-SS1 V7R2M0.00 built=20150311 @N7";  
+    //                                                                                              built=20150324 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 8.5, codebase 5770-SS1 V7R2M0.00 built=20150324 @N8";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1
