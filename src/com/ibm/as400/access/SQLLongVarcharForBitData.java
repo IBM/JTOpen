@@ -466,8 +466,9 @@ extends SQLDataBase implements SQLVariableCompressible /*@N8C*/
         truncated_ = 0; outOfBounds_ = false; 
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
+        // The blob must created with maxLength_ not bytes.length 
         byte[] bytes = getBytes();
-        return new AS400JDBCBlob(bytes, bytes.length);
+        return new AS400JDBCBlob(bytes, maxLength_);
     }
 
     public boolean getBoolean()
