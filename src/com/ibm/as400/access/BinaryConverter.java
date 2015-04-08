@@ -510,7 +510,7 @@ public class BinaryConverter
     0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11
   };
 
-  static final byte charsToByte(char hi, char lo)
+  static final byte charsToByte(char hi, char lo) throws NumberFormatException
   {
     int c1 = 0x00FFFF & hi;
     int c2 = 0x00FFFF & lo;
@@ -529,7 +529,9 @@ public class BinaryConverter
     if (offset < 0 || (offset > serverValue.length-1))
     {
       if (Trace.traceOn_) Trace.log(Trace.ERROR, "Offset " + offset + " was specified for array of length " + serverValue.length + ".");
-      throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
+      ArrayIndexOutOfBoundsException ex =new ArrayIndexOutOfBoundsException(String.valueOf(offset)); 
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, ex);
+      throw ex; 
     }
   }
 
@@ -541,7 +543,7 @@ public class BinaryConverter
     @param  s  The String containing the hexadecimal representation of the data.
     @return  A byte array containing the byte values of the hex characters.
   **/
-  public static final byte[] stringToBytes(String s)
+  public static final byte[] stringToBytes(String s) throws NumberFormatException
   {
       if (s == null) throw new NullPointerException("s");
 
@@ -584,7 +586,7 @@ public class BinaryConverter
   // Helper method to convert a String in hex into its corresponding byte array.
   // Called only by HexReaderInputStream
   // length is the length of the string
-  static final int stringToBytes(char[] hex, int offset, int length, final byte[] b, int boff)
+  static final int stringToBytes(char[] hex, int offset, int length, final byte[] b, int boff) throws NumberFormatException
   {
     if (hex.length == 0) return 0;
 

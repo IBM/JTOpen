@@ -580,8 +580,10 @@ public class AS400PackedDecimal implements AS400DataType
       else {
         text = ResourceBundleLoader.getText("EXC_LOW_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
       }
-      Trace.log(Trace.ERROR, "Byte sequence is not valid for a field of type 'packed decimal':", fieldBytes);
-      throw new NumberFormatException(text);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Byte sequence is not valid for a field of type 'packed decimal':", fieldBytes);
+      NumberFormatException nfe = new NumberFormatException(text);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, nfe); 
+      throw nfe; 
     }
 
     private static final String byteToString(int byteVal)

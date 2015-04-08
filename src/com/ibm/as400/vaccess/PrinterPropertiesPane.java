@@ -1023,7 +1023,7 @@ Returns the editor pane.
           attrString = printer_.getPrinterAttribute(PrintObject.ATTR_WTRSTRTD);
           if (attrString != null)
           {
-              attrString.trim();
+            attrString = attrString.trim();
               if (attrString.equals("0"))
               {
                   writerStatusVector.addElement(endedText_);
@@ -1033,7 +1033,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_WRTNGSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                    attrString =  attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(printingText_);
@@ -1042,7 +1042,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_WTNGMSGSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                    attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(messageWaitingText_);
@@ -1051,7 +1051,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_HELDSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                    attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(heldText_);
@@ -1060,7 +1060,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_ENDPNDSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                      attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(endPendingText_);
@@ -1069,7 +1069,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_HOLDPNDSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                    attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(holdPendingText_);
@@ -1078,7 +1078,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_BTWNFILESTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                      attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(betweenFilesText_);
@@ -1087,7 +1087,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_BTWNCPYSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                      attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(betweenCopiesText_);
@@ -1096,7 +1096,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_WTNGDATASTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                      attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(waitingForDataText_);
@@ -1105,7 +1105,7 @@ Returns the editor pane.
                   attrString = printer_.getPrinterAttribute(PrintObject.ATTR_WTNGDEVSTS);
                   if (attrString != null)
                   {
-                      attrString.trim();
+                    attrString = attrString.trim();
                       if (!attrString.equals(printer_.splatNOString_))
                       {
                           writerStatusVector.addElement(waitingForPrinterText_);

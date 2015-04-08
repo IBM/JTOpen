@@ -647,7 +647,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                  attrString = attrString.trim();
                     if (attrString.compareTo(splatYESString_) == 0)
                     {
                         return yesText_;
@@ -669,7 +669,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                  attrString = attrString.trim();
                     if (attrString.compareTo(splatFILEString_) == 0)
                     {
                         return fileDefaultText_;
@@ -695,7 +695,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                  attrString = attrString.trim();
                     if (attrString.compareTo(splatNORDYFString_) == 0)
                     {
                         return afterCurFilePrintsText_;
@@ -811,7 +811,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                  attrString = attrString.trim();
                     if (attrString.compareTo(splatALLString_) == 0)
                     {
                         return allText_;
@@ -837,7 +837,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                  attrString = attrString.trim();
                     if (attrString.compareTo(RELEASEDString_) == 0)
                     {
                         return releasedText_;
@@ -906,7 +906,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                  attrString = attrString.trim();
                     if (attrString.compareTo(splatAFPDSString_) == 0)
                     {
                         return AFPDSString_;
@@ -936,7 +936,7 @@ String getPrinterAttribute(int attributeID)
                 }
                 else // @A4A
                 {
-                    attrString.trim();
+                  attrString = attrString.trim();
                     if (attrString.compareTo(splatYESString_) == 0)
                     {
                         return yesText_;

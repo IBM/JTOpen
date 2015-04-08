@@ -56,7 +56,7 @@ endif */
           }
           catch (InvocationTargetException e) {
              
-              return null;  //interface does not throw SQLException as of current version
+              return "";  //interface does not throw SQLException as of current version
           }
     }
 

@@ -44,7 +44,7 @@ class AS400FileImplNative extends AS400FileImplBase
     // The qyjsprl.C smalltalk C module keeps track of the handles allocated
     // and freed for files globally.  Therefore we synchronize opens and closes
     // at the class level for processes using RLA
-    static String synch_open_close_ = "";
+    static Object synch_open_close_ = new Object() ;
 
     static
     {

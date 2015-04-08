@@ -167,8 +167,8 @@ class ResourceListMetaData implements RowMetaData, java.io.Serializable
       {
          if (columnAttributeIDs_[columnIndex] == null)
          {
-            ResourceBundleLoader_s loader = new ResourceBundleLoader_s();
-            return loader.getText("PROP_NAME_RL_NAME");
+            // ResourceBundleLoader_s loader = new ResourceBundleLoader_s();
+            return ResourceBundleLoader_s.getText("PROP_NAME_RL_NAME");
          }
          else
             return resourceList_.getAttributeMetaData(columnAttributeIDs_[columnIndex]).getPresentation().getFullName();
@@ -189,8 +189,8 @@ class ResourceListMetaData implements RowMetaData, java.io.Serializable
          return resourceList_.getAttributeMetaData(columnAttributeIDs_[columnIndex]).getPresentation().getName();
       else
       {
-         ResourceBundleLoader_s loader = new ResourceBundleLoader_s();
-         return loader.getText("PROP_NAME_RL_NAME");
+         // ResourceBundleLoader_s loader = new ResourceBundleLoader_s();
+         return ResourceBundleLoader_s.getText("PROP_NAME_RL_NAME");
       }
    }
 
