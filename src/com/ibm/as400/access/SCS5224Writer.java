@@ -153,8 +153,8 @@ public class SCS5224Writer extends SCS5256Writer
     {
         byte [] cmd = SCGL;
         int ccsid = getCcsid();
-        SCSFontData fd = new SCSFontData();
-        int[] codePage = fd.codePage; 
+        //  SCSFontData fd = new SCSFontData();
+        int[] codePage = SCSFontData.codePage; 
         int length = codePage.length;
 
         /* Loop through the list of code pages looking for a match.  */
@@ -164,7 +164,7 @@ public class SCS5224Writer extends SCS5256Writer
         {
             if (ccsid == codePage[i])
             {
-                cmd[cmd.length-1] = fd.codePageID[i];
+                cmd[cmd.length-1] = SCSFontData.codePageID[i];
                 break;
             }
         }

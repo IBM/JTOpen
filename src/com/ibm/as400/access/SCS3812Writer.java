@@ -33,7 +33,7 @@ import java.io.UnsupportedEncodingException;
 
 public class SCS3812Writer extends SCS5219Writer
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+   static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
     /** Constant value for duplex printing.  **/
@@ -316,8 +316,7 @@ public class SCS3812Writer extends SCS5219Writer
            throws IOException
     {
         byte [] cmd = SFID;
-        SCSFontData fd = new SCSFontData();
-        int[] fontIDs = fd.fontIDs; 
+        int[] fontIDs = SCSFontData.fontIDs; 
         /* Make sure font value is valid                             */
         if ((font < 0) || (font > fontIDs.length))
         {
@@ -332,8 +331,8 @@ public class SCS3812Writer extends SCS5219Writer
    //     {                                     //@A2D
 
         /* Get font ID and width                                 */
-        int fgid = fd.fontIDs[font];
-        int width = fd.fontWidths[font];
+        int fgid = SCSFontData.fontIDs[font];
+        int width = SCSFontData.fontWidths[font];
 
         /* Update command string.                                */
         cmd[4] = (byte)(fgid >> 8);
