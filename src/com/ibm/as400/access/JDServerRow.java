@@ -671,9 +671,21 @@ implements JDRow
                     }                                                                                             //@array
                     else
                     {
+                      try { 
                         sqlData_[index0].convertFromRawBytes (rawBytes_,
                                                           rowDataOffset_ + dataOffset_[index0],
                                                           ccsidConverter);
+                      } catch (NumberFormatException nfe) { 
+                        if (JDTrace.isTraceOn()) {
+                          JDTrace.logInformation (this, "Caught number format exception rowDataOffset_="+rowDataOffset_+" dataOffset_["+index0+"]="+dataOffset_[index0]);
+                          for (int  i = 0; i < dataOffset_.length; i++) { 
+                            JDTrace.logInformation (this, "....dataOffset_["+i+"]="+dataOffset_[i]);
+                          }
+                          JDTrace.logInformation (this, "....rowIndex_="+rowIndex_);
+                          serverData_.logInformation("..."); 
+                        }
+                        throw nfe; 
+                      }
                     }
                     translated_[index0] = true;
                 }

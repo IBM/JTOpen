@@ -278,5 +278,24 @@ when it was not previously set by the constructor.
     public int getDataTotalSize (int colIndex){
         return -9999; //valid in DBVariableData 
     }
+    public void logInformation(String prefix) {
+      JDTrace.logInformation(this, prefix+"offset_="+offset_); 
+      JDTrace.logInformation(this, prefix+"actualLength_="+actualLength_);
+      JDTrace.logInformation(this, prefix+"dataCompressed_="+dataCompressed_); 
+
+      JDTrace.logInformation(this, prefix+"rowCount_="+rowCount_); 
+      JDTrace.logInformation(this, prefix+"columnCount_="+columnCount_); 
+      JDTrace.logInformation(this, prefix+"indicatorSize_="+indicatorSize_); 
+      JDTrace.logInformation(this, prefix+"rowSize_="+rowSize_); 
+
+      JDTrace.logInformation(this, prefix+"indicatorOffset_="+indicatorOffset_); 
+      JDTrace.logInformation(this, prefix+"dataOffset_="+dataOffset_); 
+      JDTrace.logInformation(this, prefix+"length_="+length_); 
+
+      JDTrace.logInformation(this, prefix+"aliasCount_="+aliasCount_); 
+      
+    }
+
+
 }
 

@@ -79,6 +79,8 @@ extends DBOverlay
     public abstract int getIndicator (int rowIndex, int columnIndex, int arrayIndex); //@array
     
     public abstract int getDataTotalSize (int colIndex);  //@array
+
+    public abstract void logInformation(String prefix);
     
    
 }

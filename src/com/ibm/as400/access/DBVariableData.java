@@ -550,6 +550,30 @@ implements DBData
         return indicatorCountsFromHost_;
     }
 
+    public void logInformation(String prefix) {
+      JDTrace.logInformation(this, prefix+"offset_="+offset_); 
+      JDTrace.logInformation(this, prefix+"vlfCompressed_="+vlfCompressed_); 
+
+      JDTrace.logInformation(this, prefix+"rowCount_="+rowCount_); 
+      JDTrace.logInformation(this, prefix+"columnCount_="+columnCount_); 
+      JDTrace.logInformation(this, prefix+"indicatorSize_="+indicatorSize_); 
+      
+      JDTrace.logInformation(this, prefix+"headerCurOffsetToHost_="+headerCurOffsetToHost_); 
+      JDTrace.logInformation(this, prefix+"indicatorCurOffsetToHost_="+indicatorCurOffsetToHost_); 
+      JDTrace.logInformation(this, prefix+"dataCurOffsetToHost_="+dataCurOffsetToHost_); 
+      JDTrace.logInformation(this, prefix+"headerTotalSizeToHost_="+headerTotalSizeToHost_); 
+      JDTrace.logInformation(this, prefix+"indicatorTotalSizeToHost_="+indicatorTotalSizeToHost_); 
+      JDTrace.logInformation(this, prefix+"dataTotalSizeToHost_="+dataTotalSizeToHost_); 
+
+
+      JDTrace.logInformation(this, prefix+"headerOffsetFromHost_="+headerOffsetFromHost_); 
+      JDTrace.logInformation(this, prefix+"indicatorOffsetFromHost_="+indicatorOffsetFromHost_); 
+      JDTrace.logInformation(this, prefix+"dataOffsetFromHost_="+dataOffsetFromHost_); 
+      JDTrace.logInformation(this, prefix+"lengthFromHost_="+lengthFromHost_); 
+
+ 
+    }
+
 
 
 
