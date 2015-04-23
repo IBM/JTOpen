@@ -41,7 +41,7 @@ class ConvTableJavaMap extends ConvTable
         }
         catch (Exception e)
         {
-            if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "No associated CCSID for encoding '" + encoding + "'. Lookup returned " + ccsid + ".");
+            if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "No associated CCSID for encoding '" + encoding + "'. Lookup returned " + ccsid + ".");
             ccsid_ = 0;
         }
 
@@ -50,13 +50,13 @@ class ConvTableJavaMap extends ConvTable
         writer_ = new OutputStreamWriter(outBuffer_, encoding_);
         reader_ = new InputStreamReader(inBuffer_, encoding_);
 
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Successfully loaded Java map for encoding: " + encoding_);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Successfully loaded Java map for encoding: " + encoding_);
     }
 
     // Let Java perform an Encoding to Unicode conversion.
     final String byteArrayToString(byte[] buf, int offset, int length, BidiConversionProperties properties)
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting byte array to string for encoding: " + encoding_, buf, offset, length);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for encoding: " + encoding_, buf, offset, length);
         char[] dest = new char[length];
         int count = 0;
         synchronized (inBuffer_)
@@ -72,18 +72,18 @@ class ConvTableJavaMap extends ConvTable
             }
             catch (IOException e)
             {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "IOException occurred on byteArrayToString for encoding " + encoding_, e);
+                if (Trace.traceConversion_) Trace.log(Trace.ERROR, "IOException occurred on byteArrayToString for encoding " + encoding_, e);
             }
             reader_ = null;
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string for encoding: " + encoding_ + " (" + count + ")", ConvTable.dumpCharArray(dest));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for encoding: " + encoding_ + " (" + count + ")", ConvTable.dumpCharArray(dest));
         return String.copyValueOf(dest, 0, count);
     }
 
     // Let Java perform a Unicode to Encoding conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for encoding: " + encoding_, ConvTable.dumpCharArray(source.toCharArray()));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for encoding: " + encoding_, ConvTable.dumpCharArray(source.toCharArray()));
         byte[] ret = null;
         synchronized (outBuffer_)
         {
@@ -99,12 +99,12 @@ class ConvTableJavaMap extends ConvTable
             }
             catch (IOException e)
             {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "IOException occurred on stringToByteArray for encoding " + encoding_, e);
+                if (Trace.traceConversion_) Trace.log(Trace.ERROR, "IOException occurred on stringToByteArray for encoding " + encoding_, e);
             }
             writer_ = null;
             ret = outBuffer_.toByteArray();
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for encoding: " + encoding_, ret);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for encoding: " + encoding_, ret);
         return ret;
     }
 }

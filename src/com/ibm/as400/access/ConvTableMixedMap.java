@@ -34,13 +34,13 @@ abstract class ConvTableMixedMap extends ConvTable
         super(ccsid);
         sbTable_ = (ConvTableSingleMap)ConvTable.getTable(sbCcsid, null);
         dbTable_ = (ConvTableDoubleMap)ConvTable.getTable(dbCcsid, null);
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Successfully loaded mixed-byte map for ccsid: " + ccsid_);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Successfully loaded mixed-byte map for ccsid: " + ccsid_);
     }
 
     // Perform an OS/400 CCSID to Unicode conversion.
     final String byteArrayToString(byte[] buf, int offset, int length, BidiConversionProperties properties)
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
         char[] dest = new char[length];
         boolean inSBMode = true;
 
@@ -94,7 +94,7 @@ abstract class ConvTableMixedMap extends ConvTable
             }
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_ + ": 0," + destPos, ConvTable.dumpCharArray(dest));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_ + ": 0," + destPos, ConvTable.dumpCharArray(dest));
         return String.copyValueOf(dest, 0, destPos);
     }
 
@@ -102,7 +102,7 @@ abstract class ConvTableMixedMap extends ConvTable
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
         char[] src = source.toCharArray();
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         // Max possible length for mixed-byte byte array.
         byte[] dest = new byte[(src.length * 5 + 3) / 2];
 
@@ -222,7 +222,7 @@ abstract class ConvTableMixedMap extends ConvTable
         byte[] ret = new byte[destPos];
         System.arraycopy(dest, 0, ret, 0, destPos);
 
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
         return ret;
     }
 }

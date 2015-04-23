@@ -27,7 +27,7 @@ class ConvTable1208 extends ConvTable
     // Perform an OS/400 CCSID to Unicode conversion.
     final String byteArrayToString(byte[] buf, int offset, int length, BidiConversionProperties properties)
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
         char[] out = new char[length];
         int outCount = 0;
         for (int i=offset; i<offset+length && i < buf.length; ++i)
@@ -103,14 +103,14 @@ class ConvTable1208 extends ConvTable
                 out[outCount++] = (char)c;
             }
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(out));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(out));
         return String.copyValueOf(out, 0, outCount);
     }
 
     // Perform a Unicode to OS/400 CCSID conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray(), 0, source.length()));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray(), 0, source.length()));
         int len = source.length();
         byte[] buf = new byte[len * 4];
         int bufCount = 0;
@@ -132,7 +132,7 @@ class ConvTable1208 extends ConvTable
                     // We're fault tolerant, ignore the high surrogate and just return.
                     byte[] ret = new byte[bufCount];
                     System.arraycopy(buf, 0, ret, 0, bufCount);
-                    if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, ret);
+                    if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, ret);
                     return ret;
                 }
             }
@@ -162,13 +162,13 @@ class ConvTable1208 extends ConvTable
         byte[] ret = new byte[bufCount];
         System.arraycopy(buf, 0, ret, 0, bufCount);
 
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
         return ret;
     }
 
     final byte[] stringToByteArray(char[] src, int offset, int length)
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length));
         byte[] buf = new byte[src.length * 4];
         int bufCount = 0;
         int len = offset + length;
@@ -190,7 +190,7 @@ class ConvTable1208 extends ConvTable
                     // We're fault tolerant, ignore the high surrogate and just return.
                     byte[] ret = new byte[bufCount];
                     System.arraycopy(buf, 0, ret, 0, bufCount);
-                    if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, ret);
+                    if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, ret);
                     return ret;
                 }
             }
@@ -220,14 +220,14 @@ class ConvTable1208 extends ConvTable
         byte[] ret = new byte[bufCount];
         System.arraycopy(buf, 0, ret, 0, bufCount);
 
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
         return ret;
     }
 
     final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
     {
         int bufCount = offset;
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
         try
         {
             int len = source.length();
@@ -247,7 +247,7 @@ class ConvTable1208 extends ConvTable
                     else
                     {
                         // We're fault tolerant, ignore the high surrogate and just return.
-                        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
+                        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
                         return;
                     }
                 }
@@ -279,7 +279,7 @@ class ConvTable1208 extends ConvTable
         {
             throw new CharConversionException();
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
     }
 
     final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException {
@@ -289,7 +289,7 @@ class ConvTable1208 extends ConvTable
     final int stringToByteArrayTruncation(String source, byte[] buf, int offset, int length) throws CharConversionException
     {
         int truncated = 0;                      /*@H2A*/ 
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
         try
         {
             int len = source.length();
@@ -311,7 +311,7 @@ class ConvTable1208 extends ConvTable
                     else
                     {
                         // We're fault tolerant, ignore the high surrogate and just return.
-                        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, buf, offset, length);
+                        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, buf, offset, length);
                         return truncated ;   /*@H2A*/
                     }
                 }
@@ -386,7 +386,7 @@ class ConvTable1208 extends ConvTable
         {
             throw new CharConversionException();
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, length);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, length);
         return truncated;             /*@H2A*/ 
     }
 

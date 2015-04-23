@@ -111,7 +111,7 @@ class ConvTableDoubleMap extends ConvTable
         super(ccsid);
         toUnicode_ = decompress(toUnicode);
         fromUnicode_ = decompress(fromUnicode);
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Successfully loaded double-byte map for ccsid: " + ccsid_);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Successfully loaded double-byte map for ccsid: " + ccsid_);
     }
 
     // Constructor
@@ -134,7 +134,7 @@ class ConvTableDoubleMap extends ConvTable
     // @N4 make this a static method for ConvTable300 can use it
     static char[] decompress(char[] arr, int ccsid )
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Decompressing double-byte conversion table for ccsid: " + ccsid, arr.length);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Decompressing double-byte conversion table for ccsid: " + ccsid, arr.length);
         char[] buf = new char[65536];
         int c = 0;
         for (int i = 0; i < arr.length; ++i)
@@ -207,7 +207,7 @@ class ConvTableDoubleMap extends ConvTable
     // Perform an OS/400 CCSID to Unicode conversion.
     final String byteArrayToString(byte[] buf, int offset, int length, BidiConversionProperties properties)
     {
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
         // Length could be twice as long because of surrogates
         char[] dest = new char[length ];
         int to = 0; 
@@ -229,7 +229,7 @@ class ConvTableDoubleMap extends ConvTable
                 }
             }
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
         return String.copyValueOf(dest,0,to);
     }
 
@@ -273,7 +273,7 @@ class ConvTableDoubleMap extends ConvTable
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
         char[] src = source.toCharArray();
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         byte[] dest;
         // Note.. with surrogates, the output array can be shorter @KDA
         dest = new byte[src.length * 2];
@@ -293,7 +293,7 @@ class ConvTableDoubleMap extends ConvTable
           System.arraycopy(dest, 0, newDest, 0, destIndex * 2);
           dest = newDest; 
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
         return dest;
     }
 

@@ -83,7 +83,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public BidiConversionProperties()
     {
-        if (Trace.traceOn_) traceLog(Trace.DIAGNOSTIC, "Constructing BidiConversionProperties.");
+        if (Trace.traceConversion_) traceLog(Trace.DIAGNOSTIC, "Constructing BidiConversionProperties.");
     }
 
     BidiConversionProperties(int bidiStringType)
@@ -141,7 +141,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiStringType(int bidiStringType)
     {
-        if (Trace.traceOn_) {
+        if (Trace.traceConversion_) {
           if (bidiStringType != lastBidiStringType) {
               traceLog( Trace.DIAGNOSTIC, "Setting bidi string type:"+ bidiStringType);
               lastBidiStringType = bidiStringType;
@@ -161,7 +161,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public int getBidiStringType()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Getting bidi string type:"+ bidiStringType_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Getting bidi string type:"+ bidiStringType_);
         return bidiStringType_;
     }
 
@@ -171,7 +171,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiRemoveMarksOnImplicitToVisual(boolean removeMarks)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi remove the directional marks only when transforming from logical to visual property:"+ removeMarks);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi remove the directional marks only when transforming from logical to visual property:"+ removeMarks);
         removeMarksOnImplicitToVisual_ = removeMarks;
     }
 
@@ -181,7 +181,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiRemoveMarksOnImplicitToVisual()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if remove the directional marks only when transforming from logical to visual property is set:"+ removeMarksOnImplicitToVisual_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if remove the directional marks only when transforming from logical to visual property is set:"+ removeMarksOnImplicitToVisual_);
         return removeMarksOnImplicitToVisual_;
     }
 
@@ -265,7 +265,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiImplicitReordering(boolean bidiImplicitReordering)
     {
-        if (Trace.traceOn_) {
+        if (Trace.traceConversion_) {
             if (bidiImplicitReordering != oldBidiImplicitReordering) {
             traceLog( Trace.DIAGNOSTIC, "Setting bidi implicit LTR-RTL reordering:"+ bidiImplicitReordering);
             oldBidiImplicitReordering = bidiImplicitReordering;
@@ -280,7 +280,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiImplicitReordering()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi implicit LTR-RTL reordering:"+ impToImp_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi implicit LTR-RTL reordering:"+ impToImp_);
         return impToImp_;
     }
 
@@ -290,7 +290,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiNumericOrderingRoundTrip(boolean bidiNumericOrderingRoundTrip)
     {
-        if (Trace.traceOn_) {
+        if (Trace.traceConversion_) {
           if (oldBidiNumericOrderingRoundTrip != bidiNumericOrderingRoundTrip) {
             traceLog( Trace.DIAGNOSTIC, "Setting bidi numeric ordering round trip:"+ bidiNumericOrderingRoundTrip);
             oldBidiNumericOrderingRoundTrip = bidiNumericOrderingRoundTrip;
@@ -305,7 +305,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiNumericOrderingRoundTrip()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi numeric ordering round trip:"+ roundTrip_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi numeric ordering round trip:"+ roundTrip_);
         return roundTrip_;
     }
 
@@ -316,7 +316,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiWindowCompatibility(boolean bidiWindowCompatibility)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi window compatibility:"+ bidiWindowCompatibility);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi window compatibility:"+ bidiWindowCompatibility);
         winCompatible_ = bidiWindowCompatibility;
     }
 
@@ -326,7 +326,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiWindowCompatibility()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi window compatibility:"+ winCompatible_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi window compatibility:"+ winCompatible_);
         return winCompatible_;
     }
 
@@ -336,7 +336,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiInsertDirectionalMarks(boolean bidiInsertDirectionalMarks)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi insert directional marks:"+ bidiInsertDirectionalMarks);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi insert directional marks:"+ bidiInsertDirectionalMarks);
         insertMarkers_ = bidiInsertDirectionalMarks;
     }
 
@@ -346,7 +346,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiInsertDirectionalMarks()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi insert directional marks:"+ insertMarkers_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi insert directional marks:"+ insertMarkers_);
         return insertMarkers_;
     }
 
@@ -356,7 +356,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiRemoveDirectionalMarks(boolean bidiRemoveDirectionalMarks)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi remove directional marks:"+ bidiRemoveDirectionalMarks);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi remove directional marks:"+ bidiRemoveDirectionalMarks);
         removeMarkers_ = bidiRemoveDirectionalMarks;
     }
 
@@ -366,7 +366,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiRemoveDirectionalMarks()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi remove directional marks:"+ removeMarkers_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi remove directional marks:"+ removeMarkers_);
         return removeMarkers_;
     }
 
@@ -376,7 +376,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiWordBreak(boolean wordBreak)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi word break:"+ wordBreak);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi word break:"+ wordBreak);
         wordBreak_ = wordBreak;
     }
 
@@ -386,7 +386,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiWordBreak()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi consider white space to always follow base orientation:"+ wordBreak_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi consider white space to always follow base orientation:"+ wordBreak_);
         return wordBreak_;
     }
 
@@ -403,7 +403,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiNumeralShaping(int numeralShaping)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting numeral shaping:"+ numeralShaping);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting numeral shaping:"+ numeralShaping);
         if (numeralShaping < NUMERALS_DEFAULT || numeralShaping > NUMERALS_ANY)
         {
           throw new ExtendedIllegalArgumentException("numeralShaping (" + numeralShaping + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -424,7 +424,7 @@ public class BidiConversionProperties implements Serializable
     **/
     public int getBidiNumeralShaping()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking numeral shaping:"+ numeralShaping_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking numeral shaping:"+ numeralShaping_);
         return numeralShaping_;
     }
 
@@ -434,7 +434,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiDestinationRequired(boolean destinationRequired)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi destination required:"+ destinationRequired);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi destination required:"+ destinationRequired);
         destinationRequired_ = destinationRequired;
     }
 
@@ -444,7 +444,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiDestinationRequired()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi destination required:"+ destinationRequired_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi destination required:"+ destinationRequired_);
         return destinationRequired_;
     }
 
@@ -454,7 +454,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiCreateSourceToDestinationMapping(boolean srcToDstMapRequired)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi create a source to destination mapping property:"+ srcToDstMapRequired);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi create a source to destination mapping property:"+ srcToDstMapRequired);
         srcToDstMapRequired_ = srcToDstMapRequired;
     }
 
@@ -464,7 +464,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiCreateSourceToDestinationMapping()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if create a source to destination mapping property is set:"+ srcToDstMapRequired_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if create a source to destination mapping property is set:"+ srcToDstMapRequired_);
         return srcToDstMapRequired_;
     }
 
@@ -474,7 +474,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiCreateDestinationToSourceMapping(boolean dstToSrcMapRequired)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi create a destination to source mapping property:"+ dstToSrcMapRequired);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi create a destination to source mapping property:"+ dstToSrcMapRequired);
         dstToSrcMapRequired_ = dstToSrcMapRequired;
     }
 
@@ -484,7 +484,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiCreateDestinationToSourceMapping()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if create a destination to source mapping property is set:"+ dstToSrcMapRequired_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if create a destination to source mapping property is set:"+ dstToSrcMapRequired_);
         return dstToSrcMapRequired_;
     }
 
@@ -494,7 +494,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiCreatePropertyMap(boolean propertyMapRequired)
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Setting bidi create property map property:"+ propertyMapRequired);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Setting bidi create property map property:"+ propertyMapRequired);
         propertyMapRequired_ = propertyMapRequired;
     }
 
@@ -504,7 +504,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiCreatePropertyMap()
     {
-        if (Trace.traceOn_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi create property map property is set:"+ propertyMapRequired_);
+        if (Trace.traceConversion_) traceLog( Trace.DIAGNOSTIC, "Checking if bidi create property map property is set:"+ propertyMapRequired_);
         return propertyMapRequired_;
     }
 
