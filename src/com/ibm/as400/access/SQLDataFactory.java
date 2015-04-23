@@ -531,6 +531,10 @@ class SQLDataFactory
                            int xmlCharType) //@xml3 SB or DB XML
     throws SQLException
     {
+      
+      if (Trace.traceJDBC_) {
+        Trace.log(Trace.DIAGNOSTIC, "SQLDataFactory.newData(nativeType="+nativeType+",length="+length+",precision="+precision+",scale="+scale+",ccsid="+ccsid+")"); 
+      }
         switch(nativeType)
         {
 

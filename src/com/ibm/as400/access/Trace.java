@@ -1849,6 +1849,14 @@ private static final void log(int category, Object source, String message, byte[
 	 StringBuffer sb = new StringBuffer();
 	 sb.append("java.home="); 
 	 sb.append(System.getProperty("java.home")); 
+   sb.append(" java.vm.vendor="); 
+   sb.append(System.getProperty("java.vm.vendor"));
+	 sb.append(" java.vm.info="); 
+   sb.append(System.getProperty("java.vm.info"));
+   sb.append(" java.runtime.version=");
+   sb.append(System.getProperty("java.runtime.version"));
+   sb.append(" java.fullversion=");
+   sb.append(System.getProperty("java.fullversion"));
 	 sb.append(" java.vm.version=");
 	 sb.append(System.getProperty("java.vm.version")); 
 	 sb.append(" java.version=");

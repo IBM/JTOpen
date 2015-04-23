@@ -23,8 +23,8 @@ public class AS400PackedDecimal implements AS400DataType
 {
     static final long serialVersionUID = 4L;
 
-    private int digits;
-    private int scale;
+    private int digits_;
+    private int scale_;
     private static final long defaultValue = 0;
     static final boolean HIGH_NIBBLE = true;
     static final boolean LOW_NIBBLE  = false;
@@ -49,8 +49,8 @@ public class AS400PackedDecimal implements AS400DataType
      }
 
      // set instance variables
-     this.digits = numDigits;
-     this.scale = numDecimalPositions;
+     this.digits_ = numDigits;
+     this.scale_ = numDecimalPositions;
     }
 
     /**
@@ -76,7 +76,7 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public int getByteLength()
     {
-     return this.digits/2+1;
+     return this.digits_/2+1;
     }
 
     /**
@@ -112,7 +112,7 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public int getNumberOfDigits()
     {
-     return this.digits;
+     return this.digits_;
     }
 
     /**
@@ -121,7 +121,7 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public int getNumberOfDecimalPositions()
     {
-     return this.scale;
+     return this.scale_;
     }
 
     /**
@@ -154,7 +154,7 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public byte[] toBytes(Object javaValue)
     {
-     byte[] as400Value = new byte[this.digits/2+1];
+     byte[] as400Value = new byte[this.digits_/2+1];
      this.toBytes(javaValue, as400Value, 0);
      return as400Value;
     }
@@ -179,10 +179,10 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public int toBytes(Object javaValue, byte[] as400Value, int offset)
     {
-     int outDigits = this.digits;
-     int outDecimalPlaces = this.scale;
+     int outDigits = this.digits_;
+     int outDecimalPlaces = this.scale_;
      int outLength = outDigits/2+1;
-
+     
      // verify input
      BigDecimal inValue = null;
      try {
@@ -268,7 +268,7 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public byte[] toBytes(double doubleValue)
     {
-        byte[] as400Value = new byte[digits/2+1];
+        byte[] as400Value = new byte[digits_/2+1];
         toBytes(doubleValue, as400Value, 0);
         return as400Value;
     }
@@ -324,17 +324,17 @@ public class AS400PackedDecimal implements AS400DataType
         // "effective" scale due to the lack of precision representable
         // by a long.
         long leftSide = (long)absValue;
-        int effectiveScale = (scale > 15) ? 15 : scale;       
+        int effectiveScale = (scale_ > 15) ? 15 : scale_;       
         long rightSide = (long)Math.round((absValue - (double)leftSide) * Math.pow(10, effectiveScale));
 
         // Ok, now we are done with any double arithmetic!
-        int length = digits/2;
+        int length = digits_/2;
         int b = offset + length;
         boolean nibble = true; // true for left nibble, false for right nibble.
 
         // If the effective scale is different than the actual scale,
         // then pad with zeros.
-        int scaleDifference = scale - effectiveScale;
+        int scaleDifference = scale_ - effectiveScale;
         for (int i = 1; i <= scaleDifference; ++i) {
             if (nibble) {
                 as400Value[b] &= (byte)(0x000F);
@@ -364,7 +364,7 @@ public class AS400PackedDecimal implements AS400DataType
         }
 
         // Compute the bytes for the left side of the decimal point.
-        int leftSideDigits = digits - scale;
+        int leftSideDigits = digits_ - scale_;
         for (int i = 1; i <= leftSideDigits; ++i) {
             nextDigit = (int)(leftSide % 10);
             if (nibble) {
@@ -447,8 +447,8 @@ public class AS400PackedDecimal implements AS400DataType
 
         // Compute the value.
         double doubleValue = 0;
-        double multiplier = Math.pow(10, -scale);
-        int rightMostOffset = offset + digits/2;
+        double multiplier = Math.pow(10, -scale_);
+        int rightMostOffset = offset + digits_/2;
         boolean nibble = true; // true for left nibble, false for right nibble.
         for(int i = rightMostOffset; i >= offset;) {
             if (nibble) {
@@ -503,6 +503,7 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public Object toObject(byte[] as400Value, int offset)
     {
+      int startOffset = offset;
       if (useDouble_) return new Double(toDouble(as400Value, offset));
 
      // Check offset to prevent bogus NumberFormatException message
@@ -511,7 +512,7 @@ public class AS400PackedDecimal implements AS400DataType
          throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
      }
 
-     int numDigits = this.digits;
+     int numDigits = this.digits_;
      int inputSize = numDigits/2+1;
 
      // even number of digits will have a leading zero
@@ -539,6 +540,7 @@ public class AS400PackedDecimal implements AS400DataType
           throwNumberFormatException(LOW_NIBBLE, offset+inputSize-1,
                                      as400Value[offset+inputSize-1] & 0xFF,
                                      as400Value);
+          return null; 
      }
 
      // read all the digits except last one
@@ -549,14 +551,27 @@ public class AS400PackedDecimal implements AS400DataType
            throwNumberFormatException(HIGH_NIBBLE, offset,
                                       as400Value[offset] & 0xFF,
                                       as400Value);
-         outputData[outputPosition++] = (char)(nibble | 0x0030);
-
-         nibble = (as400Value[offset++] & 0x0F);
-         if (nibble > 0x09)
-           throwNumberFormatException(LOW_NIBBLE, offset-1,
-                                      as400Value[offset-1] & 0xFF,
+         outputData[outputPosition] = (char)(nibble | 0x0030);
+         outputPosition++;
+         
+         nibble = (as400Value[offset] & 0x0F);
+         if (nibble > 0x09) {
+           if (Trace.traceOn_) Trace.log(Trace.ERROR, 
+                 " outputPosition="+outputPosition+
+                 " outputData.length="+outputData.length +
+                 " numDigits = "+numDigits +
+                 " this.digits = "+this.digits_ +
+                 " offset = "+offset+
+                 " startOffset = "+startOffset);
+           
+           
+           throwNumberFormatException(LOW_NIBBLE, offset,
+                                      as400Value[offset] & 0xFF,
                                       as400Value);
-         outputData[outputPosition++] = (char)(nibble | 0x0030);
+         }
+         offset++; 
+         outputData[outputPosition] = (char)(nibble | 0x0030);
+         outputPosition++; 
      }
 
      // read last digit
@@ -565,10 +580,10 @@ public class AS400PackedDecimal implements AS400DataType
        throwNumberFormatException(HIGH_NIBBLE, offset,
                                   as400Value[offset] & 0xFF,
                                   as400Value);
-     outputData[outputPosition++] = (char)(nibble | 0x0030);
+     outputData[outputPosition] = (char)(nibble | 0x0030);
 
      // construct New BigDecimal object
-     return new BigDecimal(new BigInteger(new String(outputData)), this.scale);
+     return new BigDecimal(new BigInteger(new String(outputData)), this.scale_);
     }
 
     static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue, byte[] fieldBytes) throws NumberFormatException
