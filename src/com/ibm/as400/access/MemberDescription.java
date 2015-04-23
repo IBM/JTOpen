@@ -532,8 +532,7 @@ public class MemberDescription
   private ProgramParameter[] buildProgramParameters(String format)
     throws UnsupportedEncodingException
   {
-    final CharConverter charConverter;
-    charConverter = new CharConverter(system_.getCcsid(), system_);
+    Converter charConverter = new Converter(system_.getCcsid(), system_);
 
     ProgramParameter[] parameterList = new ProgramParameter[7];
 
@@ -542,9 +541,9 @@ public class MemberDescription
     // Length of receiver variable:
     parameterList[1] = new ProgramParameter(intConverter_.toBytes(332));
     // Format name:
-    parameterList[2] = new ProgramParameter(CharConverter.stringToByteArray(system_, format));
+    parameterList[2] = new ProgramParameter(charConverter.stringToByteArray(format));
     // Qualified database file name:
-    parameterList[3] = new ProgramParameter(CharConverter.stringToByteArray(system_, pathName_.toQualifiedObjectName()));
+    parameterList[3] = new ProgramParameter(charConverter.stringToByteArray(pathName_.toQualifiedObjectName()));
     // Database member name:
     String memberName = pathName_.getMemberName();
     if (memberName.length() == 0)
@@ -554,7 +553,7 @@ public class MemberDescription
     }
     parameterList[4] = new ProgramParameter(new AS400Text(10).toBytes(memberName));
     // Override processing:  (1 == "overrides are processed")
-    parameterList[5] = new ProgramParameter(charConverter.stringToByteArray(system_, "1"));
+    parameterList[5] = new ProgramParameter(charConverter.stringToByteArray("1"));
     // Error code:
     parameterList[6] = new ErrorCodeParameter();
 
