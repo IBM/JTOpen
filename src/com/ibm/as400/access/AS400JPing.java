@@ -376,15 +376,15 @@ public class AS400JPing
 
             // If the Thread has not returned within the timeout period,
             // interrupt the thread and fail the ping attempt.
-            if (ddmSocket_ == null)
+            if (socketContainer_ == null)//@O1C
             {
                 jpingDaemon_.interrupt();
                 throw new Exception("Ping Timeout occurred.");
             }
             else  // The Thread has returned within the timeout period.
             {
-                // Copied from PortMapper.setSocketProperties():
-                if (Trace.traceOn_)
+                // Copied from PortMapper.setSocketProperties(): //@O1D This information will be print in PortMapper
+                /*if (Trace.traceOn_)
                 {
                   Trace.log(Trace.DIAGNOSTIC, "Socket properties:");
                   try { Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + ddmSocket_.getInetAddress()); } catch (Throwable t) {}
@@ -397,13 +397,13 @@ public class AS400JPing
                   try { Trace.log(Trace.DIAGNOSTIC, "    So linger:", ddmSocket_.getSoLinger()); } catch (Throwable t) {}
                   try { Trace.log(Trace.DIAGNOSTIC, "    So timeout:", ddmSocket_.getSoTimeout()); } catch (Throwable t) {}
                   try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", ddmSocket_.getTcpNoDelay()); } catch (Throwable t) {}
-                }
+                }*/
 
-                os = ddmSocket_.getOutputStream();
+                os = socketContainer_.getOutputStream();//@Q1C
                 os.write(excsatReq);
                 os.flush();
 
-                is = ddmSocket_.getInputStream();
+                is = socketContainer_.getInputStream();//@Q1C
                 byte[] excsatRep = new byte[113];
                 int numBytesRead = is.read(excsatRep);
                 if (numBytesRead < excsatRep.length)
@@ -441,10 +441,10 @@ public class AS400JPing
             try { os.close(); }
             catch (Throwable e) { Trace.log(Trace.ERROR, e); }
           }
-          if (ddmSocket_ != null) {
+         /* if (ddmSocket_ != null) {//@Q1D
             try { ddmSocket_.close(); }
             catch (Throwable e) { Trace.log(Trace.ERROR, e); }
-          }
+          }*/
         }
     }
 
@@ -509,7 +509,8 @@ public class AS400JPing
                 if (service_ == AS400.RECORDACCESS)
                 {
                     // Create a socket to the DDM Server.
-                    ddmSocket_ = new Socket(systemName_, 446); // DRDA is on port 446
+                    //ddmSocket_ = new Socket(systemName_, 446); // DRDA is on port 446
+                    socketContainer_ = PortMapper.getServerSocket(systemName_, service_, useSSL_, socketProperties_, true);//@Q1A
                 }
                 else
                 {
