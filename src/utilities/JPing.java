@@ -149,7 +149,12 @@ public class JPing
       }
       finally
       {
+        try { 
          System.exit(0); // this is necessary in case a signon dialog popped up
+        } catch (Exception e) { 
+          // Ignore any errors from exit (for example, a security manager could cause
+          // a security exception when exit is called. 
+        }
       }
    }
 
