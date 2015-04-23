@@ -474,10 +474,10 @@
 		</javac>
 		<copy file="${source}/utilities/INMRI.pro"
 	          preservelastmodified="yes"
-	          tofile="${output}/utilities/INMRI.properties"/>
+	          tofile="${output6}/utilities/INMRI.properties"/>
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
-	          tofile="${output}/utilities/UTMRI.properties"/>
+	          tofile="${output6}/utilities/UTMRI.properties"/>
 	</target>
 
 
@@ -508,10 +508,10 @@
 		</javac>
 		<copy file="${source}/utilities/INMRI.pro"
 	          preservelastmodified="yes"
-	          tofile="${output}/utilities/INMRI.properties"/>
+	          tofile="${output8}/utilities/INMRI.properties"/>
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
-	          tofile="${output}/utilities/UTMRI.properties"/>
+	          tofile="${output8}/utilities/UTMRI.properties"/>
 	</target>
 
 
