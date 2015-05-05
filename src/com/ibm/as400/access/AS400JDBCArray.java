@@ -431,7 +431,7 @@ public class AS400JDBCArray implements Array {
   private Object getArrayX(long index, int count) throws SQLException {
 
     int intIndex = (int) index - 1; // make 0 based
-    if ((data_.length >= 0) && isSQLData_) // @nullelem
+    if ( isSQLData_) // @nullelem
     {
 
       // create array of same type as data_

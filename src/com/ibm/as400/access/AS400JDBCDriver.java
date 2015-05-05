@@ -1019,7 +1019,7 @@ endif */
         else                                                                      //@pw1
         {                                                                         //@pw1
             //since info is null, jdProperty must not be "" or *current, but it can be the default value (ie not set by user)
-            if(userName != JDProperties.EMPTY_)                                   //@pw1
+            if(!JDProperties.EMPTY_.equals(userName) )                             //@pw1
             {                                                                     //@pw1
                 //userName was updated by app
                 if( userName.equals("") || (userName.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
@@ -1051,7 +1051,7 @@ endif */
         else                                                                      //@pw1
         {                                                                         //@pw1
             //since info is null, jdProperty must not be "" or *current, but it can be the default value (ie not set by user)
-            if(password != JDProperties.EMPTY_)                                   //@pw1
+            if(!JDProperties.EMPTY_.equals(password))                              //@pw1
             {                                                                     //@pw1
                 //password was updated by app
                 if( password.equals("") || (password.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
