@@ -34,6 +34,7 @@ import java.util.Random;                          // @J3a
 
 import javax.sql.DataSource;                      // JDBC2.0 std-ext
 import javax.naming.NamingException;              // JNDI
+import javax.naming.RefAddr;
 import javax.naming.Reference;                    // JNDI
 import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
@@ -326,29 +327,49 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         // set up property change support
         changes_ = new PropertyChangeSupport(this);
 
-        // set up the as400 object
-        if (((String)reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_)) {
-            isSecure_ = true;
-            as400_ = new SecureAS400();
+    // set up the as400 object
+    if (((String) reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_)) {
+      isSecure_ = true;
+      as400_ = new SecureAS400();
 
-            // since the as400 object is secure, get the key ring info
-            serialKeyRingName_ = (String)reference.get(KEY_RING_NAME).getContent();
-            if (reference.get(KEY_RING_PASSWORD) != null)
-                serialKeyRingPWBytes_ = ((String)reference.get(KEY_RING_PASSWORD).getContent()).toCharArray();
-            else
-                serialKeyRingPWBytes_ = null;
+      // since the as400 object is secure, get the key ring info.
+      // This is optional information so be prepared that it is not set.
+      // @O4A
+      RefAddr keyRingNameReference = reference.get(KEY_RING_NAME);
+      if (keyRingNameReference != null) {
+        serialKeyRingName_ = (String) keyRingNameReference.getContent();
+      }
 
-            try {
-                if (serialKeyRingPWBytes_ != null && serialKeyRingPWBytes_.length > 0)
-                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, xpwDeconfuse(serialKeyRingPWBytes_));
-                else
-                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_);
-            } catch (PropertyVetoException pve) { /* Will never happen */ }
-
+      RefAddr keyRingPasswordReference = reference.get(KEY_RING_PASSWORD);
+      if (keyRingPasswordReference != null) {
+        String keyRingPasswordContent = (String) keyRingPasswordReference
+            .getContent();
+        if (keyRingPasswordContent != null) {
+          serialKeyRingPWBytes_ = keyRingPasswordContent.toCharArray();
         } else {
-            isSecure_ = false;
-            as400_ = new AS400();
+          serialKeyRingPWBytes_ = null;
         }
+      } else {
+        serialKeyRingPWBytes_ = null;
+      }
+
+      try {
+        if (serialKeyRingName_ != null) {
+          if (serialKeyRingPWBytes_ != null && serialKeyRingPWBytes_.length > 0) {
+            ((SecureAS400) as400_).setKeyRingName(serialKeyRingName_,
+                xpwDeconfuse(serialKeyRingPWBytes_));
+          }
+          // We can not set serialKeyRingName if null or not exist @O4D
+          // else
+          //  ((SecureAS400) as400_).setKeyRingName(serialKeyRingName_);
+        }
+      } catch (PropertyVetoException pve) { /* Will never happen */
+      }
+
+    } else {
+      isSecure_ = false;
+      as400_ = new AS400();
+    }
 
         // must initialize the JDProperties so the property change checks dont get a NullPointerException
         properties_ = new JDProperties(null, null);

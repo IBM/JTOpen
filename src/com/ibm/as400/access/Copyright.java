@@ -151,6 +151,7 @@ package com.ibm.as400.access;
 //@O1    20150423  JPing ddm-ssl with correct port
 //@O2    20150505  Command: fix up the offset for getting command processing library and program
 //@O3    20150505  Fix Object Description size for OBJD0400 format
+//@O4    20150505  JDBC:  Fix AS400DataSource and secure=true   
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -158,8 +159,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
-    //                                                                                              built=20150324 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 8.6, codebase 5770-SS1 V7R2M0.00 built=20150505 @O3";  
+    //                                                                                              built=20150505 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 8.6, codebase 5770-SS1 V7R2M0.00 built=20150505 @O4";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1
