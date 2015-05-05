@@ -246,7 +246,7 @@ public class RetrieveObjectDescription implements Program
       case FORMAT_OBJD0100: return 90;
       case FORMAT_OBJD0200: return 180;
       case FORMAT_OBJD0300: return 460;
-      case FORMAT_OBJD0400: return 666;
+      case FORMAT_OBJD0400: return 667;//@O3C it should be 667
     }
     return 0;
   }

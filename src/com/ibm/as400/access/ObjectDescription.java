@@ -1748,7 +1748,7 @@ public class ObjectDescription
       case 300:
         return 460;
       case 400:
-        return 598;
+        return 667; //@O3C Fix Object Description size for OBJD0400 format. Refer http://www-01.ibm.com/support/knowledgecenter/ssw_ibm_i_72/apis/qusrobjd.htm
       default:
         return 0;
     }
