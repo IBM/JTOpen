@@ -1275,14 +1275,14 @@ public class Command implements Serializable
     byte[] outputData = parms[0].getOutputData();
     CharConverter conv = new CharConverter(system_.getCcsid());
 
-    String cppName = conv.byteArrayToString(outputData, 18, 10).trim();
+    String cppName = conv.byteArrayToString(outputData, 28, 10).trim();//@O2C offset is not correct before
     if (cppName.equals("*REXX"))
     {
       commandProcessingProgram_ = cppName;
     }
     else
     {
-      String cppLib = conv.byteArrayToString(outputData, 28, 10).trim();
+      String cppLib = conv.byteArrayToString(outputData, 38, 10).trim();//@O2C offset is not correct before
       commandProcessingProgram_ = QSYSObjectPathName.toPath(cppLib, cppName, "PGM");
     }
 
