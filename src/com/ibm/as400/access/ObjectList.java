@@ -291,9 +291,9 @@ public class ObjectList implements Serializable
     if (objectName == null) throw new NullPointerException("objectName");
     if (objectType == null) throw new NullPointerException("objectType");
     system_ = system;
-    objectLibrary_ = objectLibrary;
-    objectName_ = objectName;
-    objectType_ = objectType;
+    objectLibrary_ = QSYSObjectPathName.toQSYSName(objectLibrary);//@O5C
+    objectName_ = QSYSObjectPathName.toQSYSName(objectName);//@O5C
+    objectType_ = objectType.toUpperCase();//@O5C
   }
 
   //@550A
@@ -341,9 +341,9 @@ public class ObjectList implements Serializable
     if (objectName == null) throw new NullPointerException("objectName");
     if (objectType == null) throw new NullPointerException("objectType");
     system_ = system;
-    objectLibrary_ = objectLibrary;
-    objectName_ = objectName;
-    objectType_ = objectType;
+    objectLibrary_ = QSYSObjectPathName.toQSYSName(objectLibrary);//@O5C
+    objectName_ = QSYSObjectPathName.toQSYSName(objectName);//@O5C
+    objectType_ = objectType.toUpperCase();//@O5C
     aspDeviceName_ = aspDeviceName;
   }
   
