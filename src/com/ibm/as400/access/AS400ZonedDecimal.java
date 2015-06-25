@@ -484,19 +484,28 @@ public class AS400ZonedDecimal implements AS400DataType
           outputData = new char[size];
           break;
          default: // others invalid
+         {
           throwNumberFormatException(HIGH_NIBBLE, offset+size-1,
                                      as400Value[offset+size-1] & 0xFF,
                                      as400Value);
+          return null;   // return  
+         }
      }
 
      // place the digits
      while (outputPosition < outputData.length)
      {
          nibble = as400Value[offset++] & 0x000F;
-         if (nibble > 0x0009)
+         if (nibble > 0x0009) {
+           if (Trace.traceOn_) Trace.log(Trace.ERROR, 
+               " outputPosition="+outputPosition+
+               " outputData.length="+outputData.length +
+               " offset (after increment)= "+offset);
+
            throwNumberFormatException(LOW_NIBBLE, offset-1,
                                       as400Value[offset-1] & 0x00FF,
                                       as400Value);
+         }
          outputData[outputPosition++] = (char)(nibble | 0x0030);
      }
 

@@ -544,7 +544,7 @@ public class AS400PackedDecimal implements AS400DataType
      }
 
      // read all the digits except last one
-     while (outputPosition < outputData.length-1)
+     while (outputPosition < (outputData.length-1))
      {
          nibble = (as400Value[offset] & 0xFF) >>> 4;
          if (nibble > 0x09)
