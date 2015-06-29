@@ -1053,5 +1053,29 @@ Reads an input stream and returns its data as a String.
 
     }
 
+    /**
+     * Remove all trailing space from a String. 
+     * @param inString
+     * @return
+     */
+    /*@O7A*/ 
+    public static String trimTrailingSpace(String inString) {
+      int lastCharacterIndex = inString.length() -1;
+      if (lastCharacterIndex >= 0) {
+        if (inString.charAt(lastCharacterIndex)== ' ') {
+          while( (inString.charAt(lastCharacterIndex) == ' ') && lastCharacterIndex >= 0 ) {
+            lastCharacterIndex--; 
+          }
+          if (lastCharacterIndex >= 0) {
+            return inString.substring(0,lastCharacterIndex+1); 
+          } else {
+            return ""; 
+          }
+        }
+      }
+          
+      return inString;
+    }
+
 
 }

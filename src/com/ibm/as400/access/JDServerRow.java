@@ -515,9 +515,19 @@ implements JDRow
             // Cache the field names so we only translate them once.
             //
             int index0 = index-1;
-            if(fieldNames_[index0] == null)
-                fieldNames_[index0] = serverFormat_.getFieldName (index0,
-                                                                  connection_.getConverter (serverFormat_.getFieldNameCCSID (index0))).trim();
+            if(fieldNames_[index0] == null) {
+                String thisFieldName = serverFormat_.getFieldName (index0,
+                    connection_.getConverter (serverFormat_.getFieldNameCCSID (index0)));
+              
+                // The native JDBC driver behavior is to only trim spaces from  
+                // the end of the string and to preserve leading whitespace. 
+                // Use the same behavior for the toolbox driver.  @O7A
+                if (thisFieldName.length() > 0) {
+                  thisFieldName = JDUtilities.trimTrailingSpace(thisFieldName); 
+                } 
+                
+                fieldNames_[index0] = thisFieldName;
+            }
 
             //Bidi-HCG - add converion from serverFormat_.getFieldNameCCSID (index0) to "bidi string type" here
             //Bidi-HCG start
