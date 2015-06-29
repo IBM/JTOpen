@@ -445,24 +445,24 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         int dataPrecision = getPrecision();
         int dataType = getDataType();
 
-        try 
+        //try   //@O6D 
         {
             switch (dataType) 
             {
     
                 case PcmlData.CHAR:
-                    return Class.forName("java.lang.String");
+                    return java.lang.String.class;// @O6C Class.forName("java.lang.String");
     
                 case PcmlData.INT:
                     if (dataLength == 2) 
                     {
                         if (dataPrecision == 16) 
                         {
-                            return Class.forName("java.lang.Integer");
+                            return java.lang.Integer.class; //@O6C Class.forName("java.lang.Integer");
                         }
                         else 
                         { // dataPrecision == 15 or defaulted
-                            return Class.forName("java.lang.Short");
+                            return java.lang.Short.class; //@O6C Class.forName("java.lang.Short");
                         }
                     }
                     else 
@@ -470,11 +470,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     { // dataLength == 4
                         if (dataPrecision == 32) 
                         {
-                            return Class.forName("java.lang.Long");
+                            return java.lang.Long.class;//@O6C Class.forName("java.lang.Long");
                         }
                         else 
                         { // dataPrecision == 31 or defaulted
-                            return Class.forName("java.lang.Integer");
+                            return java.lang.Integer.class;//@O6C Class.forName("java.lang.Integer");
                         }
                     }
                     else                                            // @C3A
@@ -482,40 +482,40 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     { // dataLength == 8                            // @C3A
                       if (dataPrecision == 64) 
                       {
-                          return Class.forName("java.math.BigInteger");
+                          return java.math.BigInteger.class;//@O6C Class.forName("java.math.BigInteger");
                       }
                       else 
                       { // dataPrecision == 63 or defaulted
-                          return Class.forName("java.lang.Long");  // @C3A
+                          return java.lang.Long.class;//@O6C Class.forName("java.lang.Long");  // @C3A
                       }  
                     }                                               // @C3A
     
                 case PcmlData.PACKED:
                 case PcmlData.ZONED:
-                    return Class.forName("java.math.BigDecimal");
+                    return java.math.BigDecimal.class;//@O6C Class.forName("java.math.BigDecimal");
     
     
                 case PcmlData.FLOAT:
                     if (dataLength == 4) 
                     {
-                        return Class.forName("java.lang.Float");
+                        return java.lang.Float.class;//@O6C Class.forName("java.lang.Float");
                     }
                     else 
                     { // Must be length=8
-                        return Class.forName("java.lang.Double");
+                        return java.lang.Double.class;//@O6C Class.forName("java.lang.Double");
                     }
     
                 case PcmlData.BYTE:
                     return (new byte[0]).getClass();
 
                 case PcmlData.DATE:
-                    return Class.forName("java.sql.Date");
+                    return java.sql.Date.class;//@O6C Class.forName("java.sql.Date");
 
                 case PcmlData.TIME:
-                    return Class.forName("java.sql.Time");
+                    return java.sql.Time.class;//@O6C Class.forName("java.sql.Time");
 
                 case PcmlData.TIMESTAMP:
-                    return Class.forName("java.sql.Timestamp");
+                    return java.sql.Timestamp.class;//@O6C Class.forName("java.sql.Timestamp");
 
 
                 default:
@@ -523,10 +523,10 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     
             } // END: switch (getDataType())
         }
-        catch (ClassNotFoundException e) 
+       /* catch (ClassNotFoundException e)  //@O6D 
         {
             throw new PcmlException(DAMRI.CLASS_NOT_FOUND, new Object[] {new Integer(getDataType()) , getNameForException()} );
-        }
+        }*/
     }
 
     // Convert Java object IBM i bytes
