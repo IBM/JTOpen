@@ -155,6 +155,7 @@ package com.ibm.as400.access;
 //@O5    20150610  Fix objectList name, library and type to not case sensitive   
 //@O6    20150629  PCML: Fix performance issue about Class.forName in PcmlDataValues    
 //@O7    20150629  JDBC: Fix trimming of leading spaces of column names
+//@O8    20150630  JDBC: Fix errors from QSQFETCH from stored procedures not reported
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -162,8 +163,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
-    //                                                                                              built=20150505 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 8.6, codebase 5770-SS1 V7R2M0.00 built=20150629 @O7";  
+    //                                                                                              built=20150630 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 8.6, codebase 5770-SS1 V7R2M0.00 built=20150630 @O7";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1

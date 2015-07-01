@@ -91,7 +91,7 @@ implements Statement
     private     boolean                 cancelled_;
     private     boolean                 closed_;
     private     boolean                 closeOnCompletion_;  //@D7A
-    AS400JDBCConnection     connection_;    // private protected
+    protected AS400JDBCConnection     connection_;    // private protected
     JDCursor                cursor_;    // private protected
     private     String                  cursorDefaultName_;
     private     boolean                 escapeProcessing_;
@@ -155,6 +155,9 @@ implements Statement
     protected boolean disableRllCompression_ = false; //@L9A 
 
     JDSQLStatement currentJDSQLStatement_ = null;
+
+
+     Exception creationLocation_;
     
     /**
     Constructs an AS400JDBCStatement object.
@@ -281,6 +284,7 @@ implements Statement
             JDTrace.logProperty (this, "AS400JDBCStatement.init", "Behavior Override", behaviorOverride_);    // @F9a
             String cursorAsString = JDTrace.objectToString(cursor_);    // @J33a
             JDTrace.logInformation(this, "Data to correlate statement with cursor " + cursorAsString);    // @J33a
+            creationLocation_ = new Exception("creationLocation_"); 
         }
     }
 
@@ -1013,8 +1017,11 @@ implements Statement
                           //
                           int errd6 = sqlca.getErrd(6);
                           String errp = sqlca.getErrp(connection_.converter_);   /*@N7A*/ 
-                          if ( errd6 == 1 || "QSQFETCH".equals(errp)) {
+                          if ( errd6 == 1 || 
+                              ( "QSQFETCH".equals(errp) && 
+                                  (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH))) {
                              // Delay error
+                             // Only delay error from fetch if coming from open_describe_fetch @O8A
                               try {
                                 JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
                               } catch (SQLException e) {
@@ -3160,8 +3167,14 @@ implements Statement
     public boolean getMoreResults ()
     throws SQLException
     {
+     
+      
         synchronized(internalLock_)
         {    // @E6A
+          
+          if(JDTrace.isTraceOn())
+            JDTrace.logInformation(this, "getMoreResults() numberOfResults="+numberOfResults_);
+
             // Initialize.
             cancelled_ = false;
             checkOpen ();
@@ -3206,8 +3219,7 @@ implements Statement
                     // Gather information from the reply.
                     // DBReplySQLCA sqlca = getMoreResultsReply.getSQLCA ();
                     DBDataFormat dataFormat = getMoreResultsReply.getDataFormat ();
-                    if(this instanceof AS400JDBCCallableStatement)	// @550A
-                    	dataFormat.setCSRSData(true);				// @550A
+                    
 
                     // Check for system errors.
                     int errorClass = getMoreResultsReply.getErrorClass();
@@ -3215,12 +3227,30 @@ implements Statement
 
                     if(errorClass != 0)
                     {
-                        if(returnCode < 0)
+                        if(returnCode < 0) {
+                            // 
+                            // Trace where this statement was created and the other statements
+                            // on the connection where created. 
+                            // 
+                            if (JDTrace.isTraceOn()) {
+                              JDTrace.logException(this, "Creation location", creationLocation_); 
+                              connection_.dumpStatementCreationLocation(); 
+                            }
                             JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
-                        else
+                        } else {
                             postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
+                        }
                     }
 
+                    // Do not use the dataFormat until we know there is not an error 
+                    if(this instanceof AS400JDBCCallableStatement) {  // @550A
+                         // Also make sure the format is not null (prevent NPE)  
+                         if (dataFormat == null) { 
+                           JDError.throwSQLException (JDError.EXC_INTERNAL,"null dataFormat"); 
+                         }
+                         dataFormat.setCSRSData(true);       // @550A
+                    }
+                    
                     // Process a potential cursor conecurrency override.                             @E1A @EAC
                     cursor_.processConcurrencyOverride(openAttributes, getMoreResultsReply);    // @E1A @EAC
 
