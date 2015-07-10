@@ -37,8 +37,6 @@ attributes for the driver.
 //    __ Add an entry to JDBCProperties.html.  Contact Information Development to
 //       change this file.
 //
-//    __ Add an entry to JDBCProperties.html in micro package also.
-//
 //    __ Add entries to JDMRI.java.  The description entry should
 //       match the first sentence in the description in
 //       JDBCProperties.html.
@@ -166,10 +164,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              DECIMAL_DATA_ERRORS        = 86;
     static final int              TIMESTAMP_FORMAT           = 87;  //@KEA 
     static final int              USE_DRDA_METADATA_VERSION  = 88; 
+    static final int              QUERY_REPLACE_TRUNCATED_PARAMETER = 89;
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 89;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 90;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -220,6 +219,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String PROMPT_                 = "prompt";
     private static final String PROXY_SERVER_           = "proxy server";           // @A3A
     //private static final String PROXY_SERVER_SECURE_    = "proxy server secure";    // @A3A
+    private static final String QUERY_REPLACE_TRUNCATED_PARAMETER_ = "query replace truncated parameter";
     private static final String QUERY_TIMEOUT_MECHANISM_  = "query timeout mechanism";
     private static final String REMARKS_                = "remarks";
     static final String SECONDARY_URL_                  = "secondary URL";          // @A3A
@@ -488,6 +488,10 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         DECIMAL_DATA_ERRORS_REPORT = "report";
     static final String         DECIMAL_DATA_ERRORS_IGNORE_NULL = "ignore null";
     static final String         DECIMAL_DATA_ERRORS_REPORT_NULL = "report null";
+
+
+
+    public static final Object QUERY_REPLACE_TRUNCATED_PARAMETER_STRING_DEFAULT = "";
 
 
     // Static data.
@@ -920,6 +924,17 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         //dpi_[i].choices[0]  = TRUE_;
         //dpi_[i].choices[1]  = FALSE_;
         //defaults_[i]        = FALSE_;
+
+        // query replace truncated parameter.  
+        // Specifies the string value that should be used when 
+        // a query parameter is truncated.  An empty string means that
+        // the value should be truncated as normal. 
+        i = QUERY_REPLACE_TRUNCATED_PARAMETER;
+        dpi_[i] = new DriverPropertyInfo (QUERY_REPLACE_TRUNCATED_PARAMETER_, "");
+        dpi_[i].description = "QUERY_REPLACE_TRUNCATED_PARAMETER_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = EMPTY_;
 
         // Remarks.
         i = REMARKS;
@@ -1508,8 +1523,10 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         // Initialize the values.
         info_ = info;
         values_ = new String[NUMBER_OF_ATTRIBUTES_];
-        for(int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i)
-            setString (i, getProperty (urlProperties, info, dpi_[i].name));
+        for(int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i) {
+          String supportedProperty = dpi_[i].name; 
+          setString (i, getProperty (urlProperties, info, supportedProperty));
+        }
 
         // Check both sets of properties for any extra
         // properties.

@@ -132,6 +132,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_SOCKET_TIMEOUT", "socketTimeout"}, //@STIMEOUT
       { "PROP_NAME_MAXIMUM_BLOCKED_INPUT_ROWS", "maximumBlockedInputRows"}, 
       { "PROP_NAME_QUERY_TIMEOUT_MECHANISM", "queryTimeoutMechanism" },                // @M0A
+      { "PROP_NAME_QUERY_REPLACE_TRUNCATED_PARAMETER", "queryReplaceTruncatedParameter" },                // @M0A
       
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -226,6 +227,7 @@ public class JDMRI extends ListResourceBundle
       { "SOCKET_TIMEOUT_DESC", "Specifies the socket timeout value in milliseconds."}, //@STIMEOUT
       { "MAXIMUM_BLOCKED_INPUT_ROWS_DESC", "Specifies the maximum number of rows to be sent to the database engine when using a blocked insert or update operation." },
       { "QUERY_TIMEOUT_MECHANISM_DESC", "Specifies the method used to implement the query timeout."},
+      { "QUERY_REPLACE_TRUNCATED_PARAMETER_DESC", "Specifies the string value to be used when a query parameter is truncated."},
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },
