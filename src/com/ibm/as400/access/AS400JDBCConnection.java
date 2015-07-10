@@ -270,6 +270,10 @@ implements Connection
   boolean useVariableFieldCompression_ = false; 
   boolean useVariableFieldInsertCompression_ = false; 
 
+  // what should truncated query parameters be replaced with
+  // null means that truncated query parameter should not be replaced
+  // String queryReplaceTruncatedParameter_ = null ; 
+
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -3478,6 +3482,19 @@ void handleAbort() {
             queryTimeoutMechanism_ = QUERY_TIMEOUT_QQRYTIMLMT;
           }
         }
+
+        /* 
+        String queryReplaceTruncatedParameterString = properties_.getString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
+        if (queryReplaceTruncatedParameterString != null) {
+          queryReplaceTruncatedParameterString = queryReplaceTruncatedParameterString.trim().toLowerCase();
+          if (queryReplaceTruncatedParameterString.equals(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER_STRING_DEFAULT)) {
+            queryReplaceTruncatedParameter_ = null;
+          } else {
+            queryReplaceTruncatedParameter_ = queryReplaceTruncatedParameterString;
+          }
+        }
+
+        */ 
         //@A3D
         // Initialize the conversation.
         //open ();
@@ -5744,6 +5761,27 @@ endif */
 //@L9A
   public void setDisableCompression(boolean disableCompression_) {
     this.disableCompression_ = disableCompression_;
+  }
+
+
+
+  public void dumpStatementCreationLocation() {
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this,  "Dumping creation information for statements"); 
+      Vector statements = (Vector)statements_.clone();                              
+      Enumeration list = statements.elements();                                     
+      while (list.hasMoreElements())                                                    
+      {
+          
+          AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();
+          if (statement.creationLocation_ == null) { 
+            JDTrace.logInformation(statement, "No creation information"); 
+          } else {
+            JDTrace.logException(statement, "Creation information", statement.creationLocation_); 
+          }
+      }
+      
+    }
   }
 
 
