@@ -272,7 +272,7 @@ implements Connection
 
   // what should truncated query parameters be replaced with
   // null means that truncated query parameter should not be replaced
-  // String queryReplaceTruncatedParameter_ = null ; 
+   String queryReplaceTruncatedParameter_ = null ; 
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -3483,7 +3483,7 @@ void handleAbort() {
           }
         }
 
-        /* 
+         
         String queryReplaceTruncatedParameterString = properties_.getString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
         if (queryReplaceTruncatedParameterString != null) {
           queryReplaceTruncatedParameterString = queryReplaceTruncatedParameterString.trim().toLowerCase();
@@ -3494,7 +3494,7 @@ void handleAbort() {
           }
         }
 
-        */ 
+         
         //@A3D
         // Initialize the conversation.
         //open ();
