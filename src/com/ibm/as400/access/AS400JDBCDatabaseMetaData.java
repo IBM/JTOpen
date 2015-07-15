@@ -51,6 +51,14 @@ HELLOWOULD
 HIWOULD
 </pre>
 
+<p>In a pattern string, if you want to match the "_" or "%' 
+characters exactly, then you need to escape the character by 
+using the "\" character before it.  For example, if the 
+schemaPattern argument for getTables() is "SCHEM\_1", then
+only the schema SCHEM_1 will match the pattern. 
+
+
+
 <p>Many of the methods here return lists of information in
 result sets.  You can use the normal ResultSet methods to
 retrieve data from these result sets.  The format of the
@@ -1076,7 +1084,25 @@ endif */
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
 /* endif */
            
-            cs.execute();
+            try { 
+               cs.execute();
+               // Catch a resource limit error for applications that are not
+               // closing result sets. 
+            } catch (SQLException e)  {
+              if (e.getErrorCode() == -7049) {
+                 // Cleanup by running the GC and waiting
+                 System.gc(); 
+                 try {
+                  Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                } 
+                 // Retry 
+                 cs.execute();
+                   
+              } else {
+                throw e; 
+              }
+            }
             
 
             ResultSet rs = cs.getResultSet();  //@mdrs
@@ -4605,7 +4631,26 @@ endif */
             cs.setString(4, normalize(typeString));
             cs.setString(5,
                     "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
-            cs.execute();
+      try {
+        cs.execute();
+        // Catch a resource limit error for applications that are not
+        // closing result sets.
+      } catch (SQLException e) {
+        if (e.getErrorCode() == -7049) {
+          // Cleanup by running the GC and waiting
+          System.gc();
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e1) {
+          }
+          // Retry
+          cs.execute();
+
+        } else {
+          throw e;
+        }
+         }
+
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
