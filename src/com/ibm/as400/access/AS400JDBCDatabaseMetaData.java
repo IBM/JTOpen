@@ -51,7 +51,7 @@ HELLOWOULD
 HIWOULD
 </pre>
 
-<p>In a pattern string, if you want to match the "_" or "%' 
+<p>In a pattern string, if you want to match the "_" or "%" 
 characters exactly, then you need to escape the character by 
 using the "\" character before it.  For example, if the 
 schemaPattern argument for getTables() is "SCHEM\_1", then
