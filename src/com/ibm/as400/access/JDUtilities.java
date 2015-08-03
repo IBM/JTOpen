@@ -1063,7 +1063,7 @@ Reads an input stream and returns its data as a String.
       int lastCharacterIndex = inString.length() -1;
       if (lastCharacterIndex >= 0) {
         if (inString.charAt(lastCharacterIndex)== ' ') {
-          while( (inString.charAt(lastCharacterIndex) == ' ') && lastCharacterIndex >= 0 ) {
+          while((lastCharacterIndex >= 0) &&  (inString.charAt(lastCharacterIndex) == ' ')   ) {
             lastCharacterIndex--; 
           }
           if (lastCharacterIndex >= 0) {
