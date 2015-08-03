@@ -615,6 +615,15 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             socketTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SOCKET_TIMEOUT"));                                       
             socketTimeout.setShortDescription(AS400JDBCDriver.getResource("SOCKET_TIMEOUT_DESC"));                                       
 
+            
+            // @D4A - added support for query replace truncated parameter
+            PropertyDescriptor queryReplaceTruncatedParameter = new PropertyDescriptor("queryReplaceTruncatedParameter", beanClass, "getQueryReplaceTruncatedParameter", "setQueryReplaceTruncatedParameter");
+            queryReplaceTruncatedParameter.setBound(true);                                                                        
+            queryReplaceTruncatedParameter.setConstrained(false);                                                                 
+            queryReplaceTruncatedParameter.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QUERY_REPLACE_TRUNCATED_PARAMETER"));                
+            queryReplaceTruncatedParameter.setShortDescription(AS400JDBCDriver.getResource("QUERY_REPLACE_TRUNCATED_PARAMETER_DESC"));                
+
+            
             // @D4A - added support for query timeout mechanism
             PropertyDescriptor queryTimeoutMechanism = new PropertyDescriptor("queryTimeoutMechanism", beanClass, "getQueryTimeoutMechanism", "setQueryTimeoutMechanism");
             queryTimeoutMechanism.setBound(true);                                                                        
@@ -628,7 +637,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, concurrentAccessResolution, jvm16Synchronize, socketTimeout, maximumBlockedInputRows, queryTimeoutMechanism}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, concurrentAccessResolution, jvm16Synchronize, socketTimeout, maximumBlockedInputRows, queryReplaceTruncatedParameter, queryTimeoutMechanism}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
         }
         catch(Exception e)
         {

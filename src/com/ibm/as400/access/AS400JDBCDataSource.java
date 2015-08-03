@@ -1484,6 +1484,23 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getInt(JDProperties.QUERY_STORAGE_LIMIT);
     }
 
+    /**                                                               
+    *  Returns the string to be substituted for a truncated parameter 
+    *  on a query.   A empty string means that substitution will not occur.
+    *  @return the substituted
+    *  <p>Valid values include:
+    *  <ul>
+    *  <li>""       = No substitution will occur. 
+    *  <li>value    = The value to be used when a query parameter is truncated.
+    *  </ul>
+    *  The default value is "".
+    **/
+    public String getQueryReplaceTruncatedParameter()
+    {
+        return properties_.getString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
+    }
+
+    
    /*@D4A*/
     /**                                                               
     *  Returns the mechanism used to implement query timeout. 
@@ -5002,6 +5019,40 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + limit);
     }
 
+    
+    /**
+     * Sets the query replace truncated parameter property, which
+     * will replaced a truncated query parameter with a value.  This is 
+     * intended as a workaround for the problem that a truncated value 
+     * may match an item in a column, thus causing in incorrect 
+     * query results.    
+     * @param queryReplaceTruncatedParameter The value to be used for a truncated query parameter. 
+     * <p>Valid values include:
+     * <ul>
+     *   <li>""   (replacement will not occur)
+     *   <li>value (the value to be used when a query parameter is truncated)
+     * </ul>
+     * The default value is "".
+     **/
+     public void setQueryReplaceTruncatedParameter(String queryReplaceTruncatedParameter)
+     {
+         String property = "queryReplaceTruncatedParameter";
+
+         String oldOption = getQueryReplaceTruncatedParameter();
+         String newOption = queryReplaceTruncatedParameter;
+
+         validateProperty(property, newOption, JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
+
+         properties_.setString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER, newOption);
+
+         changes_.firePropertyChange(property, oldOption, newOption);
+
+         if (JDTrace.isTraceOn())
+             JDTrace.logInformation (this, property + ": " + queryReplaceTruncatedParameter);
+     }
+
+
+    
    /*@D4A*/
     /**
      * Sets the query timeout mechanism property, which indicates how

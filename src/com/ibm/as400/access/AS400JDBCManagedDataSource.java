@@ -1243,6 +1243,23 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getInt(JDProperties.QUERY_OPTIMIZE_GOAL);
   }
 
+  /**                                                               
+  *  Returns the string to be substituted for a truncated parameter 
+  *  on a query.   A empty string means that substitution will not occur.
+  *  @return the substituted
+  *  <p>Valid values include:
+  *  <ul>
+  *  <li>""       = No substitution will occur. 
+  *  <li>value    = The value to be used when a query parameter is truncated.
+  *  </ul>
+  *  The default value is "".
+  **/
+   public String getQueryReplaceTruncatedParameter()
+   {
+       return properties_.getString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
+   }
+
+   
   /* @D4A */ 
   /**                                                               
    *  Returns the mechanism used to implement query timeout. 
@@ -3523,6 +3540,35 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     properties_.setString(JDProperties.QUERY_OPTIMIZE_GOAL, Integer.toString(goal));
   }
+
+  
+  /**
+   * TODO:  
+   * Sets the query timeout mechanism property, which indicates how
+   * the toolbox will enforce the query timeout specified on the statement. 
+   * @param timeoutMechanism The timeout mechanism to use. 
+   * <p>Valid values include:
+   * <ul>
+   *   <li>"qqrytimlmt" (QQRTIMLMT will be used)
+   *   <li>"cancel" (cancel will be used)
+   * </ul>
+   * The default value is "character".
+   **/
+   public void setQueryReplaceTruncatedParameterTimeoutMechanism(String timeoutMechanism)
+   {
+       String property = "queryTimeoutMechanism";
+
+       String newOption = timeoutMechanism;
+
+       validateProperty(property, newOption, JDProperties.QUERY_TIMEOUT_MECHANISM);
+
+       properties_.setString(JDProperties.QUERY_TIMEOUT_MECHANISM, newOption);
+
+
+       if (JDTrace.isTraceOn())
+           JDTrace.logInformation (this, property + ": " + timeoutMechanism);
+   }
+
 
   /* @D4A*/ 
   /**

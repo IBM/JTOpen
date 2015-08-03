@@ -3685,6 +3685,11 @@ endif */
             && (!sqlStatement_.isSelectFromInsert())) // @trunc2 //@selins1
         {
           postWarning(dt);
+          // If we want the data replace on a warning.  Go ahead and
+          // do the replacement. 
+          if (connection_.queryReplaceTruncatedParameter_ != null) {
+            data.set(connection_.queryReplaceTruncatedParameter_, null, 0); 
+          }
         } else {
           throw dt;
         }
