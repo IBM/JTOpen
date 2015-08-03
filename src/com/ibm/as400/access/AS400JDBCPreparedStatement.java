@@ -1176,8 +1176,10 @@ endif */
                             parameterMarkerData.getRawBytes(), rowDataOffset
                                 + parameterOffsets_[i], ccsidConverter);
                       }
-
-                      if (ConvTable.isMixedCCSID(ccsidConverter.getCcsid())) // @trnc
+                      // Blob truncation not caught at set time if set
+                      // using input stream @09A 
+                      if (ConvTable.isMixedCCSID(ccsidConverter.getCcsid()) || 
+                          sqlData instanceof SQLBlob ) // @trnc
                                                                              // this
                                                                              // is
                         // not caught at
