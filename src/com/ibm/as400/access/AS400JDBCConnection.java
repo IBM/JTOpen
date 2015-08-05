@@ -3486,7 +3486,7 @@ void handleAbort() {
          
         String queryReplaceTruncatedParameterString = properties_.getString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
         if (queryReplaceTruncatedParameterString != null) {
-          queryReplaceTruncatedParameterString = queryReplaceTruncatedParameterString.trim().toLowerCase();
+          queryReplaceTruncatedParameterString = queryReplaceTruncatedParameterString.trim();
           if (queryReplaceTruncatedParameterString.equals(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER_STRING_DEFAULT)) {
             queryReplaceTruncatedParameter_ = null;
           } else {
