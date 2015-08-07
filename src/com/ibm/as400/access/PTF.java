@@ -1044,7 +1044,7 @@ public class PTF
   {
     if (hasSaveFile())
     {
-      if (!loaded_) refresh(100);
+      if (!loaded_&& !partiallyLoadedGroup_) refresh(100);
       return saveFile_;
     }
     return null;
