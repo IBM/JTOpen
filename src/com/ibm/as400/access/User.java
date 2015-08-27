@@ -208,6 +208,10 @@ public class User implements Serializable
     private int maximumStorageAllowed_;
     // Storage used.
     private int storageUsed_;
+    // Maximum allowed storage in long
+    private long maximumStorageAllowedInLong_;//@P1A
+    // Storage used in long.
+    private long storageUsedInLong_;//@P1A
     // Highest scheduling priority.
     private int highestSchedulingPriority_;
     // Job description (full IFS path).
@@ -287,7 +291,18 @@ public class User implements Serializable
     private String jobDateFormat_;
 
     private transient AS400Timestamp timestampConverter_;
-
+    //@P1A START
+    private boolean authCollectionActive_;
+    private boolean authCollectionRepositoryExist_;
+    private boolean authCollectionDeleted_;
+    private String detailInSTRAUTCOL_;
+    private String[] libNamesInSTRAUTCOL_;
+    private String[] objectNamesInSTRAUTCOL_;
+    private String[] objectTypesInSTRAUTCOL_;
+    private String[] DLOObjectTypesInSTRAUTCOL_;
+    private String[] fileSystemObjectTypesInSTRAUTCOL_;
+    private String[] omitLibNamesInSTRAUTCOL_;
+    //@P1A END
     /**
      Constructs a User object.
      **/
@@ -950,6 +965,12 @@ public class User implements Serializable
         if (!loaded_) loadUserInformation_SwallowExceptions();
         return maximumStorageAllowed_;
     }
+    
+    public long getMaximumStorageAllowedInLong()//@P1A
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return maximumStorageAllowedInLong_;
+    }
 
     /**
      Retrieves the fully qualified integrated file system path name of the message queue that is used by this user.
@@ -1313,6 +1334,16 @@ public class User implements Serializable
         if (!loaded_) loadUserInformation_SwallowExceptions();
         return storageUsed_;
     }
+    
+    /**
+    Retrieves the amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
+    @return  The amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
+    **/
+   public long getStorageUsedInLong()//@P1A
+   {
+       if (!loaded_) loadUserInformation_SwallowExceptions();
+       return storageUsedInLong_;
+   }
 
     /**
      Retrieves the supplemental groups for the user profile.
@@ -1549,6 +1580,68 @@ public class User implements Serializable
         return userProfileName_;
     }
 
+    //@P1A START
+    public boolean isAuthCollectionActive(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return authCollectionActive_;
+    }
+    public boolean isAuthCollectionRepositoryExist(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return authCollectionRepositoryExist_;
+    }
+   /* public int getLibNamesNumberInSTRAUTCOL(){
+      return 0;
+    }
+    public int getObjectNamesNumberInSTRAUTCOL(){
+      return 0;
+    }
+    public int getObjectTypesNumberInSTRAUTCOL(){
+      return 0;
+    }
+    public int getDLOObjectTypesNumberInSTRAUTCOL(){
+      return 0;
+    }
+    public int getFileSystemObjectTypesNumberInSTRAUTCOL(){
+      return 0;
+    }
+    public int getOmitLibNamesNumberInSTRAUTCOL(){
+      return 0;
+    }*/
+    public boolean isAuthCollectionDeleted(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return authCollectionDeleted_;
+    }
+    public String getDetailInSTRAUTCOL(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return detailInSTRAUTCOL_;
+    }
+    
+    public String[] getLibNameInSTRAUTCOL(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return libNamesInSTRAUTCOL_;
+    }
+    public String[] getObjectNamesInSTRAUTCOL(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return objectNamesInSTRAUTCOL_;
+    }
+    public String[] getObjectTypesInSTRAUTCOL(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return objectTypesInSTRAUTCOL_;
+    }
+    public String[] getDLOObjectTypesInSTRAUTCOL(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return DLOObjectTypesInSTRAUTCOL_;
+    }
+    public String[] getFileSystemObjectTypesInSTRAUTCOL(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return fileSystemObjectTypesInSTRAUTCOL_;
+    }
+    public String[] getOmitLibNamesInSTRAUTCOL(){
+      if (!loaded_) loadUserInformation_SwallowExceptions();
+      return omitLibNamesInSTRAUTCOL_;
+    }
+   //@P1A END
+    
     /**
      Retrieves if this user profile has been granted the specified authority, or belongs to a group profile that has been granted the specified authority.
      @param  authority  The authority to check.  It must be one of the following special authority values:
@@ -2027,6 +2120,73 @@ public class User implements Serializable
                     System.arraycopy(data, 676, userExpirationDateBytes_, 0, 8);
                     userExpirationDate_ = null;  // Reset.
                     userExpirationAction_ = conv.byteArrayToString(data, 684, 10).trim();
+                    if (vrm >= 0x00070200) // @720 added more fields
+                    {
+                      maximumStorageAllowedInLong_ = BinaryConverter.byteArrayToUnsignedInt(data, 696);
+                      storageUsedInLong_= BinaryConverter.byteArrayToUnsignedInt(data, 704);
+                      if (vrm >= 0x00070300)  // @P1A 730 added more fields
+                      {
+                        int STRAUTCOLOffset = BinaryConverter.byteArrayToInt(data, 712);
+                        //int STRAUTCOLLength = BinaryConverter.byteArrayToInt(data, 716);
+
+                        // EBCDIC '1' indicates Authority collection is active for this user.
+                        authCollectionActive_ = (data[720] == (byte)0xF1);
+                        // EBCDIC '1' indicates Authority collection repository exists for this user.
+                        authCollectionRepositoryExist_= (data[721] == (byte)0xF1);
+
+                        if(STRAUTCOLOffset>0){
+                          int libNamesOffset = STRAUTCOLOffset+ BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset);
+                          int libNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+4);
+                          int objectNamesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+8);
+                          int objectNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+12);
+                          int objectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+16);
+                          int objectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+20);
+                          int DLOObjectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+24);
+                          int DLOObjectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+28);
+                          int fileSystemObjectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+32);
+                          int fileSystemObjectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+36);
+                          int omitLibNamesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+40);
+                          int omitLibNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+44);
+
+                          authCollectionDeleted_ = "*YES".equalsIgnoreCase(conv.byteArrayToString(data, STRAUTCOLOffset+48, 4).trim())? true:false;
+                          detailInSTRAUTCOL_ = conv.byteArrayToString(data, STRAUTCOLOffset+52, 10).trim();
+
+                          libNamesInSTRAUTCOL_ = new String[libNamesNumber];
+                          for (int i = 0; i < libNamesNumber; ++i)
+                          {
+                            libNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, libNamesOffset + i * 20, 20).trim();
+                          }
+                          objectNamesInSTRAUTCOL_ = new String[objectNamesNumber];
+                          for (int i = 0; i < objectNamesNumber; ++i)
+                          {
+                            objectNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, objectNamesOffset + i * 10, 10).trim();
+                          }
+                          objectTypesInSTRAUTCOL_ = new String[objectTypesNumber];
+                          for (int i = 0; i < objectTypesNumber; ++i)
+                          {
+                            objectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, objectTypesOffset + i * 10, 10).trim();
+                          }
+
+                          DLOObjectTypesInSTRAUTCOL_ = new String[DLOObjectTypesNumber];
+                          for (int i = 0; i < DLOObjectTypesNumber; ++i)
+                          {
+                            DLOObjectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, DLOObjectTypesOffset + i * 10, 10).trim();
+                          }
+
+
+                          fileSystemObjectTypesInSTRAUTCOL_ = new String[fileSystemObjectTypesNumber];
+                          for (int i = 0; i < fileSystemObjectTypesNumber; ++i)
+                          {
+                            fileSystemObjectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, fileSystemObjectTypesOffset + i * 10, 10).trim();
+                          }
+                          omitLibNamesInSTRAUTCOL_ = new String[omitLibNamesNumber];
+                          for (int i = 0; i < omitLibNamesNumber; ++i)
+                          {
+                            omitLibNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, omitLibNamesOffset + i * 20, 20).trim();
+                          }
+                        }
+                      }
+                    }
                   }
                 }
             }
