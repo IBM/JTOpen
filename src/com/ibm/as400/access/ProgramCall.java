@@ -729,7 +729,7 @@ public class ProgramCall implements Serializable
       if(!prg.startsWith("/QSYS.LIB")){
         String iasp=prg.substring(1, prg.indexOf("/QSYS.LIB"));
         try{
-          String SetASPGrp = "SETASPGRP "+ iasp;
+          String SetASPGrp = "SETASPGRP  ASPGRP("+ iasp + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)";//@P2C
           CommandCall commandCall = new CommandCall(system_);
           if (commandCall.run(SetASPGrp) != true) {
             Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);

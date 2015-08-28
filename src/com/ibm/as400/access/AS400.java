@@ -612,7 +612,7 @@ public class AS400 implements Serializable
      */
     public void setIASPGroup(String IASPGroup){
       try{
-        String SetASPGrp = "SETASPGRP "+ IASPGroup;
+        String SetASPGrp = "SETASPGRP  ASPGRP("+ IASPGroup + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
         CommandCall commandCall = new CommandCall(this);
         if (commandCall.run(SetASPGrp) != true) {
           Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
