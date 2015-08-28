@@ -1420,7 +1420,27 @@ public class User implements Serializable
         "*SERVICE",
         "*SPLFDTA",
         "*SYSMGT",
-        "*OPTICAL" // The API shows optical in the middle of the list, but observed behavior is otherwise (at least on V4R3).
+        "*OPTICAL", // The API shows optical in the middle of the list, but observed behavior is otherwise (at least on V4R3).
+        "*AUTFAIL",
+        "*JOBBAS",
+        "*JOBCHGUSR",
+        "*NETBAS",
+        "*NETCLU",
+        "*NETCMN",
+        "*NETFAIL",
+        "*NETSCK",
+        "*PGMFAIL",
+        "*PRTDTA",
+        "*SECCFG",
+        "*SECDIRSRV",
+        "*SECIPC",
+        "*SECNAS",
+        "*SECRUN",
+        "*SECSCKD",
+        "*SECVFY",
+        "*SECVLDL",
+        "*NETSECURE",
+        "*NETUDP"          
     };
 
     /**
@@ -2005,7 +2025,7 @@ public class User implements Serializable
         objectAuditingValue_ = conv.byteArrayToString(data, 500, 10).trim();
 
         int numAudLevel = 0;
-        for (int i = 0; i < 13; ++i)
+        for (int i = 0; i < 33; ++i)//
         {
             if (data[510 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
             {
@@ -2014,7 +2034,7 @@ public class User implements Serializable
         }
         userActionAuditLevel_ = new String[numAudLevel];
         counter = 0;
-        for (int i = 0; i < 13; ++i)
+        for (int i = 0; i < 33; ++i)
         {
             if (data[510 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
             {
