@@ -158,6 +158,7 @@ package com.ibm.as400.access;
 //@O8    20150630  JDBC: Fix errors from QSQFETCH from stored procedures not reported
 //@O9    20150803  JDBC: Report truncation for InputStream parameters
 //@P1    20150827  User: add STRAUTCOL parameters for v7r3
+//@P2    20150828  Program Call: set iasp to pick up libs from current user profile instead of sysbas
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
