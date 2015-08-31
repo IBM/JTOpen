@@ -230,10 +230,14 @@ endif */
 
             // Truncate if necessary.
             int valueLength = value_.length();
-            if(valueLength > maxLength_)
+            // Max length is in bytes. We should truncate
+            // before sending to the server.  Other code 
+            // should have issued the warning for data truncation
+            
+            if(valueLength > maxLength_ / 2)
             {
-                value_ = value_.substring(0, maxLength_);
-                truncated_ = valueLength - maxLength_;
+                value_ = value_.substring(0, maxLength_ / 2);
+                truncated_ = valueLength - maxLength_ / 2;
                 outOfBounds_ = false;
             }
             else
