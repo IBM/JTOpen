@@ -5041,7 +5041,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
          String oldOption = getQueryReplaceTruncatedParameter();
          String newOption = queryReplaceTruncatedParameter;
 
-         validateProperty(property, newOption, JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
+         // No need to validate.  Almost all values are valid. 
+         // validateProperty(property, newOption, JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
 
          properties_.setString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER, newOption);
 
