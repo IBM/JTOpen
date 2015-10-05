@@ -49,6 +49,8 @@ final class SQLDBClobLocator implements SQLLocator
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
 
+    private int ccsid_; /*@P3A*/
+
     SQLDBClobLocator(AS400JDBCConnection connection,
                      int id,
                      int maxLength, 
@@ -538,6 +540,12 @@ final class SQLDBClobLocator implements SQLLocator
 
     public String getLocalName()
     {
+/* ifdef JDBC40 
+      // @P3A
+      if (ccsid_ == 1200 || ccsid_ == 13400) {
+        return "NCLOB"; 
+      }
+  endif */       
         return "DBCLOB"; 
     }
 
@@ -578,6 +586,12 @@ final class SQLDBClobLocator implements SQLLocator
 
     public int getType()
     {
+/* ifdef JDBC40 
+      // @P3A
+      if (ccsid_ == 1200 || ccsid_ == 13400) {
+        return java.sql.Types.NCLOB;  
+      }
+  endif */       
         return java.sql.Types.CLOB;
     }
 
@@ -970,6 +984,11 @@ endif */
  
     public void updateSettings(SQLConversionSettings settings) {
       settings_ = settings; 
+    }
+
+    /*@P3A*/
+    public void setCcsid(int ccsid) {
+      ccsid_ = ccsid; 
     }
 
 }

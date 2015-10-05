@@ -83,12 +83,12 @@ extends SQLVarcharBase  implements SQLVariableCompressible
 
     public int getType()
     {
-        return java.sql.Types.LONGVARCHAR;
+        return java.sql.Types.VARCHAR;  //@P3C
     }
 
     public String getTypeName()
     {
-        return "LONG VARGRAPHIC";
+        return "VARGRAPHIC";     //@P3C
     }
 
 

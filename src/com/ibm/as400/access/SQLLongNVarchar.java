@@ -86,10 +86,10 @@ extends SQLVarcharBase implements SQLVariableCompressible
     public int getType()
     {
     	/* ifdef JDBC40 
-        return java.sql.Types.LONGNVARCHAR;
+        return java.sql.Types.NVARCHAR;  //@P3C
         endif */ 
     	/* ifndef JDBC40 */ 
-    	return java.sql.Types.LONGVARCHAR; 
+    	return java.sql.Types.VARCHAR;  /*@P3C*/
     	/* endif */ 
     	
     	 

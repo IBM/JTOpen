@@ -370,9 +370,9 @@ implements JDRow
                         dataOffset_[j] = offset;                                    //@K54
                         //if it is a variable-length field, get actual size of data  //@K54
                         if(typeName.equals("VARCHAR") ||                            //@K54
-                           typeName.equals("VARCHAR() FOR BIT DATA") ||             //@K54
+                           typeName.equals("VARCHAR () FOR BIT DATA") ||             //@K54
                            typeName.equals("LONG VARCHAR") ||                       //@K54
-                           typeName.equals("LONG VARCHAR FOR BIT DATA") ||          //@K54
+                           typeName.equals("LONG VARCHAR () FOR BIT DATA") ||          //@P3C@K54
                            typeName.equals("VARBINARY") ||                          //@K54
                            typeName.equals("DATALINK"))                             //@K54
                         {                                                           //@K54

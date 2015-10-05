@@ -43,6 +43,8 @@ final class SQLDBClob extends SQLDataBase
     private String                  value_;
     private Object savedObject_; // This is our byte[] or InputStream or whatever that we save to convert to bytes until we really need to.
 
+    private int ccsid_;  /*@P3A*/
+
     // Note: maxLength is in bytes not counting 2 for LL.
     //
     SQLDBClob(int maxLength, SQLConversionSettings settings)
@@ -332,11 +334,24 @@ endif */
 
     public int getType()
     {
+/* ifdef JDBC40 
+      // @P3A
+      if (ccsid_ == 1200 || ccsid_ == 13400) {
+        return java.sql.Types.NCLOB;   
+      }
+endif */       
         return java.sql.Types.CLOB;
     }
 
     public String getTypeName()
     {
+/* ifdef JDBC40 
+      // @P3A
+      if (ccsid_ == 1200 || ccsid_ == 13400) {
+        return "NCLOB";  
+      }
+endif */       
+
         return "DBCLOB";
     }
 
@@ -563,6 +578,11 @@ endif */
         if(savedObject_ != null) doConversion();
         truncated_ = 0; outOfBounds_ = false;
         return value_;
+    }
+   
+    /*@P3A*/
+    public void setCcsid(int ccsid) {
+     ccsid_ = ccsid; 
     }
 
     //@pda jdbc40

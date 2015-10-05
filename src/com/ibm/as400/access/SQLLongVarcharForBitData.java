@@ -391,7 +391,7 @@ extends SQLDataBase implements SQLVariableCompressible /*@N8C*/
 
     public String getTypeName()
     {
-        return "LONG VARCHAR FOR BIT DATA";
+        return "LONG VARCHAR () FOR BIT DATA"; //@P3C
     }
 
     public boolean isSigned()

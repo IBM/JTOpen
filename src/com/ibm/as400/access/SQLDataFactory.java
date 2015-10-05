@@ -564,9 +564,12 @@ class SQLDataFactory
                 //return new SQLClob(length - 4, false, settings); // @D1C @E1C
 
             case 412:                           // Dbclob.
-                return new SQLDBClob(length - 4, settings);    // @D1C
+            {
+              SQLDBClob dbclob = new SQLDBClob(length - 4, settings);
+              dbclob.setCcsid(ccsid);  /*@P3A*/ 
+              return dbclob; 
                 //return new SQLClob(length - 4, true, settings);    // @D1C
-
+            }
             case 448:                           // Varchar.
                 if((ccsid == 65535) && (translateBinary == false))   //@E4C
                     return new SQLVarcharForBitData(length - 2, settings);  // @M0C - changed from SQLVarbinary
@@ -645,8 +648,13 @@ class SQLDataFactory
                 //return new SQLClobLocator(connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
 
             case 968:                           // Dbclob locator.
-                return new SQLDBClobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+            {
+              SQLDBClobLocator dbclob =  new SQLDBClobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+              dbclob.setCcsid(ccsid);  /*@P3A*/
+              return dbclob; 
                 //return new SQLClobLocator(connection, id, lobMaxSize, true, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+            }
+             
 
             case 996:                           // Decimal float.  //@DFA
                 if(precision == 16) //@DFA
@@ -775,6 +783,8 @@ class SQLDataFactory
 
         else if(nativeType.equals("DBCLOB"))           // @G2A
             return new SQLDBClob(length, settings); // @G2A
+        else if(nativeType.equals("NCLOB"))           // @G2A
+          return new SQLNClob(length, settings); // @P3A
         //return new SQLClob(length, true, settings); // @G2A
 
         else if(nativeType.equals("DOUBLE-BYTE CHARACTER LARGE OBJECT"))    //@KKB
