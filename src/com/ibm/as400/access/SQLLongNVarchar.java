@@ -89,7 +89,7 @@ extends SQLVarcharBase implements SQLVariableCompressible
         return java.sql.Types.NVARCHAR;  //@P3C
         endif */ 
     	/* ifndef JDBC40 */ 
-    	return java.sql.Types.VARCHAR;  /*@P3C*/
+    	return java.sql.Types.VARCHAR;  //@P3C
     	/* endif */ 
     	
     	 
