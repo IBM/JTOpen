@@ -61,7 +61,14 @@ final class SQLBlobLocator implements SQLLocator
         connection_     = connection;
         id_             = id;
         locator_        = new JDLobLocator(connection, id, maxLength, false); //@CRS - We know it's not graphic, because we are not a DBClob.
-        maxLength_      = maxLength;
+        // Check for maxLength of 0.  This may happen for a locator parameter of a stored procedure
+        // If zero, then set to maximum length @F3A
+        if (maxLength == 0) { 
+           maxLength_     = 2147483647; 
+        } else { 
+           maxLength_      = maxLength;
+        }
+        
         settings_       = settings;
         truncated_ = 0; outOfBounds_ = false; 
         converter_      = converter;
