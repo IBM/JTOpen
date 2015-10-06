@@ -1451,13 +1451,13 @@ switch (valueType_)
       case DB2Type.CHAR: // CHAR
         return java.sql.Types.CHAR;
       case DB2Type.LONGVARCHAR: // LONG VARCHAR
-        return java.sql.Types.LONGVARCHAR;
+        return java.sql.Types.VARCHAR;
       case DB2Type.VARGRAPHIC: // VARGRAPHIC
         return java.sql.Types.VARCHAR;
       case DB2Type.GRAPHIC: // GRAPHIC
         return java.sql.Types.CHAR;
       case DB2Type.LONGVARGRAPHIC: // LONG VARGRAPHIC
-        return java.sql.Types.LONGVARCHAR;
+        return java.sql.Types.VARCHAR;
       case DB2Type.FLOATINGPOINT: // floating point
       {
         if (length_ == 4) {
@@ -1538,13 +1538,13 @@ switch (valueType_)
           return "CHAR";
         }
       case DB2Type.LONGVARCHAR: // LONG VARCHAR
-        return "LONG VARCHAR";
+        return "VARCHAR";
       case DB2Type.VARGRAPHIC: // VARGRAPHIC
         return "VARGRAPHIC";
       case DB2Type.GRAPHIC: // GRAPHIC
         return "GRAPHIC";
       case DB2Type.LONGVARGRAPHIC: // LONG VARGRAPHIC
-        return "LONG VARGRAPHIC";
+        return "VARGRAPHIC";
       case DB2Type.FLOATINGPOINT:
       {
         if (length_ == 4) {
