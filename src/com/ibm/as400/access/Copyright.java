@@ -160,6 +160,7 @@ package com.ibm.as400.access;
 //@P1    20150827  User: add STRAUTCOL parameters for v7r3
 //@P2    20150828  Program Call: set iasp to pick up libs from current user profile instead of sysbas
 //@P3    20151005  JDBC: Fix ResultSetMetaData.getType() to match DatabaseMetaData.getColumns
+//@P4    20151012  SSL set jvm ciphers list for iNav
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -168,12 +169,12 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
     //                                                                                              built=20151001 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R2M0.00 built=20151001 @P3";  
+    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R2M0.00 built=20151012 @P4";  
 
     // Constants for reference by AS400JDBCDriver.
-    static final int    MAJOR_VERSION = 10; // ex: "10" indicates V7R2, while "9" indicates V7R1
-    static final int    MINOR_VERSION = 7; // ex: "6" indicates PTF #6 (1 is first PTF in a release)
-                                           //Note: JTOpen 8.6 is synching with ptf 10.6
-    static final String DRIVER_LEVEL  = "07020007"; //(ex: 07020006 -> V7R2M0 PTF#6) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, while "10" indicates V7R2
+    static final int    MINOR_VERSION = 1; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
+                                           //Note: JTOpen 9.1 is synching with ptf 11.1
+    static final String DRIVER_LEVEL  = "07030001"; //(ex: 07030001 -> V7R3M0 PTF#1) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
