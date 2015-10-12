@@ -48,6 +48,13 @@ public class SecureAS400 extends AS400
      Constant indicating that encryption should be done in both the connection between the client and the proxy server and the connection between the proxy server and the system.
      **/
     public static final int CLIENT_TO_SERVER = 3;
+    
+    /**
+     * @P4A Indicate whether the cipher suits changed by the caller. We add this for iNav.
+     */
+    public static boolean changeCipherSuites = false;
+    public static String[] newCipherSuites;
+
 
     private void construct()
     {
@@ -360,5 +367,11 @@ public class SecureAS400 extends AS400
         {
           propertyChangeListeners_.firePropertyChange("proxyEncryptionMode", oldValue, newValue);
         }
+    }
+    public void setEnabledCipherSuites(String [] suites){//@P4
+      if(suites !=null && suites.length>0){
+        changeCipherSuites = true;
+        newCipherSuites = suites;
+      }
     }
 }
