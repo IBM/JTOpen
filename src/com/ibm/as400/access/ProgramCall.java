@@ -725,11 +725,13 @@ public class ProgramCall implements Serializable
       }
 
       //@M2A Add support for running program located on IASP and path set starting with iasp name.
-      String prg = program_.toUpperCase();
+      /*String prg = program_.toUpperCase();
       if(!prg.startsWith("/QSYS.LIB")){
         String iasp=prg.substring(1, prg.indexOf("/QSYS.LIB"));
         try{
-          String SetASPGrp = "SETASPGRP ASPGRP("+ iasp + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)";//@P2C
+          //String SetASPGrp = "SETASPGRP ASPGRP("+ iasp + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)";//@P2C
+          String SetASPGrp = "SETASPGRP ASPGRP("+ iasp + ") CURLIB("+system_.currentLib_+") USRLIBL("+system_.librariesForThread_ +")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
+          
           CommandCall commandCall = new CommandCall(system_);
           if (commandCall.run(SetASPGrp) != true) {
             Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);
@@ -737,7 +739,7 @@ public class ProgramCall implements Serializable
           }catch (Exception e){
             e.printStackTrace();
           }
-      }
+      }*/
       
       // Validate that all the program parameters have been set.
       for (int i = 0; i < parameterList_.length; ++i)
