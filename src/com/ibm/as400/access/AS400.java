@@ -721,7 +721,7 @@ public class AS400 implements Serializable
         else
           for(int i=0;i<librariesForThread.length;i++){
             String value =librariesForThread[i].toUpperCase();
-            if (value.length()> 10)
+            if (value==null || value.length()<1 || value.length()> 10)
             {
                 Trace.log(Trace.ERROR, "Length of parameter 'librariesForThread' is not valid: '" + value + "'");
                 throw new ExtendedIllegalArgumentException("setIASPGroup librariesForThread (" + value + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
