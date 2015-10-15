@@ -521,6 +521,13 @@ public class Job implements Serializable
     public static final int ACTIVE_JOB_STATUS_FOR_JOBS_ENDING = 103;
 
     /**
+    Job attribute representing the ASP group information
+    <p>Read-only: true
+    <p>Type: String
+    <p>Only valid on V5R1 systems and higher.
+    **/
+    public static final int ASP_GROUP = 104;//@P2
+    /**
      Job attribute representing whether a job allows multiple user threads.  This attribute
      does not prevent the operating system from creating system threads in the job.  Possible values are:
      <ul>
@@ -5324,45 +5331,45 @@ public class Job implements Serializable
     }
 
     /**
-     Refreshes the values for all attributes.  This does not cancel uncommitted changes.  To refresh just the elapsed statistics, use {@link #loadStatistics loadStatistics()}.
-     @see  #loadInformation(int[])
-     @see  #commitChanges
-     @see  #loadStatistics
-     **/
-    public void loadInformation()
-    {
-        // Need to load an attribute from each format.
-        try
-        {
-            // Clear all cached attribute values.
-            values_.clear();
-
-            // For those attributes that never change, retain the original value.
-
-            //setValueInternal(INTERNAL_JOB_ID, null);
-            //setValueInternal(INTERNAL_JOB_IDENTIFIER, null);
-            setValueInternal(JOB_NAME, name_);
-            setValueInternal(USER_NAME, user_);
-            setValueInternal(JOB_NUMBER, number_);
-            //setValueInternal(JOB_STATUS, null);
-            setValueInternal(JOB_TYPE, type_);
-            setValueInternal(JOB_SUBTYPE, subtype_);
-
-            // Retrieve all values.
-            retrieve(THREAD_COUNT);           // 150
-            retrieve(CURRENT_SYSTEM_POOL_ID); // 200
-            retrieve(JOB_DATE);               // 300
-            retrieve(SERVER_TYPE);            // 400
-            retrieve(LOGGING_TEXT);           // 500
-            retrieve(SPECIAL_ENVIRONMENT);    // 600
-            retrieve(USER_LIBRARY_LIST);      // 700
-            retrieve(ELAPSED_CPU_TIME_USED);  // 1000
-        }
-        catch (Exception e)
-        {
-            Trace.log(Trace.ERROR, "Error loading job information:", e);
-        }
-    }
+    Refreshes the values for all attributes.  This does not cancel uncommitted changes.  To refresh just the elapsed statistics, use {@link #loadStatistics loadStatistics()}.
+    @see  #loadInformation(int[])
+    @see  #commitChanges
+    @see  #loadStatistics
+    **/
+   public void loadInformation()
+   {
+       // Need to load an attribute from each format.
+       try
+       {
+           // Clear all cached attribute values.
+           values_.clear();
+   
+           // For those attributes that never change, retain the original value.
+   
+           //setValueInternal(INTERNAL_JOB_ID, null);
+           //setValueInternal(INTERNAL_JOB_IDENTIFIER, null);
+           setValueInternal(JOB_NAME, name_);
+           setValueInternal(USER_NAME, user_);
+           setValueInternal(JOB_NUMBER, number_);
+           //setValueInternal(JOB_STATUS, null);
+           setValueInternal(JOB_TYPE, type_);
+           setValueInternal(JOB_SUBTYPE, subtype_);
+   
+           // Retrieve all values.
+           retrieve(THREAD_COUNT);           // 150
+           retrieve(CURRENT_SYSTEM_POOL_ID); // 200
+           retrieve(JOB_DATE);               // 300
+           retrieve(SERVER_TYPE);            // 400
+           retrieve(LOGGING_TEXT);           // 500
+           retrieve(SPECIAL_ENVIRONMENT);    // 600
+           retrieve(USER_LIBRARY_LIST);      // 700
+           retrieve(ELAPSED_CPU_TIME_USED);  // 1000
+       }
+       catch (Exception e)
+       {
+           Trace.log(Trace.ERROR, "Error loading job information:", e);
+       }
+   }
 
     /**
      Refreshes the values for specific attributes.  This does not cancel uncommitted changes.
@@ -5466,7 +5473,7 @@ public class Job implements Serializable
             case 3:  // Format JOBI0300.
                 return 187;
             case 4:  // Format JOBI0400.
-                return 564;
+                return 574+10;//+10 for asp information //@P2
             case 5:  // Format JOBI0500.
                 return 83;
             case 6:  // Format JOBI0600.
@@ -5585,6 +5592,7 @@ public class Job implements Serializable
             case JOB_TYPE_ENHANCED:
             case DATE_ENDED:
             case SPOOLED_FILE_ACTION:
+            case ASP_GROUP://@P2
                 // Format name, EBCDIC 'JOBI0400'.
                 return new byte[] { (byte)0xD1, (byte)0xD6, (byte)0xC2, (byte)0xC9, (byte)0xF0, (byte)0xF4, (byte)0xF0, (byte)0xF0 };
 
@@ -5774,6 +5782,10 @@ public class Job implements Serializable
                 setAsInt(JOB_TYPE_ENHANCED, BinaryConverter.byteArrayToInt(data, 504));
                 setValueInternal(DATE_ENDED, conv.byteArrayToString(data, 508, 13));
                 setValueInternal(SPOOLED_FILE_ACTION, conv.byteArrayToString(data, 522, 10));
+                //@P2
+                int offset_to_ASP = BinaryConverter.byteArrayToInt(data, 532);
+                setValueInternal(ASP_GROUP, conv.byteArrayToString(data, offset_to_ASP, 10));
+                
                 setValueInternal(JOB_LOG_OUTPUT, conv.byteArrayToString(data, 554, 10));
                 break;
             case 5:  // Format JOBI0500.
@@ -7441,5 +7453,14 @@ public class Job implements Serializable
         buf.append('/');
         buf.append(name_);
         return buf.toString();
+    }
+    
+    //@P2
+    /**
+     * Get the asp group information of the job
+     */
+    public String getJobAsp() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException{
+      retrieve(ASP_GROUP);             // Format JOBI0400.
+      return ((String)values_.get(ASP_GROUP)).trim();
     }
 }

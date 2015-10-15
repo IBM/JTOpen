@@ -300,22 +300,27 @@ public class ServiceProgramCall extends ProgramCall
             throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList_.length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         
-       //@M2A Add support for running program located on IASP and path set starting with iasp name.
-        /*String prg = program_.toUpperCase();
+        //@M2A Add support for running program located on IASP and path set starting with iasp name.
+        //@P2C
+        String prg = program_.toUpperCase();
         if(!prg.startsWith("/QSYS.LIB")){
           String iasp=prg.substring(1, prg.indexOf("/QSYS.LIB"));
           try{
-            //String SetASPGrp = "SETASPGRP "+ iasp;
-            String SetASPGrp = "SETASPGRP ASPGRP("+ iasp + ") CURLIB("+system_.currentLib_+") USRLIBL("+system_.librariesForThread_ +")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
+            String SetASPGrp = "SETASPGRP ASPGRP("+ iasp + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)";//@P2C
             
             CommandCall commandCall = new CommandCall(system_);
-            if (commandCall.run(SetASPGrp) != true) {
-              Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);
-            } 
+            Job job = commandCall.getServerJob();
+            String currentASP = job.getJobAsp();
+            if(currentASP!=null && !currentASP.equalsIgnoreCase(iasp)){
+              System.out.println("ServiceProgram call command of setaspgrp "+SetASPGrp);
+              if (commandCall.run(SetASPGrp) != true) {
+                Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);
+              } 
+            }
             }catch (Exception e){
               e.printStackTrace();
             }
-        }*/
+        }
 
         chooseImpl();
 
