@@ -158,9 +158,10 @@ package com.ibm.as400.access;
 //@O8    20150630  JDBC: Fix errors from QSQFETCH from stored procedures not reported
 //@O9    20150803  JDBC: Report truncation for InputStream parameters
 //@P1    20150827  User: add STRAUTCOL parameters for v7r3
-//@P2    20150828  Program Call: set iasp to pick up libs from current user profile instead of sysbas
+//@P2    20150828  Program Call: set iasp to pick up libs from current user profile and only call setasp when job asp is different
 //@P3    20151005  JDBC: Fix ResultSetMetaData.getType() to match DatabaseMetaData.getColumns
 //@P4    20151012  SSL set jvm ciphers list for iNav
+//@P5    20151016  AS400 adds more interface to set asp group
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -169,7 +170,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
     //                                                                                              built=20151001 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R2M0.00 built=20151012 @P4";  
+    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R2M0.00 built=20151016 @P5";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, while "10" indicates V7R2
