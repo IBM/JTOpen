@@ -716,16 +716,17 @@ public class AS400 implements Serializable
       else if(librariesForThread.length>1){
         if(librariesForThread.length>250){
           Trace.log(Trace.ERROR, this,"Up to 250 libraries can be set for SETASPGRP USRLIBL");
-          throw new ExtendedIllegalArgumentException("setIASPGroup Libraries for current thread (" + librariesForThread.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+          throw new ExtendedIllegalArgumentException("setIASPGroup Libraries for current thread librariesForThread(" + librariesForThread.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         else
           for(int i=0;i<librariesForThread.length;i++){
-            String value =librariesForThread[i].toUpperCase();
+            String value =librariesForThread[i];
             if (value==null || value.length()<1 || value.length()> 10)
             {
-                Trace.log(Trace.ERROR, "Length of parameter 'librariesForThread' is not valid: '" + value + "'");
-                throw new ExtendedIllegalArgumentException("setIASPGroup librariesForThread (" + value + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+                Trace.log(Trace.ERROR, "Length of parameter in 'librariesForThread' is not valid: '" + value + "'");
+                throw new ExtendedIllegalArgumentException("setIASPGroup parameter in librariesForThread (" + value + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
             }
+            value=value.toUpperCase();
             if(value.equals(USRLIBL_SINGLE_VALUE[0]) || value.equals(USRLIBL_SINGLE_VALUE[1])|| value.equals(USRLIBL_SINGLE_VALUE[2]) || value.equals(USRLIBL_SINGLE_VALUE[3])){
               Trace.log(Trace.ERROR, this,value+" must be only value for parameter USRLIBL.");
               throw new ExtendedIllegalArgumentException("SETASPGRP USRLIBL parameter value (" + value + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
