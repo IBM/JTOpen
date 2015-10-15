@@ -623,20 +623,17 @@ public class AS400 implements Serializable
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      */
-    public void setIASPGroup(String IASPGroup){
-      try{
-        this.currentLib_ = "*CURUSR";
-        this.librariesForThread_ = "*CURUSR";
-        String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-        System.out.println("Call command of setaspgrp "+SetASPGrp);
-        CommandCall commandCall = new CommandCall(this);
-        if (commandCall.run(SetASPGrp) != true) {
-          Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
-        } 
-        }catch (Exception e){
-          e.printStackTrace();
-        }
+    public void setIASPGroup(String IASPGroup) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
+      this.currentLib_ = "*CURUSR";
+      this.librariesForThread_ = "*CURUSR";
+      String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
+      System.out.println("AS400 Call command of setaspgrp "+SetASPGrp);
+      CommandCall commandCall = new CommandCall(this);
+      if (commandCall.run(SetASPGrp) != true) {
+        Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
+      } 
     }
+    //@P5A START
     /**
      * Set ASP group for the AS400 connection. 
      * @currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
@@ -645,91 +642,112 @@ public class AS400 implements Serializable
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      */
-    public void setIASPGroup(String IASPGroup, String currentLib){
+    public void setIASPGroup(String IASPGroup, String currentLib) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
         currentLib = "*CURUSR";
-      try{
-        this.currentLib_ = currentLib;
-        this.librariesForThread_ = "*CURUSR";
-        String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-        System.out.println("Call command of setaspgrp "+SetASPGrp);
-        CommandCall commandCall = new CommandCall(this);
-        if (commandCall.run(SetASPGrp) != true) {
-          Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
-        } 
-      }catch (Exception e){
-        e.printStackTrace();
+      else if (currentLib.length() > 10)
+      {
+          Trace.log(Trace.ERROR, "Length of parameter 'currentLib' is not valid: '" + currentLib + "'");
+          throw new ExtendedIllegalArgumentException("setIASPGroup currentLib (" + currentLib + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      }
+      
+      this.currentLib_ = currentLib;
+      this.librariesForThread_ = "*CURUSR";
+      String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
+      System.out.println("Call command of setaspgrp "+SetASPGrp);
+      CommandCall commandCall = new CommandCall(this);
+      if (commandCall.run(SetASPGrp) != true) {
+        Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
       }
     } 
     /**
      * Set ASP group for the AS400 connection. 
      * @currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * librariesForThread Libraries for current thread with single value
+     * @librariesForThread Libraries for current thread with single value. If null or "" is set, default value *CURUSR is used.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      */
-    public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread){
+    public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
         currentLib = "*CURUSR";
+      else if (currentLib.length() > 10)
+      {
+          Trace.log(Trace.ERROR, "Length of parameter 'currentLib' is not valid: '" + currentLib + "'");
+          throw new ExtendedIllegalArgumentException("setIASPGroup currentLib (" + currentLib + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      }
       if(librariesForThread==null || librariesForThread.length()==0)
         librariesForThread = "*CURUSR";
-      try{
-        this.currentLib_ = currentLib;
-        this.librariesForThread_ = librariesForThread;
-
-        String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL("+librariesForThread+")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-        System.out.println("Call command of setaspgrp "+SetASPGrp);
-        CommandCall commandCall = new CommandCall(this);
-        if (commandCall.run(SetASPGrp) != true) {
-          Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
-        } 
-      }catch (Exception e){
-        e.printStackTrace();
+      else if (librariesForThread.length() > 10)
+      {
+          Trace.log(Trace.ERROR, "Length of parameter 'librariesForThread' is not valid: '" + librariesForThread + "'");
+          throw new ExtendedIllegalArgumentException("setIASPGroup librariesForThread (" + librariesForThread + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
       }
       
+      this.currentLib_ = currentLib;
+      this.librariesForThread_ = librariesForThread;
+
+      String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL("+librariesForThread+")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
+      System.out.println("Call command of setaspgrp "+SetASPGrp);
+      CommandCall commandCall = new CommandCall(this);
+      if (commandCall.run(SetASPGrp) != true) {
+        Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
+      } 
     }
     
     /**
      * Set ASP group for the AS400 connection. 
-     * currentLib Current library
-     * librariesForThread Libraries for current thread with multiple value
+      * @currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
+     * @librariesForThread Libraries for current thread. If null is set, default value *CURUSR is used. Up to 250 libraries can be set.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      */
-    public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread){
+    public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
         currentLib = "*CURUSR";
+      else if (currentLib.length() > 10)
+        {
+            Trace.log(Trace.ERROR, "Length of parameter 'currentLib' is not valid: '" + currentLib + "'");
+            throw new ExtendedIllegalArgumentException("setIASPGroup currentLib (" + currentLib + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
       if(librariesForThread==null || librariesForThread.length==0)
         librariesForThread = new String[]{"*CURUSR"};
       else if(librariesForThread.length>1){
-        if(librariesForThread.length>250)
+        if(librariesForThread.length>250){
           Trace.log(Trace.ERROR, this,"Up to 250 libraries can be set for SETASPGRP USRLIBL");
+          throw new ExtendedIllegalArgumentException("setIASPGroup Libraries for current thread (" + librariesForThread.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
         else
           for(int i=0;i<librariesForThread.length;i++){
             String value =librariesForThread[i].toUpperCase();
-            if(value.equals(USRLIBL_SINGLE_VALUE[0]) || value.equals(USRLIBL_SINGLE_VALUE[1])|| value.equals(USRLIBL_SINGLE_VALUE[2]) || value.equals(USRLIBL_SINGLE_VALUE[3]))
+            if (value.length()> 10)
+            {
+                Trace.log(Trace.ERROR, "Length of parameter 'librariesForThread' is not valid: '" + value + "'");
+                throw new ExtendedIllegalArgumentException("setIASPGroup librariesForThread (" + value + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            }
+            if(value.equals(USRLIBL_SINGLE_VALUE[0]) || value.equals(USRLIBL_SINGLE_VALUE[1])|| value.equals(USRLIBL_SINGLE_VALUE[2]) || value.equals(USRLIBL_SINGLE_VALUE[3])){
               Trace.log(Trace.ERROR, this,value+" must be only value for parameter USRLIBL.");
+              throw new ExtendedIllegalArgumentException("SETASPGRP USRLIBL parameter value (" + value + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
           }
       }
-      try{
-          this.currentLib_ = currentLib;
-          this.librariesForThread_ = "";
-          for(int i=0;i<librariesForThread.length;i++)
-            this.librariesForThread_+=librariesForThread[i].toUpperCase() + " ";
-          this.librariesForThread_ = this.librariesForThread_.substring(0, this.librariesForThread_.length()-1)  ;
-          
-          String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL("+librariesForThread_ +")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-          System.out.println("Call command of setaspgrp "+SetASPGrp);
-          CommandCall commandCall = new CommandCall(this);
-          if (commandCall.run(SetASPGrp) != true) {
-            Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
-          } 
-        }catch (Exception e){
-          e.printStackTrace();
-        }
+
+      this.currentLib_ = currentLib;
+      this.librariesForThread_ = "";
+      for(int i=0;i<librariesForThread.length;i++)
+        this.librariesForThread_+=librariesForThread[i].toUpperCase() + " ";
+      this.librariesForThread_ = this.librariesForThread_.substring(0, this.librariesForThread_.length()-1)  ;
+
+      String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL("+librariesForThread_ +")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
+      System.out.println("Call command of setaspgrp "+SetASPGrp);
+      CommandCall commandCall = new CommandCall(this);
+      if (commandCall.run(SetASPGrp) != true) {
+        Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
+      } 
     }
+    //@P5A END
+    
     // Private constructor for use when a new object is needed and the password is already twiddled.
     // Used by password cache and password verification code.
     private AS400(String systemName, String userId, CredentialVault pwVault)
