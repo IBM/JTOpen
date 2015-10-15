@@ -5784,7 +5784,10 @@ public class Job implements Serializable
                 setValueInternal(SPOOLED_FILE_ACTION, conv.byteArrayToString(data, 522, 10));
                 //@P2
                 int offset_to_ASP = BinaryConverter.byteArrayToInt(data, 532);
-                setValueInternal(ASP_GROUP, conv.byteArrayToString(data, offset_to_ASP, 10));
+                if(offset_to_ASP>0)
+                  setValueInternal(ASP_GROUP, conv.byteArrayToString(data, offset_to_ASP, 10));
+                else
+                  setValueInternal(ASP_GROUP, "");
                 
                 setValueInternal(JOB_LOG_OUTPUT, conv.byteArrayToString(data, 554, 10));
                 break;
