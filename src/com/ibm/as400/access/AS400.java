@@ -613,12 +613,13 @@ public class AS400 implements Serializable
         "*SYSVAL",
         "*NONE"
     };
+    public String aspName="";
 
     //@M2A
     /**
      * Set ASP group for the AS400 connection. 
-     * Current library default is *CURUSR
-     * Libraries for current thread default is *CURUSR
+     * Current library default is *CURUSR.
+     * Libraries for current thread default is *CURUSR.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
@@ -627,20 +628,22 @@ public class AS400 implements Serializable
       this.currentLib_ = "*CURUSR";
       this.librariesForThread_ = "*CURUSR";
       String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-      System.out.println("AS400 Call command of setaspgrp "+SetASPGrp);
+      Trace.log(Trace.DIAGNOSTIC,"AS400 Call command of setaspgrp "+SetASPGrp);
       CommandCall commandCall = new CommandCall(this);
       if (commandCall.run(SetASPGrp) != true) {
         Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
       } 
+      else
+        aspName = IASPGroup;
     }
     //@P5A START
     /**
      * Set ASP group for the AS400 connection. 
-     * @currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * Libraries for current thread default is *CURUSR
+     * Libraries for current thread default is *CURUSR.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
+     * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
      */
     public void setIASPGroup(String IASPGroup, String currentLib) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -654,19 +657,20 @@ public class AS400 implements Serializable
       this.currentLib_ = currentLib;
       this.librariesForThread_ = "*CURUSR";
       String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-      System.out.println("Call command of setaspgrp "+SetASPGrp);
+      Trace.log(Trace.DIAGNOSTIC,"Call command of setaspgrp "+SetASPGrp);
       CommandCall commandCall = new CommandCall(this);
       if (commandCall.run(SetASPGrp) != true) {
         Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
-      }
+      } else
+        aspName = IASPGroup;
     } 
     /**
      * Set ASP group for the AS400 connection. 
-     * @currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * @librariesForThread Libraries for current thread with single value. If null or "" is set, default value *CURUSR is used.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
+     * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
+     * @param librariesForThread Libraries for current thread with single value. If null or "" is set, default value *CURUSR is used.
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -688,20 +692,21 @@ public class AS400 implements Serializable
       this.librariesForThread_ = librariesForThread;
 
       String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL("+librariesForThread+")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-      System.out.println("Call command of setaspgrp "+SetASPGrp);
+      Trace.log(Trace.DIAGNOSTIC,"Call command of setaspgrp "+SetASPGrp);
       CommandCall commandCall = new CommandCall(this);
       if (commandCall.run(SetASPGrp) != true) {
         Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
-      } 
+      }  else
+        aspName = IASPGroup;
     }
     
     /**
      * Set ASP group for the AS400 connection. 
-      * @currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * @librariesForThread Libraries for current thread. If null is set, default value *CURUSR is used. Up to 250 libraries can be set.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
+     * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
+     * @param librariesForThread Libraries for current thread. If null is set, default value *CURUSR is used. Up to 250 libraries can be set.
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -741,11 +746,12 @@ public class AS400 implements Serializable
       this.librariesForThread_ = this.librariesForThread_.substring(0, this.librariesForThread_.length()-1)  ;
 
       String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB("+currentLib+") USRLIBL("+librariesForThread_ +")"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
-      System.out.println("Call command of setaspgrp "+SetASPGrp);
+      Trace.log(Trace.DIAGNOSTIC,"Call command of setaspgrp "+SetASPGrp);
       CommandCall commandCall = new CommandCall(this);
       if (commandCall.run(SetASPGrp) != true) {
         Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+IASPGroup);
-      } 
+      }  else
+        aspName = IASPGroup;
     }
     //@P5A END
     
