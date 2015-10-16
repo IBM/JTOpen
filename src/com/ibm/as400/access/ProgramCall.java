@@ -95,6 +95,14 @@ import java.util.Vector;
  *    }
  </pre>
  <p>NOTE:  When the program runs within the host server job, the library list will be the initial library list specified in the job description in the user profile.
+ <p>NOTE: There are two ways to run a program in an iasp. Users can call a program directly with path prefixed with the iasp information like "/IASP1/QSYS.LIB/TESTLIB.LIB/TESTPROG.PGM".
+ Users can also call AS400.setIASPGroup to set the asp group information firstly, then call the program in regular library-qualified object name syntax. The second way is recommended. For example:
+ <pre>
+ *    // Call a program on system named "Hal" on asp "iasp1"
+ *    AS400 system = new AS400("Hal");
+ *    system.setIASPGroup("iasp1"); //If do not use *CURUSR for current library and library list, call other setIASPGroup interfaces.
+ *    ProgramCall program = new ProgramCall(system);
+ *    program.setProgram("/QSYS.LIB/TESTLIB.LIB/TESTPROG.PGM");
  @see  ProgramParameter
  @see  AS400Message
  @see  ServiceProgramCall
@@ -729,21 +737,26 @@ public class ProgramCall implements Serializable
       String prg = program_.toUpperCase();
       if(!prg.startsWith("/QSYS.LIB")){
         String iasp=prg.substring(1, prg.indexOf("/QSYS.LIB"));
-        try{
-          String SetASPGrp = "SETASPGRP ASPGRP("+ iasp + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)";//@P2C
-          
-          CommandCall commandCall = new CommandCall(system_);
-          Job job = commandCall.getServerJob();
-          String currentASP = job.getJobAsp();
-          if(currentASP!=null && !currentASP.equalsIgnoreCase(iasp)){
-            System.out.println("ProgramCall call command of setaspgrp "+SetASPGrp);
-            if (commandCall.run(SetASPGrp) != true) {
-              Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);
+        if(!system_.aspName.equalsIgnoreCase(iasp)){
+          try{
+            String SetASPGrp = "SETASPGRP ASPGRP("+ iasp + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)";//@P2C
+
+            CommandCall commandCall = new CommandCall(system_);
+            Job job = commandCall.getServerJob();
+            String currentASP = job.getJobAsp();
+            system_.aspName= currentASP;
+            if(currentASP!=null && !currentASP.equalsIgnoreCase(iasp)){
+              Trace.log(Trace.DIAGNOSTIC,"ProgramCall call command of setaspgrp "+SetASPGrp);
+              if (commandCall.run(SetASPGrp) != true) {
+                Trace.log(Trace.ERROR, this,"Command SETASPGRP Failed with iasp "+iasp);
+              }
+              else
+                system_.aspName= iasp;
             }
-          }
           }catch (Exception e){
             e.printStackTrace();
           }
+      }
       }
       
       // Validate that all the program parameters have been set.
