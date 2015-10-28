@@ -347,7 +347,7 @@ extends SQLDataBase implements SQLVariableCompressible /*@N3C*/
 
     public String getLocalName()
     {
-        return "VARCHAR() FOR BIT DATA";    //@KKB changed from VARCHAR
+        return "VARCHAR () FOR BIT DATA";    //@KKB changed from VARCHAR
     }
 
     public int getMaximumPrecision()
@@ -392,7 +392,7 @@ extends SQLDataBase implements SQLVariableCompressible /*@N3C*/
 
     public String getTypeName()
     {
-        return "VARCHAR() FOR BIT DATA";
+        return "VARCHAR () FOR BIT DATA";
     }
 
     public boolean isSigned()

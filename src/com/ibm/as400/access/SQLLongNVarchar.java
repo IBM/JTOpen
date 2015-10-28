@@ -88,8 +88,10 @@ extends SQLVarcharBase implements SQLVariableCompressible
     	/* ifdef JDBC40 
         return java.sql.Types.NVARCHAR;  //@P3C
         endif */ 
-    	/* ifndef JDBC40 */ 
+    	/* ifndef JDBC40 */
+      
     	return java.sql.Types.VARCHAR;  //@P3C
+    	
     	/* endif */ 
     	
     	 
