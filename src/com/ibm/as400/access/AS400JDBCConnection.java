@@ -2982,7 +2982,7 @@ void handleAbort() {
 
                 reply = (DBReplyRequestedDS)server_.sendAndReceive(actualRequest);          // @E5C @F7M
                 //@P0D requestPending_.clear(id);
-//@P1D                requestPending_[id] = false; //@P0A @F7M
+                //@P1D                requestPending_[id] = false; //@P0A @F7M
             }                                                                               // @E5A
 
             reply.parse(dataCompression_);                                                  // @E5A
@@ -3002,12 +3002,31 @@ void handleAbort() {
         catch (IOException e)
         {                                             // @J5A
             server_ = null;                                                  // @J5A
+            if (Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR, "Communication Link Failure "); 
+              Trace.log(Trace.ERROR, e);
+              Trace.log(Trace.ERROR, "Server job is "+serverJobIdentifier_); 
+              if (request != null && request.data_ != null ) {
+                Trace.log(Trace.ERROR,"Request bytes", request.data_); 
+              }
+            }            
             //@P0D request.freeCommunicationsBuffer();                              // @J5A
             JDError.throwSQLException (this, JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
         }                                                                   // @J5A
         catch (Exception e)
         {
             //@P0D request.freeCommunicationsBuffer();                              // @EMa
+            if (Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR, "Unexpected exception "); 
+              Trace.log(Trace.ERROR, e);
+              Trace.log(Trace.ERROR, "Server job is "+serverJobIdentifier_); 
+              if (request != null && request.data_ != null ) {
+                Trace.log(Trace.ERROR,"Request bytes", request.data_); 
+              }
+            } else if (JDTrace.isTraceOn()) {
+              JDTrace.logException(this, "Unexpected exception", e); 
+              JDTrace.logInformation(this, "Server job is "+serverJobIdentifier_);
+            }
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
