@@ -2495,32 +2495,34 @@ public class Main implements Runnable {
         t.start();
         threads_.add(t);
       } else if (upcaseCommand.startsWith("THREADPERSIST ")) {
-	  history.addElement(command_);
-	  String threadName = command_.substring(14).trim();
-	  out_.println("Starting thread "+threadName);
-	  String newcommand = "PERSIST"; 
-	  Main runnable = new Main(this,  newcommand, out_);
-	  variables.put(threadName, runnable); 
-	  Thread t = new Thread(runnable);
-	  t.setName(threadName); 
-	  t.setDaemon(true); 
-	  t.start();
+        history.addElement("!" + command1);
+        String threadName = command1.substring(14).trim();
+        out1.println("Starting runnable " + threadName);
+        String newcommand = "PERSIST";
+        Main runnable = new Main(this, newcommand, out1);
+        variables.put(threadName, runnable);
+        Thread t = new Thread(runnable);
+        t.setName(threadName);
+        t.setDaemon(true);
+        t.start();
+        out1.println("Started thread " + threadName+"-T");
+        variables.put(threadName+"-T", t); 
       } else if (upcaseCommand.startsWith("THREADEXEC ")) {
-	  history.addElement(command_);
-	  String remaining = command_.substring(11).trim();
-	  int spaceIndex = remaining.indexOf(' ');
-	  if (spaceIndex > 0) {
-	      String threadName = remaining.substring(0,spaceIndex);
-	      String threadCommand = remaining.substring(spaceIndex+1); 
-	      Main runnable = (Main) variables.get(threadName);
-	      if (runnable != null) {
-		  runnable.setCommand(threadCommand); 
-	      } else {
-		  out_.println("ERROR: Unable to find thread "+threadName); 
-	      } 
-	  } else {
-	      out_.println("ERROR:  THREADEXEC: no space after thread name"); 
-	  } 
+        history.addElement("!" + command1);
+        String remaining = command1.substring(11).trim();
+        int spaceIndex = remaining.indexOf(' ');
+        if (spaceIndex > 0) {
+          String threadName = remaining.substring(0, spaceIndex);
+          String threadCommand = remaining.substring(spaceIndex + 1);
+          Main runnable = (Main) variables.get(threadName);
+          if (runnable != null) {
+            runnable.setCommand(threadCommand);
+          } else {
+            out1.println("ERROR: Unable to find thread " + threadName);
+          }
+        } else {
+          out1.println("ERROR:  THREADEXEC: no space after thread name");
+        }
       } else if (upcaseCommand.startsWith("REPEAT ")) {
         history.addElement("!"+command1);
         String left = command1.substring(7).trim();
