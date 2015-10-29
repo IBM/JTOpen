@@ -322,7 +322,7 @@ extends SQLDataBase
     public String getLocalName()
     {
         // Use "CHAR" not "BINARY".  See ODBC SQLGetTypeInfo().
-        return "CHAR() FOR BIT DATA";   //@KKB changed from CHAR
+        return "CHAR () FOR BIT DATA";   //@KKB changed from CHAR
     }
 
     public int getMaximumPrecision()
@@ -367,7 +367,7 @@ extends SQLDataBase
 
     public String getTypeName()
     {
-        return "CHAR() FOR BIT DATA";
+        return "CHAR () FOR BIT DATA";
     }
 
     public boolean isSigned()
