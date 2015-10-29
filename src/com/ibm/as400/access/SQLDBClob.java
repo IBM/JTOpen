@@ -57,7 +57,9 @@ final class SQLDBClob extends SQLDataBase
 
     public Object clone()
     {
-        return new SQLDBClob(maxLength_, settings_);
+       SQLDBClob newClob =new SQLDBClob(maxLength_, settings_);
+       newClob.setCcsid(ccsid_);
+        return newClob;
     }
 
     //---------------------------------------------------------//
