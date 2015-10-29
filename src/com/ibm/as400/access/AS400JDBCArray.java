@@ -462,12 +462,13 @@ public class AS400JDBCArray implements Array {
       Object retArry = java.lang.reflect.Array
           .newInstance(dummySQLXType, count);
       for (int x = 0; x < count; x++) {
-        if (data_[x + intIndex] != null)
-          ((Object[]) retArry)[x] = ((SQLData) data_[x + intIndex]).getObject(); // convert
+        if (data_[x + intIndex] != null) {
+          Object o = ((SQLData) data_[x + intIndex]).getObject();
+          ((Object[]) retArry)[x] = o; 
                                                                                  // based
                                                                                  // on
                                                                                  // SQLData
-        else
+        } else
           ((Object[]) retArry)[x] = null; // @nullelem
       }
       return retArry; // returns array of types such as Ingeter[] etc

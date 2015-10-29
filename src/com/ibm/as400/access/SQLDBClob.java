@@ -505,6 +505,13 @@ endif */
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0; outOfBounds_ = false;
+/* ifdef JDBC40 
+        if (ccsid_ == 1200 || ccsid_ == 13400) {
+           return new AS400JDBCNClob(value_, maxLength_);
+        }
+  endif */       
+        
+        
         return new AS400JDBCClob(value_, maxLength_);
     }
 
