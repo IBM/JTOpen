@@ -203,7 +203,7 @@ public class ConvTableWriter extends OutputStreamWriter
             table_ = null;
             cache_ = null;
             super.close();
-            os_.close();
+            //os_.close(); //super.close has already close the output stream
         }
     }
 
