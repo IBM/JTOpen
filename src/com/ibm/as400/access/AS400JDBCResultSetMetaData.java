@@ -214,7 +214,8 @@ implements ResultSetMetaData
             if(dataFormat != null)  //@KBA  The data format returned by the host server will be null for columns created by expressions, use old way
             {                      //@D9A
                 String columnLabel = dataFormat.getColumnLabel(convTable_); //@D9A
-                if(columnLabel != null)                                     //@D9A
+                  // Only return if the returned label length is greater than zero 
+                if(columnLabel != null  && columnLabel.length() > 0)        //@D9A@P6C
                     return columnLabel;                                     //@D9A
                 //@D9D return dataFormat.getColumnLabel(convTable_);   //@KBA
                 //@KBD return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getColumnLabel(convTable_);  //@G1A

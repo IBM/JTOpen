@@ -240,6 +240,18 @@ Indicates if the cursor is closed.
     return closed_;
   }
 
+/**
+ * Set the extendedColumnDescriptrs from the reply 
+ * @param reply
+ */
+  //@P6A
+  void setExtendedColumnDescriptorsFromReply( DBReplyRequestedDS reply) {
+  if (extendedMetaData_) { 
+  extendedColumnDescriptors_  = reply.getExtendedColumnDescriptors();
+  } else { 
+    extendedColumnDescriptors_ =null; 
+  }
+  }
 
 
 /**
@@ -331,11 +343,7 @@ Opens the cursor and describes the data format.
 
       processConcurrencyOverride(openAttributes, openReply);                            // @E1A @E4C
       dataFormat = openReply.getDataFormat ();
-      if (extendedMetaData_) { 
-      extendedColumnDescriptors_  = openReply.getExtendedColumnDescriptors();
-      } else { 
-        extendedColumnDescriptors_ =null; 
-      }
+      setExtendedColumnDescriptorsFromReply(  openReply);   //@P6A
       // @550A  NOTE:  openDescribe() currently is only called for a result set returned from a CallableStatement
       // if that were to change, this method needs to be modified so that it correctly indicates to the data format
       // when the data is from a stored procedure result set.

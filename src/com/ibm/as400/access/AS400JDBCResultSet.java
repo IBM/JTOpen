@@ -231,7 +231,11 @@ implements ResultSet
     boolean                             isMetadataResultSet = false; //@mdrs
     private DBReplyRequestedDS          reply_ = null; 
     private Class                       byteArrayClass_ = null; 
-    private SQLException                savedException_;    /* Saved exception from combined open/fetch @F3A*/ 
+    private SQLException                savedException_;    /* Saved exception from combined open/fetch @F3A*/
+    /* extendedColumnDescriptors need to be set with the result set from the time of creation, if possible */
+    /* instead of being retrieved from the statement at the time of getRSMD  @P6A*/ 
+    
+    DBExtendedColumnDescriptors extendedDescriptors_; 
     /*---------------------------------------------------------*/
     /*                                                         */
     /* MISCELLANEOUS METHODS.                                  */
@@ -267,7 +271,8 @@ implements ResultSet
                         int type,
                         int concurrency,
                         int fetchDirection,
-                        int fetchSize)
+                        int fetchSize,
+                        DBExtendedColumnDescriptors extendedDescriptors) /*@P6A*/
     throws SQLException
     {
         // Initialization.
@@ -296,7 +301,8 @@ implements ResultSet
         /* @D9A Make sure that warning are provided to this result set object */ 
         rowCache_.setResultSet(this); 
         rowCache_.open ();
-
+        extendedDescriptors_ = extendedDescriptors; /*@P6A*/
+        
         // If no connection or SQL statement was provided,
         // or a SELECT with multiple tables or views was
         // specified, or the SELECT does not specify FOR UPDATE,
@@ -377,7 +383,7 @@ implements ResultSet
     {
         this (null, null, rowCache, catalog, cursorName, 0,
               TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY,
-              FETCH_FORWARD, 0);
+              FETCH_FORWARD, 0, reply.getExtendedColumnDescriptors()); /*@P6C*/
 
     	this.reply_ = reply; 
 
@@ -3127,23 +3133,16 @@ implements ResultSet
         synchronized(internalLock_)
         {                                            // @D1A
             ConvTable convTable = null;                                                              // @G5A
-            DBExtendedColumnDescriptors extendedDescriptors = null;                                  // @G5A
-            // If a DMD method (internal call), statement_ will be null because we don't really have // @G5A
-            // a statement object                                                                    // @G5A
-            if(statement_ != null)                                                                  // @G5A
-            {
-                // @G5A
-                extendedDescriptors = statement_.getExtendedColumnDescriptors();                     // @G5A 
                 // If we have extendedDescriptors, send a ConvTable to convert them, else pass null  // @G5A
-                if(extendedDescriptors != null)                                                     // @G5A
+                                                                                                     // @P6C
+                if(extendedDescriptors_ != null)                                                     // @G5A
                 {
                     // @G5A
                     convTable = ((AS400JDBCConnection)connection_).converter_;                       // @G5A
                 }                                                                                    // @G5A
-            }                                                                                        // @G5A
             return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
                                                    cursorName_, row_, 
-                                                   extendedDescriptors, convTable, connection_);                  // @G5A //@in1
+                                                   extendedDescriptors_, convTable, connection_);                  // @G5A@P6C //@in1
         }
     }
 
@@ -5442,7 +5441,6 @@ endif */
     throws SQLException
     {
         beforeUpdate ();
-        DBExtendedColumnDescriptors extendedDescriptors = null;                     //@K1A
         ConvTable convTable = null;                                                 //@K1A             
         
         if((positionInsert_ == true) || (positionValid_ == false))
@@ -5469,14 +5467,12 @@ endif */
                 // @K1A If we have column descriptors, use them to get the column label.                   //@K1A
                 if(statement_ != null)                                                                     //@K1A
                 {
-                    // @K1A
-                    extendedDescriptors = statement_.getExtendedColumnDescriptors();                       // @K1A 
                     // If we have extendedDescriptors, send a ConvTable to convert them, else pass null    // @K1A
-                    if(extendedDescriptors != null)                                                        // @K1A
+                    if(extendedDescriptors_ != null)                                                        // @K1A@P6C
                     {
                         // @K1A
                         convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
-                        String columnName = extendedDescriptors.getColumnDescriptors(i+1, convTable).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel //@SS1
+                        String columnName = extendedDescriptors_.getColumnDescriptors(i+1, convTable).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel //@SS1//@P6C
                         if(columnName != null) {
                             if (((AS400JDBCConnection)connection_).getVRM() < JDUtilities.vrm540) { //@DELIMa
                               buffer.append(JDUtilities.stripOuterDoubleQuotes(columnName));  // if pre-V5R4, just strip outer quotes (no double-up necessary)

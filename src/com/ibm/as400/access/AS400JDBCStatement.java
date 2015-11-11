@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -95,7 +94,7 @@ implements Statement
     JDCursor                cursor_;    // private protected
     private     String                  cursorDefaultName_;
     private     boolean                 escapeProcessing_;
-    private     DBExtendedColumnDescriptors  extendedColumnDescriptors_;    // @F3A
+    protected     DBExtendedColumnDescriptors  extendedColumnDescriptors_;    // @F3A@P6C
     private     int                     fetchDirection_;
     private     int                     fetchSize_;
     private     AS400JDBCResultSet      generatedKeys_;    // @G4A
@@ -1098,7 +1097,8 @@ implements Statement
                             generatedKeys_ = new AS400JDBCResultSet (this, sqlStatement, rowCache, connection_.getCatalog(),//@GKA
                                                                      cursor_.getName(), maxRows_,                           //@GKA
                                                                      ResultSet.TYPE_SCROLL_INSENSITIVE,                     //@GKA
-                                                                     ResultSet.CONCUR_READ_ONLY, fetchDirection_, fetchSize_); //@GKA
+                                                                     ResultSet.CONCUR_READ_ONLY, fetchDirection_, fetchSize_,
+                                                                     extendedColumnDescriptors_); //@GKA@P6A
                         }                                                                                                   //@GKA
                         else                                                                                                //@GKA
                         {                                                                                                   //@GKA
@@ -1107,7 +1107,8 @@ implements Statement
                             resultSet_ = new AS400JDBCResultSet (this,
                                                              sqlStatement, rowCache, connection_.getCatalog(),
                                                              cursor_.getName(), maxRows_, resultSetType_,
-                                                             actualConcurrency, fetchDirection_, fetchSize_);    // @E1C
+                                                             actualConcurrency, fetchDirection_, fetchSize_,
+                                                             extendedColumnDescriptors_);    // @E1C@P6A
                             if(resultSet_.getConcurrency () != resultSetConcurrency_ && resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE) //@nowarn only warn if concurrency level is lessened
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                             if (savedException != null) {     /*@F3A*/
@@ -1170,6 +1171,17 @@ implements Statement
                                                                               connection_, id_, 
                                                                               getBlockingFactor (cursorSensitivity, sqlStatement,
                                                                                                                    row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
+
+                            
+                            /*@K3A@P6M*/
+                            if (extendedMetaData) {
+                                DBExtendedColumnDescriptors newExtendedColumnDescriptors = cursor_.getExtendedColumnDescriptors();
+                                if (newExtendedColumnDescriptors != null) {
+                                  extendedColumnDescriptors_ = newExtendedColumnDescriptors; 
+                                }
+                            }
+                            
+                            
                             //if pre-v5r3 create a FORWARD_ONLY RESULT SET
                             
                             if(preV5R3)                                                           //@KBA
@@ -1178,7 +1190,7 @@ implements Statement
                                                                      sqlStatement, rowCache, connection_.getCatalog(),
                                                                      cursor_.getName(), maxRows_, ResultSet.TYPE_FORWARD_ONLY,
                                                                      ResultSet.CONCUR_READ_ONLY, fetchDirection_,
-                                                                     fetchSize_);
+                                                                     fetchSize_, extendedColumnDescriptors_);  //@P6C
                             }
                             else                                                                                                    //@KBA
                             {                                                                                                       //@KBA
@@ -1186,19 +1198,12 @@ implements Statement
                                                                  sqlStatement, rowCache, connection_.getCatalog(),                  //@KBA
                                                                  cursor_.getName(), maxRows_, callResultSetType,                       //@KBA
                                                                  ResultSet.CONCUR_READ_ONLY, fetchDirection_,                       //@KBA
-                                                                 fetchSize_);                                                       //@KBA
+                                                                 fetchSize_, extendedColumnDescriptors_);     //@P6C                                                   //@KBA
                             }
 
                             if(resultSet_.getConcurrency () != resultSetConcurrency_)
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                             
-                            /*@K3A*/
-                            if (extendedMetaData) {
-                                DBExtendedColumnDescriptors newExtendedColumnDescriptors = cursor_.getExtendedColumnDescriptors();
-                                if (newExtendedColumnDescriptors != null) {
-                                  extendedColumnDescriptors_ = newExtendedColumnDescriptors; 
-                                }
-                            }
                         }
                     }
 
@@ -1674,7 +1679,7 @@ implements Statement
                                                                      sqlStatement, rowCache, connection_.getCatalog(),
                                                                      cursor_.getName(), maxRows_, ResultSet.TYPE_FORWARD_ONLY,
                                                                      ResultSet.CONCUR_READ_ONLY, fetchDirection_,
-                                                                     fetchSize_);
+                                                                     fetchSize_, extendedColumnDescriptors_);                        //@P6C
                             }
                             else                                                                                                    //@KBA
                             {                                                                                                       //@KBA
@@ -1682,7 +1687,7 @@ implements Statement
                                                                  sqlStatement, rowCache, connection_.getCatalog(),                  //@KBA
                                                                  cursor_.getName(), maxRows_, resultSetType_,                       //@KBA
                                                                  ResultSet.CONCUR_READ_ONLY, fetchDirection_,                       //@KBA
-                                                                 fetchSize_);                                                       //@KBA
+                                                                 fetchSize_, extendedColumnDescriptors_);                           //@KBA@P6C
                             }
 
                         if(resultSet_.getConcurrency () != resultSetConcurrency_)
@@ -2999,6 +3004,7 @@ implements Statement
 
     @return     The extended column descriptors for this statement.
     **/
+    /* @P6D
     DBExtendedColumnDescriptors getExtendedColumnDescriptors ()
     {
         synchronized(internalLock_)
@@ -3006,7 +3012,7 @@ implements Statement
             return extendedColumnDescriptors_;
         }
     }
-
+*/ 
 
 
     // JDBC 2.0
@@ -3186,12 +3192,13 @@ implements Statement
 
                 // Send the data stream.
                 DBSQLRequestDS request = null;    //@P0A
+                boolean extendedMetaData = false;  //@P6A
                 try
                 {
                     if((connection_.getVRM() >= JDUtilities.vrm610)) {
                     	/*@K3A*/
                       int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES;
-                           boolean extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); 
+                           extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); 
                            if (extendedMetaData)                                                                      
                            {                                                                                          
                                requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    
@@ -3219,7 +3226,15 @@ implements Statement
                     // Gather information from the reply.
                     // DBReplySQLCA sqlca = getMoreResultsReply.getSQLCA ();
                     DBDataFormat dataFormat = getMoreResultsReply.getDataFormat ();
-                    
+                    if (extendedMetaData) {                                                 //@P6A
+                      DBExtendedColumnDescriptors newDescriptors = getMoreResultsReply
+                        .getExtendedColumnDescriptors();                                   //@P6A
+                      if (newDescriptors != null) {                                        //@P6A
+                        extendedColumnDescriptors_ = newDescriptors;                       //@P6A
+                      }                                                                    //@P6A
+                    } else {                                                               //@P6A
+                      extendedColumnDescriptors_ = null;                                   //@P6A
+                    }                                                                      //@P6A
 
                     // Check for system errors.
                     int errorClass = getMoreResultsReply.getErrorClass();
@@ -3247,9 +3262,12 @@ implements Statement
                          // Also make sure the format is not null (prevent NPE)  
                          if (dataFormat == null) { 
                            JDError.throwSQLException (JDError.EXC_INTERNAL,"null dataFormat"); 
+                           return false;  // @P6A
                          }
                          dataFormat.setCSRSData(true);       // @550A
                     }
+                    
+                    cursor_.setExtendedColumnDescriptorsFromReply(getMoreResultsReply);               //@P6A
                     
                     // Process a potential cursor conecurrency override.                             @E1A @EAC
                     cursor_.processConcurrencyOverride(openAttributes, getMoreResultsReply);    // @E1A @EAC
@@ -3285,7 +3303,7 @@ implements Statement
                                                          rowCache, connection_.getCatalog(),
                                                          cursor_.getName(), maxRows_, resultSetType_,
                                                          actualConcurrency, fetchDirection_,
-                                                         fetchSize_);    // @ECC
+                                                         fetchSize_, extendedColumnDescriptors_);    // @ECC@P6A
                     if(resultSet_.getConcurrency () != resultSetConcurrency_)
                         postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                 }

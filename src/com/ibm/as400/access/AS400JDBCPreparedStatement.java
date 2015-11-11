@@ -1913,7 +1913,7 @@ endif */
         return null; // @H6a
 
       ConvTable convTable = null; // @G6A
-      DBExtendedColumnDescriptors extendedDescriptors = getExtendedColumnDescriptors(); // @G6A
+      DBExtendedColumnDescriptors extendedDescriptors = extendedColumnDescriptors_; // @G6A@P6C
       // If we have extendedDescriptors, send a ConvTable to convert them, else
       // pass null // @G6A
       if (extendedDescriptors != null) // @G6A
