@@ -358,13 +358,45 @@ implements JDRow
                         }                                                               //@array
                     }
                 }                                                                   //@array
-                else if(serverData_.isVariableFieldsCompressed() && rowDataOffset_ != -1)                   //@K54
-                {                                                              //@K54
-                    wasCompressed = true;
-                    int offset = 0;                                                 //@K54
-                    int numOfFields = serverFormat_.getNumberOfFields();            //@K54
-                    for(int j=0; j<numOfFields; j++)                                 //@K54
-                    {                                                               //@K54
+        else if (serverData_.isVariableFieldsCompressed()
+            && rowDataOffset_ != -1) // @K54
+        { // @K54
+          wasCompressed = true;
+          int offset = 0; // @K54
+          int numOfFields = serverFormat_.getNumberOfFields(); // @K54
+          for (int j = 0; j < numOfFields; j++) // @K54
+          {
+            // Use SQL type to eliminate the string comparisons in the old code @P7A
+            int sqlType = sqlData_[j].getSQLType();
+            int length = 0; // @K54
+            dataOffset_[j] = offset; // @K54
+            switch (sqlType) {
+              case SQLData.VARCHAR:
+              case SQLData.VARCHAR_FOR_BIT_DATA:
+              case SQLData.LONG_VARCHAR:
+              case SQLData.LONG_VARCHAR_FOR_BIT_DATA:
+              case SQLData.VARBINARY:
+              case SQLData.DATALINK: {
+                length = BinaryConverter.byteArrayToUnsignedShort(rawBytes_,
+                  rowDataOffset_ + offset); // @K54 //get actual length of data
+                length += 2; // Add two bytes for length portion on datastream
+                           // //@K54
+                break;
+              }
+              case SQLData.VARGRAPHIC:
+              case SQLData.LONG_VARGRAPHIC:
+              case SQLData.LONG_NVARCHAR:
+              case SQLData.NVARCHAR: {
+                length = (2 * BinaryConverter.byteArrayToUnsignedShort(rawBytes_, rowDataOffset_ + offset));    //@K54 //get actual length of data
+                length += 2;        //Add two bytes for length portion on datastream                                        //@K54
+                
+              
+               break; 
+              }
+              default: 
+                length = serverFormat_.getFieldLength (j);             //@K54 //get fixed size of data
+            } /* switch */                 
+/* ----------------- Old code             
                         String typeName = sqlData_[j].getTypeName();                //@K54
                         int length = 0;                                             //@K54
                         dataOffset_[j] = offset;                                    //@K54
@@ -388,6 +420,9 @@ implements JDRow
                         }
                         else
                             length = serverFormat_.getFieldLength (j);             //@K54 //get fixed size of data
+
+------------------------ end old Code */ 
+
 
                         offset += length;                                           //@K54
                         dataLength_[j] = length;                                    //@K54
