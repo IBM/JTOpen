@@ -69,7 +69,9 @@ public class Main implements Runnable {
                                           };
 
   public static String promptString = ">";
-  public static String usage = "Usage:  java com.ibm.as400.access.jdbcClient.Main <jdbcUrl> <userid> <password>";
+  public static String usage = 
+      "Usage:  java -cp jt400.jar  com.ibm.as400.access.jdbcClient.Main <jdbcUrl> <userid> <password>\n"+
+      "        java -jar jt400.jar <jdbcUrl> <userid> <password>" ;
 
   public static String[] commandHelp = {
       "com.ibm.as400.access.jdbcClient.Main executes SQL commands using a JDBC connection.  ",
