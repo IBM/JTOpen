@@ -3231,6 +3231,10 @@ implements Statement
                         .getExtendedColumnDescriptors();                                   //@P6A
                       if (newDescriptors != null) {                                        //@P6A
                         extendedColumnDescriptors_ = newDescriptors;                       //@P6A
+                      } else {
+                        // There were no extended descriptors.  Do not use a 
+                        // stale one. 
+                        extendedColumnDescriptors_ = null;                                   //@P6A
                       }                                                                    //@P6A
                     } else {                                                               //@P6A
                       extendedColumnDescriptors_ = null;                                   //@P6A

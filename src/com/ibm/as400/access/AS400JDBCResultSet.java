@@ -383,7 +383,7 @@ implements ResultSet
     {
         this (null, null, rowCache, catalog, cursorName, 0,
               TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY,
-              FETCH_FORWARD, 0, reply.getExtendedColumnDescriptors()); /*@P6C*/
+              FETCH_FORWARD, 0, (reply == null) ? null : reply.getExtendedColumnDescriptors()); /*@P6C*/
 
     	this.reply_ = reply; 
 
