@@ -875,10 +875,17 @@ implements ResultSet
     **/
     void postWarning (SQLWarning sqlWarning)
     {
+    	/*Check to see if the warning should be ignored @Q1A*/
+        if ((statement_ != null) && 
+            (statement_.connection_!= null) && 
+            (statement_.connection_.ignoreWarning(sqlWarning))) {
+           return; 
+        } else { 
         if(sqlWarning_ == null)
             sqlWarning_ = sqlWarning;
         else
             sqlWarning_.setNextWarning (sqlWarning);
+        } 
     }
 
 

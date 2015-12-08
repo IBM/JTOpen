@@ -1034,8 +1034,7 @@ implements Statement
                         else
                         {
                             String sqlState = sqlca.getSQLState (connection_.converter_);  //@igwrn
-                            if( connection_.getProperties().getString(JDProperties.IGNORE_WARNINGS).toUpperCase().indexOf(sqlState) == -1 )  //@igwrn
-                                postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
+                            postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
                         }
                     }
 
@@ -3755,14 +3754,21 @@ implements Statement
     **/
     void postWarning (SQLWarning sqlWarning)
     {
-        if (JDTrace.isTraceOn ())           {
-           JDTrace.logInformation(this, "postWarning("+sqlWarning+")");
-        }
+        /* check to see if warning should be ignored */ 
+        if( connection_ != null && connection_.ignoreWarning(sqlWarning)) {
+            if (JDTrace.isTraceOn ())           {
+                JDTrace.logInformation(this, "postWarning("+sqlWarning+") -- ignored");
+             }
+        } else { 
+          if (JDTrace.isTraceOn ())           {
+            JDTrace.logInformation(this, "postWarning("+sqlWarning+")");
+         }
 
         if(sqlWarning_ == null)
             sqlWarning_ = sqlWarning;
         else
             sqlWarning_.setNextWarning (sqlWarning);
+        }
     }
 
 

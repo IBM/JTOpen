@@ -255,6 +255,8 @@ implements Connection
     private String clientAccounting_ = ""; //@pdc
     private String clientProgramID_ = ""; //@pdc
 
+    private String ignoreWarnings_ = "";             /*@Q1A*/
+    
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
 
 	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
@@ -1799,10 +1801,14 @@ void handleAbort() {
     void postWarning (SQLWarning sqlWarning)
     throws SQLException // @EGA
     {
+      String sqlState = sqlWarning.getSQLState(); 
+      if( !ignoreWarning(sqlState ))  {         /*@Q1A*/
+
         if (sqlWarning_ == null)
             sqlWarning_ = sqlWarning;
         else
             sqlWarning_.setNextWarning (sqlWarning);
+      }                /*@Q1A*/
     }
 
 
@@ -3399,6 +3405,17 @@ void handleAbort() {
         setProperties(dataSourceUrl, properties, as400, false);
     }
 
+    /* Should the warning be ignored  @Q1A*/
+    boolean ignoreWarning(String sqlState) { 
+      if (ignoreWarnings_.indexOf(sqlState ) >= 0) {
+        return true; 
+      } else { 
+        return false; 
+      }
+    }
+    boolean ignoreWarning(SQLWarning warning) { 
+      return ignoreWarning(warning.getSQLState());
+    }
     //@A3A - This logic formerly resided in the ctor.
     void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400, boolean newServer)
     throws SQLException
@@ -3409,6 +3426,10 @@ void handleAbort() {
         dataSourceUrl_          = dataSourceUrl;
         extendedFormats_        = false;
         properties_             = properties;
+        
+        
+        ignoreWarnings_ = properties_.getString(JDProperties.IGNORE_WARNINGS).toUpperCase();    /*@Q1A*/
+        
         //Set the real default for METADATA SOURCE property since we now know the hostsrvr version
         if(properties_.getString(JDProperties.METADATA_SOURCE).equals(JDProperties.METADATA_SOURCE_HOST_VERSION_DEFAULT))   //@mdsp
         {                                                                                                                   //@mdsp
