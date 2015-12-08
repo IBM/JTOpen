@@ -85,7 +85,12 @@ extends SQLDataBase
     public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter) //@P0C
     throws SQLException
     {
-        value_ = ((BigDecimal)typeConverter_.toObject(rawBytes, offset));
+        try { 
+           value_ = ((BigDecimal)typeConverter_.toObject(rawBytes, offset));
+        } catch (NumberFormatException nfe) { 
+          /* Throw and SQLException instead of a NumberFormatException */ 
+          JDError.throwSQLException(this, JDError.EXC_INTERNAL, nfe); 
+        }
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
