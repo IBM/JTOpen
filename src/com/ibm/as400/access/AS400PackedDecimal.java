@@ -490,8 +490,7 @@ public class AS400PackedDecimal implements AS400DataType
      * @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
      * @return The BigDecimal object corresponding to the data type.
      **/
-    public Object toObject(byte[] as400Value)
-    {
+    public Object toObject(byte[] as400Value)     {
      return this.toObject(as400Value, 0);
     }
 
@@ -501,8 +500,7 @@ public class AS400PackedDecimal implements AS400DataType
      * @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      * @return The BigDecimal object corresponding to the data type.
      **/
-    public Object toObject(byte[] as400Value, int offset)
-    {
+    public Object toObject(byte[] as400Value, int offset)     {
       int startOffset = offset;
       if (useDouble_) return new Double(toDouble(as400Value, offset));
 
@@ -547,10 +545,11 @@ public class AS400PackedDecimal implements AS400DataType
      while (outputPosition < (outputData.length-1))
      {
          nibble = (as400Value[offset] & 0xFF) >>> 4;
-         if (nibble > 0x09)
+         if (nibble > 0x09) {
            throwNumberFormatException(HIGH_NIBBLE, offset,
                                       as400Value[offset] & 0xFF,
                                       as400Value);
+         }
          outputData[outputPosition] = (char)(nibble | 0x0030);
          outputPosition++;
          
