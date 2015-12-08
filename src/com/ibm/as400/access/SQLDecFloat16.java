@@ -129,15 +129,19 @@ final class SQLDecFloat16 extends SQLDataBase {
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter) 
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter, boolean ignoreConversionErrors) 
             throws SQLException {
         try{
             value_ = ((BigDecimal) typeConverter_.toObject(rawBytes, offset));
             specialValue_ = null;
-        } catch (ExtendedIllegalArgumentException e) {
+        } catch (ExtendedIllegalArgumentException e)  {
+          
             //check for NAN and INF flag exception
-            if ( (specialValue_ = getSpecialValue( e.toString())) == null )
+            if ( (specialValue_ = getSpecialValue( e.toString())) == null ) {
+              if (!ignoreConversionErrors) {   /*@Q2A*/
                 throw e; 
+              }
+          }
         }
     }
 

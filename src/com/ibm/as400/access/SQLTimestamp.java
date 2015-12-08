@@ -313,7 +313,7 @@ extends SQLDataBase
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter, boolean ignoreConversionErrors) //@P0C
     throws SQLException
     {
         year_ = (rawBytes[offset] & 0x0f) * 1000

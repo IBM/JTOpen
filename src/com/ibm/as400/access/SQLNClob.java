@@ -66,7 +66,7 @@ final class SQLNClob extends SQLDataBase
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter, boolean ignoreConversionErrors)
     throws SQLException
     {
         length_ = BinaryConverter.byteArrayToInt(rawBytes, offset);

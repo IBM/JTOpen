@@ -68,7 +68,7 @@ extends SQLDataBase implements SQLVariableCompressible /*@N3C*/
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter, boolean ignoreConversionErrors) //@P0C
     throws SQLException
     {
         length_ = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);

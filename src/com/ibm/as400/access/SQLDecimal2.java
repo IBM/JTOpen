@@ -68,7 +68,7 @@ extends SQLDataBase
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter, boolean ignoreConversionErrors) //@P0C
     throws SQLException
     {
         value_ = typeConverter_.toDouble(rawBytes, offset);

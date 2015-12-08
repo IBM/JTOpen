@@ -79,7 +79,11 @@ public abstract class SQLDataBase implements SQLData
     @exception  SQLException    If the raw bytes are not in
                                 the expected format.
     **/
-    public abstract void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable converter)
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable converter) throws SQLException {
+        convertFromRawBytes(rawBytes, offset, converter, false);        
+    }
+
+    public abstract void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable converter, boolean ignoreConversionErrors)
     throws SQLException;
 
     /**

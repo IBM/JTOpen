@@ -89,7 +89,12 @@ final class SQLNClobLocator implements SQLLocator
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
+    public void convertFromRawBytes(byte[] rawBytes, int offset,
+        ConvTable converter) throws SQLException {
+      convertFromRawBytes(rawBytes, offset, converter, false); 
+    }
+
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter, boolean ignoreConversionErrors)
     throws SQLException
     {
         int locatorHandle = BinaryConverter.byteArrayToInt(rawBytes, offset);

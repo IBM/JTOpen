@@ -82,14 +82,16 @@ extends SQLDataBase
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter, boolean ignoreConversionErrors) //@P0C
     throws SQLException
     {
         try { 
            value_ = ((BigDecimal)typeConverter_.toObject(rawBytes, offset));
         } catch (NumberFormatException nfe) { 
-          /* Throw and SQLException instead of a NumberFormatException */ 
-          JDError.throwSQLException(this, JDError.EXC_INTERNAL, nfe); 
+          /* Throw and SQLException instead of a NumberFormatException */
+          if (!ignoreConversionErrors) {   /*@Q2C*/
+               JDError.throwSQLException(this, JDError.EXC_INTERNAL, nfe); 
+          }
         }
     }
 

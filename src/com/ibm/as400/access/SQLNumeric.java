@@ -82,7 +82,7 @@ extends SQLDataBase
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter, boolean ignoreConversionErrors) //@P0C
     throws SQLException
     {
         value_ = ((BigDecimal)typeConverter_.toObject(rawBytes, offset));

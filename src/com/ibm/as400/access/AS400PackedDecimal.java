@@ -500,14 +500,21 @@ public class AS400PackedDecimal implements AS400DataType
      * @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      * @return The BigDecimal object corresponding to the data type.
      **/
-    public Object toObject(byte[] as400Value, int offset)     {
+    public Object toObject(byte[] as400Value, int offset)   {
+      return toObject(as400Value, offset, false); 
+    }
+    public Object toObject(byte[] as400Value, int offset, boolean ignoreErrors)     {  /*@Q2C*/
       int startOffset = offset;
       if (useDouble_) return new Double(toDouble(as400Value, offset));
 
      // Check offset to prevent bogus NumberFormatException message
      if (offset < 0)
      {
-         throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
+         if (ignoreErrors) {             /*@Q2A*/
+           return null; 
+         } else { 
+           throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
+         }
      }
 
      int numDigits = this.digits_;
@@ -535,9 +542,13 @@ public class AS400PackedDecimal implements AS400DataType
           outputData = new char[numDigits];
           break;
          default: // others invalid
-          throwNumberFormatException(LOW_NIBBLE, offset+inputSize-1,
+           if (ignoreErrors) {  /*@Q2A*/
+             return null; 
+           } else { 
+             throwNumberFormatException(LOW_NIBBLE, offset+inputSize-1,
                                      as400Value[offset+inputSize-1] & 0xFF,
                                      as400Value);
+           }
           return null; 
      }
 
@@ -546,9 +557,13 @@ public class AS400PackedDecimal implements AS400DataType
      {
          nibble = (as400Value[offset] & 0xFF) >>> 4;
          if (nibble > 0x09) {
+           if (ignoreErrors) {   /*@Q2A*/
+             return null; 
+           } else {
            throwNumberFormatException(HIGH_NIBBLE, offset,
                                       as400Value[offset] & 0xFF,
                                       as400Value);
+           }
          }
          outputData[outputPosition] = (char)(nibble | 0x0030);
          outputPosition++;
@@ -563,10 +578,13 @@ public class AS400PackedDecimal implements AS400DataType
                  " offset = "+offset+
                  " startOffset = "+startOffset);
            
-           
+           if (ignoreErrors) {    /*@Q2A*/
+             return null; 
+           } else { 
            throwNumberFormatException(LOW_NIBBLE, offset,
                                       as400Value[offset] & 0xFF,
                                       as400Value);
+           }
          }
          offset++; 
          outputData[outputPosition] = (char)(nibble | 0x0030);
@@ -575,10 +593,15 @@ public class AS400PackedDecimal implements AS400DataType
 
      // read last digit
      nibble = (as400Value[offset] & 0xFF) >>> 4;
-     if (nibble > 0x09)
-       throwNumberFormatException(HIGH_NIBBLE, offset,
+     if (nibble > 0x09) {
+       if (ignoreErrors) {   /*@Q2A*/
+         return null; 
+       } else { 
+         throwNumberFormatException(HIGH_NIBBLE, offset,
                                   as400Value[offset] & 0xFF,
                                   as400Value);
+       }
+     }
      outputData[outputPosition] = (char)(nibble | 0x0030);
 
      // construct New BigDecimal object

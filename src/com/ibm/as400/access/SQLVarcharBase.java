@@ -74,7 +74,7 @@ extends SQLDataBase  implements SQLVariableCompressible
     //                                                         //
     //---------------------------------------------------------//
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter, boolean ignoreConversionErrors)
     throws SQLException
     {
         length_ = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);

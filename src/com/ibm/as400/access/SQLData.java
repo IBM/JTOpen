@@ -111,9 +111,13 @@ extends Cloneable
     @param  rawBytes    raw bytes from the system.
     @param  offset      offset.
     @param  converter   the converter.
+    @param  ignoreConversionErrors   Should conversion errors be ignored
+                                     Used when converting packed decimal arrays
     @exception  SQLException    If the raw bytes are not in
                                 the expected format.
     **/
+    public abstract void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable converter, boolean ignoreConversionErrors)
+    throws SQLException;
     public abstract void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable converter)
     throws SQLException;
 

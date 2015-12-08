@@ -56,7 +56,7 @@ final class SQLBlob extends SQLDataBase
         return new SQLBlob(maxLength_, null);
     }
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter, boolean ignoreConversionErrors)
     throws SQLException
     {
         int length = BinaryConverter.byteArrayToInt(rawBytes, offset);

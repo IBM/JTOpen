@@ -78,7 +78,12 @@ class SQLArray implements SQLData
 
     /* populate values_[] with data from host. */
     public void convertFromRawBytes(byte[] rawBytes, int offset,
-            ConvTable converter) throws SQLException
+        ConvTable converter) throws SQLException {
+      convertFromRawBytes(rawBytes, offset, converter, false); 
+    }
+    
+    public void convertFromRawBytes(byte[] rawBytes, int offset,
+            ConvTable converter, boolean ignoreConversionErrors) throws SQLException
     {
         values_ = new SQLData[arrayCount_];
         for (int x = 0; x < arrayCount_; x++)
@@ -86,7 +91,7 @@ class SQLArray implements SQLData
             values_[x] = (SQLData)contentTemplate_.clone();  //create empty SQLX objects
             //No need to deal with locators in arrays here.  They are not supported in locators due to QQ constraint   
             try{  //@dec
-                values_[x].convertFromRawBytes(rawBytes, offset, converter);
+                values_[x].convertFromRawBytes(rawBytes, offset, converter, true); /*@Q2C*/
             }catch(NumberFormatException e)   //@dec
             { //@dec
                 //ignore since null array elements will have invalid decimal/numeric value bits
