@@ -4084,6 +4084,177 @@ endif */
     setCharacterStream(parameterIndex, reader, (int) length);
   }
 
+  /* initialize the array of parameter names */ 
+  void initializeParameterNames() throws SQLException { 
+    
+    boolean isProcedure = (sqlStatement_.getProcedure() != null); 
+    int count = 0; 
+    if (parameterNames_ == null) {  
+
+        // Else, create a new hash table to hold all the column name/number
+        // mappings.
+        parameterNames_ = new String[parameterCount_];
+
+        //
+        // Check to see if the parameter names were returned by the super
+        // extended parameter marker format.
+        // This logic added @G5A 8/20/2012
+        //
+        boolean allFound = true;
+        for (int parameterNumber = 0; allFound
+            && parameterNumber < parameterCount_; parameterNumber++) {
+          try {
+            String name = parameterRow_.getFieldName(parameterNumber + 1);
+            if (name != null) {
+              parameterNames_[parameterNumber] = name;
+            } else {
+              if (isProcedure) {
+                allFound = false;
+              }
+            }
+          } catch (SQLException sqlex) {
+            //
+            // Log the exception and go down the old path
+            //
+            if (JDTrace.isTraceOn()) {
+              JDTrace.logException(this,
+                  "exception while retrieving field names", sqlex);
+            }
+            allFound = false;
+          } /* catch SQLException processing names */ 
+        } /* for parameterNumber */ 
+
+        if (!allFound) {
+
+          // Cache all the parm names and numbers.
+          Statement s = null; // @scan1
+          ResultSet rs = null; // @scan1
+          try {
+            s = connection_.createStatement();
+            String catalogSeparator = ""; // @74A Added a check for the naming
+                                          // used. Need to use separator
+                                          // appropriate to naming.
+            if (connection_.getProperties().equals(JDProperties.NAMING,
+                JDProperties.NAMING_SQL)) // @74A
+              catalogSeparator = "."; // @74A
+            else
+              // @74A
+              catalogSeparator = "/"; // @74A
+
+            String schema = sqlStatement_.getSchema();
+            if (schema == null || schema.equals("")) // no schema in statement
+            { // Derive the schema.
+              schema = connection_.getDefaultSchema(true); // get raw value
+
+              if (schema == null) // No default schema was set on the connection
+                                  // url, or by the libraries connection property.
+              {
+                if (catalogSeparator.equals(".")) // using sql naming
+                {
+                  schema = connection_.getUserName(); // set to user profile
+                } else // using system naming
+                {
+                  // Retrieve the library list from the IBM i - Use ROI Retrieve
+                  // Library List.
+                  ResultSet rs1 = JDUtilities.getLibraries(this, connection_,
+                      null, true);
+                  Vector libListV = new Vector();
+                  while (rs1.next()) {
+                    libListV.addElement(rs1.getString(1));
+                  }
+                  rs1.close(); // @SS
+                  String[] libList = new String[libListV.size()];
+                  libListV.toArray(libList);
+
+                  // Get a result set that we can scroll forward/backward through.
+                  Statement s1 = connection_.createStatement(
+                      ResultSet.TYPE_SCROLL_INSENSITIVE,
+                      ResultSet.CONCUR_READ_ONLY);
+                  rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
+                      + catalogSeparator + "SYSPROCS WHERE ROUTINE_NAME='"
+                      + unquote(sqlStatement_.getProcedure())
+                      + "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = "
+                      + parameterCount_);
+                  if (!rs.next())
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL); // didn't
+                                                                           // find
+                                                                           // the
+                                                                           // procedure
+                                                                           // in
+                                                                           // any
+                                                                           // schema
+
+                  // If we get this far, at least one schema contains a procedure
+                  // similar to ours.
+                  boolean found = false;
+                  for (int i = 0; i < libList.length && !found; i++) {
+                    if (libList[i].length() != 0) {
+                      rs.beforeFirst(); // re-position to before the first row
+                      while (rs.next() && !found) {
+                        if (rs.getString(1).equals(libList[i])) {
+                          schema = rs.getString(1);
+                          found = true; // we found a procedure that matches our
+                                        // criteria
+                        }
+                      }
+                    }
+                  }
+                  rs.close(); // @SS
+                  s1.close(); // @SS
+                  if (!found) // none of the libraries in our library list contain
+                              // a stored procedure that we are looking for
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+                }
+              }
+            }
+
+            rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2"
+                + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '"
+                + unquote(schema) + // @74C @DELIMc
+                "' AND ROUTINE_NAME = '" + unquote(sqlStatement_.getProcedure()) + // @DELIMc
+                "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
+
+            // If there are no rows, throw an internal driver exception
+            if (!rs.next())
+              JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+
+            String specificName = rs.getString(1);
+            rs.close(); // @SS
+
+            rs = s
+                .executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2"
+                    + catalogSeparator
+                    + "SYSPARMS WHERE "
+                    + // @74A
+                    " SPECIFIC_NAME = '"
+                    + unquoteNoUppercase(specificName)
+                    + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); // @DELIMc
+
+            while (rs.next()) {
+              count++;
+
+              String colName = rs.getString(1);
+              int colInd = rs.getInt(2);
+              parameterNames_[colInd - 1] = colName;
+
+            }
+          } finally    {
+            if (rs != null) // @scan1
+              rs.close(); // @SS
+            if (s != null) // @scan1
+              s.close(); // @SS
+          }
+
+          // If the number of parm names didn't equal the number of parameters,
+          // throw
+          // an exception (INTERNAL).
+          if (count != parameterCount_) {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+          }
+        }
+      }
+  }
+  
   // @pda jdbc40 needed for rowset.setX methods. Moved from callableStatement.
   /*
    * Find the column index that matches this parameter name.
@@ -4119,8 +4290,10 @@ endif */
       caseSensitive = true;
     }
 
+    if (parameterNames_ == null) { 
+      initializeParameterNames(); 
+    }
     // If we have a cache created, try to find the column name in it.
-    if (parameterNames_ != null) {
       // Look up the mapping in our cache.
       while (count < parameterNames_.length) {
         if (parameterNames_[count] != null) {
@@ -4134,177 +4307,7 @@ endif */
 
         ++count;
       }
-    } else {
 
-      // Else, create a new hash table to hold all the column name/number
-      // mappings.
-      parameterNames_ = new String[parameterCount_];
-
-      //
-      // Check to see if the parameter names were returned by the super
-      // extended parameter marker format.
-      // This logic added @G5A 8/20/2012
-      //
-      boolean allFound = true;
-      for (int parameterNumber = 0; allFound
-          && parameterNumber < parameterCount_; parameterNumber++) {
-        try {
-          String name = parameterRow_.getFieldName(parameterNumber + 1);
-          if (name != null) {
-            parameterNames_[parameterNumber] = name;
-            if (caseSensitive && name.equals(parameterName))
-              returnParm = parameterNumber + 1;
-            else if (!caseSensitive && name.equalsIgnoreCase(parameterName))
-              returnParm = parameterNumber + 1;
-          } else {
-            allFound = false;
-          }
-        } catch (SQLException sqlex) {
-          //
-          // Log the exception and go down the old path
-          //
-          if (JDTrace.isTraceOn()) {
-            JDTrace.logException(this,
-                "exception while retrieving field names", sqlex);
-          }
-          allFound = false;
-        }
-      }
-
-      if (!allFound) {
-
-        // Cache all the parm names and numbers.
-        Statement s = null; // @scan1
-        ResultSet rs = null; // @scan1
-        try {
-          s = connection_.createStatement();
-          String catalogSeparator = ""; // @74A Added a check for the naming
-                                        // used. Need to use separator
-                                        // appropriate to naming.
-          if (connection_.getProperties().equals(JDProperties.NAMING,
-              JDProperties.NAMING_SQL)) // @74A
-            catalogSeparator = "."; // @74A
-          else
-            // @74A
-            catalogSeparator = "/"; // @74A
-
-          String schema = sqlStatement_.getSchema();
-          if (schema == null || schema.equals("")) // no schema in statement
-          { // Derive the schema.
-            schema = connection_.getDefaultSchema(true); // get raw value
-
-            if (schema == null) // No default schema was set on the connection
-                                // url, or by the libraries connection property.
-            {
-              if (catalogSeparator.equals(".")) // using sql naming
-              {
-                schema = connection_.getUserName(); // set to user profile
-              } else // using system naming
-              {
-                // Retrieve the library list from the IBM i - Use ROI Retrieve
-                // Library List.
-                ResultSet rs1 = JDUtilities.getLibraries(this, connection_,
-                    null, true);
-                Vector libListV = new Vector();
-                while (rs1.next()) {
-                  libListV.addElement(rs1.getString(1));
-                }
-                rs1.close(); // @SS
-                String[] libList = new String[libListV.size()];
-                libListV.toArray(libList);
-
-                // Get a result set that we can scroll forward/backward through.
-                Statement s1 = connection_.createStatement(
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
-                    ResultSet.CONCUR_READ_ONLY);
-                rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
-                    + catalogSeparator + "SYSPROCS WHERE ROUTINE_NAME='"
-                    + unquote(sqlStatement_.getProcedure())
-                    + "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = "
-                    + parameterCount_);
-                if (!rs.next())
-                  JDError.throwSQLException(this, JDError.EXC_INTERNAL); // didn't
-                                                                         // find
-                                                                         // the
-                                                                         // procedure
-                                                                         // in
-                                                                         // any
-                                                                         // schema
-
-                // If we get this far, at least one schema contains a procedure
-                // similar to ours.
-                boolean found = false;
-                for (int i = 0; i < libList.length && !found; i++) {
-                  if (libList[i].length() != 0) {
-                    rs.beforeFirst(); // re-position to before the first row
-                    while (rs.next() && !found) {
-                      if (rs.getString(1).equals(libList[i])) {
-                        schema = rs.getString(1);
-                        found = true; // we found a procedure that matches our
-                                      // criteria
-                      }
-                    }
-                  }
-                }
-                rs.close(); // @SS
-                s1.close(); // @SS
-                if (!found) // none of the libraries in our library list contain
-                            // a stored procedure that we are looking for
-                  JDError.throwSQLException(this, JDError.EXC_INTERNAL);
-              }
-            }
-          }
-
-          rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2"
-              + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '"
-              + unquote(schema) + // @74C @DELIMc
-              "' AND ROUTINE_NAME = '" + unquote(sqlStatement_.getProcedure()) + // @DELIMc
-              "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
-
-          // If there are no rows, throw an internal driver exception
-          if (!rs.next())
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL);
-
-          String specificName = rs.getString(1);
-          rs.close(); // @SS
-
-          rs = s
-              .executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2"
-                  + catalogSeparator
-                  + "SYSPARMS WHERE "
-                  + // @74A
-                  " SPECIFIC_NAME = '"
-                  + unquoteNoUppercase(specificName)
-                  + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); // @DELIMc
-
-          while (rs.next()) {
-            count++;
-
-            String colName = rs.getString(1);
-            int colInd = rs.getInt(2);
-            parameterNames_[colInd - 1] = colName;
-
-            if (caseSensitive && colName.equals(parameterName))
-              returnParm = colInd;
-            else if (!caseSensitive && colName.equalsIgnoreCase(parameterName))
-              returnParm = colInd;
-          }
-        } finally // @scan1
-        {
-          if (rs != null) // @scan1
-            rs.close(); // @SS
-          if (s != null) // @scan1
-            s.close(); // @SS
-        }
-
-        // If the number of parm names didn't equal the number of parameters,
-        // throw
-        // an exception (INTERNAL).
-        if (count != parameterCount_) {
-          JDError.throwSQLException(this, JDError.EXC_INTERNAL);
-        }
-      }
-    }
 
     // Throw an exception if the column name is not found (COLUMN NOT FOUND).
     if (returnParm == 0)
@@ -4318,6 +4321,31 @@ endif */
     return returnParm;
   }
 
+  /**
+   * Return the name of the parameter for a stored procedure call. 
+   * @param the parameter number to get the name for
+   * @return the parameter name. 
+   * @throws SQLException
+   */
+  public String getDB2ParameterName(int parm) throws SQLException {
+    synchronized (internalLock_) {
+      checkOpen();
+      parm = parm - 1;
+      if (useReturnValueParameter_) {
+        parm = parm - 1;
+      }
+      if (parameterNames_ == null) {
+        initializeParameterNames();
+      }
+      if ((parm >= 0) && (parm < parameterNames_.length)) {
+        return parameterNames_[parm];
+      } else {
+        JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+        return null;
+      }
+    }
+  }
+  
   // @PDA jdbc40 move from callableStatement
   private static final String unquote(String name) {
     return JDUtilities.prepareForSingleQuotes(name, true);

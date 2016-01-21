@@ -46,6 +46,23 @@ endif */
     }
 
 
+    
+    /**
+    Returns the name of the specified parameter. 
+    
+    @param  parameterIndex    The parameter index (1-based).
+    @return                   The parameter name
+    
+    @exception  SQLException  If the prepared statement is not open.
+    **/
+    public String getDB2ParameterName (int parameterIndex)
+    throws SQLException
+    {   
+        return prepStmt_.getDB2ParameterName(parameterIndex);
+    }
+
+
+
 
     /**
     Returns the fully-qualified name of the Java class of the specified parameter. 
