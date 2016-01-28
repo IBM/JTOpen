@@ -274,7 +274,9 @@ implements Connection
 
   // what should truncated query parameters be replaced with
   // null means that truncated query parameter should not be replaced
-   String queryReplaceTruncatedParameter_ = null ; 
+   String queryReplaceTruncatedParameter_ = null ;
+
+   String lastServerSQLState_;   // Remember the state associated with the connection @Q4A
 
     /**
     Static initializer.  Initializes the reply data streams

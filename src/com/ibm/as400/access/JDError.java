@@ -99,7 +99,9 @@ final class JDError
 
 
 
-  static String       lastServerSQLState_             = null;
+  // Remove static variable that is corrupted when multiple
+  // threads are running @Q4D
+  // static String       lastServerSQLState_             = null;
 
   static boolean jdk14 = false;
   static {
@@ -217,9 +219,10 @@ Returns the message text for the last operation on the IBM i system.
 
       // Get the SQL state and remember it for the next
       // call to getSQLState().
-      lastServerSQLState_ = sqlca.getSQLState (connection.converter_);                   // @E2C @P0C
-      if (lastServerSQLState_ == null)
-        lastServerSQLState_ = EXC_SERVER_ERROR;
+      // Remember it for the connection @Q4A
+      connection.lastServerSQLState_ = sqlca.getSQLState (connection.converter_);                   // @E2C @P0C
+      if (connection.lastServerSQLState_ == null)
+        connection.lastServerSQLState_ = EXC_SERVER_ERROR;
 
       return errorDescription.toString ();
       }
@@ -258,10 +261,11 @@ Returns the SQL state for the last operation on the IBM i system.
   {
     // If the SQL state was retrieved by a previous call to
     // getReason(), then use that.
-    if (lastServerSQLState_ != null)
+	// Remember for the connection @Q4C
+    if (connection.lastServerSQLState_ != null)
     {
-      String sqlState = lastServerSQLState_;
-      lastServerSQLState_ = null;
+      String sqlState = connection.lastServerSQLState_;
+      connection.lastServerSQLState_ = null;
       return sqlState;
     }
 
@@ -293,11 +297,11 @@ Returns the SQL state for the last operation on the IBM i system.
     }
     catch (DBDataStreamException e)
     {
-      return getReason (EXC_INTERNAL);
+      return EXC_INTERNAL;
     }
     catch (SQLException e)
     {
-      return getReason (EXC_INTERNAL);
+      return EXC_INTERNAL;
     }
   }
 
