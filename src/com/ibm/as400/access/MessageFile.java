@@ -327,7 +327,7 @@ public class MessageFile implements Serializable
     /**
      Returns an AS400Message object containing the object.  The system and message file name must be set before calling this method.
      @param  ID  The message identifier, {@link #FIRST FIRST}, or {@link #NEXT NEXT}.
-     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  An AS400Message object containing the message.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -378,7 +378,7 @@ public class MessageFile implements Serializable
      <p>For example, using CL command DSPMSGD, we see the format of the substitution text for message CPD0170 is char 4, char 10, char 10.  Passing string <pre>"12  abcd      xyz"</pre> as the substitution text on this call means "12" will be substituted for &1, "abcd" will be substituted for &2, and "xyz" will be substituted for &3.
      @param  ID  The message identifier, {@link #FIRST FIRST}, or {@link #NEXT NEXT}.
      @param  substitutionText  The substitution text.
-     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  An AS400Message object containing the message.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -433,7 +433,7 @@ public class MessageFile implements Serializable
      Returns an AS400Message object containing the message.  The system and message file name must be set before calling this method.  Up to 1024 bytes of substitution text can be supplied to this method.  <b>The byte array is not changed or converted before being sent to the system</b>.
      @param  ID  The message identifier, {@link #FIRST FIRST}, or {@link #NEXT NEXT}.
      @param  substitutionText  The substitution text.  The bytes are assumed to be in the CCSID of the job.
-     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  An AS400Message object containing the message.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -454,7 +454,7 @@ public class MessageFile implements Serializable
      Returns an AS400Message object containing the message.  The system and message file name must be set before calling this method.  Up to 1024 bytes of substitution text can be supplied to this method.  <b>The byte array is not changed or converted before being sent to the system</b>.
      @param  ID  The message identifier, {@link #FIRST FIRST}, or {@link #NEXT NEXT}.
      @param  substitutionText  The substitution text.
-     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @param  ccsidOfSubstitutionText  The CCSID of the substitution text.  The default value is {@link #CCSID_OF_JOB CCSID_OF_JOB}.
      @param  ccsidToConvertTo  The CCSID in which the system should return the message text. The Toolbox then converts from that CCSID to Unicode when constructing the AS400Message.  The default value is {@link #CCSID_OF_JOB CCSID_OF_JOB}.
      @return  An AS400Message object containing the message.

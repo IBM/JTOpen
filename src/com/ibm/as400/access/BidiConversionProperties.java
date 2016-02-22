@@ -136,7 +136,7 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
-     Sets the bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.  This option is set to BidiStringType.DEFAULT by default.
+     Sets the bidi string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.  This option is set to BidiStringType.DEFAULT by default.
      @param  bidiStringType  The bidi string type.
      **/
     public void setBidiStringType(int bidiStringType)

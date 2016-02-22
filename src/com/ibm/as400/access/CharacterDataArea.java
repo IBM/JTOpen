@@ -303,7 +303,7 @@ public class CharacterDataArea extends DataArea implements Serializable
    does not completely fill the data area, this method will return data
    padded with trailing blanks up to the length of the data area.
      @param type The Data Area bidi string type, as defined by the CDRA (Character
-                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 Data Representation Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
@@ -397,7 +397,7 @@ public class CharacterDataArea extends DataArea implements Serializable
      @param dataLength The number of bytes to read. Valid values are from
             1 through (data area size - <i>dataAreaOffset</i>).
      @param type The Data Area bidi string type, as defined by the CDRA (Character
-                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 Data Representation Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
@@ -601,7 +601,7 @@ public class CharacterDataArea extends DataArea implements Serializable
      @param data The data to be written.
      @param dataAreaOffset The offset in the data area at which to start writing.
      @param type The Data Area bidi string type, as defined by the CDRA (Character
-                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 Data Representation Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.

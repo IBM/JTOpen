@@ -566,7 +566,7 @@ or refreshed.
 @param value            The selection value, or null to remove
                         the selection.
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
                         

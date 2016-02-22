@@ -2798,7 +2798,7 @@ Commits the specified attribute changes.
 @param attributeIDs     The attribute IDs for the specified attribute changes.
 @param values           The specified attribute changes
 @param bidiStringTypes  The bidi string types as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
                         
@@ -3053,7 +3053,7 @@ returns the same value as <b>getAttributeValue()</b>.
 
 @param attributeID  Identifies the attribute.
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 

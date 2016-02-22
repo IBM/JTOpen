@@ -594,7 +594,7 @@ Returns the current value of an attribute.
 
 @param attributeID      Identifies the attribute.
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 @return                 The attribute value, or null if the attribute

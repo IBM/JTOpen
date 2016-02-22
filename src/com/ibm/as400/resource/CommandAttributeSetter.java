@@ -190,7 +190,7 @@ Sets the attribute values.  The system must be set before this is called.
 @param values           The values.  This array must contain the same number of
                         elements as attributeIDs.
 @param bidiStringTypes  The bidi string types as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 

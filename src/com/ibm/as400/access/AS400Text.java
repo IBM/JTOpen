@@ -366,7 +366,7 @@ public class AS400Text implements AS400DataType
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
-     @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  The number of bytes in the IBM i representation of the data type.
      @see  com.ibm.as400.access.BidiStringType
      **/
@@ -542,7 +542,7 @@ public class AS400Text implements AS400DataType
      Converts the specified IBM i data type to a Java object.
      @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
      @param  offset  The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
-     @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  The String object corresponding to the data type.
      @see com.ibm.as400.access.BidiStringType
      **/

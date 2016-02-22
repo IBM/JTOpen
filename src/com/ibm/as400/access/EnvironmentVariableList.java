@@ -266,7 +266,7 @@ public class EnvironmentVariableList implements Serializable
     /**
      Sets the value of each environment variable defined in a Properties object.
      @param  properties  The Properties object.
-     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See {@link com.ibm.as400.access.BidiStringType BidiStringType} for more information and valid values.
+     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representation Architecture). See {@link com.ibm.as400.access.BidiStringType BidiStringType} for more information and valid values.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.

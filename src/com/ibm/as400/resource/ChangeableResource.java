@@ -393,7 +393,7 @@ changes are physically committed.
 @param attributeIDs     The attribute IDs for the specified attribute changes.
 @param values           The specified attribute changes
 @param bidiStringTypes  The bidi string types as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
                         
@@ -539,7 +539,7 @@ how attribute values are physically retrieved.
 
 @param attributeID      Identifies the attribute.
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 @return                 The attribute value, or null if the attribute
@@ -616,7 +616,7 @@ has an uncommitted change, this returns the changed (uncommitted) value.
 
 @param attributeID      Identifies the attribute.
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 @return                 The attribute value, or null if the attribute
@@ -781,7 +781,7 @@ fires an attributeValueChanged() ResourceEvent.
 @param attributeID  Identifies the attribute.
 @param value        The attribute value.  This cannot be null.
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 

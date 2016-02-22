@@ -713,7 +713,7 @@ class DataAreaImplRemote implements DataAreaImpl
      @param offset The offset in the data area at which to start retrieving. (0-based)
      @param length The number of bytes to read.
      @param stringType The Data Area bidi string type, as defined by the CDRA (Character
-                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 Data Representation Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
      @return The String value read from the data area as a result of retrieving the data area's attributes.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -1090,7 +1090,7 @@ class DataAreaImplRemote implements DataAreaImpl
      @param  data  The data to be written.
      @param  dataAreaOffset  The offset in the data area at which to start writing.
      @param type The Data Area bidi string type, as defined by the CDRA (Character
-                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 Data Representation Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.

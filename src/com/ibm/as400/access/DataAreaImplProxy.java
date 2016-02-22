@@ -555,7 +555,7 @@ implements DataAreaImpl
      @param data The data to be written.
      @param dataAreaOffset The offset in the data area at which to start writing.
      @param type The Data Area bidi string type, as defined by the CDRA (Character
-                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 Data Representation Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.

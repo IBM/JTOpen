@@ -385,7 +385,7 @@ the appropriate logical values.
                         or if the indices are specified as
                         part of the entry.
 @param bidiStringTypes   The bidi string types as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 **/

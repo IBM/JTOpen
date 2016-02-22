@@ -119,7 +119,7 @@ public class CharConverter implements Serializable
      @param  source  The bytes to convert.
      @param  offset  The offset into the source array for the start of the data.
      @param  length  The number of bytes of data to read from the array.
-     @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  The resultant String.
      @see  com.ibm.as400.access.BidiStringType
      **/
@@ -287,7 +287,7 @@ public class CharConverter implements Serializable
     /**
      Converts the specified String into bytes.
      @param  source  The String to convert.
-     @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  The resultant byte array.
      @see  com.ibm.as400.access.BidiStringType
      **/
@@ -358,7 +358,7 @@ public class CharConverter implements Serializable
      @param  destination  The destination byte array.
      @param  offset  The offset into the destination array for the start of the data.
      @param  length  The number of bytes of data to write into the array.
-     @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @exception  CharConversionException  If <i>destination</i> is not large enough to hold the converted string.
      @see  com.ibm.as400.access.BidiStringType
      **/

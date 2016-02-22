@@ -160,7 +160,7 @@ Returns the logical value directly from the PCML document.
 @param indices          The indices, or null if not applicable, or if they were
                         already specified.
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 @return                 The logical value.                    
@@ -257,7 +257,7 @@ Sets the logical value directly in the PCML document.
                     already specified.
 @param value        The logical value.                    
 @param bidiStringType   The bidi string type as defined by the CDRA (Character Data 
-                        Representataion Architecture). See 
+                        Representation Architecture). See 
                         {@link com.ibm.as400.access.BidiStringType BidiStringType}
                         for more information and valid values. 
 

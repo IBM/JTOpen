@@ -332,7 +332,7 @@ public class EnvironmentVariable implements Serializable
 
     /**
      Returns the environment variable name.
-     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      @return  The environment variable name.
      **/
     public String getName(int stringType)
@@ -379,7 +379,7 @@ public class EnvironmentVariable implements Serializable
 
     /**
      Returns the value of the environment variable.
-     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      @return  The value.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -554,7 +554,7 @@ public class EnvironmentVariable implements Serializable
      Sets the environment variable name.  This does not change the environment variable name on the system.  Instead, it changes the environment variable to which this EnvironmentVariable object references.
      <p>Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
      @param  name  The environment variable name.
-     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      **/
     public void setName(String name, int stringType)
     {
@@ -636,7 +636,7 @@ public class EnvironmentVariable implements Serializable
      <li>65535 - Do not translate.
      <li>Any valid CCSID
      </ul>
-     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
