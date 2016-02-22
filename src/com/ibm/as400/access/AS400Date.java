@@ -439,7 +439,7 @@ public AS400Date(int format, Character separator)
       synchronized (AS400Date.class) {
         if (formatsMap_ == null)
         {
-          formatsMap_ = new Hashtable(12);
+          formatsMap_ = new Hashtable(16);//@Q5C
           formatsMap_.put("MDY",     new Integer(FORMAT_MDY));
           formatsMap_.put("DMY",     new Integer(FORMAT_DMY));
           formatsMap_.put("YMD",     new Integer(FORMAT_YMD));
@@ -500,6 +500,8 @@ public AS400Date(int format, Character separator)
       return FORMAT_ISO;
     }
 
+    if(formatName.startsWith("*"))//@Q5A
+      formatName=formatName.substring(1);
     Integer formatInt = (Integer)getFormatsMap().get(formatName.trim().toUpperCase());
 
     if (formatInt == null) {
