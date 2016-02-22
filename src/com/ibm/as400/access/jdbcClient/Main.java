@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -308,6 +309,91 @@ public class Main implements Runnable {
     initializeDefaults();
   }
 
+  /*@Q7A -- added to support unicode escape syntax in SQL Statements */ 
+  public static String readLine(BufferedReader input) throws SQLException { 
+    String result = null; 
+    
+    try {
+      result = input.readLine();
+    if (result != null) { 
+        if (result.indexOf("\\u") >= 0) {
+          int resultLen = result.length();
+          StringBuffer sb = new StringBuffer();
+          int startIndex = 0;
+          int escapeIndex = result.indexOf("\\u", startIndex);
+          while (escapeIndex >= 0) {
+            sb.append(result.substring(startIndex, escapeIndex));
+            if (escapeIndex + 6 <= resultLen) {
+              try {
+                sb.append(getUnicodeCharacter(result, escapeIndex + 2));
+              } catch (SQLException ioEx) {
+                throw new SQLException("Escape sequence '"
+                    + result.substring(escapeIndex, 6) + "' invalid");
+              }
+            } else {
+              throw new SQLException("Escape sequence '"
+                  + result.substring(escapeIndex) + "' invalid");
+            }
+            startIndex = escapeIndex + 6;
+            if (startIndex > resultLen) {
+              escapeIndex = -1;
+            } else {
+              escapeIndex = result.indexOf(result, startIndex);
+            }
+          }
+          sb.append(result.substring(startIndex));
+          result = sb.toString();
+        }
+      }
+    } catch (IOException e) {
+      SQLException sqlex = new SQLException("IO Exception");
+      sqlex.initCause(e);
+      throw sqlex;
+    }
+    return result;
+  }
+  
+  private static char getUnicodeCharacter(String result, int index) throws SQLException {
+    int c = 0; 
+    for (int i = 0; i < 4; i++) { 
+       char digit = result.charAt(index+i); 
+       c = c * 16 + hexValue(digit); 
+    }
+    return (char) c;
+  }
+
+  private static int hexValue(char digit) throws SQLException {
+      switch(digit) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        return  digit - '0'; 
+      case 'a':
+      case 'b':
+      case 'c':
+      case 'd':
+      case 'e':
+      case 'f':
+        return 10 + digit - 'a'; 
+      case 'A':
+      case 'B':
+      case 'C':
+      case 'D':
+      case 'E':
+      case 'F':
+        return 10 + digit - 'A'; 
+        
+      }
+      throw new SQLException("invalid escape digit '"+digit+"'"); 
+  }
+
   public int go(InputStream in, PrintStream out1) {
     int rc = 0;
     boolean running = true;
@@ -317,7 +403,7 @@ public class Main implements Runnable {
       BufferedReader input = new BufferedReader(new InputStreamReader(in));
       if (prompt_)
         out1.print(promptString);
-      query = input.readLine();
+      query = readLine(input);
       /* if we happen to get no input */ 
       if (query == null) running = false; 
       while (running) {
@@ -325,7 +411,7 @@ public class Main implements Runnable {
         if (running) {
           if (prompt_)
             out1.print(promptString);
-          query = input.readLine();
+          query = readLine(input);
           if (query != null) {
             query = query.trim();
           } else {
