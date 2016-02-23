@@ -35,25 +35,28 @@ class SocketContainerJSSE extends SocketContainer
         //@P4A START
         if(SecureAS400.changeCipherSuites)
           try{
-            System.out.println("SocketContainerJSSE try to change cipher suites of current connection.");
+            if (Trace.isTraceOn())
+              Trace.log(Trace.DIAGNOSTIC,"SocketContainerJSSE try to change cipher suites of current connection.");
             String [] ciphers = sslSocket_.getEnabledCipherSuites();
             String[] protols = sslSocket_.getEnabledProtocols();
-            System.out.println("SocketContainerJSSE: enabeld SSL version:");
-            for (int i=0;protols!=null && i< protols.length;i++)
-              System.out.println(protols[i]);
-            if(ciphers !=null){
-              System.out.println("SocketContainerJSSE: cipher suites originally enabled:");
-              for(int i=0;i<ciphers.length;i++){
-                System.out.println(ciphers[i]);
+            if (Trace.isTraceOn()){
+              Trace.log(Trace.DIAGNOSTIC,"SocketContainerJSSE: enabeld SSL version:");
+              for (int i=0;protols!=null && i< protols.length;i++)
+                Trace.log(Trace.DIAGNOSTIC,protols[i]);
+              if(ciphers !=null){
+                Trace.log(Trace.DIAGNOSTIC,"SocketContainerJSSE: cipher suites originally enabled:");
+                for(int i=0;i<ciphers.length;i++){
+                  Trace.log(Trace.DIAGNOSTIC,ciphers[i]);
+                }
               }
-              }
+            }
             sslSocket_.setEnabledCipherSuites(SecureAS400.newCipherSuites);
 
             String [] newCiphersEnabled = sslSocket_.getEnabledCipherSuites();
-            if(newCiphersEnabled !=null){
-              System.out.println("SocketContainerJSSE: cipher suitesnew enabled:");
+            if(newCiphersEnabled !=null && (Trace.isTraceOn())){
+              Trace.log(Trace.DIAGNOSTIC,"SocketContainerJSSE: cipher suitesnew enabled:");
               for(int i=0;i<newCiphersEnabled.length;i++){
-                System.out.println(newCiphersEnabled[i]);
+                Trace.log(Trace.DIAGNOSTIC,newCiphersEnabled[i]);
               }
             }
           }catch (Exception e)
