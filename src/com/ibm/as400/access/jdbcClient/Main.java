@@ -728,7 +728,7 @@ public class Main implements Runnable {
         manualResultSet_ = rs;
         addVariable("RS", manualResultSet_);
         manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs, rsmd,
-            false, manualResultSetNumCols_, html_, xml_ );
+            false, manualResultSetNumCols_, html_, xml_,showMixedUX_ ); //@Q9C
       } else {
         dispResultSet(out1, rs, false);
         // Display any warnings
@@ -985,7 +985,7 @@ public class Main implements Runnable {
             manualResultSet_ = rs;
             addVariable("RS", manualResultSet_);
             manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs,
-                rsmd, false, manualResultSetNumCols_, html_, xml_);
+                rsmd, false, manualResultSetNumCols_, html_, xml_,showMixedUX_);  //@Q9C
           } else {
 
             dispResultSet(out1, rs, false);
@@ -1358,7 +1358,7 @@ public class Main implements Runnable {
             manualResultSet_ = rs;
             addVariable("RS", manualResultSet_);
             manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs, rsmd,
-                false, manualResultSetNumCols_, html_, xml_);
+                false, manualResultSetNumCols_, html_, xml_,showMixedUX_);  //@Q9C
           } else {
 
             // Display all columns and rows from the result set
@@ -1955,7 +1955,7 @@ public class Main implements Runnable {
                 manualResultSet_ = rs;
                 addVariable("RS", manualResultSet_);
                 manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs,
-                    rsmd, false, manualResultSetNumCols_, html_, xml_);
+                    rsmd, false, manualResultSetNumCols_, html_, xml_,showMixedUX_);   //@Q9C
               } else {
 
                 dispResultSet(out1, rs, false);
@@ -3407,7 +3407,7 @@ public class Main implements Runnable {
 
 
   static private String[] dispColumnHeadings(PrintStream out1, ResultSet rs,
-      ResultSetMetaData rsmd, boolean trim, int numCols, boolean html, boolean xml) throws SQLException {
+      ResultSetMetaData rsmd, boolean trim, int numCols, boolean html, boolean xml, boolean showMixedUX) throws SQLException {   //@Q9C
     int i;
     // Display column headings
 
@@ -3428,7 +3428,8 @@ public class Main implements Runnable {
         if (!xml) {
           if (i > 1)
             output.append(",");
-          output.append(columnLabel[i]);
+          appendUnicodeString(output, columnLabel[i], 65535, 65535, true, showMixedUX);   //@Q9C
+
         }
       }
     }
@@ -3644,7 +3645,7 @@ public class Main implements Runnable {
 
     int numCols = rsmd.getColumnCount();
 
-    String[] columnLabel = dispColumnHeadings(out1, rs, rsmd, trim, numCols, xml, html);
+    String[] columnLabel = dispColumnHeadings(out1, rs, rsmd, trim, numCols, xml, html,showMixedUX);      //@Q9C
 
     //
     // figure out column types
