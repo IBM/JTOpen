@@ -71,7 +71,8 @@ implements ResultSetMetaData
     private DBExtendedColumnDescriptors extendedColumnDescriptors_;   //@G1A
     private ConvTable           convTable_;                           //@G1A
     private Connection          con_;                                 //@in1
-
+    SQLConversionSettings       settings_;  /*@Q8A*/
+    
     /**
     Constructs an AS400JDBCResultSetMetaData object.
     @param  catalog                     The catalog.
@@ -80,6 +81,7 @@ implements ResultSetMetaData
     @param  row                         The row.
     @param  extendedColumnDescriptors   The extended column descriptors.
     @param  convTable                   The converter table to use to convert column descriptors.
+     * @throws SQLException 
     **/
     AS400JDBCResultSetMetaData(String catalog,
                                 int concurrency,
@@ -87,7 +89,7 @@ implements ResultSetMetaData
                                 JDRow row,
                                 DBExtendedColumnDescriptors extendedColumnDescriptors,   //@G1A
                                 ConvTable convTable,                                     //@G1A
-                                Connection con)                                 //@in1
+                                Connection con) throws SQLException                                 //@in1
     {
         catalog_        = catalog;
         concurrency_    = concurrency;
@@ -96,6 +98,7 @@ implements ResultSetMetaData
         extendedColumnDescriptors_ = extendedColumnDescriptors;                          //@G1A
         convTable_      = convTable;                                                     //@G1A
         con_            = con;                                                           //@in1
+        settings_       = SQLConversionSettings.getConversionSettings ((AS400JDBCConnection) con_); /*@Q8A*/
     }
 
     /**
@@ -210,7 +213,7 @@ implements ResultSetMetaData
         if(extendedColumnDescriptors_ != null)                                                              //@G1A
         {
             //@G1A
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA  // Fix for JTOpen Bug 4034 The ccsid for the column may be 65535, if that is the case, we want to use the job's ccsid
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_, settings_);    //@KBA //@Q8C  // Fix for JTOpen Bug 4034 The ccsid for the column may be 65535, if that is the case, we want to use the job's ccsid
             if(dataFormat != null)  //@KBA  The data format returned by the host server will be null for columns created by expressions, use old way
             {                      //@D9A
                 String columnLabel = dataFormat.getColumnLabel(convTable_); //@D9A
@@ -319,7 +322,7 @@ implements ResultSetMetaData
         if(extendedColumnDescriptors_ != null)                                  //@G1A
         {
             //@G1A
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA //@ss1
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_,settings_);    //@KBA //@ss1//@Q8C
             if(dataFormat != null) //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
                 return dataFormat.getBaseTableSchemaName(convTable_);   //@G1A
         }                                                                        //@G1A
@@ -348,7 +351,7 @@ implements ResultSetMetaData
         // because we already have the information, we should return it to the user if they want it...
         if(extendedColumnDescriptors_ != null)
         {
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA //@ss1
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_, settings_);    //@KBA //@ss1 //@Q8C
             if(dataFormat != null)                                                                                      //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
                 return dataFormat.getBaseTableName(convTable_);                                                         //@KBA
             //@KBD return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableName(convTable_);       //K1C  use to call getBaseTableSchemaName

@@ -171,6 +171,8 @@ package com.ibm.as400.access;
 //@Q5    20160222  DDS: Correct field type of Date, Time and Timestamp
 //@Q6    20160222  Fix various javadoc typos
 //@Q7    20160222  JDBC Client:  Support unicode escape '\u0000' in SQL statements
+//@Q8    20160224  JDBC:  Fix BIDI column labels
+//@Q9    20160224  JDBC Client:  Fix column label display
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

@@ -236,6 +236,7 @@ implements ResultSet
     /* instead of being retrieved from the statement at the time of getRSMD  @P6A*/ 
     
     DBExtendedColumnDescriptors extendedDescriptors_; 
+    SQLConversionSettings settings_;  /*@Q8A*/
     /*---------------------------------------------------------*/
     /*                                                         */
     /* MISCELLANEOUS METHODS.                                  */
@@ -280,6 +281,8 @@ implements ResultSet
         closed_                 = false;
         concurrency_            = concurrency;
         connection_             = (statement != null) ? statement.getConnection () : null;
+        settings_               = SQLConversionSettings.getConversionSettings ((AS400JDBCConnection) connection_); /*@Q8A*/
+
         cursorName_             = cursorName;
         deleteStatement_        = null;
         fetchDirection_         = fetchDirection;
@@ -5479,7 +5482,7 @@ endif */
                     {
                         // @K1A
                         convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
-                        String columnName = extendedDescriptors_.getColumnDescriptors(i+1, convTable).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel //@SS1//@P6C
+                        String columnName = extendedDescriptors_.getColumnDescriptors(i+1, convTable, settings_).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel //@SS1//@P6C//@Q8C
                         if(columnName != null) {
                             if (((AS400JDBCConnection)connection_).getVRM() < JDUtilities.vrm540) { //@DELIMa
                               buffer.append(JDUtilities.stripOuterDoubleQuotes(columnName));  // if pre-V5R4, just strip outer quotes (no double-up necessary)
