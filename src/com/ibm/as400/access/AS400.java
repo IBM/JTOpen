@@ -2161,7 +2161,7 @@ public class AS400 implements Serializable
     }
 
     // Converts a service constant to a service name.
-    static String getServerName(int service)
+    public static String getServerName(int service)//@Q10
     {
         switch (service)
         {
