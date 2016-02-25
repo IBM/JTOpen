@@ -173,6 +173,7 @@ package com.ibm.as400.access;
 //@Q7    20160222  JDBC Client:  Support unicode escape '\u0000' in SQL statements
 //@Q8    20160224  JDBC:  Fix BIDI column labels
 //@Q9    20160224  JDBC Client:  Fix column label display
+//@Q10   20160225  Make AS400.getServerName public
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
