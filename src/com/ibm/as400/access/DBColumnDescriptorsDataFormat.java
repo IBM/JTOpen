@@ -46,15 +46,22 @@ class DBColumnDescriptorsDataFormat
     DBColumnDescriptorsDataFormat(SQLConversionSettings settings)      /*@Q8C*/                        
     {       
     	/*@Q8A*/ 
-      int bidiStringType = settings.getBidiStringType();
+      int bidiStringType = BidiStringType.ST5;       /*@Q8C*/ 
+      boolean bidiImplicitReordering = true;
+      boolean bidiNumericOrdering = false ;
+      if (settings != null) { 
+         bidiStringType = settings.getBidiStringType();
+        
+         // if bidiStringType is not set by user, use the default 5
+         if(bidiStringType == -1)
+             bidiStringType = BidiStringType.ST5;
 
-      // if bidiStringType is not set by user, use the default 5
-      if(bidiStringType == -1)
-          bidiStringType = BidiStringType.ST5;
-
+         bidiImplicitReordering = settings.getBidiImplicitReordering();
+         bidiNumericOrdering = settings.getBidiNumericOrdering();
+      }
       bidiConversionProperties_ = new BidiConversionProperties(bidiStringType);  
-      bidiConversionProperties_.setBidiImplicitReordering(settings.getBidiImplicitReordering());        
-      bidiConversionProperties_.setBidiNumericOrderingRoundTrip(settings.getBidiNumericOrdering());      
+      bidiConversionProperties_.setBidiImplicitReordering(bidiImplicitReordering);        
+      bidiConversionProperties_.setBidiNumericOrderingRoundTrip(bidiNumericOrdering);      
       
     }
 
@@ -67,17 +74,9 @@ class DBColumnDescriptorsDataFormat
     @param settings The conversion settings used when converting the column names
     **/
     DBColumnDescriptorsDataFormat(int jobCCSID, SQLConversionSettings settings) //@Q8C                              
-    {                                            
+    {       
+        this(settings); 
         jobCCSID_ = jobCCSID;
-        int bidiStringType = settings.getBidiStringType();       /*@Q8C*/ 
-
-        // if bidiStringType is not set by user, use the default 5
-        if(bidiStringType == -1)
-            bidiStringType = BidiStringType.ST5;
-
-        bidiConversionProperties_ = new BidiConversionProperties(bidiStringType);  
-        bidiConversionProperties_.setBidiImplicitReordering(settings.getBidiImplicitReordering());        
-        bidiConversionProperties_.setBidiNumericOrderingRoundTrip(settings.getBidiNumericOrdering());      
 
     }
 

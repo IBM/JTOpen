@@ -281,7 +281,11 @@ implements ResultSet
         closed_                 = false;
         concurrency_            = concurrency;
         connection_             = (statement != null) ? statement.getConnection () : null;
-        settings_               = SQLConversionSettings.getConversionSettings ((AS400JDBCConnection) connection_); /*@Q8A*/
+        if (connection_ != null) {
+          settings_               = SQLConversionSettings.getConversionSettings ((AS400JDBCConnection) connection_); /*@Q8A*/
+        } else {
+          settings_ = null; 
+        }
 
         cursorName_             = cursorName;
         deleteStatement_        = null;
