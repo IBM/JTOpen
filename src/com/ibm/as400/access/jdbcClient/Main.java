@@ -167,7 +167,7 @@ public class Main implements Runnable {
 
       "!CALLMETHOD [METHODCALL]          Calls a method on a variable",
       "  Hint:  To see a result set use CALLMETHOD com.ibm.as400.access.jdbcClient.Main.dispResultSet(RS)",
-      "  Hint:  To access an array use SET LIST=java.util.Arrays.asList(ARRAYVARIABLE)",
+      "  Hint:  To access an array use  SETVAR LIST=java.util.Arrays.asList(ARRAYVARIABLE)",
       "",
       "!THREAD [COMMAND]                 Runs a command in its own thread.",
       "!THREADPERSIST [THREADNAME]       Create a thread that persist.",
@@ -3134,7 +3134,7 @@ public class Main implements Runnable {
               String argsLeft = left;
               Object[] parameters = new Object[parameterTypes.length];
               methodFound = true;
-              String methodParameters = "";
+              String methodParameters = "(";
               for (int p = 0; p < parameterTypes.length; p++) {
                 // out1.println("Args left is "+argsLeft);
                 // Handle double quote delimited parameters strings
@@ -3176,6 +3176,11 @@ public class Main implements Runnable {
                   //
                   // If the arg refers to a variable try to use it
                   //
+                  
+                  String parameterTypeName = parameterTypes[p].getName();
+                  if (p > 0) methodParameters +=",";
+                  methodParameters += parameterTypeName ;
+
                   Object argObject = variables.get(arg);
                   if (argObject != null) {
                     parameters[p] = argObject;
@@ -3184,8 +3189,7 @@ public class Main implements Runnable {
                     //
                     // Now convert the arg from a string into something else
                     //
-                    String parameterTypeName = parameterTypes[p].getName();
-                    methodParameters += parameterTypeName + " ";
+
                     if (arg.equals("null")) {
                       parameters[p] = null;
                     } else if (parameterTypeName.equals("java.lang.String")) {
@@ -3309,6 +3313,7 @@ public class Main implements Runnable {
                   } /* parameter was not a variable */
                 } /* unable to find args */
               } /* looping through parameter types */
+              methodParameters+=")"; 
               if (methodFound) {
                 if ((argsLeft.trim().equals(")"))
                     || (argsLeft.trim().length() == 0)) {
@@ -3316,6 +3321,12 @@ public class Main implements Runnable {
                     variable = constructors[m].newInstance(parameters);
                   } catch (Exception e) {
                     e.printStackTrace(out1);
+                    Throwable t = e.getCause(); 
+                    while ( t != null) {
+                      out1.println("..Caused by\n"); 
+                      t.printStackTrace(out1); 
+                      t = t.getCause(); 
+                    }
                     out1.println("Creating object  with "
                         + methodParameters + " failed");
                     methodFound = false;
