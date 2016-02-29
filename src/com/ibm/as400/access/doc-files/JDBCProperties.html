@@ -967,6 +967,24 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
     <TD HEADERS="cat6t5">(value of the proxyServer property, or none if not set)</TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;query replace truncated parameter&quot;</TD>
+    <TD HEADERS="cat6t2">Specifies the value that should be used in place of a truncated 
+    parameter of an SQL query.   By default, the parameter is silently truncated to the
+    length for the parameter.  Consider the following scenario.
+    <ul> 
+    <li>Table T1 has a CHAR(3) column with the name of C1, and a row where C1='ABC'.</li>
+    <li>An application prepares a statement using SELECT * FROM TABLE_X where C1=?</li>
+    <li>If the parameter is set to 'ABCD', it wil be silently truncated to 'ABC' and a
+    row will be returned by the query.</li>
+    </ul>   
+    This property avoid this problem by allowing the application to set the string to 
+    something that doesn't exist in the application - i.e. @@@@@@@.  A blank value means 
+    that the property will be ignored</TD>
+    <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat6t4"> Value to use for truncated prameters</TD>
+    <TD HEADERS="cat6t5"> &quot;&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;remarks&quot;</TD>
     <TD HEADERS="cat6t2">Specifies the source of the text for REMARKS columns in ResultSets 
       returned by DatabaseMetaData methods.</TD>
