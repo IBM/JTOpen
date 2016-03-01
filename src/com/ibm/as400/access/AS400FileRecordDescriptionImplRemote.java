@@ -95,9 +95,6 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     int byteLength;              //@A1A: For float field descriptions
     String fieldName = ((String)record.getField("WHFLDE")).trim();
     int ccsid;
-    String separator= (String)record.getField("WHSEP");//@Q5A
-    Character sep = ( separator == null ? null : new Character(separator.charAt(0)));//@Q5A
-    
     switch(fieldType)
     {
       case 'A': // Character field
@@ -510,15 +507,13 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // 65535 is not a valid ccsid, retrieve the default system ccsid
           ccsid = system_.getCcsid();
         }
-        
-        fd = new DateFieldDescription( (" ".equals(separator) ? new AS400Date(AS400Date.toFormat((String)record.getField("WHFMT"))) :
-          new AS400Date(AS400Date.toFormat((String)record.getField("WHFMT")),sep)),//@Q5C
-                                     //new AS400Text(((BigDecimal)record.getField("WHFLDB")).intValue(),
-                                     //              ccsid, system_), //@D0C
+        fd = new DateFieldDescription(
+                                     new AS400Text(((BigDecimal)record.getField("WHFLDB")).intValue(),
+                                                   ccsid, system_), //@D0C
                                      fieldName);
         // Set date format and date separator values
         ((DateFieldDescription)fd).setDATFMT((String)record.getField("WHFMT"));
-        if(!((String)record.getField("WHSEP")).equals(" "))//@Q5C
+        if(!((String)record.getField("WHFMT")).equals(" "))
         {
           ((DateFieldDescription)fd).setDATSEP((String)record.getField("WHSEP"));
         }
@@ -660,8 +655,10 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // 65535 is not a valid ccsid, retrieve the default system ccsid
           ccsid = system_.getCcsid();
         }
-       
-        fd = new TimeFieldDescription( " ".equals(separator) ?new AS400Time(AS400Time.toFormat((String)record.getField("WHFMT"))) : new AS400Time(AS400Time.toFormat((String)record.getField("WHFMT")),sep),fieldName);//@Q5C
+        fd = new TimeFieldDescription(
+                                     new AS400Text(((BigDecimal)record.getField("WHFLDB")).intValue(),
+                                                   ccsid, system_), //@D0C
+                                     fieldName);
         // Set date format and date separator values
         ((TimeFieldDescription)fd).setTIMFMT((String)record.getField("WHFMT"));
         if(!((String)record.getField("WHSEP")).equals(" "))
@@ -702,9 +699,9 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // 65535 is not a valid ccsid, retrieve the default system ccsid
           ccsid = system_.getCcsid();
         }
-        fd = new TimestampFieldDescription(new AS400Timestamp(),//@Q5C
-                                         // new AS400Text(((BigDecimal)record.getField("WHFLDB")).intValue(),
-                                          //              ccsid, system_), //@D0C
+        fd = new TimestampFieldDescription(
+                                          new AS400Text(((BigDecimal)record.getField("WHFLDB")).intValue(),
+                                                        ccsid, system_), //@D0C
                                           fieldName);
         // Set the DFT keyword value if specified
         if(((BigDecimal)record.getField("WHDFTL")).intValue() > 0)
@@ -996,13 +993,10 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       sourceFile.println("import com.ibm.as400.access.AS400Bin4;");
       sourceFile.println("import com.ibm.as400.access.AS400Bin8;"); //@F0A
       sourceFile.println("import com.ibm.as400.access.AS400ByteArray;");
-      sourceFile.println("import com.ibm.as400.access.AS400Date;");//@Q5A
       sourceFile.println("import com.ibm.as400.access.AS400Float4;");
       sourceFile.println("import com.ibm.as400.access.AS400Float8;");
       sourceFile.println("import com.ibm.as400.access.AS400PackedDecimal;");
       sourceFile.println("import com.ibm.as400.access.AS400Text;");
-      sourceFile.println("import com.ibm.as400.access.AS400Time;");//@Q5A
-      sourceFile.println("import com.ibm.as400.access.AS400Timestamp;");//@Q5A
       sourceFile.println("import com.ibm.as400.access.AS400ZonedDecimal;");
       sourceFile.println("import com.ibm.as400.access.BinaryFieldDescription;");
       sourceFile.println("import com.ibm.as400.access.CharacterFieldDescription;");
@@ -1432,9 +1426,6 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     int byteLength;              //@A1A: For float field descriptions
     String fieldName = ((String)record.getField("WHFLDE")).trim();
     int ccsid;
-    String separator= (String)record.getField("WHSEP");//@Q5A
-    Character sep = ( separator == null ? null : new Character(separator.charAt(0)));//@Q5A
-    
     switch(fieldType)
     {
       case 'A': // Character field
@@ -1926,14 +1917,10 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // 65535 is not a valid ccsid, retrieve the default system ccsid
           ccsid = system_.getCcsid();
         }
-        if(" ".equals(separator))//@Q5A
-        sourceFile.println("    addFieldDescription(new DateFieldDescription(new AS400Date(AS400Date.toFormat(\""
-                +(String)record.getField("WHFMT") +"\")), \"" +
+        sourceFile.println("    addFieldDescription(new DateFieldDescription(new AS400Text("
+                           + String.valueOf(((BigDecimal)record.getField("WHFLDB")).intValue()) + ", " +
+                           ccsid + "), \"" +
                            fieldName + "\"));");
-        else
-          sourceFile.println("    addFieldDescription(new DateFieldDescription(new AS400Date(AS400Date.toFormat(\""
-              +(String)record.getField("WHFMT") +"\"),'"+ sep + "'), \"" +
-                         fieldName + "\"));");
         // Set date format and date separator values
         sourceFile.println("    ((DateFieldDescription)getFieldDescription(\"" +
                            fieldName + "\")).setDATFMT(\"" + (String)record.getField("WHFMT") + "\");");
@@ -2116,14 +2103,10 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // 65535 is not a valid ccsid, retrieve the default system ccsid
           ccsid = system_.getCcsid();
         }
-        if(" ".equals(separator))//@Q5A
-          sourceFile.println("    addFieldDescription(new TimeFieldDescription(new AS400Time(AS400Time.toFormat(\""
-              +(String)record.getField("WHFMT")+"\")), \"" +//@Q5C
-              fieldName + "\"));");
-        else
-          sourceFile.println("    addFieldDescription(new TimeFieldDescription(new AS400Time(AS400Time.toFormat(\""
-              +(String)record.getField("WHFMT")+"\"),'"+sep + "'), \"" +//@Q5C
-              fieldName + "\"));");
+        sourceFile.println("    addFieldDescription(new TimeFieldDescription(new AS400Text("
+                           + String.valueOf(((BigDecimal)record.getField("WHFLDB")).intValue()) + ", " +
+                           ccsid + "), \"" +
+                           fieldName + "\"));");
         // Set date format and date separator values
         sourceFile.println("    ((TimeFieldDescription)getFieldDescription(\"" +
                            fieldName + "\")).setTIMFMT(\"" + (String)record.getField("WHFMT") + "\");");
@@ -2173,8 +2156,9 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // 65535 is not a valid ccsid, retrieve the default system ccsid
           ccsid = system_.getCcsid();
         }
-        sourceFile.println("    addFieldDescription(new TimestampFieldDescription(new AS400Timestamp()"//@Q5C
-                           + ", \"" +
+        sourceFile.println("    addFieldDescription(new TimestampFieldDescription(new AS400Text("
+                           + String.valueOf(((BigDecimal)record.getField("WHFLDB")).intValue()) + ", " +
+                           ccsid + "), \"" +
                            fieldName + "\"));");
         // Set if null values are allowed
         if(((String)record.getField("WHNULL")).equals("Y"))

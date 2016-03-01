@@ -354,8 +354,7 @@ public AS400Time(int format)
       }
       return FORMAT_ISO;
     }
-    if(formatName.startsWith("*"))//@Q5A
-      formatName=formatName.substring(1);
+
     Integer formatInt = (Integer)getFormatsMap().get(formatName.trim().toUpperCase());
 
     if (formatInt == null) {
