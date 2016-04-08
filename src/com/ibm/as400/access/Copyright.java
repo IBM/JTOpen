@@ -174,6 +174,7 @@ package com.ibm.as400.access;
 //@Q8    20160224  JDBC:  Fix BIDI column labels
 //@Q9    20160224  JDBC Client:  Fix column label display
 //@Q10   20160225  Make AS400.getServerName public
+//@R1    20160408  Conversion: Added CCSIDs 1047,1166,5233 and Table Generator
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -181,8 +182,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
-    //                                                                                              built=20160224 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160301 @Q10";  
+    //                                                                                              built=20160408 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160408 @R1";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
