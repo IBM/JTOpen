@@ -1291,17 +1291,17 @@
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: pcml
 	    ///////////////////////////////////////////////////////////////////////////-->
-	<target name="pcml6" depends="init,compile">
+	<target name="pcml6" depends="init,compile6">
 		<condition property="pcmlRuntimeExists">
 			<and>
 				<available classname="java.nio.Buffer"/>
 				<!-- JDK 1.4 and higher. -->
-				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output}:${include}:${source}"/>
+				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output6}:${include}:${source6}"/>
 			</and>
 		</condition>
 		<fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
 		<taskdef name="pcml" classname="PCMLTask" classpath="."/>
-		<pcml srcdir="${source}"
+		<pcml srcdir="${source6}"
 	          destdir="${output6}"
 	          classpath="${output6}:${include}:${source}"
 	          includes="**/*.pcml"/>
