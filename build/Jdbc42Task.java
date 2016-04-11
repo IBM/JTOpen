@@ -340,8 +340,8 @@ public class Jdbc42Task extends MatchingTask
 
       if (verbose_) System.out.println("Processed. Time: "+(end-start)+" ms");
     }
-    catch (sun.io.MalformedInputException e) {
-    	System.out.println("MalformedInputException processing "+filename+ " line : "+lineNumber);
+    catch (java.io.CharConversionException e) {
+    	System.out.println("CharConversionException processing "+filename+ " line : "+lineNumber);
     	e.printStackTrace(); 
     	Throwable cause = e.getCause(); 
     	while (cause != null ) { 
