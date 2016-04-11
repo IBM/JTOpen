@@ -88,7 +88,8 @@ public class IFSFileBeanInfo extends SimpleBeanInfo
       property10.setHidden(true);
       PropertyDescriptor property11 =
         new PropertyDescriptor("lastModified", beanClass, null,
-                               "setLastModified");
+                               "setLastModifiedV");
+         /* Use beans friendly version of setLastModified -- @R2A */ 
       property11.setHidden(true);
 
       PropertyDescriptor[] properties =
@@ -123,7 +124,9 @@ public class IFSFileBeanInfo extends SimpleBeanInfo
      }
     catch(Exception e)
     {
-      throw new Error(e.toString());
+      Error error = new Error(e.toString());
+      error.initCause(e); 
+      throw error; 
     }
   }
 

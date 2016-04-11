@@ -3098,6 +3098,17 @@ public class IFSFile
     }
   }
 
+  /**
+   * Beans friendly version of setLastModified.
+   * 
+   * @param time
+   * @throws IOException
+   * @throws PropertyVetoException
+   */
+  /*@R2A*/ 
+  public void setLastModifiedV(long time) throws IOException, PropertyVetoException {
+    setLastModified(time); 
+  }
 
   /**
    Changes the last modified time of the integrated file system object
