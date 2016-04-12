@@ -1296,12 +1296,12 @@
 			<and>
 				<available classname="java.nio.Buffer"/>
 				<!-- JDK 1.4 and higher. -->
-				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output6}:${include}:${source6}"/>
+				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output6}:${include}:${source-java6}"/>
 			</and>
 		</condition>
 		<fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
 		<taskdef name="pcml" classname="PCMLTask" classpath="."/>
-		<pcml srcdir="${source6}"
+		<pcml srcdir="${source-java6}"
 	          destdir="${output6}"
 	          classpath="${output6}:${include}:${source}"
 	          includes="**/*.pcml"/>
