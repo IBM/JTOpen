@@ -31,6 +31,7 @@ public class ClusteredHashTableEntryBeanInfo extends SimpleBeanInfo
 
   private final static Class beanClass = ClusteredHashTableEntry.class;
   private static PropertyDescriptor[] properties_;
+  private static EventSetDescriptor[] events_ = {}; 
 
   static
   {
@@ -113,7 +114,7 @@ public class ClusteredHashTableEntryBeanInfo extends SimpleBeanInfo
    **/
   public EventSetDescriptor[] getEventSetDescriptors()
   {
-    return null;
+    return events_;
   }
 
   /**

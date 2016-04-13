@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.beans.PropertyDescriptor;
 import java.util.*;
 
 /**
@@ -281,9 +282,20 @@ public class MRI2 extends ListResourceBundle
       { "PROP_NAME_JOB_USER", "user" },
       { "PROP_DESC_JOB_USER", "Job user." },
 
+      // Clustered hash table 
+      { "PROP_NAME_ENTRY_AUTHORITY", "entry authority"}, 
+      { "PROP_DESC_ENTRY_AUTHORITY", "Entry authority."}, 
+      { "PROP_NAME_KEY", "key"}, 
+      { "PROP_DESC_KEY", "Key."},
+      { "PROP_NAME_TIME_TO_LIVE", "time to live"},
+      { "PROP_DESC_TIME_TO_LIVE", "Time to live."},
+      { "PROP_NAME_UPDATE_OPTION", "update option"},
+      { "PROP_DESC_UPDATE_OPTION", "Update option."},
 
+      { "PROP_NAME_USER_DATA", "user data"},
+      { "PROP_DESC_USER_DATA", "User data."},
 
-
+      
       // Proxy support MRI.
       // #TRANNOTE ################################################################
       // #TRANNOTE The following are error and informational (verbose) messages.
