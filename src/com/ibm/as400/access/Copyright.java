@@ -176,20 +176,21 @@ package com.ibm.as400.access;
 //@Q10   20160225  Make AS400.getServerName public
 //@R1    20160408  Conversion: Added CCSIDs 1047,1166,5233 and Table Generator
 //@R2    20160411  Beans:  Fix IFSFileBeanInfo (Due to JDK 1.7 change)
+//@R3    20160491  JDBC:  "numeric range error" property
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
 public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
-    public static String copyright = "Copyright (C) 1997-2015 International Business Machines Corporation and others.";
-    //                                                                                              built=20160411 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160411 @R1";  
+    public static String copyright = "Copyright (C) 1997-2016 International Business Machines Corporation and others.";
+    //                                                                                              built=20160419 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160419 @R3";  
 
     // Constants for reference by AS400JDBCDriver.
-    static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
+    static final int    MAJOR_VERSION = 12; // ex: "12" indicated V7R4, "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
     static final int    MINOR_VERSION = 0; // ex: "7" indicates PTF #7 (1 is first PTF in a release)
                                            //Note: JTOpen 8.7 is synching with ptf 10.7
-    static final String DRIVER_LEVEL  = "07030000"; //(ex: 07020007 -> V7R2M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final String DRIVER_LEVEL  = "07040000"; //(ex: 07020007 -> V7R2M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }

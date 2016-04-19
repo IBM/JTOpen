@@ -165,14 +165,16 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              TIMESTAMP_FORMAT           = 87;  //@KEA 
     static final int              USE_DRDA_METADATA_VERSION  = 88; 
     static final int              QUERY_REPLACE_TRUNCATED_PARAMETER = 89;
+    static final int              NUMERIC_RANGE_ERROR        = 90; 
+    static final int              CHARACTER_TRUNCATION       = 91;  
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 90;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 92;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
-                                                               // @A2C @A6C @F6A
+                                                               // @A2C @A6C @F6A@R3
 
 
     // Property names.
@@ -182,6 +184,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String BIG_DECIMAL_            = "big decimal";            // @E0A
     private static final String BLOCK_SIZE_             = "block size";
     private static final String BLOCK_CRITERIA_         = "block criteria";
+    private static final String CHARACTER_TRUNCATION_   = "character truncation"; 
     private static final String CURSOR_HOLD_            = "cursor hold";            // @D1
     private static final String CURSORHOLD_             = "CURSORHOLD";             // @D1
     private static final String CURSOR_SENSITIVITY_     = "cursor sensitivity";     // @F6A
@@ -206,6 +209,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String MAXIMUM_SCALE_          = "maximum scale";          // @M0A
     private static final String MINIMUM_DIVIDE_SCALE_   = "minimum divide scale";   // @M0A
     private static final String NAMING_                 = "naming";
+    private static final String NUMERIC_RANGE_ERROR_    = "numeric range error";    // @R3A
     private static final String PACKAGE_                = "package";
     private static final String PACKAGE_ADD_            = "package add";
     private static final String PACKAGE_CACHE_          = "package cache";
@@ -493,7 +497,15 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
     public static final Object QUERY_REPLACE_TRUNCATED_PARAMETER_STRING_DEFAULT = "";
 
+    public static final String NUMERIC_RANGE_ERROR_DEFAULT = "default"; 
+    public static final String NUMERIC_RANGE_ERROR_WARNING = "warning"; 
+    public static final String NUMERIC_RANGE_ERROR_NONE    = "none"; 
 
+    public static final String CHARACTER_TRUNCATION_DEFAULT = "default"; 
+    public static final String CHARACTER_TRUNCATION_WARNING = "warning"; 
+    public static final String CHARACTER_TRUNCATION_NONE    = "none"; 
+
+    
     // Static data.
     private static DriverPropertyInfo[] dpi_;
     private static String[]             defaults_;
@@ -599,6 +611,18 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[7]  = BLOCK_SIZE_512;
         defaults_[i]        = BLOCK_SIZE_32;
 
+        // Numeric range error .
+        i = CHARACTER_TRUNCATION;
+        dpi_[i] = new DriverPropertyInfo (CHARACTER_TRUNCATION_, "");
+        dpi_[i].description = "CHARACTER_TRUNCATION_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[3];
+        dpi_[i].choices[0]  = CHARACTER_TRUNCATION_DEFAULT;
+        dpi_[i].choices[1]  = CHARACTER_TRUNCATION_WARNING;
+        dpi_[i].choices[2]  = CHARACTER_TRUNCATION_NONE;
+        defaults_[i]        = CHARACTER_TRUNCATION_DEFAULT;
+
+        
         // Cursor Hold.  @D1
         i = CURSOR_HOLD;
         dpi_[i] = new DriverPropertyInfo (CURSOR_HOLD_, "");
@@ -809,6 +833,17 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = NAMING_SQL;
         dpi_[i].choices[1]  = NAMING_SYSTEM;
         defaults_[i]        = NAMING_SQL;
+
+        // Numeric range error .
+        i = NUMERIC_RANGE_ERROR;
+        dpi_[i] = new DriverPropertyInfo (NUMERIC_RANGE_ERROR_, "");
+        dpi_[i].description = "NUMERIC_RANGE_ERROR_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[3];
+        dpi_[i].choices[0]  = NUMERIC_RANGE_ERROR_DEFAULT;
+        dpi_[i].choices[1]  = NUMERIC_RANGE_ERROR_WARNING;
+        dpi_[i].choices[2]  = NUMERIC_RANGE_ERROR_NONE;
+        defaults_[i]        = NUMERIC_RANGE_ERROR_DEFAULT;
 
         // Package.
         i = PACKAGE;

@@ -133,6 +133,8 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_MAXIMUM_BLOCKED_INPUT_ROWS", "maximumBlockedInputRows"}, 
       { "PROP_NAME_QUERY_TIMEOUT_MECHANISM", "queryTimeoutMechanism" },                // @M0A
       { "PROP_NAME_QUERY_REPLACE_TRUNCATED_PARAMETER", "queryReplaceTruncatedParameter" },                // @M0A
+      { "PROP_NAME_NUMERIC_RANGE_ERROR", "numericRangeError"}, 
+      { "PROP_CHARACTER_TRUNCATION", "characterTruncation"},
       
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -228,6 +230,8 @@ public class JDMRI extends ListResourceBundle
       { "MAXIMUM_BLOCKED_INPUT_ROWS_DESC", "Specifies the maximum number of rows to be sent to the database engine when using a blocked insert or update operation." },
       { "QUERY_TIMEOUT_MECHANISM_DESC", "Specifies the method used to implement the query timeout."},
       { "QUERY_REPLACE_TRUNCATED_PARAMETER_DESC", "Specifies the string value to be used when a query parameter is truncated."},
+      { "NUMERIC_RANGE_ERROR_PARAMETER_DESC", "Specifies the behavior when a numeric range error occurs."},
+      { "CHARACTER_TRUNCATION_PARAMETER_DESC", "Specifies the behavior when character truncation occurs."},
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },
