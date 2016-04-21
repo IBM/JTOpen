@@ -59,7 +59,11 @@ final class SQLDecFloat34 extends SQLDataBase {
     private static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
 
     private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(-Double.MAX_VALUE); //@PDC MIN_VALUE is positive
-       
+    
+    private static final BigDecimal DECFLOAT34_MAX_VALUE = new BigDecimal("9.999999999999999999999999999999999E6144"); 
+    
+    private static final BigDecimal DECFLOAT34_MIN_VALUE = new BigDecimal("-9.999999999999999999999999999999999E6144"); 
+    
     static final int DECFLOAT34_MIN_EXP = -6143;  
     
 
@@ -232,6 +236,17 @@ final class SQLDecFloat34 extends SQLDataBase {
         //@pdd                      // (even if there was right side truncation).     
  
         value_ = AS400DecFloat.roundByMode(bigDecimal, 34, roundingModeStr);
+
+    
+        // Check the value is within range
+        if (value_.compareTo(DECFLOAT34_MAX_VALUE) > 0) {
+          truncated_ = 1;  outOfBounds_ = true; value_ = DECFLOAT34_MAX_VALUE;
+        } else if (value_.compareTo(DECFLOAT34_MIN_VALUE) < 0) {
+          truncated_ = 1;  outOfBounds_ = true; value_ = DECFLOAT34_MIN_VALUE;
+        }
+
+    
+    
     }
 
     //---------------------------------------------------------//

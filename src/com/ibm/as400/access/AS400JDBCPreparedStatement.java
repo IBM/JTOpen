@@ -26,6 +26,7 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
+import java.sql.SQLWarning;
 /* ifdef JDBC40
  import java.sql.NClob;
  endif */
@@ -103,7 +104,6 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     PreparedStatement {
   static final String copyright2 = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-  private boolean dataTruncation_; // @B5A
   private int descriptorHandle_;
   boolean executed_; // private protected
   private boolean outputParametersExpected_;
@@ -138,6 +138,18 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   private int maxToLog_ = 10000; // Log value of parameter markers up to this
                                  // length // @H1A
   private boolean containsArrayParameter_ = false; /* @G7A */
+
+  private static final int CHARACTER_TRUNCATION_DEFAULT = 0; 
+  private static final int CHARACTER_TRUNCATION_WARNING = 1; 
+  private static final int CHARACTER_TRUNCATION_NONE = 2; 
+  private int characterTruncation_ = CHARACTER_TRUNCATION_DEFAULT; 
+
+  
+  
+  private static final int NUMERIC_RANGE_ERROR_DEFAULT = 0; 
+  private static final int NUMERIC_RANGE_ERROR_WARNING = 1; 
+  private static final int NUMERIC_RANGE_ERROR_NONE = 2; 
+  private int numericRangeError_ = NUMERIC_RANGE_ERROR_DEFAULT; 
 
   private int containsLocator_ = LOCATOR_UNKNOWN;
   private static final int LOCATOR_UNKNOWN = -1;
@@ -365,9 +377,42 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     }
     executed_ = false;
 
-    dataTruncation_ = connection.getProperties().getBoolean(
+    // Default value of data truncation is "true"
+    boolean dataTruncation = connection.getProperties().getBoolean(
         JDProperties.DATA_TRUNCATION);
+    // Default value of data truncation is "default" 
+    String characterTruncation = connection.getProperties().getString(
+        JDProperties.CHARACTER_TRUNCATION); 
+    
+    // if characterTruncation is default, then use the dataTruncation setting
+    // otherwise use the characterTruncation setting 
+   if (characterTruncation == null || characterTruncation == JDProperties.CHARACTER_TRUNCATION_DEFAULT) {
+     if (dataTruncation) { 
+       characterTruncation = JDProperties.CHARACTER_TRUNCATION_DEFAULT; 
+     } else {
+       characterTruncation = JDProperties.CHARACTER_TRUNCATION_NONE; 
+     }
+   }
+    
+   if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_DEFAULT) {
+     characterTruncation_ = CHARACTER_TRUNCATION_DEFAULT; 
+   } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_WARNING) {
+     characterTruncation_ = CHARACTER_TRUNCATION_WARNING; 
+   } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_NONE) {
+     characterTruncation_ = CHARACTER_TRUNCATION_NONE; 
+   }
 
+   String numericRangeError =  connection.getProperties().getString(JDProperties.NUMERIC_RANGE_ERROR); 
+   if (numericRangeError == null) numericRangeError = JDProperties.NUMERIC_RANGE_ERROR_DEFAULT; 
+   
+   if (numericRangeError.equals(JDProperties.NUMERIC_RANGE_ERROR_DEFAULT)) {
+     numericRangeError_ = NUMERIC_RANGE_ERROR_DEFAULT; 
+   } else if (numericRangeError.equals(JDProperties.NUMERIC_RANGE_ERROR_WARNING)) {
+     numericRangeError_ = NUMERIC_RANGE_ERROR_WARNING; 
+   } else if (numericRangeError.equals(JDProperties.NUMERIC_RANGE_ERROR_NONE)) {
+     numericRangeError_ = NUMERIC_RANGE_ERROR_NONE; 
+   }
+    
     clearParameters();
   }
 
@@ -3579,9 +3624,7 @@ endif */
         } // @B6A
 
         sqlData.set(parameterValue, calendar, scale);
-        if (dataTruncation_ || !sqlData.isText()) {
-          testDataTruncation(parameterIndex, sqlData); // @B5C @G5move
-        }
+        testDataTruncation(parameterIndex, sqlData); // @B5C @G5move
       }
       // Parameters can be null; you can call one of the set methods to null out
       // a
@@ -3664,7 +3707,21 @@ endif */
   private void testDataTruncation(int parameterIndex, SQLData data)
       throws SQLException // @trunc
   {
-    if (data != null && (dataTruncation_ || !data.isText())) {
+    if (data != null) {
+      if (data.getOutOfBounds()) {
+        switch (numericRangeError_) {
+        case NUMERIC_RANGE_ERROR_DEFAULT:
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+          break;
+        case NUMERIC_RANGE_ERROR_WARNING:
+          postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH));  
+          break;
+        case NUMERIC_RANGE_ERROR_NONE:
+          break;
+        }
+      }
+    }
+    if (data != null && (characterTruncation_ != CHARACTER_TRUNCATION_NONE ) && data.isText()) {
       // The SQLData object determined if data was truncated as part of the
       // setValue() processing.
       int truncated = data.getTruncated();
@@ -3681,7 +3738,11 @@ endif */
         if ((connection_.getVRM() >= JDUtilities.vrm610)
             && (data.isText() == false)) // @trunc2
         { // @trunc2
+          if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
+            postWarning(dt);
+          } else { 
           throw dt; // @trunc2
+          }
         } // @trunc2
         else if ((sqlStatement_ != null) && (sqlStatement_.isSelect())
             && (!sqlStatement_.isSelectFromInsert())) // @trunc2 //@selins1
@@ -3693,7 +3754,11 @@ endif */
             data.set(connection_.queryReplaceTruncatedParameter_, null, 0); 
           }
         } else {
-          throw dt;
+          if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
+            postWarning(dt);
+          } else { 
+             throw dt;
+          }
         }
       }
     }

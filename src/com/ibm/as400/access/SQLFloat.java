@@ -43,6 +43,7 @@ extends SQLDataBase
     SQLFloat(SQLConversionSettings settings)
     {
         super(settings); 
+        truncated_ = 0; outOfBounds_ = false; 
         value_      = 0.0d;
     }
 
@@ -84,7 +85,25 @@ extends SQLDataBase
         {
             try
             {
+                if (settings_.getDecimalSeparator().equals(",")){
+                  object = ((String) object).replace(',','.'); 
+                }
+
                 value_ = Double.valueOf((String) object).doubleValue();
+                if (value_ == Double.POSITIVE_INFINITY) {
+                  // Check to see if overflow
+                  if (!((String)object).toLowerCase().trim().equals("infinity")) {
+                     truncated_ = 1; outOfBounds_ = true; 
+                     value_ = Double.MAX_VALUE; 
+                  }
+                } else if (value_ == Double.NEGATIVE_INFINITY) {
+                  // Check to see if underflow
+                  if (((String)object).toLowerCase().trim().indexOf("infinity")< 0) {
+                    truncated_ = 1; outOfBounds_ = true; 
+                    value_ = -Double.MAX_VALUE; 
+                 }
+                }
+                
                 // You can't test for data truncation of a number by testing
                 // the lengths of two string versions of it.
                 // Example string that should work but will fail:
@@ -110,20 +129,14 @@ extends SQLDataBase
 
         else if(object instanceof Number)
         {
-            // Set the value to the right type.
-            value_ = ((Number) object).doubleValue();   // @D9c
-
-            // Get the whole number portion of that value.
-            //long value = (long) value_;                 // @D9a //@bigdectrunc change to follow native driver
-
-            // Get the original value as a long.  This is the
-            // largest precision we can test for for a truncation.
-           // long truncTest = ((Number) object).longValue();  // @D9a //@bigdectrunc 
-
-            // If they are not equal, then we truncated significant
-            // data from the original value the user wanted us to insert.
-            //if(truncTest != value)                          // @D9a //@bigdectrunc
-                //truncated_ = 1; //@bigdectrunc 
+          value_ = ((Number) object).doubleValue();
+          if (value_ == Double.POSITIVE_INFINITY) {
+               truncated_ = 1; outOfBounds_ = true; 
+               value_ = Double.MAX_VALUE; 
+          } else if (value_ == Double.NEGATIVE_INFINITY) {
+              truncated_ = 1; outOfBounds_ = true; 
+              value_ = -Double.MAX_VALUE; 
+          }          
         }
 
         else if(object instanceof Boolean)

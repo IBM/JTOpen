@@ -631,13 +631,41 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             queryTimeoutMechanism.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QUERY_TIMEOUT_MECHANISM"));                
             queryTimeoutMechanism.setShortDescription(AS400JDBCDriver.getResource("QUERY_TIMEOUT_MECHANISM_DESC"));                
 
-            
+
+            // @D4A - added support for query replace truncated parameter
+            PropertyDescriptor numericRangeErrorParameter = 
+                new PropertyDescriptor("numericRangeErrorParameter", 
+                    beanClass, 
+                    "getNumericRangeErrorParameter", 
+                    "setNumericRangeErrorParameter");
+            numericRangeErrorParameter.setBound(true);                                                                        
+            numericRangeErrorParameter.setConstrained(false);                                                                 
+            numericRangeErrorParameter.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_NUMERIC_RANGE_ERROR_PARAMETER"));                
+            numericRangeErrorParameter.setShortDescription(AS400JDBCDriver.getResource("NUMERIC_RANGE_ERROR_PARAMETER_DESC"));                
+
+            // @D4A - added support for query replace truncated parameter
+            PropertyDescriptor characterTruncationParameter = 
+                new PropertyDescriptor("characterTruncationParameter", 
+                    beanClass, 
+                    "getCharacterTruncationParameter", 
+                    "setCharacterTruncationParameter");
+            characterTruncationParameter.setBound(true);                                                                        
+            characterTruncationParameter.setConstrained(false);                                                                 
+            characterTruncationParameter.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CHARACTER_TRUNCATION_PARAMETER"));                
+            characterTruncationParameter.setShortDescription(AS400JDBCDriver.getResource("CHARACTER_TRUNCATION_PARAMETER_DESC"));                
+
+
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, concurrentAccessResolution, jvm16Synchronize, socketTimeout, maximumBlockedInputRows, queryReplaceTruncatedParameter, queryTimeoutMechanism}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, 
+                metaDataSource, queryStorageLimit, decfloatRoundingMode, 
+                autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, 
+                concurrentAccessResolution, jvm16Synchronize, socketTimeout, 
+                maximumBlockedInputRows, queryReplaceTruncatedParameter, queryTimeoutMechanism,
+                numericRangeErrorParameter, characterTruncationParameter}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
         }
         catch(Exception e)
         {

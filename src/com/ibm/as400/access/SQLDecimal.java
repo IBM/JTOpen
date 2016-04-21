@@ -168,11 +168,19 @@ extends SQLDataBase
         {
             int digits = otherPrecision - precision_;
             truncated_ += digits;
-            value_ = SQLDataFactory.truncatePrecision(value_, digits);
-        }
-        else                                                               // @E2A
+            // This truncation doesn't really may sense
+            // Set to maximum/minimum valid value
+            // value_ = SQLDataFactory.truncatePrecision(value_, digits);
+            if (value_.doubleValue() > 0 ) {
+               value_ = SQLDataFactory.getMaximumBigDecimal(precision_,scale_);  
+            } else {
+              value_ = SQLDataFactory.getMinimumBigDecimal(precision_,scale_);  
+            }
+            outOfBounds_ = true; 
+        }  else    {                                                            // @E2A
             truncated_ = 0; outOfBounds_ = false;   // No left side truncation, report nothing       @E2A
                              // (even if there was right side truncation).    @E2A
+        }
     }
 
     //---------------------------------------------------------//

@@ -99,17 +99,21 @@ extends SQLDataBase
                 try
                 {
                     BigInteger bigInteger = new BigDecimal((String)object).toBigInteger();
-                    if((bigInteger.compareTo(LONG_MAX_VALUE) > 0) || (bigInteger.compareTo(LONG_MIN_VALUE) < 0))
-                    {
-                        truncated_ = bigInteger.toByteArray().length - 8;
-                        outOfBounds_ = true; 
-                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                        {                                                                    //@trunc3
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                        }                                                                    //@trunc3
+                    /* For a numeric range, we see to the maximum value and set */
+                    /* outOfBounds_.  OutOfBounds_ is checked later to determine */
+                    /* if an error, warning, or neither should be reported  @R3A*/ 
+                    if(bigInteger.compareTo(LONG_MAX_VALUE) > 0) {
+                      truncated_ = bigInteger.toByteArray().length - 8;
+                      outOfBounds_ = true; 
+                      value_ = Long.MAX_VALUE; 
+                    } else if (bigInteger.compareTo(LONG_MIN_VALUE) < 0) {
+                    
+                      truncated_ = bigInteger.toByteArray().length - 8;
+                      outOfBounds_ = true; 
+                      value_ = Long.MIN_VALUE; 
+                    } else { 
+                       value_ = bigInteger.longValue();
                     }
-                    value_ = bigInteger.longValue();
                 }
                 catch(NumberFormatException e)
                 {
@@ -122,30 +126,30 @@ extends SQLDataBase
         {
             // Compute truncation by getting the value as a double
             // and comparing it against MAX_VALUE/MIN_VALUE.
+            long   longValue = ((Number)object).longValue();
             double doubleValue = ((Number)object).doubleValue();
 
-            if((doubleValue > Long.MAX_VALUE) || (doubleValue < Long.MIN_VALUE)) // @D9a
-            {
+            if((doubleValue > Long.MAX_VALUE) || 
+                // if long value is negative, but doubleValue is positive
+                // When we have overflowed 
+               ((doubleValue > 0) && (longValue <= 0))) {
+              truncated_ = 1;                                                       // @D9a
+              outOfBounds_ = true;
+              value_ = Long.MAX_VALUE; 
+            } else if ((doubleValue < Long.MIN_VALUE) || 
+                ( (doubleValue < 0) && (longValue >= 0) )) {
                 // Note:  Truncated here is set to 1 byte because the
                 //        value has to be something positive in order
                 //        for the code that checks it to do the right
                 //        thing.
                 truncated_ = 1;                                                       // @D9a
                 outOfBounds_ = true;
-                
-                //@L15 Fixed to be consistent with earlier changes
-                // NOTE: The getMethods do not used this code because
-                // the RSGet and CSGet methods call testDataTruncation
-                // which will throw the error 
-                if(vrm_ >= JDUtilities.vrm610)                                       //@
-                {                                                                    //@
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@
-                }                                                                    //@
+                value_ = Long.MIN_VALUE; 
 
-
-            }
-
+            } else { 
+              
             value_ = ((Number)object).longValue();
+            }
 
             // @D9d
             // Compute truncation. @Wz put the following three lines back in

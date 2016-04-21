@@ -76,7 +76,7 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
-
+        double doubleValue = 0; 
         if(object instanceof String)
         {
             if (settings_.getDecimalSeparator().equals(",")){
@@ -84,11 +84,7 @@ extends SQLDataBase
             }
             try
             {
-                value_ = Float.valueOf((String) object).floatValue();
-                // @E2d int objectLength = ((String) object).length();
-                // @E2d int valueLength = Float.toString(value_).length();
-                // @E2d if(valueLength < objectLength)
-                // @E2d     truncated_ = objectLength - valueLength;
+                doubleValue = Double.valueOf((String) object).doubleValue(); 
             }
             catch(NumberFormatException e)
             {
@@ -118,30 +114,28 @@ extends SQLDataBase
         //        truncated_ = objectLength - valueLength;
         //}
 
-        else if(object instanceof Number)
-        {
+        else if(object instanceof Number)   {
             // Set the value to the right type.
-            value_ = ((Number) object).floatValue();  // @D9c
+            doubleValue = ((Number) object).doubleValue();  // @D9c
 
-            // Get the whole number portion of that value.
-            //long value = (long) value_;               // @D9c //@bigdectrunc change to follow native driver
+        }  else if(object instanceof Boolean) { 
+            doubleValue = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
 
-            // Get the original value as a long.  This is the
-            // largest precision we can test for for a truncation.
-            //long truncTest = ((Number) object).longValue();  // @D9c //@bigdectrunc  
-
-            // If they are not equal, then we truncated significant
-            // data from the original value the user wanted us to insert.
-            //if(truncTest != value)     // @D9c //@bigdectrunc 
-                //truncated_ = 1;  //@bigdectrunc 
+        } else { 
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
+        
+        if (doubleValue > Float.MAX_VALUE) {
+          truncated_ = 1; outOfBounds_ = true; 
+          value_ = Float.MAX_VALUE; 
+        } else if (doubleValue < (- Float.MAX_VALUE)) { 
+          truncated_ = 1; outOfBounds_ = true; 
+          value_ = - Float.MAX_VALUE; 
+          
+        } else { 
+           value_ = (float) doubleValue;
         }
 
-
-        else if(object instanceof Boolean)
-            value_ = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
-
-        else
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
     }
 
     //---------------------------------------------------------//

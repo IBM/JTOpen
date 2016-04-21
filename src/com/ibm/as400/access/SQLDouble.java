@@ -87,6 +87,20 @@ extends  SQLDataBase
                 }
 
                 value_ = Double.valueOf((String) object).doubleValue();
+                if (value_ == Double.POSITIVE_INFINITY) {
+                  // Check to see if overflow
+                  if (!((String)object).toLowerCase().trim().equals("infinity")) {
+                     truncated_ = 1; outOfBounds_ = true; 
+                     value_ = Double.MAX_VALUE; 
+                  }
+                } else if (value_ == Double.NEGATIVE_INFINITY) {
+                  // Check to see if underflow
+                  if (((String)object).toLowerCase().trim().indexOf("infinity")< 0) {
+                    truncated_ = 1; outOfBounds_ = true; 
+                    value_ = -Double.MAX_VALUE; 
+                 }
+                }
+                
                 // You can't test for data truncation of a number by testing
                 // the lengths of two string versions of it.
                 // Example string that should work but will fail:
@@ -113,9 +127,14 @@ extends  SQLDataBase
 
         else if(object instanceof Number)
         {
-            // Set the value to the right type.
-            //@bigdectrunc change to follow native driver
-            value_ = ((Number) object).doubleValue();   
+          value_ = ((Number) object).doubleValue();
+          if (value_ == Double.POSITIVE_INFINITY) {
+               truncated_ = 1; outOfBounds_ = true; 
+               value_ = Double.MAX_VALUE; 
+          } else if (value_ == Double.NEGATIVE_INFINITY) {
+              truncated_ = 1; outOfBounds_ = true; 
+              value_ = - Double.MAX_VALUE; 
+          }          
         }
 
         else if(object instanceof Boolean)

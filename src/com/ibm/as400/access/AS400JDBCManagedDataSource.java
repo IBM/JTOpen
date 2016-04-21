@@ -664,6 +664,21 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getInt(JDProperties.BLOCK_SIZE);
   }
 
+  /**
+   * Returns the behavior to use when character truncation occurs
+   * 
+   * @return behaviorString
+   * <p>Value values are: 
+   * <ul>
+   * <li> default
+   * <li> warning
+   * <li> none
+   * </ul>
+   */
+  public String getCharacterTruncation() {
+    return properties_.getString(JDProperties.CHARACTER_TRUNCATION);
+  }
+
   //@cc1
   /**
    * This method returns the concurrent access resolution setting.
@@ -1158,6 +1173,23 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getString(JDProperties.NAMING);
   }
 
+  
+  /**
+   * Returns the behavior to use when an numeric range error occurs
+   * 
+   * @return behaviorString
+   * <p>Value values are: 
+   * <ul>
+   * <li> default
+   * <li> warning
+   * <li> none
+   * </ul>
+   */
+  public String getNumericRangeError() {
+    return properties_.getString(JDProperties.NUMERIC_RANGE_ERROR);
+  }
+ 
+  
   /**
    Returns the base name of the SQL package.  Note that only the
    first six characters are used to generate the name of the SQL package on the IBM i system.
@@ -2494,6 +2526,36 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     
   }
+  
+  /**
+  * Sets the character truncation property, which indicates how
+  * the driver should handle character truncation errors. 
+  * @param setting The character truncation behavior.
+  * <p>Valid values are:
+  * <ul>
+  *   <li>"default" ()
+  *   <li>"warning" ()
+  *   <li>"none" ()
+  * </ul>
+  * The default value is "default".
+  **/
+  public void setCharacterTruncation(String setting)   {
+      String property = "characterTruncation";
+
+      String oldSetting = getCharacterTruncation(); 
+      String newSetting = setting;
+
+      validateProperty(property, newSetting, JDProperties.CHARACTER_TRUNCATION);
+
+      properties_.setString(JDProperties.CHARACTER_TRUNCATION, newSetting);
+
+
+      if (JDTrace.isTraceOn())
+          JDTrace.logInformation (this, property + ": " + setting);
+  }
+
+
+  
   
   //@cc1
   /**
@@ -4225,6 +4287,33 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   {
     sockProps_.setKeepAlive(keepAlive);
     logProperty("keepAlive", String.valueOf(keepAlive)); //@jvm13 Boolean.toString(keepAlive));
+  }
+
+  /**
+  * Sets the numeric range error property, which indicates how
+  * the driver should handle numberic range errors. 
+  * @param parseOption The numeric range error behavior.
+  * <p>Valid values are:
+  * <ul>
+  *   <li>"default" ()
+  *   <li>"warning" ()
+  *   <li>"none" ()
+  * </ul>
+  * The default value is "character".
+  **/
+  public void setNumericRangeError(String setting)   {
+      String property = "translateHex";
+
+      String oldSetting = getNumericRangeError();
+      String newSetting = setting;
+
+      validateProperty(property, newSetting, JDProperties.NUMERIC_RANGE_ERROR);
+
+      properties_.setString(JDProperties.NUMERIC_RANGE_ERROR, newSetting);
+
+
+      if (JDTrace.isTraceOn())
+          JDTrace.logInformation (this, property + ": " + setting);
   }
 
   /**

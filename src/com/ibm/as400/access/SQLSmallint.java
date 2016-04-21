@@ -125,12 +125,13 @@ extends SQLDataBase
                 // @P1d long longValue = (long) Double.parseDouble((String) object); 
                 int  intValue = (int) Integer.parseInt((String) object);                 // @P1a
 
-                if(( intValue > Short.MAX_VALUE ) || ( intValue < Short.MIN_VALUE ))
-                {
-                    truncated_ = 6;  outOfBounds_ = true;
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
+                if (intValue > Short.MAX_VALUE) {
+                  truncated_ = 6;  outOfBounds_ = true; value_ = Short.MAX_VALUE; 
+                } else if (intValue < Short.MIN_VALUE) {
+                  truncated_ = 6;  outOfBounds_ = true; value_ = Short.MIN_VALUE; 
+                } else { 
+                  value_ = (short) intValue;                                                // @D9c
                 }
-                value_ = (short) intValue;                                                // @D9c
             }
             catch(NumberFormatException e)
             {
@@ -146,14 +147,13 @@ extends SQLDataBase
                     // @P1a
                     double doubleValue = Double.valueOf((String) object).doubleValue();  // @P1a
                     // @P1a
-                    if(( doubleValue > Short.MAX_VALUE ) || ( doubleValue < Short.MIN_VALUE )) // @P1a
-                    {
-                        // @P1a
-                        truncated_ = 6; outOfBounds_ = true;                                     // @P1a
-                        
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                    }                                                                      // @P1a
-                    value_ = (short) doubleValue;                                          // @P1a  
+                    if( doubleValue > Short.MAX_VALUE ) {
+                    truncated_ = 6;  outOfBounds_ = true; value_ = Short.MAX_VALUE; 
+                    } else if  ( doubleValue < Short.MIN_VALUE ) {
+                      truncated_ = 6;  outOfBounds_ = true; value_ = Short.MIN_VALUE; 
+                    } else {                                                                      // @P1a
+                      value_ = (short) doubleValue;                                          // @P1a  
+                    }
                 }                                                                         // @P1a
                 catch(NumberFormatException e)                                           // @P1a
                 {
@@ -172,8 +172,7 @@ extends SQLDataBase
             // whole number portion of the value is too large/small
             // for the column.
             long longValue = ((Number) object).longValue();                        // @D9c
-            if(( longValue > Short.MAX_VALUE ) || ( longValue < Short.MIN_VALUE )) // @D9a
-            {
+            if( longValue > Short.MAX_VALUE )  {
                 // Note:  Truncated here is set to 6 bytes.  This is based on
                 //        the idea that a long was used and a short was the
                 //        column type.  We could check for different types
@@ -182,13 +181,16 @@ extends SQLDataBase
                 //        in this case anyway (for example, you could have a
                 //        float (4 bytes) that didn't fit into a bigint (8
                 //        bytes) without some data truncation.
-                truncated_ = 6;    outOfBounds_ = true;                              // @D9c
-	            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@L16
-            }
+				truncated_ = 6;  outOfBounds_ = true; value_ = Short.MAX_VALUE;
+				} else if  ( longValue < Short.MIN_VALUE ){
+				truncated_ = 6;  outOfBounds_ = true; value_ = Short.MIN_VALUE; 
+            
+            } else { 
 
 
             // Store the value.
             value_ = (short) longValue;                                             // @D9c
+            }
         }
 
         else if(object instanceof Boolean)

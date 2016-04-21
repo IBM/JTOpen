@@ -949,4 +949,50 @@ class SQLDataFactory
         else
             return value;
     }
+
+    /* Calculate the maximum long value with the specified number of digits */ 
+    public static long getMaximumLong(int digits) {
+      long value = 0; 
+      for (int i = 0; i < digits; i++) { 
+        value = value * 10 + 9; 
+      }
+      return value; 
+    }
+    
+  public static String getMaximumString(boolean positive, int precision,int scale) {
+    StringBuffer sb = new StringBuffer();
+    if (!positive)
+      sb.append("-");
+    int leftDigits = precision - scale;
+    if (leftDigits == 0) {
+      sb.append("0");
+    } else {
+      for (int i = 0; i < leftDigits; i++) {
+        sb.append("9");
+      }
+    }
+    if (scale > 0) {
+      sb.append(".");
+      for (int i = 0; i < scale; i++) {
+        sb.append("9");
+      }
+    }
+    return sb.toString();
+  }
+    
+    public static BigDecimal getMaximumBigDecimal(int precision, int scale) {
+      /* The largest long containing 9s in all digits has 18 digits */ 
+      if (precision <= 18) {  
+          return BigDecimal.valueOf(getMaximumLong(precision), scale);
+      } else {
+          return new BigDecimal(getMaximumString(true, precision,scale)); 
+      }
+    }
+    public static BigDecimal getMinimumBigDecimal(int precision, int scale) {
+      if (precision <= 18) {  
+        return BigDecimal.valueOf(-getMaximumLong(precision), scale);
+      } else { 
+        return new BigDecimal(getMaximumString(false, precision,scale)); 
+      }
+    }
 }

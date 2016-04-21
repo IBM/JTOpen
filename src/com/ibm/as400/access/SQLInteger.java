@@ -122,20 +122,22 @@ extends SQLDataBase
 
             try
             {
-                //  long longValue = (long) Double.parseDouble((String) object); 
+              
+                // Note:  Exception no longer thrown here, but when truncation
+                // check occurs.
                 long longValue = (long) Long.parseLong((String) object);             
 
-                if(( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))
-                {
-                    truncated_ = 4;                                                           // @D9c
-                    outOfBounds_=true;
-                    //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                    if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                    {                                                                    //@trunc3
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                    }                                                                    //@trunc3
+                if( longValue > Integer.MAX_VALUE )  {
+                  truncated_ = 4;                                                           // @D9c
+                  outOfBounds_=true;
+                  value_ = Integer.MAX_VALUE; 
+                } else if ( longValue < Integer.MIN_VALUE ) { 
+                  truncated_ = 4;                                                           // @D9c
+                  outOfBounds_=true;
+                  value_ = Integer.MIN_VALUE; 
+                } else {
+                   value_ = (int) longValue;
                 }
-                value_ = (int) longValue;
             }
             catch(NumberFormatException e)
             {
@@ -151,22 +153,21 @@ extends SQLDataBase
                     // a
                     double doubleValue = Double.valueOf((String) object).doubleValue();  // a
                                                                                            // a
-                    if(( doubleValue > Integer.MAX_VALUE ) || ( doubleValue < Integer.MIN_VALUE )) // a
-                    {
-                        // a
-                        truncated_ = 4;                                                    // a
-                        outOfBounds_=true;
-                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
-                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
-                        {                                                                    //@trunc3
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
-                        }                                                                    //@trunc3
-                    }                                                                      // a
-                    value_ = (int) doubleValue;                                          // a  
+                    if( doubleValue > Integer.MAX_VALUE )  {
+                      truncated_ = 4;         
+                      outOfBounds_=true;
+                      value_ = Integer.MAX_VALUE; 
+                    } else if ( doubleValue < Integer.MIN_VALUE ) { 
+                    truncated_ = 4;    
+                    outOfBounds_=true;
+                    value_ = Integer.MIN_VALUE; 
+                    } else { 
+                    value_ = (int) doubleValue;                                          // a
+                    }
                 }                                                                         // a
                 catch(NumberFormatException e)                                           // a
                 {
-                    // a
+                    
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);            // a
                 }                                                                         // a
             }                                                                            // a
@@ -181,30 +182,21 @@ extends SQLDataBase
             // whole number portion of the value is too large/small
             // for the column.
             long longValue = ((Number) object).longValue();                              // @D9c
-            if(( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))   // @D9c
-            {
-                // Note:  Truncated here is set to 4 bytes.  This is based on
-                //        the idea that a long was used and an int was the
-                //        column type.  We could check for different types
-                //        and provide a more accurate number, but I don't
-                //        really know that this field is of any use to people
-                //        in this case anyway (for example, you could have a
-                //        float (4 bytes) that didn't fit into a bigint (8
-                //        bytes) without some data truncation.
-                truncated_ = 4;                                                           // @D9c
-                outOfBounds_=true;
-                //@L13 Fixed to be consistent with earlier changes 
-                if(vrm_ >= JDUtilities.vrm610)                                       //@L13
-                {                                                                    //@L13
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@L13
-                }                                                                    //@L13
-
-            }
-
+            if( longValue > Integer.MAX_VALUE ) {
+              truncated_ = 4;         
+              outOfBounds_=true;
+              value_ = Integer.MAX_VALUE; 
+            } else if ( longValue < Integer.MIN_VALUE ) { 
+              truncated_ = 4;         
+              outOfBounds_=true;
+              value_ = Integer.MIN_VALUE; 
+            } else { 
+       
             // Store the value.
             value_ = (int) longValue;                                                     // @D9c
+       
+            }
         }
-
         else if(object instanceof Boolean)
             value_ = (((Boolean) object).booleanValue() == true) ? 1 : 0;
 
