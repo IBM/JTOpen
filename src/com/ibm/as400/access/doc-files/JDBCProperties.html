@@ -660,6 +660,20 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
     <TD HEADERS="cat4t4">&quot;1&quot; - max size</TD>
     <TD HEADERS="cat4t5">(platform dependent)</TD>
   </TR>
+  
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;use block update&quot;</TD>
+    <TD HEADERS="cat4t2">This property allows the toolbox JDBC driver to use a block 
+    update mode when inserting or updating blocks of data into the database.   
+    This is an optimized version of the batch insert or batch update.   </TD>
+    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat4t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="cat4t5">&quot;false&quot;</TD>
+  </TR>
+
+
+  
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;variable field compression&quot;</TD>
     <TD HEADERS="cat4t2">Specifies whether variable-length fields should be compressed.</TD>
@@ -822,6 +836,29 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
     <TD HEADERS="cat6t5">"true"</TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6"><a name="charactertruncation">&quot;character truncation&quot;</a></TD>
+    <TD HEADERS="cat6t2"> 
+      <p>Specifies 
+        whether truncation of <strong>character data</strong> generates warnings 
+        and exceptions. When this property is &quot;default&quot;, then the behavior
+        specified by the "data truncation" property is used.</p>
+      <p>When this property is "warning", writing truncated data to the database 
+        or using such data in a query always generates a warning.</p>
+      <p>When this property is "none", writing truncated data to the database 
+        or using such data in a query generates no exception or warning.</p>
+      <p> The default value is &quot;default&quot;.</p>
+      <p>This property does not affect <strong>numeric data</strong>. Writing 
+        truncated numeric data to the database always throws an error and using 
+        truncated numeric data in a query always posts a warning, unless specified 
+        otherwise by the use of the "numeric range error" property.  
+      </p>
+    </TD>
+    <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat6t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="cat6t5">"true"</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat6"><A NAME="driver">&quot;driver&quot;</A></TD>
     <TD HEADERS="cat6t2">Specifies the JDBC driver implementation. The IBM Toolbox 
       for Java JDBC driver can use different JDBC driver implementations based 
@@ -951,6 +988,31 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
       &quot;1&quot; (SQL stored procedures)</TD>
     <TD HEADERS="cat6t5">&quot;0&quot; (V6R1 and earlier) &quot;1&quot; (post V6R1)</TD>
   </TR>
+  
+ :   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6"><a name="numericrangeerror">&quot;numeric range error&quot;</a></TD>
+    <TD HEADERS="cat6t2"> 
+      <p>Specifies how numeric range errors are handled.   Possible values are the following.  
+      <ul>
+      	<li>default  -- A numeric range error that occurs when writing to the database 
+      	always throws an error.  A numeric range error that occurs when processing a 
+      	query  always posts a warning.  When a warning occurs, the maximum possible 
+      	numeric value is sent for overflow and the minimum possible numeric value 
+      	is sent for underflow.  
+      	<li>warning -- A numeric range error always posts a warning.   
+      	When a warning occurs, the maximum possible numeric value is sent for 
+      	overflow and the minimum possible numeric value is sent for underflow.    
+      	<li> none -- No warnings or errors are reported for numeric range error. 
+      	The maximum possible numeric value is sent for overflow and the 
+      	minimum possible numeric value is sent for underflow.    
+      </p>
+    </TD>
+    <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat6t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="cat6t5">"true"</TD>
+  </TR>
+
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;proxy server&quot;</TD>
     <TD HEADERS="cat6t2">Specifies the host name and port of the middle-tier machine 

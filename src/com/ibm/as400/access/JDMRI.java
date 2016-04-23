@@ -134,8 +134,13 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_QUERY_TIMEOUT_MECHANISM", "queryTimeoutMechanism" },                // @M0A
       { "PROP_NAME_QUERY_REPLACE_TRUNCATED_PARAMETER", "queryReplaceTruncatedParameter" },                // @M0A
       { "PROP_NAME_NUMERIC_RANGE_ERROR", "numericRangeError"}, 
-      { "PROP_CHARACTER_TRUNCATION", "characterTruncation"},
-      
+      { "PROP_NAME_CHARACTER_TRUNCATION", "characterTruncation"},
+      { "PROP_NAME_USE_BLOCK_UPDATE","useBlockUpdate"}, 
+      { "PROP_NAME_DESCRIBE_OPTION","describeOption"},
+      { "PROP_NAME_DECIMAL_DATA_ERRORS","decimalDataErrors"},
+      { "PROP_NAME_TIMESTAMP_FORMAT","timestampFormat"},
+      { "PROP_NAME_USE_DRDA_METADATA_VERSION","userDrdaMetadataVersion"},
+
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
       { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
@@ -227,11 +232,21 @@ public class JDMRI extends ListResourceBundle
       { "CONCURRENT_ACCESS_RESOLUTION_DESC", "Specifies whether \"currently committed\" access is used on the connection."}, //@cc1
       { "JVM16_SYNCHRONIZE_DESC", "Specifies whether to enable temporary workaround fix for JVM 1.6."}, //@dmy
       { "SOCKET_TIMEOUT_DESC", "Specifies the socket timeout value in milliseconds."}, //@STIMEOUT
+      { "USE_BLOCK_UPDATE_DESC", "Specifies the use of a block update mode when inserting or updating blocks of data into the database."},
       { "MAXIMUM_BLOCKED_INPUT_ROWS_DESC", "Specifies the maximum number of rows to be sent to the database engine when using a blocked insert or update operation." },
       { "QUERY_TIMEOUT_MECHANISM_DESC", "Specifies the method used to implement the query timeout."},
+      { "TIMESTAMP_FORMAT_DESC", "Specifies the formatting of timestamps returned by getString methods.", ""},
+      { "USE_DRDA_METADATA_VERSION_DESC", "Specifies that the DatabaseMetaData.getDatabaseProductVersion return the DRDA information about the database."},
       { "QUERY_REPLACE_TRUNCATED_PARAMETER_DESC", "Specifies the string value to be used when a query parameter is truncated."},
-      { "NUMERIC_RANGE_ERROR_PARAMETER_DESC", "Specifies the behavior when a numeric range error occurs."},
-      { "CHARACTER_TRUNCATION_PARAMETER_DESC", "Specifies the behavior when character truncation occurs."},
+      { "NUMERIC_RANGE_ERROR_DESC", "Specifies the behavior when a numeric range error occurs."},
+      { "CHARACTER_TRUNCATION_DESC", "Specifies the behavior when character truncation occurs."},
+      { "SECONDARY_URL_DESC", "Specifies the secondary URL to be used for a connection on the middle-tier's DriverManager in a multiple tier environment."},
+      {"DESCRIBE_OPTION_DESC","Specifies the type of describe information returned from ther server."},
+      {"DECIMAL_DATA_ERRORS_DESC","Specifies how decimal data errors are handled."},
+      {"TIMESTAMP_FORMAT_DESC","Specifies the format for timestamps retrieved via getString."},
+      {"USE_DRDA_METADATA_VERSION_DESC","Specifies if the DRDA metadata version information should be returned."},
+
+        
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

@@ -1008,6 +1008,17 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    {
        return properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);
    }
+ 
+   /**
+   Returns the decimal data errors setting. 
+   @return The decimal data errors setting.
+   **/
+  public String getDecimalDataErrors()
+  {
+    return properties_.getString(JDProperties.DECIMAL_DATA_ERRORS);
+  }
+
+   
    
   /**
    Returns the decimal separator used in numeric literals within SQL statements.
@@ -1045,6 +1056,16 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return (description_ == null ? "" : description_);
   }
 
+  /**
+  Returns the describe option setting.
+  @return The describe option setting. 
+  **/
+ public String getDescribeOption()
+ {
+   return properties_.getString(JDProperties.DESCRIBE_OPTION);
+ }
+
+  
   /**
    Returns the JDBC driver implementation.
    This property has no
@@ -2807,6 +2828,23 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
       properties_.setString(JDProperties.DECFLOAT_ROUNDING_MODE, decfloatRoundingMode);
   }
+
+  /**
+  Sets the decimal data errors setting 
+  @param setting  The errors setting. 
+  **/
+ public void setDecimalDataErrors(String setting)
+ {
+   final String property = "decimalDataErrors";
+   if (setting == null)
+     throw new NullPointerException(property);
+   validateProperty(property, setting, JDProperties.DECIMAL_DATA_ERRORS);
+
+   properties_.setString(JDProperties.DECIMAL_DATA_ERRORS, setting);
+ }
+
+
+  
   
   /**
    Sets the decimal separator used in numeric literals within SQL
@@ -2830,6 +2868,23 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     properties_.setString(JDProperties.DECIMAL_SEPARATOR, decimalSeparator);
   }
 
+
+  /**
+  Sets the describe option. 
+  @param option  The describe option. 
+  **/
+ public void setDescribeOption(String option)
+ {
+   final String property = "describeOption";
+   if (option == null)
+     throw new NullPointerException(property);
+   validateProperty(property, option, JDProperties.DESCRIBE_OPTION);
+
+   properties_.setString(JDProperties.DESCRIBE_OPTION, option);
+ }
+
+
+  
   //@igwrn
   /**
   *  Sets the ignore warnings property.
@@ -3605,30 +3660,26 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   
   /**
-   * TODO:  
-   * Sets the query timeout mechanism property, which indicates how
-   * the toolbox will enforce the query timeout specified on the statement. 
-   * @param timeoutMechanism The timeout mechanism to use. 
-   * <p>Valid values include:
-   * <ul>
-   *   <li>"qqrytimlmt" (QQRTIMLMT will be used)
-   *   <li>"cancel" (cancel will be used)
-   * </ul>
-   * The default value is "character".
+   *  
+   * Sets the query replace truncated parameter property, which set the value
+   * of an input parameter to a query when the parameter is truncated. 
+   * @param value  The value to use when a parameter is truncated.
+   * 
+   *    
    **/
-   public void setQueryReplaceTruncatedParameterTimeoutMechanism(String timeoutMechanism)
+   public void setQueryReplaceTruncatedParameter(String value)
    {
-       String property = "queryTimeoutMechanism";
+       String property = "queryReplaceTruncatedParameter";
 
-       String newOption = timeoutMechanism;
+       String newOption = value;
 
-       validateProperty(property, newOption, JDProperties.QUERY_TIMEOUT_MECHANISM);
+       validateProperty(property, newOption, JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
 
-       properties_.setString(JDProperties.QUERY_TIMEOUT_MECHANISM, newOption);
+       properties_.setString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER, newOption);
 
 
        if (JDTrace.isTraceOn())
-           JDTrace.logInformation (this, property + ": " + timeoutMechanism);
+           JDTrace.logInformation (this, property + ": " + value);
    }
 
 
@@ -4600,6 +4651,88 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     properties_.setString(JDProperties.TRANSLATE_HEX, parseOption);
   }
 
+  
+  /**
+  Gets the use block update property, which indicates whether blocked update
+  support will be used. 
+  @return The value of the use block update. 
+  **/
+ public boolean isUseBlockUpdate()
+ {
+   return properties_.getBoolean(JDProperties.USE_BLOCK_UPDATE);
+ }
+
+ 
+ /**
+ Gets the use DRDA metadata version property, which indicates if the DatabaseMetadata.getVersion
+ method should return the DRDA metadata. 
+ @return The value of the DRDA metadata version property. 
+ **/
+public boolean isUseDrdaMetadataVersion()
+{
+  return properties_.getBoolean(JDProperties.USE_DRDA_METADATA_VERSION);
+}
+
+
+ 
+ /**
+  Sets the use block update property, which indicates whether
+  blocked update support will be used. 
+  @param option The use block update option.
+  **/
+  public void setUseBlockUpdate(boolean option) {
+
+    if (option)
+      properties_.setString(JDProperties.USE_BLOCK_UPDATE, TRUE_);
+    else
+      properties_.setString(JDProperties.USE_BLOCK_UPDATE, FALSE_);
+
+  }
+
+  /**
+  Sets the use drda metadata version property, which indicates whether
+  the drda metadata version should be returned DatabaseMetadata.getVersion.
+  @param option The use drda metadata version option.
+  **/
+  public void setUseDrdaMetadataVersion(boolean option) {
+
+    if (option)
+      properties_.setString(JDProperties.USE_DRDA_METADATA_VERSION, TRUE_);
+    else
+      properties_.setString(JDProperties.USE_DRDA_METADATA_VERSION, FALSE_);
+
+  }
+
+  
+  
+  
+  
+  
+  /**
+  Gets the variable field compression property, which when variable field compression is used.
+  @return The value of the variable field compression property.
+  **/
+ public String getVariableFieldCompression()
+ {
+   return properties_.getString(JDProperties.VARIABLE_FIELD_COMPRESSION);
+ }
+
+ /**
+  Sets the variable field compression property.
+  @param parseOption The variable field compression setting. 
+  **/
+ public void setVariableFieldCompression(String option)
+ {
+   final String property = "variableFieldCompression";
+
+   validateProperty(property, option, JDProperties.VARIABLE_FIELD_COMPRESSION);
+
+   properties_.setString(JDProperties.VARIABLE_FIELD_COMPRESSION, option);
+ }
+
+
+  
+  
   /**
    Sets the QAQQINI library name.
    @param libraryName The QAQQINI library name.

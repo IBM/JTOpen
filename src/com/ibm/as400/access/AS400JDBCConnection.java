@@ -259,7 +259,7 @@ implements Connection
     
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
 
-	private boolean doUpdateDeleteBlocking_ = false;                                   //@A2A
+	private boolean useBlockUpdate_ = false;                                   //@A2A
 	private int     maximumBlockedInputRows_ = 32000;                                  //@A6A
 
 	protected final static int QUERY_TIMEOUT_QQRYTIMLMT = 0;
@@ -3452,7 +3452,7 @@ void handleAbort() {
 
 
         if (as400_.getVRM() >= JDUtilities.vrm710) {
-        	doUpdateDeleteBlocking_ = properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);  //@A2A
+        	useBlockUpdate_ = properties_.getBoolean(JDProperties.USE_BLOCK_UPDATE);  //@A2A
         }
 
         maximumBlockedInputRows_ = properties_.getInt(JDProperties.MAXIMUM_BLOCKED_INPUT_ROWS);       // @A6A
@@ -5426,7 +5426,7 @@ endif */
 
     //@A2A
 	public boolean doUpdateDeleteBlocking() {
-		return doUpdateDeleteBlocking_;
+		return useBlockUpdate_;
 	}
 
 	// @A6A

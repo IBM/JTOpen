@@ -929,7 +929,29 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.IGNORE_WARNINGS);
     }
+
     
+    /**
+    *  Returns the decimal data errors property.
+    *  @return The decimal data errors setting.
+    **/
+    public String getDecimalDataErrors()
+    {
+        return properties_.getString(JDProperties.DECIMAL_DATA_ERRORS);
+    }
+    
+
+    
+    /**
+    *  Returns the describe options property.
+    *  @return The describe options.
+    **/
+    public String getDescribeOption()
+    {
+        return properties_.getString(JDProperties.DESCRIBE_OPTION);
+    }
+    
+
     
     /**
     *  Returns the description of the data source.
@@ -2079,8 +2101,18 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      **/
      public boolean isUseBlockUpdate()
      {
-         return properties_.getBoolean(JDProperties.DO_UPDATE_DELETE_BLOCKING);
+         return properties_.getBoolean(JDProperties.USE_BLOCK_UPDATE);
      }
+
+     /**
+      *  Indicates whether DRDA metadata should be returned.
+      *  @return true if enabled; false otherwise.
+      *  The default value is false.
+      **/
+      public boolean isUseDrdaMetadataVersion()
+      {
+          return properties_.getBoolean(JDProperties.USE_DRDA_METADATA_VERSION);
+      }
 
 
     /**
@@ -2780,7 +2812,28 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + decfloatRoundingMode);
     }
-     
+
+    /**
+    *  Sets the decimal data errors property. 
+    **/
+    public void setDecimalDataErrors(String decimalDataErrors)
+    {
+        String property = "decimalDataErrors";
+        if (decimalDataErrors == null)
+            throw new NullPointerException(property);
+        validateProperty(property, decimalDataErrors, JDProperties.DECIMAL_DATA_ERRORS);
+
+        String old = getDecimalDataErrors();
+
+        properties_.setString(JDProperties.DECIMAL_SEPARATOR, decimalDataErrors);
+
+        changes_.firePropertyChange(property, old, decimalDataErrors);
+
+        if (JDTrace.isTraceOn()) //@A8C
+            JDTrace.logInformation (this, property + ": " + decimalDataErrors);    //@A8C
+    }
+
+    
     /**
     *  Sets the decimal separator used in numeric literals within SQL 
     *  statements.
@@ -4110,6 +4163,25 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
          setServerTraceCategories(traceCategories);
      }
 
+   
+     /**
+     * Sets the describe option property.
+     **/
+     public void setDescribeOption(String option)
+     {
+         String property = "describeOption";
+
+         validateProperty(property, option, JDProperties.DESCRIBE_OPTION);
+         String old = getDescribeOption(); 
+         
+         properties_.setString(JDProperties.DESCRIBE_OPTION, option);
+
+         changes_.firePropertyChange(property, old, option);
+
+         if (JDTrace.isTraceOn()) 
+             JDTrace.logInformation (this, property + ": " + option);  
+     }
+
 
     // @A2A
     /**
@@ -4486,20 +4558,43 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      **/
      public void setUseBlockUpdate(boolean value)
      {
-         String property = JDProperties.DO_UPDATE_DELETE_BLOCKING_  ;
+         String property = JDProperties.USE_BLOCK_UPDATE_  ;
          Boolean oldValue = new Boolean(isUseBlockUpdate());
          Boolean newValue = new Boolean(value);
 
          if (value)
-             properties_.setString(JDProperties.DO_UPDATE_DELETE_BLOCKING, TRUE_);
+             properties_.setString(JDProperties.USE_BLOCK_UPDATE, TRUE_);
          else
-             properties_.setString(JDProperties.DO_UPDATE_DELETE_BLOCKING, FALSE_);
+             properties_.setString(JDProperties.USE_BLOCK_UPDATE, FALSE_);
 
          changes_.firePropertyChange(property, oldValue, newValue);
 
          if (JDTrace.isTraceOn()) 
              JDTrace.logInformation (this, property + ": " + value);      
      }
+
+     
+     /**
+      *  Indicates whether DRDA metadata should be returned. 
+      *  @param value true if DRDA metadata is returned.
+      *  The default value is false.
+      **/
+      public void setUseDrdaMetadataVersion(boolean value)
+      {
+          String property = JDProperties.USE_DRDA_METADATA_VERSION_  ;
+          Boolean oldValue = new Boolean(isUseDrdaMetadataVersion());
+          Boolean newValue = new Boolean(value);
+
+          if (value)
+              properties_.setString(JDProperties.USE_DRDA_METADATA_VERSION, TRUE_);
+          else
+              properties_.setString(JDProperties.USE_DRDA_METADATA_VERSION, FALSE_);
+
+          changes_.firePropertyChange(property, oldValue, newValue);
+
+          if (JDTrace.isTraceOn()) 
+              JDTrace.logInformation (this, property + ": " + value);      
+      }
 
     
     /**
@@ -4593,6 +4688,15 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     * @return The value of the socket keepalive option.
     **/
     public boolean getKeepAlive()
+    {
+        return sockProps_.isKeepAlive();
+    }
+    
+    /**
+    * Gets the socket keepalive option. -- returns result as boolean
+    * @return The value of the socket keepalive option.
+    **/
+    public boolean isKeepAlive()
     {
         return sockProps_.isKeepAlive();
     }

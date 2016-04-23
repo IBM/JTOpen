@@ -157,7 +157,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              CONCURRENT_ACCESS_RESOLUTION  = 79; //@cc1
     static final int              JVM16_SYNCHRONIZE          = 80; //@dmy
     static final int              SOCKET_TIMEOUT              = 81; //@STIMEOUT
-    static final int              DO_UPDATE_DELETE_BLOCKING  = 82;  //@A2A
+    static final int              USE_BLOCK_UPDATE            = 82;  //@A2A
     static final int              MAXIMUM_BLOCKED_INPUT_ROWS = 83;  //@A6A
     static final int              QUERY_TIMEOUT_MECHANISM    = 84;
     static final int              DESCRIBE_OPTION            = 85;  //@F6A
@@ -243,7 +243,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String TRANSLATE_BINARY_       = "translate binary";
     private static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
     static final String USER_                           = "user";                  //@native
-    private static final String USE_DRDA_METADATA_VERSION_ = "use drda metadata version"; 
+    static final String USE_DRDA_METADATA_VERSION_ = "use drda metadata version"; 
     private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
     private static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
     private static final String TRUE_AUTO_COMMIT_            = "true autocommit";            //@KBA //@true
@@ -268,7 +268,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String CONCURRENT_ACCESS_RESOLUTION_ = "concurrent access resolution"; //@cc1
     private static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy
     private static final String SOCKET_TIMEOUT_ = "socket timeout"; //@STIMEOUT
-    static final String DO_UPDATE_DELETE_BLOCKING_ = "use block update"; // @A2 Property must be visible in package
+    static final String USE_BLOCK_UPDATE_ = "use block update"; // @A2 Property must be visible in package
     static final String MAXIMUM_BLOCKED_INPUT_ROWS_ = "maximum blocked input rows";  // @A6A
     static final String DESCRIBE_OPTION_ = "describe option";   //@F6A
     static final String DECIMAL_DATA_ERRORS_ = "decimal data errors";
@@ -1176,7 +1176,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = TRUE_;
-        dpi_[i].choices[1]  = TRUE_;
+        dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
         
 
@@ -1477,9 +1477,9 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
 
         // Socket timeout  //@STIMEOUT
-        i = DO_UPDATE_DELETE_BLOCKING;
-        dpi_[i] = new DriverPropertyInfo (DO_UPDATE_DELETE_BLOCKING_, "");
-        dpi_[i].description = "DO_UPDATE_DELETE_BLOCKING_DESC";
+        i = USE_BLOCK_UPDATE;
+        dpi_[i] = new DriverPropertyInfo (USE_BLOCK_UPDATE_, "");
+        dpi_[i].description = "USE_BLOCK_UPDATE_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = TRUE_;
@@ -1514,7 +1514,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
        //@F6A - Added RPB describe option for column names
        i = DESCRIBE_OPTION;
        dpi_[i] = new DriverPropertyInfo(DESCRIBE_OPTION_, "");
-       dpi_[i].description = "DESCRIBE_OPTION";
+       dpi_[i].description = "DESCRIBE_OPTION_DESC";
        dpi_[i].required    = false;
        dpi_[i].choices     = new String[3];
        dpi_[i].choices[0]  = DESCRIBE_OPTION_SYSTEM_NAMES;
@@ -1525,7 +1525,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
        //@F6A - Added decimal data errors
        i = DECIMAL_DATA_ERRORS;
        dpi_[i] = new DriverPropertyInfo(DECIMAL_DATA_ERRORS_, "");
-       dpi_[i].description = "DECIMAL_DATA_ERRORS";
+       dpi_[i].description = "DECIMAL_DATA_ERRORS_DESC";
        dpi_[i].required    = false;
        dpi_[i].choices     = new String[4];
        dpi_[i].choices[0]  = DECIMAL_DATA_ERRORS_IGNORE;

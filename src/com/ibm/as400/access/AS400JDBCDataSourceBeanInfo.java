@@ -186,6 +186,13 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             extendedMetaData.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_EXTENDED_METADATA"));                         // @J2A
             extendedMetaData.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_METADATA_DESC"));                         // @J2A
 
+            PropertyDescriptor extendedMetadata = new PropertyDescriptor("extendedMetadata", beanClass, "isExtendedMetadata", "setExtendedMetadata"); // @J2A
+            extendedMetaData.setBound(true);                                                                                     // @J2A
+            extendedMetaData.setConstrained(false);                                                                              // @J2A
+            extendedMetaData.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_EXTENDED_METADATA"));                         // @J2A
+            extendedMetaData.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_METADATA_DESC"));                         // @J2A
+
+
             PropertyDescriptor fullOpen = new PropertyDescriptor("fullOpen", beanClass, "isFullOpen", "setFullOpen");    // @W1A
             fullOpen.setBound(true);                                                                                     // @W1A
             fullOpen.setConstrained(false);                                                                              // @W1A
@@ -417,7 +424,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             user.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USER"));
             user.setShortDescription(AS400JDBCDriver.getResource("USER_DESC"));
 
-            PropertyDescriptor keepAlive = new PropertyDescriptor("keepAlive", beanClass, "getKeepAlive", "setKeepAlive");
+            PropertyDescriptor keepAlive = new PropertyDescriptor("keepAlive", beanClass, "isKeepAlive", "setKeepAlive");
             keepAlive.setBound(true);
             keepAlive.setConstrained(false);
             keepAlive.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_KEEP_ALIVE"));
@@ -633,30 +640,113 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
 
 
             // @D4A - added support for query replace truncated parameter
-            PropertyDescriptor numericRangeErrorParameter = 
-                new PropertyDescriptor("numericRangeErrorParameter", 
-                    beanClass, 
-                    "getNumericRangeErrorParameter", 
-                    "setNumericRangeErrorParameter");
-            numericRangeErrorParameter.setBound(true);                                                                        
-            numericRangeErrorParameter.setConstrained(false);                                                                 
-            numericRangeErrorParameter.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_NUMERIC_RANGE_ERROR_PARAMETER"));                
-            numericRangeErrorParameter.setShortDescription(AS400JDBCDriver.getResource("NUMERIC_RANGE_ERROR_PARAMETER_DESC"));                
+            PropertyDescriptor numericRangeError = 
+                new PropertyDescriptor("numericRangeError", beanClass, "getNumericRangeError", "setNumericRangeError");
+            numericRangeError.setBound(true);                                                                        
+            numericRangeError.setConstrained(false);                                                                 
+            numericRangeError.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_NUMERIC_RANGE_ERROR"));                
+            numericRangeError.setShortDescription(AS400JDBCDriver.getResource("NUMERIC_RANGE_ERROR_DESC"));                
 
             // @D4A - added support for query replace truncated parameter
-            PropertyDescriptor characterTruncationParameter = 
-                new PropertyDescriptor("characterTruncationParameter", 
-                    beanClass, 
-                    "getCharacterTruncationParameter", 
-                    "setCharacterTruncationParameter");
-            characterTruncationParameter.setBound(true);                                                                        
-            characterTruncationParameter.setConstrained(false);                                                                 
-            characterTruncationParameter.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CHARACTER_TRUNCATION_PARAMETER"));                
-            characterTruncationParameter.setShortDescription(AS400JDBCDriver.getResource("CHARACTER_TRUNCATION_PARAMETER_DESC"));                
+            PropertyDescriptor characterTruncation = 
+                new PropertyDescriptor("characterTruncation", beanClass, "getCharacterTruncation", "setCharacterTruncation");
+            characterTruncation.setBound(true);                                                                        
+            characterTruncation.setConstrained(false);                                                                 
+            characterTruncation.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CHARACTER_TRUNCATION"));                
+            characterTruncation.setShortDescription(AS400JDBCDriver.getResource("CHARACTER_TRUNCATION_DESC"));                
 
+            // Added missing properties.
+            PropertyDescriptor secondaryURL = 
+                new PropertyDescriptor("secondaryURL", beanClass, "getSecondaryURL","setSecondaryURL"); 
+            secondaryURL.setBound(true);                                                                        
+            secondaryURL.setConstrained(false);                                                                 
+            secondaryURL.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SECONDARY_URL"));                
+            secondaryURL.setShortDescription(AS400JDBCDriver.getResource("SECONDARY_URL_DESC"));                
 
+            // Todo:  set properties in MRI FILE
+            PropertyDescriptor serverTrace = 
+                new PropertyDescriptor("serverTrace", beanClass, "getServerTrace","setServerTrace"); 
+            serverTrace.setBound(true);                                                                        
+            serverTrace.setConstrained(false);                                                                 
+            serverTrace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                
+            serverTrace.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                
+
+ 
+
+            PropertyDescriptor packageCcsid = 
+            new PropertyDescriptor("packageCcsid", beanClass, "getPackageCcsid","setPackageCcsid"); 
+        packageCcsid.setBound(true);                                                                        
+        packageCcsid.setConstrained(false);                                                                 
+        packageCcsid.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PACKAGE_CCSID"));                
+        packageCcsid.setShortDescription(AS400JDBCDriver.getResource("PACKAGE_CCSID_DESC"));                
+
+            PropertyDescriptor toolboxTrace = 
+            new PropertyDescriptor("toolboxTrace", beanClass, "getToolboxTrace","setToolboxTrace"); 
+        toolboxTrace.setBound(true);                                                                        
+        toolboxTrace.setConstrained(false);                                                                 
+        toolboxTrace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_TOOLBOX"));                
+        toolboxTrace.setShortDescription(AS400JDBCDriver.getResource("TRACE_TOOLBOX_DESC"));                
+            
+ 
+            PropertyDescriptor qaqqinilib = 
+            new PropertyDescriptor("qaqqinilib", beanClass, "getQaqqinilib","setQaqqinilib"); 
+        qaqqinilib.setBound(true);                                                                        
+        qaqqinilib.setConstrained(false);                                                                 
+        qaqqinilib.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QAQQINILIB"));                
+        qaqqinilib.setShortDescription(AS400JDBCDriver.getResource("QAQQINILIB_DESC"));                
+        
+            PropertyDescriptor trueAutocommit = 
+            new PropertyDescriptor("trueAutocommit", beanClass, "isTrueAutocommit","setTrueAutocommit"); 
+        trueAutocommit.setBound(true);                                                                        
+        trueAutocommit.setConstrained(false);                                                                 
+        trueAutocommit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRUE_AUTO_COMMIT"));                
+        trueAutocommit.setShortDescription(AS400JDBCDriver.getResource("TRUE_AUTO_COMMIT_DESC"));                
+        
+            PropertyDescriptor metadataSource = 
+            new PropertyDescriptor("metadataSource", beanClass, "getMetadataSource","setMetadataSource"); 
+        metadataSource.setBound(true);                                                                        
+        metadataSource.setConstrained(false);                                                                 
+        metadataSource.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_METADATA_SOURCE"));                
+        metadataSource.setShortDescription(AS400JDBCDriver.getResource("METADATA_SOURCE_DESC"));                
+
+            PropertyDescriptor useBlockUpdate  = 
+            new PropertyDescriptor("useBlockUpdate", beanClass, "isUseBlockUpdate","setUseBlockUpdate"); 
+        useBlockUpdate.setBound(true);                                                                        
+        useBlockUpdate.setConstrained(false);                                                                 
+        useBlockUpdate.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USE_BLOCK_UPDATE"));                
+        useBlockUpdate.setShortDescription(AS400JDBCDriver.getResource("USE_BLOCK_UPDATE_DESC"));                
+
+            PropertyDescriptor  describeOption= 
+            new PropertyDescriptor("describeOption", beanClass, "getDescribeOption","setDescribeOption"); 
+        describeOption.setBound(true);                                                                        
+        describeOption.setConstrained(false);                                                                 
+        describeOption.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_DESCRIBE_OPTION"));                
+        describeOption.setShortDescription(AS400JDBCDriver.getResource("DESCRIBE_OPTION_DESC"));                
+
+            PropertyDescriptor decimalDataErrors = 
+            new PropertyDescriptor("decimalDataErrors", beanClass, "getDecimalDataErrors","setDecimalDataErrors"); 
+        decimalDataErrors.setBound(true);                                                                        
+        decimalDataErrors.setConstrained(false);                                                                 
+        decimalDataErrors.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_DECIMAL_DATA_ERRORS"));                
+        decimalDataErrors.setShortDescription(AS400JDBCDriver.getResource("DECIMAL_DATA_ERRORS_DESC"));                
+
+            PropertyDescriptor  timestampFormat = 
+            new PropertyDescriptor("timestampFormat", beanClass, "getTimestampFormat","setTimestampFormat"); 
+        timestampFormat.setBound(true);                                                                        
+        timestampFormat.setConstrained(false);                                                                 
+        timestampFormat.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TIMESTAMP_FORMAT"));                
+        timestampFormat.setShortDescription(AS400JDBCDriver.getResource("TIMESTAMP_FORMAT_DESC"));                
+
+            PropertyDescriptor  useDrdaMetadataVersion = 
+            new PropertyDescriptor("useDrdaMetadataVersion", beanClass, "isUseDrdaMetadataVersion","setUseDrdaMetadataVersion"); 
+        useDrdaMetadataVersion.setBound(true);                                                                        
+        useDrdaMetadataVersion.setConstrained(false);                                                                 
+        useDrdaMetadataVersion.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USE_DRDA_METADATA_VERSION"));                
+        useDrdaMetadataVersion.setShortDescription(AS400JDBCDriver.getResource("USE_DRDA_METADATA_VERSION_DESC"));                
+
+            
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
-                decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
+                decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, extendedMetadata, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
@@ -665,11 +755,20 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, 
                 concurrentAccessResolution, jvm16Synchronize, socketTimeout, 
                 maximumBlockedInputRows, queryReplaceTruncatedParameter, queryTimeoutMechanism,
-                numericRangeErrorParameter, characterTruncationParameter}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
+                numericRangeError, characterTruncation,
+                secondaryURL, serverTrace  ,packageCcsid ,toolboxTrace ,qaqqinilib , 
+                trueAutocommit ,metadataSource ,useBlockUpdate  ,describeOption,decimalDataErrors , 
+                timestampFormat , useDrdaMetadataVersion , 
+            }; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
+
+        
+        
         }
         catch(Exception e)
-        {
-            throw new Error(e.toString());
+        { 
+            Error error = new Error(e.toString());
+            error.initCause(e);
+            throw error ;
         }
     }
 
