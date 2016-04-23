@@ -392,10 +392,6 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
      } else {
        characterTruncation = JDProperties.CHARACTER_TRUNCATION_NONE; 
      }
-   }
-    
-   if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_DEFAULT) {
-     characterTruncation_ = CHARACTER_TRUNCATION_DEFAULT; 
    } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_WARNING) {
      characterTruncation_ = CHARACTER_TRUNCATION_WARNING; 
    } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_NONE) {
