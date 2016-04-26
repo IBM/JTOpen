@@ -388,9 +388,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     // otherwise use the characterTruncation setting 
    if (characterTruncation == null || characterTruncation == JDProperties.CHARACTER_TRUNCATION_DEFAULT) {
      if (dataTruncation) { 
-       characterTruncation = JDProperties.CHARACTER_TRUNCATION_DEFAULT; 
+       characterTruncation_ = CHARACTER_TRUNCATION_DEFAULT; 
      } else {
-       characterTruncation = JDProperties.CHARACTER_TRUNCATION_NONE; 
+       characterTruncation_ = CHARACTER_TRUNCATION_NONE; 
      }
    } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_WARNING) {
      characterTruncation_ = CHARACTER_TRUNCATION_WARNING; 
