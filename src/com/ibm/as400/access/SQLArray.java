@@ -450,12 +450,20 @@ endif */
 
     public boolean isSigned()
     {
+      if (values_ != null && values_.length > 0 ) { 
         return values_[0].isSigned();
+      } else {
+        return false; 
+      }
     }
 
     public boolean isText()
     {
-        return values_[0].isText();
+        if (values_ != null  && values_.length > 0 ) { 
+           return values_[0].isText();
+        } else {
+          return false; 
+        }
 
     }
     
