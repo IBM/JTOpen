@@ -189,9 +189,9 @@ public interface Copyright
     public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160422 @R4";  
 
     // Constants for reference by AS400JDBCDriver.
-    static final int    MAJOR_VERSION = 12; // ex: "12" indicated V7R4, "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
+    static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
     static final int    MINOR_VERSION = 0; // ex: "7" indicates PTF #7 (1 is first PTF in a release)
                                            //Note: JTOpen 8.7 is synching with ptf 10.7
-    static final String DRIVER_LEVEL  = "07040000"; //(ex: 07020007 -> V7R2M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final String DRIVER_LEVEL  = "07030000"; //(ex: 07030007 -> V7R3M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
