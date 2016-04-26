@@ -3707,17 +3707,10 @@ endif */
       if (data.getOutOfBounds()) {
         switch (numericRangeError_) {
         case NUMERIC_RANGE_ERROR_DEFAULT:
-          // Check to see if we used to throw a truncation error.
-          // If so, still throw it. 
-          int truncated = data.getTruncated();
-          if (truncated > 0) {
-            int actualSize = data.getActualSize();
-            DataTruncation dt = new DataTruncation(parameterIndex, true, false,
-                actualSize + truncated, actualSize); 
-            throw dt; 
-          } else { 
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-          }
+          // We now always throw a data type mismatch for a range error.
+          // In some cases, a truncation exception was being thrown. 
+          // To be consistent, we will now throw the same error.  
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
           break;
         case NUMERIC_RANGE_ERROR_WARNING:
           postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH));  
