@@ -450,7 +450,7 @@ endif */
 
     public boolean isSigned()
     {
-      if (values_ != null && values_.length > 0 ) { 
+      if (values_ != null && values_.length > 0  && values_[0] != null ) { 
         return values_[0].isSigned();
       } else {
         return false; 
@@ -459,7 +459,7 @@ endif */
 
     public boolean isText()
     {
-        if (values_ != null  && values_.length > 0 ) { 
+        if (values_ != null  && values_.length > 0  && values_[0] != null ) { 
            return values_[0].isText();
         } else {
           return false; 

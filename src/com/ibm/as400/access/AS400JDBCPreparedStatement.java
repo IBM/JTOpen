@@ -139,17 +139,6 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
                                  // length // @H1A
   private boolean containsArrayParameter_ = false; /* @G7A */
 
-  private static final int CHARACTER_TRUNCATION_DEFAULT = 0; 
-  private static final int CHARACTER_TRUNCATION_WARNING = 1; 
-  private static final int CHARACTER_TRUNCATION_NONE = 2; 
-  private int characterTruncation_ = CHARACTER_TRUNCATION_DEFAULT; 
-
-  
-  
-  private static final int NUMERIC_RANGE_ERROR_DEFAULT = 0; 
-  private static final int NUMERIC_RANGE_ERROR_WARNING = 1; 
-  private static final int NUMERIC_RANGE_ERROR_NONE = 2; 
-  private int numericRangeError_ = NUMERIC_RANGE_ERROR_DEFAULT; 
 
   private int containsLocator_ = LOCATOR_UNKNOWN;
   private static final int LOCATOR_UNKNOWN = -1;
@@ -377,37 +366,6 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     }
     executed_ = false;
 
-    // Default value of data truncation is "true"
-    boolean dataTruncation = connection.getProperties().getBoolean(
-        JDProperties.DATA_TRUNCATION);
-    // Default value of data truncation is "default" 
-    String characterTruncation = connection.getProperties().getString(
-        JDProperties.CHARACTER_TRUNCATION); 
-    
-    // if characterTruncation is default, then use the dataTruncation setting
-    // otherwise use the characterTruncation setting 
-   if (characterTruncation == null || characterTruncation == JDProperties.CHARACTER_TRUNCATION_DEFAULT) {
-     if (dataTruncation) { 
-       characterTruncation_ = CHARACTER_TRUNCATION_DEFAULT; 
-     } else {
-       characterTruncation_ = CHARACTER_TRUNCATION_NONE; 
-     }
-   } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_WARNING) {
-     characterTruncation_ = CHARACTER_TRUNCATION_WARNING; 
-   } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_NONE) {
-     characterTruncation_ = CHARACTER_TRUNCATION_NONE; 
-   }
-
-   String numericRangeError =  connection.getProperties().getString(JDProperties.NUMERIC_RANGE_ERROR); 
-   if (numericRangeError == null) numericRangeError = JDProperties.NUMERIC_RANGE_ERROR_DEFAULT; 
-   
-   if (numericRangeError.equals(JDProperties.NUMERIC_RANGE_ERROR_DEFAULT)) {
-     numericRangeError_ = NUMERIC_RANGE_ERROR_DEFAULT; 
-   } else if (numericRangeError.equals(JDProperties.NUMERIC_RANGE_ERROR_WARNING)) {
-     numericRangeError_ = NUMERIC_RANGE_ERROR_WARNING; 
-   } else if (numericRangeError.equals(JDProperties.NUMERIC_RANGE_ERROR_NONE)) {
-     numericRangeError_ = NUMERIC_RANGE_ERROR_NONE; 
-   }
     
     clearParameters();
   }
@@ -3703,64 +3661,8 @@ endif */
   private void testDataTruncation(int parameterIndex, SQLData data)
       throws SQLException // @trunc
   {
-    if (data != null) {
-      if (data.getOutOfBounds()) {
-        switch (numericRangeError_) {
-        case NUMERIC_RANGE_ERROR_DEFAULT:
-          // We now always throw a data type mismatch for a range error.
-          // In some cases, a truncation exception was being thrown. 
-          // To be consistent, we will now throw the same error.  
-          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-          break;
-        case NUMERIC_RANGE_ERROR_WARNING:
-          postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH));  
-          break;
-        case NUMERIC_RANGE_ERROR_NONE:
-          break;
-        }
-      }
-    }
-    if (data != null && (characterTruncation_ != CHARACTER_TRUNCATION_NONE ) && data.isText()) {
-      // The SQLData object determined if data was truncated as part of the
-      // setValue() processing.
-      int truncated = data.getTruncated();
-      if (truncated > 0) {
-        int actualSize = data.getActualSize();
-        // boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same
-        // as native (only select is read) //@trunc //@pdc match native
-        DataTruncation dt = new DataTruncation(parameterIndex, true, false,
-            actualSize + truncated, actualSize); // @pdc jdbc40 //@trunc //@pdc
-                                                 // match native
-
-        // if 610 and number data type, then throw DataTruncation
-        // if text, then use old code path and post/throw DataTruncation
-        if ((connection_.getVRM() >= JDUtilities.vrm610)
-            && (data.isText() == false)) // @trunc2
-        { // @trunc2
-          if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
-            postWarning(dt);
-          } else { 
-          throw dt; // @trunc2
-          }
-        } // @trunc2
-        else if ((sqlStatement_ != null) && (sqlStatement_.isSelect())
-            && (!sqlStatement_.isSelectFromInsert())) // @trunc2 //@selins1
-        {
-          postWarning(dt);
-          // If we want the data replace on a warning.  Go ahead and
-          // do the replacement. 
-          if (connection_.queryReplaceTruncatedParameter_ != null) {
-            data.set(connection_.queryReplaceTruncatedParameter_, null, 0); 
-          }
-        } else {
-          if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
-            postWarning(dt);
-          } else { 
-             throw dt;
-          }
-        }
-      }
-    }
+	// Moved logic to connection to be shared with AS400JdbcResultSet
+    connection_.testDataTruncation(parameterIndex, data, sqlStatement_); 
   }
 
   // @BBA

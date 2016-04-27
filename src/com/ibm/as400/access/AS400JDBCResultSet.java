@@ -204,7 +204,7 @@ implements ResultSet
     private boolean                     closed_;
     private int                         columnCount_;
     private int                         concurrency_;
-    private Connection                  connection_;
+    private AS400JDBCConnection         connection_;
     private String                      correlationName_;
     private String                      cursorName_;
     private boolean                     dataTruncation_;    // @B2A
@@ -280,7 +280,7 @@ implements ResultSet
         catalog_                = catalog;
         closed_                 = false;
         concurrency_            = concurrency;
-        connection_             = (statement != null) ? statement.getConnection () : null;
+        connection_             = (AS400JDBCConnection) ((statement != null) ? statement.getConnection () : null);
         if (connection_ != null) {
           settings_               = SQLConversionSettings.getConversionSettings ((AS400JDBCConnection) connection_); /*@Q8A*/
         } else {
@@ -4131,14 +4131,9 @@ implements ResultSet
     {
         if(data != null)
         {
-            int truncated = data.getTruncated ();
-            if(truncated > 0)
-            {
-                int actualSize = data.getActualSize ();
-                throw new DataTruncation (columnIndex, false, false,                        // @D5C
-                                          actualSize + truncated, actualSize);       // @D5C
-            }
+           connection_.testDataTruncation(columnIndex, data, null);
         }
+        
     }
 
 

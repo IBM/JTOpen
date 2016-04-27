@@ -76,6 +76,7 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
+        boolean validInfinity = false; 
         double doubleValue = 0; 
         if(object instanceof String)
         {
@@ -84,7 +85,14 @@ extends SQLDataBase
             }
             try
             {
-                doubleValue = Double.valueOf((String) object).doubleValue(); 
+                String string = (String) object; 
+                doubleValue = Double.valueOf(string).doubleValue();
+                if (doubleValue == Double.POSITIVE_INFINITY ||
+                    doubleValue == Double.NEGATIVE_INFINITY) {
+                  if (string.toUpperCase().indexOf("inf")>=0) {
+                    validInfinity = true; 
+                  }
+                }
             }
             catch(NumberFormatException e)
             {
@@ -114,24 +122,34 @@ extends SQLDataBase
         //        truncated_ = objectLength - valueLength;
         //}
 
-        else if(object instanceof Number)   {
-            // Set the value to the right type.
-            doubleValue = ((Number) object).doubleValue();  // @D9c
-
-        }  else if(object instanceof Boolean) { 
-            doubleValue = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
+    else if (object instanceof Number) {
+      // Set the value to the right type.
+      Number number = (Number) object;
+      doubleValue = number.doubleValue(); // @D9c
+      if (doubleValue == Double.POSITIVE_INFINITY
+          || doubleValue == Double.NEGATIVE_INFINITY) {
+        String stringValue = number.toString().toLowerCase();
+        if (stringValue.indexOf("inf") >= 0) {
+          validInfinity = true;
+        }
+      }
+    } else if (object instanceof Boolean) {
+        doubleValue = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
 
         } else { 
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
         
         if (doubleValue > Float.MAX_VALUE) {
+          if (!validInfinity) { 
           truncated_ = 1; outOfBounds_ = true; 
-          value_ = Float.MAX_VALUE; 
-        } else if (doubleValue < (- Float.MAX_VALUE)) { 
+          value_ = Float.MAX_VALUE;
+          }
+        } else if (doubleValue < (- Float.MAX_VALUE)) {
+          if (!validInfinity) { 
           truncated_ = 1; outOfBounds_ = true; 
           value_ = - Float.MAX_VALUE; 
-          
+          }
         } else { 
            value_ = (float) doubleValue;
         }

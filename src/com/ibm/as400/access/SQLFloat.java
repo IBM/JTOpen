@@ -129,13 +129,25 @@ extends SQLDataBase
 
         else if(object instanceof Number)
         {
-          value_ = ((Number) object).doubleValue();
+          
+          Number number = (Number) object;
+          value_ = number.doubleValue();
           if (value_ == Double.POSITIVE_INFINITY) {
+            String stringValue = number.toString().toLowerCase();
+            if (stringValue.indexOf("inf") == 0) {
+              // Keep it 
+            } else { 
                truncated_ = 1; outOfBounds_ = true; 
-               value_ = Double.MAX_VALUE; 
+               value_ = Double.MAX_VALUE;
+            }
           } else if (value_ == Double.NEGATIVE_INFINITY) {
+            String stringValue = number.toString().toLowerCase();
+            if (stringValue.indexOf("inf") > 0) {
+              // Keep it 
+            } else { 
               truncated_ = 1; outOfBounds_ = true; 
-              value_ = -Double.MAX_VALUE; 
+              value_ = -Double.MAX_VALUE;
+            }
           }          
         }
 
