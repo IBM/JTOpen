@@ -5889,7 +5889,9 @@ endif */
    * @param data
    *          The data that was written or null for SQL NULL.
    **/
-  void testDataTruncation(int parameterIndex, boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
+  void testDataTruncation(AS400JDBCStatement statementWarningObject, 
+        AS400JDBCResultSet resultSetWarningObject, 
+        int parameterIndex, boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
       throws SQLException // @trunc
   {
     if (data != null) {
@@ -5902,7 +5904,11 @@ endif */
           JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
           break;
         case NUMERIC_RANGE_ERROR_WARNING:
-          postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH));  
+          if (statementWarningObject  != null) { 
+            statementWarningObject.postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH)); 
+          } else if (resultSetWarningObject != null ) {
+            resultSetWarningObject.postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH)); 
+          }
           break;
         case NUMERIC_RANGE_ERROR_NONE:
           break;
@@ -5927,7 +5933,11 @@ endif */
             && (data.isText() == false)) // @trunc2
         { // @trunc2
           if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
-            postWarning(dt);
+            if (statementWarningObject != null) { 
+              statementWarningObject.postWarning( dt); 
+            } else if (resultSetWarningObject != null ) {
+              resultSetWarningObject.postWarning( dt); 
+            }
           } else { 
           throw dt; // @trunc2
           }
@@ -5935,15 +5945,25 @@ endif */
         else if ((sqlStatement != null) && (sqlStatement.isSelect())
             && (!sqlStatement.isSelectFromInsert())) // @trunc2 //@selins1
         {
-          postWarning(dt);
-          // If we want the data replace on a warning.  Go ahead and
+          
+          if (statementWarningObject != null) { 
+            statementWarningObject.postWarning( dt); 
+          } else if (resultSetWarningObject != null ) {
+            resultSetWarningObject.postWarning( dt); 
+          }
+// If we want the data replace on a warning.  Go ahead and
           // do the replacement. 
           if (queryReplaceTruncatedParameter_ != null) {
             data.set(queryReplaceTruncatedParameter_, null, 0); 
           }
         } else {
           if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
-            postWarning(dt);
+            if (statementWarningObject != null ) { 
+              statementWarningObject.postWarning( dt); 
+            } else if (resultSetWarningObject != null ) {
+              resultSetWarningObject.postWarning( dt); 
+            }
+
           } else { 
              throw dt;
           }

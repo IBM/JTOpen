@@ -4131,7 +4131,7 @@ implements ResultSet
     {
         if(data != null)
         {
-           connection_.testDataTruncation(columnIndex, false, data, null);
+           connection_.testDataTruncation(null, this, columnIndex, false, data, null);
         }
         
     }

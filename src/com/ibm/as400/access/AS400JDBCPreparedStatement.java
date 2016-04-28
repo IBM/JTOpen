@@ -3662,7 +3662,7 @@ endif */
       throws SQLException // @trunc
   {
 	// Moved logic to connection to be shared with AS400JdbcResultSet
-    connection_.testDataTruncation(parameterIndex, true, data, sqlStatement_); 
+    connection_.testDataTruncation(this, null, parameterIndex, true, data, sqlStatement_); 
   }
 
   // @BBA
