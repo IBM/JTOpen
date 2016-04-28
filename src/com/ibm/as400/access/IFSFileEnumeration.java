@@ -146,10 +146,10 @@ implements Enumeration
       index_ = 0;
 
       // If contentsPending held fewer than max_get_count entries, we know that there are no more entries remaining to be read from the server.
-
+      // @R5A Above comments are not true, as if there is IFSFileFilter specified, the content_ length will be handled and the length may not get the Max value even if there is still block not read.
       
       // Note: Prior to V5R2, the file list returned by the "List Contents of Directory" request included "." and "..", which get weeded out by IFSFileImplRemote, so we need to check for (max_get_count - 2).     @C3A
-      if (file_.getListFiles0LastNumObjsReturned() == 0) { // No objects last time.  @D5C
+       if (file_.getListFiles0LastNumObjsReturned() == 0 || !isContainWildcard(pattern_)) { // No objects last time.  @D5C If no wildcard in pattern, we only need one time reading as no more will return, otherwise it loops for using restartname //@R5C
         // We're done.                                                    // @C3C
       }
       else // previous listFiles0 returned 1 to max_get_count number of objects
@@ -198,6 +198,12 @@ implements Enumeration
       return true;
     }
 
+    //@R5A whether a pattern contains wildcard or not
+    private static boolean isContainWildcard(String pattern){
+      if(pattern !=null && pattern.length()>0)
+        return pattern.indexOf("*")!=-1|| pattern.indexOf("?")!=-1;
+      return false;
+    }
 
     public Object nextElement()
     {
