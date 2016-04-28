@@ -5889,7 +5889,7 @@ endif */
    * @param data
    *          The data that was written or null for SQL NULL.
    **/
-  void testDataTruncation(int parameterIndex, SQLData data, JDSQLStatement sqlStatement)
+  void testDataTruncation(int parameterIndex, boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
       throws SQLException // @trunc
   {
     if (data != null) {
@@ -5917,7 +5917,7 @@ endif */
         int actualSize = data.getActualSize();
         // boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same
         // as native (only select is read) //@trunc //@pdc match native
-        DataTruncation dt = new DataTruncation(parameterIndex, true, false,
+        DataTruncation dt = new DataTruncation(parameterIndex, isParameter, false,
             actualSize + truncated, actualSize); // @pdc jdbc40 //@trunc //@pdc
                                                  // match native
 
