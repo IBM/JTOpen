@@ -949,11 +949,31 @@ public class SystemStatus implements Serializable
     {
         return caching_;
     }
-
-    // If necessary, call the API and retrieve the information for the specified format.
+    
+    //@R6A
+    /**
+     * Reset the status statistics and elapsed time to zero
+     * @throws AS400SecurityException
+     * @throws ErrorCompletingRequestException
+     * @throws InterruptedException
+     * @throws IOException
+     * @throws ObjectDoesNotExistException
+     */
+    public void reset() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        loadInformation(2, true);
+    }
+    
+    //If necessary, call the API and retrieve the information for the specified format.
     private void loadInformation(int format) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        if (!caching_) refreshCache();
+      loadInformation(format, false);
+    }
+
+    // If necessary, call the API and retrieve the information for the specified format.
+    private void loadInformation(int format, boolean reset) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        if (!caching_ || reset) refreshCache();//@R6C
 
         // Check to see if the format has been loaded already.
         if (receiverVariables_[format] != null) return;
@@ -972,6 +992,10 @@ public class SystemStatus implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving system status.");
         int receiverVariableLength = format == 1 ? 80 : format == 2 ? 148 : 2048;
 
+        //@R6A  EBCDIC '*YES' or '*NO'
+        byte[] resetStatusStatistics = reset ? new byte[] { 0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 }
+                                             : new byte[] { 0x5C, (byte)0xD5, (byte)0xD6,       0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+        
         ProgramParameter[] parameters = new ProgramParameter[]
         {
             // Receiver variable, output, char(*).
@@ -980,8 +1004,8 @@ public class SystemStatus implements Serializable
             new ProgramParameter(BinaryConverter.intToByteArray(receiverVariableLength)),
             // Format name, input, char(8), EBCDIC 'SSTS0X00'.
             new ProgramParameter(new byte[] { (byte)0xE2, (byte)0xE2, (byte)0xE3, (byte)0xE2, (byte)0xF0, (byte)(0xF0 | format), (byte)0xF0, (byte)0xF0 } ),
-            // Reset status statistics, input, char(10), EBCDIC '*NO'.
-            new ProgramParameter(new byte[] { 0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 } ),
+            // Reset status statistics, input, char(10), EBCDIC '*NO'. or "YES"
+            new ProgramParameter(resetStatusStatistics),//@R6C
             // Error code, I/O, char(*).
             ERROR_CODE
         };
