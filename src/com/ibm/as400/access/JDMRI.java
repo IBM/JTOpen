@@ -139,7 +139,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_DESCRIBE_OPTION","describeOption"},
       { "PROP_NAME_DECIMAL_DATA_ERRORS","decimalDataErrors"},
       { "PROP_NAME_TIMESTAMP_FORMAT","timestampFormat"},
-      { "PROP_NAME_USE_DRDA_METADATA_VERSION","userDrdaMetadataVersion"},
+      { "PROP_NAME_USE_DRDA_METADATA_VERSION","useDrdaMetadataVersion"},
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },

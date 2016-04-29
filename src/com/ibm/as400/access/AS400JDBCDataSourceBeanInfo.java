@@ -388,11 +388,11 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             trace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE"));
             trace.setShortDescription(AS400JDBCDriver.getResource("TRACE_DESC"));
 
-            PropertyDescriptor traceServer = new PropertyDescriptor("serverTrace", beanClass, "getServerTraceCategories", "setServerTraceCategories");  //@J1a
-            traceServer.setBound(true);                                                                                                   //@J1a
-            traceServer.setConstrained(false);                                                                                            //@J1a
-            traceServer.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                                            //@J1a
-            traceServer.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                                            //@J1a
+            PropertyDescriptor serverTrace = new PropertyDescriptor("serverTrace", beanClass, "getServerTrace", "setServerTrace");  //@J1a
+            serverTrace.setBound(true);                                                                                                   //@J1a
+            serverTrace.setConstrained(false);                                                                                            //@J1a
+            serverTrace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                                            //@J1a
+            serverTrace.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                                            //@J1a
 
             PropertyDescriptor traceServerCategories = new PropertyDescriptor("serverTraceCategories", beanClass, "getServerTraceCategories", "setServerTraceCategories");  //@K4A
             traceServerCategories.setBound(true);                                                                                                   //@K4A
@@ -400,7 +400,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             traceServerCategories.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                                            //@K4A
             traceServerCategories.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                                            //@K4A
 
-            PropertyDescriptor traceToolbox = new PropertyDescriptor("toolboxTrace", beanClass, "getToolboxTraceCategory", "setToolboxTraceCategory");  //@K2A
+            PropertyDescriptor traceToolbox = new PropertyDescriptor("toolboxTraceCategory", beanClass, "getToolboxTraceCategory", "setToolboxTraceCategory");  //@K2A
             traceToolbox.setBound(true);                                                                                                  //@K2A
             traceToolbox.setConstrained(false);                                                                                           //@K2A
             traceToolbox.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_TOOLBOX"));                                          //@K2A
@@ -664,13 +664,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             secondaryURL.setShortDescription(AS400JDBCDriver.getResource("SECONDARY_URL_DESC"));                
 
             // Todo:  set properties in MRI FILE
-            PropertyDescriptor serverTrace = 
-                new PropertyDescriptor("serverTrace", beanClass, "getServerTrace","setServerTrace"); 
-            serverTrace.setBound(true);                                                                        
-            serverTrace.setConstrained(false);                                                                 
-            serverTrace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                
-            serverTrace.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                
-
+ 
  
 
             PropertyDescriptor packageCcsid = 
@@ -748,7 +742,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, extendedMetadata, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
-                sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
+                sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
                 queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, 
                 metaDataSource, queryStorageLimit, decfloatRoundingMode, 
