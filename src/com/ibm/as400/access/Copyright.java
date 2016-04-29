@@ -179,6 +179,7 @@ package com.ibm.as400.access;
 //@R3    20160419  JDBC:  "numeric range error" property
 //@R4    20160422  JDBC:  Add missing get/set methods to DataSource and DataSourceBeanInfo
 //@R5    20160428  IFSFileEnumeration fix issue when pattern without wildcard
+//@R6    20160429  SystemStatus supports of rest the status statistics 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -187,7 +188,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2016 International Business Machines Corporation and others.";
     //                                                                                              built=20160422 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160422 @R5";  
+    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160429 @R6";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
