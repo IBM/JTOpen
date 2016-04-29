@@ -179,7 +179,7 @@ package com.ibm.as400.access;
 //@R3    20160419  JDBC:  "numeric range error" property
 //@R4    20160422  JDBC:  Add missing get/set methods to DataSource and DataSourceBeanInfo
 //@R5    20160428  IFSFileEnumeration fix issue when pattern without wildcard
-//@R6    20160429  SystemStatus supports of rest the status statistics 
+//@R6    20160429  SystemStatus supports on status statistics reset
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
