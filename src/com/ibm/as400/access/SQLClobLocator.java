@@ -177,68 +177,7 @@ endif*/
             }
             else if(object instanceof Reader)
             {
-                if(length_ >= 0)
-                {
-                    try
-                    {
-                        int blockSize = length_ < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length_ : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        Reader stream = (Reader)object;
-                        StringBuffer buf = new StringBuffer();
-                        char[] charBuffer = new char[blockSize];
-                        int totalCharsRead = 0;
-                        int charsRead = stream.read(charBuffer, 0, blockSize);
-                        while(charsRead > -1 && totalCharsRead < length_)
-                        {
-                            buf.append(charBuffer, 0, charsRead);
-                            totalCharsRead += charsRead;
-                            int charsRemaining = length_ - totalCharsRead;
-                            if(charsRemaining < blockSize)
-                            {
-                                blockSize = charsRemaining;
-                            }
-                            charsRead = stream.read(charBuffer, 0, blockSize);
-                        }
-                        value_ = buf.toString();
-
-                        if(value_.length() < length_)
-                        {
-                            // a length longer than the stream was specified
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                        }
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                    }
-                }
-                else if(length_ == -2)//@readerlen new else-if block (read all data)
-                {
-                    try
-                    {
-                        int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        Reader stream = (Reader)object;
-                        StringBuffer buf = new StringBuffer();
-                        char[] charBuffer = new char[blockSize];
-                        int totalCharsRead = 0;
-                        int charsRead = stream.read(charBuffer, 0, blockSize);
-                        while(charsRead > -1)
-                        {
-                            buf.append(charBuffer, 0, charsRead);
-                            totalCharsRead += charsRead;
-                            charsRead = stream.read(charBuffer, 0, blockSize);
-                        }
-                        value_ = buf.toString();
-
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                    }
-                }
-                else
-                {
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                }
+              value_ = SQLDataBase.getStringFromReader((Reader)object, length_, this); 
             }
             else if( object instanceof Clob)  
             {

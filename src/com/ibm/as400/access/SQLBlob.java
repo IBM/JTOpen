@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Date;
 /* ifdef JDBC40 
 import java.sql.NClob;
@@ -81,6 +82,7 @@ final class SQLBlob extends SQLDataBase
         {
             byte[] bytes = (byte[])object;
             truncated_ = (bytes.length > maxLength_ ? bytes.length-maxLength_ : 0);
+            outOfBounds_ = false;
         }
         else if(object instanceof String)
         {
@@ -93,10 +95,28 @@ final class SQLBlob extends SQLDataBase
             {
                 // the String contains non-hex characters
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+                // Dummy throw to prevent warning about npe on bytes
+                throw new SQLException(); 
             }
             object = bytes;
-            truncated_ = 0; outOfBounds_ = false; 
+            outOfBounds_ = false;
+            
+            truncated_ = (bytes.length > maxLength_ ? bytes.length-maxLength_ : 0);
         }
+        else if (object instanceof Clob) {
+          byte[] bytes = null; 
+          try {
+            bytes = BinaryConverter.stringToBytes(((Clob)object).getSubString(1, (int)((Clob)object).length()));
+          } catch(NumberFormatException nfe) {
+              // the String contains non-hex characters
+              JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+              // Dummy throw to prevent warning about npe on bytes
+              throw new SQLException(); 
+          }
+          object = bytes;
+          outOfBounds_ = false; 
+          truncated_ = (bytes.length > maxLength_ ? bytes.length-maxLength_ : 0);
+       }
         else if(object instanceof Reader)
         {
             int length = scale; // hack to get the length into the set method
@@ -152,7 +172,7 @@ final class SQLBlob extends SQLDataBase
                     JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
                 }
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
+            else if(length == -2 || length == -1 ) //@readerlen new else-if block (read all data)
             {
                 try
                 {

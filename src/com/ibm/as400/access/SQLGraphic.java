@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.CharConversionException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -164,6 +165,11 @@ extends SQLDataBase
             Clob clob = (Clob)object;
             value = clob.getSubString(1, (int)clob.length());
         }
+        else if(object instanceof Reader)
+        {
+          value = getStringFromReader((Reader) object, ALL_READER_BYTES, this);
+        }
+
         /* ifdef JDBC40
         else if(object instanceof SQLXML) //@PDA jdbc40
         {

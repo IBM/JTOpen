@@ -1175,10 +1175,13 @@ endif */
                             parameterMarkerData.getRawBytes(), rowDataOffset
                                 + parameterOffsets_[i], ccsidConverter);
                       }
+                      
+                      // Need to check for truncation from convert
+                      
                       // Blob truncation not caught at set time if set
                       // using input stream @09A 
-                      if (ConvTable.isMixedCCSID(ccsidConverter.getCcsid()) || 
-                          sqlData instanceof SQLBlob ) // @trnc
+                      // if (ConvTable.isMixedCCSID(ccsidConverter.getCcsid()) || 
+                      //    sqlData instanceof SQLBlob ) // @trnc
                                                                              // this
                                                                              // is
                         // not caught at
@@ -4368,11 +4371,11 @@ endif */
                 this,
                 "locator handle: "
                     + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-          sqlData.set(x, null, -2);// new ConvTableReader(x, 819, 0,
+          sqlData.set(x, null, SQLData.ALL_READER_BYTES);// new ConvTableReader(x, 819, 0,
                                    // LOB_BLOCK_SIZE), null, -2); //@readerlen
                                    // -2 flag to read all of reader bytes
         } else {
-          sqlData.set(x, null, -2);// sqlData.set
+          sqlData.set(x, null, SQLData.ALL_READER_BYTES);// sqlData.set
                                    // (JDUtilities.readerToString(new
                                    // ConvTableReader(x, 819, 0,
                                    // LOB_BLOCK_SIZE)), null, -1); //@readerlen
@@ -4537,7 +4540,7 @@ endif */
                 this,
                 "locator handle: "
                     + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-          sqlData.set(reader, null, -2); // @readerlen -2 flag to read all of
+          sqlData.set(reader, null, SQLData.ALL_READER_BYTES); // @readerlen -2 flag to read all of
                                          // reader chars
         } else {
           sqlData.set(JDUtilities.readerToString(reader), null, -1);

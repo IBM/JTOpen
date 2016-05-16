@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -111,7 +112,8 @@ extends SQLDataBase  implements SQLVariableCompressible
             BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
             bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
             bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
-
+            truncated_ = 0; outOfBounds_ = false ; 
+            
             // The length in the first 2 bytes is actually the length in characters.
             byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
             BinaryConverter.unsignedShortToByteArray(temp.length/bytesPerCharacter_, rawBytes, offset);
@@ -229,7 +231,11 @@ extends SQLDataBase  implements SQLVariableCompressible
             Clob clob = (Clob)object;                                              // @C1C
             value = clob.getSubString(1, (int)clob.length());                      // @C1C  @D1
         }                                                                     // @C1C
-             
+        else if(object instanceof Reader)
+        {
+          value = getStringFromReader((Reader) object, ALL_READER_BYTES, this);
+        }
+            
         /* ifdef JDBC40 
         else if(object instanceof SQLXML) //@PDA jdbc40 
         {    

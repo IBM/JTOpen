@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.CharConversionException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -144,6 +145,10 @@ extends SQLDataBase
 
         else if(object instanceof URL)
             value = object.toString();
+        else if(object instanceof Reader)
+        {
+          value = getStringFromReader((Reader) object, ALL_READER_BYTES, this);
+        }
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
         {

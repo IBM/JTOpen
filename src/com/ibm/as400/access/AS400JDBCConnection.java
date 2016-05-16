@@ -3565,9 +3565,9 @@ void handleAbort() {
          } else {
            characterTruncation_ = CHARACTER_TRUNCATION_NONE; 
          }
-       } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_WARNING) {
+       } else if (characterTruncation.equals(JDProperties.CHARACTER_TRUNCATION_WARNING)) {
          characterTruncation_ = CHARACTER_TRUNCATION_WARNING; 
-       } else if (characterTruncation == JDProperties.CHARACTER_TRUNCATION_NONE) {
+       } else if (characterTruncation.equals(JDProperties.CHARACTER_TRUNCATION_NONE)) {
          characterTruncation_ = CHARACTER_TRUNCATION_NONE; 
        }
 

@@ -144,7 +144,7 @@ extends SQLDataBase
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
+            else if((length == ALL_READER_BYTES) || (length == -1)) //@readerlen new else-if block (read all data)
             {
                 InputStream stream = (InputStream)object;
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -219,7 +219,7 @@ extends SQLDataBase
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                 }
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
+            else if((length == ALL_READER_BYTES) || (length == -1)) //@readerlen new else-if block (read all data)
             {
                 try
                 {

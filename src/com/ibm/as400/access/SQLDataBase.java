@@ -14,6 +14,8 @@
 package com.ibm.as400.access;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -803,5 +805,219 @@ public abstract class SQLDataBase implements SQLData
    }
 
  
+   static String getStringFromReader(Reader stream, int length, Object exceptionObject) throws SQLException {
+     String value = null; 
+     if(length >= 0)
+     {
+         try
+         {
+             int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+            
+             StringBuffer buf = new StringBuffer();
+             char[] charBuffer = new char[blockSize];
+             int totalCharsRead = 0;
+             int charsRead = stream.read(charBuffer, 0, blockSize);
+             while(charsRead > -1 && totalCharsRead < length)
+             {
+                 buf.append(charBuffer, 0, charsRead);
+                 totalCharsRead += charsRead;
+                 int charsRemaining = length - totalCharsRead;
+                 if(charsRemaining < blockSize)
+                 {
+                     blockSize = charsRemaining;
+                 }
+                 charsRead = stream.read(charBuffer, 0, blockSize);
+             }
+             value = buf.toString();
 
+             if(value.length() < length)
+             {
+                 // a length longer than the stream was specified
+                 JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH);
+             }
+         }
+         catch(IOException ie)
+         {
+             JDError.throwSQLException(exceptionObject, JDError.EXC_INTERNAL, ie);
+         }
+     }
+     else if(length == ALL_READER_BYTES) //@readerlen new else-if block (read all data)
+     {
+         try
+         {
+             int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+             StringBuffer buf = new StringBuffer();
+             char[] charBuffer = new char[blockSize];
+             // int totalCharsRead = 0;
+             int charsRead = stream.read(charBuffer, 0, blockSize);
+             while(charsRead > -1)
+             {
+                 buf.append(charBuffer, 0, charsRead);
+                 // totalCharsRead += charsRead;
+                 // int charsRemaining = length_ - totalCharsRead;
+               
+                 charsRead = stream.read(charBuffer, 0, blockSize);
+             }
+             value = buf.toString();
+
+         }
+         catch(IOException ie)
+         {
+             JDError.throwSQLException(exceptionObject, JDError.EXC_INTERNAL, ie);
+         }
+
+     }
+     else
+     {
+         JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH);
+     }
+
+         return value; 
+         
+   }
+
+   static byte[] getBytesFromInputStream(InputStream object, int length, Object exceptionObject) throws SQLException {
+     byte[] value = null; 
+     if(length >= 0)
+     {
+         InputStream stream = (InputStream)object;
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+         byte[] byteBuffer = new byte[blockSize];
+         try
+         {
+             int totalBytesRead = 0;
+             int bytesRead = stream.read(byteBuffer, 0, blockSize);
+             while(bytesRead > -1 && totalBytesRead < length)
+             {
+                 baos.write(byteBuffer, 0, bytesRead);
+                 totalBytesRead += bytesRead;
+                 int bytesRemaining = length - totalBytesRead;
+                 if(bytesRemaining < blockSize)
+                 {
+                     blockSize = bytesRemaining;
+                 }
+                 bytesRead = stream.read(byteBuffer, 0, blockSize);
+             }
+         }
+         catch(IOException ie)
+         {
+             JDError.throwSQLException(exceptionObject, JDError.EXC_INTERNAL, ie);
+         }
+         value = baos.toByteArray();
+         if(value.length < length)
+         {
+             // a length longer than the stream was specified
+             JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH);
+         }
+     }
+     else if(length == ALL_READER_BYTES ) //@readerlen new else-if block (read all data)
+     {
+         InputStream stream = (InputStream)object;
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         int blockSize =   AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+         byte[] byteBuffer = new byte[blockSize];
+         try
+         {
+             int totalBytesRead = 0;
+             int bytesRead = stream.read(byteBuffer, 0, blockSize);
+             while(bytesRead > -1)
+             {
+                 baos.write(byteBuffer, 0, bytesRead);
+                 totalBytesRead += bytesRead;
+               
+                 bytesRead = stream.read(byteBuffer, 0, blockSize);
+             }
+         }
+         catch(IOException ie)
+         {
+             JDError.throwSQLException(exceptionObject, JDError.EXC_INTERNAL, ie);
+         }
+         value = baos.toByteArray();
+     }
+     else
+     {
+         JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH);
+     }
+     return value; 
+   }
+   
+   static byte[] getBytesFromReader(Reader object, int length, Object exceptionObject) throws SQLException {
+     byte[] value = null; 
+   if(length >= 0)
+   {
+       try
+       {
+           int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+           ByteArrayOutputStream baos = new ByteArrayOutputStream();
+           HexReaderInputStream stream = new HexReaderInputStream(object);
+           byte[] byteBuffer = new byte[blockSize];
+           int totalBytesRead = 0;
+           int bytesRead = stream.read(byteBuffer, 0, blockSize);
+           while(bytesRead > -1 && totalBytesRead < length)
+           {
+               baos.write(byteBuffer, 0, bytesRead);
+               totalBytesRead += bytesRead;
+               int bytesRemaining = length - totalBytesRead;
+               if(bytesRemaining < blockSize)
+               {
+                   blockSize = bytesRemaining;
+               }
+               bytesRead = stream.read(byteBuffer, 0, blockSize);
+           }
+           value = baos.toByteArray();
+           if(value.length < length)
+           {
+               // a length longer than the stream was specified
+               JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH);
+           }
+           stream.close(); //@scan1
+       }
+       catch(ExtendedIOException eie)
+       {
+           // the Reader contains non-hex characters
+           JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH, eie);
+       }
+       catch(IOException ie)
+       {
+           JDError.throwSQLException(exceptionObject, JDError.EXC_INTERNAL, ie);
+       }
+   }
+   else if((length == ALL_READER_BYTES) || (length == -1)) //@readerlen new else-if block (read all data)
+   {
+       try
+       {
+           int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+           ByteArrayOutputStream baos = new ByteArrayOutputStream();
+           HexReaderInputStream stream = new HexReaderInputStream((Reader)object);
+           byte[] byteBuffer = new byte[blockSize];
+           int totalBytesRead = 0;
+           int bytesRead = stream.read(byteBuffer, 0, blockSize);
+           while(bytesRead > -1)
+           {
+               baos.write(byteBuffer, 0, bytesRead);
+               totalBytesRead += bytesRead;
+              
+               bytesRead = stream.read(byteBuffer, 0, blockSize);
+           }
+           value = baos.toByteArray();
+         
+           stream.close(); //@scan1
+       }
+       catch(ExtendedIOException eie)
+       {
+           // the Reader contains non-hex characters
+           JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH, eie);
+       }
+       catch(IOException ie)
+       {
+           JDError.throwSQLException(exceptionObject, JDError.EXC_INTERNAL, ie);
+       }
+   }
+   else
+   {
+       JDError.throwSQLException(exceptionObject, JDError.EXC_DATA_TYPE_MISMATCH);
+   }
+   return value; 
+   }
 }

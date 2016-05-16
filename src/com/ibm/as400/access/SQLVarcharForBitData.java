@@ -37,6 +37,8 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
+
+
 final class SQLVarcharForBitData
 extends SQLDataBase implements SQLVariableCompressible /*@N3C*/ 
 {
@@ -125,153 +127,14 @@ extends SQLDataBase implements SQLVariableCompressible /*@N3C*/
         else if(object instanceof InputStream)
         {
             //value_ = JDUtilities.streamToBytes((InputStream)object, scale);
-
-            int length = scale; // hack to get the length into the set method
-            if(length >= 0)
-            {
-                InputStream stream = (InputStream)object;
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                byte[] byteBuffer = new byte[blockSize];
-                try
-                {
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 && totalBytesRead < length)
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                        int bytesRemaining = length - totalBytesRead;
-                        if(bytesRemaining < blockSize)
-                        {
-                            blockSize = bytesRemaining;
-                        }
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-                value_ = baos.toByteArray();
-                if(value_.length < length)
-                {
-                    // a length longer than the stream was specified
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                }
-            }
-            else if(length == -2) //@readerlen new else-if block (read all data)
-            {
-                InputStream stream = (InputStream)object;
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                byte[] byteBuffer = new byte[blockSize];
-                try
-                {
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1)
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                       
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-                value_ = baos.toByteArray();
-               
-            }
-            else
-            {
-                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-            }
+            value_ = getBytesFromInputStream((InputStream) object, scale, this); 
         }
 
         else if(object instanceof Reader)
         {
             // value_ = BinaryConverter.stringToBytes(JDUtilities.readerToString((Reader)object, scale));
-
-            int length = scale; // hack to get the length into the set method
-            if(length >= 0)
-            {
-                try
-                {
-                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    HexReaderInputStream stream = new HexReaderInputStream((Reader)object);
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 && totalBytesRead < length)
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                        int bytesRemaining = length - totalBytesRead;
-                        if(bytesRemaining < blockSize)
-                        {
-                            blockSize = bytesRemaining;
-                        }
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-                    value_ = baos.toByteArray();
-                    stream.close(); //@scan1
-                    
-                    if(value_.length < length)
-                    {
-                        // a length longer than the stream was specified
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                    }
-                }
-                catch(ExtendedIOException eie)
-                {
-                    // the Reader contains non-hex characters
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-            }
-            else if(length == -2) //@readerlen new else-if block (read all data) 
-            {
-                try
-                {
-                    int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    HexReaderInputStream stream = new HexReaderInputStream((Reader)object);
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 )
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                       
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-                    value_ = baos.toByteArray();
-                    stream.close(); //@scan1
-                    
-                }
-                catch(ExtendedIOException eie)
-                {
-                    // the Reader contains non-hex characters
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-            }
-            else
-            {
-                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-            }
-        }
+            value_ = getBytesFromReader((Reader)object, scale, this); 
+         }
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
             value_ = ((Blob)object).getBytes(1, (int)((Blob)object).length());      // @C1C @E2C Blobs are 1 based.

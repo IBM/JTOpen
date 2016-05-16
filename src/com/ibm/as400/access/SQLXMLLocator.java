@@ -201,7 +201,7 @@ final class SQLXMLLocator implements SQLLocator
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                 }
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
+            else if(length == ALL_READER_BYTES) //@readerlen new else-if block (read all data)
             {
                 InputStream stream = (InputStream)savedObject_;
                 int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
@@ -345,7 +345,7 @@ final class SQLXMLLocator implements SQLLocator
                     JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
                 }  
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
+            else if(length == ALL_READER_BYTES) //@readerlen new else-if block (read all data)
             {
                 byte[] bytes = null;
 
@@ -504,7 +504,7 @@ endif */
         {
             //set xml flag so ConvTableReader will trim off xml declaration since we will be transmitting in utf-8
             ((ConvTableReader)savedObject_).isXML_ = true; //@ascii
-            scale_ = -2;//@ascii flag -2 to read to end of stream (xml transmits in utf8 which may have 2-byte chars, which does not match length)
+            scale_ = ALL_READER_BYTES;//@ascii flag -2 to read to end of stream (xml transmits in utf8 which may have 2-byte chars, which does not match length)
         }
         else if(scale != -1) 
             scale_ = scale; // Skip resetting it if we don't know the real length
@@ -538,69 +538,7 @@ endif */
             }
             else if(savedObject_ instanceof Reader)
             {
-                if(length_ >= 0)
-                {
-                    try
-                    {
-                        int blockSize = length_ < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length_ : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        Reader stream = (Reader)savedObject_;
-                        StringBuffer buf = new StringBuffer();
-                        char[] charBuffer = new char[blockSize];
-                        int totalCharsRead = 0;
-                        int charsRead = stream.read(charBuffer, 0, blockSize);
-                        while(charsRead > -1 && totalCharsRead < length_)
-                        {
-                            buf.append(charBuffer, 0, charsRead);
-                            totalCharsRead += charsRead;
-                            int charsRemaining = length_ - totalCharsRead;
-                            if(charsRemaining < blockSize)
-                            {
-                                blockSize = charsRemaining;
-                            }
-                            charsRead = stream.read(charBuffer, 0, blockSize);
-                        }
-                        valueClob_ = buf.toString();
-
-                        if(valueClob_.length() < length_)
-                        {
-                            // a length longer than the stream was specified
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                        }
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                    }
-                }
-                else if(length_ == -2) //@readerlen new else-if block (read all data)
-                {
-                    try
-                    {
-                        int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        Reader stream = (Reader)savedObject_;
-                        StringBuffer buf = new StringBuffer();
-                        char[] charBuffer = new char[blockSize];
-                        int totalCharsRead = 0;
-                        int charsRead = stream.read(charBuffer, 0, blockSize);
-                        while(charsRead > -1)
-                        {
-                            buf.append(charBuffer, 0, charsRead);
-                            totalCharsRead += charsRead;
-                        
-                            charsRead = stream.read(charBuffer, 0, blockSize);
-                        }
-                        valueClob_ = buf.toString();
-
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                    }
-                }
-                else
-                {
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                }
+              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length_, this); 
             }
             else if( savedObject_ instanceof Clob)  
             {
@@ -675,7 +613,7 @@ endif */
                     }
                   //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
                 }
-                else if(length == -2 )//@readerlen new else-if block (read all data)
+                else if(length == ALL_READER_BYTES )//@readerlen new else-if block (read all data)
                 {
                     InputStream stream = (InputStream)savedObject_;
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
