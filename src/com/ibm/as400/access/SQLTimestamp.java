@@ -67,6 +67,71 @@ extends SQLDataBase
         return new SQLTimestamp(length_, settings_);
     }
 
+    public void setTimestampFieldsFromString(String s) 
+        throws SQLException
+        {
+            try
+            {
+                int stringLength = s.length(); 
+                // Check for a valid length 
+                if (stringLength < 10) {
+                  if (JDTrace.isTraceOn()) JDTrace.logInformation((Object)null, "Invalid timestamp length "+s); 
+                  JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); 
+                }
+                if ( (s.charAt(4) != '-' ) ||
+                     (s.charAt(7) != '-' ) ) {
+                  if (JDTrace.isTraceOn()) JDTrace.logInformation((Object)null, "Timestamp missing - "+s); //@dat1
+                  JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
+                }
+                // @E3D // If the string has a year 1, then it is likely a NULL, so
+                // @E3D // just set this to a default date.
+                year_ = Integer.parseInt(s.substring(0, 4));
+                // @E3D if(year == 1) {
+                // @E3D     return new Timestamp(0);
+                // @E3D }
+
+                month_ = Integer.parseInt(s.substring(5, 7)) - 1; 
+                day_ =  Integer.parseInt(s.substring(8, 10));
+                if (stringLength >=13) {
+                  hour_= Integer.parseInt(s.substring(11, 13));
+                } else {
+                  hour_ = 0; 
+                }
+                if (stringLength >= 16) { 
+                  minute_ = Integer.parseInt(s.substring(14, 16));
+                } else {
+                  minute_ =  0; 
+                }
+                if (stringLength >= 19) {
+                  second_ =  Integer.parseInt(s.substring(17, 19));
+                }  else {
+                  second_ = 0; 
+                }
+                long picos = 0; 
+                if(stringLength > 20)
+                {                                             
+                    String picosString = s.substring(20).trim() + "00000000000000";            
+                    picos_ = Long.parseLong(picosString.substring(0, 12))  ;
+                }
+                else
+                {
+                    picos_ = 0;  
+                }
+
+            }
+            catch(NumberFormatException e)
+            {
+              if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
+            }
+            catch(StringIndexOutOfBoundsException e)
+            {
+              if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e);
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
+            }
+
+        }
+    
     public static Timestamp stringToTimestamp(String s, Calendar calendar)
     throws SQLException
     {
@@ -154,7 +219,7 @@ extends SQLDataBase
                 
             }catch(Exception e){
                 if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e); //@dat1
-                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
+                JDError.throwSQLException(null, JDError.EXC_DATA_TYPE_MISMATCH, e, s); //@dat1
                 return null; //@dat1
             }
 
@@ -388,19 +453,13 @@ extends SQLDataBase
 
         if(object instanceof String)
         {
-          
-            Timestamp ts = stringToTimestamp((String) object, calendar);
-            year_   = calendar.get(Calendar.YEAR);
-            month_  = calendar.get(Calendar.MONTH);
-            day_    = calendar.get(Calendar.DAY_OF_MONTH);
-            hour_   = calendar.get(Calendar.HOUR_OF_DAY);
-            minute_ = calendar.get(Calendar.MINUTE);
-            second_ = calendar.get(Calendar.SECOND);
-            if (ts instanceof AS400JDBCTimestamp) {
-               picos_ = ((AS400JDBCTimestamp) ts).getPicos(); 
-            } else { 
-               picos_  = ((long) ts.getNanos())* 1000L;
-            }
+            // If the user passes in a string, we assume that we can 
+            // just get the values from the string and send it to 
+            // the database as is.  This means we are able to 
+            // insert timestamps that may not exist in the current
+            // timezone (such as 2016-03-13 02:15:00.000000 in
+            // a timezone with daylight saving time) 
+            setTimestampFieldsFromString((String)object); 
         }
 
         else if(object instanceof Timestamp)
