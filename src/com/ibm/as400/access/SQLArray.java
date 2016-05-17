@@ -32,6 +32,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
+
 //@array new class
 class SQLArray implements SQLData
 {
@@ -433,8 +434,14 @@ endif */
     {
         return 0;
     }
+    
+    public void clearTruncated() {
+    }
+
     public boolean getOutOfBounds() {
       return false; 
+    }
+    public void clearOutOfBounds() {
     }
 
     public int getType() {
@@ -492,5 +499,7 @@ endif */
     public void updateSettings(SQLConversionSettings settings) {
     
     }
+
+    
 
 }

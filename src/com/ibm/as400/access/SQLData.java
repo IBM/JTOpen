@@ -306,6 +306,11 @@ extends Cloneable
     **/
     public abstract int getTruncated();
     
+    /** 
+     * Clears the truncated information
+     */
+    public void clearTruncated(); 
+    
     /**
      * Returns true if the last conversion of this piece of
      * data was out of bounds of the range of the requested
@@ -313,6 +318,10 @@ extends Cloneable
      * conversion to a numeric type.  
      */
     public abstract boolean getOutOfBounds(); 
+    /** 
+     * Clear the out of bounds flag
+     */
+    public abstract void clearOutOfBounds(); 
 
     //---------------------------------------------------------//
     //                                                         //
@@ -542,6 +551,7 @@ extends Cloneable
     @return     the result of the conversion.
     @exception  SQLException    If the conversion is not
                                 required or not possible.
+    public abstract void clearOutOfBounds(); 
     **/
     public abstract String getNString()
     throws SQLException;
@@ -581,5 +591,6 @@ extends Cloneable
     public abstract Array getArray()
     throws SQLException;
 
-    public abstract void updateSettings(SQLConversionSettings settings); 
+    public abstract void updateSettings(SQLConversionSettings settings);
+
 }

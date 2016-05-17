@@ -562,9 +562,16 @@ endif*/
     {
         return truncated_;
     }
+    public void clearTruncated() { 
+      truncated_ = 0; 
+    }
+    public void clearOutOfBounds() {
+      outOfBounds_ = false; 
+    }
     public boolean getOutOfBounds() {
       return outOfBounds_; 
     }
+    
 
     //---------------------------------------------------------//
     //                                                         //

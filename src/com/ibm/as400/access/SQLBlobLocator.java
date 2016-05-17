@@ -619,9 +619,14 @@ final class SQLBlobLocator implements SQLLocator
     {
         return truncated_;
     }
-
+    public void clearTruncated() {
+      truncated_ = 0; 
+    }
     public boolean getOutOfBounds() {
       return outOfBounds_; 
+    }
+    public void clearOutOfBounds() { 
+      outOfBounds_ = false; 
     }
 
     //---------------------------------------------------------//

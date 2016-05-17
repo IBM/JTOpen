@@ -5896,6 +5896,8 @@ endif */
   {
     if (data != null) {
       if (data.getOutOfBounds()) {
+        // Clear the error so it is not reported twice
+        data.clearOutOfBounds(); 
         switch (numericRangeError_) {
         case NUMERIC_RANGE_ERROR_DEFAULT:
           // We now always throw a data type mismatch for a range error.
@@ -5920,6 +5922,8 @@ endif */
       // setValue() processing.
       int truncated = data.getTruncated();
       if (truncated > 0) {
+        // Clear the truncation so it is not reported twice
+        data.clearTruncated(); 
         int actualSize = data.getActualSize();
         // boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same
         // as native (only select is read) //@trunc //@pdc match native

@@ -271,6 +271,10 @@ public abstract class SQLDataBase implements SQLData
     **/
     public abstract int getTruncated();
     
+    public void clearTruncated() {
+      truncated_ = 0; 
+    }
+    
     /**
      * Returns true if the last conversion of this piece of
      * data was out of bounds of the range of the requested
@@ -279,6 +283,9 @@ public abstract class SQLDataBase implements SQLData
      */
     public abstract boolean getOutOfBounds(); 
 
+    public void clearOutOfBounds() {
+      outOfBounds_ = false; 
+    }
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //

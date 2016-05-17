@@ -589,6 +589,13 @@ endif */
       return outOfBounds_; 
     }
 
+    public void clearTruncated() { 
+      truncated_ = 0; 
+    }
+    public void clearOutOfBounds() {
+      outOfBounds_ = false; 
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // CONVERSIONS TO JAVA TYPES                               //
