@@ -132,7 +132,7 @@ public abstract class OpenList implements Serializable
     protected abstract byte[] callOpenListAPI() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 
     /**
-     Closes the list on the system.  This releases any system resources previously in use by this OpenList.
+     Closes the list on the system.  This releases any system resources previously in use by this OpenList.  This will not close the connection to the Host Server job held by the associated AS400 object. 
      <p>Any Enumerations created by this OpenList by calling {@link #getItems getItems} will close, so that a call to nextElement() will throw a NoSuchElementException when they reach the end of their {@link #getEnumerationBlockSize enumeration cache block}.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.

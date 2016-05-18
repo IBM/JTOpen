@@ -51,6 +51,7 @@ implements IFSRandomAccessFileImpl
   /**
    Closes this random access file stream and releases any system resources
    associated with the stream.
+   This will not close the connection to the Host Server job held by the associated AS400 object.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ExtendedIOException If an error occurs while communicating with the server.

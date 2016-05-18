@@ -684,6 +684,7 @@ public class ObjectList implements Serializable
   /**
    * Closes the object list on the system.
    * This releases any system resources previously in use by this object list.
+   * This will not close the connection to the Host Server job held by the associated AS400 object.
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.

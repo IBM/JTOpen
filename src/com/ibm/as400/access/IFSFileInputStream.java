@@ -386,7 +386,8 @@ public class IFSFileInputStream extends InputStream
 
   /**
    Closes this file input stream and releases any system resources associated
-   with the stream.
+   with the stream.  
+   This will not close the connection to the Host Server job held by the associated AS400 object.
 
    @exception IOException If an error occurs while communicating with the system.
   **/

@@ -80,6 +80,7 @@ implements IFSFileInputStreamImpl
   /**
    Closes this file input stream and releases any system resources associated
    with the stream.
+   This will not close the connection to the Host Server job held by the associated AS400 object.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.

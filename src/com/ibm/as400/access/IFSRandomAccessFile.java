@@ -367,6 +367,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Closes this random access file stream and releases any system resources
    associated with the stream.
+   This will not close the connection to the Host Server job held by the associated AS400 object.
    @exception IOException If an error occurs while communicating with the system.
    **/
   public void close()

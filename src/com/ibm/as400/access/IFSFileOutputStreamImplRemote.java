@@ -53,6 +53,7 @@ implements IFSFileOutputStreamImpl
   /**
    Closes this file output stream and releases any system resources associated
    with this stream.
+   This will not close the connection to the Host Server job held by the associated AS400 object.
    @exception IOException If an error occurs while communicating with the server.
    **/
   public void close()

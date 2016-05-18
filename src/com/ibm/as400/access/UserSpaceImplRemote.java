@@ -88,6 +88,7 @@ class UserSpaceImplRemote implements UserSpaceImpl
 
     // Closes our file stream to the user space (if a stream has been created),
     // and releases any system resources associated with the stream.
+    // This will not close the connection to the Host Server job held by the associated AS400 object.
     public void close() throws IOException
     {
         if (file_ != null)

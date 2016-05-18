@@ -24,7 +24,7 @@ interface UserQueueImpl {
   public int create(byte[] objectNameBytes, byte[] extendedAttributeBytes,
       byte queueType, int keyLength, int dataSize, int initialNumberOfMessages,
       int additionNumberOfMessages, byte[] publicAuthorityBytes,
-      byte[] descriptionBytes, byte[] replaceBytes);
+      byte[] descriptionBytes, byte[] replaceBytes) throws AS400Exception, ObjectDoesNotExistException, AS400SecurityException;
 
   public int enqueue(int handle, byte[] enqMsgPrefix, byte[] value);
 

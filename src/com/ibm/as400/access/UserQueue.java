@@ -55,6 +55,7 @@ public class UserQueue {
   int keyLength_;
   private byte queueType_;
   UserQueueImpl impl_;
+  private Converter converter_;
 
   /**
    * Constructs a UserQueue object.
@@ -67,13 +68,26 @@ public class UserQueue {
    *          queue.
    * @throws UnsupportedEncodingException
    * @throws CharConversionException
+   * @throws NullPointerException  If passed invalid system or path. 
    **/
   public UserQueue(AS400 system, String path)
       throws UnsupportedEncodingException, CharConversionException {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Constructing UserQueue object.");
+   
+    if (system == null) {
+      Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+      throw new NullPointerException("system");
+    }
+    if (path == null) {
+      Trace.log(Trace.ERROR, "Parameter 'path' is null.");
+      throw new NullPointerException("path");
+    }
+
     system_ = system;
     path_ = path;
+
+    converter_ = new Converter(system_.getCcsid(), null);
 
     objectNameBytes_ = new byte[20];
 
@@ -84,35 +98,10 @@ public class UserQueue {
     // Set instance variables.
     String library = ifs.getLibraryName();
     byte[] libBytes;
-    try {
-      libBytes = library.getBytes("IBM-037");
-    } catch (UnsupportedEncodingException e) {
-      // Fall back to using system object
-      byte[] newLibBytes = { (byte) 0x40, (byte) 0x40, (byte) 0x40,
-          (byte) 0x40, (byte) 0x40, (byte) 0x40, (byte) 0x40, (byte) 0x40,
-          (byte) 0x40, (byte) 0x40 };
-      libBytes = newLibBytes;
-      AS400ImplRemote as400Impl = (AS400ImplRemote) system.getImpl();
-      ConverterImplRemote converter = ConverterImplRemote.getConverter(
-          as400Impl.getCcsid(), as400Impl);
-      converter.stringToByteArray(library, libBytes);
-    }
+    libBytes = converter_.stringToByteArray(library);
 
     String indexName = ifs.getObjectName();
-    byte[] indexNameBytes;
-    try {
-      indexNameBytes = indexName.getBytes("IBM-037");
-    } catch (UnsupportedEncodingException e) {
-      // Fall back to using system object
-      byte[] newIndexNameBytes = { (byte) 0x40, (byte) 0x40, (byte) 0x40,
-          (byte) 0x40, (byte) 0x40, (byte) 0x40, (byte) 0x40, (byte) 0x40,
-          (byte) 0x40, (byte) 0x40 };
-      indexNameBytes = newIndexNameBytes;
-      AS400ImplRemote as400Impl = (AS400ImplRemote) system.getImpl();
-      ConverterImplRemote converter = ConverterImplRemote.getConverter(
-          as400Impl.getCcsid(), as400Impl);
-      converter.stringToByteArray(indexName, indexNameBytes);
-    }
+    byte[] indexNameBytes = converter_.stringToByteArray(indexName );
 
     System.arraycopy(indexNameBytes, 0, objectNameBytes_, 0,
         indexNameBytes.length);
@@ -120,12 +109,11 @@ public class UserQueue {
 
     //
     // Pick the implementation. In the future this could be a PASE
-    // implementation
-    // or a remote implementation.
+    // implementation or a remote implementation.
     //
 
     mustUseNativeMethods_ = true;
-    impl_ = new UserQueueImplILE();
+    impl_ = new UserQueueImplILE(converter_);
 
   }
 
@@ -134,7 +122,7 @@ public class UserQueue {
    * attributes provided.
    * 
    * @param extendedAttribute
-   *          The extended attribute of the user queue to be created.
+   *          The extended attribute of the user queue to be created.  
    * @param queueType
    *          The type of the queue, which indicates the sequences in which
    *          messages are to be dequeued from the queue. Valid values are
@@ -145,7 +133,7 @@ public class UserQueue {
    *          of the queue is QUEUE_TYPE_KEYED. Otherwise, the value must be 0.
    * @param maximumMessageSize
    *          The maximum allowed size of messages to be placed on the queue.
-   *          The maximum size allowed is 64,0000 bytes.
+   *          The maximum size allowed is 64,000 bytes.
    * @param initialNumberOfMessages
    *          The initial number of messages that the queue can contain.
    * @param additionalNumberOfMessages
@@ -157,41 +145,61 @@ public class UserQueue {
    *          The public authority for the user space. This string must be 10
    *          characters or less. Valid values are:
    *          <ul>
-   *          <li>ALL
-   *          <li>CHANGE
-   *          <li>EXCLUDE
-   *          <li>LIBCRTAUT
-   *          <li>USE
+   *          <li>*ALL
+   *          <li>*CHANGE
+   *          <li>*EXCLUDE
+   *          <li>*LIBCRTAUT
+   *          <li>*USE
    *          <li>authorization-list name
    *          </ul>
-   * @exception AS400SecurityException
+   * @param description
+   *           A brief description of the user queue.
+   * @param replace
+   * Whether to replace an existing user queue. Valid values for this parameter are:
+   * <ul>
+   * <li>*NO   Do not replace an existing user queue of the same name and library. *NO is the default.
+   * <li>*YES  Replace an existing user queue of the same name and library.
+   * </ul>
+   * <p>The user queue being replaced is destroyed if both:</p>
+   * <ul>
+   * <li>The user queue you are replacing is in the user domain.
+   * <li>The allow user domain (QALWUSRDMN) system value is not set to *ALL or 
+   * does not contain the library QRPLOBJ.
+   * </ul> 
+   * </p> If the QRPLOBJ library is specified in the QALWUSRDMN system value, 
+   * then the replaced user-domain user queue is moved to the QRPLOBJ library. 
+   * If the user queue is in the system domain, it is moved to the QRPLOBJ library,
+   *  which is cleared at system IPL. 
+   *            
+   * @throws AS400SecurityException
    *              If a security or authority error occurs.
-   * @exception ErrorCompletingRequestException
+   * @throws ErrorCompletingRequestException
    *              If an error occurs before the request is completed.
-   * @exception IOException
+   * @throws IOException
    *              If an error occurs while communicating with the system.
-   * @exception IllegalObjectTypeException
+   * @throws IllegalObjectTypeException
    *              If the object on the system is not the required type.
-   * @exception InterruptedException
+   * @throws InterruptedException
    *              If this thread is interrupted.
-   * @exception ObjectAlreadyExistsException
+   * @throws ObjectAlreadyExistsException
    *              If the object already exists on the system.
-   * @exception ObjectDoesNotExistException
+   * @throws ObjectDoesNotExistException
    *              If the library does not exist on the system.
+   * @throws AS400Exception   If the create results in an AS400 erro message 
    **/
   public void create(String extendedAttribute, byte queueType, int keyLength,
       int maximumMessageSize, int initialNumberOfMessages,
       int additionalNumberOfMessages, String authority, String description,
       String replace) throws AS400SecurityException,
-      ErrorCompletingRequestException, IOException, IllegalObjectTypeException,
+      IOException, IllegalObjectTypeException,
       InterruptedException, ObjectAlreadyExistsException,
-      ObjectDoesNotExistException {
+      ObjectDoesNotExistException, AS400Exception {
     dataSize_ = maximumMessageSize;
 
-    byte[] extendedAttributeBytes = extendedAttribute.getBytes("IBM-037");
-    byte[] publicAuthorityBytes = authority.getBytes("IBM-037");
-    byte[] descriptionBytes = description.getBytes("IBM-037");
-    byte[] replaceBytes = replace.getBytes("IBM-037");
+    byte[] extendedAttributeBytes = converter_.stringToByteArray(extendedAttribute);
+    byte[] publicAuthorityBytes = converter_.stringToByteArray(authority);
+    byte[] descriptionBytes = converter_.stringToByteArray(description);
+    byte[] replaceBytes = converter_.stringToByteArray(replace);
 
     keyLength_ = keyLength;
     queueType_ = queueType;
@@ -288,17 +296,17 @@ public class UserQueue {
    *          Byte array to receive the bytes contained in the queue entry.
    * @return Returns 1 if a message was dequeued, 0 if a message was not
    *         dequeued.
-   * @exception AS400SecurityException
+   * @throws AS400SecurityException
    *              If a security or authority error occurs.
-   * @exception ErrorCompletingRequestException
+   * @throws ErrorCompletingRequestException
    *              If an error occurs before the request is completed.
-   * @exception IOException
+   * @throws IOException
    *              If an error occurs while communicating with the system.
-   * @exception IllegalObjectTypeException
+   * @throws IllegalObjectTypeException
    *              If the object on the system is not the required type.
-   * @exception InterruptedException
+   * @throws InterruptedException
    *              If this thread is interrupted.
-   * @exception ObjectDoesNotExistException
+   * @throws ObjectDoesNotExistException
    *              If the object does not exist on the system.
    **/
   public int dequeue(byte[] dequeueMessagePrefixBytes, byte[] outputBytes)
@@ -328,7 +336,7 @@ public class UserQueue {
    */
   public void enqueue(String value) throws UnsupportedEncodingException,
       IllegalObjectTypeException {
-    byte[] valueBytes = value.getBytes("IBM-037");
+    byte[] valueBytes = converter_.stringToByteArray(value);
     if (handle_ == 0) {
       open();
     }
@@ -373,17 +381,17 @@ public class UserQueue {
    *          size.
    * @param entryBytes
    *          A byte array representing the entry to add to the queue.
-   * @exception AS400SecurityException
+   * @throws AS400SecurityException
    *              If a security or authority error occurs.
-   * @exception ErrorCompletingRequestException
+   * @throws ErrorCompletingRequestException
    *              If an error occurs before the request is completed.
-   * @exception IOException
+   * @throws IOException
    *              If an error occurs while communicating with the system.
-   * @exception IllegalObjectTypeException
+   * @throws IllegalObjectTypeException
    *              If the object on the system is not the required type.
-   * @exception InterruptedException
+   * @throws InterruptedException
    *              If this thread is interrupted.
-   * @exception ObjectDoesNotExistException
+   * @throws ObjectDoesNotExistException
    *              If the object does not exist on the system.
    **/
 
@@ -435,7 +443,7 @@ public class UserQueue {
     if (useNativeMethods) {
       if (!mustUseNativeMethods_) {
         mustUseNativeMethods_ = useNativeMethods;
-        impl_ = new UserQueueImplILE();
+        impl_ = new UserQueueImplILE(converter_);
       }
 
     } else {

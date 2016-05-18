@@ -25,17 +25,24 @@ class UserQueueImplILE implements UserQueueImpl {
     NativeMethods.loadNativeLibraryQyjspart();
   }
 
-  public UserQueueImplILE() {
-    // Nothing to do in constructor
+  private Converter converter_;
+
+  public UserQueueImplILE(Converter converter) {
+    converter_=converter;
   }
 
   public int create(byte[] objectNameBytes, byte[] extendedAttributeBytes,
       byte queueType, int keyLength, int dataSize, int initialNumberOfMessages,
       int additionNumberOfMessages, byte[] publicAuthorityBytes,
-      byte[] descriptionBytes, byte[] replaceBytes) {
-    return nativeCreate(objectNameBytes, extendedAttributeBytes, queueType,
-        keyLength, dataSize, initialNumberOfMessages, additionNumberOfMessages,
-        publicAuthorityBytes, descriptionBytes, replaceBytes);
+      byte[] descriptionBytes, byte[] replaceBytes) throws AS400Exception, ObjectDoesNotExistException, AS400SecurityException {
+    try {
+      return nativeCreate(objectNameBytes, extendedAttributeBytes, queueType,
+          keyLength, dataSize, initialNumberOfMessages, additionNumberOfMessages,
+          publicAuthorityBytes, descriptionBytes, replaceBytes);
+    } catch (NativeErrorCode0100Exception e) {
+      e.throwMappedException(converter_);
+      return 0; 
+    }
 
   }
 
@@ -66,7 +73,7 @@ class UserQueueImplILE implements UserQueueImpl {
   native int nativeCreate(byte[] objectNameBytes,
       byte[] extendedAttributeBytes, byte queueType, int keyLength,
       int dataSize, int initialNumberOfMessages, int additionNumberOfMessages,
-      byte[] publicAuthorityBytes, byte[] descriptionBytes, byte[] replaceBytes);
+      byte[] publicAuthorityBytes, byte[] descriptionBytes, byte[] replaceBytes) throws NativeErrorCode0100Exception;
 
   native int nativeEnqueue(int handle, byte[] enqMsgPrefix, byte[] value);
 

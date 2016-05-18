@@ -261,6 +261,7 @@ public class UserList implements Serializable
 
     /**
      Closes the user list on the system.  This releases any system resources previously in use by this user list.
+     This will not close the connection to the Host Server job held by the associated AS400 object.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
