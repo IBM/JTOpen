@@ -15,9 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.CharConversionException;
 import java.io.InputStream;
- import java.math.BigDecimal;
- import java.sql.Blob;
- import java.sql.Date;
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.Date;
 /* ifdef JDBC40
 import java.sql.NClob;
 import java.sql.RowId;
@@ -41,7 +41,7 @@ extends SQLDataBase
 
     // Private data.
     private int                     year_;
-    private int                     month_;
+    private int                     month_;  /* zero based, per Java convention */ 
     private int                     day_;
     private int                     hour_;
     private int                     minute_;
@@ -285,18 +285,6 @@ extends SQLDataBase
                                            int length,
                                            SQLConversionSettings settings) /*@I2C*/
     {
-        // @KE3
-        // Support the settings.timestampFormat
-        char dayHourSep=' '; 
-        char hourMinuteSep=':';
-        char minuteSecondSep=':'; 
-        
-        if (settings.getTimestampFormat() == SQLConversionSettings.TIMESTAMP_FORMAT_IBMSQL) {
-          dayHourSep='-'; 
-          hourMinuteSep='.';
-          minuteSecondSep='.'; 
-          
-        }
         // @F3A
         // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, 
         // while we output timestamps like 2100-01-02 03:45:56.000000. 
@@ -304,7 +292,7 @@ extends SQLDataBase
         // This was pointed out by a user who noticed that although he gets a timestamp from our database in 
         // one format, he can't put it back in the database in that same format.
         // @F6A Change back to old format because of service issue.
-        StringBuffer buffer = new StringBuffer();
+        
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
           calendar = AS400Calendar.getConversionCalendar(calendar);
@@ -323,53 +311,72 @@ extends SQLDataBase
             calendar.add(Calendar.DATE, -1);
         }//@tim2
 
-        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
-        buffer.append('-');
-        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
-        buffer.append('-');
-        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
-        buffer.append(dayHourSep); //@KEA 
-        // buffer.append(' '); //@F6C
-        //@F6D buffer.append('-');    // @F3C
-        hour = calendar.get(Calendar.HOUR_OF_DAY);       // @F4A //@tim2
-        // @F4D buffer.append(JDUtilities.padZeros(calendar.get(Calendar.HOUR_OF_DAY), 2));
-        buffer.append(JDUtilities.padZeros(hour, 2));       // @F4C
-        buffer.append(hourMinuteSep);  //@KEA
-        // buffer.append(':');  //@F6C
-        //@F6D buffer.append('.');    // @F3C
-        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MINUTE), 2));
-        buffer.append(minuteSecondSep);  //@KEA
-        // buffer.append(':');  //@F6C
-        //@F6D buffer.append('.');    // @F3C
-        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.SECOND), 2));
-        if (length > 20) {      /*@I2A*/
-          buffer.append('.');
-          if (ts instanceof AS400JDBCTimestamp) {  /*@H3C*/
-            buffer.append(JDUtilities.padZeros(((AS400JDBCTimestamp) ts).getPicos(), 12)); // @B1C
-            buffer.setLength(length);  /*@I2A*/
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int minute = calendar.get(Calendar.MINUTE); 
+        int second = calendar.get(Calendar.SECOND); 
+        
+        long picos = 0; 
+        if (length > 20) {      
+          if (ts instanceof AS400JDBCTimestamp) {  
+            picos = ((AS400JDBCTimestamp) ts).getPicos();
           } else {
-             int nanos = ts.getNanos();
-             buffer.append(JDUtilities.padZeros(nanos, 9)); // @B1C
-             if (length > 29) {   /*@I2A*/
-                buffer.append("000");
-             }
-             buffer.setLength(length);  /*@I2C*/
+             picos = ts.getNanos() * 1000L; 
           }
         }
-        // The Calendar class represents 24:00:00 as 00:00:00.        // @F4A
-        // Format of timestamp is YYYY-MM-DD-hh.mm.ss.uuuuuu, so hh is at offset 11.
-        if(hourIn == 24 && hour==0)                                  // @F4A
-        {
-            buffer.setCharAt(11,'2');                                   // @F4A
-            buffer.setCharAt(12,'4');                                   // @F4A
-            // Note: StringBuffer.replace() is available in Java2.
-        }
+        if(hourIn == 24 && hour==0)  { hour = 24;   }
 
-        // Ensure that exactly timestampLength characters are returned.
-        // Seems like redundant code.  Removing to see effect
-        // String tempString = buffer.toString() + "000000000000";
-        // return tempString.substring(0, timestampLength);
-        return buffer.toString(); 
+        return buildString(year, month, day, hour, minute, second, picos, length, settings);
+    }
+
+    private static String buildString(int year, int month, int day, int hour,
+        int minute, int second, long picos, int length,
+        SQLConversionSettings settings) {
+
+      StringBuffer buffer = new StringBuffer();
+
+      // @KE3
+      // Support the settings.timestampFormat
+      char dayHourSep=' '; 
+      char hourMinuteSep=':';
+      char minuteSecondSep=':'; 
+      
+      if (settings.getTimestampFormat() == SQLConversionSettings.TIMESTAMP_FORMAT_IBMSQL) {
+        dayHourSep='-'; 
+        hourMinuteSep='.';
+        minuteSecondSep='.'; 
+        
+      }
+      
+      buffer.append(JDUtilities.padZeros(year, 4));
+      buffer.append('-');
+      buffer.append(JDUtilities.padZeros(month + 1, 2));
+      buffer.append('-');
+      buffer.append(JDUtilities.padZeros(day, 2));
+      buffer.append(dayHourSep); //@KEA 
+
+      
+      buffer.append(JDUtilities.padZeros(hour, 2));       // @F4C
+      
+      buffer.append(hourMinuteSep);  
+      buffer.append(JDUtilities.padZeros(minute, 2));
+
+      buffer.append(minuteSecondSep);  
+
+      buffer.append(JDUtilities.padZeros(second, 2));
+      
+      if (length > 20) {      
+        buffer.append('.');
+        buffer.append(JDUtilities.padZeros(picos, 12)); 
+        buffer.setLength(length);  
+      }
+     
+      buffer.setLength(length);  
+
+      return buffer.toString();
+      
+
     }
 
     //---------------------------------------------------------//
@@ -727,10 +734,23 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false;
+        
+        // The former implementation converts this to a timestamp which then
+        // uses the timestampToString to convert back. Seems like a lot of overkill.
+        //
+        // 
+        // The logic to create a string was added to the buildStringMethod 
+        // and removed from the timestampToString method. 
+        return buildString(year_, month_, day_, hour_, minute_, second_, picos_, length_, settings_); 
+        
+        /*
+         * Removed code 
+         */
         // Note:  For this conversion, we cannot use a default calendar.  If the
         // calendar implements daylight savings time, then there are some times that
         // do not exist.  For example, 2011-03-13 02:32:17 does not exist.
         // Calendar calendar = AS400Calendar.getGregorianInstance(); @G4C
+        /* 
         Calendar calendar = AS400Calendar.getGMTInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
         long millis;
@@ -744,7 +764,10 @@ extends SQLDataBase
       ts.setPicos(picos_); 
       return timestampToString(ts, calendar, hour_, length_, settings_); // @F4C@I2C
     }
+    */
+        
     }
+
 
     public Time getTime(Calendar calendar)
     throws SQLException
