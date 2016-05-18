@@ -41,6 +41,7 @@ extends SQLDataBase  implements SQLVariableCompressible
     protected int                     maxLength_;
     protected String                  value_;
     protected int                     bytesPerCharacter_; 
+    protected int                     sizeAfterTruncation_ = 0; 
 
     // Note: maxLength is in bytes not counting 2 for LL.
     //
@@ -93,6 +94,7 @@ extends SQLDataBase  implements SQLVariableCompressible
             // If the field is VARGRAPHIC, length_ contains the number
             // of characters in the string, while the converter is expecting
             // the number of bytes. Thus, we need to multiply length_ by bytesPerCharacter.
+            sizeAfterTruncation_ = length_*bytesPerCharacter_; 
             value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_*bytesPerCharacter_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
         }catch(Exception e){
             JDError.throwSQLException(JDError.EXC_CHAR_CONVERSION_INVALID, e);
@@ -117,10 +119,13 @@ extends SQLDataBase  implements SQLVariableCompressible
             // The length in the first 2 bytes is actually the length in characters.
             byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
             BinaryConverter.unsignedShortToByteArray(temp.length/bytesPerCharacter_, rawBytes, offset);
+            sizeAfterTruncation_ = temp.length; 
             if(temp.length > maxLength_)
             {
+                sizeAfterTruncation_ = maxLength_; 
                 truncated_ = temp.length - maxLength_;  /*@H2C*/
-                maxLength_ = temp.length;
+                // Not sure why maxLength_ was changed. 
+                // maxLength_ = temp.length;
                 // We now set the truncated information and let the truncated data through
                 // JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
                 // the testDataTruncation method will be called to see if
@@ -175,7 +180,7 @@ extends SQLDataBase  implements SQLVariableCompressible
             if(temp.length > maxLength_)
             {
                 truncated_ = temp.length - maxLength_;  /*@H2C*/
-                maxLength_ = temp.length;
+                // maxLength_ = temp.length;
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
             }
             if (temp.length > 0)  {
@@ -367,9 +372,14 @@ extends SQLDataBase  implements SQLVariableCompressible
         return true;
     }
 
+    // Returns the size after truncation has occurred 
     public int getActualSize()
     {
+      if (sizeAfterTruncation_ != 0) {
+        return sizeAfterTruncation_; 
+      } else { 
         return value_.length();
+      }
     }
 
     public int getTruncated()
