@@ -121,9 +121,14 @@ extends SQLDataBase  implements SQLVariableCompressible
             {
                 truncated_ = temp.length - maxLength_;  /*@H2C*/
                 maxLength_ = temp.length;
-                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
+                // We now set the truncated information and let the truncated data through
+                // JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
+                // the testDataTruncation method will be called to see if
+                // the truncation message should be thrown. 
+                System.arraycopy(temp, 0, rawBytes, offset+2, maxLength_);
+            } else { 
+              System.arraycopy(temp, 0, rawBytes, offset+2, temp.length);
             }
-            System.arraycopy(temp, 0, rawBytes, offset+2, temp.length);
 
             // The buffer we are filling with data is big enough to hold the entire field.
             // For varchar fields the actual data is often smaller than the field width.
