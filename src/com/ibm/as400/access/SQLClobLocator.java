@@ -771,6 +771,10 @@ endif*/
         return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
     }
 
+  public Object getBatchableObject() throws SQLException {
+    return getObject();
+  }
+   
     public short getShort()
     throws SQLException
     {

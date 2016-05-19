@@ -410,7 +410,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
             parameters[i] = new Byte("2"); // unassigned //@EIA
           else
             // @EIA
-            parameters[i] = sqlData.getObject();
+            parameters[i] = sqlData.getBatchableObject();
           // @KBD if(containsLocator_ == LOCATOR_UNKNOWN)
           // @KBD {
           // @KBD int sqlType = sqlData.getSQLType();

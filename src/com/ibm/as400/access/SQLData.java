@@ -478,6 +478,22 @@ extends Cloneable
     public abstract Object getObject()
     throws SQLException;
 
+    
+    /**
+    Converts the data to a Java object that will be used
+    later when processing a batch.  In most cases, this
+    will return the same object as getObject().
+    In the timestamp case, we return an AS400FieldedTimstamp.
+    This is need to permit timestamps that do not exist in the
+    current timezone to be sent to the server. 
+    @return             the result of the conversion.
+    @exception  SQLException    If the conversion is not
+                                required or not possible.
+    **/
+    public abstract Object getBatchableObject()
+    throws SQLException;
+
+    
     /**
     Converts the data to a Java short.
     @return     the result of the conversion.

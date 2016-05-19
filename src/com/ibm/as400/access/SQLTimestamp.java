@@ -497,7 +497,17 @@ extends SQLDataBase
             second_ = calendar.get(Calendar.SECOND);
             picos_  = ((long)calendar.get(Calendar.MILLISECOND)) * 1000000000L;
         }
-
+        else if (object instanceof AS400JDBCFieldedTimestamp) {
+          AS400JDBCFieldedTimestamp ts = (AS400JDBCFieldedTimestamp) object; 
+          year_   = ts.getYear();
+          month_  = ts.getMonth();
+          day_    = ts.getDay();
+          hour_   = ts.getHour();
+          minute_ = ts.getMinute();
+          second_ = ts.getSecond();
+          picos_  = ts.getPicos();
+          length_ = ts.getLength(); 
+        }
         else
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
     }
@@ -722,7 +732,9 @@ extends SQLDataBase
           return ts; 
         }
     }
-
+   public Object getBatchableObject() {
+     return new AS400JDBCFieldedTimestamp(year_, month_, day_, hour_, minute_, second_, picos_, length_); 
+   }
     public short getShort()
     throws SQLException
     {

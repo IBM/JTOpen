@@ -614,6 +614,9 @@ public abstract class SQLDataBase implements SQLData
     public abstract Object getObject()
     throws SQLException;
 
+    public Object getBatchableObject() throws SQLException {
+      return getObject(); 
+    }
     /**
     Converts the data to a Java short.
     @return     the result of the conversion.

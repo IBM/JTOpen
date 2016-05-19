@@ -405,6 +405,13 @@ endif */
     {
         return getArray();
     }
+ 
+    public Object getBatchableObject() throws SQLException
+    {
+        return getArray();
+    }
+
+    
 
     public int getPrecision()
     {

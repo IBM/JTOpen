@@ -790,6 +790,12 @@ final class SQLBlobLocator implements SQLLocator
         return new AS400JDBCBlobLocator(new JDLobLocator(locator_), savedObject_, scale_);
     }
 
+
+    public Object getBatchableObject() throws SQLException {
+      return getObject();
+    }
+
+    
     public short getShort()
     throws SQLException
     {

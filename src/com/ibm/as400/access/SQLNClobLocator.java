@@ -792,6 +792,14 @@ endif */
         /* endif */ 
     }
 
+
+  
+
+
+    public Object getBatchableObject() throws SQLException {
+      return getObject();
+    }
+
     public short getShort()
     throws SQLException
     {
