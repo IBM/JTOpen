@@ -2047,7 +2047,27 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
-
+  //@RBA
+  public void positionCursorLong(long recordNumber)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        // If caching, check if position is in the cache.  If it is not, refresh the
+        // the cache and position appropriately.
+        if (cacheRecords_)
+        {
+          if (!cache_.setPositionLong(recordNumber))
+          {
+            positionCursorToIndexLong(recordNumber);
+          }
+        }
+        else
+        { // Not caching
+          positionCursorToIndexLong(recordNumber);
+        }
+      }
   /**
    *Positions the file cursor to the first record meeting the specified search criteria
    *based on <i>key</i>.  The <i>searchType</i> indicates that the cursor should be
@@ -2427,6 +2447,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   public abstract Record positionCursorToIndex(int index)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
+  //@RBA
+  public abstract Record positionCursorToIndexLong(long index)
+      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+
   /**
    *Positions the cursor to the first record in the file that matches the
    *specified key.
@@ -2656,6 +2680,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   public abstract Record read(Object[] key,
                               int searchType)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+
+  //@RBA
+  public abstract Record readLong(Object[] key,
+      int searchType)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
   // @A2A
@@ -3022,7 +3051,35 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     // Not caching, read from the file.
     return readRecord(TYPE_GET_NEXT);
   }
+  
+  //@RBA
+  public Record readNextLong()
+      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {
+        Record r = null;
+        // If we are caching, check the cache for the record.  IF not found refresh the
+        // cache.
+        if (cacheRecords_)
+        {
+          r = cache_.getNext();
+          if (r == null)
+          {
+            if (Trace.isTraceOn())
+            {
+              Trace.log(Trace.INFORMATION, "AS400FileImplBase.readNext(): cache_.getNext() returned null.");
+            }
+            refreshCacheLong(null, DDMRecordCache.FORWARD, false, false);
+            return cache_.getCurrent();
+          }
+          else
+          {
+            return r;
+          }
+        }
 
+        // Not caching, read from the file.
+        return readRecordLong(TYPE_GET_NEXT);
+      }
   /**
    *Reads the next record whose key matches the full key of the current record.
    *The file must be open when invoking this method.  The file must be
@@ -3130,7 +3187,41 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     return r;
   }
 
-
+  //@RBA
+  public Record readNextEqualLong(Object[] key)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        Record r = null;
+        try
+        {
+          //@B4C - when reading, get out early by checking comparison
+          r = readNextLong();
+          int match = UNKNOWN;
+          if (r != null) match = compareKeys(key, r.getKeyFields());
+          while (r != null && (match == GREATER_THAN || match == UNKNOWN))
+          {
+            r = readNextLong();
+            if (r != null) match = compareKeys(key, r.getKeyFields());
+          }
+          if (match != EQUAL) r = null;
+          //@B4C - end change
+        }
+        catch (AS400Exception e)
+        {
+          if (e.getAS400Message().getID().equals("CPF5025"))
+          {
+            return null;
+          }
+          else
+          {
+            throw e;
+          }
+        }
+        return r;
+      }
   /**
    *Reads the next record whose key matches the specified key.  The search does
    *not include the current record.  The <i>key</i> may be a partial key.
@@ -3393,6 +3484,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   public abstract Record readRecord(int type)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
+  //@RBA
+  public abstract Record readRecordLong(int type)
+      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
   /**
    *Reads records from the file.  The next or previous 'blockingFactor_'
@@ -3407,6 +3501,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   public abstract Record[] readRecords(int direction)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
+  //@RBA
+  public abstract Record[] readRecordsLong(int direction)
+      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
   /**
    *Refreshes the record cache for this file object.  Depending on the direction
@@ -3425,7 +3522,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    **/
-  public void refreshCache(Record[] records, int direction, boolean containsFirstRecord, boolean containsLastRecord)
+  //@RBA
+  public void refreshCacheLong(Record[] records, int direction, boolean containsFirstRecord, boolean containsLastRecord)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
@@ -3447,7 +3545,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         // Read records.  We don't need to create the implementation because
         // this method is only called by code that ensures that this object is
         // already open.
-        records = readRecords(direction);
+        records = readRecordsLong(direction);
       }
       if (Trace.isTraceOn())
       {
@@ -3470,7 +3568,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       //@G0: Always position by record number.
       //     The code path for positioning by key was causing a performance hit
       //     and seems to be superfluous.
-      int recordNumber = (cache_.getCurrent() == null)? cache_.getNext().getRecordNumber() : cache_.getCurrent().getRecordNumber();
+      long recordNumber = (cache_.getCurrent() == null)? cache_.getNext().getRecordNumber() : cache_.getCurrent().getRecordNumber();
       if (Trace.isTraceOn())
       {
         Trace.log(Trace.INFORMATION, "AS400FileImplBase.refreshCache(): cursors not in synch.");
@@ -3479,7 +3577,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       //@G0D {
       // Invalidate the cache in case an exception occurs
       cache_.setIsEmpty();
-      positionCursor(recordNumber);
+      positionCursorLong(recordNumber);
       /*@G0D }
       else
       {
@@ -3525,7 +3623,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         // Read records.  We don't need to create the implementation because
         // this method is only called by code that ensures that this object is
         // already open.
-        records = readRecords(direction);
+        records = readRecordsLong(direction);
       }
       // Now we can refresh the cache
       cache_.refresh(records, direction, containsFirstRecord,
@@ -3533,6 +3631,113 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
+  public void refreshCache(Record[] records, int direction, boolean containsFirstRecord, boolean containsLastRecord)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        // Fill the cache.  If null was returned, the cache will set itself to empty.
+        if (Trace.isTraceOn())
+        {
+          Trace.log(Trace.INFORMATION, "AS400FileImplBase.refreshCache: refreshing cache," + String.valueOf(direction));
+        }
+        Record r = null;
+        if ((cache_.currentDirection_ == direction || cache_.isEmpty()))
+        {
+          // Invalidate the cache in case an exception occurs
+          cache_.setIsEmpty();
+          // We refresh if we are going in the same direction
+          if (records == null)
+          {
+            // Read records.  We don't need to create the implementation because
+            // this method is only called by code that ensures that this object is
+            // already open.
+            records = readRecords(direction);
+          }
+          if (Trace.isTraceOn())
+          {
+            Trace.log(Trace.INFORMATION, "AS400FileImplBase.refreshCache(): cursors in synch.");
+          }
+          cache_.refresh(records, direction, containsFirstRecord,
+                         containsLastRecord);
+        }
+        else
+        {
+          // The host cursor and cache cursor are out of synch - need to re-synch
+          // If we are a SequentialFile, we will simply position by record number of
+          // the record we are currently at in the cache to correctly position
+          // ourselves.  If we are a KeyedFile, we need to position by key to
+          // the record whose key matched the key of the record we are currently
+          // at in the cache.  Then we compare the record number.  This is in case
+          // the file has duplicate keys.  If the record number does not match,
+          // we do a readNext() and compare, etc.
+
+          //@G0: Always position by record number.
+          //     The code path for positioning by key was causing a performance hit
+          //     and seems to be superfluous.
+          int recordNumber = (cache_.getCurrent() == null)? cache_.getNext().getRecordNumber() : cache_.getCurrent().getRecordNumber();
+          if (Trace.isTraceOn())
+          {
+            Trace.log(Trace.INFORMATION, "AS400FileImplBase.refreshCache(): cursors not in synch.");
+          }
+          //@G0D if (!isKeyed_) //@B0C: Must be instance of SequentialFile
+          //@G0D {
+          // Invalidate the cache in case an exception occurs
+          cache_.setIsEmpty();
+          positionCursor(recordNumber);
+          /*@G0D }
+          else
+          {
+            Object[] key = (cache_.getCurrent() == null)? cache_.getNext().getKeyFields() : cache_.getCurrent().getKeyFields();
+            r = read(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]); //@B0C
+            // Turn of caching so that we can position in the file
+            cacheRecords_ = false;
+            // Invalidte the cache in the event of an exception
+            cache_.setIsEmpty();
+            while (r != null && r.getRecordNumber() != recordNumber)
+            {
+              try
+              {
+                r = readNextEqual();
+              }
+              catch(AS400Exception e)
+              {
+                cacheRecords_ = true;
+                throw e;
+              }
+              catch(AS400SecurityException e)
+              {
+                cacheRecords_ = true;
+                throw e;
+              }
+              catch(IOException e)
+              {
+                cacheRecords_ = true;
+                throw e;
+              }
+              catch(InterruptedException e)
+              {
+                cacheRecords_ = true;
+                throw e;
+              }
+            }
+            cacheRecords_ = true;
+          }
+          */ //@G0D
+
+          if (records == null)
+          {
+            // Read records.  We don't need to create the implementation because
+            // this method is only called by code that ensures that this object is
+            // already open.
+            records = readRecords(direction);
+          }
+          // Now we can refresh the cache
+          cache_.refresh(records, direction, containsFirstRecord,
+                         containsLastRecord);
+        }
+      }
 
   /**
    *Refreshes the record cache for this file.  Invoking this method will cause the

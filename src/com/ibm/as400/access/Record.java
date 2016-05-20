@@ -105,6 +105,7 @@ public class Record implements Serializable
   int recordLength_;
   // The record number of this record
   int recordNumber_;
+  long recordNumberLong_;//@RBA
   // Array to hold fields returned by getFields.  This allows us to not
   // instantiate a new array every time getFields is done, which allows
   // us to cut down on garbage collection overhead.
@@ -955,6 +956,11 @@ public class Record implements Serializable
   {
     return recordNumber_;
   }
+//@RBA
+  public long getRecordNumberLong()
+  {
+    return recordNumberLong_;
+  }
 
   //@G0A
   /**
@@ -1718,7 +1724,27 @@ public class Record implements Serializable
     recordNumber_ = recordNumber;
     if (changes_ != null) changes_.firePropertyChange("recordNumber", old, newnum);
   }
-
+//@RBA
+  public void setRecordNumberLong(long recordNumber)
+      throws PropertyVetoException
+    {
+      if (recordNumber > 4294967288L ||recordNumber < 0)
+      {
+        throw new ExtendedIllegalArgumentException("recordNumber", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      }
+      //@B5C - fire events the "new" way
+      // Notify veto listeners of the change
+      Long old = null;
+      Long newnum = null;
+      if (vetos_ != null || changes_ != null)
+      {
+        old = new Long(recordNumberLong_);
+        newnum = new Long(recordNumber);
+      }
+      if (vetos_ != null) vetos_.fireVetoableChange("recordNumberLong_", old, newnum);
+      recordNumberLong_ = recordNumber;
+      if (changes_ != null) changes_.firePropertyChange("recordNumberLong_", old, newnum);
+    }
   /**
    *Returns the contents of this record formatted as a String.  If a field is null,
    *"null" is substituted for the contents of the field in the string representation

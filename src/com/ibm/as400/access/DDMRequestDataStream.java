@@ -790,7 +790,67 @@ class DDMRequestDataStream extends DDMDataStream
 
     return req;
   }
+  
+//@RBA
+  static DDMRequestDataStream getRequestS38GETDLong(byte[] dclName,
+      byte[] recordFormatCTLLName,
+      int type,
+      int share,
+      int data,
+      long rrn,
+      AS400ImplRemote system)   // @A1A @B5C
+throws AS400SecurityException,
+InterruptedException,
+IOException
+  {
+    DDMRequestDataStream req = new DDMRequestDataStream(60);
 
+    req.set16bit(req.data_.length - 6, 6); // total length after header
+    req.set16bit(DDMTerm.S38GETD, 8);
+
+    // Set the DCLNAM LL, CP, and parm.
+    req.set16bit(12, 10);
+    req.set16bit(DDMTerm.DCLNAM, 12);
+    System.arraycopy(dclName, 0, req.data_, 14, 8);
+
+    // Set the S38OPTL LL, CP, and parm.
+    req.set16bit(8, 22);
+    req.set16bit(DDMTerm.S38OPTL, 24);
+    req.data_[26] = (byte)type;
+    req.data_[27] = (byte)share;
+    req.data_[28] = (byte)data;
+    req.data_[29] = 2; // _OPER_GETD
+
+    // Set the S38CTLL LL, CP, and parm.  The control list sequence for
+    // GETD parm is record format, member number, relative record number,
+    // and control list end.
+    req.set16bit(30, 30);
+    req.set16bit(DDMTerm.S38CTLL, 32);
+    req.data_[34] = 1; // record format ID
+    req.set16bit(10, 35); // record format length
+
+    // Start of @A2D
+    /*
+StringBuffer recordName = new StringBuffer(recordFormat.getName());
+while (recordName.length() < 10) recordName.append(' ');
+Converter c = Converter.getConverter(system.getCcsid(), system);
+c.stringToByteArray(recordName.toString(), req.data_, 37);
+     */
+    // End of @A2D
+
+    // @A2A
+    System.arraycopy(recordFormatCTLLName, 0, req.data_, 37, recordFormatCTLLName.length);
+
+    req.data_[47] = 0xf; // member number ID
+    req.set16bit(2, 48); // member number length
+    req.set16bit(0, 50); // member number value
+    req.data_[52] = 2; // relative record number ID
+    req.set16bit(4, 53); // relative record number length
+    req.set32bit(rrn, 55); // relative record number value
+    req.data_[59] = (byte) 0xff; // control list end
+
+    return req;
+}
 
   /**
    *Returns the S38GETK request data stream.

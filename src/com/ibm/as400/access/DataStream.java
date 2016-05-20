@@ -295,6 +295,19 @@ abstract class DataStream
       data_[offset+3] = (byte) i;         //@P0A
     }
 
+    //@RBA
+    // Set the 4 bytes at the specified offset to the specified value.
+    // @param  i  Value to be set.
+    // @param  offset  Offset in the data stream at which to place the value.
+    protected final void set32bit(long i, int offset) //@P0C
+    {
+      int bits = (int)i;
+      data_[offset]   = (byte)(bits >>> 24);
+      data_[offset+1] = (byte)(bits >>> 16);
+      data_[offset+2] = (byte)(bits >>>  8);
+      data_[offset+3] = (byte) bits;
+    }
+
     // Set the 8 bytes at the specified offset to the specified value.
     // @param  longVal  Value to be set.
     // @param  offset  Offset in the data stream at which to place the value.

@@ -239,7 +239,19 @@ class DDMRecordCache
     // No match
     return -1;
   }
-
+//@RBA
+  int findRecordLong(long recordNumber)
+  {
+    for (int i = 0; i < size_; ++i)
+    { // Look for the record
+      if (records_[i].getRecordNumber() == recordNumber)
+      { // Match; return now
+        return i;
+      }
+    }
+    // No match
+    return -1;
+  }
   /**
    *Find the record specified by key from the current position in the cache.
    *@param key the key of the record for which to search.
@@ -562,7 +574,21 @@ class DDMRecordCache
     }
     return (i > -1);
   }
-
+  
+//@RBA
+  boolean setPositionLong(long recordNumber)
+  {
+    if (isEmpty_)
+    {
+      return false;
+    }
+    int i = findRecordLong(recordNumber);
+    if (i > -1)
+    {
+      currentPosition_ = i;
+    }
+    return (i > -1);
+  }
   /**
    *Sets the current cache position to the record matching the specified key.
    *@param key the key of the record to position to.

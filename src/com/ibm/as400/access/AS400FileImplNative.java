@@ -1186,7 +1186,10 @@ class AS400FileImplNative extends AS400FileImplBase
 
         return (records.length == 0)? null : records[0];
     }
-
+    //@RBA
+    public Record positionCursorToIndexLong(long index)
+        throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {return null;}
     /**
      *Positions the cursor to the first record in the file that matches the
      *specified key.
@@ -1846,8 +1849,13 @@ class AS400FileImplNative extends AS400FileImplBase
 
         return (records.length == 0)? null : records[0];
     }
-
-
+    //@RBA
+    public Record readLong(Object[] key,
+        int searchType)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+{
+return null;
+}
     // @A2A
     /**
      *Reads the first record with the specified key based on the specified search type.
@@ -2025,7 +2033,10 @@ class AS400FileImplNative extends AS400FileImplBase
 
         return records;
     }
-
+    //@RBA
+    public Record readRecordLong(int type)
+        throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {return null;}
     /**
      *Reads the record at the current file position.
      *@param type type of read (first, last, next, previous)
@@ -2095,7 +2106,12 @@ class AS400FileImplNative extends AS400FileImplBase
 
         return (records.length == 0)? null : records[0];
     }
-
+    //@RBA
+    public Record[] readRecordsLong(int direction)
+        throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {
+      return null;
+      }
     /**
      *Reads records from the file.  The next or previous 'blockingFactor_'
      *records are retrieved depending on the direction specified.

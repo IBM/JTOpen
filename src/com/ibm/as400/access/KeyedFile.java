@@ -97,6 +97,8 @@ public class KeyedFile extends AS400File implements Serializable
   static public final int KEY_LE = 4;
 
   static protected final int[] TYPE_TABLE = {0x0B, 0x0D, 0x0C, 0x09, 0x0A};
+  
+  private boolean longRecordNumber = false;//@RBA
 
   /**
    *Constructs a KeyedFile object.
@@ -119,6 +121,11 @@ public class KeyedFile extends AS400File implements Serializable
     super(system, name);
   }
 
+//@RBA
+  public void setLongRecordNumber(boolean v){
+    longRecordNumber = v;
+  }
+  
   /**
    *Deletes the record specified by key.  The file must be open when invoking
    *this method.
@@ -537,6 +544,7 @@ public class KeyedFile extends AS400File implements Serializable
     return read(key, KEY_EQ);
   }
 
+ 
 
   // @A2A
   /**
@@ -607,10 +615,11 @@ public class KeyedFile extends AS400File implements Serializable
     {
       throw new ExtendedIllegalArgumentException("searchType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
+    if(longRecordNumber)//@RBA
+      return fillInRecord(impl_.doItRecord("readLong", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]) })); //@D0C
+    
     return fillInRecord(impl_.doItRecord("read", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]) })); //@D0C
   }
-
-
 
   // @A2A
   /**
@@ -886,6 +895,8 @@ public class KeyedFile extends AS400File implements Serializable
            IOException
   {
     checkParameter(key); //@C0A
+    if(longRecordNumber)//@RBA
+      return fillInRecord(impl_.doItRecord("readNextEqualLong", new Class[] { Object[].class }, new Object[] { key })); //@D0C
     return fillInRecord(impl_.doItRecord("readNextEqual", new Class[] { Object[].class }, new Object[] { key })); //@D0C
   }
 

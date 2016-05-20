@@ -1060,7 +1060,56 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     return returned[0];  // @A1A
 //    return null;       // @A1D
   }
+  //@RBA
+  public Record positionCursorToIndexLong(long recordNumber)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int shr;  // Type of locking for the record
 
+        if (cacheRecords_ && !cache_.setPositionLong(recordNumber)) //@G0A
+        {
+          // Invalidate the cache
+          cache_.setIsEmpty(); //@G0A
+        }
+
+        // @A1C
+        if ((openType_ == AS400File.READ_ONLY) ||   //@C0C
+            ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A //@C0C
+        {
+          // Read only
+          shr = SHR_READ_NORM;
+        }
+        else
+        { // READ_WRITE; get for update
+          shr = SHR_UPD_NORM;
+        }
+        // Send the request to read. Specify 0x08 for type
+        // to indicate that the record number is determined from the start of the file.
+        // Note that even though we are only positioning the cursor, we must specify
+        // DATA_DTA_DTARCD which causes the record to be retrieved.  This is because
+        // the cursor will not be positioned properly if we do not actually get the
+        // record.  This situation occurs when accessing by record number or by key but
+        // not when accessing sequentially.
+//        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETD(dclName_, recordFormat_, 0x08, shr, DATA_DTA_DTARCD, recordNumber, system_), server_.newCorrelationId());          // @A1D //@C0C
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETDLong(dclName_, recordFormatCTLLName_, 0x08, shr, DATA_DTA_DTARCD, recordNumber, system_), newCorrelationId());    // @A1A //@C0C @B6C
+
+        // Reply expected: S38BUF
+        int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
+        if (codePoint == DDMTerm.S38IOFB && replys.size() > 1)
+        {
+          handleErrorReply(replys, 1);
+        }
+        else if (codePoint != DDMTerm.S38BUF)
+        {
+          handleErrorReply(replys, 0);
+        }
+        Record[] returned = processReadReplyLong(replys, false);    // @A1C
+        return returned[0];  // @A1A
+//        return null;       // @A1D
+      }
   /**
    *Positions the cursor to the first record with the specified key based on the specified
    *type of read.
@@ -1331,6 +1380,148 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     }
     return returned;
   }
+
+  //@RBA
+  public Record[] processReadReplyLong(Vector replys, boolean discardRecords)  // @A1A
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        Record[] returned = null;  // Will contain the records read.
+        int recordIncrement = openFeedback_.getRecordIncrement();
+
+        // The format of the reply(s) should be one or more S38BUF objects
+        // followed by an S38IOFB.  However if the end of file was reached or
+        // if the record to be read was not found in the file, an S38IOFB followed
+        // be an S38MSGRM indicating CPF5006 or CPF5001 will be returned.  If this is
+        // the case, we return null instead of throwing an exception.
+        // If an error occurs we may get an S38IOFB followed by S38MSGRM objects indicating
+        // the server errors that occurred.  In that case we throw an exception via
+        // handleErrorReply.  If we only get an S38IOFB back, we also throw an
+        // exception as an error must have occurred.  This case should not happen.
+        int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
+        if (codePoint == DDMTerm.S38IOFB)
+        { // The end of file was reached, the record to be read was not found or an
+          // error occurred.
+          if (replys.size() > 1)
+          {
+            codePoint = ((DDMDataStream)replys.elementAt(1)).getCodePoint();
+            if (codePoint == DDMTerm.S38MSGRM)
+            { // Check for end of file or record not found messages
+              DDMAS400MessageReply err = new DDMAS400MessageReply(system_, ((DDMDataStream)replys.elementAt(1)).data_);
+              String msgId = err.getAS400Message().getID();
+              if (msgId.equals("CPF5006") || msgId.equals("CPF5001"))
+              { // End of file reached or record not found; return null record
+                return returned;
+              }
+              else
+              { // Error occurred
+                handleErrorReply(replys, 1);
+              }
+            }
+            else
+            { // Some other error (other than an error) occurred
+              handleErrorReply(replys, 1);
+            }
+          }
+          else
+          { // Only an S38IOFB object was returned.  Error situation.  Should not occur.
+            handleErrorReply(replys, 0);
+          }
+        }
+        else if (codePoint == DDMTerm.S38BUF)
+        {
+          if (discardRecords)
+          {  // @A1A
+            return returned;   // @A1A
+          }                      // @A1A
+
+          // Records were read. Extract format them
+          // Extract the returned records and the io feedback info
+          // The S38IOFB will be the last object in the reply(s)
+          DDMDataStream reply = (DDMDataStream)replys.elementAt(0);
+          DDMS38IOFB ioFeedback;
+          boolean largeBuffer;
+          // If the length of the S38BUF term is greater than 0x7FFF, there
+          // will be an extra 4 bytes after the S38BUF code point which indicate the length of
+          // the S38BUF data.  We need to special handle these instances, so we use largeBuffer
+          // to indicate when such a case has occurred.
+          largeBuffer = (reply.get16bit(6) <= 0x7FFF)? false : true;
+          if (reply.isChained())
+          { // The IO feedback is in the next reply.  The S38IOFB data starts at offset
+            // 10 in the next reply.
+            ioFeedback = new DDMS38IOFB(((DDMDataStream)replys.elementAt(1)).data_, 10);
+          }
+          else
+          { // The io feedback info is in this reply.
+            // if (largeBuffer)
+            //   The length of the record data is in the 4 bytes following the S38BUF
+            //   code point.  The S38IOFB data will start at that length + 6 for the header,
+            //   + 8 for the S38BUF LL-CP-extra LL, + 4 for the S38IOFB LL-CP.
+            // else
+            //   The length of the record data is contained in the LL preceding
+            //   the S38BUF codepoint.  The S38IOFB data will start at that length + 6
+            //   for the header, + 4 for the LL-CP of the S38BUF, + 4 for the S38IOFB LL-CP.
+            int offset = (largeBuffer)? reply.get32bit(10) + 18 : reply.get16bit(6) + 10;
+            ioFeedback = new DDMS38IOFB(reply.data_, offset);
+          }
+
+          // Extract the record(s) returned; because we are in the if (S38BUF code point found)
+          // code, we know that there was at least one record returned.
+          // The S38IOFB contains the number of records read.
+          int numberOfRecords = ioFeedback.getNumberOfRecordsReturned();
+          returned = new Record[numberOfRecords];
+
+          // if (largeBuffer), the S38BUF CP is followed by 4 bytes of record length info,
+          // then the record data; otherwise the record data follows the code point
+          int recordOffset = (largeBuffer)? 14 : 10;
+          // Determine the offset of the record number within the S38BUF for each record.
+          // The S38IOFB contains the record length for the record(s).  The record length
+          // consists of the length of the data plus a variable size gap plus the null byte
+          // field map.  The record number offset is 2 bytes more than the record length.
+          int recordNumberOffset = recordOffset + ioFeedback.getRecordLength() + 2;
+          // Determine the null byte field map offset.  When we opened the file, the
+          // the S38OPNFB reply contained the offset of the null byte field map in a record.
+          int nullFieldMapOffset = recordOffset + openFeedback_.getNullFieldByteMapOffset();
+          // Determine the number of fields in a record from the RecordFormat for this file.
+          int numFields = recordFormat_.getNumberOfFields();
+          // If the file has null capable fields, we will need to check the null byte field
+          // map and set the fields within the Record object as appropriate.
+          boolean isNullCapable = openFeedback_.isNullCapable();
+
+          for (int i = 0; i < numberOfRecords; ++i)
+          { // Extract the records from the datastream reply.
+            returned[i] = recordFormat_.getNewRecord(reply.data_, recordOffset + i * recordIncrement);
+            // Set any null fields to null
+            if (isNullCapable)
+            { // File has null capable fields
+              for (int j = 0; j < numFields; ++j)
+              { // 0xF1 = field is null, 0xF0 = field is not null
+                if (reply.data_[nullFieldMapOffset + j + i * recordIncrement] == (byte)0xF1)
+                {
+                  returned[i].setField(j, null);
+                }
+              }
+            }
+            // Set the record number.  The record number is two bytes after the end of the
+            // record data and is four bytes long.
+            try
+            {
+              returned[i].setRecordNumberLong(BinaryConverter.byteArrayToUnsignedInt(reply.data_, recordNumberOffset + i * recordIncrement));
+            }
+            catch (PropertyVetoException e)
+            { // We created the Record objects.  There is no one to veto anything
+
+            } // so this is here to quit the compiler
+          }
+        }
+        else
+        { // Error occurred
+          handleErrorReply(replys, 0);
+        }
+        return returned;
+      }
 
   /**
    Process replys.
@@ -1694,8 +1885,39 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
     return(returned == null)? null : returned[0];
   }
+  //@RBA
+  public Record readLong(Object[] key, int searchType)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int shr;  // Type of locking for the record
+        if ((openType_ == AS400File.READ_ONLY) ||
+            ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
+        {
+          // Read only
+          shr = SHR_READ_NORM;
+        }
+        else
+        { // READ_WRITE
+          shr = SHR_UPD_NORM;
+        }
 
+//        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_), server_.newCorrelationId());  // @A1D
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_), newCorrelationId());  // @A1A @B6C
+        // Call processReadReply to extract the records read (or throw an
+        // exception if appropriate)
+        Record[] returned = processReadReplyLong(replys, false);    // @A1C
 
+        if (cacheRecords_) //@C0A
+        {
+          //@C0A
+          cache_.setIsEmpty(); //@C0A
+        }                  //@C0A
+
+        return(returned == null)? null : returned[0];
+      }
 
   // @A1A
   /**
@@ -1786,6 +2008,34 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     Record[] returned = processReadReply(replys, false);    // @A1C
     return(returned == null)? null : returned[0];
   }
+  //@RBA
+  public Record readRecordLong(int searchType)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int shr;  // Type of locking for the record
+
+        // @A1C
+        if ((openType_ == AS400File.READ_ONLY) ||
+            ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
+        {
+          // Read only
+          shr = SHR_READ_NORM;
+        }
+        else
+        { // READ_WRITE; get the record for update
+          shr = SHR_UPD_NORM;
+        }
+
+        // Send the get S38GET request
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, searchType, shr, DATA_DTA_DTARCD), newCorrelationId()); //@B6C
+        // Call processReadReply to extract the records read (or throw an
+        // exception if appropriate)
+        Record[] returned = processReadReplyLong(replys, false);    // @A1C
+        return(returned == null)? null : returned[0];
+      }
 
   /**
    *Reads records from the file.  The next or previous 'blockingFactor_'
@@ -1814,7 +2064,24 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // exception if appropriate)
     return processReadReply(replys, false);     // @A1C
   }
+  
+  //@RBA
+  public Record[] readRecordsLong(int direction)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int searchType = (direction == DDMRecordCache.FORWARD ? TYPE_GET_NEXT :
+                    TYPE_GET_PREV);
 
+        // Send the S38GETM request
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETM(dclName_, blockingFactor_, searchType, SHR_READ_NORM, DATA_DTA_DTARCD, 0x01), newCorrelationId()); //@B6C
+
+        // Call processReadReply to extract the records read (or throw an
+        // exception if appropriate)
+        return processReadReplyLong(replys, false);     // @A1C
+      }
 
   /**
    *Rolls back any transactions since the last commit/rollback boundary.  Invoking this
