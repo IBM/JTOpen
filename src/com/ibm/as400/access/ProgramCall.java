@@ -846,21 +846,23 @@ public class ProgramCall implements Serializable
             throw new NullPointerException("parameterList");
         } 
         //@J3 - Start
-        boolean isV7R2 = false;
-        boolean isV7R1 = false;//@N6A
+        //boolean isV7R2 = false;//@RCD
+       // boolean isV7R1 = false;//@N6A//@RCD
+        boolean isSupport255 = false;//@RCA
         try {
-          isV7R2 = system_.getVRM() == 0x00070200;
-          isV7R1 = system_.getVRM() == 0x00070100;//@N6A V7R1 with ptf SI55519 supported parameter with max 255
+          //isV7R2 = system_.getVRM() == 0x00070200; //@RCD
+          //isV7R1 = system_.getVRM() == 0x00070100;//@RCD //@N6A V7R1 with ptf SI55519 supported parameter with max 255
+          isSupport255 = (system_.getVRM() >= 0x00070100);//@RCA
         } catch(Exception e) {
           e.printStackTrace();
         }
         
-        if ((isV7R2 || isV7R1)&& parameterList.length > 255)//@N6C
+        if ((isSupport255)&& parameterList.length > 255)//@N6C //@RCC
         {
           Trace.log(Trace.ERROR, this, "Parameter list length exceeds limit of 255 parameters:", parameterList.length); //@L8
           throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        else if (!isV7R2 && !isV7R1 && parameterList.length > 35)//@N6C
+        else if (!isSupport255 && parameterList.length > 35)//@N6C //@RCC
         {
           Trace.log(Trace.ERROR, this, "Parameter list length exceeds limit of 35 parameters:", parameterList.length); //@L8
           throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
