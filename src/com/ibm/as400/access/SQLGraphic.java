@@ -201,6 +201,7 @@ extends SQLDataBase
         {
             value_ = value_.substring(0, exactLength);
             truncated_ = valueLength - exactLength;
+            outOfBounds_ = false;
         }
         else
             truncated_ = 0; outOfBounds_ = false;

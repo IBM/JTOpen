@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.CharConversionException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -145,6 +146,18 @@ extends SQLDataBase
             Clob clob = (Clob)object;
             value = clob.getSubString(1, (int)clob.length());
         }                                                                           
+        else if(object instanceof Reader)
+        {
+          value = getStringFromReader((Reader) object, ALL_READER_BYTES, this);
+        }
+
+        /* ifdef JDBC40
+        else if(object instanceof SQLXML) //@PDA jdbc40
+        {
+            SQLXML xml = (SQLXML)object;
+            value = xml.getString();
+        }
+        endif */
 
         if(value == null)                                                           
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -217,7 +230,7 @@ extends SQLDataBase
 
     public int getMaximumPrecision()
     {
-        return 32765;
+        return 16382;
     }
 
     public int getMaximumScale()
@@ -345,6 +358,7 @@ extends SQLDataBase
     public Object getObject()
     throws SQLException
     {
+        truncated_ = 0; outOfBounds_ = false;
         // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         return getString();
@@ -354,6 +368,7 @@ extends SQLDataBase
     public String getString()
     throws SQLException
     {
+        truncated_ = 0; outOfBounds_ = false;
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec. 
         int maxFieldSize = settings_.getMaxFieldSize();
