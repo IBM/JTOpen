@@ -187,10 +187,10 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             extendedMetaData.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_METADATA_DESC"));                         // @J2A
 
             PropertyDescriptor extendedMetadata = new PropertyDescriptor("extendedMetadata", beanClass, "isExtendedMetadata", "setExtendedMetadata"); // @J2A
-            extendedMetaData.setBound(true);                                                                                     // @J2A
-            extendedMetaData.setConstrained(false);                                                                              // @J2A
-            extendedMetaData.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_EXTENDED_METADATA"));                         // @J2A
-            extendedMetaData.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_METADATA_DESC"));                         // @J2A
+            extendedMetadata.setBound(true);                                                                                     // @J2A
+            extendedMetadata.setConstrained(false);                                                                              // @J2A
+            extendedMetadata.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_EXTENDED_METADATA"));                         // @J2A
+            extendedMetadata.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_METADATA_DESC"));                         // @J2A
 
 
             PropertyDescriptor fullOpen = new PropertyDescriptor("fullOpen", beanClass, "isFullOpen", "setFullOpen");    // @W1A
