@@ -320,7 +320,7 @@ Determine the object type (file, directory, etc.)
  String getASP(int systemCcsid) throws UnsupportedEncodingException
  {
    // Assume that this reply has an "Optional/Variable" section, and that it contains an "Object Attribute 1" structure.
-   return getObjAttrs1().getOwnerName(systemCcsid);
+   return getObjAttrs1().getASP(systemCcsid);
  }
 
 // @B7a
