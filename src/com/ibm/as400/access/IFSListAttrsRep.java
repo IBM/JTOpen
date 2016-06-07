@@ -313,6 +313,15 @@ Determine the object type (file, directory, etc.)
     return getObjAttrs1().getOwnerName(systemCcsid);
   }
 
+  //@RDA
+  /**
+  Get the value of the file's "ASP" attribute.
+  **/
+ String getASP(int systemCcsid) throws UnsupportedEncodingException
+ {
+   // Assume that this reply has an "Optional/Variable" section, and that it contains an "Object Attribute 1" structure.
+   return getObjAttrs1().getOwnerName(systemCcsid);
+ }
 
 // @B7a
 /**

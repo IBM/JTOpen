@@ -31,7 +31,10 @@ final class IFSObjAttrs1 implements Serializable
   // Location of the "Owner name flag" in the "Flags(1)" field of the OA1* structure.
   // To retrieve the Owner name, this flag must be set in the 'list attributes' request.
   static final int OWNER_NAME_FLAG = 0x00000800;
-
+  
+  // Location of the "ASP flag" in the "Flags(1)" field of the OA1* structure.
+  // To retrieve the ASP, this flag must be set in the 'list attributes' request.
+  static final int ASP_FLAG = 0x00100000;//@RDA
 
 
   private byte[] data_;
@@ -50,7 +53,14 @@ final class IFSObjAttrs1 implements Serializable
     return owner;
   }
 
-
+  //@RDA Returns the value of the "ASP holding the object" field (at offset 220).
+  final String getASP(int systemCcsid) throws UnsupportedEncodingException
+  {
+    ConvTable conv = ConvTable.getTable(systemCcsid, null);
+    String ASP = conv.byteArrayToString(data_, 220, 2).trim();
+    return ASP;
+  }
+  
   final int length()
   {
     return data_.length;

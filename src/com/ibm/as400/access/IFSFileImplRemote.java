@@ -969,6 +969,43 @@ implements IFSFileImpl
     return (ownerName == null ? "" : ownerName);
   }
 
+  //@RDA
+  /**
+  Returns the ASP that holds the file.
+  **/
+ public String getASP()
+   throws IOException, AS400SecurityException
+ {
+   // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
+   String ASP = null;
+
+   fd_.connect();
+   // The 'owner name' field is in the OA1 structure; the flag is in the first Flags() field.
+   try
+   {
+     IFSListAttrsRep reply = fd_.listObjAttrs1(IFSObjAttrs1.ASP_FLAG, 0);
+     if (reply != null) {
+       ASP = reply.getASP(fd_.system_.getCcsid());
+     }
+     else {
+       if (Trace.traceOn_) Trace.log(Trace.WARNING, "getASP: " +
+                   "IFSReturnCodeRep return code", fd_.errorRC_);
+       if (fd_.errorRC_ == IFSReturnCodeRep.FILE_NOT_FOUND ||
+           fd_.errorRC_ == IFSReturnCodeRep.PATH_NOT_FOUND)
+       {
+         throw new ExtendedIOException(fd_.path_, ExtendedIOException.PATH_NOT_FOUND);
+       }
+     }
+   }
+   catch (ExtendedIOException e) {
+     if (e.getReturnCode() == ExtendedIOException.DIR_ENTRY_EXISTS) {
+       if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unable to determine ASP of directory.", e);
+     }
+     else throw e;
+   }
+
+   return (ASP == null ? "" : ASP);
+ }
 
   // Design note: The following is an alternative implementation of getOwnerName(), using the Qp0lGetAttr API.
 

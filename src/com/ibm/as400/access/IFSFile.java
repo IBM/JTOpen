@@ -1763,6 +1763,23 @@ public class IFSFile
     return system_;
   }
 
+  //@RDA
+  /**
+   * @return Return the ASP that holds the object.
+   * @throws IOException
+   * @throws AS400SecurityException
+   */
+  public String getASP()
+      throws IOException,
+             AS400SecurityException
+    {
+      
+      if (impl_ == null)
+        chooseImpl();
+
+      return impl_.getASP();
+    }
+  
   /**
    Computes a hash code for this object.
    @return A hash code value for this object.

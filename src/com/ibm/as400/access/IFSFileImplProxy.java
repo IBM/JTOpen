@@ -193,7 +193,17 @@ implements IFSFileImpl
     }
   }
 
-
+  //@RDA
+  public String getASP()
+      throws IOException, AS400SecurityException
+    {
+      try {
+        return (String)connection_.callMethod (pxId_, "getASP").getReturnValue();
+      }
+      catch (InvocationTargetException e) {
+        throw ProxyClientConnection.rethrow2 (e);
+      }
+    }
   // @B7a
   public long getOwnerUID()
     throws IOException, AS400SecurityException      // @C0c
