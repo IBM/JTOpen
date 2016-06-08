@@ -54,11 +54,9 @@ final class IFSObjAttrs1 implements Serializable
   }
 
   //@RDA Returns the value of the "ASP holding the object" field (at offset 220).
-  final String getASP(int systemCcsid) throws UnsupportedEncodingException
+  final int getASP() throws UnsupportedEncodingException
   {
-    ConvTable conv = ConvTable.getTable(systemCcsid, null);
-    String ASP = conv.byteArrayToString(data_, 220, 2).trim();
-    return ASP;
+    return (int)BinaryConverter.byteArrayToShort(data_, 220) & 0x0000ffff;
   }
   
   final int length()

@@ -985,7 +985,7 @@ implements IFSFileImpl
    {
      IFSListAttrsRep reply = fd_.listObjAttrs1(IFSObjAttrs1.ASP_FLAG, 0);
      if (reply != null) {
-       ASP = reply.getASP(fd_.system_.getCcsid());
+       ASP = reply.getASP();
      }
      else {
        if (Trace.traceOn_) Trace.log(Trace.WARNING, "getASP: " +

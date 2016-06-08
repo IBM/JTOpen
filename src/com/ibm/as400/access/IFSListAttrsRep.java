@@ -317,10 +317,10 @@ Determine the object type (file, directory, etc.)
   /**
   Get the value of the file's "ASP" attribute.
   **/
- String getASP(int systemCcsid) throws UnsupportedEncodingException
+ int getASP() throws UnsupportedEncodingException
  {
    // Assume that this reply has an "Optional/Variable" section, and that it contains an "Object Attribute 1" structure.
-   return getObjAttrs1().getASP(systemCcsid);
+   return getObjAttrs1().getASP();
  }
 
 // @B7a
