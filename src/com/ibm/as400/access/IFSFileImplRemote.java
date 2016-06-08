@@ -973,11 +973,11 @@ implements IFSFileImpl
   /**
   Returns the ASP that holds the file.
   **/
- public String getASP()
+ public int getASP()
    throws IOException, AS400SecurityException
  {
    // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
-   String ASP = null;
+   int ASP = 0;
 
    fd_.connect();
    // The 'owner name' field is in the OA1 structure; the flag is in the first Flags() field.
@@ -1003,8 +1003,7 @@ implements IFSFileImpl
      }
      else throw e;
    }
-
-   return (ASP == null ? "" : ASP);
+   return ASP;
  }
 
   // Design note: The following is an alternative implementation of getOwnerName(), using the Qp0lGetAttr API.

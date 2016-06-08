@@ -41,7 +41,7 @@ interface IFSFileImpl
   long getTotalSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
   int getCCSID() throws IOException, AS400SecurityException;            //@A2a
   String getOwnerName() throws IOException, AS400SecurityException;
-  String getASP() throws IOException, AS400SecurityException;//@RDA
+  int getASP() throws IOException, AS400SecurityException;//@RDA
   
   long getOwnerUID()  throws IOException, AS400SecurityException;       //@B7a @C0c
   String getPathPointedTo() throws IOException, AS400SecurityException;

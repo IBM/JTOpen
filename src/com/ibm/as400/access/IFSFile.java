@@ -1764,12 +1764,18 @@ public class IFSFile
   }
 
   //@RDA
-  /**
-   * @return Return the ASP that holds the object.
-   * @throws IOException
-   * @throws AS400SecurityException
-   */
-  public String getASP()
+  /**Return the auxiliary storage pool (ASP)  that holds the object.
+    @return Return the auxiliary storage pool (ASP)  that holds the object.
+    Possible values are:
+     <ul>
+     <li>1: the system ASP (QASP01, also known as the system disk pool)
+     <li>2 to 32: user ASPs (QASP02 to QASP32)
+     <li>33 to 255: independent ASPs
+     </ul>
+    @throws IOException
+    @throws AS400SecurityException
+   **/
+  public int getASP()
       throws IOException,
              AS400SecurityException
     {

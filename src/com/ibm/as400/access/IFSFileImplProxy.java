@@ -194,11 +194,11 @@ implements IFSFileImpl
   }
 
   //@RDA
-  public String getASP()
+  public int getASP()
       throws IOException, AS400SecurityException
     {
       try {
-        return (String)connection_.callMethod (pxId_, "getASP").getReturnValue();
+        return connection_.callMethod (pxId_, "getASP").getReturnValueInt();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);
