@@ -1037,7 +1037,12 @@ class AS400FileImplNative extends AS400FileImplBase
 
         return records;
     }
-
+    //@RBA
+    public Record[] positionCursorAtLong(int type)
+        throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {
+      return positionCursorAt(type);
+      }
     /**
      *Positions the file cursor to before the first record.
      *@exception AS400Exception If the server returns an error message.
@@ -1081,7 +1086,7 @@ class AS400FileImplNative extends AS400FileImplBase
             if (didSwap) system_.swapBack(swapToPH, swapFromPH);
         }
     }
-
+   
     /**
      *Positions the cursor to the record at the specified file position.
      *@parm index the file position
@@ -1189,7 +1194,7 @@ class AS400FileImplNative extends AS400FileImplBase
     //@RBA
     public Record positionCursorToIndexLong(long index)
         throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-      {return null;}
+      {return positionCursorToIndex((int)index);}
     /**
      *Positions the cursor to the first record in the file that matches the
      *specified key.
@@ -1403,7 +1408,13 @@ class AS400FileImplNative extends AS400FileImplBase
         return null;
     }
 
-
+    //@RBA
+    public Record positionCursorToKeyLong(Object[] keys,
+        int searchType)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+{
+      return positionCursorToKey(keys,searchType);
+}
     // @A2A
     /**
      *Positions the cursor to the first record in the file that matches the
@@ -1524,8 +1535,11 @@ class AS400FileImplNative extends AS400FileImplBase
         return null;
     }
 
-
-
+//@RBA
+    public Record positionCursorToKeyLong(byte[] keys,
+        int searchType, int numberOfKeyFields)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+{return positionCursorToKey(keys,searchType,numberOfKeyFields);}
     /**
      *Write records to the file.
      *@param handle the file handle.
@@ -1974,7 +1988,12 @@ return null;
         return (records.length == 0)? null : records[0];
     }
 
-
+    public Record readLong(byte[] key,
+        int searchType, int numberOfKeyFields)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+{
+      return read(key,searchType,numberOfKeyFields);
+}
     /**
      *Reads all the records in the file.
      *@param fileType The type of file.  Valid values are: key or seq
@@ -2033,10 +2052,18 @@ return null;
 
         return records;
     }
+    
+    //@RBA
+    public Record[] readAllLong(String fileType, int bf) //@C1C
+        throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {
+      return readAll( fileType,  bf);
+      }
+    
     //@RBA
     public Record readRecordLong(int type)
         throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-      {return null;}
+      {return readRecord(type);}
     /**
      *Reads the record at the current file position.
      *@param type type of read (first, last, next, previous)

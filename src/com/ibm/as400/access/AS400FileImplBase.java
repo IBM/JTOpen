@@ -2111,7 +2111,20 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
-
+  //@RBA
+  public void positionCursorLong(Object[] key, int searchType)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            positionCursorToKeyLong(key, searchType);
+            // Invalidate the cache
+            if (cacheRecords_)
+            {
+              cache_.setIsEmpty();
+            }
+          }
   /**
    *Positions the file cursor to the first record meeting the specified search criteria
    *based on <i>key</i>.  The <i>searchType</i> indicates that the cursor should be
@@ -2155,8 +2168,20 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       cache_.setIsEmpty();
     }
   }
-
-
+//@RBA
+  public void positionCursorLong(byte[] key, int searchType, int numberOfKeyFields)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            positionCursorToKeyLong(key, searchType, numberOfKeyFields);
+            // Invalidate the cache
+            if (cacheRecords_)
+            {
+              cache_.setIsEmpty();
+            }
+          }
   /**
    *Positions the file cursor to the first record after the record specified
    *by key.  The file must be open when invoking this method.
@@ -2188,8 +2213,25 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     positionCursorToNext();
   }
-
-
+  
+  //@RBA
+  public void positionCursorAfterLong(Object[] key)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            // Position the cursor to the record matching key
+            positionCursorToKeyLong(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
+            if (cacheRecords_)
+            { // Invalidate the cache. This will cause it to be refreshed
+              // if we are caching and allow for cache access for any
+              // subsequent (to this method's invocation) sequential
+              // positioning or reading.
+              cache_.setIsEmpty();
+            }
+            positionCursorToNextLong();
+          }
   /**
    *Positions the file cursor to the first record after the record specified
    *by key.  The file must be open when invoking this method.
@@ -2223,7 +2265,24 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     positionCursorToNext();
   }
 
-
+  //@RBA
+  public void positionCursorAfterLong(byte[] key, int numberOfKeyFields)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            // Position the cursor to the record matching key
+            positionCursorToKeyLong(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
+            if (cacheRecords_)
+            { // Invalidate the cache. This will cause it to be refreshed
+              // if we are caching and allow for cache access for any
+              // subsequent (to this method's invocation) sequential
+              // positioning or reading.
+              cache_.setIsEmpty();
+            }
+            positionCursorToNextLong();
+          }
   /**
    *Positions the file cursor to after the last record.
    *@exception AS400Exception If the server returns an error message.
@@ -2247,6 +2306,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   public abstract Record[] positionCursorAt(int type)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
+  //@RBA
+  public abstract Record[] positionCursorAtLong(int type)
+          throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
   /**
    *Positions the file cursor to the first record before the record specified
@@ -2344,7 +2406,42 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     } //@CRS
   }
 
-
+  //@RBA
+  public void positionCursorBeforeLong(Object[] key)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            // Position the cursor to the record matching key
+            positionCursorToKeyLong(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
+            if (cacheRecords_)
+            { // Invalidate the cache. This will cause it to be refreshed
+              // if we are caching and allow for cache access for any
+              // subsequent (to this method's invocation) sequential
+              // positioning or reading.
+              cache_.setIsEmpty();
+            }
+            try //@CRS
+            {   //@CRS
+              // Call super's positionCursorToPrevious to get to the record
+              // immediately following the matching record
+              positionCursorToPreviousLong();
+            } //@CRS
+            catch(AS400Exception e) //@CRS
+            { //@CRS
+              if (Trace.traceOn_) Trace.log(Trace.WARNING, "KeyedFile - Possible attempt to position by key before first record. Manually positioning cursor.", e); //@CRS
+              if (e.getAS400Message().getID().equalsIgnoreCase("CPF5001")) //@CRS
+              {
+                //@CRS - Probably tried to position before first record.
+                positionCursorBeforeFirst(); //@CRS
+              } //@CRS
+              else //@CRS
+              { //@CRS
+                throw e; //@CRS
+              } //@CRS
+            } //@CRS
+          }
   /**
    *Positions the file cursor to the first record before the record specified
    *by key.  The file must be open when invoking this method.
@@ -2396,7 +2493,42 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     } //@CRS
   }
 
-
+  //@RBA
+  public void positionCursorBeforeLong(byte[] key, int numberOfKeyFields)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            // Position the cursor to the record matching key
+            positionCursorToKeyLong(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
+            if (cacheRecords_)
+            { // Invalidate the cache. This will cause it to be refreshed
+              // if we are caching and allow for cache access for any
+              // subsequent (to this method's invocation) sequential
+              // positioning or reading.
+              cache_.setIsEmpty();
+            }
+            try //@CRS
+            {   //@CRS
+              // Call super's positionCursorToPrevious to get to the record
+              // immediately following the matching record
+              positionCursorToPreviousLong();
+            } //@CRS
+            catch(AS400Exception e) //@CRS
+            { //@CRS
+              if (Trace.traceOn_) Trace.log(Trace.WARNING, "KeyedFile - Possible attempt to position by key before first record. Manually positioning cursor.", e); //@CRS
+              if (e.getAS400Message().getID().equalsIgnoreCase("CPF5001")) //@CRS
+              {
+                //@CRS - Probably tried to position before first record.
+                positionCursorBeforeFirst(); //@CRS
+              } //@CRS
+              else //@CRS
+              { //@CRS
+                throw e; //@CRS
+              } //@CRS
+            } //@CRS
+          }
   /**
    *Positions the file cursor to before the first record.
    *@exception AS400Exception If the server returns an error message.
@@ -2406,7 +2538,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    **/
   public abstract void positionCursorBeforeFirst()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
-
 
   /**
    *Positions the cursor to the first record.
@@ -2465,6 +2596,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
                                              int searchType)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
+  //@RBA
+  public abstract Record positionCursorToKeyLong(Object[] key,
+          int searchType)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
   // @A2A
   /**
@@ -2482,6 +2617,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
                                              int searchType, int numberOfKeyFields)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
+  public abstract Record positionCursorToKeyLong(byte[] key,//@RBA
+          int searchType, int numberOfKeyFields)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
   /**
@@ -2549,6 +2687,37 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
+  //@RBA
+  public void positionCursorToNextLong()
+          throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+          {
+            // Check if we are caching.  If we are and we are not at the end of the cache,
+            // just position ourselves within the cache, otherwise position ourselves in the file
+            // and refresh the cache.
+            if (cacheRecords_)
+            {
+              if (cache_.isEmpty() || (cache_.isEndOfCache() && cache_.currentDirection_ == DDMRecordCache.FORWARD))
+              {
+                cache_.refresh(positionCursorAtLong(TYPE_GET_NEXT), DDMRecordCache.FORWARD, false, false);
+              }
+              else if (cache_.isEndOfCache() && cache_.currentDirection_ != DDMRecordCache.FORWARD)
+              {
+                refreshCacheLong(null, DDMRecordCache.FORWARD, false, false);
+              }
+              else
+              {
+                if (Trace.isTraceOn())
+                {
+                  Trace.log(Trace.INFORMATION, "positionCursorToNext: positioning in cache.");
+                }
+                cache_.setPositionNext();
+              }
+            }
+            else
+            { // Not caching; just position ourselves in the file
+              positionCursorAtLong(TYPE_GET_NEXT);
+            }
+          }
   /**
    *Positions the cursor to the previous record in the file.
    *@exception AS400Exception If the server returns an error message.
@@ -2586,7 +2755,37 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       positionCursorAt(TYPE_GET_PREV);
     }
   }
-
+  //@RBA
+  public void positionCursorToPreviousLong()
+          throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+          {
+            // Check if we are caching.  If we are and we are not at the end of the cache,
+            // just position ourselves within the cache, otherwise position ourselves in the file
+            // and refresh the cache.
+            if (cacheRecords_)
+            {
+              if (cache_.isEmpty() || (cache_.isBeginningOfCache() && cache_.currentDirection_ == DDMRecordCache.BACKWARD))
+              {
+                cache_.refresh(positionCursorAt(TYPE_GET_PREV), DDMRecordCache.BACKWARD, false, false);
+              }
+              else if (cache_.isBeginningOfCache() && cache_.currentDirection_ != DDMRecordCache.BACKWARD)
+              {
+                refreshCacheLong(null, DDMRecordCache.BACKWARD, false, false);
+              }
+              else
+              {
+                if (Trace.isTraceOn())
+                {
+                  Trace.log(Trace.INFORMATION, "positionCursorToPrev: positioning in cache.");
+                }
+                cache_.setPositionPrevious();
+              }
+            }
+            else
+            { // Not caching; just position ourselves in the file
+              positionCursorAtLong(TYPE_GET_PREV);
+            }
+          }
   /**
    Reads the record at the current file position.
    @return the record read.
@@ -2615,6 +2814,26 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     return r;
   }
 
+  //@RBA
+  public Record readLong()
+          throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+          {
+            // If we are caching, get the current record at which we are pointing.  If we are
+            // not positioned on record in the cache we are not positioned on a record in the
+            // file either.  In order to get the correct error information thrown, we call
+            // readRecord() to read from the file and throw the exception.
+            Record r = null;
+            if (cacheRecords_)
+            {
+              r = cache_.getCurrent();
+            }
+            if (r == null)
+            {
+              r = readRecordLong(TYPE_GET_SAME);
+            }
+
+            return r;
+          }
   /**
    Reads the record at the specified file position.
    @param recordNumber the file position
@@ -2703,6 +2922,10 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
                               int searchType, int numberOfKeyFields)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
+  //@RBA
+  public abstract Record readLong(byte[] key,
+          int searchType, int numberOfKeyFields)
+throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 /*  Record read2(byte[] key,
                         int searchType, int numberOfKeyFields)
@@ -2799,7 +3022,20 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return readNext();
   }
 
-
+  //@RBA
+  public Record readAfterLong(Object[] key)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            positionCursorToKeyLong(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
+            if (cacheRecords_)
+            {
+              cache_.setIsEmpty();
+            }
+            return readNextLong();
+          }
   /**
    *Reads the first record after the record with the specified key.  The file must
    *be open when invoking this method.
@@ -2829,8 +3065,20 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     }
     return readNext();
   }
-
-
+  //@RBA
+  public Record readAfterLong(byte[] key, int numberOfKeyFields)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            positionCursorToKeyLong(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
+            if (cacheRecords_)
+            {
+              cache_.setIsEmpty();
+            }
+            return readNextLong();
+          }
   /**
    *Reads all the records in the file.
    *@param fileType The type of file.  Valid values are: key or seq
@@ -2842,6 +3090,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
    **/
   public abstract Record[] readAll(String fileType, int bf) //@D0C
   throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
+  //@RBA
+  public abstract Record[] readAllLong(String fileType, int bf) 
+          throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
 
   /**
    *Reads the first record before the record with the specified record number.
@@ -2924,7 +3175,20 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return readPrevious();
   }
 
-
+  //@RBA
+  public Record readBeforeLong(Object[] key)
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
+  {
+    positionCursorToKeyLong(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
+    if (cacheRecords_)
+    {
+      cache_.setIsEmpty();
+    }
+    return readPreviousLong();
+  }
   /**
    *Reads the first record before the record with the specified key.  The file must
    *be open when invoking this method.
@@ -2954,8 +3218,20 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     }
     return readPrevious();
   }
-
-
+  //@RBA
+  public Record readBeforeLong(byte[] key, int numberOfKeyFields)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            positionCursorToKeyLong(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
+            if (cacheRecords_)
+            {
+              cache_.setIsEmpty();
+            }
+            return readPreviousLong();
+          }
   /**
    *Reads the first record from the file.
    *@return the first record.
@@ -3016,6 +3292,28 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return readRecord(TYPE_GET_LAST);
   }
 
+  //@RBA
+  public Record readLastLong()
+          throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+          {
+            // If we are caching, check the cache for the record.  IF not found refresh the
+            // cache.
+            if (cacheRecords_)
+            {
+              if (cache_.containsLastRecord())
+              {
+                return cache_.getLast();
+              }
+              else //@A4A: Invalidate the cache since we will be going to the system
+              {
+                // Invalidate the cache
+                cache_.setIsEmpty();
+              }
+            }
+
+            // Not caching, read from the file.
+            return readRecordLong(TYPE_GET_LAST);
+          }
   /**
    *Reads the next record from the file.
    *@return the first record.
@@ -3140,7 +3438,56 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return read(key, 0x0E);
   }
 
-
+  //@RBA
+  public Record readNextEqualLong()
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            Object[] key;
+            if (cacheRecords_)
+            {
+              if (!cache_.isEmpty())
+              {
+                Record r = null;
+                Record current = cache_.getCurrent();
+                if (current != null)
+                {
+                  key = current.getKeyFields();
+                  try
+                  {
+                    //@B4C - when reading, get out early by checking comparison
+                    r = readNextLong();
+                    int match = UNKNOWN;
+                    if (r != null) match = compareKeys(key, r.getKeyFields());
+                    while (r != null && (match == GREATER_THAN || match == UNKNOWN))
+                    {
+                      r = readNextLong();
+                      if (r != null) match = compareKeys(key, r.getKeyFields());
+                    }
+                    if (match != EQUAL) r = null;
+                    //@B4C - end change
+                  }
+                  catch (AS400Exception e)
+                  {
+                    if (e.getAS400Message().getID().equals("CPF5025"))
+                    {
+                      return null;
+                    }
+                    else
+                    {
+                      throw e;
+                    }
+                  }
+                  return r;
+                }
+              }
+            }
+            key = recordFormat_.getNewRecord().getKeyFields();
+            return readLong(key, 0x0E);
+          }
+  
   /**
    *Reads the next record whose key matches the specified key.  The search does
    *not include the current record.  The <i>key</i> may be a partial key.
@@ -3274,7 +3621,42 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return r;
   }
 
-
+  //@RBA
+  public Record readNextEqualLong(byte[] key, int numberOfKeyFields)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            Record r = null;
+            try
+            {
+              //@B4C - when reading, get out early by checking comparison
+              r = readNextLong();
+              int match = UNKNOWN;
+              if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+              while (r != null && (match == GREATER_THAN || match == UNKNOWN))
+              {
+                r = readNextLong();
+                if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+              }
+              if (match != EQUAL) r = null;
+              //@B4C - end change
+            }
+            catch (AS400Exception e)
+            {
+              if (e.getAS400Message().getID().equals("CPF5025"))
+              {
+                return null;
+              }
+              else
+              {
+                throw e;
+              }
+            }
+            return r;
+          }
+  
   /**
    *Reads the previous record from the file.
    *@return the first record.
@@ -3311,6 +3693,34 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return readRecord(TYPE_GET_PREV);
   }
 
+  //@RBA
+  public Record readPreviousLong()
+          throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+          {
+            // If we are caching, check the cache for the record.  IF not found refresh the
+            // cache.
+            Record r = null;
+            if (cacheRecords_)
+            {
+              r = cache_.getPrevious();
+              if (r == null)
+              {
+                if (Trace.isTraceOn())
+                {
+                  Trace.log(Trace.INFORMATION, "AS400FileImplBase.readPrevious(): cache returned null.");
+                }
+                refreshCacheLong(null, DDMRecordCache.BACKWARD, false, false);
+                return cache_.getCurrent();
+              }
+              else
+              {
+                return r;
+              }
+            }
+
+            // Not caching, read from the file.
+            return readRecordLong(TYPE_GET_PREV);
+          }
   /**
    *Reads the previous record whose key matches the key of the current record.
    * The file must be open when invoking this method.  The file must be
@@ -3371,6 +3781,55 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return read(key, 0x0F);
   }
 
+  //@RBA
+  public Record readPreviousEqualLong()
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            Object[] key;
+            Record r;
+            if (cacheRecords_)
+            {
+              if (!cache_.isEmpty())
+              {
+                Record current = cache_.getCurrent();
+                if (current != null)
+                {
+                  key = current.getKeyFields();
+                  try
+                  {
+                    //@B4C - when reading, get out early by checking comparison
+                    r = readPreviousLong();
+                    int match = UNKNOWN;
+                    if (r != null) match = compareKeys(key, r.getKeyFields());
+                    while (r != null && (match == LESS_THAN || match == UNKNOWN))
+                    {
+                      r = readPreviousLong();
+                      if (r != null) match = compareKeys(key, r.getKeyFields());
+                    }
+                    if (match != EQUAL) r = null;
+                    //@B4C - end change
+                  }
+                  catch (AS400Exception e)
+                  {
+                    if (e.getAS400Message().getID().equals("CPF5025"))
+                    {
+                      return null;
+                    }
+                    else
+                    {
+                      throw e;
+                    }
+                  }
+                  return r;
+                }
+              }
+            }
+            key = recordFormat_.getNewRecord().getKeyFields();
+            return readLong(key, 0x0F);
+          }
 
   /**
    *Reads the previous record whose key matches the specified key.  The search does
@@ -3418,7 +3877,41 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     return r;
   }
 
-
+  //@RBA
+  public Record readPreviousEqualLong(Object[] key)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            Record r = null;
+            try
+            {
+              //@B4C - when reading, get out early by checking comparison
+              r = readPreviousLong();
+              int match = UNKNOWN;
+              if (r != null) match = compareKeys(key, r.getKeyFields());
+              while (r != null && (match == LESS_THAN || match == UNKNOWN))
+              {
+                r = readPreviousLong();
+                if (r != null) match = compareKeys(key, r.getKeyFields());
+              }
+              if (match != EQUAL) r = null;
+              //@B4C - end change
+            }
+            catch (AS400Exception e)
+            {
+              if (e.getAS400Message().getID().equals("CPF5025"))
+              {
+                return null;
+              }
+              else
+              {
+                throw e;
+              }
+            }
+            return r;
+          }
   /**
    *Reads the previous record whose key matches the specified key.  The search does
    *not include the current record.  The <i>key</i> may be a partial key.
@@ -3470,7 +3963,42 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     }
     return r;
   }
-
+  
+  //@RBA
+  public Record readPreviousEqualLong(byte[] key, int numberOfKeyFields)
+          throws AS400Exception,
+          AS400SecurityException,
+          InterruptedException,
+          IOException
+          {
+            Record r = null;
+            try
+            {
+              //@B4C - when reading, get out early by checking comparison
+              r = readPreviousLong();
+              int match = UNKNOWN;
+              if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+              while (r != null && (match == LESS_THAN || match == UNKNOWN))
+              {
+                r = readPreviousLong();
+                if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+              }
+              if (match != EQUAL) r = null;
+              //@B4C - end change
+            }
+            catch (AS400Exception e)
+            {
+              if (e.getAS400Message().getID().equals("CPF5025"))
+              {
+                return null;
+              }
+              else
+              {
+                throw e;
+              }
+            }
+            return r;
+          }
 
   /**
    Reads the record at the current file position.

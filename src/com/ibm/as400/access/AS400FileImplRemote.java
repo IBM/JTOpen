@@ -819,6 +819,44 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     return returned;
   }
 
+  //@RBA
+  public Record[] positionCursorAtLong(int searchType)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int shr;  // Type of locking for the record
+
+        // @A1C
+        if ((openType_ == AS400File.READ_ONLY) || //@C0C
+            ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A //@C0C
+        {
+          // Read only
+          shr = SHR_READ_NORM;
+        }
+        else
+        { // READ_WRITE, lock the record for update
+          shr = SHR_UPD_NORM;
+        }
+        // Send the request to read.  Ignore the data; don't specify
+        // DATA_NODTA_DTARCD because it is one of the most inefficient
+        // paths per the DDM server guys.  More efficient to get the data and ignore
+        // it they say.
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, searchType, shr, DATA_DTA_DTARCD), newCorrelationId()); //@B6C
+        int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
+        if (codePoint == DDMTerm.S38IOFB && replys.size() > 1)
+        {
+          handleErrorReply(replys, 1);
+        }
+        else if (codePoint != DDMTerm.S38BUF)
+        {
+          handleErrorReply(replys, 0);
+        }
+        Record[] returned = processReadReplyLong(replys, false);    // @A1C
+
+        return returned;
+      }
   /**
    *Positions the file cursor to after the last record.
    *@exception AS400Exception If the server returns an error message.
@@ -1167,7 +1205,52 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     return null;            // @A1A
   }
 
+  //@RBA
+  public Record positionCursorToKeyLong(Object[] key, int searchType)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int shr;  // Type of locking for the record
 
+        if (cacheRecords_) //@G0A
+        {
+          // Invalidate the cache
+          cache_.setIsEmpty(); //@G0A
+        }
+
+        // @A1C
+        if ((openType_ == AS400File.READ_ONLY) ||  //@C0C
+            ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A //@C0C
+        {
+          // Read only
+          shr = SHR_READ_NORM;
+        }
+        else
+        { // READ_WRITE
+          shr = SHR_UPD_NORM;
+        }
+        // In order to have the file cursor remain properly positioned, we specify that the record
+        // is to be returned on the GETK request as opposed to specifying DATA_NODTA_DTARCD.  This
+        // is necessary for the caching support.
+//        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_), server_.newCorrelationId());   // @A1D
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_), newCorrelationId());   // @A1A @B6C
+
+        int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
+        if (codePoint == DDMTerm.S38IOFB && replys.size() > 1)
+        {
+          handleErrorReply(replys, 1);
+        }
+        else if (codePoint != DDMTerm.S38BUF)
+        {
+          handleErrorReply(replys, 0);
+        }
+//        Record[] returned = processReadReply(replys, true);     // @A1C
+//        return returned[0];   // @A1D
+        processReadReplyLong(replys, true);     // @A1C
+        return null;            // @A1A
+      }
   // @A1A
   /**
    *Positions the cursor to the first record with the specified key based on the specified
@@ -1225,8 +1308,50 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     return null;  // @A1A
   }
 
+  //@RBA Add this to support long time record number
+  public Record positionCursorToKeyLong(byte[] key, int searchType, int numberOfKeyFields)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int shr;  // Type of locking for the record
 
+        if (cacheRecords_) //@G0A
+        {
+          // Invalidate the cache
+          cache_.setIsEmpty(); //@G0A
+        }
 
+        if ((openType_ == AS400File.READ_ONLY) ||
+            ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
+        {
+          // Read only
+          shr = SHR_READ_NORM;
+        }
+        else
+        { // READ_WRITE
+          shr = SHR_UPD_NORM;
+        }
+        // In order to have the file cursor remain properly positioned, we specify that the record
+        // is to be returned on the GETK request as opposed to specifying DATA_NODTA_DTARCD.  This
+        // is necessary for the caching support.
+//        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), server_.newCorrelationId());  // @A1D
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), newCorrelationId());  // @A1A @B6C
+        int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
+        if (codePoint == DDMTerm.S38IOFB && replys.size() > 1)
+        {
+          handleErrorReply(replys, 1);
+        }
+        else if (codePoint != DDMTerm.S38BUF)
+        {
+          handleErrorReply(replys, 0);
+        }
+//        Record[] returned = processReadReply(replys, true);     // @A1C
+//        return returned[0];  // @A1D
+        processReadReplyLong(replys, true);     // @A1C
+        return null;  // @A1A
+      }
 
   /**
    *Processes the <i>replys</i> vector for records read.  Throws exceptions
@@ -1842,6 +1967,80 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 //@B0D: end block
   }
 
+  //@RBA
+  public Record[] readAllLong(String fileType, int bf) 
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+    //@B0A: Changed readAll() to not use the ULDRECF codepoint in the DDM data stream.
+//          This is because ULDRECF (Unload all records from file) does not handle
+//          null field values in records. (It throws us a data mapping error on
+//          the data stream, which would then cause an OutOfMemory exception
+//          or other strange errors in our code, because the data stream format
+//          was no longer correct.)
+//          readAll() now just uses the S38 extensions. It gets the first record
+//          and then gets the next record in a loop until null is returned.
+//          Using the S38 extensions gives better performance anyway (supposedly).
+//          See SequentialFile.readAll() and KeyedFile.readAll() for other changes.
+//          Other changes were also made in DDMRequestDataStream and DDMTerm.
+
+    //@B0A: start block
+
+        // readAll is supposed to return at least a Record[] of size 0, never null
+        Record[] recArray = new Record[0];
+
+        synchronized(this) // We synchronize because this file object
+        {                  // isn't supposed to be open (as far as the user knows).
+          // Use a calculated blocking factor, else use a large blocking factor
+    //@D0M      int bf = 2048/(recordFormat_.getNewRecord().getRecordLength() + 16); //@D0C
+    //@D0M      if (bf <= 0) bf = 1; //@D0C
+          //@E0 - We don't want to use COMMIT_LOCK_LEVEL_ALL in case commitment control is on because
+          // inside readAll(), the file isn't supposed to be open, so we should treat it as such.
+          openFile2(AS400File.READ_ONLY, bf, AS400File.COMMIT_LOCK_LEVEL_NONE, fileType); //@D0C @E0C
+
+          // The vector to hold the records as we retrieve them.
+          Vector allRecords = new Vector();
+
+          // The following block was copied from readRecord()
+          int shr;  // Type of locking for the record
+          if ((openType_ == AS400File.READ_ONLY) ||
+              ((openType_ == AS400File.READ_WRITE) && readNoUpdate_))
+          { // Read only
+            shr = SHR_READ_NORM;
+          }
+          else
+          { // READ_WRITE; get the record for update
+            shr = SHR_UPD_NORM;
+          }
+
+          // Get the records
+          // Initialize returned to be of TYPE_GET_FIRST
+          // As the loop continues, returned is of TYPE_GET_NEXT
+          for (Record[] returned = processReadReplyLong(sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, TYPE_GET_FIRST, shr, DATA_DTA_DTARCD), newCorrelationId()), false); //@B6C
+              returned != null;
+              returned = processReadReplyLong(sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GET(dclName_, TYPE_GET_NEXT, shr, DATA_DTA_DTARCD), newCorrelationId()), false)) //@B6C
+          {
+            // The reply is an array of records, so add each of them to the vector
+            for (int i=0; i<returned.length; i++)
+            {
+              allRecords.addElement(returned[i]);
+            }
+          }
+
+          // Copy the records in the vector into a Record[] object that we can return
+          int numRecs = allRecords.size();
+          if (numRecs > 0)
+          {
+            recArray = new Record[numRecs];
+            allRecords.copyInto(recArray);
+          }
+          close(); // Need to close the file since we opened it earlier.
+        }          // The file is not supposed to be open to the user.
+
+        return recArray;
+      }
   /**
    *Reads the first record with the specified key based on the specified type of read.
    *@param key The values that make up the key with which to find the record.
@@ -1965,6 +2164,39 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     return(returned == null)? null : returned[0];
   }
 
+  //@RBA
+  public Record readLong(byte[] key, int searchType, int numberOfKeyFields)
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        int shr;  // Type of locking for the record
+        if ((openType_ == AS400File.READ_ONLY) ||
+            ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
+        {
+          // Read only
+          shr = SHR_READ_NORM;
+        }
+        else
+        { // READ_WRITE
+          shr = SHR_UPD_NORM;
+        }
+
+//        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormat_, type, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), server_.newCorrelationId());  // @A1D
+        Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETK(dclName_, recordFormatCTLLName_, searchType, shr, DATA_DTA_DTARCD, key, system_, numberOfKeyFields), newCorrelationId());  // @A1A @B6C
+        // Call processReadReply to extract the records read (or throw an
+        // exception if appropriate)
+        Record[] returned = processReadReplyLong(replys, false);    // @A1C
+
+        if (cacheRecords_) //@C0A
+        {
+          //@C0A
+          cache_.setIsEmpty(); //@C0A
+        }                  //@C0A
+
+        return(returned == null)? null : returned[0];
+      }
   /**
    *Reads a record from the file.  Which record to read is determined by the <i>type</i>
    *argument.
