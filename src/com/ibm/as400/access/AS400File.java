@@ -76,6 +76,8 @@ abstract public class AS400File implements Serializable
     }
 
     static final long serialVersionUID = 4L;
+    protected boolean longRecordNumber = false;//@RBA support record number in long type to hold record entries more than  2147483647.
+
 
     //////////////////////////////////////////////////////////////////////////
     // CONSTANTS
@@ -1825,7 +1827,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        return fillInRecord(impl_.doItRecord("read", new Class[0], new Object[0])); //@D0C
+        if(longRecordNumber)//@RBA
+          return fillInRecord(impl_.doItRecord("readLong", new Class[0], new Object[0])); //@D0C
+        else
+          return fillInRecord(impl_.doItRecord("read", new Class[0], new Object[0])); //@D0C
     }
 
 
@@ -1891,7 +1896,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        return fillInRecord(impl_.doItRecord("readLast", new Class[0], new Object[0])); //@D0C
+        if(longRecordNumber)//@RBA
+          return fillInRecord(impl_.doItRecord("readLastLong", new Class[0], new Object[0])); //@D0C
+        else
+          return fillInRecord(impl_.doItRecord("readLast", new Class[0], new Object[0])); //@D0C
     }
 
 
@@ -1917,7 +1925,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        return fillInRecord(impl_.doItRecord("readNext", new Class[0], new Object[0])); //@D0C
+        if(longRecordNumber)//@RBA
+          return fillInRecord(impl_.doItRecord("readNextLong", new Class[0], new Object[0])); //@D0C
+        else
+          return fillInRecord(impl_.doItRecord("readNext", new Class[0], new Object[0])); //@D0C
     }
 
 
@@ -1963,7 +1974,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        return fillInRecord(impl_.doItRecord("readPrevious", new Class[0], new Object[0])); //@D0C
+        if(longRecordNumber)//@RBA
+          return fillInRecord(impl_.doItRecord("readPreviousLong", new Class[0], new Object[0])); //@D0C
+        else
+          return fillInRecord(impl_.doItRecord("readPrevious", new Class[0], new Object[0])); //@D0C
     }
 
 
