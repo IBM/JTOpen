@@ -421,6 +421,7 @@ public class Record implements Serializable
       Record cmp = (Record)obj;
       if (cmp.recordLength_ == recordLength_ &&
           cmp.recordNumber_ == recordNumber_ &&
+          cmp.recordNumberLong_ == recordNumberLong_ &&//@RBA
           cmp.hasDependentFields_ == hasDependentFields_ &&
           (cmp.name_ == null ? (name_ == null) : cmp.name_.equals(name_)))
       {
@@ -957,6 +958,11 @@ public class Record implements Serializable
     return recordNumber_;
   }
 //@RBA
+  /**
+   *Returns the record number in long type of this record.  This method only pertains to the
+   *record level access classes.
+   *@return The record number of this record.  Zero is returned if no record number has been set.
+  **/
   public long getRecordNumberLong()
   {
     return recordNumberLong_;
@@ -1725,6 +1731,11 @@ public class Record implements Serializable
     if (changes_ != null) changes_.firePropertyChange("recordNumber", old, newnum);
   }
 //@RBA
+  /**
+   * Sets the record number with long type of this record.
+   * @param recordNumber
+   * @throws PropertyVetoException
+   */
   public void setRecordNumberLong(long recordNumber)
       throws PropertyVetoException
     {

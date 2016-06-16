@@ -2293,7 +2293,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   public abstract void positionCursorAfterLast()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
-
   /**
    *Positions the file cursor to the specified position (first, last, next,
    *previous).
@@ -2566,7 +2565,27 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
-
+  //@RBA
+  public void positionCursorToFirstLong()
+      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {
+        // If we are caching records and the cache contains the first record,
+        // position the cache.  Otherwise, position the file and refresh the
+        // cache if we are caching records.
+        if (cacheRecords_ && cache_.containsFirstRecord())
+        {
+          cache_.setPositionFirst();
+        }
+        else
+        {
+          if (cacheRecords_)
+          {
+            cache_.setIsEmpty();
+          }
+          positionCursorAtLong(TYPE_GET_FIRST);
+        }
+      }
+  
   /**
    *Positions the cursor to the record at the specified file position.
    *@parm index the file position
@@ -2648,7 +2667,28 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
       positionCursorAt(TYPE_GET_LAST);
     }
   }
-
+  
+  //@RBA
+  public void positionCursorToLastLong()
+      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+      {
+        // If we are caching records and the cache contains the first record,
+        // position the cache.  Otherwise, position the file and refresh the
+        // cache if we are caching records.
+        if (cacheRecords_ && cache_.containsLastRecord())
+        {
+          cache_.setPositionLast();
+        }
+        else
+        {
+          if (cacheRecords_)
+          {
+            cache_.setIsEmpty();
+          }
+          positionCursorAtLong(TYPE_GET_LAST);
+        }
+      }
+  
   /**
    *Positions the cursor to the next record in the file.
    *@exception AS400Exception If the server returns an error message.
@@ -4096,7 +4136,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
       //@G0: Always position by record number.
       //     The code path for positioning by key was causing a performance hit
       //     and seems to be superfluous.
-      long recordNumber = (cache_.getCurrent() == null)? cache_.getNext().getRecordNumber() : cache_.getCurrent().getRecordNumber();
+      long recordNumber = (cache_.getCurrent() == null)? cache_.getNext().getRecordNumberLong() : cache_.getCurrent().getRecordNumberLong();
       if (Trace.isTraceOn())
       {
         Trace.log(Trace.INFORMATION, "AS400FileImplBase.refreshCache(): cursors not in synch.");
@@ -4298,6 +4338,23 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     }
   }
 
+  //@RBA
+  public void refreshRecordCacheLong()
+      throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+      {
+        // If we are caching, refresh the cache with records starting from the beginning
+        // of the file.
+        if (cacheRecords_)
+        {
+          positionCursorBeforeFirst();
+          // Set cache direction to FORWARD
+          cache_.currentDirection_ = DDMRecordCache.FORWARD;
+          refreshCacheLong(null, DDMRecordCache.FORWARD, true, false);
+        }
+      }
 
   /**
    *Rolls back any transactions since the last commit/rollback boundary.  Invoking this

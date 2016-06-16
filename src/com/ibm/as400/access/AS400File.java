@@ -1699,6 +1699,7 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
+        //@RBA no recordnumber handle in this method.
         doIt("positionCursorAfterLast");
     }
 
@@ -1720,6 +1721,7 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
+        //@RBA no recordnumber handle
         doIt("positionCursorBeforeFirst");
     }
 
@@ -1741,7 +1743,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        doIt("positionCursorToFirst");
+        if(longRecordNumber)//@RBA
+          doIt("positionCursorToFirstLong");
+        else
+          doIt("positionCursorToFirst");
     }
 
 
@@ -1762,7 +1767,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        doIt("positionCursorToLast");
+        if(longRecordNumber)//@RBA
+          doIt("positionCursorToLastLong");
+        else
+          doIt("positionCursorToLast");
     }
 
 
@@ -1783,7 +1791,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        doIt("positionCursorToNext");
+        if(longRecordNumber)//@RBA
+          doIt("positionCursorToNextLong");
+        else
+          doIt("positionCursorToNext");
     }
 
 
@@ -1804,7 +1815,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify the object state
         checkOpen();
-        doIt("positionCursorToPrevious");
+        if(longRecordNumber)//@RBA
+          doIt("positionCursorToPreviousLong");
+        else
+          doIt("positionCursorToPrevious");
     }
 
 
@@ -2003,7 +2017,10 @@ abstract public class AS400File implements Serializable
     {
         // Verify object state
         checkOpen();
-        doIt("refreshRecordCache");
+        if(longRecordNumber)//@RBA
+          doIt("refreshRecordCacheLong");
+        else
+          doIt("refreshRecordCache");
     }
 
 

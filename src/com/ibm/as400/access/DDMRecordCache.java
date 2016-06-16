@@ -244,7 +244,7 @@ class DDMRecordCache
   {
     for (int i = 0; i < size_; ++i)
     { // Look for the record
-      if (records_[i].getRecordNumber() == recordNumber)
+      if (records_[i].getRecordNumberLong() == recordNumber)
       { // Match; return now
         return i;
       }
