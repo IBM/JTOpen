@@ -184,7 +184,7 @@ package com.ibm.as400.access;
 //@R8    20160516  JDBC:  Fix setting timestamp from String
 //@R9    20160518  JDBC:  Optimize sending of timestamp to server
 //@RA    20160519  JDBC:  Fix batch insert of timestamp
-//@RB    20160520  DDM: long record number support
+//@RB    20160520  DDM: long record number support in KeyedFile
 //@RC    20160523  Support V7R3 for up to 255 parameters on a remote program call request 
 //@RD    20160607  IFSFile get ASP 
 //@RE    20160607  JDBC:  Fix processing of NCHAR/NVARCHAR types
