@@ -970,6 +970,18 @@ implements Statement
                     int errorClass = commonExecuteReply.getErrorClass();
                     int returnCode = commonExecuteReply.getReturnCode();
 
+                    // NOTE:  We currently do not have a good way to handle the case
+                    //        when the exit program rejects the request.  
+                    // 
+                    // Error Class:                   0x0008 - Exit Program Error
+                    // Error Return Code:             -101 - User exit program rejected request.
+                    //
+                    // Currently, an empty SQLCA is returned which causes an 
+                    // array index out of bounds exception when calling 
+                    // DBReplySQLCA.getErrp below.
+                    // 
+                    
+                    
                     // Remember that a cursor is open even when most
                     // errors occur.
                     //
