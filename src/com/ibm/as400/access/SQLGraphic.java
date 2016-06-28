@@ -77,6 +77,7 @@ extends SQLDataBase
         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
         value_ = ccsidConverter.byteArrayToString(rawBytes, offset, maxLength_, bidiConversionProperties);  //@KBC changed to use bidiConversionProperties instead of bidiStringType
+        originalValue_ = value_; 
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -200,6 +201,7 @@ extends SQLDataBase
         else if(valueLength > exactLength)
         {
             value_ = value_.substring(0, exactLength);
+            originalValue_ = value_; 
             truncated_ = valueLength - exactLength;
             outOfBounds_ = false;
         }
@@ -371,6 +373,11 @@ extends SQLDataBase
         }
     }
 
+    public Object getBatchableObject() throws SQLException {
+      // Return the object that has not yet been padded
+      return originalValue_; 
+    }
+
 
     public Object getObject()
     throws SQLException
@@ -404,6 +411,7 @@ extends SQLDataBase
     public void trim()
     {
         value_ = value_.trim();
+        originalValue_ = value_; 
     }
 
 

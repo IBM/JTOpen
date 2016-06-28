@@ -188,6 +188,7 @@ package com.ibm.as400.access;
 //@RC    20160523  Support V7R3 for up to 255 parameters on a remote program call request 
 //@RD    20160607  IFSFile get ASP 
 //@RE    20160607  JDBC:  Fix processing of NCHAR/NVARCHAR types
+//@RF    20160628  JDBC:  Fix padding of batched GRAPHIC CCSID 835 parameters
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -196,7 +197,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2016 International Business Machines Corporation and others.";
     //                                                                                              built=20160520 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160607 @RE";  
+    public static String version   = "Open Source Software, JTOpen 9.0, codebase 5770-SS1 V7R3M0.00 built=20160628 @RF";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
