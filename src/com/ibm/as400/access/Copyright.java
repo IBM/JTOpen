@@ -203,6 +203,6 @@ public interface Copyright
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
     static final int    MINOR_VERSION = 1; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
                                            //Note: JTOpen 9.1 is synching with ptf 11.1
-    static final String DRIVER_LEVEL  = "07030000"; //(ex: 07030007 -> V7R3M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final String DRIVER_LEVEL  = "07030001"; //(ex: 07030007 -> V7R3M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
