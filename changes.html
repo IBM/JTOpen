@@ -9,7 +9,7 @@ Copyright (C) 1997-2016 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: March 29, 2016
+Last updated: July 5, 2016
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
 the open source community. JTOpen, which is supported by IBM and
@@ -22,7 +22,7 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 IBM Toolbox for Java web site:
 <A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
-<!-- On 2015-03-11: cvs log -rJTOpen_8_4:JTOpen_8_5 -N '-d>2014-11-26' -->
+<!-- On 2015-03-11: cvs log -rJTOpen_9_2:JTOpen_9_1 -N '-d>2016-07-05' -->
 
 <H4>Known deficiencies</H4>
 <PRE>
@@ -48,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#91">Fixes and enhancements in JTOpen 9.1</A><br>
 <A HREF="#90">Fixes and enhancements in JTOpen 9.0</A><br>
 <A HREF="#87">Fixes and enhancements in JTOpen 8.7</A><br>
 <A HREF="#86">Fixes and enhancements in JTOpen 8.6</A><br>
@@ -97,6 +98,30 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="91">Fixes and enhancements in JTOpen 9.1</A> <i>(released 2016-7-30)</i></H3>
+<Pre>
+- Beans: Fix IFSFileBeanInfo (Due to JDK 1.7 change)
+- Beans: Fix ClusteredHashTableEntryBeanInfo 
+- Conversion: Added CCSIDs 1047,1166,5233 and Table Generator
+- DDM: long record number support in KeyedFile
+- Documentation:   Clarify that "close()" methods do not close the connection associated with the AS400 object
+- Get IFSFile ASP support 
+- IFSFileEnumeration fix issue when pattern without wildcard
+- JDBC Client:  Added !SILENTRS and !EXIT_REPEAT_ON_EXCEPTION commands 
+- JDBC: "character truncation" property 
+- JDBC: "numeric range error" property 
+- JDBC: Add missing get/set methods to DataSource and DataSourceBeanInfo 
+- JDBC: Fix batch insert of timestamp 
+- JDBC: Fix padding of batched GRAPHIC CCSID 835 parameters 
+- JDBC: Fix processing of NCHAR/NVARCHAR types 
+- JDBC: Fix setting timestamp from String 
+- JDBC: Optimize sending of timestamp to server
+- JDBC: Update missing information from DataSourceBeanInfo 
+- SystemStatus supports on status statistics reset
+- Support V7R3 for up to 255 parameters on a remote program call request 
+</Pre>
 
 <HR>
 <H3><A NAME="90">Fixes and enhancements in JTOpen 9.0</A> <i>(released 2016-3-29)</i></H3>
