@@ -350,7 +350,13 @@ retrieved from the IBM i system.
                                           int errorClass,
                                           int returnCode)
   {
-    String reason = getReason (connection, id, returnCode);
+    String reason;
+    if (returnCode != 0) { 
+       reason = getReason (connection, id, returnCode);
+    } else {
+       // if the return code is zero, then there should not be a reason
+      reason=""; 
+    }
     String state  = getSQLState (connection, id);
 
     SQLWarning warning = new SQLWarning (reason, state, returnCode);   // @E2C
