@@ -970,6 +970,19 @@ implements Statement
                     int errorClass = commonExecuteReply.getErrorClass();
                     int returnCode = commonExecuteReply.getReturnCode();
 
+                    //
+                    // Check for the case where the errorClass is zero, but there
+                    // is truncation.  If so, set the errorClass to 2 so the  
+                    // warning is processed. 
+                    // @S2A
+                      
+                    if (errorClass == 0) {
+                      String sqlState = sqlca.getSQLState (connection_.converter_); 
+                      if ("01004".equals(sqlState)) { 
+                         errorClass = 2; 
+                      }
+                    }
+                    
                     // NOTE:  We currently do not have a good way to handle the case
                     //        when the exit program rejects the request.  
                     // 
