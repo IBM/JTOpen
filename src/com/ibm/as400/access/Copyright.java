@@ -191,6 +191,7 @@ package com.ibm.as400.access;
 //@RF    20160628  JDBC:  Fix padding of batched GRAPHIC CCSID 835 parameters
 //@S1    20160811  JDBC:  Set warning message to blank if sqlcode is 0
 //@S2    20160822  JDBC:  Always return truncation warnings SQLSTATE 01004
+//@S3    20160828  JDBC:  Correct ResultSetMetaData for NCHAR and NVARCHAR types
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -199,7 +200,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2016 International Business Machines Corporation and others.";
     //                                                                                              built=20160520 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R3M0.00 built=20160818 @S2";  
+    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R3M0.00 built=20160818 @S3";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1

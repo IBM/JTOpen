@@ -1,4 +1,5 @@
 com/ibm/as400/access/AbstractProxyImpl.java
+com/ibm/as400/access/AS400JDBCArray.java
 com/ibm/as400/access/AS400JDBCArrayResultSet.java
 com/ibm/as400/access/AS400JDBCBlob.java
 com/ibm/as400/access/AS400JDBCBlobLocator.java
@@ -43,6 +44,7 @@ com/ibm/as400/access/JDResultSetProxy.java
 com/ibm/as400/access/JDRowIdProxy.java
 com/ibm/as400/access/JDSQLXMLProxy.java
 com/ibm/as400/access/JDStatementProxy.java
+com/ibm/as400/access/JDUtilities.java
 com/ibm/as400/access/SerializableReader.java
 com/ibm/as400/access/SQLArray.java
 com/ibm/as400/access/SQLBigint.java
@@ -55,6 +57,7 @@ com/ibm/as400/access/SQLClob.java
 com/ibm/as400/access/SQLClobLocator.java
 com/ibm/as400/access/SQLData.java
 com/ibm/as400/access/SQLDataBase.java
+com/ibm/as400/access/SQLDataFactory.java
 com/ibm/as400/access/SQLDatalink.java
 com/ibm/as400/access/SQLDate.java
 com/ibm/as400/access/SQLDBClob.java

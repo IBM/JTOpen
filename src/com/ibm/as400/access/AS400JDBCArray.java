@@ -14,15 +14,10 @@ package com.ibm.as400.access;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Array;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
+
+
+
 
 // @array new class
 /**
@@ -2024,28 +2019,41 @@ public class AS400JDBCArray implements Array {
       }
       break;
 
-    /*
-     * ifdef JDBC40
-     * 
-     * case 2009: // Types.SQLXML { boolean allValid = true; String subArrayType
-     * = "";
-     * 
-     * Object[] inSQLXMLArray = (Object[]) inArray; SQLXML[] SQLXMLArray = new
-     * SQLXML[inSQLXMLArray.length]; for (int i = 0; allValid && i <
-     * inSQLXMLArray.length; i++) { if ( inSQLXMLArray[i] == null) {
-     * SQLXMLArray[i] = null; } else { if ( inSQLXMLArray[i] instanceof SQLXML )
-     * { SQLXMLArray[i] = (SQLXML) inSQLXMLArray[i]; } else { subArrayType =
-     * inSQLXMLArray[i].getClass().getName(); allValid = false; } } }
-     * 
-     * if (allValid) { data_ =SQLXMLArray;
-     * 
-     * } else { if (JDTrace.isTraceOn()) { JDTrace.logInformation(this,
-     * "DB2Array.validate 07006 type is SQLXML but array types is "
-     * +arrayType+" subArrayType = "+subArrayType); }
-     * JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH); } } break;
-     * 
-     * endif
-     */
+    /* ifdef JDBC40 
+      case 2009: // Types.SQLXML 
+      { 
+        boolean allValid = true; 
+        String subArrayType = "";
+     
+        Object[] inSQLXMLArray = (Object[]) inArray; 
+        SQLXML[] SQLXMLArray = new SQLXML[inSQLXMLArray.length]; 
+        for (int i = 0; allValid && i < inSQLXMLArray.length; i++) { 
+          if ( inSQLXMLArray[i] == null) {
+           SQLXMLArray[i] = null; 
+          } else { 
+            if ( inSQLXMLArray[i] instanceof SQLXML ) { 
+              SQLXMLArray[i] = (SQLXML) inSQLXMLArray[i]; 
+            } else { 
+               subArrayType =
+               inSQLXMLArray[i].getClass().getName(); allValid = false; 
+            } 
+          } 
+        }
+      
+        if (allValid) { 
+          data_ =SQLXMLArray;
+        } else { 
+          if (JDTrace.isTraceOn()) { 
+            JDTrace.logInformation(this,
+                "DB2Array.validate 07006 type is SQLXML but array types is "
+                    +arrayType+" subArrayType = "+subArrayType); 
+            }
+          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH); 
+        }
+     } 
+     break;
+      
+     endif */
     case Types.TIME:
       if (JDUtilities.classIsInstanceOf(arrayComponentClass, "java.sql.Time")) {
         Time[] inTimeArray = (Time[]) inArray;
