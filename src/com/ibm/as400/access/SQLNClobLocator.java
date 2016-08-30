@@ -256,7 +256,7 @@ final class SQLNClobLocator implements SQLLocator
                             int bytesRead = stream.read(byteBuffer, 0, blockSize);
                             while(bytesRead > -1 && totalBytesRead < length)
                             {
-                                locator_.writeData((long)(totalBytesRead/2, byteBuffer), 0, bytesRead, true); // totalBytesRead is our offset. 
+                                locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset. 
                                 totalBytesRead += bytesRead;
                                 int bytesRemaining = length - totalBytesRead;
                                 if(bytesRemaining < blockSize)
