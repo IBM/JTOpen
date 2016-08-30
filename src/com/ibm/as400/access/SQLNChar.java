@@ -40,6 +40,8 @@ extends SQLDataBase
     // Private data.
     private int                     maxLength_;
     private String                  value_;
+    private String                  originalValue_;
+    private int                     ccsid_; //@cca1
 
     SQLNChar(int maxLength, SQLConversionSettings settings)
     {
@@ -47,11 +49,13 @@ extends SQLDataBase
         maxLength_      = maxLength;
         truncated_ = 0; outOfBounds_ = false; 
         value_          = "";  
+        originalValue_  = "";
+        ccsid_          = 1200; 
     }
 
     public Object clone()
     {
-        return new SQLNChar(maxLength_,settings_);
+        return new SQLNChar(maxLength_,settings_, 1200);
     }
 
     //---------------------------------------------------------//
@@ -74,6 +78,7 @@ extends SQLDataBase
         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());     
 
         value_ = ccsidConverter.byteArrayToString(rawBytes, offset, maxLength_, bidiConversionProperties);   
+        originalValue_ = value_; 
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -97,7 +102,7 @@ extends SQLDataBase
         catch(CharConversionException e)
         {
             maxLength_ = ccsidConverter.stringToByteArray(value_, bidiConversionProperties).length;    
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e, "Change Descriptor");
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
         }
     }
 
@@ -163,6 +168,8 @@ extends SQLDataBase
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
 
         value_ = value;                                                            
+        originalValue_ = value;
+
 
         // Set to the exact length.
         int valueLength = value_.length();
@@ -179,6 +186,7 @@ extends SQLDataBase
         else if(valueLength > exactLength)
         {                                                           
             value_ = value_.substring(0, exactLength);             
+            originalValue_ = value_; 
             truncated_ = valueLength - exactLength; 
             outOfBounds_ = false;
         }
@@ -204,7 +212,7 @@ extends SQLDataBase
 
     public int getDisplaySize()
     {
-        return maxLength_;
+        return maxLength_ / 2;
     }
 
     // JDBC 3.0
@@ -245,12 +253,12 @@ extends SQLDataBase
 
     public int getNativeType()
     {
-        return 452;
+        return 468;
     }
 
     public int getPrecision()
     {
-        return maxLength_;
+        return maxLength_ / 2;
     }
 
     public int getRadix()
@@ -332,6 +340,7 @@ extends SQLDataBase
         }
         catch(NumberFormatException nfe)
         {
+            // this field contains non-hex characters
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
             return null;
         }
@@ -349,9 +358,15 @@ extends SQLDataBase
         }
         catch(NumberFormatException nfe)
         {
+            // this field contains non-hex characters
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
             return null;
         }
+    }
+
+    public Object getBatchableObject() throws SQLException {
+      // Return the object that has not yet been padded
+      return originalValue_; 
     }
 
 
@@ -388,6 +403,7 @@ extends SQLDataBase
     public void trim()                                
     {                                                
         value_ = value_.trim();                      
+        originalValue_ = value_; 
     }                                                 
     
 

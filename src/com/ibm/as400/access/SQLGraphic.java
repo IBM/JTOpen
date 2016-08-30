@@ -47,6 +47,7 @@ extends SQLDataBase
     {
       super(settings);
         maxLength_      = maxLength;
+        truncated_ = 0; outOfBounds_ = false; 
         value_          = "";
         originalValue_  = "";
         ccsid_          = ccsid;  //@cca1
@@ -135,6 +136,10 @@ extends SQLDataBase
 
         if(object instanceof String)
             value = (String) object;
+        
+        else if(object instanceof Character)
+            value = object.toString();
+
 
         else if(object instanceof Number)
             value = object.toString();
