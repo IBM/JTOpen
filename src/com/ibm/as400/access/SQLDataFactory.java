@@ -659,9 +659,15 @@ endif */
 
             case 968:                           // Dbclob locator.
             {
+              if (ccsid == 1200) { 
+                SQLNClobLocator nclob =  new SQLNClobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+                return nclob;
+                
+              } else { 
               SQLDBClobLocator dbclob =  new SQLDBClobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
               dbclob.setCcsid(ccsid);  /*@P3A*/
-              return dbclob; 
+              return dbclob;
+              }
                 //return new SQLClobLocator(connection, id, lobMaxSize, true, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
             }
              

@@ -2613,7 +2613,8 @@ implements ResultSet
                   if (value != null) {
                       if (value.length >= 2) {
                         int newLength = 0x100 * (((int)value[0])&0xff) + (((int)value[1])&0xff);
-                        if (sqlType == SQLData.VARGRAPHIC) {
+                        if (sqlType == SQLData.VARGRAPHIC ||
+                            sqlType == SQLData.NVARCHAR ) {
                           newLength = newLength * 2; 
                         }
                         byte[] newValue = new byte[newLength]; 

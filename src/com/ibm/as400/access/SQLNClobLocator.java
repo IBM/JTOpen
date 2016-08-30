@@ -59,7 +59,7 @@ final class SQLNClobLocator implements SQLLocator
     {
         connection_     = connection;
         id_             = id;
-        locator_        = new JDLobLocator(connection, id, maxLength, false);
+        locator_        = new JDLobLocator(connection, id, maxLength, true);
         maxLength_      = maxLength;
         truncated_ = 0; outOfBounds_ = false; 
         settings_       = settings;
@@ -228,7 +228,7 @@ final class SQLNClobLocator implements SQLLocator
             }
             else if(object instanceof Reader)
             {
-                int length = scale_; // hack to get the length into the set method
+                int length = scale_ * 2; // This is always graphsic
                 // Need to write even if there are 0 bytes in case we are batching and
                 // the host server reuses the same handle for the previous locator; otherwise,
                 // we'll have data in the current row from the previous row.
@@ -256,7 +256,7 @@ final class SQLNClobLocator implements SQLLocator
                             int bytesRead = stream.read(byteBuffer, 0, blockSize);
                             while(bytesRead > -1 && totalBytesRead < length)
                             {
-                                locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset. 
+                                locator_.writeData((long)(totalBytesRead/2, byteBuffer), 0, bytesRead, true); // totalBytesRead is our offset. 
                                 totalBytesRead += bytesRead;
                                 int bytesRemaining = length - totalBytesRead;
                                 if(bytesRemaining < blockSize)
@@ -264,13 +264,14 @@ final class SQLNClobLocator implements SQLLocator
                                     blockSize = bytesRemaining;
                                     if(stream.available() == 0 && blockSize != 0)
                                     {
+                                    	stream.close(); 
                                         stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); // do this so we don't read more chars out of the Reader than we have to. //@KBC changed to use bidiConversionProperties instead of bidiStringType
                                     }
                                 }
                                 bytesRead = stream.read(byteBuffer, 0, blockSize);
                             }
 
-
+                           
                             if(totalBytesRead < length)
                             {
                                 // a length longer than the stream was specified
@@ -310,7 +311,7 @@ final class SQLNClobLocator implements SQLLocator
                             int bytesRead = stream.read(byteBuffer, 0, blockSize);
                             while(bytesRead > -1 )
                             {
-                                locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset. 
+                                locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset. 
                                 totalBytesRead += bytesRead;
                                
                                 bytesRead = stream.read(byteBuffer, 0, blockSize);
@@ -337,7 +338,7 @@ final class SQLNClobLocator implements SQLLocator
             }
             else if(object instanceof InputStream)
             {
-                int length = scale_; // hack to get the length into the set method
+                int length = scale_ * 2; // We are always graphic
                 // Need to write even if there are 0 bytes in case we are batching and
                 // the host server reuses the same handle for the previous locator; otherwise,
                 // we'll have data in the current row from the previous row.
@@ -356,7 +357,7 @@ final class SQLNClobLocator implements SQLLocator
                         int bytesRead = stream.read(byteBuffer, 0, blockSize);
                         while(bytesRead > -1 && totalBytesRead < length)
                         {
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  
+                            locator_.writeData((long)totalBytesRead/2, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  
                             totalBytesRead += bytesRead;
                             int bytesRemaining = length - totalBytesRead;
                             if(bytesRemaining < blockSize)
@@ -389,7 +390,7 @@ final class SQLNClobLocator implements SQLLocator
                         int bytesRead = stream.read(byteBuffer, 0, blockSize);
                         while(bytesRead > -1 )
                         {
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  
+                            locator_.writeData((long)totalBytesRead/2, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  
                             totalBytesRead += bytesRead;
                            
                             bytesRead = stream.read(byteBuffer, 0, blockSize);
@@ -435,10 +436,20 @@ final class SQLNClobLocator implements SQLLocator
                 {
                     Clob clob = (Clob)object;
                     int length = (int)clob.length();
-                    String substring = clob.getSubString(1, length);
-                    // @J5C Use length of output array not substring
-                    byte[] outByteArray = converter_.stringToByteArray(substring);
-                    locator_.writeData(0L, outByteArray, 0, outByteArray.length, true);         
+                int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                if(length < blockSize) blockSize = length;
+                int position = 1;
+                AS400JDBCClobLocator thisClob = new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);   //@hloc1 getClob() returns local value since it was just set.  Here we want the locator on the host so we can write to it. 
+                while(position <= length)
+                {
+                    String substring = clob.getSubString(position, blockSize);
+                    thisClob.setString(position, substring);
+                    position += blockSize;
+                    if((length - position) < blockSize)
+                    {
+                        blockSize = length - position + 1;
+                    }
+                }
                     set = true;
                 }
                 else
@@ -487,7 +498,7 @@ endif */
 
     public int getDisplaySize()
     {
-        return maxLength_;
+        return maxLength_ / 2;
     }
 
     public String getJavaClassName()
@@ -512,7 +523,7 @@ endif */
 
     public int getMaximumPrecision()
     {
-        return AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3 // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
+        return 1073741822; // the DB2 SQL reference says this should be 1073741823 but we return 1 less to allow for NOT NULL columns
     }
 
     public int getMaximumScale()
@@ -527,7 +538,7 @@ endif */
 
     public int getNativeType()
     {
-        return 964;        
+        return 968;        
     }
 
     public int getPrecision()
@@ -661,8 +672,15 @@ endif */
         truncated_ = 0; outOfBounds_ = false; 
         try
         {
-            byte[] bytes = BinaryConverter.stringToBytes(getString());
-            return new AS400JDBCBlob(bytes, bytes.length);
+        	   if(savedObject_ != null)//@loch
+            {                       //@loch
+                //get value from RS.updateX(value)
+                doConversion();     //@loch
+                truncated_ = 0; outOfBounds_ = false;      //@loch
+                return  new AS400JDBCBlob(BinaryConverter.stringToBytes(value_), maxLength_);
+            }                       //@loch
+            
+            return new AS400JDBCBlob(BinaryConverter.stringToBytes(getString()), maxLength_);
         }
         catch(NumberFormatException nfe)
         {
@@ -859,7 +877,7 @@ endif */
         }
         catch(UnsupportedEncodingException e)
         {
-            JDError.throwSQLException(JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
             return null;
         }
     }
