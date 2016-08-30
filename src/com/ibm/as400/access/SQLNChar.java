@@ -55,7 +55,7 @@ extends SQLDataBase
 
     public Object clone()
     {
-        return new SQLNChar(maxLength_,settings_, 1200);
+        return new SQLNChar(maxLength_,settings_);
     }
 
     //---------------------------------------------------------//
