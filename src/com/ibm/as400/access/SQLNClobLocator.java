@@ -37,11 +37,11 @@ final class SQLNClobLocator implements SQLLocator
 {
    
     private AS400JDBCConnection     connection_;
-    private SQLConversionSettings   settings_;
     private ConvTable               converter_;
     private int                     id_;
     private JDLobLocator            locator_;
-    private int                     maxLength_;
+    private int                     maxLength_; //note length in chars
+    private SQLConversionSettings   settings_;
     private int                     truncated_;
     private boolean                 outOfBounds_; 
     private int                     columnIndex_;
@@ -61,8 +61,8 @@ final class SQLNClobLocator implements SQLLocator
         id_             = id;
         locator_        = new JDLobLocator(connection, id, maxLength, true);
         maxLength_      = maxLength;
-        truncated_ = 0; outOfBounds_ = false; 
         settings_       = settings;
+        truncated_ = 0; outOfBounds_ = false; 
         converter_      = converter;
         columnIndex_    = columnIndex;
     }
@@ -129,7 +129,8 @@ final class SQLNClobLocator implements SQLLocator
         if(object instanceof String)
         {
             String s = (String)object;
-            truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
+            int length = s.length(); 
+            truncated_ = (length > maxLength_ ? length-maxLength_ : 0);  
             outOfBounds_ = false;
         } 
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
@@ -216,15 +217,8 @@ final class SQLNClobLocator implements SQLLocator
             if(object instanceof String)
             {
                 String string = (String)object;
-                int bidiStringType = settings_.getBidiStringType();
-                if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
-
-                BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType); 
-                bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());       
-                bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());   
-
-                byte[] bytes = converter_.stringToByteArray(string, bidiConversionProperties); 
-                locator_.writeData(0L, bytes, true);              
+            byte[] bytes = converter_.stringToByteArray(string);
+            locator_.writeData(0L, bytes, true);            //@k1C
             }
             else if(object instanceof Reader)
             {

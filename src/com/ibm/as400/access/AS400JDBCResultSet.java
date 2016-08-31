@@ -2632,7 +2632,8 @@ implements ResultSet
                   } catch (Exception cpException) {
                     // ignore; 
                   }
-                } else if (sqlType == SQLData.DBCLOB_LOCATOR) {
+                } else if (sqlType == SQLData.DBCLOB_LOCATOR ||
+                           sqlType == SQLData.NCLOB_LOCATOR) {
                   String x = data.getString();
                   try { 
                     value = x.getBytes("UTF-16BE");
