@@ -134,6 +134,7 @@ public class Main implements Runnable {
       "!HISTORY.SHOW                     Shows the history of commands",
       "!SETCLITRACE [true|false]         Sets CLI tracing for native JDBC driver -- valid V5R5 and later",
       "!SETDB2TRACE [0|1|2|3|4]          Sets jdbc tracing for native JDBC driver  -- valid V5R5 and later",
+      "!SYSTEMDEBUGGER                   Starts the system debugger (requires tes.jar on classpath)",
 
       "",
       "Parameters for prepared statements and callable statements may be specified in the following formats",
@@ -2188,6 +2189,47 @@ public class Main implements Runnable {
           e.printStackTrace(out1);
         }
 
+      } else if (upcaseCommand.startsWith("SYSTEMDEBUGGER")) {
+        history.addElement("!"+command1);
+
+        try {
+          
+
+          Class utilClass = Class.forName("com.ibm.iseries.debug.util.Util");
+          Class[] argClasses = new Class[0];
+          java.lang.reflect.Method method = utilClass.getMethod("registerApp",
+              argClasses);
+          Object[] args = new Object[0];
+          method.invoke(null,  args); 
+
+          Class debugClass = Class.forName("utilities.Debug");
+          Class[] mainArgsClasses = new Class[1];
+          args = new Object[1]; 
+
+          String mainArg[] = new String[6];
+          mainArg[0] = "-u"; 
+          mainArg[1] = getUser(); 
+          mainArg[2] = "-s"; 
+          mainArg[3] = getSystem(); 
+          mainArg[4] = "-j"; 
+          mainArg[5] = getServerJobName(); 
+              
+          args[0] = mainArg; 
+          
+          mainArgsClasses[0] =mainArg.getClass();  
+          java.lang.reflect.Method mainMethod = debugClass.getMethod("main",
+              mainArgsClasses);
+          mainMethod.invoke(null, args); 
+
+          
+        } catch (Exception e) {
+          out1.println("Exception starting  SYSTEMDEBUGGER");
+          e.printStackTrace(out1);
+        }
+
+
+        
+        
       } else if (upcaseCommand.startsWith("SET TRANSACTIONISOLATION")) {
         history.addElement("!"+command1);
         String setting = command1.substring(24).trim();
@@ -2226,47 +2268,8 @@ public class Main implements Runnable {
 
       } else if (upcaseCommand.startsWith("GETSERVERJOBNAME")) {
         history.addElement("!"+command1);
-        try {
-          String jobName = ReflectionUtil.callMethod_S(connection_,
-              "getServerJobName");
-          out1.println("getServerJobName returned " + jobName);
-        } catch (java.lang.NoSuchMethodException nsme) {
-          try {
-            // Check for toolbox Driver
-            DatabaseMetaData dmd = connection_.getMetaData();
-            String driverName = dmd.getDriverName();
-            if (driverName.indexOf("Toolbox") >= 0 || driverName.indexOf("jtopenlite") >= 0) {
-              String jobName = "";
-              try {
-                jobName = ReflectionUtil.callMethod_S(connection_,
-                    "getServerJobIdentifier");
-                // Reformat the job name it comes in as QZDASOINITQUSER 364288
-                if (jobName.length() >= 26) {
-                  jobName = jobName.substring(20).trim() + "/"
-                      + jobName.substring(10, 20).trim() + "/"
-                      + jobName.substring(0, 10).trim();
-                }
-                out1.println("getServerJobName returned " + jobName);
-
-              } catch (Exception e) {
-                out1.println("server jobname is not available");
-              }
-
-            } else {
-              out1.println("getServerJobName:3 failed with exception " + nsme
-                  + " for driver " + driverName);
-              nsme.printStackTrace(out1);
-            }
-
-          } catch (Exception e) {
-            out1.println("getServerJobName:2 failed with 2 exceptions ");
-            nsme.printStackTrace(out1);
-            e.printStackTrace(out1);
-          }
-        } catch (Exception e) {
-          out1.println("getServerJobName:1 failed with exception " + e);
-          e.printStackTrace(out1);
-        }
+        String jobName = getServerJobName(); 
+        out1.println("getServerJobName returned " + jobName);
       } else if (upcaseCommand.startsWith("DMD.GETCOLUMNS")) {
         history.addElement("!"+command1);
         try {
@@ -2823,6 +2826,67 @@ public class Main implements Runnable {
     return returnCode;
   }
 
+
+  private String getSystem() throws SQLException {
+    String system = ""; 
+    String url = connection_.getMetaData().getURL();
+    if (url.startsWith("jdbc:as400:")) {
+      system = url.substring(11);  
+      int semicolon = system.indexOf(';');
+      if (semicolon > 0) { 
+        system = system.substring(0,semicolon).replace('/', ' ').trim(); 
+      }
+      
+    } else  if (url.startsWith("jdbc:db2:")) {
+      system = "localhost"; 
+    }
+    
+    return system; 
+  }
+
+  private String getUser() throws Exception {
+      return connection_.getMetaData().getUserName(); 
+  }
+
+  private String getServerJobName() {
+    String jobName; 
+    try {
+      jobName = ReflectionUtil.callMethod_S(connection_,
+          "getServerJobName");
+    } catch (java.lang.NoSuchMethodException nsme) {
+      try {
+        // Check for toolbox Driver
+        DatabaseMetaData dmd = connection_.getMetaData();
+        String driverName = dmd.getDriverName();
+        if (driverName.indexOf("Toolbox") >= 0 || driverName.indexOf("jtopenlite") >= 0) {
+          try {
+            jobName = ReflectionUtil.callMethod_S(connection_,
+                "getServerJobIdentifier");
+            // Reformat the job name it comes in as QZDASOINITQUSER 364288
+            if (jobName.length() >= 26) {
+              jobName = jobName.substring(20).trim() + "/"
+                  + jobName.substring(10, 20).trim() + "/"
+                  + jobName.substring(0, 10).trim();
+            }
+
+          } catch (Exception e) {
+            return "server jobname is not available";
+          }
+
+        } else {
+          return "getServerJobName:3 failed with exception " + nsme
+              + " for driver " + driverName;
+        }
+
+      } catch (Exception e) {
+        return "getServerJobName:2 failed with 2 exceptions "+nsme + ":" + e;
+      }
+    } catch (Exception e) {
+      return ("getServerJobName:1 failed with exception " + e);
+    }
+
+    return jobName;
+  }
 
   private Object callMethod(String left, PrintStream out1) {
     try {
