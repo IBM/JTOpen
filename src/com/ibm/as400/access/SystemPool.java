@@ -177,6 +177,31 @@ public class SystemPool
        cacheChanges_ = false;
      }
 
+     //@S4A
+     /**
+      * Constructs a SystemPool object, to represent a <i>subsystem (non-shared)</i> pool.
+      *
+      * @param subsystem The subsystem that "owns" the pool.
+      * @param sequenceNumber The pool's sequence number within the subsystem.
+      * Valid values are 1 through 10.
+      * @param size The size of the system pool, in kilobytes.
+      * @param activityLevel The activity level of the pool.
+      **/
+     public SystemPool(Subsystem subsystem, int sequenceNumber, long size, int activityLevel)
+     {
+       this(subsystem, sequenceNumber);
+
+       cacheChanges_ = true; // don't send values to the system yet
+       try {
+         set("poolSizeLong", new Long(size));
+         set("activityLevel", new Integer(activityLevel));
+       }
+       catch (Exception e) { // should never happen, no system contact
+         Trace.log(Trace.ERROR, e);
+         throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+       }
+       cacheChanges_ = false;
+     }
      /**
       * Constructs a SystemPool object, to represent a <i>shared</i> system pool.
       *
@@ -336,16 +361,23 @@ public class SystemPool
       // QUSCHGPA works only on active pools that have been allocated by system pood ID.
       // To modify such pools, we must use CHGSHRPOOL.
 
-      if (poolIdentifier == 0)
+      if (poolIdentifier == 0 || changesTable_.get("poolSizeLong")!=null) //@S4C As QUSCHGPA api only support pool size with bin4, we set long type with command here
       {
         // We need to use CHGSHRPOOL, since QUSCHGPA requires a unique system pool identifier.
         StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+poolName_+")");
         Object obj;  // attribute value
-
-        obj = changesTable_.get("poolSize");
+        //@S4A START
+        obj = changesTable_.get("poolSizeLong");
         if (obj != null) {
           cmdBuf.append(" SIZE("+obj.toString()+")");
         }
+        else{//@S4A END
+          obj = changesTable_.get("poolSize");
+          if (obj != null) {
+            cmdBuf.append(" SIZE("+obj.toString()+")");
+          }
+        }//@S4A 
+       
 
         obj = changesTable_.get("activityLevel");
         if (obj != null) {
@@ -1139,6 +1171,35 @@ public class SystemPool
      {
        return ((Integer)get("poolSize")).intValue();
      }
+     
+     //@S4A
+     /**
+      * Returns the amount of main storage, in kilobytes, currently allocated to the pool.
+      * Note: Depending on system storage availability, this may be less than
+      * the pool's requested ("defined") size.
+      *
+      * @return The pool size, in kilobytes.
+      * @exception AS400SecurityException If a security or authority error
+      *            occurs.
+      * @exception ErrorCompletingRequestException If an error occurs before
+      *            the request is completed.
+      * @exception InterruptedException If this thread is interrupted.
+      * @exception IOException If an error occurs while communicating with
+      *            the system.
+      * @exception ObjectDoesNotExistException If the object does not exist on the system.
+      * @exception UnsupportedEncodingException If the character encoding is
+      *            not supported.
+      **/
+     public long getSizeLong()
+         throws AS400SecurityException,
+                ErrorCompletingRequestException,
+                InterruptedException,
+                IOException,
+                ObjectDoesNotExistException,
+                UnsupportedEncodingException
+      {
+        return ((Long)get("poolSizeLong")).longValue();
+      }
 
      /**
       * Returns the amount of storage, in kilobytes, in the pool reserved for
@@ -2381,6 +2442,50 @@ public class SystemPool
        set("poolSize", new Integer(value));
      }
 
+     /**
+      * Sets the size of the system pool in kilobytes, where one kilobyte is
+      * 1024 bytes.
+      * For shared pools, this specifies the requested ("defined") size.
+      * The minimum value is 256 kilobytes.
+      * To indicate that no storage or activity level is defined
+      * for the pool, specify 0.
+      *
+      * Recommended coding pattern:
+      *  systemPool.setCaching(true);
+      *  systemPool.setSizeLong(size);
+      *  systemPool.setActivityLevel(level);
+      *  systemPool.commitCache();
+      *
+      * @param value The new size of the system pool.
+      * @exception AS400Exception If the system returns an error
+      *            message.
+      * @exception AS400SecurityException If a security or authority error
+      *            occurs.
+      * @exception ConnectionDroppedException If the connection is dropped
+      *            unexpectedly.
+      * @exception ErrorCompletingRequestException If an error occurs before
+      *            the request is completed.
+      * @exception InterruptedException If this thread is interrupted.
+      * @exception IOException If an error occurs while communicating with
+      *            the system.
+      * @exception ObjectDoesNotExistException If the object does not exist on the system.
+      * @exception PropertyVetoException If the change is vetoed.
+      * @exception UnsupportedEncodingException If the character encoding is
+      *            not supported.
+      **/
+     public void setSizeLong(long value)
+         throws AS400Exception,
+                AS400SecurityException,
+                ConnectionDroppedException,
+                ErrorCompletingRequestException,
+                InterruptedException,
+                IOException,
+                ObjectDoesNotExistException,
+                PropertyVetoException,
+                UnsupportedEncodingException
+  {
+    set("poolSizeLong", new Long(value));
+  }
 
      /**
       * Sets the priority of this pool relative the priority of the other
