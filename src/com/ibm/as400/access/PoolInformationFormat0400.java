@@ -54,6 +54,7 @@ class PoolInformationFormat0400 extends PoolInformationFormat
     addFieldDescription(new CharacterFieldDescription(text1, "reserved"));
     addFieldDescription(new BinaryFieldDescription(bin4, "tuningMinimumActivityLevel"));
     addFieldDescription(new BinaryFieldDescription(bin4, "tuningMaximumActivityLevel"));
+    addFieldDescription(new BinaryFieldDescription(new AS400Bin8(), "poolSizeLong"));//@S4A
 
   }
 }
