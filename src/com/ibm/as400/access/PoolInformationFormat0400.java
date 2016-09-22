@@ -54,8 +54,13 @@ class PoolInformationFormat0400 extends PoolInformationFormat
     addFieldDescription(new CharacterFieldDescription(text1, "reserved"));
     addFieldDescription(new BinaryFieldDescription(bin4, "tuningMinimumActivityLevel"));
     addFieldDescription(new BinaryFieldDescription(bin4, "tuningMaximumActivityLevel"));
-    addFieldDescription(new BinaryFieldDescription(new AS400Bin8(), "poolSizeLong"));//@S4A
-
+    
+    try{
+    if (sys.getVRM() >= 0x00070200) //pool size (long) field is added from v7r2
+        addFieldDescription(new BinaryFieldDescription(new AS400Bin8(), "poolSizeLong"));//@S4A
+    }catch(Exception e){
+      e.printStackTrace();
+    }
   }
 }
                 

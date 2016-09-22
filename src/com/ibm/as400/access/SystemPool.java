@@ -364,7 +364,7 @@ public class SystemPool
       if (poolIdentifier == 0 || changesTable_.get("poolSizeLong")!=null) //@S4C As QUSCHGPA api only support pool size with bin4, we set long type with command here
       {
         // We need to use CHGSHRPOOL, since QUSCHGPA requires a unique system pool identifier.
-        StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+poolName_+")");
+        StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+getName()+")");//@S4C
         Object obj;  // attribute value
         //@S4A START
         obj = changesTable_.get("poolSizeLong");
@@ -1146,6 +1146,8 @@ public class SystemPool
 
      /**
       * Returns the amount of main storage, in kilobytes, currently allocated to the pool.
+      * If the pool size is larger than 2,147,483,647 kilobytes, this will return a value of 2,147,483,647 (the maximum amount a 4-byte field can hold). 
+      * Use getSizeLong() to return the actual size, but Pool size (long) field is supported from V7R2.
       * Note: Depending on system storage availability, this may be less than
       * the pool's requested ("defined") size.
       *
@@ -1175,6 +1177,7 @@ public class SystemPool
      //@S4A
      /**
       * Returns the amount of main storage, in kilobytes, currently allocated to the pool.
+      * Pool size (long) field is supported from V7R2. For release before V7R2, 2,147,483,647 kilobytes is the maximum return value.
       * Note: Depending on system storage availability, this may be less than
       * the pool's requested ("defined") size.
       *
@@ -1198,7 +1201,10 @@ public class SystemPool
                 ObjectDoesNotExistException,
                 UnsupportedEncodingException
       {
-        return ((Long)get("poolSizeLong")).longValue();
+        if(system_.getVRM()>= 0x00070200)
+          return ((Long)get("poolSizeLong")).longValue();
+        else
+          return ((Integer)get("poolSize")).longValue();
       }
 
      /**
