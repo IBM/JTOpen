@@ -850,7 +850,15 @@ endif */
             //get value from RS.updateX(value)
             doConversion();     //@loch
             truncated_ = 0; outOfBounds_ = false;      //@loch
-            return new AS400JDBCBlob(valueBlob_, maxLength_); //@loch
+            if (valueBlob_ != null) { 
+               return new AS400JDBCBlob(valueBlob_, maxLength_); //@loch
+            } else {
+               try {
+                return new AS400JDBCBlob(valueClob_.getBytes("UTF-8"), maxLength_);
+              } catch (UnsupportedEncodingException e) {
+                // Should never happen since UTF-8 is a valid encoding.
+              } 
+            }
         }                       //@loch
         
         // We don't want to give out our internal locator to the public,
