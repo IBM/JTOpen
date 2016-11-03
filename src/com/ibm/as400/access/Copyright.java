@@ -194,6 +194,7 @@ package com.ibm.as400.access;
 //@S3    20160828  JDBC:  Correct ResultSetMetaData for NCHAR and NVARCHAR types
 //@S4    20160828  SystemPool: Support pool size in long type
 //@S5    20160927  JDBC:  Fix getting input stream from XML
+//@S6    20161104  JDBC:  Allow setSchema(*LIBL) for system naming
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -201,8 +202,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2016 International Business Machines Corporation and others.";
-    //                                                                                              built=20160520 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R3M0.00 built=20160921 @S5";  
+    //                                                                                              built=20161104 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R3M0.00 built=20161104 @S6";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1

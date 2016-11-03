@@ -5762,10 +5762,18 @@ endif */
       // If delimited name pass as is
     } else {
       // Name is not delimited, make sure it is upper case
-      schema = schema.toUpperCase();
+      schema = schema.toUpperCase().trim();
     }
     PreparedStatement ps;
-    if ("DEFAULT".equals(schema)) { 
+    
+    // If system naming is in used and *LIBL is passed, change the schema
+    // to DEFAULT.
+    // This is to prevent problem with connection pools that call getSchema (which returns *LIBL)
+    // followed by setSchema(*LIBL)  @S6A 
+    boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
+
+    if ("DEFAULT".equals(schema)  || 
+        ((!SQLNaming) && ("*LIBL".equals(schema)))) { 
       ps = prepareStatement("SET CURRENT SCHEMA DEFAULT ");
     } else { 
       ps = prepareStatement("SET CURRENT SCHEMA ? ");
