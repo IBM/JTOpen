@@ -1731,7 +1731,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
           if (cpds_ == null) {
             logError("Data source name is not bound in JNDI: "
                 + dataSourceName_);
-            JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
+            JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE, "Data source name is not bound in JNDI: "
+                + dataSourceName_);
           }
         }
 
@@ -1743,8 +1744,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       }
     }    catch (NamingException ne)
     {
-      ne.printStackTrace();
-      JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
+      // ne.printStackTrace();
+      JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE, ne);
     }
 
     poolManagerInitialized_ = true;

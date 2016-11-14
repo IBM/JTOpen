@@ -344,6 +344,7 @@ implements ConnectionEventListener
 
     // Fill the pool with the number of connections specified for initial pool size.
     // We distribute the new connections evenly between the two 'sides'.
+    
     fillPool(Math.max(1,initialPoolSize_/2), FOREGROUND);  // at least 1 connection
     fillPool(initialPoolSize_/2, BACKGROUND);
 
@@ -1118,6 +1119,11 @@ implements ConnectionEventListener
     try
     {
       newConnections = new AS400JDBCPooledConnection[numConnectionsToAdd];
+      
+      // If you cannot get a connection using a userid/password, do not fill the
+      // pool at this time. 
+      String user = cpds_.getUser(); 
+      if ( user != null &&  user.length() > 0) { 
       try
       {
         for (int i=0; i<numConnectionsToAdd; i++)
@@ -1168,6 +1174,7 @@ implements ConnectionEventListener
           numConnectionsAddedToPool++;
           newConnections[i].timeWhenPoolStatusLastModified_ = timeNow;
         }
+      }
       }
     }
     catch (SQLException e)

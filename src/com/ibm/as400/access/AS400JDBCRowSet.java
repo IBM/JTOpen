@@ -389,7 +389,7 @@ implements RowSet, Serializable             // @A3C
                     else                          //@A2A
                         context_ = new InitialContext(environment_);    //@A2A
                 }
-                dataSource_ = (AS400JDBCDataSource)context_.lookup(dataSourceName_);
+                dataSource_ =  (DataSource) context_.lookup(dataSourceName_);
             }
             catch (NamingException ne)
             {
@@ -398,9 +398,11 @@ implements RowSet, Serializable             // @A3C
                     JDTrace.logInformation(this, "Cannot find JNDI data source.");
                     ne.printStackTrace(DriverManager.getLogWriter());
                 }
-                throw new ExtendedIllegalStateException("dataSourceName", ExtendedIllegalStateException.OBJECT_CANNOT_BE_FOUND);  //@A2C
+                ExtendedIllegalStateException eise =new ExtendedIllegalStateException("dataSourceName", ExtendedIllegalStateException.OBJECT_CANNOT_BE_FOUND);
+                eise.initCause(ne); 
+                throw  eise; 
             }
-            connection_ = (AS400JDBCConnection)dataSource_.getConnection(username_, password_);
+            connection_ = dataSource_.getConnection(username_, password_);
         }
         else
         {                          // Use the url to make the connection.
