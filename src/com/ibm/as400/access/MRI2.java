@@ -236,6 +236,9 @@ public class MRI2 extends ListResourceBundle
       { "PROP_NAME_SP_POOLSIZE", "poolSize" },
       { "PROP_DESC_SP_POOLSIZE", "Amount of main storage in the pool." },
 
+      { "PROP_NAME_SP_POOLSIZELONG", "poolSizeLong" },
+      { "PROP_DESC_SP_POOLSIZELONG", "Amount of main storage in the pool." },
+
       { "PROP_NAME_SP_RSVDSIZE", "reservedSize" },
       { "PROP_DESC_SP_RSVDSIZE", "Amount of main storage in the pool reserved for system use." },
 

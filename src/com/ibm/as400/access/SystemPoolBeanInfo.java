@@ -155,8 +155,20 @@ public class SystemPoolBeanInfo extends SimpleBeanInfo
                 "getSizeLong", "setSizeLong"); 
             poolSizeLong.setBound(true);
             poolSizeLong.setConstrained(true);
-            poolSizeLong.setDisplayName(loader_.getText("PROP_NAME_SP_POOLSIZELONG"));
-            poolSizeLong.setShortDescription(loader_.getText("PROP_DESC_SP_POOLSIZELONG"));
+            String namePoolSizeLong; 
+            try { 
+              namePoolSizeLong = loader_.getText("PROP_NAME_SP_POOLSIZELONG");
+            } catch (java.util.MissingResourceException e) { 
+              namePoolSizeLong = loader_.getText("PROP_NAME_SP_POOLSIZE");
+            }
+            poolSizeLong.setDisplayName(namePoolSizeLong);
+            String descPoolSizeLong; 
+            try { 
+              descPoolSizeLong = loader_.getText("PROP_DESC_SP_POOLSIZELONG");
+            } catch (java.util.MissingResourceException e) { 
+              descPoolSizeLong = loader_.getText("PROP_DESC_SP_POOLSIZE");
+            }
+            poolSizeLong.setShortDescription(descPoolSizeLong);
             
             PropertyDescriptor reservedSize = new PropertyDescriptor("reservedSize", beanClass_, 
                                                                      "getReservedSize", null); 
