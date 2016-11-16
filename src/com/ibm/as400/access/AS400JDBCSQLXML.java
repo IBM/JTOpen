@@ -950,7 +950,7 @@ endif */
                 org.w3c.dom.Document doc;
                 if (lobType == SQLData.CLOB           //@clob
                         || lobType == SQLData.DBCLOB  //@clob
-                        || lobType == SQLData.NLOB  //@clob
+                        || lobType == SQLData.NCLOB  //@clob
                         || lobType == SQLData.CLOB_LOCATOR
                         || lobType == SQLData.NCLOB_LOCATOR
                         || lobType == SQLData.DBCLOB_LOCATOR)
