@@ -225,7 +225,7 @@ final class SQLDBClobLocator implements SQLLocator
         }
         else if(object instanceof Reader)
         {
-            int length = scale_*2; // We are always graphic.
+            int length = scale_*2; // This is always graphic.
             // Need to write even if there are 0 bytes in case we are batching and
             // the host server reuses the same handle for the previous locator; otherwise,
             // we'll have data in the current row from the previous row.
@@ -492,7 +492,7 @@ final class SQLDBClobLocator implements SQLLocator
     {
 /* ifdef JDBC40 
       // @P3A
-      if (ccsid_ == 1200 || ccsid_ == 13400) {
+      if (ccsid_ == 1200 ) {
         return "NCLOB"; 
       }
   endif */       
@@ -538,7 +538,7 @@ final class SQLDBClobLocator implements SQLLocator
     {
 /* ifdef JDBC40 
       // @P3A
-      if (ccsid_ == 1200 || ccsid_ == 13400) {
+      if (ccsid_ == 1200 ) {
         return java.sql.Types.NCLOB;  
       }
   endif */       

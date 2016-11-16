@@ -288,7 +288,7 @@ class ConvTableDoubleMap extends ConvTable
             i++; 
           }
         }
-        if (destIndex != dest.length) {
+        if (destIndex * 2 != dest.length) {
           byte[] newDest = new byte[destIndex * 2]; 
           System.arraycopy(dest, 0, newDest, 0, destIndex * 2);
           dest = newDest; 

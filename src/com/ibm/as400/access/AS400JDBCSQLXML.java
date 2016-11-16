@@ -240,10 +240,12 @@ endif */
 
             case SQLData.CLOB:
             case SQLData.DBCLOB:
+            case SQLData.NCLOB:
                 r = clobValue_.getCharacterStream();
                 break;
             case SQLData.CLOB_LOCATOR:
             case SQLData.DBCLOB_LOCATOR:
+            case SQLData.NCLOB_LOCATOR:
                 r = clobLocatorValue_.getCharacterStream();
                 break;
             case SQLData.BLOB:
@@ -278,10 +280,12 @@ endif */
         {
             case SQLData.DBCLOB:
             case SQLData.CLOB:
+            case SQLData.NCLOB:
                 s = clobValue_.getSubString((long) 1, (int) clobValue_.length());
                 break;
             case SQLData.DBCLOB_LOCATOR:
             case SQLData.CLOB_LOCATOR:
+            case SQLData.NCLOB_LOCATOR:
                 s = clobLocatorValue_.getSubString((long) 1, (int) clobLocatorValue_.length());
                 break;
             case SQLData.BLOB:
@@ -778,9 +782,11 @@ endif */
         {
             case SQLData.DBCLOB:
             case SQLData.CLOB:
+            case SQLData.NCLOB:
                 return clobValue_.setString(position, string, offset, lengthOfWrite);
             case SQLData.DBCLOB_LOCATOR:
             case SQLData.CLOB_LOCATOR:
+            case SQLData.NCLOB_LOCATOR:
                 return clobLocatorValue_.setString(position, string, offset, lengthOfWrite);
             default:
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Invalid value: "+ lobType);
@@ -804,6 +810,7 @@ endif */
         {
             case SQLData.DBCLOB:
             case SQLData.CLOB:
+            case SQLData.NCLOB:
                 try
                 {
                     // Check for an internal encoding in the string. If there is
@@ -825,6 +832,7 @@ endif */
                 break;
             case SQLData.DBCLOB_LOCATOR:
             case SQLData.CLOB_LOCATOR:
+            case SQLData.NCLOB_LOCATOR:
                 //This will also be the case for XML column data
                 if(isXML_) //@xml6 if xml column and thus also a locator, then get bytes from bloblocator code
                     is = blobLocatorValue_.getBinaryStream();   //@xml6 (no trim of XML declaration because it is binary)
@@ -942,7 +950,9 @@ endif */
                 org.w3c.dom.Document doc;
                 if (lobType == SQLData.CLOB           //@clob
                         || lobType == SQLData.DBCLOB  //@clob
+                        || lobType == SQLData.NLOB  //@clob
                         || lobType == SQLData.CLOB_LOCATOR
+                        || lobType == SQLData.NCLOB_LOCATOR
                         || lobType == SQLData.DBCLOB_LOCATOR)
                 {
                     // Do something different for CLOB locators because

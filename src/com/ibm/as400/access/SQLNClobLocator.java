@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLNclobLocator.java
+// Filename: SQLNClobLocator.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -137,7 +137,8 @@ final class SQLNClobLocator implements SQLLocator
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
            !(object instanceof Clob) 
-/*ifdef JDBC40            
+/*ifdef JDBC40 
+           && !(object instanceof NClob)
            && !(object instanceof SQLXML)
            endif */ 
            
@@ -222,7 +223,7 @@ final class SQLNClobLocator implements SQLLocator
             }
             else if(object instanceof Reader)
             {
-                int length = scale_ * 2; // This is always graphsic
+                int length = scale_ * 2; // This is always graphic
                 // Need to write even if there are 0 bytes in case we are batching and
                 // the host server reuses the same handle for the previous locator; otherwise,
                 // we'll have data in the current row from the previous row.
@@ -566,7 +567,7 @@ endif */
         return "NCLOB";
         endif */ 
     	/* ifndef JDBC40 */ 
-    	return "CLOB"; 
+    	return "DBCLOB"; 
     	/* endif */ 
     }
 

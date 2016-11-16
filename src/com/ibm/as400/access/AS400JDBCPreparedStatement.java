@@ -430,9 +430,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
           if (sqlType == SQLData.CLOB_LOCATOR || // @KBA
               sqlType == SQLData.BLOB_LOCATOR || // @KBA
               sqlType == SQLData.DBCLOB_LOCATOR || // @KBA //@pdc jdbc40
-/* ifdef JDBC40 
+
                    sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
-endif */ 
+ 
 
               
               
@@ -2252,9 +2252,9 @@ endif */
           if (sqlType == SQLData.CLOB_LOCATOR
               || sqlType == SQLData.BLOB_LOCATOR
               || sqlType == SQLData.DBCLOB_LOCATOR || // @pdc jdbc40
-/* ifdef JDBC40 
+
               sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
- endif */
+ 
               sqlType == SQLData.XML_LOCATOR) // @xml3
           {
             SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -3440,9 +3440,9 @@ endif */
           if (sqlType == SQLData.CLOB_LOCATOR
               || sqlType == SQLData.BLOB_LOCATOR
               || sqlType == SQLData.DBCLOB_LOCATOR || // @pdc jdbc40
-/* ifdef JDBC40 
+
                sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40
-endif */
+
               sqlType == SQLData.XML_LOCATOR) // @xml3
           {
             SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
@@ -3565,9 +3565,7 @@ endif */
                 if((sqlType == SQLData.CLOB_LOCATOR ||
                     sqlType == SQLData.BLOB_LOCATOR ||
                     sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-/* ifdef JDBC40 
                sqlType == SQLData.NCLOB_LOCATOR || //@pda jdbc40 
-endif */
         sqlType == SQLData.XML_LOCATOR)) // @xml3
         { // @B6A
           SQLLocator sqlDataAsLocator = (SQLLocator) sqlData; // @B6A
