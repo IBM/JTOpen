@@ -76,7 +76,7 @@ extends SQLVarcharBase  implements SQLVariableCompressible
 
     public String getTypeName()
     {
-        if( ccsid_ == 13488 || ccsid_ == 1200)  //@cca1
+        if(  ccsid_ == 1200)  //@cca1
         	return "NVARCHAR";  //@cca1 same as native
 
     	return "VARGRAPHIC";

@@ -600,7 +600,7 @@ endif */
                 return new SQLVargraphic(length - 2, settings, ccsid); // @C1C @C4C @cca1
 
             case 472:                           // Graphic long (pure DBCS).
-                return new SQLLongVargraphic(length - 2, settings); // @C1C @C4C
+                return new SQLLongVargraphic(length - 2, settings, ccsid); // @C1C @C4C
 
             case 468:                           // Graphic fix (pure DBCS).
                 if(ccsid == 65535)     //@bingra

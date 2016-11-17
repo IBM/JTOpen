@@ -5339,7 +5339,7 @@ endif */
           typeSamples.addElement(new SQLTimestamp(26, settings_));                       // @D0C
         }
         //typeSamples.addElement(new SQLLongVarchar(32739, settings_));        //Change to report LONG VARCHAR as VARCHAR to be consistent with other clients.
-        typeSamples.addElement(new SQLLongVargraphic(16369, settings_));
+        typeSamples.addElement(new SQLLongVargraphic(16369, settings_, -1));
         typeSamples.addElement(new SQLLongVarcharForBitData(32739, settings_));
         typeSamples.addElement(new SQLVarchar(32739, settings_));                  // @D0C
         if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX

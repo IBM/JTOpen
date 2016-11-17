@@ -231,7 +231,11 @@ endif */
 
     public String getJavaClassName()
     {
-        return "com.ibm.as400.access.AS400JDBCClob";
+      if (ccsid_ == 1200 ) {
+        return "com.ibm.as400.access.AS400JDBCNClob";
+      }
+      
+      return "com.ibm.as400.access.AS400JDBCClob";
     }
 
     public String getLiteralPrefix()
@@ -288,7 +292,7 @@ endif */
     {
 /* ifdef JDBC40 
       // @P3A
-      if (ccsid_ == 1200 || ccsid_ == 13400) {
+      if (ccsid_ == 1200 ) {
         return java.sql.Types.NCLOB;   
       }
 endif */       
@@ -297,12 +301,10 @@ endif */
 
     public String getTypeName()
     {
-/* ifdef JDBC40 
       // @P3A
-      if (ccsid_ == 1200 || ccsid_ == 13400) {
+      if (ccsid_ == 1200 ) {
         return "NCLOB";  
       }
-endif */       
 
         return "DBCLOB";
     }
@@ -458,7 +460,7 @@ endif */
         if(savedObject_ != null) doConversion();
         truncated_ = 0; outOfBounds_ = false;
 /* ifdef JDBC40 
-        if (ccsid_ == 1200 || ccsid_ == 13400) {
+        if (ccsid_ == 1200 ) {
            return new AS400JDBCNClob(value_, maxLength_);
         }
   endif */       

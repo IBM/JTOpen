@@ -20,17 +20,21 @@ extends SQLVarcharBase  implements SQLVariableCompressible
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
+    private int                     ccsid_; //@cca1
 
     // Note: maxLength is in bytes not counting 2 for LL.
     //
-    SQLLongVargraphic(int maxLength, SQLConversionSettings settings)
+    SQLLongVargraphic(int maxLength, SQLConversionSettings settings, int ccsid)
     {
       super(settings, 0, maxLength, "", 2); 
+      truncated_ = 0; outOfBounds_ = false;
+      ccsid_          = ccsid;  //@cca1
+     
     }
 
     public Object clone()
     {
-        return new SQLLongVargraphic(maxLength_, settings_);
+        return new SQLLongVargraphic(maxLength_, settings_, ccsid_);
     }
 
 
@@ -88,7 +92,10 @@ extends SQLVarcharBase  implements SQLVariableCompressible
 
     public String getTypeName()
     {
-        return "VARGRAPHIC";     //@P3C
+        if(  ccsid_ == 1200)  
+        	return "NVARCHAR";  
+
+    	return "VARGRAPHIC";
     }
 
 

@@ -301,7 +301,7 @@ extends SQLDataBase
 
     public String getTypeName()
     {
-        if( ccsid_ == 13488 || ccsid_ == 1200)  //@cca1
+        if(  ccsid_ == 1200)  //@cca1
             return "NCHAR";  //@cca1 same as native
         return "GRAPHIC";
     }
