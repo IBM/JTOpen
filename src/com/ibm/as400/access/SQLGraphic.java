@@ -296,6 +296,11 @@ extends SQLDataBase
 
     public int getType()
     {
+/* ifdef JDBC40                 
+        if (ccsid_ == 1200) {
+           return java.sql.Types.NCHAR; 
+        }
+endif */ 
         return java.sql.Types.CHAR;
     }
 

@@ -54,6 +54,7 @@ extends SQLVarcharBase  implements SQLVariableCompressible
     public int getSQLType()
     {
         return SQLData.LONG_VARGRAPHIC;
+        
     }
 
 
@@ -87,6 +88,11 @@ extends SQLVarcharBase  implements SQLVariableCompressible
 
     public int getType()
     {
+/* ifdef JDBC40
+     if (ccsid_ == 1200) {
+       return java.sql.Types.NVARCHAR;
+     }
+endif */
         return java.sql.Types.VARCHAR;  //@P3C
     }
 
