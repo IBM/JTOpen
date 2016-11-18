@@ -453,7 +453,9 @@ public class MessageQueue implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving message queue message list.");
         // Need to get the length.
-        load();
+        if (handle_ == null || closeHandle_) //@S9A
+            load();
+
         return new QueuedMessageEnumeration(this, length_);
     }
 

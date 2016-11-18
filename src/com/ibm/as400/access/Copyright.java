@@ -197,6 +197,7 @@ package com.ibm.as400.access;
 //@S6    20161104  JDBC:  Allow setSchema(*LIBL) for system naming
 //@S7    20161114  JDBC:  Allow AS440JDBCRowSet to use AS400JDBCManagedDataSource
 //@S8    20161115  SystemPool:  Fix SystemPoolBeanInfo
+//@S9    20161118  MessageQueue: Fix memory leak issue
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -205,7 +206,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2016 International Business Machines Corporation and others.";
     //                                                                                              built=20161115 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R3M0.00 built=20161115 @S8";  
+    public static String version   = "Open Source Software, JTOpen 9.1, codebase 5770-SS1 V7R3M0.00 built=20161118 @S9";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
