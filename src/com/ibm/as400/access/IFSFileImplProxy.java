@@ -193,12 +193,38 @@ implements IFSFileImpl
     }
   }
 
-  //@RDA
-  public int getASP()
+  //@RDA @SAD
+  /*public int getASP()
       throws IOException, AS400SecurityException
     {
       try {
         return connection_.callMethod (pxId_, "getASP").getReturnValueInt();
+      }
+      catch (InvocationTargetException e) {
+        throw ProxyClientConnection.rethrow2 (e);
+      }
+    }*/
+  
+  //@SAA
+  public int getASP(String userID)
+      throws IOException, AS400SecurityException
+    {
+      try {
+        return connection_.callMethod(pxId_, "getASP", new Class[] {String.class}, 
+            new Object[] {userID}) .getReturnValueInt();
+      }
+      catch (InvocationTargetException e) {
+        throw ProxyClientConnection.rethrow2 (e);
+      }
+    }
+  
+  //@SAA
+  public String getFileSystemType(String userID)
+      throws IOException, AS400SecurityException
+    {
+      try {
+        return (String) connection_.callMethod (pxId_, "getUserHandleSeed",new Class[] { String.class },
+            new Object[] { userID }).getReturnValue();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);

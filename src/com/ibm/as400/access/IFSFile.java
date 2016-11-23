@@ -20,6 +20,7 @@
 //                    which is documented to be an invalid combination.
 // @D8 - 04/03/2008 - Modify clearCachedAttributes() to also call 
 //                    impl.clearCachedAttributes()
+// @SA - 11/22/2016 - Add getASP() and getFileSystemType()
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
@@ -1775,16 +1776,25 @@ public class IFSFile
     @throws IOException
     @throws AS400SecurityException
    **/
-  public int getASP()
-      throws IOException,
-             AS400SecurityException
-    {
-      
-      if (impl_ == null)
+  public int getASP()//@SAC
+    throws IOException,
+           AS400SecurityException
+  {
+  
+    if (impl_ == null)
         chooseImpl();
+    String userID = getSystem().getUserId();
+    return impl_.getASP(userID);
+  }
+  
+  //@SAA
+  public String getFileSystemType() throws IOException, AS400SecurityException {
+    if (impl_ == null)
+      chooseImpl();
 
-      return impl_.getASP();
-    }
+    String userID = getSystem().getUserId();
+    return impl_.getFileSystemType(userID);
+  }
   
   /**
    Computes a hash code for this object.

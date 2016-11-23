@@ -28,7 +28,9 @@
 package com.ibm.as400.access;
 
 import java.io.InterruptedIOException;
+import java.text.SimpleDateFormat;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.beans.PropertyVetoException;
@@ -65,6 +67,10 @@ implements IFSFileImpl
     AS400Server.addReplyStream(new IFSCreateDirHandleRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSQuerySpaceRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
+    AS400Server.addReplyStream(new IFSLookupRep(), AS400.FILE);
+    AS400Server.addReplyStream(new IFSUserHandleSeedRep(), AS400.FILE);
+    AS400Server.addReplyStream(new IFSCreateUserHandleRep(), AS400.FILE);
+    AS400Server.addReplyStream(new IFSGetFileSystemRep(), AS400.FILE);
   }
 
   transient private IFSListAttrsRep attributesReply_; // "list attributes" reply
@@ -930,7 +936,137 @@ implements IFSFileImpl
     return amountOfSpace;
   }
 
+  //@SAA
+  public String getFileSystemType(String userID) throws IOException, AS400SecurityException {
+    byte[] ServerSeed;
+    SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
+    String ClientSeed = sdf.format(new Date());
+    String typeString = "Unknown";
+    ClientAccessDataStream ds = null;
+    int rc = 0;
+    fd_.connect();
+    
+    int UserHandle = fd_.creatUserHandle(userID);
+    
+    int objectHandle;
+    ds = null;
+    rc = 0;
+    int fileSystemType = 0;
+    // Ensure that we are connected to the server.
+    String path = fd_.path_;
+    byte[] pathname = fd_.getConverter().stringToByteArray(path);
+    try
+    {
+      // Issue a Look up request to create an object handle.
+      IFSLookupReq req = new IFSLookupReq(pathname, fd_.preferredServerCCSID_, UserHandle);
+      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+      fd_.connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted");
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
+    }
 
+    // Verify that we got a handle back.
+    rc = 0;
+    if (ds instanceof IFSLookupRep)
+    {
+      objectHandle = ((IFSLookupRep) ds).getHandle();
+    }
+    else if (ds instanceof IFSReturnCodeRep)
+    {
+      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc != IFSReturnCodeRep.SUCCESS)
+      {
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+      }
+      throw new ExtendedIOException(fd_.path_, rc);
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream",
+                ds.getReqRepID());
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+
+    ds = null;
+    try
+    {
+      // Issue a get file system request.
+      IFSGetFileSystemReq req = new IFSGetFileSystemReq(objectHandle, UserHandle);
+      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+      fd_.connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted");
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
+    }
+
+    // Verify the reply.
+    rc = 0;
+    if (ds instanceof IFSGetFileSystemRep)
+    {
+      fileSystemType = ((IFSGetFileSystemRep) ds).getFileSystemType();
+      //fileSystemType = fd_.converter_.byteArrayToString(((IFSGetFileSystemRep) ds).getFileSystemType());
+      
+    }
+    else if (ds instanceof IFSReturnCodeRep)
+    {
+      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc != IFSReturnCodeRep.SUCCESS)
+      {
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+      }
+      throw new ExtendedIOException(fd_.path_, rc);
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream",
+                ds.getReqRepID());
+      throw new
+        InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
+                               Integer.toHexString(ds.getReqRepID()),null);
+    }
+
+    switch(fileSystemType) {
+        case 1 : typeString = "EPFS"; break;
+        case 2 : typeString = "QDLS"; break;
+        case 3 : typeString = "QSYS"; break;
+        case 4 : typeString = "NFS"; break;
+        case 5 : typeString = "LRFS"; break;
+        case 6 : typeString = "QOPT"; break;
+        case 7 : typeString = "QRFS"; break;
+        case 9 : typeString = "EPFSP"; break;
+        case 11 : typeString = "QNETC"; break;
+        case 12 : typeString = "QDTL"; break;
+        case 13 : typeString = "IEPFS"; break;
+        case 14 : typeString = "ASPQSYS"; break;
+    }
+    return typeString;
+  }
+  
   /**
    Returns the name of the user profile that is the owner of the file.
    Returns "" if called against a directory.
@@ -969,11 +1105,11 @@ implements IFSFileImpl
     return (ownerName == null ? "" : ownerName);
   }
 
-  //@RDA
+  //@RDA @SAD
   /**
   Returns the ASP that holds the file.
   **/
- public int getASP()
+ /*public int getASP()
    throws IOException, AS400SecurityException
  {
    // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
@@ -1004,6 +1140,71 @@ implements IFSFileImpl
      else throw e;
    }
    return ASP;
+ }*/
+ 
+ //@SAA
+ public int getASP(String userID) throws IOException, AS400SecurityException {
+   byte[] ServerSeed;
+   SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
+   String ClientSeed = sdf.format(new Date());
+   ClientAccessDataStream ds = null;
+   int rc = 0;
+   
+   fd_.connect();
+   int UserHandle = fd_.creatUserHandle(userID);
+   int asp;
+   ds = null;
+   rc = 0;
+   // Ensure that we are connected to the server.
+   String path = fd_.path_;
+   byte[] pathname = fd_.getConverter().stringToByteArray(path);
+   try
+   {
+     // Issue a Look up request to create an object handle.
+     IFSLookupReq req = new IFSLookupReq(pathname, fd_.preferredServerCCSID_, UserHandle, IFSLookupReq.OA1, IFSLookupReq.ASP_FLAG, 0);
+     ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+   }
+   catch(ConnectionDroppedException e)
+   {
+     Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+     fd_.connectionDropped(e);
+   }
+   catch(InterruptedException e)
+   {
+     Trace.log(Trace.ERROR, "Interrupted");
+     InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+     try {
+       throwException.initCause(e); 
+     } catch (Throwable t) {} 
+     throw throwException;
+   }
+
+   // Verify that we got a handle back.
+   rc = 0;
+   if (ds instanceof IFSLookupRep)
+   {
+     asp = ((IFSLookupRep) ds).getASP();
+   }
+   else if (ds instanceof IFSReturnCodeRep)
+   {
+     rc = ((IFSReturnCodeRep) ds).getReturnCode();
+     if (rc != IFSReturnCodeRep.SUCCESS)
+     {
+       Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+     }
+     throw new ExtendedIOException(fd_.path_, rc);
+   }
+   else
+   {
+     // Unknown data stream.
+     Trace.log(Trace.ERROR, "Unknown reply data stream",
+               ds.getReqRepID());
+     throw new
+       InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                              InternalErrorException.DATA_STREAM_UNKNOWN);
+   }
+   
+   return asp;
  }
 
   // Design note: The following is an alternative implementation of getOwnerName(), using the Qp0lGetAttr API.
@@ -2888,5 +3089,29 @@ implements IFSFileImpl
       rmtCmd_.setSystem(fd_.system_);
     }
   }
+  
+  //@SAA
+  /**
+  Ensures that the user handle is closed when there are no more
+  references to it.
+  @exception IOException If an error occurs while communicating with the server.
+  **/
+ protected void finalize()
+   throws Throwable
+ {
+   try
+   {
+     if (fd_ != null)
+       fd_.finalize1();
+   }
+   catch(Throwable e)
+   {
+     Trace.log(Trace.ERROR, "Error during finalization.", e);
+   }
+   finally
+   {
+     super.finalize();
+   }
+ }
 
 }
