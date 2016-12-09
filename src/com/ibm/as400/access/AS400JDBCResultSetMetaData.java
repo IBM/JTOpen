@@ -111,8 +111,10 @@ implements ResultSetMetaData
     throws SQLException
     {
         // Validate the column index.
-        if((columnIndex < 1) || (columnIndex > row_.getFieldCount()))
-            JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+        if((columnIndex < 1))
+            JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID,columnIndex+"<1");
+        if((columnIndex > row_.getFieldCount()))
+          JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+">"+row_.getFieldCount());
     }
 
     /**

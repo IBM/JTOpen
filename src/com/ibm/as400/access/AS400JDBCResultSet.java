@@ -3746,9 +3746,11 @@ implements ResultSet
             JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
 
         // Validate The column index.
-        if((columnIndex < 1) || (columnIndex > columnCount_))
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
+        if(columnIndex < 1)
+            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+"<1");
+        if (columnIndex > columnCount_)
+          JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+">"+columnCount_);
+          
         // Check if an update was made or we are on the insert
         // row.
         if(concurrency_ == CONCUR_UPDATABLE)
@@ -5816,8 +5818,10 @@ endif */
         JDError.throwSQLException(JDError.EXC_CURSOR_POSITION_INVALID);
 
       // Validate The column index.
-      if ((columnIndex < 1) || (columnIndex > columnCount_))
-        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+      if (columnIndex < 1)
+        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+"<1");
+      if (columnIndex > columnCount_)
+        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+">"+columnCount_);
 
       // Set the update value. If there is a type mismatch,
       // set() with throw an exception.
@@ -7292,8 +7296,10 @@ endif */
                 JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
 
             // Validate The column index.
-            if((columnIndex < 1) || (columnIndex > columnCount_))
-                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            if((columnIndex < 1))
+                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+"<1");
+            if((columnIndex > columnCount_))
+              JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+">"+columnCount_);
 
             // Set the update value.  If there is a type mismatch,
             // set() with throw an exception.

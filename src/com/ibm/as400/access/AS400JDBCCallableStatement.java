@@ -341,6 +341,17 @@ implements CallableStatement
         return returnParm;
     }
 
+
+  /*
+   * Validate the parameter index, throwing the appropriate exeption
+   */
+  void validateParameterIndex(int parameterIndex) throws SQLException {
+    if ((parameterIndex < 1))
+      JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID,parameterIndex + "<1");
+    if ((parameterIndex > parameterCount_))
+      JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID,parameterIndex + ">" + parameterCount_);
+  }
+
     // JDBC 2.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
@@ -382,9 +393,8 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
+                validateParameterIndex(parameterIndex);
+                
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
@@ -475,8 +485,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -548,8 +557,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -632,8 +640,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID,""+parameterIndex);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -727,8 +734,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -825,8 +831,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -916,8 +921,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -1001,8 +1005,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1118,8 +1121,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1237,8 +1239,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1321,8 +1322,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1405,8 +1405,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1497,8 +1496,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1593,8 +1591,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1759,8 +1756,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1843,8 +1839,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -1955,8 +1950,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -2102,8 +2096,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -2218,8 +2211,7 @@ implements CallableStatement
         }
 
         // Validate the parameter index.
-        if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
-          JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+        validateParameterIndex(parameterIndex); 
 
         // Check that the parameter is an output parameter.
         if (!parameterRow_.isOutput(parameterIndex))
@@ -2356,8 +2348,7 @@ implements CallableStatement
             }                                                                               // @E2A
 
             // Validate the parameter index.
-            if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            validateParameterIndex(parameterIndex); 
 
             // Validate the scale.
             if(scale < 0)
@@ -3345,8 +3336,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -3429,8 +3419,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -3516,8 +3505,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -3618,8 +3606,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
@@ -3707,8 +3694,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(!parameterRow_.isOutput(parameterIndex))
@@ -3788,8 +3774,7 @@ implements CallableStatement
                 }
 
                 // Validate the parameter index.
-                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                validateParameterIndex(parameterIndex); 
 
                 // Check that the parameter is an output parameter.
                 if(! parameterRow_.isOutput(parameterIndex))
