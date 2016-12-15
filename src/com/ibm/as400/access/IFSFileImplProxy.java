@@ -206,12 +206,12 @@ implements IFSFileImpl
     }*/
   
   //@SAA
-  public int getASP(String userID)
+  public int getASP(int userHandle)
       throws IOException, AS400SecurityException
     {
       try {
-        return connection_.callMethod(pxId_, "getASP", new Class[] {String.class}, 
-            new Object[] {userID}) .getReturnValueInt();
+        return connection_.callMethod(pxId_, "getASP", new Class[] { Integer.TYPE },
+            new Object[] { new Integer(userHandle)}).getReturnValueInt();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);
@@ -219,12 +219,12 @@ implements IFSFileImpl
     }
   
   //@SAA
-  public String getFileSystemType(String userID)
+  public String getFileSystemType(int userHandle)
       throws IOException, AS400SecurityException
     {
       try {
-        return (String) connection_.callMethod (pxId_, "getUserHandleSeed",new Class[] { String.class },
-            new Object[] { userID }).getReturnValue();
+        return (String) connection_.callMethod (pxId_, "getUserHandleSeed",new Class[] { Integer.TYPE },
+            new Object[] { new Integer(userHandle)}).getReturnValue();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);

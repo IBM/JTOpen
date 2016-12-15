@@ -1783,8 +1783,9 @@ public class IFSFile
   
     if (impl_ == null)
         chooseImpl();
-    String userID = getSystem().getUserId();
-    return impl_.getASP(userID);
+    int userHandle = getSystem().createUserHandle();
+    //return userHandle;
+    return impl_.getASP(userHandle);
   }
   
   //@SAA
@@ -1792,8 +1793,8 @@ public class IFSFile
     if (impl_ == null)
       chooseImpl();
 
-    String userID = getSystem().getUserId();
-    return impl_.getFileSystemType(userID);
+    int userHandle = getSystem().createUserHandle();
+    return impl_.getFileSystemType(userHandle);
   }
   
   /**

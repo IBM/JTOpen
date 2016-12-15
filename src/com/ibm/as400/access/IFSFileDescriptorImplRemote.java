@@ -29,8 +29,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Vector;
 
 
@@ -46,7 +44,6 @@ implements IFSFileDescriptorImpl
   // Note: We allow direct access to some of these fields, for performance.  @B2C
           ConverterImplRemote converter_;
   private int         fileHandle_ = UNINITIALIZED;  // @B8c
-  private int         userHandle_ = UNINITIALIZED; //@S5A
           int         preferredServerCCSID_;
   private int         fileDataCCSID_ = UNINITIALIZED;
           int         serverDatastreamLevel_; // @B3A
@@ -593,38 +590,6 @@ implements IFSFileDescriptorImpl
       super.finalize();
     }
   }
-  
-  //@SAA
-  /**
-  Ensures that the user handle is closed when there are no more
-  references to it. 
-  **/
-  void finalize1() throws Throwable {
-    try
-    {
-      if (userHandle_ != UNINITIALIZED)
-      {
-        // free the user hanlde.  Send a request to the server.
-        IFSFreeUserHandlerReq req = new IFSFreeUserHandlerReq(userHandle_);
-        try
-        {
-          server_.send(req);
-        }
-        finally
-        {
-          userHandle_ = UNINITIALIZED;
-        }
-      }
-    }
-    catch(Throwable e)
-    {
-      Trace.log(Trace.ERROR, "Error during finalization.", e);
-    }
-    finally
-    {
-      super.finalize();
-    }
-  }
 
   // Common code used by IFSFileOutputStreamImplRemote and IFSRandomAccessFileImplRemote.
   /**
@@ -706,125 +671,6 @@ implements IFSFileDescriptorImpl
       }
     }
     return fileDataCCSID_;
-  }
-  
-
-  //@SAA
-  public int getUserHandle_() {
-    return userHandle_;
-  }
-
-  //@SAA
-  public void setUserHandle(int userHandle_) {
-    this.userHandle_ = userHandle_;
-  }
-  
-  //@SAA
-  public int creatUserHandle(String userID) throws IOException {
-    byte[] ServerSeed;
-    SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
-    String ClientSeed = sdf.format(new Date());
-    ClientAccessDataStream ds = null;
-    int rc = 0;
-    
-    int UserHandle = UNINITIALIZED;
-    if (userHandle_ != UNINITIALIZED) {
-        UserHandle = userHandle_;
-        return UserHandle;
-    } 
-    else {
-      try {
-        IFSUserHandleSeedReq req = new IFSUserHandleSeedReq(ClientSeed.getBytes());
-        ds = (ClientAccessDataStream) server_.sendAndReceive(req);
-      }
-      catch(ConnectionDroppedException e)
-      {
-        Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-        connectionDropped(e);
-      }
-      catch(InterruptedException e)
-      {
-        Trace.log(Trace.ERROR, "Interrupted");
-        InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
-        throw throwException;
-      }
-      // Verify that we got a handle back.
-      rc = 0;
-      if (ds instanceof IFSUserHandleSeedRep)
-      {
-        ServerSeed = ((IFSUserHandleSeedRep) ds).getSeed();
-      }
-      else if (ds instanceof IFSReturnCodeRep)
-      {
-        rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc != IFSReturnCodeRep.SUCCESS)
-        {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-        }
-        throw new ExtendedIOException(path_, rc);
-      }
-      else
-      {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream",
-                  ds.getReqRepID());
-        throw new
-          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                 InternalErrorException.DATA_STREAM_UNKNOWN);
-      }
-      
-      ds = null;
-      try
-      {
-        IFSCreateUserHandlerReq req = new IFSCreateUserHandlerReq(userID.getBytes(), ServerSeed);
-        ds = (ClientAccessDataStream) server_.sendAndReceive(req);
-      }
-      catch(ConnectionDroppedException e)
-      {
-        Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-        connectionDropped(e);
-      }
-      catch(InterruptedException e)
-      {
-        Trace.log(Trace.ERROR, "Interrupted");
-        InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
-        throw throwException;
-      }
-   
-      // Verify the reply.
-      rc = 0;
-      if (ds instanceof IFSCreateUserHandleRep)
-      {
-        UserHandle = ((IFSCreateUserHandleRep) ds).getHandle();
-        
-      }
-      else if (ds instanceof IFSReturnCodeRep)
-      {
-        rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc != IFSReturnCodeRep.SUCCESS)
-        {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-        }
-        throw new ExtendedIOException(path_, rc);
-      }
-      else
-      {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream",
-                  ds.getReqRepID());
-        throw new
-          InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
-                                 Integer.toHexString(ds.getReqRepID()),null);
-      }
-      setUserHandle(UserHandle);
-      return UserHandle;
-    }
   }
 
   int getFileHandle()

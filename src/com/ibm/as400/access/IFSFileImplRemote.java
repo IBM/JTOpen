@@ -937,16 +937,11 @@ implements IFSFileImpl
   }
 
   //@SAA
-  public String getFileSystemType(String userID) throws IOException, AS400SecurityException {
-    byte[] ServerSeed;
-    SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
-    String ClientSeed = sdf.format(new Date());
+  public String getFileSystemType(int userHandle) throws IOException, AS400SecurityException {
     String typeString = "Unknown";
     ClientAccessDataStream ds = null;
     int rc = 0;
     fd_.connect();
-    
-    int UserHandle = fd_.creatUserHandle(userID);
     
     int objectHandle;
     ds = null;
@@ -958,7 +953,7 @@ implements IFSFileImpl
     try
     {
       // Issue a Look up request to create an object handle.
-      IFSLookupReq req = new IFSLookupReq(pathname, fd_.preferredServerCCSID_, UserHandle);
+      IFSLookupReq req = new IFSLookupReq(pathname, fd_.preferredServerCCSID_, userHandle);
       ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -1005,7 +1000,7 @@ implements IFSFileImpl
     try
     {
       // Issue a get file system request.
-      IFSGetFileSystemReq req = new IFSGetFileSystemReq(objectHandle, UserHandle);
+      IFSGetFileSystemReq req = new IFSGetFileSystemReq(objectHandle, userHandle);
       ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -1143,15 +1138,11 @@ implements IFSFileImpl
  }*/
  
  //@SAA
- public int getASP(String userID) throws IOException, AS400SecurityException {
-   byte[] ServerSeed;
-   SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
-   String ClientSeed = sdf.format(new Date());
+ public int getASP(int userHandle) throws IOException, AS400SecurityException {
    ClientAccessDataStream ds = null;
    int rc = 0;
    
    fd_.connect();
-   int UserHandle = fd_.creatUserHandle(userID);
    int asp;
    ds = null;
    rc = 0;
@@ -1161,7 +1152,7 @@ implements IFSFileImpl
    try
    {
      // Issue a Look up request to create an object handle.
-     IFSLookupReq req = new IFSLookupReq(pathname, fd_.preferredServerCCSID_, UserHandle, IFSLookupReq.OA1, IFSLookupReq.ASP_FLAG, 0);
+     IFSLookupReq req = new IFSLookupReq(pathname, fd_.preferredServerCCSID_, userHandle, IFSLookupReq.OA1, IFSLookupReq.ASP_FLAG, 0);
      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
    }
    catch(ConnectionDroppedException e)
@@ -3089,29 +3080,5 @@ implements IFSFileImpl
       rmtCmd_.setSystem(fd_.system_);
     }
   }
-  
-  //@SAA
-  /**
-  Ensures that the user handle is closed when there are no more
-  references to it.
-  @exception IOException If an error occurs while communicating with the server.
-  **/
- protected void finalize()
-   throws Throwable
- {
-   try
-   {
-     if (fd_ != null)
-       fd_.finalize1();
-   }
-   catch(Throwable e)
-   {
-     Trace.log(Trace.ERROR, "Error during finalization.", e);
-   }
-   finally
-   {
-     super.finalize();
-   }
- }
 
 }

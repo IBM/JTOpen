@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -35,6 +36,7 @@ class AS400ImplRemote implements AS400Impl
 {
     private static final boolean PASSWORD_TRACE = false;
     private static final boolean DEBUG = false;
+    private static final int UNINITIALIZED = -1;//@S5A
 
     // The pool of systems.  The systems are in service constant order: FILE, PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
     private Vector[] serverPool_ = { new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector() };
@@ -104,6 +106,7 @@ class AS400ImplRemote implements AS400Impl
     private byte[] proxySeed_ = null;
     // Single use seed sent to public object in exchange seed method, held until next sign-on, change password, or generate profile token.
     private byte[] remoteSeed_ = null;
+    private int userHandle_ = UNINITIALIZED; //@S5A
 
     // Connection to the sign-on server.
     AS400NoThreadServer signonServer_;
@@ -412,6 +415,118 @@ class AS400ImplRemote implements AS400Impl
     public Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
     {
       return getConnection(0, port,forceNonLocalhost);
+    }
+    
+    //@SAA Create user handle for the connection
+    public int createUserHandle() throws AS400SecurityException, IOException {
+      ClientAccessDataStream ds = null;
+      int UserHandle = UNINITIALIZED;
+      if (userHandle_ != UNINITIALIZED) {
+          UserHandle = userHandle_;
+          return UserHandle;
+      } 
+      
+      AS400Server connectedServer = getConnectedServer(new int[] {AS400.FILE});
+      if (connectedServer != null) {
+        byte[] ClientSeed = BinaryConverter.longToByteArray(System.currentTimeMillis());
+        byte[] ServerSeed = null;
+        try {
+          IFSUserHandleSeedReq req = new IFSUserHandleSeedReq(ClientSeed);
+          ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+        }
+        catch(InterruptedException e)
+        {
+          Trace.log(Trace.ERROR, "Interrupted");
+          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
+        }
+        // Verify that we got a handle back.
+        int rc = 0;
+        if (ds instanceof IFSUserHandleSeedRep)
+        {
+          ServerSeed = ((IFSUserHandleSeedRep) ds).getSeed();
+        }
+        else if (ds instanceof IFSReturnCodeRep)
+        {
+          rc = ((IFSReturnCodeRep) ds).getReturnCode();
+          if (rc != IFSReturnCodeRep.SUCCESS)
+          {
+            Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+          }
+          throw new ExtendedIOException(rc);
+        }
+        else
+        {
+          // Unknown data stream.
+          Trace.log(Trace.ERROR, "Unknown reply data stream",
+                    ds.getReqRepID());
+          throw new
+            InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                                   InternalErrorException.DATA_STREAM_UNKNOWN);
+        }
+        
+        
+        rc = 0;
+        ds = null;
+        byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+        byte[] encryptedPassword = getPassword(ClientSeed, ServerSeed);
+        IFSCreateUserHandlerReq req = new IFSCreateUserHandlerReq(userIDbytes, encryptedPassword);
+        try {
+          ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+        } catch (InterruptedException e) {
+          Trace.log(Trace.ERROR, "Interrupted");
+          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+          try {
+            throwException.initCause(e); 
+          } catch (Throwable t) {} 
+          throw throwException;
+        }
+  
+        // Verify the reply.
+        if (ds instanceof IFSCreateUserHandleRep)
+        {
+          rc = ((IFSCreateUserHandleRep)ds).getReturnCode();
+          if (rc != IFSReturnCodeRep.SUCCESS)
+          {
+            Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
+          }
+          UserHandle = ((IFSCreateUserHandleRep) ds).getHandle();
+          
+        }
+        else if (ds instanceof IFSReturnCodeRep)
+        {
+          rc = ((IFSReturnCodeRep) ds).getReturnCode();
+          if (rc != IFSReturnCodeRep.SUCCESS)
+          {
+            Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+          }
+          throw new ExtendedIOException(rc);
+        }
+        else
+        {
+          // Unknown data stream.
+          Trace.log(Trace.ERROR, "Unknown reply data stream",
+                    ds.getReqRepID());
+          throw new
+            InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
+                                   Integer.toHexString(ds.getReqRepID()),null);
+        }
+      }
+      setUserHandle(UserHandle);
+      return UserHandle;
+    }
+    
+    //@SAA
+    public int getUserHandle_() {
+      return userHandle_;
+    }
+
+    //@SAA
+    public void setUserHandle(int userHandle_) {
+      this.userHandle_ = userHandle_;
     }
 
     // Implementation for disconnect.

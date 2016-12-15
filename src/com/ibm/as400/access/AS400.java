@@ -1397,6 +1397,26 @@ public class AS400 implements Serializable
             guiAvailable_ = false;
         }
     }
+    
+    //@SAA
+    public int createUserHandle() throws AS400SecurityException, IOException {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Create user handle.");
+      
+      if (systemName_.length() == 0 && !systemNameLocal_)
+      {
+          Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
+          throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      
+      if (userId_.length() == 0)
+      {
+          Trace.log(Trace.ERROR, "Cannot create user handle before user ID is set.");
+          throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      if (impl_ == null)
+          chooseImpl();
+      return impl_.createUserHandle();
+    }
 
     /**
      Disconnects all services.  All socket connections associated with this object will be closed.  The signon information is not changed, and connection properties remain frozen.

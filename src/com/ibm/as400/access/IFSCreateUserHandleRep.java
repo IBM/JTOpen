@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 public class IFSCreateUserHandleRep extends IFSDataStream {
   
   private static final int HANDLE_OFFSET= 24;
+  private static final int RETURN_CODE_OFFSET = 22;
   /**
   Get the working directory handle.
   @return the working directory handle.
@@ -31,6 +32,15 @@ public class IFSCreateUserHandleRep extends IFSDataStream {
     public Object getNewDataStream()
     {
       return new IFSCreateUserHandleRep();
+    }
+    
+    /**
+    Get the return code.
+    @return the return code
+    **/
+    int getReturnCode()
+    {
+      return get16bit(RETURN_CODE_OFFSET);
     }
 
   /**
