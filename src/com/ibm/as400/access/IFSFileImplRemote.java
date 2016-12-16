@@ -68,8 +68,6 @@ implements IFSFileImpl
     AS400Server.addReplyStream(new IFSQuerySpaceRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSLookupRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSUserHandleSeedRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSCreateUserHandleRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSGetFileSystemRep(), AS400.FILE);
   }
 

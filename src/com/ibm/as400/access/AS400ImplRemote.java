@@ -131,6 +131,8 @@ class AS400ImplRemote implements AS400Impl
         AS400Server.addReplyStream(new AS400XChgRandSeedReplyDS(), AS400.SIGNON);
         AS400Server.addReplyStream(new SignonInfoRep(), AS400.SIGNON);
         AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.SIGNON);
+        AS400Server.addReplyStream(new IFSUserHandleSeedRep(), AS400.FILE);
+        AS400Server.addReplyStream(new IFSCreateUserHandleRep(), AS400.FILE);
         if (DEBUG) {
           AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
         }

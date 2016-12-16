@@ -1401,10 +1401,11 @@ public class AS400 implements Serializable
     //@SAA
     public int createUserHandle() throws AS400SecurityException, IOException {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Create user handle.");
+      connectService(AS400.FILE);
       
       if (systemName_.length() == 0 && !systemNameLocal_)
       {
-          Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
+          Trace.log(Trace.ERROR, "Cannot create user handle before system name is set.");
           throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
       
