@@ -142,7 +142,8 @@ implements IFSFileImpl
   }
 
   // @A3a
-  public int getCCSID()
+  //@SCd
+  /*public int getCCSID()
     throws IOException, AS400SecurityException
   {
     try {
@@ -151,7 +152,19 @@ implements IFSFileImpl
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow2 (e);
     }
-  }
+  }*/
+  //@SCa
+  public int getCCSID(int userHandle)
+      throws IOException, AS400SecurityException
+    {
+      try {
+        return connection_.callMethod (pxId_, "getCCSID", new Class[] { Integer.TYPE },
+            new Object[] { new Integer(userHandle)}).getReturnValueInt();
+      }
+      catch (InvocationTargetException e) {
+        throw ProxyClientConnection.rethrow2 (e);
+      }
+    }
 
   public long getAvailableSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
@@ -182,7 +195,8 @@ implements IFSFileImpl
   }
 
 
-  public String getOwnerName()
+  //@SCd
+  /*public String getOwnerName()
     throws IOException, AS400SecurityException
   {
     try {
@@ -191,7 +205,19 @@ implements IFSFileImpl
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow2 (e);
     }
-  }
+  }*/
+  //@SCa
+  public String getOwnerName(int userHandle)
+      throws IOException, AS400SecurityException
+    {
+      try {
+        return (String)connection_.callMethod (pxId_, "getOwnerName",new Class[] { Integer.TYPE },
+            new Object[] { new Integer(userHandle)}).getReturnValue();
+      }
+      catch (InvocationTargetException e) {
+        throw ProxyClientConnection.rethrow2 (e);
+      }
+    }
 
   //@RDA @SAD
   /*public int getASP()

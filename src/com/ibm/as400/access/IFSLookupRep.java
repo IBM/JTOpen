@@ -53,6 +53,14 @@ Get object handle.
     return new IFSObjAttrs1(getObjAttrBytes(OA1)).getASP();
   }
   
+  int getCCSID(int datastreamLevel) {
+    return new IFSObjAttrs2(getObjAttrBytes(OA2)).getCCSID(datastreamLevel);
+  }
+  
+  String getOwnerName(int systemCcsid) throws UnsupportedEncodingException {
+    return new IFSObjAttrs1(getObjAttrBytes(OA1)).getOwnerName(systemCcsid);
+  }
+  
 
 /**
 Generate a new instance of this type.

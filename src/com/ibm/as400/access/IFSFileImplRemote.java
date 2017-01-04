@@ -749,11 +749,18 @@ implements IFSFileImpl
   /**
    Returns the file's data CCSID.  Returns -1 if failure or if directory.
    **/
-  public int getCCSID()
+  //@SCd
+  /*public int getCCSID()
     throws IOException, AS400SecurityException
   {
     fd_.connect();
     return fd_.getCCSID();
+  }*/
+  
+  //@SCa
+  public int getCCSID(int userHandle) throws IOException, AS400SecurityException {
+    fd_.connect();
+    return fd_.getCCSID(userHandle);
   }
 
 
@@ -1064,7 +1071,8 @@ implements IFSFileImpl
    Returns the name of the user profile that is the owner of the file.
    Returns "" if called against a directory.
    **/
-  public String getOwnerName()
+  //@SCd
+  /*public String getOwnerName()
     throws IOException, AS400SecurityException
   {
     // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
@@ -1095,6 +1103,66 @@ implements IFSFileImpl
       else throw e;
     }
 
+    return (ownerName == null ? "" : ownerName);
+  }*/
+  //@SCa
+  public String getOwnerName(int userHandle) throws IOException, AS400SecurityException {
+    String ownerName = null;
+    ClientAccessDataStream ds = null;
+    int rc = 0;
+    
+    fd_.connect();
+    ds = null;
+    rc = 0;
+    // Ensure that we are connected to the server.
+    String path = fd_.path_;
+    byte[] pathname = fd_.getConverter().stringToByteArray(path);
+    try
+    {
+      // Issue a Look up request to create an object handle.
+      IFSLookupReq req = new IFSLookupReq(pathname, fd_.preferredServerCCSID_, userHandle, IFSLookupReq.OA1, IFSObjAttrs1.OWNER_NAME_FLAG, 0);
+      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+      fd_.connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted");
+      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+      try {
+        throwException.initCause(e); 
+      } catch (Throwable t) {} 
+      throw throwException;
+    }
+
+    // Verify that we got a handle back.
+    rc = 0;
+    if (ds instanceof IFSLookupRep)
+    {
+      ownerName = ((IFSLookupRep) ds).getOwnerName(fd_.system_.getCcsid());
+    }
+    else if (ds instanceof IFSReturnCodeRep)
+    {
+      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc != IFSReturnCodeRep.SUCCESS)
+      {
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+      }
+      throw new ExtendedIOException(fd_.path_, rc);
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream",
+                ds.getReqRepID());
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+    
     return (ownerName == null ? "" : ownerName);
   }
 

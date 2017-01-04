@@ -14,7 +14,7 @@
 //                    method to resolve problem of issuing PWFS List Attributes 
 //                    request with both "Sort" indication and "RestartByID" 
 //                    which is documented to be an invalid combination.
-// @D8 - 04/03/2008 - Add clearCachedAttributes() to clear impl cache attributes. 
+// @D8 - 04/03/2008 - Add clearCachedAttributes() to clear impl cache attributes.
 //                    
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
@@ -39,8 +39,8 @@ interface IFSFileImpl
 
   long getAvailableSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
   long getTotalSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
-  int getCCSID() throws IOException, AS400SecurityException;            //@A2a
-  String getOwnerName() throws IOException, AS400SecurityException;
+  int getCCSID(int userHandle) throws IOException, AS400SecurityException;            //@A2a //@SCc
+  String getOwnerName(int userHandle) throws IOException, AS400SecurityException; //@SCc
   //int getASP() throws IOException, AS400SecurityException;//@RDA @SAD
   int getASP(int userHandle)throws IOException, AS400SecurityException;//@SAA
   String getFileSystemType(int userHandle)throws IOException, AS400SecurityException;//@SAA

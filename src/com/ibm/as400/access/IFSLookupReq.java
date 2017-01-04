@@ -13,9 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 
 /**
 'Get file system information' request.
@@ -144,6 +141,9 @@ Construct a list attributes request.
         // Set the 'Flags' values.
         set32bit(flags1, offset+6);  // Flags(1)
         set32bit(flags2, offset+10);  // Flags(2)
+        break;
+      case OA2:
+        set16bit((short)0x0004,FILE_ATTR_LIST_LEVEL_OFFSET);
         break;
      }
 

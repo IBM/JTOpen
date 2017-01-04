@@ -672,6 +672,61 @@ implements IFSFileDescriptorImpl
     }
     return fileDataCCSID_;
   }
+  
+  //@SCa
+  public int getCCSID(int userHandle) throws IOException{
+    if (fileDataCCSID_ == UNINITIALIZED)
+    {
+      ClientAccessDataStream ds = null;
+      try
+      {
+        byte[] path = getConverter().stringToByteArray(path_);
+        
+        IFSLookupReq req = new IFSLookupReq(path, preferredServerCCSID_, userHandle, IFSLookupReq.OA2, 0, 0);
+        ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+      }
+      catch(ConnectionDroppedException e)
+      {
+        Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+        connectionDropped(e);
+      }
+      catch(InterruptedException e)
+      {
+        Trace.log(Trace.ERROR, "Interrupted");
+        InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+        try {
+          throwException.initCause(e); 
+        } catch (Throwable t) {} 
+        throw throwException;
+      }
+
+      // Verify that we got a handle back.
+      int rc = 0;
+      if (ds instanceof IFSLookupRep)
+      {
+        fileDataCCSID_ = ((IFSLookupRep) ds).getCCSID(serverDatastreamLevel_);
+      }
+      else if (ds instanceof IFSReturnCodeRep)
+      {
+        rc = ((IFSReturnCodeRep) ds).getReturnCode();
+        if (rc != IFSReturnCodeRep.SUCCESS)
+        {
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+        }
+        throw new ExtendedIOException(path_, rc);
+      }
+      else
+      {
+        // Unknown data stream.
+        Trace.log(Trace.ERROR, "Unknown reply data stream",
+                  ds.getReqRepID());
+        throw new
+          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                                 InternalErrorException.DATA_STREAM_UNKNOWN);
+      }
+    }
+    return fileDataCCSID_;
+  }
 
   int getFileHandle()
   {
@@ -1552,6 +1607,9 @@ implements IFSFileDescriptorImpl
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
       }
     }
+  }
+  public int getServerDatastreamLevel() {
+    return serverDatastreamLevel_;
   }
 
 }

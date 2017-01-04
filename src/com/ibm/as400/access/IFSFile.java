@@ -21,6 +21,7 @@
 // @D8 - 04/03/2008 - Modify clearCachedAttributes() to also call 
 //                    impl.clearCachedAttributes()
 // @SA - 11/22/2016 - Add getASP() and getFileSystemType()
+// @SC - 01/04/2017 - Fix getCCSID() and getOwnerName()
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
@@ -1219,7 +1220,9 @@ public class IFSFile
       if (impl_ == null)
         chooseImpl();
 
-      result = impl_.getCCSID();
+      //@SCa
+      int userHandle = getSystem().createUserHandle();
+      result = impl_.getCCSID(userHandle);
     }
     catch (AS400SecurityException e)
     {
@@ -1455,8 +1458,10 @@ public class IFSFile
 
     if (impl_ == null)
       chooseImpl();
-
-    return impl_.getOwnerName();
+    
+    //@SCa
+    int userHandle = getSystem().createUserHandle();
+    return impl_.getOwnerName(userHandle);
   }
 
 
