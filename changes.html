@@ -5,11 +5,11 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2016 International Business Machines Corporation and
+Copyright (C) 1997-2017 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: July 5, 2016
+Last updated: Jan 12, 2017
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
 the open source community. JTOpen, which is supported by IBM and
@@ -101,21 +101,22 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <P>
 
 <HR>
-<H3><A NAME="92">Fixes and enhancements in JTOpen 9.2</A> <i>(released 2017-1-20)</i></H3>
+<H3><A NAME="92">Fixes and enhancements in JTOpen 9.2</A> <i>(released 2017-2-24)</i></H3>
 <Pre>
-- IFSFile get ASP and get file system type (pqhuyang)
-- IFSFile get CCSID and get owner name (pqhuyang)
-- JDBC CLIENT:  System debugger support (jeberhard)
-- JDBC:  Add details to descriptor index invalid exception (jeberhard)
-- JDBC:  Allow setSchema(*LIBL) for system naming (jeberhard)
-- JDBC:  Always return warning for SQLSTATE 01004 (jeberhard)
-- JDBC:  Correct ResultSetMetaData for NCHAR and NVARCHAR types (jeberhard)
-- JDBC:  Fix getting input stream from XML (jeberhard)
-- JDBC:  Set warning message to blank if sqlcode is 0 (jeberhard)
-- JDBC: Allow AS440JDBCRowSet to use AS400JDBCManagedDataSource (jeberhard)
-- MessageQueue: Fix memory leak issue (wanghuiq)
-- SystemPool:  Fix SystemPoolBeanInfo (jeberhard)
-- system pool supports pool size in long type (wanghuiq)
+- IFSFile: get ASP and get file system type support
+- IFSFile: get CCSID and get owner name support
+- JDBC CLIENT:  System debugger support
+- JDBC:  Add details to descriptor index invalid exception
+- JDBC:  Allow setSchema(*LIBL) for system naming
+- JDBC:  Always return warning for SQLSTATE 01004
+- JDBC:  Correct ResultSetMetaData for NCHAR and NVARCHAR types
+- JDBC:  Fix getting input stream from XML
+- JDBC:  Set warning message to blank if sqlcode is 0
+- JDBC: Allow AS440JDBCRowSet to use AS400JDBCManagedDataSource
+- MessageQueue: Fix memory leak issue
+- SystemPool:  Fix SystemPoolBeanInfo
+- system pool supports pool size in long type
+- Ship jt400Proxy.jar, jt400Servlet.jar and jt400android6.jar complied with JDK6
 </Pre>
 
 <HR>
