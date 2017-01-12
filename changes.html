@@ -5,11 +5,11 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2016 International Business Machines Corporation and
+Copyright (C) 1997-2017 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: July 5, 2016
+Last updated: Jan 12, 2017
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
 the open source community. JTOpen, which is supported by IBM and
@@ -48,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#92">Fixes and enhancements in JTOpen 9.2</A><br>
 <A HREF="#91">Fixes and enhancements in JTOpen 9.1</A><br>
 <A HREF="#90">Fixes and enhancements in JTOpen 9.0</A><br>
 <A HREF="#87">Fixes and enhancements in JTOpen 8.7</A><br>
@@ -98,6 +99,25 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="92">Fixes and enhancements in JTOpen 9.2</A> <i>(released 2017-2-24)</i></H3>
+<Pre>
+- IFSFile: get ASP and get file system type support
+- IFSFile: get CCSID and get owner name support
+- JDBC CLIENT: System debugger support
+- JDBC: Add details to descriptor index invalid exception
+- JDBC: Allow setSchema(*LIBL) for system naming
+- JDBC: Always return warning for SQLSTATE 01004
+- JDBC: Correct ResultSetMetaData for NCHAR and NVARCHAR types
+- JDBC: Fix getting input stream from XML
+- JDBC: Set warning message to blank if SQLCODE is 0
+- JDBC: Allow AS440JDBCRowSet to use AS400JDBCManagedDataSource
+- MessageQueue: Fix memory leak issue
+- SystemPool: Fix SystemPoolBeanInfo
+- system pool supports pool size in long type
+- Ship jt400Proxy.jar, jt400Servlet.jar and jt400android6.jar complied with JDK6
+</Pre>
 
 <HR>
 <H3><A NAME="91">Fixes and enhancements in JTOpen 9.1</A> <i>(released 2016-7-30)</i></H3>
