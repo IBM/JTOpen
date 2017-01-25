@@ -1929,7 +1929,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     }
   }
 
-  void validateParameterIndex(int param) throws SQLException {
+  /* Validate the parameter index for this PreparedStatement object */
+  /* It has this name to avoid calling the validateParameterIndex */
+  /* method in AS400JDBCCallableStatement which does not account */
+  /* for stored procedure output parameters */ 
+  
+  void validatePSParameterIndex(int param) throws SQLException {
     int parameterCount = getParameterCount(); 
   if (param > parameterCount) {
     JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID, param+">"+parameterCount);
@@ -1944,7 +1949,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return the class name of a parameter for ParameterMetaData support.
   String getParameterClassName(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     
     synchronized (internalLock_) {
       checkOpen();
@@ -1996,7 +2001,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return the mode of a parameter for ParameterMetaData support.
   int getParameterMode(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     synchronized (internalLock_) {
       checkOpen();
 
@@ -2027,7 +2032,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return the type of a parameter for ParameterMetaData support.
   int getParameterType(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     synchronized (internalLock_) {
       checkOpen();
 
@@ -2048,7 +2053,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return the type name of a parameter for ParameterMetaData support.
   String getParameterTypeName(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     synchronized (internalLock_) {
       checkOpen();
 
@@ -2069,7 +2074,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return the precision of a parameter for ParameterMetaData support.
   int getPrecision(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     synchronized (internalLock_) {
       checkOpen();
 
@@ -2090,7 +2095,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return the scale of a parameter for ParameterMetaData support.
   int getScale(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     synchronized (internalLock_) {
       checkOpen();
 
@@ -2111,7 +2116,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return whether a parameter is nullable for ParameterMetaData support.
   int isNullable(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     synchronized (internalLock_) {
       checkOpen();
 
@@ -2132,7 +2137,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   // @G4A
   // Return whether a parameter is signed for ParameterMetaData support.
   boolean isSigned(int param) throws SQLException {
-    validateParameterIndex(param);
+    validatePSParameterIndex(param);
     synchronized (internalLock_) {
       checkOpen();
 
@@ -2220,7 +2225,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
       checkOpen();
 
       // Validate the parameter index.
-      validateParameterIndex(parameterIndex); 
+      validatePSParameterIndex(parameterIndex); 
 
       // Check if the parameter index refers to the return value parameter.
       // This is an OUT parameter, so sets are not allowed. If its not
@@ -2364,7 +2369,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
       checkOpen();
 
       // Validate the parameter index.
-      validateParameterIndex(parameterIndex); 
+      validatePSParameterIndex(parameterIndex); 
 
       // Check if the parameter index refers to the return value parameter.
       // This is an OUT parameter, so sets are not allowed. If it's not
@@ -2590,7 +2595,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
       checkOpen();
 
       // Validate the parameter index.
-      validateParameterIndex(parameterIndex); 
+      validatePSParameterIndex(parameterIndex); 
 
       // Check if the parameter index refers to the return value parameter.
       // This is an OUT parameter, so sets are not allowed. If its not
@@ -3405,7 +3410,7 @@ endif */
       checkOpen();
 
       // Validate the parameter index.
-      validateParameterIndex(parameterIndex); 
+      validatePSParameterIndex(parameterIndex); 
 
       // Check if the parameter index refers to the return value parameter.
       // This is an OUT parameter, so sets are not allowed. If its not
@@ -3528,7 +3533,7 @@ endif */
     synchronized (internalLock_) { // @F1A
       checkOpen();
 
-      validateParameterIndex(parameterIndex);
+      validatePSParameterIndex(parameterIndex);
       // Check if the parameter index refers to the return value parameter. @F2A
       // This is an OUT parameter, so sets are not allowed. If its not @F2A
       // parameter index 1, then decrement the parameter index, since we @F2A
@@ -3604,7 +3609,7 @@ endif */
     synchronized (internalLock_) {
       checkOpen();
       
-      validateParameterIndex(parameterIndex);
+      validatePSParameterIndex(parameterIndex);
       
       // Check if the parameter index refers to the return value parameter.
       // This is an OUT parameter, so sets are not allowed. If its not
@@ -4285,7 +4290,7 @@ endif */
   public String getDB2ParameterName(int parm) throws SQLException {
     synchronized (internalLock_) {
       checkOpen();
-      validateParameterIndex(parm); 
+      validatePSParameterIndex(parm); 
       parm = parm - 1;
       if (useReturnValueParameter_) {
         parm = parm - 1;
@@ -4321,7 +4326,7 @@ endif */
       checkOpen();
 
       // Validate the parameter index.
-      validateParameterIndex(parameterIndex); 
+      validatePSParameterIndex(parameterIndex); 
 
       // Check if the parameter index refers to the return value parameter.
       // This is an OUT parameter, so sets are not allowed. If its not
@@ -4488,7 +4493,7 @@ endif */
       checkOpen();
 
       // Validate the parameter index.
-      validateParameterIndex(parameterIndex);
+      validatePSParameterIndex(parameterIndex);
 
       // Check if the parameter index refers to the return value parameter.
       // This is an OUT parameter, so sets are not allowed. If its not
