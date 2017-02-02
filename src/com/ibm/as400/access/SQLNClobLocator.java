@@ -563,12 +563,7 @@ endif */
 
     public String getTypeName()
     {
-    	/* ifdef JDBC40 
         return "NCLOB";
-        endif */ 
-    	/* ifndef JDBC40 */ 
-    	return "DBCLOB"; 
-    	/* endif */ 
     }
 
     public boolean isSigned()
