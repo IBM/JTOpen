@@ -231,9 +231,11 @@ endif */
 
     public String getJavaClassName()
     {
+/* ifdef JDBC40 
       if (ccsid_ == 1200 ) {
         return "com.ibm.as400.access.AS400JDBCNClob";
       }
+endif */       
       
       return "com.ibm.as400.access.AS400JDBCClob";
     }
