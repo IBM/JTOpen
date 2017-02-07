@@ -102,14 +102,18 @@ public class AS400JDBCArray implements Array {
     }
 
     con_ = con; // @arrayrs
-
-    if (data_.length > 0 && isSQLData_ && data_[0] != null) // @nullelem
-      contentTemplate_ = (SQLData) data_[0];
-    else
+    contentTemplate_ = null; 
+    for (int  i = 0; isSQLData_ && (contentTemplate_ == null) && (i < data_.length); i++) { 
+      if (data_[i] != null)  { 
+        contentTemplate_ = (SQLData) data_[i];
+      }
+    }
+    if (contentTemplate_ == null ) { 
       contentTemplate_ = SQLDataFactory.newData(typeName, 1, 1, 1, 37, null,
           vrm_, (con == null ? null : con.getProperties())); // @array
     // allow max for local conversion only since it is not associated with a
     // column on hostserver yet
+    }
   }
 
   /**
