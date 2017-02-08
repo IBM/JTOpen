@@ -2701,6 +2701,22 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if password cache is used:", usePasswordCache_);
         return usePasswordCache_;
     }
+    
+    public boolean isUsePassphrase() throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if use password phrase");
+        
+        chooseImpl();
+        signon(false);
+        
+        boolean ret = false;
+        if (impl_ instanceof AS400ImplRemote)
+          ret = ((AS400ImplRemote)impl_).getPasswordType();
+        
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use password phrase: " + ret);
+
+        return ret;
+    }
 
     // Load the specified implementation object.  Exceptions are swallowed, null is returned if the object cannot be loaded.
     static Object loadImpl(String impl)

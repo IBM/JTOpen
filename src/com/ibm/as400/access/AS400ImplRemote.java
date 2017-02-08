@@ -1543,6 +1543,12 @@ class AS400ImplRemote implements AS400Impl
 
         return vrm;
     }
+    
+    public boolean getPasswordType() 
+    {
+        return passwordType_;
+    }
+
 
     // Check if service is connected.
     public boolean isConnected(int service)
