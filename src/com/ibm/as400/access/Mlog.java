@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import sun.misc.MessageUtils;
 
 /**
  *  Mlog is a debugging tool.
@@ -53,12 +52,12 @@ class Mlog
         if (!logFlag)  return;
         int len = s.length();
         if (len <= (loRange + hiRange))
-            MessageUtils.out( cnt++ + ": " + s );
+          Trace.log(Trace.CONVERSION,  cnt++ + ": " + s );
         else
         {
-            MessageUtils.out( cnt++ + ": " + s.substring( 0, loRange ) );
-            MessageUtils.out( ". . . " + (len - loRange - hiRange) + " chars omitted . . ." );
-            MessageUtils.out( s.substring( len - hiRange, len ) );
+          Trace.log(Trace.CONVERSION,  cnt++ + ": " + s.substring( 0, loRange ) );
+          Trace.log(Trace.CONVERSION,  ". . . " + (len - loRange - hiRange) + " chars omitted . . ." );
+          Trace.log(Trace.CONVERSION,  s.substring( len - hiRange, len ) );
         }
     }
 
@@ -113,17 +112,17 @@ class Mlog
         int len = limit - offset;
         if (len <= (loRange + hiRange))
         {
-            MessageUtils.out( cnt   + ": " + toHex( input, offset, limit, compact ) );
-            MessageUtils.out( cnt++ + ": " + new String( input, offset, limit - offset ) );
+          Trace.log(Trace.CONVERSION,  cnt   + ": " + toHex( input, offset, limit, compact ) );
+          Trace.log(Trace.CONVERSION,  cnt++ + ": " + new String( input, offset, limit - offset ) );
         }
         else
         {
-            MessageUtils.out( cnt   + ": " + toHex( input, offset, offset + loRange, compact ) );
-            MessageUtils.out( ". . . " + (len - loRange - hiRange) + " chars omitted . . ." );
-            MessageUtils.out( toHex( input, limit - hiRange, limit, compact ) );
-            MessageUtils.out( cnt++ + ": " + new String( input, offset, loRange ) );
-            MessageUtils.out( ". . . " + (len - loRange - hiRange) + " chars omitted . . ." );
-            MessageUtils.out( new String( input, limit - hiRange, hiRange ) );
+          Trace.log(Trace.CONVERSION,  cnt   + ": " + toHex( input, offset, offset + loRange, compact ) );
+          Trace.log(Trace.CONVERSION,  ". . . " + (len - loRange - hiRange) + " chars omitted . . ." );
+          Trace.log(Trace.CONVERSION,  toHex( input, limit - hiRange, limit, compact ) );
+          Trace.log(Trace.CONVERSION,  cnt++ + ": " + new String( input, offset, loRange ) );
+          Trace.log(Trace.CONVERSION,  ". . . " + (len - loRange - hiRange) + " chars omitted . . ." );
+          Trace.log(Trace.CONVERSION,  new String( input, limit - hiRange, hiRange ) );
         }
     }
 
