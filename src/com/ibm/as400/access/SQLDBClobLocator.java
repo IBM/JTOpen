@@ -76,6 +76,9 @@ final class SQLDBClobLocator implements SQLLocator
     public void setHandle(int handle)
     {
         locator_.setHandle(handle);
+        // @T1A reset saved handle after setting new value
+       savedObject_ = null;
+
     }
     
     //@loch
@@ -101,6 +104,8 @@ final class SQLDBClobLocator implements SQLLocator
         int locatorHandle = BinaryConverter.byteArrayToInt(rawBytes, offset);
         locator_.setHandle(locatorHandle);
         locator_.setColumnIndex(columnIndex_);
+         //  @T1A reset saved handle after setting new value
+        savedObject_ = null;
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)

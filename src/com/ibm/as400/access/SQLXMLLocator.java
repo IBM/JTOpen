@@ -98,7 +98,10 @@ final class SQLXMLLocator implements SQLLocator
 
     public void setHandle(int handle)      
     {
-        locator_.setHandle(handle);          
+        locator_.setHandle(handle);   
+        //  @T1A reset saved handle after setting new value
+       savedObject_ = null;
+      
     }                     
     
     public int getHandle()
@@ -123,6 +126,9 @@ final class SQLXMLLocator implements SQLLocator
         int locatorHandle = BinaryConverter.byteArrayToInt(rawBytes, offset);
         locator_.setHandle(locatorHandle);
         locator_.setColumnIndex(columnIndex_);
+        //  @T1A reset saved handle after setting new value
+       savedObject_ = null;
+
     }
 
     //This is only called from AS400JDBCPreparedStatement in one place.

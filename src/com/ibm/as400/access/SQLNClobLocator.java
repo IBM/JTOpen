@@ -75,6 +75,9 @@ final class SQLNClobLocator implements SQLLocator
     public void setHandle(int handle)
     {
         locator_.setHandle(handle);
+        //  @T1A reset saved handle after setting new value
+       savedObject_ = null;
+
     }
     
     //@loch
@@ -100,6 +103,9 @@ final class SQLNClobLocator implements SQLLocator
         int locatorHandle = BinaryConverter.byteArrayToInt(rawBytes, offset);
         locator_.setHandle(locatorHandle);
         locator_.setColumnIndex(columnIndex_);
+        //  @T1A reset saved handle after setting new value
+       savedObject_ = null;
+
     }
 
     // This is only called from AS400JDBCPreparedStatement in one place.

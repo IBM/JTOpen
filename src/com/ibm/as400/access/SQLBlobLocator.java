@@ -82,7 +82,9 @@ final class SQLBlobLocator implements SQLLocator
 
     public void setHandle(int handle)      
     {
-        locator_.setHandle(handle);          
+        locator_.setHandle(handle);
+        // @T1A Reset saved object
+        savedObject_ = null; 
     }                     
     
     //@loch
@@ -108,6 +110,8 @@ final class SQLBlobLocator implements SQLLocator
         int locatorHandle = BinaryConverter.byteArrayToInt(rawBytes, offset);
         locator_.setHandle(locatorHandle);
         locator_.setColumnIndex(columnIndex_);
+        // @T1A Reset saved object
+        savedObject_ = null; 
     }
 
     //@CRS - This is only called from AS400JDBCPreparedStatement in one place.
