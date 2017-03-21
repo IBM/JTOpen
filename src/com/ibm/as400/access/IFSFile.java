@@ -1207,7 +1207,8 @@ public class IFSFile
   /**
    Returns the file's data CCSID.  All files in the system's integrated file system
    are tagged with a CCSID.  This method returns the value of that tag.
-   If the file is non-existent or is a directory, returns -1.
+   If the file is non-existent, returns -1.
+   If the file is a directory and the authentication scheme is not password, returns -1.
    @return The file's CCSID.
    @exception IOException If an error occurs while communicating with the system.
    **/
@@ -1221,8 +1222,13 @@ public class IFSFile
         chooseImpl();
 
       //@SCa
-      int userHandle = getSystem().createUserHandle();
-      result = impl_.getCCSID(userHandle);
+      if(this.isDirectory() && getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){ //@T2C
+        int userHandle = getSystem().createUserHandle();
+        result = impl_.getCCSID(userHandle);
+      }else
+      {
+        result = impl_.getCCSID();
+      }
     }
     catch (AS400SecurityException e)
     {
@@ -1231,7 +1237,7 @@ public class IFSFile
     }
     return result;
   }
-
+ 
 
  //@A6A
  /**
@@ -1441,7 +1447,7 @@ public class IFSFile
 
   /**
    Returns the name of the user profile that is the owner of the file.
-   @return The name of the user profile that owns the file, or "" if owner cannot be determined (for example, if the file is a directory).
+   @return The name of the user profile that owns the file, or "" if owner cannot be determined. If the file is a directory, only password authentication scheme is supported.
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -1460,8 +1466,12 @@ public class IFSFile
       chooseImpl();
     
     //@SCa
-    int userHandle = getSystem().createUserHandle();
-    return impl_.getOwnerName(userHandle);
+    if(this.isDirectory() && getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){//@T2C
+      int userHandle = getSystem().createUserHandle();
+      return impl_.getOwnerName(userHandle);
+    }
+    else
+      return impl_.getOwnerName();
   }
 
 
@@ -1770,13 +1780,14 @@ public class IFSFile
   }
 
   //@RDA
-  /**Return the auxiliary storage pool (ASP)  that holds the object.
+  /**Return the auxiliary storage pool (ASP)  that holds the object. Note only password authentication scheme is supported, otherwise returns -1.
     @return Return the auxiliary storage pool (ASP)  that holds the object.
     Possible values are:
      <ul>
      <li>1: the system ASP (QASP01, also known as the system disk pool)
      <li>2 to 32: user ASPs (QASP02 to QASP32)
      <li>33 to 255: independent ASPs
+     <li>-1: authentication scheme is not supported
      </ul>
     @throws IOException
     @throws AS400SecurityException
@@ -1788,18 +1799,29 @@ public class IFSFile
   
     if (impl_ == null)
         chooseImpl();
-    int userHandle = getSystem().createUserHandle();
-    //return userHandle;
-    return impl_.getASP(userHandle);
+    if(getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){//@T2A
+      int userHandle = getSystem().createUserHandle();
+      return impl_.getASP(userHandle);
+    }
+    return -1;//@T2A
   }
   
   //@SAA
+  /**Return the type of file system. Note only password authentication scheme is supported, otherwise returns "".
+    @return Return the type of file system.
+    Possible values are:EPFS,QDLS,QSYS,NFS,LRFS,QOPT,QRFS,EPFSP,QNETC,QDTL,IEPFS,ASPQSYS
+    @throws IOException
+    @throws AS400SecurityException
+   **/
   public String getFileSystemType() throws IOException, AS400SecurityException {
     if (impl_ == null)
       chooseImpl();
 
-    int userHandle = getSystem().createUserHandle();
-    return impl_.getFileSystemType(userHandle);
+    if(getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){//@T2A
+      int userHandle = getSystem().createUserHandle();
+      return impl_.getFileSystemType(userHandle);
+    }
+    return "";//@T2A
   }
   
   /**

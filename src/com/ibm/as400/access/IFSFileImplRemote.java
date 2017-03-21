@@ -749,13 +749,13 @@ implements IFSFileImpl
   /**
    Returns the file's data CCSID.  Returns -1 if failure or if directory.
    **/
-  //@SCd
-  /*public int getCCSID()
+  //@SCd @T2C
+  public int getCCSID()
     throws IOException, AS400SecurityException
   {
     fd_.connect();
     return fd_.getCCSID();
-  }*/
+  }
   
   //@SCa
   public int getCCSID(int userHandle) throws IOException, AS400SecurityException {
@@ -1071,8 +1071,8 @@ implements IFSFileImpl
    Returns the name of the user profile that is the owner of the file.
    Returns "" if called against a directory.
    **/
-  //@SCd
-  /*public String getOwnerName()
+  //@SCd @T2C
+  public String getOwnerName()
     throws IOException, AS400SecurityException
   {
     // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
@@ -1104,7 +1104,7 @@ implements IFSFileImpl
     }
 
     return (ownerName == null ? "" : ownerName);
-  }*/
+  }
   //@SCa
   public String getOwnerName(int userHandle) throws IOException, AS400SecurityException {
     String ownerName = null;

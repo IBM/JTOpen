@@ -142,8 +142,8 @@ implements IFSFileImpl
   }
 
   // @A3a
-  //@SCd
-  /*public int getCCSID()
+  //@SCd //@T2C
+  public int getCCSID()
     throws IOException, AS400SecurityException
   {
     try {
@@ -152,7 +152,7 @@ implements IFSFileImpl
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow2 (e);
     }
-  }*/
+  }
   //@SCa
   public int getCCSID(int userHandle)
       throws IOException, AS400SecurityException
@@ -195,8 +195,8 @@ implements IFSFileImpl
   }
 
 
-  //@SCd
-  /*public String getOwnerName()
+  //@SCd @T2C
+  public String getOwnerName()
     throws IOException, AS400SecurityException
   {
     try {
@@ -205,7 +205,7 @@ implements IFSFileImpl
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow2 (e);
     }
-  }*/
+  }
   //@SCa
   public String getOwnerName(int userHandle)
       throws IOException, AS400SecurityException
