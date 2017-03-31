@@ -1923,7 +1923,7 @@ public class AS400JDBCArray implements Array {
                         "DB2Array.validate 07006 type is DECIMAL/NUMERIC/DECFLOAT but NumberFormatException thrown for string "
                             + inStringArray[i]);
               }
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DECIMAL("+inStringArray+")");
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH,"DECIMAL["+i+"]("+inStringArray[i]+")");
               return;
 
             }

@@ -198,12 +198,6 @@ class PortMapper
         {
          // Refactor code but keep the same logic, try JSSE first, fall back to SSL Light again.
         	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
-            if (useSSL.useSslight_)
-            { // SSLight is no longer exists since v5r4, instead, using JSSE.
-                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
-                sc.setProperties(socket, null, null, 0, useSSL); 
-            }
-            else
             { // JSSE is supported since v5r4.
             	sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
                 sc.setProperties(socket, null, systemName, srvPort, null);

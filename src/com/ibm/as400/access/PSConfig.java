@@ -66,8 +66,6 @@ Static initializer.
         expectedOptions_.addElement ("-peers");
         expectedOptions_.addElement ("-port");
         expectedOptions_.addElement ("-securePort");
-        expectedOptions_.addElement ("-keyringName");                               //$B1A
-        expectedOptions_.addElement ("-keyringPassword");                           //$B1A
         expectedOptions_.addElement ("-verbose");
         expectedOptions_.addElement ("-help");
 
@@ -80,8 +78,6 @@ Static initializer.
         shortcuts_.put ("-pe", "-peers");
         shortcuts_.put ("-po", "-port");
         shortcuts_.put ("-sp", "-securePort");
-        shortcuts_.put ("-kn", "-keyringName");                                     //$B1A
-        shortcuts_.put ("-kp", "-keyringPassword");                                 //$B1A
         shortcuts_.put ("-v", "-verbose");
         shortcuts_.put ("-h", "-help");
         shortcuts_.put ("-?", "-help");
@@ -386,8 +382,6 @@ Prints the application usage information.
         out.println ("  -peers hostname1[:port1][;hostname2[:port2];...");
         out.println ("  -port port");
         out.println ("  -securePort securePort");                           //$B1C
-        out.println ("  -keyringName ProxyServerKeyringName");              //$B1A
-        out.println ("  -keyringPassword ProxyServerKeyringPassword");      //$B1A
         out.println ("  -verbose [true|false]");
         out.println ("  -help");
         out.println ();                                                     // @A1A
@@ -400,8 +394,6 @@ Prints the application usage information.
         out.println ("  -pe hostname1[:port1][;hostname2[:port2];...");     // @A1A
         out.println ("  -po port");                                         // @A1A
         out.println ("  -sp securePort");                                   // @A1A  $B1C
-        out.println ("  -kn ProxyServerKeyringName");                       //$B1A
-        out.println ("  -kp ProxyServerKeyringPassword");                   //$B1A
         out.println ("  -v [true|false]");                                  // @A1A
         out.println ("  -h");                                               // @A1A
         out.println ("  -?");                                               // @A1A

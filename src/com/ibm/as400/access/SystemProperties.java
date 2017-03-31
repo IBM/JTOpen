@@ -128,7 +128,6 @@ public class SystemProperties
     public static final String AS400_THREAD_USED = ACCESS_PREFIX + "AS400.threadUsed";
 
     /*public*/ static final String SECUREAS400_PROXY_ENCRYPTION_MODE = ACCESS_PREFIX + "SecureAS400.proxyEncryptionMode";
-    /*public*/ static final String SECUREAS400_USE_SSLIGHT = ACCESS_PREFIX + "SecureAS400.useSslight";
 
     /**
      Specifies which trace categories to enable. This is a comma-delimited

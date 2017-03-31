@@ -14,6 +14,8 @@
 package utilities;
 
 import com.ibm.as400.access.CommandLineArguments;
+import com.ibm.as400.util.BASE64Encoder;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -40,7 +42,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-import sun.misc.BASE64Encoder;
+// import sun.misc.BASE64Encoder;
 
 
 /**

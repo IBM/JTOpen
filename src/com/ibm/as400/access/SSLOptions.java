@@ -21,12 +21,14 @@ class SSLOptions implements Serializable
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
     // Package and class name of key ring object, initialized to default.
-    String keyRingName_ = "com.ibm.as400.access.KeyRing";
+    // Kept to prevent serializable errors (but not usable) 
+    String keyRingName_ = null;
     // Password for keyring class, initialized to default.
-    String keyRingPassword_ = "toolbox";
+    String keyRingPassword_ = null;
     // Data from keyring class.
     String keyRingData_ = null;
     // Legs of proxy server communications that should be encrypted.  Default is to encrypt all legs.
     int proxyEncryptionMode_ = SecureAS400.CLINT_TO_SERVER;
+    // Sslight removed 
     boolean useSslight_ = false;
 }

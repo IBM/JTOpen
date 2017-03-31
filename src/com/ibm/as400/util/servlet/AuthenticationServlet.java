@@ -19,13 +19,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.io.IOException;
 
-import sun.misc.BASE64Decoder;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 import com.ibm.as400.access.Log;                       //$A2C
 import com.ibm.as400.access.Trace;
+import com.ibm.as400.util.BASE64Decoder;
 
 /**
   * AuthenticationServlet is an HttpServlet implementation that performs basic authentication for servlets.

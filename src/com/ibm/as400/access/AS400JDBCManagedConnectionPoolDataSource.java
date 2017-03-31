@@ -143,13 +143,14 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    @param serverName The IBM i system name.
    @param user The user id.
    @param password The password.
-   @param keyRingName The key ring class name to be used for SSL communications with the system.
-   @param keyRingPassword The password for the key ring class to be used for SSL communications with the system.
+   @param keyRingNameX The key ring class name to be used for SSL communications with the system.
+   @param keyRingPasswordX The password for the key ring class to be used for SSL communications with the system.
+   @deprecated
    **/
   public AS400JDBCManagedConnectionPoolDataSource(String serverName, String user, String password,
-                                                  String keyRingName, String keyRingPassword)
+                                                  String keyRingNameX, String keyRingPasswordX)
   {
-    super(serverName, user, password, keyRingName, keyRingPassword);
+    super(serverName, user, password, keyRingNameX, keyRingPasswordX);
   }
 
   /**

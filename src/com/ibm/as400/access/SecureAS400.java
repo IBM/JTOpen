@@ -10,8 +10,8 @@
 // others. All rights reserved.                                                
 //                           
 // Note:  This class was moved 10/20/2010 from the include tree to the 
-//        src tree.  The class was also changed to use reflection to 
-//        access SSLight. 
+//        src tree.  
+// 
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -68,12 +68,6 @@ public class SecureAS400 extends AS400
             useSSLConnection_.proxyEncryptionMode_ = Integer.parseInt(prop);
         }
 
-        // Check for use sslight system property, if not set or not valid retain default of false.
-        prop = SystemProperties.getProperty(SystemProperties.SECUREAS400_USE_SSLIGHT);
-        if (prop != null && prop.equalsIgnoreCase("true"))
-        {
-            useSSLConnection_.useSslight_ = true;
-        }
     }
 
     /**
@@ -161,8 +155,6 @@ public class SecureAS400 extends AS400
         // If passed in system has SSL options, deep copy them.
         if (system.useSSLConnection_ != null)
         {
-            useSSLConnection_.keyRingName_ = system.useSSLConnection_.keyRingName_;
-            useSSLConnection_.keyRingPassword_ = system.useSSLConnection_.keyRingPassword_;
             useSSLConnection_.proxyEncryptionMode_ = system.useSSLConnection_.proxyEncryptionMode_;
         }
     }
@@ -199,11 +191,12 @@ public class SecureAS400 extends AS400
     /**
      Returns the key ring class name used for SSL communications with the system.  The class <i>com.ibm.as400.access.KeyRing</i> is the default and will be returned if not overridden.
      @return  The key ring class name.
+     @deprecated
      **/
     public String getKeyRingName()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting key ring name: " + useSSLConnection_.keyRingName_);
-        return useSSLConnection_.keyRingName_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting key ring name: null"    );
+        return null; 
     }
 
     /**
@@ -217,116 +210,40 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Sets the key ring class name used for SSL communications with the system.  The default class name that will be used if this method is not called is <i>com.ibm.as400.access.KeyRing</i>.
+     Sets the key ring class name used for SSL communications with the system.  
+     This method is no longer supported because sslight is not longer supported. 
      @param  keyRingName  The key ring class name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setKeyRingName(String keyRingName) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting key ring name: " + keyRingName);
-        if (propertiesFrozen_)
-        {
-            Trace.log(Trace.ERROR, "Cannot set key ring class name after connection has been made.");
-            throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-        if (keyRingName == null) {
-            throw new NullPointerException("keyRingName");
-        }
-
-        String oldValue = useSSLConnection_.keyRingName_;
-        String newValue = keyRingName;
-        if (vetoableChangeListeners_ != null)
-        {
-          vetoableChangeListeners_.fireVetoableChange("keyRingName", oldValue, newValue);
-        }
-
-        useSSLConnection_.keyRingName_ = keyRingName;
-        try
-        {
-        	// SSLight has been depreciated.  Access via reflection to avoid the need to use this jar
-        	Class  ssLightKeyRingClass = Class.forName(keyRingName);  
-            Object ssLightKeyRing = ssLightKeyRingClass.newInstance();
-            Class[] parameterTypes = new Class[0]; 
-            Method getKeyRindDataMethod = ssLightKeyRingClass.getMethod("getKeyRingData", parameterTypes);
-            Object[] args = new Object[0]; 
-            useSSLConnection_.keyRingData_ = (String) getKeyRindDataMethod.invoke(ssLightKeyRing, args);
-        }
-        catch (Exception e)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'keyRingName' is not valid: " + keyRingName, e);
-            throw new ExtendedIllegalArgumentException("keyRingName (" + keyRingName + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-
-        if (propertyChangeListeners_ != null)
-        {
-          propertyChangeListeners_.firePropertyChange("keyRingName", oldValue, newValue);
-        }
+            Trace.log(Trace.ERROR, "Cannot set key ring class name  -- no sslight support ");
+            throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
     }
 
     /**
-     Sets the key ring class name used for SSL communications with the system.  The default class name that will be used if this method is not called is <i>com.ibm.as400.access.KeyRing</i>.
+     Sets the key ring class name used for SSL communications with the system.  
+     This method is no longer available since support for sslight has been removed. 
      @param  keyRingName  The key ring class name.
      @param  keyRingPassword  The password for the key ring class.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setKeyRingName(String keyRingName, String keyRingPassword) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting key ring name: " + keyRingName);
-        if (propertiesFrozen_)
-        {
-            Trace.log(Trace.ERROR, "Cannot set key ring class name after connection has been made.");
-            throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-        if (keyRingName == null) {
-            throw new NullPointerException("keyRingName");
-        }
+      Trace.log(Trace.ERROR, "Cannot set key ring class name  -- no sslight support ");
+      throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
 
-        String oldValue = useSSLConnection_.keyRingName_;
-        String newValue = keyRingName;
-        if (vetoableChangeListeners_ != null)
-        {
-          vetoableChangeListeners_.fireVetoableChange("keyRingName", oldValue, newValue);
-        }
-
-        useSSLConnection_.keyRingName_ = keyRingName;
-        useSSLConnection_.keyRingPassword_ = keyRingPassword;
-        try
-        {
-        	// SSLight has been depreciated.  Access via reflection to avoid the need to use this jar
-        	Class  ssLightKeyRingClass = Class.forName(keyRingName);  
-            Object ssLightKeyRing = ssLightKeyRingClass.newInstance();
-            Class[] parameterTypes = new Class[0]; 
-            Method getKeyRindDataMethod = ssLightKeyRingClass.getMethod("getKeyRingData", parameterTypes);
-            Object[] args = new Object[0]; 
-            useSSLConnection_.keyRingData_ = (String) getKeyRindDataMethod.invoke(ssLightKeyRing, args);
-
-        }
-        catch (Exception e)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'keyRingName' is not valid: " + keyRingName, e);
-            throw new ExtendedIllegalArgumentException("keyRingName (" + keyRingName + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-
-        if (propertyChangeListeners_ != null)
-        {
-          propertyChangeListeners_.firePropertyChange("keyRingName", oldValue, newValue);
-        }
     }
 
     /**
      Sets the key ring password used for SSL communications with the system.
      @param  keyRingPassword  The password for the key ring class.
+     @deprecated
      **/
     public void setKeyRingPassword(String keyRingPassword)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting key ring password.");
-        if (propertiesFrozen_)
-        {
-            Trace.log(Trace.ERROR, "Cannot set key ring class password after connection has been made.");
+            Trace.log(Trace.ERROR, "Cannot set key ring class password.");
             throw new ExtendedIllegalStateException("keyRingPassword", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-
-        useSSLConnection_.keyRingPassword_ = keyRingPassword;
     }
 
     /**

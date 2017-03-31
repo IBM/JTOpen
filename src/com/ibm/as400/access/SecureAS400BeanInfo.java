@@ -35,17 +35,7 @@ public class SecureAS400BeanInfo extends AS400BeanInfo
     {
         try
         {
-            PropertyDescriptor keyRingName = new PropertyDescriptor("keyRingName", BEAN_CLASS);
-            keyRingName.setBound(true);
-            keyRingName.setConstrained(true);
-            keyRingName.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_SECUREAS400_KEYRINGNAME"));
-            keyRingName.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_SECUREAS400_KEYRINGNAME"));
 
-            PropertyDescriptor keyRingPassword = new PropertyDescriptor("keyRingPassword", BEAN_CLASS, null, "setKeyRingPassword");
-            keyRingPassword.setBound(false);
-            keyRingPassword.setConstrained(false);
-            keyRingPassword.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_SECUREAS400_KEYRINGPASSWORD"));
-            keyRingPassword.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_SECUREAS400_KEYRINGPASSWORD"));
 
             PropertyDescriptor proxyEncryptionMode = new PropertyDescriptor("proxyEncryptionMode", BEAN_CLASS);
             proxyEncryptionMode.setBound(true);
@@ -55,8 +45,6 @@ public class SecureAS400BeanInfo extends AS400BeanInfo
 
             propertyDescriptors = new PropertyDescriptor[AS400BeanInfo.propertyDescriptors.length + 3];
             System.arraycopy(AS400BeanInfo.propertyDescriptors, 0, propertyDescriptors, 0, AS400BeanInfo.propertyDescriptors.length);
-            propertyDescriptors[propertyDescriptors.length - 3] = keyRingName;
-            propertyDescriptors[propertyDescriptors.length - 2] = keyRingPassword;
             propertyDescriptors[propertyDescriptors.length - 1] = proxyEncryptionMode;
         }
         catch (IntrospectionException e)

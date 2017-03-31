@@ -52,8 +52,6 @@ import java.util.LinkedList;
 import java.util.TimeZone;
 
 import com.ibm.as400.access.BinaryConverter;
-//import sun.misc.BASE64Encoder;                                     //@E1A
-//import sun.misc.BASE64Decoder;                                     //@E1A
 
 /**
 */

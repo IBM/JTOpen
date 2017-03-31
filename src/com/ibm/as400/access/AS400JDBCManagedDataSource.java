@@ -258,8 +258,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @param serverName The name of the system.
    @param user The user id.
    @param password The user password.
-   @param keyRingName The key ring class name to be used for SSL communications with the system.
-   @param keyRingPassword The password for the key ring class to be used for SSL communications with the system.
+   @param keyRingNameX Not used.
+   @param keyRingPasswordX Not used.
+   @deprecated
    **/
   public AS400JDBCManagedDataSource(String serverName, String user, String password,
                                     String keyRingName, String keyRingPassword)
@@ -268,19 +269,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     setSecure(true);
 
-    try
-    {
       as400_ = new SecureAS400(as400_);
-      ((SecureAS400)as400_).setKeyRingName(keyRingName, keyRingPassword);
-    }
-    catch (PropertyVetoException pe) {} // will never happen
 
-    serialKeyRingName_ = keyRingName;
-
-    // There is no get/set keyring name / password methods so they really aren't bean
-    // properties, but in v5r1 the keyring name is saved as if it is a property.  Since
-    // the code saved the name we will also save the password.
-    serialKeyRingPWBytes_ = xpwConfuse(keyRingPassword);
 
     setServerName(serverName);
     setUser(user);
@@ -306,23 +296,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     {
       isSecure_ = true;
       as400_ = new SecureAS400();
-
-      // Since the as400 object is secure, get the key ring info.
-      serialKeyRingName_ = (String)reference.get(KEY_RING_NAME).getContent();
-      // Note: Even though JDProperties has a "key ring" properties, we choose not to add them.
-      if (reference.get(KEY_RING_PASSWORD) != null)
-        serialKeyRingPWBytes_ = ((String)reference.get(KEY_RING_PASSWORD).getContent()).toCharArray();
-      else
-        serialKeyRingPWBytes_ = null;
-
-      try {
-        if (serialKeyRingPWBytes_ != null && serialKeyRingPWBytes_.length > 0) {
-          ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, xpwDeconfuse(serialKeyRingPWBytes_));
-        }
-        else {
-          ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_);
-        }
-      } catch (PropertyVetoException pve) {} // Will never happen
 
     }
     else
@@ -458,7 +431,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     {
       AS400 as400Object = null;
 
-      // If the object was created with a keyring, or if the user asks for the object
+      // If the user asks for the object
       // to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object.
       if (isSecure_ || isSecure()) {
         as400Object = new SecureAS400(as400_);
@@ -499,7 +472,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     {
       AS400 as400Object = null;
 
-      // If the object was created with a keyring, or if the user asks for the object
+      // If the user asks for the object
       // to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object.
       if (isSecure_ || isSecure()) {
         as400Object = new SecureAS400(as400_);
@@ -1383,16 +1356,11 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       ref.add(new StringRefAddr(DESCRIPTION, description_));
     ref.add(new StringRefAddr(SERVER_NAME, getServerName()));
     ref.add(new StringRefAddr(USER, getUser()));
-    ref.add(new StringRefAddr(KEY_RING_NAME, serialKeyRingName_));
     if (savePasswordWhenSerialized_) {
       if (serialPWBytes_ != null)
         ref.add(new StringRefAddr(PASSWORD, new String(serialPWBytes_)));
       else
         ref.add(new StringRefAddr(PASSWORD, null));
-      if (serialKeyRingPWBytes_ != null)
-        ref.add(new StringRefAddr(KEY_RING_PASSWORD, new String(serialKeyRingPWBytes_)));
-      else
-        ref.add(new StringRefAddr(KEY_RING_PASSWORD, null));
     }
     ref.add(new StringRefAddr(SAVE_PASSWORD, (savePasswordWhenSerialized_ ? TRUE_ : FALSE_)));
 
@@ -1769,7 +1737,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       as400_.setSocketProperties(sockProps_);
     }
 
-    // Reinitialize the serverName, user, password, keyRingName, etc.
+    // Reinitialize the serverName, user, password, etc.
     if (serialServerName_ != null)
       setServerName(serialServerName_);
 
@@ -1784,23 +1752,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       }
     }
 
-    try
-    {
-      if (serialKeyRingName_ != null && isSecure_)
-      {
-        if ((serialKeyRingPWBytes_ != null) &&
-            (serialKeyRingPWBytes_.length > 0))
-        {
-          String keyRingPassword = xpwDeconfuse(serialKeyRingPWBytes_);
-          ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, keyRingPassword);
-        }
-        else
-        {
-          ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_);
-        }
-      }
-    }
-    catch (PropertyVetoException pve) {} // will never happen
 
     //     Make sure the prompt flag is correctly de-serialized.  The problem was
     //     the flag would get serialized with the rest of the properties
@@ -3611,15 +3562,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
               setSendBufferSize(Integer.parseInt(propertyValue));
           else if (propIndex == JDProperties.PROMPT)
               setPrompt(propertyValue.equals(TRUE_) ? true : false);
-          else if (propIndex == JDProperties.KEY_RING_NAME){
-              //at this time, decided to not allow this due to security and fact that there is no setKeyRingName() method
-              if (JDTrace.isTraceOn())
-                  JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCManagedDataSource constructor");  
-          } else if (propIndex == JDProperties.KEY_RING_PASSWORD){
-              //at this time, decided to not allow this due to security and fact that there is no setKeyRingPassword() method
-              if (JDTrace.isTraceOn())
-                  JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCManagedDataSource constructor");  
-          } else if (propIndex != -1)
+          else if (propIndex != -1)
           {
               properties_.setString(propIndex, propertyValue);
           }
@@ -3798,12 +3741,11 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    at V4R4 or later.
    @param secure true if Secure Socket Layer connection is used; false otherwise.
    The default value is false.
-   @throws ExtendedIllegalStateException If the data source was constructed with a keyring and <tt>secure</tt> is false.
+   @throws ExtendedIllegalStateException If the data source was as secure and <tt>secure</tt> is false.
    **/
   public void setSecure(boolean secure)
   {
-    // Do not allow user to change to not secure if they constructed the data source with
-    // a keyring.
+    // Do not allow user to change to not secure if secure
     if (!secure && isSecure_)
     {
       throw new ExtendedIllegalStateException("secure",
@@ -4922,7 +4864,6 @@ public boolean isUseDrdaMetadataVersion()
       serialPWBytes_ = null;
       pwHashcode_ = 0;
 
-      serialKeyRingPWBytes_ = null;
     }
 
     // Serialize the object.

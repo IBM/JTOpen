@@ -26,7 +26,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.SAXNotRecognizedException;    //@E1A
 import org.xml.sax.SAXNotSupportedException;     //@E1A
-// import sun.misc.BASE64Decoder;                   //@E1A
 import com.ibm.as400.access.BinaryConverter; //@E1A 
 
 import org.xml.sax.XMLReader;

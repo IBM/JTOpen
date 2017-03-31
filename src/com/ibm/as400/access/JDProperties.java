@@ -761,19 +761,19 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = ERRORS_FULL;
         defaults_[i]        = ERRORS_BASIC;
 
-        // KeyRingName.         //@F1A
-        i = KEY_RING_NAME;
-        dpi_[i] = new DriverPropertyInfo (KEY_RING_NAME_, "");
-        dpi_[i].description = "KEY_RING_NAME_DESC";
+        // KeyRingName. Removed         //@F1A
+        i = KEY_RING_NAME; /* removed */
+        dpi_[i] = new DriverPropertyInfo ("REMOVED", "");
+        dpi_[i].description = "REMOVED";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;
 
 
-        // KeyRingPassword.          //@F1A
-        i = KEY_RING_PASSWORD;
-        dpi_[i] = new DriverPropertyInfo (KEY_RING_PASSWORD_, "");
-        dpi_[i].description = "KEY_RING_PASSWORD_DESC";
+        // KeyRingPassword.   REmoved        //@F1A
+        i = KEY_RING_PASSWORD; /*removed */ 
+        dpi_[i] = new DriverPropertyInfo ("REMOVED", "");
+        dpi_[i].description = "REMOVED";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;

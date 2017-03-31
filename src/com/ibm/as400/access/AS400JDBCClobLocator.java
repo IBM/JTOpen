@@ -115,12 +115,12 @@ public class AS400JDBCClobLocator implements Clob
   **/
   public InputStream getAsciiStream() throws SQLException
   {
-    //Following Native, throw HY010 after free() has been called.  Note:  NullPointerException if synchronized(null-ref)
+	    synchronized(this)
+	    {
+   //Following Native, throw HY010 after free() has been called.  Note:  NullPointerException if synchronized(null-ref)
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
       try
       {
         //@xml3 if xml column, remove xml declaration via ConvTableReader
@@ -145,11 +145,11 @@ public class AS400JDBCClobLocator implements Clob
   **/
   public Reader getCharacterStream() throws SQLException
   {
-    if(locator_ == null)//@free
+	   synchronized(this)
+	    {
+	     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
       try
       {
         //@xml3 if xml column, remove xml declaration via ConvTableReader
@@ -193,11 +193,11 @@ Returns the handle to this CLOB locator in the database.
   **/
   public String getSubString(long position, int length) throws SQLException
   {
-    if(locator_ == null)//@free
+	   synchronized(this)
+	    {
+	    if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
       int offset = (int)position-1;
       if (offset < 0 || length < 0  || (offset  > length()) )
       {
@@ -250,11 +250,11 @@ Returns the handle to this CLOB locator in the database.
   **/
   public long length() throws SQLException
   {
-    if(locator_ == null)//@free
+	    synchronized(this)
+	    {
+   if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
       return locator_.getLength();
     }
   }
@@ -303,11 +303,11 @@ Returns the handle to this CLOB locator in the database.
   **/
   public long position(String pattern, long position) throws SQLException
   {
-    if(locator_ == null)//@free
+	    synchronized(this)
+	    {
+   if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
       int offset = (int)position-1;
       if (pattern == null || offset < 0 || offset >= length())
       {
@@ -354,12 +354,12 @@ Returns the handle to this CLOB locator in the database.
   **/
   public long position(Clob pattern, long position) throws SQLException
   {
-    if(locator_ == null)//@free
+	   synchronized(this) 
+	    {
+  if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
-      int offset = (int)position-1;
+       int offset = (int)position-1;
       if (pattern == null || offset < 0 || offset >= length())
       {
         throw JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -468,11 +468,12 @@ Returns the handle to this CLOB locator in the database.
   **/
   public int setString(long position, String stringToWrite) throws SQLException
   {
+	  synchronized(this)
+	    {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
+    
       int offset = (int)position-1;
 
       if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
@@ -522,11 +523,12 @@ Returns the handle to this CLOB locator in the database.
    **/
   public int setString(long position, String string, int offset, int lengthOfWrite) throws SQLException
   {
+	  synchronized(this)
+	    {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
+   
       int clobOffset = (int)position-1;
       if (clobOffset < 0 || clobOffset >= maxLength_ ||
           string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||
@@ -567,11 +569,12 @@ Returns the handle to this CLOB locator in the database.
   **/
   public void truncate(long lengthOfCLOB) throws SQLException
   {
+	  synchronized(this)
+	    {
     if(locator_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    synchronized(locator_)
-    {
+    
       int length = (int)lengthOfCLOB;
       if (length < 0 || length > maxLength_)
       {
@@ -603,12 +606,12 @@ Returns the handle to this CLOB locator in the database.
    */
   public void free() throws SQLException //@sync
   {
-      if(locator_ == null)
+    synchronized(this) //@sync
+    {   
+       if(locator_ == null)
           return;  //no-op
       
-      synchronized(locator_) //@sync
-      {   
-          locator_.free();
+         locator_.free();
  
           locator_  = null;  //@pda make objects available for GC
           converter_ = null;
@@ -638,11 +641,12 @@ Returns the handle to this CLOB locator in the database.
    */
   public Reader getCharacterStream(long pos, long length) throws SQLException //@sync
   {
+      synchronized(this) //@sync
+      {   
+
       if(locator_ == null)//@free
           JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
 
-      synchronized(locator_) //@sync
-      {   
           if (pos < 1 || (pos - 1 + length) > locator_.getMaxLength() || length < 0 )  //@pdc change parm check like getSubString
           {
               JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);

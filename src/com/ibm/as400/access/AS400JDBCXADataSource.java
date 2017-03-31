@@ -96,13 +96,14 @@ to use for SSL communications with the IBM i system.
 @param serverName The name of the IBM i system.
 @param user The user id.
 @param password The password.
-@param keyRingName The key ring class name to be used for SSL communications with the system.
-@param keyRingPassword The password for the key ring class to be used for SSL communications with the system.	
+@param keyRingNameX Not used.
+@param keyRingPasswordX Not used
+@deprecated	
 **/
    public AS400JDBCXADataSource(String serverName, String user, String password, 
-				String keyRingName, String keyRingPassword)
+				String keyRingNameX, String keyRingPasswordX)
    {
-      super(serverName, user, password, keyRingName, keyRingPassword);
+      super(serverName, user, password, null, null);
    }
 
 

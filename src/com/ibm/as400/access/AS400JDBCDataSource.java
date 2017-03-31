@@ -95,9 +95,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     private static final String DESCRIPTION = "description";
     private static final String SERVER_NAME = "serverName";
     private static final String USER = "userName";
-    private static final String KEY_RING_NAME = "keyring";       // @F0A
     private static final String PASSWORD = "pw";                 // @F0A
-    private static final String KEY_RING_PASSWORD = "keyringpw"; // @F0A
     private static final String SECURE = "secure";               // @F0A
     private static final String SAVE_PASSWORD = "savepw";        // @F0A
     private static final String PLAIN_TEXT_PASSWORD = "pwd";     //@K1A
@@ -280,30 +278,18 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  @param serverName The name of the IBM i system.
     *  @param user The user id.
     *  @param password The user password.
-       *  @param keyRingName The key ring class name to be used for SSL communications with the system.
-       *  @param keyRingPassword The password for the key ring class to be used for SSL communications with the system.
+       *  @param keyRingNameX The key ring class name to be used for SSL communications with the system.
+       *  @param keyRingPasswordX The password for the key ring class to be used for SSL communications with the system.
+       *  @deprecated  Sslight not supported
     **/
     public AS400JDBCDataSource(String serverName, String user, String password,
-                               String keyRingName, String keyRingPassword)
+                               String keyRingNameX, String keyRingPasswordX)
     {
         this();
 
         setSecure(true);  // @F0M
 
-        try
-        {
-            as400_ = new SecureAS400(as400_);
-            ((SecureAS400)as400_).setKeyRingName(keyRingName, keyRingPassword);
-        }
-        catch (PropertyVetoException pe)
-        { /* will never happen */
-        }
-        serialKeyRingName_ = keyRingName;
-
-        // @J3 There is no get/set keyring name / password methods so they really aren't bean
-        // properties, but in v5r1 the keyring name is saved as if it is a property.  Since
-        // the code saved the name we will also save the password. 
-        serialKeyRingPWBytes_ = xpwConfuse(keyRingPassword);     //@J3a  // @F0M  (changed from keyRingName to keyRingPassword)
+        as400_ = new SecureAS400(as400_);
 
         setServerName(serverName);
         setUser(user);
@@ -331,40 +317,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     if (((String) reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_)) {
       isSecure_ = true;
       as400_ = new SecureAS400();
-
-      // since the as400 object is secure, get the key ring info.
-      // This is optional information so be prepared that it is not set.
-      // @O4A
-      RefAddr keyRingNameReference = reference.get(KEY_RING_NAME);
-      if (keyRingNameReference != null) {
-        serialKeyRingName_ = (String) keyRingNameReference.getContent();
-      }
-
-      RefAddr keyRingPasswordReference = reference.get(KEY_RING_PASSWORD);
-      if (keyRingPasswordReference != null) {
-        String keyRingPasswordContent = (String) keyRingPasswordReference
-            .getContent();
-        if (keyRingPasswordContent != null) {
-          serialKeyRingPWBytes_ = keyRingPasswordContent.toCharArray();
-        } else {
-          serialKeyRingPWBytes_ = null;
-        }
-      } else {
-        serialKeyRingPWBytes_ = null;
-      }
-
-      try {
-        if (serialKeyRingName_ != null) {
-          if (serialKeyRingPWBytes_ != null && serialKeyRingPWBytes_.length > 0) {
-            ((SecureAS400) as400_).setKeyRingName(serialKeyRingName_,
-                xpwDeconfuse(serialKeyRingPWBytes_));
-          }
-          // We can not set serialKeyRingName if null or not exist @O4D
-          // else
-          //  ((SecureAS400) as400_).setKeyRingName(serialKeyRingName_);
-        }
-      } catch (PropertyVetoException pve) { /* Will never happen */
-      }
 
     } else {
       isSecure_ = false;
@@ -416,8 +368,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             else if (property.equals(SAVE_PASSWORD)) {
                 // set the savePasswordWhenSerialized_ flag
                 savePasswordWhenSerialized_ = value.equals(TRUE_) ? true : false;
-            } else if (property.equals(SECURE) || property.equals(KEY_RING_NAME) || property.equals(KEY_RING_PASSWORD)) {
-                // do nothing for these keys, they have already been handled
             }
             else if (property.equals(SOCKET_KEEP_ALIVE)) {
                 sockProps_.setKeepAlive((value.equals(TRUE_)? true : false));
@@ -606,7 +556,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public Connection getConnection() throws SQLException
     {    
-        //if the object was created with a keyring, or if the user asks for the object
+        //if the user asks for the object
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
         if (isSecure_ || isSecure())                     //@B4A  //@C2C
             return getConnection(new SecureAS400(as400_));   //@B4A
@@ -694,7 +644,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         AS400 as400Object;
 
-        //if the object was created with a keyring, or if the user asks for the object
+        //if the user asks for the object
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
         if (isSecure_ || isSecure())                                        //@C2A
         {                                                                   //@C2A
@@ -1205,13 +1155,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             ref.add(new StringRefAddr(DESCRIPTION, getDescription()));
         ref.add(new StringRefAddr(SERVER_NAME, getServerName()));
         ref.add(new StringRefAddr(USER, getUser()));
-        ref.add(new StringRefAddr(KEY_RING_NAME, serialKeyRingName_));                             // @F0A
         if (savePasswordWhenSerialized_) {                                                         // @F0A
             ref.add(new StringRefAddr(PASSWORD, new String(serialPWBytes_)));                      // @F0A
-            if (serialKeyRingPWBytes_ != null)                                                     // @F0A
-                ref.add(new StringRefAddr(KEY_RING_PASSWORD, new String(serialKeyRingPWBytes_)));  // @F0A
-            else                                                                                   // @F0A
-                ref.add(new StringRefAddr(KEY_RING_PASSWORD, null));                               // @F0A
         }                                                                                          // @F0A
         ref.add(new StringRefAddr(SECURE, (isSecure_ ? TRUE_ : FALSE_)));                          // @F0A
         ref.add(new StringRefAddr(SAVE_PASSWORD, (savePasswordWhenSerialized_ ? TRUE_ : FALSE_))); // @F0A
@@ -1600,7 +1545,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         else                     //@B4A
             as400_ = new AS400();
 
-        // Reinitialize the serverName, user, password, keyRingName, etc.
+        // Reinitialize the serverName, user, password, etc.
         if (serialServerName_ != null)
             setServerName(serialServerName_);
 
@@ -1615,25 +1560,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             }                                                           // @J3a
         }
 
-        try
-        {
-            if (serialKeyRingName_ != null && isSecure_)                  //@B4A
-            {                                                             //@J3a
-                if ((serialKeyRingPWBytes_ != null) &&                    //@J3a      
-                    (serialKeyRingPWBytes_.length > 0))                   //@J3a      
-                {                                                         //@J3a
-                    String keyRingPassword = xpwDeconfuse(serialKeyRingPWBytes_);  // @J3a
-                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, keyRingPassword); //@J3A
-                }                                                            //@J3a
-                else
-                {                                                         //@J3a                                                            //@J3a
-                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_); //@B4A
-                }                                                            //@J3a
-            }                                                                //@J3a
-        }
-        catch (PropertyVetoException pve)
-        { /* Will never happen */
-        }
 
         // @J4 Make sure the prompt flag is correctly de-serialized.  The problem was
         //     the flag would get serialized with the rest of the properties 
@@ -3591,87 +3517,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, "prompt: " + prompt);     //@A8C
     }
 
-    // @F0D - Removed unused method
-    ///**
-    //*  Sets the JDBC properties.
-    //*  @param Properties The JDBC properties list.
-    //**/
-    //void setProperties(Reference reference)
-    //{
-    //    /*
-    //    *  Implementation note:  This method is called from AS400JDBCObjectFactory.getObjectInstance
-    //    */
-    //    if (reference == null)
-    //        throw new NullPointerException("reference");
-    // 
-    //    Properties properties = new Properties();
-    //
-    //    Enumeration list = reference.getAll();
-    //    while (list.hasMoreElements())
-    //    {
-    //        StringRefAddr refAddr = (StringRefAddr)list.nextElement();
-    //        String property = refAddr.getType();
-    //        String value = (String)reference.get(property).getContent();
-    //
-    //        if (property.equals(DATABASE_NAME))                         // constant identifiers were used to store in JNDI.
-    //            setDatabaseName(value);
-    //        else if (property.equals(DATASOURCE_NAME))
-    //            setDataSourceName(value);
-    //        else if (property.equals(DESCRIPTION))
-    //            setDescription(value);
-    //        else if (property.equals(SERVER_NAME))
-    //            setServerName(value);
-    //        else if (property.equals(USER))
-    //            setUser(value);
-    //        else if (property.equals(PASSWORD)) {
-    //            // get the password back from the serialized char[]
-    //            serialPWBytes_ = value.toCharArray();
-    //            // decode the password and set it on the as400
-    //            as400_.setPassword(xpwDeconfuse(serialPWBytes_));
-    //        }
-    //        else if (property.equals(KEY_RING_NAME)) {
-    //            // set the key ring name
-    //            serialKeyRingName_ = value;
-    //        }
-    //        else if (property.equals(KEY_RING_PASSWORD)) {
-    //            // get the key ring password back from the serialized char[]
-    //            if (value != null)
-    //                serialKeyRingPWBytes_ = value.toCharArray();
-    //        }
-    //        else if (property.equals(SECURE)) {
-    //            // set the isSecure_ flag
-    //            isSecure_ = value.equals(TRUE_) ? true : false;
-    //        }
-    //        else if (property.equals(SAVE_PASSWORD)) {
-    //            // set the savePasswordWhenSerialized_ flag
-    //            savePasswordWhenSerialized_ = value.equals(TRUE_) ? true : false;
-    //        }
-    //        else
-    //        {
-    //            properties.put(property, value);
-    //        }
-    //    }
-    //    properties_ = new JDProperties(properties, null);
-    //
-    //    // get the prompt property and set it back in the as400 object
-    //    String prmpt = properties_.getString(JDProperties.PROMPT);
-    //    if (prmpt != null && prmpt.equalsIgnoreCase(FALSE_))
-    //        setPrompt(false);
-    //    else if (prmpt != null && prmpt.equalsIgnoreCase(TRUE_))
-    //        setPrompt(true);
-    //
-    //    // if the system is secure create a SecureAS400 object
-    //    if (isSecure_) {
-    //        try
-    //        {
-    //            as400_ = new SecureAS400(as400_);
-    //            ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, xpwDeconfuse(serialKeyRingPWBytes_));
-    //        }
-    //        catch (PropertyVetoException pe)
-    //        { /* will never happen */
-    //        }
-    //    }
-    //}
     
     //@PDA
     /**
@@ -3865,15 +3710,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 setSendBufferSize(Integer.parseInt(propertyValue));
             else if (propIndex == JDProperties.PROMPT)
                 setPrompt(propertyValue.equals(TRUE_) ? true : false);
-            else if (propIndex == JDProperties.KEY_RING_NAME){
-                //at this time, decided to not allow this due to security and fact that there is no setKeyRingName() method
-                if (JDTrace.isTraceOn())
-                    JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCDataSource constructor");  
-            } else if (propIndex == JDProperties.KEY_RING_PASSWORD){
-                //at this time, decided to not allow this due to security and fact that there is no setKeyRingPassword() method
-                if (JDTrace.isTraceOn())
-                    JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCDataSource constructor");  
-            } else if (propIndex != -1)
+            else if (propIndex != -1)
             {
                 properties_.setString(propIndex, propertyValue);
             }
@@ -3994,8 +3831,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         Boolean oldValue = new Boolean(isSecure());
         Boolean newValue = new Boolean(secure);
 
-        //Do not allow user to change to not secure if they constructed the data source with 
-        //a keyring.
+        //Do not allow user to change to not secure if already secure
         if (!secure && isSecure_)                //@C2A
         {                                        //@C2A
             throw new ExtendedIllegalStateException("secure", 
@@ -5514,7 +5350,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (!savePasswordWhenSerialized_)                        //@J3a
         {                                                        //@J3a
             serialPWBytes_ = null;                                //@J3a
-            serialKeyRingPWBytes_ = null;                         //@J3a
         }                                                        //@J3a
 
         // Serialize the object.

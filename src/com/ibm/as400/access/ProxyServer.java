@@ -111,32 +111,8 @@ Specifies the port to use for accepting connections from clients.
 This option may be abbreviated <code>-po</code>.  The default port is 3470.
 </dd>
 
-<dt><b><code>-securePort </b></code><var>securePort</var></dt>
-<dd>
-Specifies the port to use for accepting Secure Sockets Layer (SSL)
-connections from clients.  This option may be abbreviated <code>-sp</code>.
-The proxy server will only accept SSL connections
-when the com.ibm.sslight package is in the classpath.
-The default port is 3471.
-</dd>
 
-<dt><b><code>-keyringName </b></code><var>keyringName</var></dt>
-<dd>
-Specifies the keyring to use for Secure Sockets Layer (SSL)
-communications from clients.  This option may be abbreviated <code>-kn</code>.
-The keyring specified by this option must be in the classpath for SSL
-communications to work properly between the proxy server and client.
-If the com.ibm.sslight package is not the classpath, this option will
-be ignored.
-</dd>
 
-<dt><b><code>-keyringPassword </b></code><var>keyringPassword</var></dt>
-<dd>
-Specifies the password to the keyring.  This option may be
-abbreviated <code>-kp</code>.  This option msut be used in conjunction
-with the -keyringName option.  If the com.ibm.sslight package is not the
-classpath, this option will be ignored.
-</dd>
 
 <dt><b><code>-verbose</b></code> [true|false]</dt>
 <dd>
@@ -189,8 +165,6 @@ public class ProxyServer
     private PSLoadBalancer                 loadBalancer_;
     private int                                     port_;
     private int                                     securePort_;        //$B1C
-    private String                                  keyringName_;       //$B1A
-    private String                                  keyringPwd_;        //$B1A
     private Vector                                  threadGroup_;
 
 
@@ -212,8 +186,6 @@ Constructs a ProxyServer object.
     {
         port_                   = ProxyConstants.PORT_NUMBER;
         securePort_             = ProxyConstants.SECURE_PORT_NUMBER;       //$B1C
-        keyringName_            = null;                                    //$B1A
-        keyringPwd_             = null;                                    //$B1A
         threadGroup_            = null;
 
         load_                   = new PSLoad ();
@@ -273,7 +245,7 @@ SSL connections from clients.
 **/
     public String getKeyring ()           //$B1A
     {
-       return keyringName_;
+        return null; 
     }
 
 
@@ -285,7 +257,8 @@ Returns the password to the proxy server keyring file.
 **/
     String getKeyringPassword ()          //$B1A
     {
-       return keyringPwd_;
+       return null; 
+       
     }
 
 
@@ -429,39 +402,7 @@ accordingly.
             if (securePortOptionValue.length() > 0)                                                     //$B1C
                 setSecurePort (Integer.parseInt (securePortOptionValue));                               //$B1C
 
-        String keyringNameOptionValue = cla.getOptionValue ("-keyringName");                            //$B1A
-        String keyringPwdOptionValue = cla.getOptionValue ("-keyringPassword");                         //$B1A
-        try                                                                                             //$B1A
-        {                                                                                               //$B1A
-           // Try to load the SSLight classes.  If they are not found then we do not need to            //$B1A
-           // check for the keyring command line parms.                                                 //$B1A
-                                                                                                        //$B1A
-           Class.forName("com.ibm.sslight.SSLContext");                                                 //$B1A
-           if (keyringNameOptionValue != null && keyringPwdOptionValue != null)                         //$B1A
-           {                                                                                            //$B1A
-              if (keyringNameOptionValue.length() > 0 && keyringPwdOptionValue.length() > 0)            //$B1A
-              {                                                                                         //$B1A
-                 setKeyringName (keyringNameOptionValue);                                               //$B1A
-                 setKeyringPassword (keyringPwdOptionValue);                                            //$B1A
-              }                                                                                         //$B1A
-              else                                                                                      //$B1A
-              {                                                                                         //$B1A
-                 Verbose.forcePrintln ("\n" +                                                           //$B1A
-                                       ResourceBundleLoader.getText("PROXY_SERVER_NO_KEYRING") +        //$B1A
-                                       "\n");                                                           //$B1A
-              }                                                                                         //$B1A
-           }                                                                                            //$B1A
-           else                                                                                         //$B1A
-           {                                                                                            //$B1A
-              Verbose.forcePrintln ("\n" +                                                              //$B1A
-                                    ResourceBundleLoader.getText("PROXY_SERVER_KEYRING_EXPLAIN") +      //$B1A
-                                    "\n");                                                              //$B1A
-           }                                                                                            //$B1A
-        }                                                                                               //$B1A
-        catch (ClassNotFoundException e)                                                                //$B1A
-        { /* No need to parse the keyring options since the SSLight classes are not in the CLASSPATH. */ //$B1A
-        }                                                                                               //$B1A
-
+        // Removed sslight support 
 
         // Extra options.
         Enumeration list = cla.getExtraOptions ();
@@ -532,12 +473,8 @@ server is not running.
 **/
     public void setKeyringName(String keyringName)              //$B1A
     {
-       if (keyringName == null)
-          throw new NullPointerException ("keyringName");
-       if (keyringName.length() == 0)
-          throw new ExtendedIllegalArgumentException ("keyringName", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-
-       keyringName_ = keyringName;
+          throw new ExtendedIllegalArgumentException ("keyringName", 
+              ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
 
@@ -551,12 +488,8 @@ server is not running.
 **/
     public void setKeyringPassword(String keyringPassword)      //$B1A
     {
-       if (keyringPassword == null)
-          throw new NullPointerException ("keyringPassword");
-       if (keyringPassword.length() == 0)
           throw new ExtendedIllegalArgumentException ("keyringPassword", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
-       keyringPwd_ = keyringPassword;
     }
 
 
@@ -635,12 +568,9 @@ be set only if the proxy server is not running.
 
 /**
 Sets the port to use for accepting Secure Sockets
-Layer (SSL) connections from clients.  The default
-is 3471. Specify 0 to indicate that any free port
-can be used.  The proxy server will only accept SSL
-connections when the com.ibm.sslight package is in
-the classpath.   The secure port number can be set
-only if the proxy server is not running.
+Layer (SSL) connections from clients.  
+Using SSL with the proxy is no longer supported
+since com.ibm.sslight is no long supported. 
 
 @param securePort The port to use for accepting Secure
             Sockets Layer (SSL) connections from
@@ -648,12 +578,8 @@ only if the proxy server is not running.
 **/
     public void setSecurePort (int securePort)                                             //$B1C
     {
-        if (isStarted ())
-            throw new ExtendedIllegalStateException ("port", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        if ((securePort < 0) || (securePort > 65535))
-            throw new ExtendedIllegalArgumentException ("port", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-
-        securePort_ = securePort;
+        throw new ExtendedIllegalArgumentException ("setSecurePort", 
+            ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
 
@@ -725,98 +651,7 @@ for this proxy server.
             errors_.println (e.getMessage ());
         }
 
-        // Check to see if the sslight classes are in the classpath.
-        // If so, we can handle SSL, otherwise we can not.
-        //
-        // Note that we do not need to send a configure request in
-        // this case, since the server will already be reconfigured
-        // using the non-secure socket (and it is the same server,
-        // just listenening to 2 ports, not 2 servers).                    //$B1C
-        try
-        {
-            Class.forName ("com.ibm.sslight.SSLContext");
-
-            // The SSL Proxy port will only be started if the keyringName and keyringPwd are                       //$B1A
-            // correctly specified.  If either command line option is bad, the Proxy Server
-            // will not do SSL, but will continue to handle regular Proxy communications.
-            if (keyringName_ != null && keyringPwd_ != null)                                                       //$B1A
-            {
-               // Since SSLight is no longer support, access this class (in include tree) via reflection
-               // int/String/String
-               Class classPSSecureServerSocketContainer = Class.forName("com.ibm.as400.access.PSSecureServerSocketContainer");
-               Class[] parameterTypes = new Class[3]; 
-               parameterTypes[0] = Integer.TYPE; 
-               parameterTypes[1] = "".getClass();  
-               parameterTypes[2] = "".getClass();  
-               Constructor constructor = classPSSecureServerSocketContainer.getConstructor(parameterTypes);
-               Object[] args = new Object[3]; 
-               args[0] = new Integer(securePort_); 
-               args[1] = keyringName_;
-               args[2] = keyringPwd_; 
-         
-               Object serverSocket = constructor.newInstance(args); 
-               try                                                                                                 //$B1A
-               {
-            	  parameterTypes = new Class[0]; 
-            	  Method getLocalPortMethod = classPSSecureServerSocketContainer.getMethod("getLocalPort", parameterTypes);
-            	  args = new Object[0]; 
-                  securePort_ = ((Integer)getLocalPortMethod.invoke(serverSocket, args)).intValue(); 
-                  PSController controller = new PSController (threadGroup_,
-                                                              this,
-                                                              load_,
-                                                              loadBalancer_,
-                                                              configuration_,
-                                                              (PSServerSocketContainerAdapter) serverSocket);
-
-                  controller.start ();
-                  threadGroup_.addElement (controller);
-                  Verbose.println (ResourceBundleLoader.getText ("PROXY_SERVER_LISTENING", serverSocket, Integer.toString (securePort_)));
-               }
-               catch (NullPointerException e)                                                                      //$B1A
-               {                                                                                                   //$B1A
-                  // If the proxy server failed to load the proxy keyring, then we don't                           //$B1A
-                  // want to display a message saying the secure proxy server was started.  Instead display        //$B1A
-                  // a message saying it didn't start and the details can be seeing by turning ERROR tracing on.   //$B1A
-                  Verbose.println (ResourceBundleLoader.getText ("PROXY_SERVER_LISTENING",                         //$B1A
-                                                                 "Secure proxy server NOT",                        //$B1A
-                                                                 Integer.toString (securePort_)));                 //$B1A
-               }
-            }
-        }
-        catch (NoSuchMethodException e) {
-            if (Trace.isTraceDiagnosticOn ())
-                Trace.log (Trace.DIAGNOSTIC, "NoSuchMethodException using SSLight classes SSL support is not enabled.");
-            errors_.println (e.getMessage ());
-        	
-        }
-        catch (InvocationTargetException e ) {
-            if (Trace.isTraceDiagnosticOn ())
-            Trace.log (Trace.DIAGNOSTIC, "InvocationTargetException using SSLight classes SSL support is not enabled.");
-            errors_.println (e.getMessage ());
-            Throwable e2 = e.getCause();
-            if (e2 != null) { 
-               errors_.println (e2.getMessage ());
-            }
-        }
-        catch (InstantiationException e) {
-            if (Trace.isTraceDiagnosticOn ())
-                Trace.log (Trace.DIAGNOSTIC, "InstantiationException using SSLight classes SSL support is not enabled.");
-            errors_.println (e.getMessage ());
-       	
-        }
-        catch (ClassNotFoundException e)
-        {
-            if (Trace.isTraceDiagnosticOn ())
-                Trace.log (Trace.DIAGNOSTIC, "SSLight classes are not in the classpath, SSL support is not enabled.");
-        } catch (IllegalArgumentException e) {
-            if (Trace.isTraceDiagnosticOn ())
-                Trace.log (Trace.DIAGNOSTIC, "IllegalArgumentException using SSLight classes SSL support is not enabled.");
-            errors_.println (e.getMessage ());
-		} catch (IllegalAccessException e) {
-            if (Trace.isTraceDiagnosticOn ())
-                Trace.log (Trace.DIAGNOSTIC, "IllegalAccessException using SSLight classes SSL support is not enabled.");
-            errors_.println (e.getMessage ());
-		}
+        // Remove SSLIGHT support 
 
     }
 

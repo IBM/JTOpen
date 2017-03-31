@@ -957,8 +957,6 @@ endif */
 		String password   = jdProperties.getString (JDProperties.PASSWORD);
 		String prompt     = jdProperties.getString (JDProperties.PROMPT);	// @B8C
 		boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
-		String keyRingName     = jdProperties.getString (JDProperties.KEY_RING_NAME);  //@B9A
-		String keyRingPassword = jdProperties.getString (JDProperties.KEY_RING_PASSWORD); //@B9A
                 boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
 
         //@pw1 Decided to leave connections via AS400() as-is and just implement to mimic Native JDBC
@@ -1080,16 +1078,6 @@ endif */
 				as400 = new SecureAS400 (serverName, userName);
 			else
 				as400 = new SecureAS400 (serverName, userName, password);
-			if (keyRingName != null && keyRingPassword != null && !keyRingName.equals("")) //@B9A	@C1C
-			{   
-				try
-				{															  //@B9A
-					((SecureAS400)as400).setKeyRingName(keyRingName, keyRingPassword); //@B9A
-				}									  //@B9A
-				catch (PropertyVetoException pve)					  //@B9A
-				{ /*Will never happen*/
-				}						   //@B9A
-			}																  //@B9A
 		}
 		else
 		{
