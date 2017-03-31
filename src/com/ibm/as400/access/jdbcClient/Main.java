@@ -305,6 +305,7 @@ public class Main implements Runnable {
        addVariable("CON", connection_);
     } catch (SQLException ex ) {
       System.out.println("Warning:  Unable to connect to "+url_+" using "+userid_);
+      ex.printStackTrace(System.out); 
       System.out.println("CON is not defined"); 
       connection_ = null; 
     }
