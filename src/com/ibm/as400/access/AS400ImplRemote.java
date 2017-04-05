@@ -262,7 +262,27 @@ class AS400ImplRemote implements AS400Impl
 
         // Decode passwords and discard seeds.
         char[] oldPassword = BinaryConverter.byteArrayToCharArray(CredentialVault.decode(proxySeed_, remoteSeed_, oldBytes));	// @mds
+        //@U1A START
+        if (oldPassword.length > 0 && Character.isDigit(oldPassword[0]))
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+          char[] passwordWithQ = new char[oldPassword.length + 1];
+          passwordWithQ[0] = 'Q';
+          System.arraycopy(oldPassword, 0, passwordWithQ, 1, oldPassword.length);
+          oldPassword = passwordWithQ;
+        }
+        //@U1A END
         char[] newPassword = BinaryConverter.byteArrayToCharArray(CredentialVault.decode(proxySeed_, remoteSeed_, newBytes));	// @mds
+        //@U1A START
+        if (newPassword.length > 0 && Character.isDigit(newPassword[0]))
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+          char[] passwordWithQ = new char[newPassword.length + 1];
+          passwordWithQ[0] = 'Q';
+          System.arraycopy(newPassword, 0, passwordWithQ, 1, newPassword.length);
+          newPassword = passwordWithQ;
+        }
+        //@U1A END
         proxySeed_ = null;
         remoteSeed_ = null;
 
