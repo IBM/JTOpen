@@ -1852,7 +1852,17 @@ implements ResultSet
             {
                 // @B3D afterLast ();
                 // @E3D rowCache_.afterLast ();         // @B3a
-                rowCache_.absolute(maxRows_ + 1);  // @E3a
+                // If the position encounters an error, just ignore it.
+                // This may happen in the rare case where the number of 
+                // rows is the same as the maxRows setting.
+            	// @U3C
+                try { 
+                  rowCache_.absolute(maxRows_ + 1);  // @E3a
+                } catch (Exception e) { 
+                  if (JDTrace.isTraceOn()) {
+                    JDTrace.logException(this, "Warning: Exception encountered on going to last  ", e); 
+                  }
+                }
                 positionFromFirst_ = -1;           // @B3A
                 positionFromLast_ = 0;             // @B3A
                 positionValid_ = false;            // @B3A

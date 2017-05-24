@@ -206,7 +206,8 @@ package com.ibm.as400.access;
 //@T3    20170331  Misc:   Prepare for Java 9 by removing obsolete classes
 //@U1    20170405  AS400 changePassword prepend 'Q' for numeric password
 //@U2    20170405  Remove UserQueue class which is not finished.
-// NOTE:  When adding a line above, adjust the "String version" with the flag value.
+//@U3    20170524  JDBC: Fix maxrows result set setting.  
+ // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
 public interface Copyright
@@ -214,7 +215,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                              built=20170309 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.3, codebase 5770-SS1 V7R3M0.00 built=20170405 @U2";  
+    public static String version   = "Open Source Software, JTOpen 9.3, codebase 5770-SS1 V7R3M0.00 built=20170524 @U3";  
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
