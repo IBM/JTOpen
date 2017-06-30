@@ -53,6 +53,16 @@ class DDMSECCHKReplyDataStream extends DDMDataStream
         return true;
     }
 
+    /* Returns the error code from the server  @U4A*/ 
+  int getErrorCode() { 
+      if ((data_ != null) &&
+          (data_.length>20)) {
+        return 0xFF & data_[20];
+        
+      } else { 
+        return -1; 
+      }
+  }
   void read(InputStream in) throws IOException
   {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving DDM SECCHK reply...");

@@ -125,6 +125,12 @@ public class AS400 implements Serializable
      **/
     public static final int AUTHENTICATION_SCHEME_IDENTITY_TOKEN = 3;
 
+    /** 
+     * Constant representing the DDM_EUSERIDPWD scheme  @U4A
+     */
+    public static final int AUTHENTICATION_SCHEME_DDM_EUSERIDPWD = 4;
+    
+    
     /**
      Constant indicating that the JGSS framework must be used when no password or authentication token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
      **/

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 1997-2017 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,10 @@
 package com.ibm.as400.access;
 
 import java.io.*;
+import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -21,7 +25,7 @@ import java.util.*;
  * the DDM and DB datastream classes.  In this way, a JarMaker-ed jt400.jar file
  * can effectively operate its AS400 object without needing the DDM or JDBC classes.
 **/
-class ClassDecoupler
+public class ClassDecoupler
 {
 // For future use.
 //    static
@@ -33,6 +37,26 @@ class ClassDecoupler
 //        AS400Server.addReplyStream(new DDMASPReplyDataStream(), AS400.RECORDACCESS);
 //    }
 
+   /*@U4A  force the use of ENCUSRPWD or AES using JVM properties */ 
+  public static boolean forceENCUSRPWD  = false;
+  public static boolean forceAES = false; 
+  static {
+    String property = System.getProperty("com.ibm.as400.access.DDMPWDRQD");
+    if (property != null) { 
+      property = property.toUpperCase(); 
+      if (property.equals("ENCUSRPWD")) {
+        forceENCUSRPWD  = true; 
+      }
+    }
+    property = System.getProperty("com.ibm.as400.access.DDMENCALC"); 
+    if (property != null) { 
+      property = property.toUpperCase(); 
+      if (property.equals("AES")) {
+        forceAES = true; 
+      }
+    }
+  }
+  
   static void freeDBReplyStream(DataStream ds)
   {
     if (ds instanceof DBReplyRequestedDS)
@@ -43,6 +67,8 @@ class ClassDecoupler
 
   static Object[] connectDDMPhase1(OutputStream outStream, InputStream inStream, boolean passwordType_, int byteType_, int connectionID) throws ServerStartupException, IOException
   {
+    KeyPair keyPair = null; 
+    String encryptUserId = null; 
     // Exchange server start up/security information with DDM server.
     // Exchange attributes.
     DDMEXCSATRequestDataStream EXCSATRequest = new DDMEXCSATRequestDataStream();
@@ -59,8 +85,36 @@ class ClassDecoupler
     }
     byte[] jobString = EXCSATReply.getEXTNAM();
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM EXCSAT successful.");
-
-    DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, byteType_, null); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+    int requestByteType; 
+    if (forceENCUSRPWD) {  /*@U4A*/ 
+      requestByteType = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD;
+      encryptUserId =  "TRUE"; 
+      try {
+        if (!forceAES) {
+          try {
+             keyPair = DDMTerm.getDESKeyPair();
+          } catch (InvalidAlgorithmParameterException iape) {
+            // JDK 1.8 does not support 256 bit keys 
+            // Upgrade to AES
+            if (Trace.traceOn_) {
+              Trace.log(Trace.DIAGNOSTIC, "ClassDecoupler: Upgrading to AES due to InvalidAlgorithmParameterException ", iape);
+            }
+            forceAES=true; 
+            keyPair = DDMTerm.getAESKeyPair();
+          }
+        } else {
+          keyPair = DDMTerm.getAESKeyPair();
+        }
+      } catch (GeneralSecurityException e) {
+        ServerStartupException serverStartupException = new ServerStartupException(
+            ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+        serverStartupException.initCause(e);
+        throw serverStartupException; 
+      }
+    } else {
+      requestByteType = byteType_; 
+    }
+    DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
     if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
     ACCSECReq.write(outStream);
 
@@ -68,24 +122,96 @@ class ClassDecoupler
     if (Trace.traceOn_) ACCSECRep.setConnectionID(connectionID);
     ACCSECRep.read(inStream);
 
-    if (!ACCSECRep.checkReply(byteType_))
+    if  ( !ACCSECRep.checkReply(requestByteType) ) 
     {
+      // Check to see if *ENCUSRPWD supported, if so then renegotiate the setting @U4A 
+      requestByteType = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD; 
+      if (  ACCSECRep.checkReplyForEUSRIDPWD(byteType_)) { 
+        try { 
+            if (!forceAES) { 
+              try { 
+                 keyPair = DDMTerm.getDESKeyPair(); 
+              } catch (InvalidAlgorithmParameterException iape) {
+                 // JDK 1.8 does not support 256 bit keys 
+                 // Upgrade to AES
+                if (Trace.traceOn_) {
+                  Trace.log(Trace.DIAGNOSTIC, "ClassDecoupler: Upgrading to AES due to InvalidAlgorithmParameterException ", iape);
+                }
+                 forceAES=true; 
+                 keyPair = DDMTerm.getAESKeyPair();
+              }
+
+            } else {
+              keyPair = DDMTerm.getAESKeyPair(); 
+            }
+        } catch (GeneralSecurityException e) {
+          ServerStartupException serverStartupException = new ServerStartupException(
+              ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+          serverStartupException.initCause(e);
+          throw serverStartupException; 
+        }
+
+        ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+        if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
+        ACCSECReq.write(outStream);
+
+        ACCSECRep = new DDMACCSECReplyDataStream();
+        if (Trace.traceOn_) ACCSECRep.setConnectionID(connectionID);
+        ACCSECRep.read(inStream);
+        // Check to see if we need to upgrade to AES
+        if (ACCSECRep.aesUpgrade()) {
+          try { 
+            if (Trace.traceOn_) {
+              Trace.log(Trace.DIAGNOSTIC, "ClassDecoupler: Upgrading to AES due to server negotiation");
+            }
+              keyPair = DDMTerm.getAESKeyPair();
+              forceAES = true; 
+          } catch (GeneralSecurityException e) {
+            ServerStartupException serverStartupException = new ServerStartupException(
+                ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+            serverStartupException.initCause(e);
+            throw serverStartupException; 
+          }
+          
+          ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+          if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
+          ACCSECReq.write(outStream);
+
+          ACCSECRep = new DDMACCSECReplyDataStream();
+          if (Trace.traceOn_) ACCSECRep.setConnectionID(connectionID);
+          ACCSECRep.read(inStream);
+          
+          
+        }
+        
+        if (!ACCSECRep.checkReplyForEUSRIDPWD(byteType_)) {
+          throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+        }
+        encryptUserId =  "TRUE"; 
+      } else {      
         throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+      }
+        
+        
     }
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM ACCSEC successful.");
 
     // Seeds for substitute password generation.
     byte[] clientSeed = null;
     byte[] serverSeed = null;
-    if (byteType_ == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+    if (encryptUserId != null) { 
+      serverSeed = ACCSECRep.getServerSeed();
+    } else if ((byteType_ == AS400.AUTHENTICATION_SCHEME_PASSWORD) ||
+               (requestByteType == AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD))
     {
         clientSeed = ACCSECReq.getClientSeed();
         serverSeed = ACCSECRep.getServerSeed();
     }
-    return new Object[] { clientSeed, serverSeed, jobString };
+    return new Object[] { clientSeed, serverSeed, jobString, encryptUserId, keyPair };
   }
 
-  static void connectDDMPhase2(OutputStream outStream, InputStream inStream, byte[] userIDbytes, byte[] ddmSubstitutePassword, byte[] iaspBytes, int byteType_, String ddmRDB_, String systemName_, int connectionID) throws ServerStartupException, IOException
+  /*@U4C*/ 
+  static void connectDDMPhase2(OutputStream outStream, InputStream inStream, byte[] userIDbytes, byte[] ddmSubstitutePassword, byte[] iaspBytes, int byteType_, String ddmRDB_, String systemName_, int connectionID) throws ServerStartupException, IOException, AS400SecurityException
   {
     // If the ddmSubstitutePassword length is 8, then we are using DES encryption.  If its length is 20, then we are using SHA encryption.
     // Build the SECCHK request; we build the request here so that we are not passing the password around anymore than we have to.
@@ -100,9 +226,36 @@ class ClassDecoupler
     SECCHKRep.read(inStream);
 
     // Validate the reply.
-    if (!SECCHKRep.checkReply())
-    {
-        throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+    if (!SECCHKRep.checkReply()) {
+      int rc = SECCHKRep.getErrorCode();
+      /* return the error found @U4A*/ 
+      switch (rc) {
+      case DDMTerm.PASSWORD_EXPIRED:
+        throw new AS400SecurityException(
+            AS400SecurityException.PASSWORD_EXPIRED);
+      case DDMTerm.PASSWORD_INVALID:
+        throw new AS400SecurityException(
+            AS400SecurityException.PASSWORD_INCORRECT);
+      case DDMTerm.PASSWORD_MISSING:
+        throw new AS400SecurityException(
+            AS400SecurityException.PASSWORD_NOT_SET);
+      case DDMTerm.USERID_INVALID:
+        throw new AS400SecurityException(
+            AS400SecurityException.USERID_UNKNOWN);
+      case DDMTerm.USERID_MISSING:
+        throw new AS400SecurityException(
+            AS400SecurityException.USERID_NOT_SET);
+      case DDMTerm.USERID_REVOKED:
+        throw new AS400SecurityException(
+            AS400SecurityException.USERID_DISABLE);
+      case DDMTerm.NEWPASSWORD_INVALID:
+        throw new AS400SecurityException(
+            AS400SecurityException.PASSWORD_NEW_DISALLOWED);
+
+      default:
+        throw new ServerStartupException(
+            ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+      }
     }
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM SECCHK successful.");
     if (iaspBytes != null)

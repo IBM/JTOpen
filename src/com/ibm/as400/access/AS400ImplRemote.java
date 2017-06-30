@@ -23,18 +23,29 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.GregorianCalendar;
 import java.util.Vector;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 // This is the functional implementation of the AS400Impl interface.
 class AS400ImplRemote implements AS400Impl
 {
-    private static final boolean PASSWORD_TRACE = false;
+    private static boolean PASSWORD_TRACE = false;
     private static final boolean DEBUG = false;
     private static final int UNINITIALIZED = -1;//@S5A
 
@@ -1239,18 +1250,43 @@ class AS400ImplRemote implements AS400Impl
             InputStream inStream = socketContainer.getInputStream();
             OutputStream outStream = socketContainer.getOutputStream();
             byte[] jobBytes = null;
-
+            int byteType = credVault_.getType();
             if (service == AS400.RECORDACCESS)
             {
-                Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, credVault_.getType(), connectionID);
+                Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, byteType, connectionID);
                 byte[] clientSeed = (byte[])returnVals[0];
                 byte[] serverSeed = (byte[])returnVals[1];
                 jobBytes          = (byte[])returnVals[2];
+                /*@U4A*/ 
+                byte[] sharedKeyBytes = null; 
+                boolean encryptUserId = (returnVals[3] != null ); 
+                KeyPair keyPair = (KeyPair) returnVals[4]; 
 
-                byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+                if (keyPair != null) {
+                  try { 
+                     sharedKeyBytes=DDMTerm.getSharedKey(keyPair, serverSeed);
+                  } catch (GeneralSecurityException e) {
+                    ServerStartupException serverStartupException = new ServerStartupException(
+                        ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+                    serverStartupException.initCause(e);
+                    throw serverStartupException; 
+                  }
 
-                // Get the substitute password.
-                byte[] ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
+                }
+                byte[] userIDbytes;
+                byte[] ddmSubstitutePassword;
+                if (encryptUserId) { 
+                   byteType = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD; 
+                    
+
+                   userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed) ;
+                   ddmSubstitutePassword = getEncryptedPassword(sharedKeyBytes, serverSeed); 
+                } else { 
+                    userIDbytes = SignonConverter.stringToByteArray(userId_);
+                    // Get the substitute password.
+                    ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
+                }
+
 
                 if (PASSWORD_TRACE)
                 {
@@ -1267,7 +1303,8 @@ class AS400ImplRemote implements AS400Impl
                   AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
                   iaspBytes = text18.toBytes(ddmRDB_);
                 }
-                ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes, credVault_.getType(), ddmRDB_, systemName_, connectionID);
+                ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes, 
+                    byteType, ddmRDB_, systemName_, connectionID);
             }
             else  // service != RECORDACCESS
             {
@@ -1454,7 +1491,7 @@ class AS400ImplRemote implements AS400Impl
                 Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
             }
 
-            if (passwordType_ == false)
+            if ((passwordType_ == false) )
             {
                 // Do DES encryption.
 
@@ -1527,6 +1564,386 @@ class AS400ImplRemote implements AS400Impl
         return encryptedPassword;
     }
 
+    
+    /*@U4A*/ 
+    private byte[] getAESEncryptionKey(byte[] sharedPrivateKey) throws NoSuchAlgorithmException, AS400SecurityException { 
+      
+      // Verify that the JVM can support this. 
+      // Check the key length.  This method is only is in JDK 1.5 so we use reflection to access it. 
+      try { 
+      Class cipherClass = Class.forName("javax.crypto.Cipher");
+      Class argTypes[] = new Class[1]; 
+      argTypes[0] = Class.forName("java.lang.String"); 
+      Method method = cipherClass.getMethod("getMaxAllowedKeyLength", argTypes); 
+      Object args[] = new Object[1]; 
+      args[0] = "AES"; 
+      Integer outInteger = (Integer) method.invoke(null, args); 
+      int keyLength = outInteger.intValue(); 
+      if (keyLength < 256) { 
+        // If the key length is too small, notify the user
+        String message = "THE MAX AES KEY LENGTH IS "+keyLength+" AND MUST BE >= 256.  UPDATE THE JVM ("+
+            System.getProperty("java.vm.info")+
+            ") AT "+System.getProperty("java.home")+" WITH JCE";
+        throw new AS400SecurityException(AS400SecurityException.UNKNOWN, new Exception(message));
+      }
+      } catch (Exception e) { 
+        throw new AS400SecurityException(AS400SecurityException.UNKNOWN, e);
+        
+      }
+      
+    // 
+    // The 256 bit encryption key is derived in the following fashion.
+    // DRDA AES encryption currently supports the 256-bit encryption key size. 
+    // The 256-bit encryption key is derived from the 512-bit Diffie-Hellman shared private key as follows:
+    //  1. Separate the 512-bit Diffie-Hellman shared private key (Z) into 2 equal length, 256-bit (32 byte), bit
+    //     strings (Z1 and Z2).
+    //  2. Using the SHA-1 hash function, reduce the size of Z1 and Z2 to 2 160-bit (20-byte) bit
+    //     strings, S1 and S2.
+    //  3. Compute T = (last 8 bytes from S1) Exclusive OR (first 8 bytes from S2).
+    //  4. Set DerivedAES256Key = First 12 bytes of S1 || T || Last 12 bytes of S2.
+    // 
+
+    byte[] Z1 = new byte[32]; 
+    byte[] Z2 = new byte[32]; 
+    System.arraycopy(sharedPrivateKey, 0, Z1, 0, 32); 
+    System.arraycopy(sharedPrivateKey, 32, Z2, 0, 32); 
+    
+    MessageDigest md = MessageDigest.getInstance("SHA-1");
+    md.reset(); 
+    byte[] s1 = md.digest(Z1); 
+    md.reset(); 
+    byte[] s2 = md.digest(Z2); 
+    
+    byte[] T = new byte[8]; 
+    for (int i = 0; i < 8; i++) {
+      T[i] = (byte) (s1[12+i]  ^  s2[i]); 
+    }
+        
+    byte[] encryptionKey = new byte[32];
+    
+   
+    System.arraycopy(s1, 0, encryptionKey,  0, 12);
+    System.arraycopy(T,  0, encryptionKey, 12,  8);
+    System.arraycopy(s2, 8, encryptionKey, 20, 12); 
+
+    
+    
+    return encryptionKey; 
+    }
+
+    
+    // Get the encrypted userid with the seeds folded in.
+    private byte[] getEncryptedUserid(byte[] sharedPrivateKey, byte[] serverSeed) throws AS400SecurityException, IOException
+    {
+
+        byte[] encryptedUserid = null;
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted userid.");
+
+        if (credVault_.isEmpty())
+        {
+            if (!mustUseSuppliedProfile_ &&
+                AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
+            {
+                 // TODO:Think about what to do in this case
+                // encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed, userId_);
+                Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
+                // For now throw exception 
+                throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+            }
+            else
+            {
+                Trace.log(Trace.ERROR, "Password is null.");
+                throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+            }
+        }
+        else
+        {
+            byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
+            if (PASSWORD_TRACE)
+            {
+                Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
+                Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
+                Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey: ", sharedPrivateKey);
+                Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
+            }
+
+            if (userIdEbcdic.length > 10)
+            {
+                Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid:", userIdEbcdic.length);
+                throw new AS400SecurityException(AS400SecurityException.USERID_LENGTH_NOT_VALID);
+            }
+            try { 
+            if (sharedPrivateKey.length == 32 ) {
+                // Do DES encryption
+              
+                // The 56 bit encryption key is derived from the middle 8 bytes of the 32 byte shared secret key
+                // 
+                byte[] encryptionKey = new byte[8]; 
+                System.arraycopy(sharedPrivateKey, 12, encryptionKey, 0, 8); 
+                Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey: ", encryptionKey);
+             
+                boolean parityAdjusted = DESKeySpec.isParityAdjusted(encryptionKey, 0 );
+                Trace.log(Trace.DIAGNOSTIC, "  isParityAdjusted: ", parityAdjusted);
+
+                /*
+                if (!parityAdjusted) { 
+                  // Fix the parity to see if it makes a difference. 
+                  for (int i = 0; i < encryptionKey.length; i++) {
+                    encryptionKey[i] = fixParity(encryptionKey[i]); 
+                  }
+                  parityAdjusted = DESKeySpec.isParityAdjusted(encryptionKey, 0 );
+                }
+*/ 
+                
+                Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey(parity): ", encryptionKey);
+
+                // Cipher c = Cipher.getInstance("DES");
+                // Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
+                Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
+                // Cipher c = Cipher.getInstance("DES/ECB/NoPadding");
+                // Cipher c = Cipher.getInstance("DES/ECB/PKCS5Padding");
+                
+                DESKeySpec keySpec = new DESKeySpec(encryptionKey);
+             
+                SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+                SecretKey key = keyFactory.generateSecret(keySpec);
+
+                // For DES, the initalization vector is the middle 8 bytes of the 32 byte public key
+                byte[] iv = new byte[8]; 
+                System.arraycopy(serverSeed, 12, iv, 0, 8);
+                c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+
+                Trace.log(Trace.DIAGNOSTIC, "  initalizationVector: ", iv);
+
+                encryptedUserid =c.doFinal(userIdEbcdic); 
+                Trace.log(Trace.DIAGNOSTIC, "  encryptedUserid: ", encryptedUserid);
+              
+            }
+            else
+            {
+                // Do AES encryption.
+              // AES/CBC/NoPadding (128)
+              // AES/CBC/PKCS5Padding (128)
+              // AES/ECB/NoPadding (128)
+
+              Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+              
+              byte[] encryptionKey = getAESEncryptionKey(sharedPrivateKey); 
+              
+              SecretKey key; 
+              SecretKeySpec keySpec = new SecretKeySpec(encryptionKey, "AES");
+              try { 
+                 SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("AES");
+                 key = keyFactory.generateSecret(keySpec);
+              } catch (java.security.NoSuchAlgorithmException nsae) {
+                 // Some JVMs do not have AES as a SecretKeyFactory.
+                 // Just use the keySpec as the secret key
+                 key = keySpec; 
+              }
+              
+              
+              // For AES, the initialization vector is middle 16 bytes of 64 byte server seen
+              byte[] iv = new byte[16]; 
+              System.arraycopy(serverSeed, 24, iv, 0, 16);
+              c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+              encryptedUserid =c.doFinal(userIdEbcdic);
+              
+            }
+            
+        
+        } catch (Exception e) { 
+          e.printStackTrace(); 
+          throw new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID, e );
+          
+        }
+
+        }
+        if (PASSWORD_TRACE)
+        {
+            Trace.log(Trace.DIAGNOSTIC, "Encrypted userid: ", encryptedUserid);
+        }
+
+        return encryptedUserid;
+    }
+
+    /*
+    private byte fixParity(byte b) {
+      byte returnByte = (byte) (b & 0xFE); 
+      int bitCount =0;
+      b = (byte)(b >> 1); 
+      for (int i = 0; i < 7; i++) {
+        if ((b & 0x01) == 1) {
+          bitCount++; 
+        }
+        b = (byte)(b >> 1); 
+      }
+      if ((bitCount % 2) == 0) {
+        returnByte = (byte) (returnByte | 1); 
+      }
+      return returnByte; 
+    }
+    */ 
+    
+    // Get the encrypted password for EUSRIDPWD.
+    private byte[] getEncryptedPassword(byte[] sharedPrivateKey, byte[] serverSeed) throws AS400SecurityException, IOException
+    {
+        int credType = credVault_.getType();
+
+        if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+        {
+            try {
+                return (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
+            }
+            catch (Throwable e) {
+                Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+                //@M4C
+                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE,e);                              
+            }
+        }
+        else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN ||
+                 credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN)
+        {
+          return credVault_.getClearCredential();
+        }
+
+        // If we got this far:
+        // credType is AS400.AUTHENTICATION_SCHEME_PASSWORD
+
+        byte[] encryptedPassword = null;
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted password.");
+
+        if (credVault_.isEmpty())
+        {
+                Trace.log(Trace.ERROR, "Password is null.");
+                throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+        }
+        else
+        {
+            byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
+            char[] password = BinaryConverter.byteArrayToCharArray(credVault_.getClearCredential());
+            if (PASSWORD_TRACE)
+            {
+                Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
+                Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
+                Trace.log(Trace.DIAGNOSTIC, "  password untwiddled: '" + new String(password) + "'");
+                Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
+            }
+
+            try { 
+              
+              // Prepend Q to numeric password. A "numeric password" is
+              // a password that starts with a numeric digit.
+              if (password.length > 0 && Character.isDigit(password[0]))
+              {
+//                  boolean isAllNumeric = true;
+//                  for (int i = 0; i < password.length; ++i)
+//                  {
+//                      if (password[i] < '\u0030' || password[i] > '\u0039')
+//                      {
+//                          isAllNumeric = false;
+//                      }
+//                  }
+//                  if (isAllNumeric)
+//                  {
+                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+                      char[] passwordWithQ = new char[password.length + 1];
+                      passwordWithQ[0] = 'Q';
+                      System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+                      password = passwordWithQ;
+//                  }
+              }
+
+              if (password.length > 10)
+              {
+                  Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid:", password.length);
+                  throw new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
+              }
+              byte[] passwordEbcdic = SignonConverter.stringToByteArray(new String(password).toUpperCase());
+              if (PASSWORD_TRACE)
+              {
+                  Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
+              }
+              
+            if (sharedPrivateKey.length == 32 )
+            {
+                // Do DES encryption.
+                    Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
+                    //
+                    // The 56 bit encryption key is derived from the middle 8 bytes of the 32 byte shared secret key
+                    // 
+                    byte[] encryptionKey = new byte[8]; 
+                    System.arraycopy(sharedPrivateKey, 12, encryptionKey, 0, 8); 
+                    Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey: ", encryptionKey);
+
+                    DESKeySpec keySpec = new DESKeySpec(encryptionKey);
+                    SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+                    SecretKey key = keyFactory.generateSecret(keySpec);
+
+
+                    byte[] iv = new byte[8]; 
+                    System.arraycopy(serverSeed, 12, iv, 0, 8);
+                    c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));              
+                    encryptedPassword =c.doFinal(passwordEbcdic); 
+                    
+            }
+            else
+            {
+
+                // Screen out passwords that start with a star.
+                if (password[0] == '*')
+                {
+                    Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                    throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                }
+
+
+                // Do AES encryption.
+
+              Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+              
+              byte[] encryptionKey = getAESEncryptionKey(sharedPrivateKey); 
+              
+              SecretKeySpec keySpec = new SecretKeySpec(encryptionKey, "AES");
+              SecretKey key;
+              try { 
+                SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("AES");
+                key = keyFactory.generateSecret(keySpec);
+              } catch (java.security.NoSuchAlgorithmException nsae) {
+                // Some JVMs do not have AES as a SecretKeyFactory.
+                // Just use the keySpec as the secret key
+                key = keySpec; 
+              }
+              
+              
+              // For AES, the initialization vector is middle 16 bytes of 64 byte server seen
+              byte[] iv = new byte[16]; 
+              System.arraycopy(serverSeed, 24, iv, 0, 16);
+              c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+              encryptedPassword =c.doFinal(passwordEbcdic);
+
+              
+            }
+            } catch (Exception e) { 
+              throw new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID, e );
+              
+            }
+        }
+
+        if (PASSWORD_TRACE)
+        {
+            Trace.log(Trace.DIAGNOSTIC, "Encrypted password: ", encryptedPassword);
+        }
+
+        return encryptedPassword;
+    }
+
+
+    
+    
+    
+    
     // Get port number for service.
     public int getServicePort(String systemName, int service)
     {
@@ -2883,6 +3300,9 @@ class AS400ImplRemote implements AS400Impl
         return encryptedPassword;
     }
 
+
+    
+    
     // void gen_pwd_sbs( byte[] user_id,
     //                   byte[] password_token,
     //                   byte[] password_substitute,

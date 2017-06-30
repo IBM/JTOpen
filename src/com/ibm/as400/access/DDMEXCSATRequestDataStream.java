@@ -152,7 +152,7 @@ class DDMEXCSATRequestDataStream extends DDMDataStream
         offset += 4;
 
         set16bit(DDMTerm.SECMGR, offset);
-        set16bit(1, offset+2);
+        set16bit(9, offset+2);               /* Use level 9 so AES is negotiated  @U4A*/ 
         offset += 4;
 
         set16bit(DDMTerm.SEQFIL, offset);

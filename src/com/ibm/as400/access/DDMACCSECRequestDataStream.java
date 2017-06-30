@@ -15,14 +15,21 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.KeyPair;
+
+import javax.crypto.interfaces.DHPublicKey;
 
 class DDMACCSECRequestDataStream extends DDMDataStream
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    DDMACCSECRequestDataStream(boolean useStrongEncryption, int byteType, byte[] iasp)
+      // keyPair parameter needed to AS400.AUTHENTICATION_SCHEME_DDM_USERIDWD @U4C
+    DDMACCSECRequestDataStream(boolean useStrongEncryption, int byteType, byte[] iasp, KeyPair keyPair, boolean useAES)
     {
-        super(new byte[byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD ? 28 : 16]);
+        
+        super(new byte[(byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD  || byteType == AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD)? 
+                        ((byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? 28 : ((useAES)? 90 : 52 )) : 
+                        16]); /*@U4C*/ 
 
         // Initialize the header:  Don't continue on error, not chained, GDS id = D0, type = RQSDSS, no same request correlation.
         setGDSId((byte)0xD0);
@@ -31,12 +38,17 @@ class DDMACCSECRequestDataStream extends DDMDataStream
         // setHasSameRequestCorrelation(false);
         setType(1);
         // Set total length remaining after header.
-        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD)
-        {
-            set16bit(22, 6);
-        }
-        else
-        {
+        switch (byteType) {
+          case AS400.AUTHENTICATION_SCHEME_PASSWORD:
+            set16bit(22, 6); break;
+          case AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD : /*@U4A*/ 
+            if (useAES) { 
+              set16bit(46+32+6, 6); 
+            } else { 
+              set16bit(46, 6); 
+            } 
+              break;
+          default:             
             set16bit(10, 6);
         }
 
@@ -52,8 +64,40 @@ class DDMACCSECRequestDataStream extends DDMDataStream
             case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
                 set16bit(16, 14);
                 break;
+            case AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD:  /* @U4A*/ 
+              set16bit(DDMTerm.EUSRIDPWD, 14); 
+              // Set the security token
+              if (useAES) {
+                set16bit(0x44, 16); // Set length of this+remaining SECTKN bytes.
+              } else {
+                set16bit(0x24, 16); // Set length of this+remaining SECTKN bytes.
+              }
+              set16bit(DDMTerm.SECTKN, 18); // Set SECTKN code point.
+              // Set the token from the public key
+              int pubKeyOffset = 0;
+              int keysize = 32; 
+              if (useAES) {
+                keysize = 64; 
+              }
+              byte[] publicKey = ((DHPublicKey)keyPair.getPublic()).getY().toByteArray();
+              // Sometimes the public key has a leading 00 or in a rare case could only 31 bytes. 
+              pubKeyOffset = publicKey.length - keysize; 
+              Trace.log(Trace.DIAGNOSTIC, "DMMACCSECRequestDataStream  clientPublicKey:", publicKey); 
+              for (int i = 0; i < keysize; i++) { 
+                if ((pubKeyOffset + i) < 0) { 
+                   data_[20+i] = 0; 
+                } else { 
+                   data_[20+i] = publicKey[pubKeyOffset + i];
+                }
+              }
+              if (useAES) {
+                  set16bit(6, 84);
+                  set16bit(DDMTerm.ENCALC,86);
+                  set16bit(DDMTerm.AES, 88); 
+              }
+              break; 
             default:
-                if (useStrongEncryption)
+              if (useStrongEncryption)
                 {
                     // Use a value of SECMEC=8 for encrypted password.
                     set16bit(8, 14);
@@ -85,7 +129,7 @@ class DDMACCSECRequestDataStream extends DDMDataStream
                 data_[25] = (byte)(low >>> 16);
                 data_[26] = (byte)(low >>> 8);
                 data_[27] = (byte)low;
-        }
+        }        
     }
 
     byte[] getClientSeed()

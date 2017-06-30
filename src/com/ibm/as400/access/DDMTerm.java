@@ -13,6 +13,23 @@
 
 package com.ibm.as400.access;
 
+import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.KeyAgreement;
+import javax.crypto.interfaces.DHPrivateKey;
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.DHParameterSpec;
+import javax.crypto.spec.DHPublicKeySpec;
+
 /**
  *DDM terms.  This class consists of defined constants for the DDM term code points.
 **/
@@ -142,5 +159,223 @@ class DDMTerm
   static final int UOWDSP     = 0x2115; // Unit of work disposition
   static final int USRID      = 0x11A0; // Userid for connecting
   static final int VALNSPRM   = 0x1252; // Parameter value not supported
+  
+  // @U4A  New constants added 
+  static final int ENCALC     = 0x1909; // Encryption algorithm
+  
+  static final int EUSRIDPWD  = 9;  // Encode userid and password 
+  static final int USRSBSPWD =  6;  // User ID with Substitute Password
+  static final int AES       =  2;  // AES encryption
+  
+  // Error codes from SECCHK
+  static final int SECMECHVALUE_NOT_SUPPORTED = 1;
+  static final int DCEINFORMATIONAL_STATUS_ISSUED = 0x02;
+  static final int DCERETRYABLE_ERROR = 0x03;
+  static final int DCENON_RETRYABLE_ERROR = 0x04;
+  static final int GSSAPI_INFORMATIONAL_STATUS_ISSUED = 0x05;
+  static final int GSSAPI_RETRYABLE_ERROR = 0x06;
+  static final int GSSAPI_NON_RETRYABLE_ERROR = 0x07;
+  static final int LOCALSECURITY_SERVICE_INFORMATIONAL_STATUS_ISSUED = 0x08;
+  static final int LOCALSECURITY_SERVICE_RETRYABLE_ERROR= 0x09;
+  static final int LOCALSECURITY_SERVICE_NON_RETRYABLE_ERROR = 0x0A;
+  static final int SECTKN_MISSING_WHEN_IT_IS_REQUIRED_OR_IT_IS_INVALID = 0x0B;
+  static final int PASSWORD_EXPIRED = 0x0E;
+  static final int PASSWORD_INVALID = 0x0F;
+  static final int PASSWORD_MISSING = 0x10;
+  static final int USERID_MISSING = 0x12;
+  static final int USERID_INVALID = 0x13;
+  static final int USERID_REVOKED = 0x14;
+  static final int NEWPASSWORD_INVALID = 0x15;
+  static final int AUTHENTICATION_FAILED_BECAUSE_OF_CONNECTIVITY_RESTRICTIONS_ENFORCED_BY_THE_SECURITY_PLUG_IN = 0x16;
+  static final int INVALID_GSS_API_SERVER_CREDENTIAL = 0x17;
+  static final int GSS_API_SERVER_CREDENTIAL_EXPIRED_ON_THE_DATABASE_SERVER = 0x18;
+  static final int CONTINUE__REQUIRE_MORE_SECURITY_CONTEXT_INFORMATION_FOR_AUTHENTICATION = 0x19;
+  static final int SWITCHUSER_IS_INVALID = 0x1a;
+  static final int THEENCALG_VALUE_IS_NOT_SUPPORTED_BY_THE_SERVER = 0x1b;
+  
+ 
+  // prime for DES's Diffie-Hellman
+  // Note, the first 0x00 is need so when this is used with the 
+  // BigInteger constructor, it does not appear as a negative number
+  static final byte DESprime[] = {
+      (byte) 0x00,
+      (byte) 0xc6, (byte) 0x21, (byte) 0x12, (byte) 0xd7,
+      (byte) 0x3e, (byte) 0xe6, (byte) 0x13, (byte) 0xf0,
+      (byte) 0x94, (byte) 0x7a, (byte) 0xb3, (byte) 0x1f, 
+      (byte) 0x0f, (byte) 0x68, (byte) 0x46, (byte) 0xa1,
+      (byte) 0xbf, (byte) 0xf5, (byte) 0xb3, (byte) 0xa4, 
+      (byte) 0xca, (byte) 0x0d, (byte) 0x60, (byte) 0xbc,
+      (byte) 0x1e, (byte) 0x4c, (byte) 0x7a, (byte) 0x0d, 
+      (byte) 0x8c, (byte) 0x16, (byte) 0xb3, (byte) 0xe3
+  };
+
+  static final byte DESgenerator[] = {
+    (byte) 0x46, (byte) 0x90, (byte) 0xfa, (byte) 0x1f, 
+    (byte) 0x7b, (byte) 0x9e, (byte) 0x1d, (byte) 0x44,
+    (byte) 0x42, (byte) 0xc8, (byte) 0x6c, (byte) 0x91, 
+    (byte) 0x14, (byte) 0x60, (byte) 0x3f, (byte) 0xde,
+    (byte) 0xcf, (byte) 0x07, (byte) 0x1e, (byte) 0xdc, 
+    (byte) 0xec, (byte) 0x5f, (byte) 0x62, (byte) 0x6e,
+    (byte) 0x21, (byte) 0xe2, (byte) 0x56, (byte) 0xae, 
+    (byte) 0xd9, (byte) 0xea, (byte) 0x34, (byte) 0xe4
+  };
+
+  // Prime for AES's Diffie-Hellman
+  // Note: Both begin with 0x00 to allow it to be used
+  // with the BigInteger constructor
+  static final byte AESprime[] = {
+    0x00,
+    (byte)0xF2, (byte)0x4F, (byte)0x63, (byte)0x15, (byte)0x0E, (byte)0xAA, (byte)0x97, (byte)0xCC,
+    (byte)0xE7, (byte)0x8F, (byte)0x57, (byte)0x10, (byte)0xC4, (byte)0x5F, (byte)0xAF, (byte)0xBE,
+    (byte)0xB7, (byte)0x1C, (byte)0xF6, (byte)0xA8, (byte)0x72, (byte)0x4F, (byte)0x63, (byte)0x14,
+    (byte)0x0E, (byte)0xAA, (byte)0x97, (byte)0xCC, (byte)0xE7, (byte)0x8F, (byte)0x57, (byte)0x10,
+    (byte)0xC4, (byte)0x5F, (byte)0xAF, (byte)0xBE, (byte)0xB7, (byte)0x1C, (byte)0xF6, (byte)0xA8,
+    (byte)0x72, (byte)0x4F, (byte)0x63, (byte)0x13, (byte)0x08, (byte)0xE3, (byte)0x2B, (byte)0x26,
+    (byte)0xEA, (byte)0x15, (byte)0x94, (byte)0x88, (byte)0x9C, (byte)0xBB, (byte)0xFC, (byte)0x91,
+    (byte)0xF6, (byte)0xDF, (byte)0x75, (byte)0x24, (byte)0x35, (byte)0x2E, (byte)0xF9, (byte)0x79
+    };
+
+  static final byte AESgenerator[] = {
+    0x00,
+    (byte)0xE8, (byte)0xCE, (byte)0x9E, (byte)0x08, (byte)0x44, (byte)0xC6, (byte)0x7A, (byte)0x00,
+    (byte)0x9F, (byte)0xB7, (byte)0x84, (byte)0x3C, (byte)0xD9, (byte)0x45, (byte)0xA0, (byte)0x58,
+    (byte)0x93, (byte)0x5D, (byte)0xA5, (byte)0x1B, (byte)0x02, (byte)0x8A, (byte)0x49, (byte)0xE5,
+    (byte)0xA9, (byte)0x1F, (byte)0x83, (byte)0x1B, (byte)0x78, (byte)0x36, (byte)0x44, (byte)0x91,
+    (byte)0xCD, (byte)0x0E, (byte)0x0A, (byte)0x8F, (byte)0x72, (byte)0x34, (byte)0x5D, (byte)0xF8,
+    (byte)0x07, (byte)0x69, (byte)0x54, (byte)0x99, (byte)0x26, (byte)0xFD, (byte)0x16, (byte)0xEC,
+    (byte)0xD6, (byte)0xF6, (byte)0x85, (byte)0x94, (byte)0x81, (byte)0x64, (byte)0x7C, (byte)0xA9,
+    (byte)0xEF, (byte)0xB2, (byte)0xBA, (byte)0xAC, (byte)0x7B, (byte)0xC0, (byte)0x9A, (byte)0x92
+    };
+  
+  
+  
+  static KeyPairGenerator desKeyPairGenerator = null; 
+  
+  // get the DESKeyPair from the shared prime and generator @U4A
+  static KeyPair getDESKeyPair() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException  {
+     if (desKeyPairGenerator == null) { 
+       
+       try {
+        desKeyPairGenerator = KeyPairGenerator.getInstance("DiffieHellman");
+      } catch (NoSuchAlgorithmException e) {
+        throw e; 
+      } 
+      BigInteger p = new BigInteger(DDMTerm.DESprime);
+      BigInteger g = new BigInteger(DDMTerm.DESgenerator); 
+      
+      DHParameterSpec dhParameterSpec = new DHParameterSpec(p, g, 256); 
+      
+      try {
+        desKeyPairGenerator.initialize(dhParameterSpec);
+      } catch (InvalidAlgorithmParameterException e) {
+        desKeyPairGenerator = null; 
+        throw e; 
+        
+      }
+      
+     }
+     return desKeyPairGenerator.genKeyPair();
+  }
+  
+  /* Return the shared key.  If the public key is 32 bytes long then the algorithm is DES */
+  /* @U4A*/ 
+  static byte[] getSharedKey(KeyPair keyPair, byte[] publicKey) throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException {
+    
+    boolean isDes; 
+    
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  serverPublicKey:", publicKey);
+
+     if (publicKey.length == 32) { 
+       isDes = true; 
+     } else {
+       isDes = false; 
+     }
+    KeyAgreement keyAgreement = null;
+ 
+    keyAgreement = KeyAgreement.getInstance("DiffieHellman");
+    
+    keyAgreement.init(keyPair.getPrivate());
+    KeyFactory keyFactory = null; 
+  
+    keyFactory = KeyFactory.getInstance("DiffieHellman");
+   
+    BigInteger publicKeyBigInt;
+    // If the number is negative, we must make it positive
+    if ((publicKey[0] & 0x80)  == 0x80 ) {
+      byte[] newPublicKey = new byte[publicKey.length+1]; 
+      newPublicKey[0] = 0; 
+      System.arraycopy(publicKey, 0, newPublicKey, 1, publicKey.length); 
+
+      publicKey = newPublicKey; 
+    }
+    publicKeyBigInt = new BigInteger(1, publicKey);
+    
+    BigInteger p;
+    BigInteger g;
+
+    if (isDes) { 
+       p = new BigInteger(DDMTerm.DESprime);
+       g = new BigInteger(DDMTerm.DESgenerator); 
+    } else {
+      p = new BigInteger(DDMTerm.AESprime);
+      g = new BigInteger(DDMTerm.AESgenerator); 
+    }
+
+    
+    /* 
+    DHPrivateKey privateKey = (DHPrivateKey) keyPair.getPrivate();
+    
+
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  clientPrivateKeyBigInt:", privateKey.getX().toString()); 
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  serverPublicKeyBigInt: ", publicKeyBigInt.toString());
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  p:                     ", p.toString());
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  g:                     ", g.toString());
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  clientPrivateKeyBigInt:", privateKey.getX().toByteArray()); 
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  serverPublicKeyBigInt: ", publicKeyBigInt.toByteArray());
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  p:                     ", p.toByteArray());
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  g:                     ", g.toByteArray());
+    */ 
+    
+    PublicKey publicKeyObject = null ;
+   
+    publicKeyObject = keyFactory.generatePublic(new DHPublicKeySpec(publicKeyBigInt, p, g));
+    
+    keyAgreement.doPhase(publicKeyObject, true);
+    
+    byte[] sharedKey = keyAgreement.generateSecret(); 
+    Trace.log(Trace.DIAGNOSTIC, "getSharedKey:  sharedKey:", sharedKey);
+
+    return sharedKey;
+    
+
+  }
+
+
+
+  static KeyPairGenerator aesKeyPairGenerator = null;
+  /* Get the AES key pair for the DDM prime and generator @U4A */ 
+  
+  static KeyPair getAESKeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException  {
+     if (aesKeyPairGenerator == null) { 
+       
+   
+        aesKeyPairGenerator = KeyPairGenerator.getInstance("DiffieHellman");
+     
+      BigInteger p = new BigInteger(DDMTerm.AESprime);
+      BigInteger g = new BigInteger(DDMTerm.AESgenerator); 
+      
+      DHParameterSpec dhParameterSpec = new DHParameterSpec(p, g, 512); 
+      
+      try {
+        aesKeyPairGenerator.initialize(dhParameterSpec);
+      } catch (InvalidAlgorithmParameterException e) {
+        aesKeyPairGenerator = null; 
+        throw e; 
+      }
+      
+     }
+     return aesKeyPairGenerator.genKeyPair();
+  }
+
 
 }
