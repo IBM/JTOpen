@@ -16,7 +16,7 @@
 
 <!ELEMENT pcml (struct | program)+>
 <!ATTLIST pcml
-          version  (1.0 | 2.0 | 3.0 | 4.0 | 6.0) #REQUIRED
+          version  (1.0 | 2.0 | 3.0 | 4.0 | 6.0 | 7.0) #REQUIRED
 >
 
 <!ELEMENT struct (data | struct)+>
@@ -57,12 +57,13 @@
           offsetfrom CDATA #IMPLIED
           outputsize  CDATA #IMPLIED
 
-	  type   (char | int | packed | zoned | float | byte | struct | date | time | timestamp) #REQUIRED
+          type   (char | int | packed | zoned | float | byte | struct | date | time | timestamp | varchar) #REQUIRED
           length CDATA #IMPLIED
           precision CDATA #IMPLIED
           ccsid  CDATA #IMPLIED
           init   CDATA #IMPLIED
           struct CDATA #IMPLIED
+          varlength  (2 | 4) #IMPLIED
 
           passby (reference | value) #IMPLIED
           bidistringtype (ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT | NONE) #IMPLIED
