@@ -91,7 +91,13 @@ class SignonConverter
     static byte[] stringToByteArray(String source) throws AS400SecurityException
     {
         char[] sourceChars = source.toCharArray();
-        byte[] returnBytes = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
+        byte[] oldReturnBytes = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
+        byte[] returnBytes; 
+        if (sourceChars.length <= 10) {
+          returnBytes = oldReturnBytes; 
+        } else {
+          returnBytes = new byte[sourceChars.length]; 
+        }
         for (int i = 0; i < sourceChars.length; ++i)
         {
             switch (sourceChars[i])
@@ -140,6 +146,34 @@ class SignonConverter
                 case 0x005A: returnBytes[i] = (byte)0xE9; break;  // Z
 
                 case 0x005F: returnBytes[i] = (byte)0x6D; break;  // _
+
+                case 0x0061: returnBytes[i] = (byte)0x81; break;  // A
+                case 0x0062: returnBytes[i] = (byte)0x82; break;  // B
+                case 0x0063: returnBytes[i] = (byte)0x83; break;  // C
+                case 0x0064: returnBytes[i] = (byte)0x84; break;  // D
+                case 0x0065: returnBytes[i] = (byte)0x85; break;  // E
+                case 0x0066: returnBytes[i] = (byte)0x86; break;  // F
+                case 0x0067: returnBytes[i] = (byte)0x87; break;  // G
+                case 0x0068: returnBytes[i] = (byte)0x88; break;  // H
+                case 0x0069: returnBytes[i] = (byte)0x89; break;  // I
+                case 0x006A: returnBytes[i] = (byte)0x91; break;  // J
+                case 0x006B: returnBytes[i] = (byte)0x92; break;  // K
+                case 0x006C: returnBytes[i] = (byte)0x93; break;  // L
+                case 0x006D: returnBytes[i] = (byte)0x94; break;  // M
+                case 0x006E: returnBytes[i] = (byte)0x95; break;  // N
+                case 0x006F: returnBytes[i] = (byte)0x96; break;  // O
+                case 0x0070: returnBytes[i] = (byte)0x97; break;  // P
+                case 0x0071: returnBytes[i] = (byte)0x98; break;  // Q
+                case 0x0072: returnBytes[i] = (byte)0x99; break;  // R
+                case 0x0073: returnBytes[i] = (byte)0xa2; break;  // S
+                case 0x0074: returnBytes[i] = (byte)0xa3; break;  // T
+                case 0x0075: returnBytes[i] = (byte)0xa4; break;  // U
+                case 0x0076: returnBytes[i] = (byte)0xa5; break;  // V
+                case 0x0077: returnBytes[i] = (byte)0xa6; break;  // W
+                case 0x0078: returnBytes[i] = (byte)0xa7; break;  // X
+                case 0x0079: returnBytes[i] = (byte)0xa8; break;  // Y
+                case 0x007A: returnBytes[i] = (byte)0xa9; break;  // Z
+
 
                 case 0x00A3: returnBytes[i] = (byte)0x7B; break;  // Cp423, pound sterling.
                 case 0x00A5: returnBytes[i] = (byte)0x5B; break;  // Cp281, yen sign.

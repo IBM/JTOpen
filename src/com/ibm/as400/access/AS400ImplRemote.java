@@ -1855,7 +1855,7 @@ class AS400ImplRemote implements AS400Impl
 //                  }
               }
 
-              byte[] passwordEbcdic = SignonConverter.stringToByteArray(new String(password).toUpperCase());
+              byte[] passwordEbcdic = SignonConverter.stringToByteArray(new String(password));
               if (PASSWORD_TRACE)
               {
                   Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
