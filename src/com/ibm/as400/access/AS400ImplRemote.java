@@ -1855,11 +1855,6 @@ class AS400ImplRemote implements AS400Impl
 //                  }
               }
 
-              if (password.length > 10)
-              {
-                  Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid:", password.length);
-                  throw new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
-              }
               byte[] passwordEbcdic = SignonConverter.stringToByteArray(new String(password).toUpperCase());
               if (PASSWORD_TRACE)
               {
@@ -3020,6 +3015,163 @@ class AS400ImplRemote implements AS400Impl
         return signonInfo_;
     }
 
+    
+
+    // Initialize the impl without calling the sign-on server.
+    public SignonInfo skipSignon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException // @mds
+    {
+        systemName_ = systemName;
+        systemNameLocal_ = systemNameLocal;
+        userId_ = userId;
+        gssName_ = gssName;
+
+        // We are accepting a credential vault from the caller.
+        // This vault will replace our existing one.
+        // So if our existing one is not the same as the one being given to us,
+        // then empty our existing one since we are discarding it.
+        if (!vault.equals(credVault_)) {
+          credVault_.empty();
+        }
+        credVault_ = vault;   // @mds
+
+        //gssOption_ = gssOption;   // not used
+
+        if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+        {
+          // No decoding to do.
+        }
+        else
+        {
+            // Must first decode the credential using the seeds that were previously exchanged between the public AS400 class and this class.
+            credVault_.storeEncodedUsingInternalSeeds(proxySeed_, remoteSeed_);
+            // Note: The called method ends up storing a "twiddled" representation of the credential info.
+        }
+
+        proxySeed_ = null;
+        remoteSeed_ = null;
+
+        if (canUseNativeOptimization_)
+        {
+            byte[] swapToPH = new byte[12];
+            byte[] swapFromPH = new byte[12];
+            // If -Xshareclasses is specified when using Java on an IBM i system
+            // then classes cannot be loaded when the profile is swapped.
+            // Load the classes before doing the swap. @K4A
+            Class x = BinaryConverter.class; 
+            x = GregorianCalendar.class;
+            x = SignonInfo.class; 
+            x = com.ibm.as400.access.NLSImplNative.class;
+            x = com.ibm.as400.access.NLSImplRemote.class; 
+            boolean didSwap = swapTo(swapToPH, swapFromPH);
+            try
+            {
+                byte[] data = AS400ImplNative.signonNative(SignonConverter.stringToByteArray(userId));
+                GregorianCalendar date = new GregorianCalendar(BinaryConverter.byteArrayToUnsignedShort(data, 0)/*year*/, (int)(data[2] - 1)/*month convert to zero based*/, (int)(data[3])/*day*/, (int)(data[4])/*hour*/, (int)(data[5])/*minute*/, (int)(data[6])/*second*/);
+                signonInfo_ = new SignonInfo();
+                signonInfo_.currentSignonDate = date;
+                signonInfo_.lastSignonDate = date;
+                signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null : new GregorianCalendar(BinaryConverter.byteArrayToUnsignedShort(data, 8)/*year*/, (int)(data[10] - 1)/*month convert to zero based*/, (int)(data[11])/*day*/, (int)(data[12])/*hour*/, (int)(data[13])/*minute*/, (int)(data[14])/*second*/);
+
+                signonInfo_.version = AS400.nativeVRM;
+                signonInfo_.serverCCSID = getCcsidFromServer();
+            }
+            catch (NativeException e)
+            {
+                // Map native exception to AS400SecurityException.
+                throw mapNativeSecurityException(e);
+            }
+            finally
+            {
+                if (didSwap) swapBack(swapToPH, swapFromPH);
+            }
+        }
+        else
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening a socket to verify security...");
+            // Validate user id and password.
+            signonConnect();
+            try
+            {
+                byte[] userIDbytes = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD ? SignonConverter.stringToByteArray(userId) : null;
+                byte[] encryptedPassword = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? credVault_.getClearCredential() : getPassword(clientSeed_, serverSeed_);   // @mds
+
+                if (PASSWORD_TRACE)
+                {
+                    Trace.log(Trace.DIAGNOSTIC, "Sending Retrieve Signon Information Request...");
+                    Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
+                    Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+                    Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
+                    Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
+                    Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
+                }
+
+                SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, credVault_.getType(), serverLevel_);
+                SignonInfoRep signonRep = (SignonInfoRep)signonServer_.sendAndReceive(signonReq);
+
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
+
+                int rc = signonRep.getRC();
+                if (rc != 0)
+                {
+                    byte[] rcBytes = new byte[4];
+                    BinaryConverter.intToByteArray(rc, rcBytes, 0);
+                    Trace.log(Trace.ERROR, "Security validation failed with return code:", rcBytes);
+                    throw AS400ImplRemote.returnSecurityException(rc, signonRep.getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
+                }
+
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
+
+                signonInfo_ = new SignonInfo();
+                signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
+                signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
+                signonInfo_.expirationDate = signonRep.getExpirationDate();
+                signonInfo_.PWDexpirationWarning = signonRep.getPWDExpirationWarning();
+                signonInfo_.version = version_;
+                signonInfo_.serverCCSID = signonRep.getServerCCSID();
+                if (userId_.length() == 0)
+                {
+                    byte[] b = signonRep.getUserIdBytes();
+                    if (b != null)
+                    {
+                        userId_ = SignonConverter.byteArrayToString(b);
+                        signonInfo_.userId = userId_;
+                    }
+                }
+
+                if (DataStream.getDefaultConverter() == null)
+                {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:", signonInfo_.serverCCSID);
+                    DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
+                }
+                ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);                
+                //@Bidi-HCG3 signonJobString_ = converter.byteArrayToString(signonJobBytes_);
+                signonJobString_ = converter.byteArrayToString(signonJobBytes_, 0, signonJobBytes_.length, BidiStringType.DEFAULT);//Bidi-HCG3
+                
+                signonServer_.setJobString(signonJobString_);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server job:", signonJobString_);
+            }
+            catch (IOException e)
+            {
+                Trace.log(Trace.ERROR, "Signon failed:", e);
+                signonServer_.forceDisconnect();
+                signonServer_ = null;
+                throw e;
+            }
+            catch (AS400SecurityException e)
+            {
+                Trace.log(Trace.ERROR, "Signon failed:", e);
+                signonServer_.forceDisconnect();
+                signonServer_ = null;
+                throw e;
+            }
+        }
+        return signonInfo_;
+    }
+
+    
+    
+    
+    
     // Connect to sign-on server.
     private synchronized void signonConnect() throws AS400SecurityException, IOException
     {
