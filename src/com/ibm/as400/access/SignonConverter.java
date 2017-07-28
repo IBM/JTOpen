@@ -100,11 +100,24 @@ class SignonConverter
         }
         for (int i = 0; i < sourceChars.length; ++i)
         {
+            AS400SecurityException exception;
             switch (sourceChars[i])
             {
+                case 0x0022: returnBytes[i] = (byte)0x7F; break;  // "
                 case 0x0023: returnBytes[i] = (byte)0x7B; break;  // #
                 case 0x0024: returnBytes[i] = (byte)0x5B; break;  // $
-
+                case 0x0025: returnBytes[i] = (byte)0x6c; break;  // %
+                case 0x0026: returnBytes[i] = (byte)0x50; break;  // &
+                case 0x0027: returnBytes[i] = (byte)0x7d; break;  // '
+                case 0x0028: returnBytes[i] = (byte)0x4d; break;  // (
+                case 0x0029: returnBytes[i] = (byte)0x5d; break;  // )
+                case 0x002A: returnBytes[i] = (byte)0x5c; break;  // *
+                case 0x002B: returnBytes[i] = (byte)0x4e; break;  // +
+                case 0x002C: returnBytes[i] = (byte)0x6b; break;  // ,
+                case 0x002D: returnBytes[i] = (byte)0x60; break;  // -
+                case 0x002E: returnBytes[i] = (byte)0x4b; break;  // .
+                case 0x002F: returnBytes[i] = (byte)0x61; break;  // /
+                
                 case 0x0030: returnBytes[i] = (byte)0xF0; break;  // 0
                 case 0x0031: returnBytes[i] = (byte)0xF1; break;  // 1
                 case 0x0032: returnBytes[i] = (byte)0xF2; break;  // 2
@@ -115,6 +128,12 @@ class SignonConverter
                 case 0x0037: returnBytes[i] = (byte)0xF7; break;  // 7
                 case 0x0038: returnBytes[i] = (byte)0xF8; break;  // 8
                 case 0x0039: returnBytes[i] = (byte)0xF9; break;  // 9
+                case 0x003A: returnBytes[i] = (byte)0x7a; break;  // :
+                case 0x003B: returnBytes[i] = (byte)0x5e; break;  // ;
+                case 0x003C: returnBytes[i] = (byte)0x4c; break;  // <
+                case 0x003D: returnBytes[i] = (byte)0x7e; break;  // =
+                case 0x003E: returnBytes[i] = (byte)0x6e; break;  // >
+                case 0x003F: returnBytes[i] = (byte)0x6f; break;  // ?
 
                 case 0x0040: returnBytes[i] = (byte)0x7C; break;  // @
 
@@ -188,7 +207,11 @@ class SignonConverter
                 case 0x00E0: returnBytes[i] = (byte)0x7C; break;  // Cp297, a with grave.
                 case 0x0130: returnBytes[i] = (byte)0x5B; break;  // Cp905, I with over dot.
                 case 0x015E: returnBytes[i] = (byte)0x7C; break;  // Cp905, S with cedilla.
-                default: throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                
+                default: 
+                  exception = new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  exception.initCause(new Exception("Character UX'"+ Integer.toHexString(sourceChars[i])+"' is not valid.")); 
+                  throw exception;
             }
         }
         return returnBytes;
