@@ -776,16 +776,16 @@ public class ProgramCall implements Serializable
         //@D10C - Start
         // We can only cancel if running remote
         boolean result; 
-        if (impl_ instanceof RemoteCommandImplNative) {
-            result = impl_.runProgram(library_, name_, parameterList_, threadSafetyValue_, messageOption_);
-        } else { 
-            job_ = this.getServerJob();
-            checkCancel();
-            startCancelThread();
-            result = impl_.runProgram(library_, name_, parameterList_, threadSafetyValue_, messageOption_);
-            // We treat it as a normal case
-            endCancelThread();
-        }
+        if (impl_ instanceof RemoteCommandImplRemote) {
+          job_ = this.getServerJob();
+          checkCancel();
+          startCancelThread();
+          result = impl_.runProgram(library_, name_, parameterList_, threadSafetyValue_, messageOption_);
+          // We treat it as a normal case
+          endCancelThread();
+       } else { 
+           result = impl_.runProgram(library_, name_, parameterList_, threadSafetyValue_, messageOption_);
+       }
         //@D10C - End
           // Retrieve the messages.
           messageList_ = impl_.getMessageList();
