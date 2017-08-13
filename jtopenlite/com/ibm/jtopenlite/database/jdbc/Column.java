@@ -1527,13 +1527,13 @@ switch (valueType_)
 
       case DB2Type.VARCHAR: // VARCHAR
         if (isForBitData_) {
-          return "VARCHAR() FOR BIT DATA";
+          return "VARCHAR () FOR BIT DATA";
         } else {
           return "VARCHAR";
         }
       case DB2Type.CHAR: // CHAR
         if (isForBitData_) {
-          return "CHAR() FOR BIT DATA";
+          return "CHAR () FOR BIT DATA";
         } else {
           return "CHAR";
         }
@@ -1567,13 +1567,13 @@ switch (valueType_)
         return "ROWID";
       case DB2Type.VARBINARY: // VARBINARY
         if (isForBitData_) {
-          return "VARCHAR() FOR BIT DATA";
+          return "VARCHAR () FOR BIT DATA";
         } else {
           return "VARBINARY";
         }
       case DB2Type.BINARY: // BINARY
         if (isForBitData_) {
-          return "CHAR() FOR BIT DATA";
+          return "CHAR () FOR BIT DATA";
         } else {
         return "BINARY";
         }
