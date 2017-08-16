@@ -19,6 +19,11 @@ import java.util.*;
 
 class FTPThread implements Runnable
 {
+  
+  
+  static long threadCount = 0; 
+  static Object threadCountLock = new Object(); 
+  
   private FTP ftp_;
   
   private int port_;
@@ -118,6 +123,14 @@ class FTPThread implements Runnable
 
   public void run()
   {
+    synchronized (threadCountLock) {
+      try { 
+        Thread.currentThread().setName("FTPThread-"+threadCount);
+        threadCount++;
+      } catch (Exception e) { 
+        // Just ignore any thread naming issues 
+      }
+    }
     ServerSocket ss = null;
     try
     {

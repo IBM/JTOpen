@@ -1359,42 +1359,52 @@ public class FTP implements java.io.Serializable
     *   @exception IOException If an error occurs while communicating with the system.
    **/
 
-    public synchronized String issueCommand(String cmd)
-                               throws IOException
-    {
-        if (Trace.isTraceOn())
-        {
-           String traceString = cmd;
+  public synchronized String issueCommand(String cmd) throws IOException {
+    int retryCount = 10;
 
-           if (cmd.startsWith("PASS"))
-           {
-              traceString = "PASS " + "********************".substring(0, cmd.length() - 5);
-           }
+    if (Trace.isTraceOn()) {
+      String traceString = cmd;
 
-           Trace.log(Trace.DIAGNOSTIC,"entering issueCommand(), command is: " + traceString);
-        }
+      if (cmd.startsWith("PASS")) {
+        traceString = "PASS "
+            + "********************".substring(0, cmd.length() - 5);
+      }
 
-        // make sure we are not in connect to prevent an infinite loop
-        // (connect calls this method to issue the user and pass commands)
-        if (! inConnect_)
-          connect();
-
-        ps_.print(cmd + "\r\n");
-        ps_.flush();
-        readReply();
-
-        //if (echo)
-        //   lastMessage_ =  cmd + "\n" + reply;
-        //else
-        //   lastMessage_ =  reply;
-
-        if (Trace.isTraceOn())
-           Trace.log(Trace.DIAGNOSTIC,"leaving  issueCommand(), message is: " + lastMessage_);
-
-        return lastMessage_;
+      Trace.log(Trace.DIAGNOSTIC, "entering issueCommand(), command is: "
+          + traceString);
     }
 
+    while (retryCount > 0) {
+      // make sure we are not in connect to prevent an infinite loop
+      // (connect calls this method to issue the user and pass commands)
+      if (!inConnect_)
+        connect();
 
+      ps_.print(cmd + "\r\n");
+      ps_.flush();
+      readReply();
+
+      // if (echo)
+      // lastMessage_ = cmd + "\n" + reply;
+      // else
+      // lastMessage_ = reply;
+
+      // If get 425, not able to open data connection.  Try again 
+      if ((lastMessage_ != null) && (lastMessage_.indexOf("425 ") == 0)) {
+        if (Trace.isTraceOn())
+          Trace.log(Trace.DIAGNOSTIC, "retrying issueCommand(), message is: "
+              + lastMessage_);
+
+        retryCount --; 
+      } else {
+        retryCount = 0; 
+      }
+    }
+    if (Trace.isTraceOn())
+      Trace.log(Trace.DIAGNOSTIC, "leaving  issueCommand(), message is: "
+          + lastMessage_);
+    return lastMessage_;
+  }
 
   private void initiateActiveMode() throws IOException
   {
