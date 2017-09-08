@@ -1651,7 +1651,12 @@ public class Main implements Runnable {
             String baseUrl = url_.substring(0, colonIndex + 1);
             connectUrl = baseUrl + schema + urlArgs_;
           } else {
-            connectUrl = url_ + "/" + schema + urlArgs_;
+            int semicolonIndex = url_.indexOf(";"); 
+            if (semicolonIndex < 0) { 
+                connectUrl = url_ + "/" + schema + urlArgs_;
+            } else {
+              connectUrl = url_.substring(0,semicolonIndex) + "/" + schema +url_.substring(semicolonIndex)+ urlArgs_;
+            }
           }
 
         } else {
