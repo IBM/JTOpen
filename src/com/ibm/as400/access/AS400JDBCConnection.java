@@ -353,7 +353,9 @@ implements Connection
                     //AS400 system = new AS400(as400PublicClassObj_);
                     //cancelConnection.setSystem(system);
 
-                    cancelConnection.setProperties(dataSourceUrl_, properties_, as400_, true);
+                    cancelConnection.setProperties(dataSourceUrl_, properties_, as400_, 
+                    		true,  /* new server */ 
+                    		false  /* skip signon request */ );
 
                     // Send the cancel request.
                     DBSQLRequestDS request = null;
@@ -3380,6 +3382,24 @@ void handleAbort() {
         {
           try
           {
+            
+            // Check to see if the port property is set.  If so, 
+            // Then we must set the port in the PortMapper and 
+            // tell the as400 object not to use the signon server. 
+            // The port in the URL has precedence over the property.
+        	/*@V1A*/
+            int portNumber = 0; 
+            if (dataSourceUrl.isPortSpecified()) {
+              portNumber = dataSourceUrl.getPortNumber(); 
+            }
+            if (portNumber == 0) { 
+                portNumber =  properties.getInt(JDProperties.PORTNUMBER);
+            }
+            if (portNumber > 0) { 
+              as400.skipSignonServer = true;
+             
+              PortMapper.setServicePort(as400.getSystemName(), AS400.DATABASE, portNumber, null); 
+            }
             as400.connectService (AS400.DATABASE);
           }
           catch (AS400SecurityException e)
@@ -3411,14 +3431,14 @@ void handleAbort() {
           }                                                     //@dbldrvr
         }
 
-        setProperties (dataSourceUrl, properties, as400.getImpl());
+        setProperties (dataSourceUrl, properties, as400.getImpl(), false, as400.skipSignonServer);
     }
 
 
     void setProperties(JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400)
     throws SQLException
     {
-        setProperties(dataSourceUrl, properties, as400, false);
+        setProperties(dataSourceUrl, properties, as400, false, false);
     }
 
     /* Should the warning be ignored  @Q1A*/
@@ -3433,7 +3453,7 @@ void handleAbort() {
       return ignoreWarning(warning.getSQLState());
     }
     //@A3A - This logic formerly resided in the ctor.
-    void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400, boolean newServer)
+    void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400, boolean newServer, boolean skipSignonServer)
     throws SQLException
     {
         // Initialization.
@@ -3475,8 +3495,6 @@ void handleAbort() {
 
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
-            postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
-        if (dataSourceUrl_.isPortSpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
         if (properties.isExtraPropertySpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_PROPERTY_EXTRA_IGNORED));
@@ -3599,7 +3617,7 @@ void handleAbort() {
         {
           try
           {
-            server_ = as400_.getConnection (AS400.DATABASE, newServer);
+            server_ = as400_.getConnection (AS400.DATABASE, newServer, skipSignonServer);
           }
           catch (AS400SecurityException e)
           {
@@ -3947,7 +3965,10 @@ void handleAbort() {
                 // actual CCSID.
                 //@P0D ConverterImplRemote tempConverter =
                 //@P0D ConverterImplRemote.getConverter (as400_.getCcsid(), as400_);
-                ConvTable tempConverter = ConvTable.getTable(as400_.getCcsid(), null); //@P0A
+                // We can safely use ccsid 37 as long as the fields in the request are tagged with
+                // CCSID 37. /*@V1A*/
+                int thisRequestCcsid = 37; 
+                ConvTable tempConverter = ConvTable.getTable(thisRequestCcsid, null); //@P0A
 
 
                 // @E2D // Do not set the client CCSID.  We do not want
@@ -3970,16 +3991,20 @@ void handleAbort() {
                 String sendCCSID = properties_.getString(JDProperties.PACKAGE_CCSID);
 
                 int sendCCSIDInt;
-                int hostCCSID;
-                if(this.getSystem() == null)  //@pdcbidi
-                    hostCCSID = 37;
-                else
-                    hostCCSID = this.getSystem().getCcsid();
+                
+                
                 int default_ccsid = Integer.parseInt(JDProperties.PACKAGE_CCSID_UCS2);
 
-                if( sendCCSID.equalsIgnoreCase("system"))
+                if( sendCCSID.equalsIgnoreCase("system")) {
+                  // Only look up host CCSID if needed
+                  int hostCCSID;
+                  if(as400PublicClassObj_ == null)  //@pdcbidi
+                      hostCCSID = 37;
+                  else
+                      hostCCSID = as400PublicClassObj_.getCcsid();
+                  
                 	sendCCSIDInt = hostCCSID;
-                else {
+                } else {
                 	try{
                 		if((sendCCSIDInt = Integer.valueOf(sendCCSID).intValue()) <= 0)
                 			sendCCSIDInt = default_ccsid;
@@ -4439,14 +4464,25 @@ void handleAbort() {
                 // if (reply != null) reply.returnToPool();
             }
 
+           
             // The CCSID that comes back is a mixed CCSID (i.e. mixed
             // SBCS and DBCS).  This will be the CCSID that all
             // non-graphic data will be returned as for this
             // connection, so we own the converter here.
             int serverCCSID = serverAttributes.getServerCCSID();
+            vrm_ = serverAttributes.getVRM(); 
             //@P0D converter_ = ConverterImplRemote.getConverter (serverCCSID, as400_);
             converter_ = ConvTable.getTable(serverCCSID, null); //@P0A
-
+            
+            // If we did not user the signon server, fix the signon information
+            // in the as400 object. /*@V1A*/
+            if (as400PublicClassObj_ != null) {
+              if (as400PublicClassObj_.skipSignonServer) {
+                as400PublicClassObj_.setSignonInfo(serverCCSID, vrm_, as400_.getUserId()) ; 
+              }
+            }
+           
+            
             // Get the server functional level.  It comes back as in the                           @E7A
             // format VxRxMx9999.                                                                  @E7A
             String serverFunctionalLevelAsString = serverAttributes.getServerFunctionalLevel(converter_); // @E7A
@@ -4485,6 +4521,8 @@ void handleAbort() {
                     JDTrace.logInformation (this, "OS/400 VRM = V" + v              // @C2A
                                         + "R" + r + "M" + m);                   // @C2A
                 JDTrace.logInformation (this, "Server CCSID = " + serverCCSID);
+                
+                
                 JDTrace.logInformation(this, "Server functional level = "       // @E7A
                                        + serverFunctionalLevelAsString          // @E7A
                                        + " (" + serverFunctionalLevel_ + ")");  // @E7A

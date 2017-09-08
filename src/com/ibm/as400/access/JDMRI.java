@@ -140,6 +140,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_DECIMAL_DATA_ERRORS","decimalDataErrors"},
       { "PROP_NAME_TIMESTAMP_FORMAT","timestampFormat"},
       { "PROP_NAME_USE_DRDA_METADATA_VERSION","useDrdaMetadataVersion"},
+      { "PROP_NAME_PORTNUMBER","portNumber"},
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -177,6 +178,7 @@ public class JDMRI extends ListResourceBundle
       { "PACKAGE_ERROR_DESC", "Specifies the action to take when SQL package errors occur." },
       { "PACKAGE_LIBRARY_DESC", "Specifies the library for the SQL package." },
       { "PASSWORD_DESC", "Specifies the password for connecting to the system." }, //@550
+      { "PORTNUMBER_DESC", "Specifies the port number used to connect to the ZDA server."},
       { "PREFETCH_DESC", "Specifies whether to prefetch data when running a SELECT statement." },
       { "PROMPT_DESC", "Specifies whether the user should be prompted if a user name or password is needed to connect to the system." }, //@550
       { "PROXY_SERVER_DESC", "Specifies the host name and (optionally) port number of the middle-tier machine where the proxy server is running." },  //@A2A

@@ -167,10 +167,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              QUERY_REPLACE_TRUNCATED_PARAMETER = 89;
     static final int              NUMERIC_RANGE_ERROR        = 90; 
     static final int              CHARACTER_TRUNCATION       = 91;  
+    static final int              PORTNUMBER                 = 92; /*@V1A*/ 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 92;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 93;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -219,6 +220,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String PACKAGE_ERROR_          = "package error";
     private static final String PACKAGE_LIBRARY_        = "package library";
     static final String PASSWORD_                       = "password";            //@native
+    private static final String PORTNUMBER_             = "portNumber"; /*@V1A*/ 
     private static final String PREFETCH_               = "prefetch";
     private static final String PROMPT_                 = "prompt";
     private static final String PROXY_SERVER_           = "proxy server";           // @A3A
@@ -611,7 +613,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[7]  = BLOCK_SIZE_512;
         defaults_[i]        = BLOCK_SIZE_32;
 
-        // Numeric range error .
+        // Character truncation.
         i = CHARACTER_TRUNCATION;
         dpi_[i] = new DriverPropertyInfo (CHARACTER_TRUNCATION_, "");
         dpi_[i].description = "CHARACTER_TRUNCATION_DESC";
@@ -922,6 +924,16 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;
 
+        
+        // Port /*@V1A*/
+        i = PORTNUMBER;
+        dpi_[i] = new DriverPropertyInfo (PORTNUMBER_, "");
+        dpi_[i].description = "PORT_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = "8471";
+
+        
         // Prefetch.
         i = PREFETCH;
         dpi_[i] = new DriverPropertyInfo (PREFETCH_, "");
@@ -2017,7 +2029,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
         //Bidi-HCG start
         //exception for "package ccsid" - it can accept any integer
-        if(index == PACKAGE_CCSID){
+        if((index == PACKAGE_CCSID) || (index == PORTNUMBER)){
         	try{
         	int sendCCSIDInt = Integer.valueOf(value).intValue();
         	if(sendCCSIDInt > 0)
@@ -2057,10 +2069,10 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
                   		dpi_[index].name,
                                  ((index != PASSWORD && index != KEY_RING_PASSWORD) ? values_[index] : ""));  //@F1C
           
-            if (index == BLOCK_SIZE) { 
-                Exception setLocation = new Exception("Set Location"); 
-                JDTrace.logException(this, "setBlockSize", setLocation); 
-            }            
+            // if (index == BLOCK_SIZE) { 
+            //     Exception setLocation = new Exception("Set Location"); 
+            //     JDTrace.logException(this, "setBlockSize", setLocation); 
+            // }            
         } 
     }
 

@@ -137,10 +137,10 @@ class NPSystem extends Object implements Runnable
                     //--------------------------------------------------------
                     if (inuseConversations_.isEmpty())
                     {
-                        server = as400System_.getConnection(AS400.PRINT, false);
+                        server = as400System_.getConnection(AS400.PRINT, false, false);
                        // server = as400System_.connect("as-netprt");
                     } else {
-                        server = as400System_.getConnection(AS400.PRINT, true);
+                        server = as400System_.getConnection(AS400.PRINT, true, false);
                        // server = as400System_.getNewConnection("as-netprt");
 
                         // Only start the cleanup thread if more than       

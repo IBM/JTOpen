@@ -393,6 +393,13 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
         messageList_ = messageList;
     }
 
+    AS400SecurityException(int returnCode, String info )
+    {
+        super(ResourceBundleLoader.getText(getMRIKey(returnCode))+":"+((info == null) ? "UNKNOWN" : info));
+        rc_ =  returnCode;
+
+    }
+    
     // Returns the text associated with the return code.
     // @param  returnCode  The return code associated with this exception.
     // @return  The text string which describes the error.

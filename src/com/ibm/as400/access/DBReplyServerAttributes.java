@@ -105,6 +105,16 @@ class DBReplyServerAttributes
 		return converter.byteArrayToString (data_, offset_ + 46, 4);
 	}
 
+	/*@V1A*/
+  final public int getVRM()
+  {
+    
+    int  v = 0x0F & data_[offset_+51];
+    int  r = 0x0F & data_[offset_+53]; 
+    int  m = 0x0F & data_[offset_+55];
+    return (v << 16) + (r << 8) + m; 
+    
+  }
 
 
 	final public int getNamingConvetionPO ()  throws DBDataStreamException

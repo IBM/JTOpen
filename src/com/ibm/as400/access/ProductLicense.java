@@ -680,7 +680,7 @@ public class ProductLicense implements java.io.Serializable
 
             sysImpl_= (AS400ImplRemote) sys_.getImpl();
 
-            server_ = sysImpl_.getConnection(AS400.CENTRAL, false);
+            server_ = sysImpl_.getConnection(AS400.CENTRAL, false, false);
 
             NLSExchangeAttrRequest request = new NLSExchangeAttrRequest();
             try

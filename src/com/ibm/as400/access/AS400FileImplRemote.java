@@ -175,7 +175,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   {
     if (server_ == null)
     {
-      server_ = system_.getConnection(AS400.RECORDACCESS, false); //@C0C @B5C
+      server_ = system_.getConnection(AS400.RECORDACCESS, 
+    		  false, /* force new connection */  
+    		  false  /* skip signon server */ ); //@C0C @B5C
     }
   }
 

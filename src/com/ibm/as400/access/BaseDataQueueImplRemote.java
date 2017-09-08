@@ -49,7 +49,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     private void open() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         // Connect to server.
-        server_ = system_.getConnection(AS400.DATAQUEUE, false);
+        server_ = system_.getConnection(AS400.DATAQUEUE, false, false);
 
         // Exchange attributes with server job.  (This must be first exchange with server job to complete initialization.)  First check to see if server has already been initialized by another user.
         synchronized (server_)  // Close the window between getting and checking if exchange has been done.

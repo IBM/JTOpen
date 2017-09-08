@@ -738,6 +738,14 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
         useDrdaMetadataVersion.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USE_DRDA_METADATA_VERSION"));                
         useDrdaMetadataVersion.setShortDescription(AS400JDBCDriver.getResource("USE_DRDA_METADATA_VERSION_DESC"));                
 
+        /*@V1A*/
+        PropertyDescriptor portNumber = 
+        new PropertyDescriptor("portNumber", beanClass, "getPortNumber","setPortNumber"); 
+    portNumber.setBound(true);                                                                        
+    portNumber.setConstrained(false);                                                                 
+    portNumber.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PORTNUMBER"));                
+    portNumber.setShortDescription(AS400JDBCDriver.getResource("PORTNUMBER_DESC"));                
+
             
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, extendedMetadata, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C

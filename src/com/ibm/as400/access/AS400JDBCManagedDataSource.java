@@ -1620,6 +1620,17 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     return properties_.getString(JDProperties.TRANSACTION_ISOLATION);
   }
 
+  
+  /**
+  Returns the port number.
+  @return The port number.
+  **/
+  /*@V1A*/
+ public int getPortNumber()
+ {
+   return properties_.getInt(JDProperties.PORTNUMBER);
+ }
+
   /**
    Returns the QAQQINI library name.
    @return The QAQQINI library name.
@@ -4446,7 +4457,20 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       setPackageCCSID(ccsid);
   }
   
-  
+  /** Sets the portNumber property, which indicates the 
+   * port number that should be used when connecting to the server. 
+   * @param portNumber
+   */
+  /*@V1A*/
+  public void setPortNumber(int portNumber)
+  {
+    final String property = "portNumber";
+
+    validateProperty(property, Integer.toString(portNumber), JDProperties.PORTNUMBER);
+
+    properties_.setString(JDProperties.PORTNUMBER, Integer.toString(portNumber));
+  }
+
   /**
    Gets the minimum divide scale property.  This property ensures the scale
    of the result of decimal division is never less than its specified value.

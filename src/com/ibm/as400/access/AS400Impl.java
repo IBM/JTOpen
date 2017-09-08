@@ -29,7 +29,7 @@ interface AS400Impl
     // Change password.
     SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
     // Connect to service.
-    void connect(int service) throws AS400SecurityException, IOException;
+    void connect(int service, boolean skipSignonServer) throws AS400SecurityException, IOException;  /*@V1C*/
     // Establish a DHCP connection to the specified port.
     Socket connectToPort(int port) throws AS400SecurityException, IOException;
     //@N5A Establish a DHCP connection to the specified port. Add this interface for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
@@ -82,5 +82,9 @@ interface AS400Impl
      */
     public int getBidiStringType();        
     //@Bidi-HCG3 end
-
+    
+    /* connect to the system, but skip using the signon server */ 
+    /*@V1A*/
+    SignonInfo skipSignon(String systemName, boolean systemNameLocal,
+        String userId_, CredentialVault tempVault, String gssName) throws AS400SecurityException, IOException;
 }

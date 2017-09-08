@@ -53,7 +53,7 @@ class NLSTableDownload extends Object
         // Connect to server
         if (server_ == null)
         {
-            server_ = sys_.getConnection(AS400.CENTRAL, false);
+            server_ = sys_.getConnection(AS400.CENTRAL, false, false);
 
             // Exchange attributes with server job.  (This must be first
             // exchange with server job to complete initialization.)

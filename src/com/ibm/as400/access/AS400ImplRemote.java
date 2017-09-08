@@ -30,6 +30,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
@@ -431,7 +432,7 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Implementation for connect.
-    public void connect(int service) throws AS400SecurityException, IOException
+    public void connect(int service, boolean skipSignonServer) throws AS400SecurityException, IOException
     {
         if (service == AS400.SIGNON)
         {
@@ -439,7 +440,7 @@ class AS400ImplRemote implements AS400Impl
         }
         else
         {
-            getConnection(service, false);
+            getConnection(service, false, skipSignonServer);
         }
     }
 
@@ -1214,15 +1215,18 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Get AS400Server object connected to indicated service.  You can get either an existing connection or ask for a new connection.
-    synchronized AS400Server getConnection(int service, boolean forceNewConnection) throws AS400SecurityException, IOException
+    synchronized AS400Server getConnection(int service, boolean forceNewConnection, boolean skipSignonServer) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system: " + AS400.getServerName(service));
 
         // Necessary for case where we are connecting after native sign-on.
+        // Skip this test if not using the signon server. 
         if (!isPasswordTypeSet_)
         {
-            signonConnect();
-            signonDisconnect();
+            if (!skipSignonServer) {   /*@V1A*/
+              signonConnect();
+              signonDisconnect();
+            }
         }
 
         AS400Server server = null;
@@ -1362,7 +1366,8 @@ class AS400ImplRemote implements AS400Impl
             }
 
             // Obtain the job identifier for the connection.
-            ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
+            // The name is always invariant, we we can use CCSID 37. /*@V1C*/
+            ConverterImplRemote converter = ConverterImplRemote.getConverter(37, this);
             //@Bidi-HCG3 jobString = converter.byteArrayToString(jobBytes);                        
             //@Bidi-HCG3 start
             //Perform Bidi transformation for data only
@@ -1968,6 +1973,12 @@ class AS400ImplRemote implements AS400Impl
     // Get VRM.
     int getVRM()
     {
+        // If we skipped the signon server, assume we are V7R1 or later.
+        // The VRM will be fixed later after the other connection is made.
+    	// /*@V1A*/
+        if (signonInfo_ == null) { 
+          return 0x070100; 
+        }
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting implementation VRM.");
         int vrm = signonInfo_.version.getVersionReleaseModification();
         if (Trace.traceOn_)
@@ -3087,68 +3098,31 @@ class AS400ImplRemote implements AS400Impl
         }
         else
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening a socket to verify security...");
-            // Validate user id and password.
-            signonConnect();
             try
             {
                 byte[] userIDbytes = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD ? SignonConverter.stringToByteArray(userId) : null;
-                byte[] encryptedPassword = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? credVault_.getClearCredential() : getPassword(clientSeed_, serverSeed_);   // @mds
 
-                if (PASSWORD_TRACE)
-                {
-                    Trace.log(Trace.DIAGNOSTIC, "Sending Retrieve Signon Information Request...");
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-                    Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
-                    Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
-                    Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
-                }
 
-                SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, credVault_.getType(), serverLevel_);
-                SignonInfoRep signonRep = (SignonInfoRep)signonServer_.sendAndReceive(signonReq);
 
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
-
-                int rc = signonRep.getRC();
-                if (rc != 0)
-                {
-                    byte[] rcBytes = new byte[4];
-                    BinaryConverter.intToByteArray(rc, rcBytes, 0);
-                    Trace.log(Trace.ERROR, "Security validation failed with return code:", rcBytes);
-                    throw AS400ImplRemote.returnSecurityException(rc, signonRep.getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
-                }
 
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
 
                 signonInfo_ = new SignonInfo();
-                signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
-                signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
-                signonInfo_.expirationDate = signonRep.getExpirationDate();
-                signonInfo_.PWDexpirationWarning = signonRep.getPWDExpirationWarning();
-                signonInfo_.version = version_;
-                signonInfo_.serverCCSID = signonRep.getServerCCSID();
-                if (userId_.length() == 0)
-                {
-                    byte[] b = signonRep.getUserIdBytes();
-                    if (b != null)
-                    {
-                        userId_ = SignonConverter.byteArrayToString(b);
-                        signonInfo_.userId = userId_;
-                    }
-                }
+                signonInfo_.currentSignonDate = null; 
+                signonInfo_.lastSignonDate = null;
+                signonInfo_.expirationDate = null; 
+                signonInfo_.PWDexpirationWarning = -1;
+                signonInfo_.version = new ServerVersion(0x70400);
+                signonInfo_.serverCCSID = 37;
+                signonInfo_.userId = userId_;
 
                 if (DataStream.getDefaultConverter() == null)
                 {
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:", signonInfo_.serverCCSID);
                     DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
                 }
-                ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);                
-                //@Bidi-HCG3 signonJobString_ = converter.byteArrayToString(signonJobBytes_);
-                signonJobString_ = converter.byteArrayToString(signonJobBytes_, 0, signonJobBytes_.length, BidiStringType.DEFAULT);//Bidi-HCG3
-                
-                signonServer_.setJobString(signonJobString_);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server job:", signonJobString_);
+                signonInfo_ = null; 
             }
             catch (IOException e)
             {
@@ -3175,6 +3149,7 @@ class AS400ImplRemote implements AS400Impl
     // Connect to sign-on server.
     private synchronized void signonConnect() throws AS400SecurityException, IOException
     {
+        
         if (signonServer_ == null)
         {
             boolean connectedSuccessfully = false;
@@ -3321,21 +3296,21 @@ class AS400ImplRemote implements AS400Impl
 
         if (id.equals("CPF2203") || id.equals("CPF2204"))
         {
-            return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN);
+            return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN, userId_);
         }
         if (id.equals("CPF22E3"))
         {
-            return new AS400SecurityException(AS400SecurityException.USERID_DISABLE);
+            return new AS400SecurityException(AS400SecurityException.USERID_DISABLE, userId_);
         }
         if (id.equals("CPF22E2") || id.equals("CPF22E5"))
         {
-            return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT);
+            return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT, userId_);
         }
         if (id.equals("CPF22E4"))
         {
-            return new AS400SecurityException(AS400SecurityException.PASSWORD_EXPIRED);
+            return new AS400SecurityException(AS400SecurityException.PASSWORD_EXPIRED, userId_);
         }
-        return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL);
+        return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL, userId_);
     }
 
     // This method is to generate the password, the protected old password and the protected new password. This is used for change password.

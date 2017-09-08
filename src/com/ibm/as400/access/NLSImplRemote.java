@@ -35,7 +35,7 @@ class NLSImplRemote extends NLSImpl
     // Connect to server
     if(server_ == null)
     {
-      server_ = system_.getConnection(AS400.CENTRAL, false);
+      server_ = system_.getConnection(AS400.CENTRAL, false, false);
 
       // Exchange attributes with server job.  (This must be first
       // exchange with server job to complete initialization.)

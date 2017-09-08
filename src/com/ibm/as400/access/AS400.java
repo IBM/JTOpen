@@ -164,6 +164,7 @@ public class AS400 implements Serializable
     // Default setting for threadUsed property.
     private static boolean defaultThreadUsed_ = true;
     
+    boolean skipSignonServer = false;             /*@V1A*/
     public String currentLib_ = "*CURUSR";
     public String librariesForThread_ = "*CURUSR";
     static
@@ -387,7 +388,7 @@ public class AS400 implements Serializable
     private SocketProperties socketProperties_ = new SocketProperties();
 
     // No CCSID to start.
-    private transient int ccsid_ = 0;
+    transient int ccsid_ = 0;
 
     // List of connection event bean listeners.
     private transient Vector connectionListeners_ = null;  // Set on first add.
@@ -1340,8 +1341,9 @@ public class AS400 implements Serializable
         //@D3C - Start
         try {
           signon(service == AS400.SIGNON);
+         
 
-          impl_.connect(service);
+          impl_.connect(service, skipSignonServer);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
         } finally {
           // After the thread to connect server, notify the thread to refresh profile token credential.
@@ -1735,8 +1737,10 @@ public class AS400 implements Serializable
     public String getJobCCSIDEncoding() throws AS400SecurityException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job CCSID encoding.");
+        if (signonInfo_ == null) {        /*@V1A*/
         chooseImpl();
         signon(false);
+        }
         int ccsid = signonInfo_.serverCCSID;
         String encoding = impl_.ccsidToEncoding(ccsid);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID encoding:", encoding);
@@ -1805,10 +1809,10 @@ public class AS400 implements Serializable
     public int getModification() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting modification level.");
-
-        chooseImpl();
-        signon(false);
-
+        if (signonInfo_ == null) {     /*@V1A*/
+          chooseImpl();
+          signon(false);
+        }
         int modification = signonInfo_.version.getModificationLevel();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Modification level:", modification);
 
@@ -1835,10 +1839,10 @@ public class AS400 implements Serializable
     public GregorianCalendar getPasswordExpirationDate() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting password expiration date.");
-
-        chooseImpl();
-        signon(false);
-
+        if (signonInfo_ == null) {       /*@V1A*/
+          chooseImpl();
+          signon(false);
+        }
         GregorianCalendar expire = signonInfo_.expirationDate;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password expiration date: " + expire);
 
@@ -1876,8 +1880,10 @@ public class AS400 implements Serializable
      */
     public int getSystemPasswordExpirationWarningDays()throws AS400SecurityException, IOException {
         if (useSystemExpirationWarning_) {
-            chooseImpl();
-            signon(false);
+            if (signonInfo_ == null) {     /*@V1A*/
+              chooseImpl();
+              signon(false);
+            }
             if (signonInfo_.PWDexpirationWarning > 0) {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning: " + signonInfo_.PWDexpirationWarning);
                 return signonInfo_.PWDexpirationWarning;
@@ -1950,10 +1956,10 @@ public class AS400 implements Serializable
     public GregorianCalendar getPreviousSignonDate() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting previous signon date.");
-
-        chooseImpl();
-        signon(false);
-
+        if (signonInfo_ == null) {     /*@V1A*/
+          chooseImpl();
+          signon(false);
+        }
         GregorianCalendar last = signonInfo_.lastSignonDate;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Previous signon date: " + last);
 
@@ -2178,9 +2184,10 @@ public class AS400 implements Serializable
     public int getRelease() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting release level.");
-        chooseImpl();
-        signon(false);
-
+        if (signonInfo_ == null) {   /*@V1A*/
+          chooseImpl();
+          signon(false);
+        }
         int release = signonInfo_.version.getRelease();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Release level:", release);
 
@@ -2434,9 +2441,10 @@ public class AS400 implements Serializable
     public int getVersion() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting version level.");
-        chooseImpl();
-        signon(false);
-
+        if (signonInfo_ == null) {   /*@V1A*/
+          chooseImpl();
+          signon(false);
+        }
         int version = signonInfo_.version.getVersion();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Version level:", version);
 
@@ -2453,9 +2461,11 @@ public class AS400 implements Serializable
     public int getVRM() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting VRM.");
-        chooseImpl();
-        signon(false);
-
+        if (signonInfo_ == null) {    /*@V1A*/
+          chooseImpl();
+          signon(false);
+        }
+        
         int vrm = signonInfo_.version.getVersionReleaseModification();
         if (Trace.traceOn_)
         {
@@ -2956,7 +2966,7 @@ public class AS400 implements Serializable
                     }
 
                     // Check for number of days to expiration, and warn if within threshold.
-                    if (isInPasswordExpirationWarningDays())
+                    if ((!skipSignonServer) &&  isInPasswordExpirationWarningDays()) /*@V1C*/
                     {
                         SignonEvent soEvent = new SignonEvent(this, reconnecting);
                         proceed = soHandler.passwordAboutToExpire(soEvent, getDaysToExpiration());
@@ -3354,7 +3364,11 @@ public class AS400 implements Serializable
           {
             Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
           }
-          signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);  // @mds
+          if (skipSignonServer) {   /*@V1A*/
+          signonInfo_ = impl_.skipSignon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);  // @mds
+          } else {
+            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);  // @mds
+          }
         }
         if (userId_.length() == 0) userId_ = signonInfo_.userId;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sign-on completed.");
@@ -4177,6 +4191,7 @@ public class AS400 implements Serializable
     // Initiate sign-on to the system.  This method is synchronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
     synchronized void signon(boolean keepConnection) throws AS400SecurityException, IOException
     {
+        
         // If we haven't already signed on.
         if (signonInfo_ == null)
         {
@@ -4478,4 +4493,20 @@ public class AS400 implements Serializable
      */
     public boolean bidiAS400Text = false;
     //@Bidi-HCG3 end
+
+    // Set the signon information for the connection
+    // Typicially used when the signon server has been skipped and the information
+    // is retrieved from a different host server
+    /*@V1A*/
+    void setSignonInfo(int serverCCSID, int serverVersion, String userId) {
+      
+      if (signonInfo_ == null ) { 
+        signonInfo_ = new SignonInfo(); 
+      }
+      signonInfo_.serverCCSID = serverCCSID; 
+      signonInfo_.version = new ServerVersion(serverVersion);
+      signonInfo_.userId = userId;
+      ccsid_ = signonInfo_.serverCCSID; 
+      
+    }
 }

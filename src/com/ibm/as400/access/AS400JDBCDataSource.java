@@ -1430,6 +1430,13 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return as400_.getUserId();
     }
 
+    /**
+     * Returns the port number
+     */
+    /*@V1A*/
+    public int getPortNumber() { 
+      return properties_.getInt(JDProperties.PORTNUMBER);
+    }
    
     /**
     *  Returns the QAQQINI library name.
@@ -4961,6 +4968,23 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, property + ": " + parseOption);
+    }
+
+    /**
+    *  Sets the port number  
+    *  @param portNumber  The port number to use for the connection.
+    **/
+    /*@V1A*/
+    public void setPortNumber(int portNumber)
+    {
+      String property="portNumber"; 
+        int old = getPortNumber();
+        properties_.setString(JDProperties.PORTNUMBER, ""+portNumber);
+
+        changes_.firePropertyChange(property, old, portNumber);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + portNumber);  
     }
 
 

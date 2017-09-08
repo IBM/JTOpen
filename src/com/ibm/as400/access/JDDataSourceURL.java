@@ -42,6 +42,7 @@ public class JDDataSourceURL implements Serializable {
   private String url_;
   private boolean valid_;
   private String secondaryUrl_;
+  transient private int    portNumber_ = 0; /*@V1A*/
 
   /**
    * Constructor.
@@ -320,6 +321,7 @@ public class JDDataSourceURL implements Serializable {
             int colonIndex = serverName_.indexOf(':', braceIndex);
             if (colonIndex != -1) {
               portSpecified_ = true;
+              setPortNumber(colonIndex); /*@V1A*/
             }
             serverName_ = serverName_.substring(1, braceIndex);
             ipV6Name = true;
@@ -327,10 +329,12 @@ public class JDDataSourceURL implements Serializable {
         }
         if (!ipV6Name) {
           // Validate the system name.
-          int colon = serverName_.indexOf(':');
-          if (colon != -1) {
-            serverName_ = serverName_.substring(0, colon);
+          int colonIndex = serverName_.indexOf(':');
+          if (colonIndex != -1) {
             portSpecified_ = true;
+            setPortNumber(colonIndex);  /*@V1A*/
+            serverName_ = serverName_.substring(0, colonIndex);
+
           }
         }
         // Validate the schema.
@@ -362,6 +366,19 @@ public class JDDataSourceURL implements Serializable {
     }
   }
 
+  /*@V1A*/
+  private void setPortNumber(int colonIndex) {
+    try {
+      portNumber_ = Integer.parseInt(serverName_.substring(colonIndex+1)); 
+    } catch (Exception e) { 
+      // TODO:  Add tracing here
+    }
+    
+  }
+  /*@V1A*/
+  public int getPortNumber() { 
+     return portNumber_; 
+  }
   /**
    * Return the URL as a String.
    * 

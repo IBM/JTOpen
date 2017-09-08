@@ -68,11 +68,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Connect to service.
-    public void connect(int service) throws AS400SecurityException, IOException
+    public void connect(int service, boolean skipSignonServer) throws AS400SecurityException, IOException
     {
         try
         {
-            connection_.callMethod(pxId_, "connect", new Class[] { Integer.TYPE }, new Object[] { new Integer(service) });
+            connection_.callMethod(pxId_, "connect", new Class[] { Integer.TYPE, Boolean.TYPE }, new Object[] { new Integer(service), new Boolean(skipSignonServer) });
         }
         catch (InvocationTargetException e)
         {
@@ -340,6 +340,20 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
             throw ProxyClientConnection.rethrow2(e);
         }
     }
+
+    // Skip Sign-on. /*@V1A*/
+    public SignonInfo skipSignon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException
+    {
+        try
+        {
+            return (SignonInfo)connection_.callMethod(pxId_, "skipSignon", new Class[] { String.class, Boolean.TYPE, String.class, CredentialVault.class, String.class }, new Object[] { systemName, new Boolean(systemNameLocal), userId, vault, gssName }).getReturnValue();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow2(e);
+        }
+    }
+
 
     //@Bidi-HCG3 start    
     private int bidiStringType = BidiStringType.DEFAULT;

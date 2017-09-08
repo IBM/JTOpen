@@ -357,7 +357,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Remote implementation object open.");
       // Connect to server.
       // Note: We can't skip this block if (server_ != null), since the server may have become disconnected since we last used it; in which case it would need to be reconnected.
-      server_ = system_.getConnection(AS400.COMMAND, false);
+      server_ = system_.getConnection(AS400.COMMAND, false, false);
 
       // Exchange attributes with server job.  (This must be first exchange with server job to complete initialization.)  First check to see if server has already been initialized by another user.
       synchronized (server_)  // Close the window between getting and checking if exchange has been done.
