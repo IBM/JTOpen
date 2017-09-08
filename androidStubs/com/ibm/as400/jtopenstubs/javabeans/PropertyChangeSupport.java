@@ -28,5 +28,11 @@ public class PropertyChangeSupport {
 
 	}
 
+	public void firePropertyChange(String property, int oldValue,
+			int newValue) {
+		// TODO Auto-generated method stub
+
+	}
+
 
 }
