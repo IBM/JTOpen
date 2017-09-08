@@ -760,7 +760,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 numericRangeError, characterTruncation,
                 secondaryURL, serverTrace  ,packageCcsid ,toolboxTrace ,qaqqinilib , 
                 trueAutocommit ,metadataSource ,useBlockUpdate  ,describeOption,decimalDataErrors , 
-                timestampFormat , useDrdaMetadataVersion , 
+                timestampFormat , useDrdaMetadataVersion , portNumber, 
             }; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
 
         
