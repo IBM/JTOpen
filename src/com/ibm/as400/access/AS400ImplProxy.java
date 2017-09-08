@@ -68,6 +68,10 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Connect to service.
+    public void connect(int service) throws AS400SecurityException, IOException
+    {
+      connect(service, false); 
+    }
     public void connect(int service, boolean skipSignonServer) throws AS400SecurityException, IOException
     {
         try

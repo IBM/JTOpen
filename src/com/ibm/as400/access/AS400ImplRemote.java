@@ -432,6 +432,11 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Implementation for connect.
+    public void connect(int service) throws AS400SecurityException, IOException
+    {
+      connect(service, false); 
+    }
+
     public void connect(int service, boolean skipSignonServer) throws AS400SecurityException, IOException
     {
         if (service == AS400.SIGNON)
@@ -1212,6 +1217,10 @@ class AS400ImplRemote implements AS400Impl
             }
             return jobStrings;
         }
+    }
+
+    AS400Server getConnection(int service, boolean forceNewConnection) throws AS400SecurityException, IOException {
+      return getConnection(service, forceNewConnection, false); 
     }
 
     // Get AS400Server object connected to indicated service.  You can get either an existing connection or ask for a new connection.

@@ -30,6 +30,8 @@ interface AS400Impl
     SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
     // Connect to service.
     void connect(int service, boolean skipSignonServer) throws AS400SecurityException, IOException;  /*@V1C*/
+    // Connect to service.
+    void connect(int service) throws AS400SecurityException, IOException;  
     // Establish a DHCP connection to the specified port.
     Socket connectToPort(int port) throws AS400SecurityException, IOException;
     //@N5A Establish a DHCP connection to the specified port. Add this interface for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
