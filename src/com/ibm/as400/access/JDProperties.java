@@ -931,7 +931,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].description = "PORT_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
-        defaults_[i]        = "8471";
+        defaults_[i]        = "0";
 
         
         // Prefetch.

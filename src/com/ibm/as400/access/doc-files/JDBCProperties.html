@@ -53,6 +53,19 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat1t5">(user will be prompted)</TD>
   </TR>
   <TR VALIGN="TOP">
+    <TD HEADERS="cat1">&quot;portNumber&quot;</TD>
+    <TD HEADERS="cat1t2">Specifies the port number to use for connecting to the server.  
+    When this value is set, the driver will no longer attempt to connect to the portmapper
+    or the signon server. 
+    Setting this value is usually used if a firewall proxy is needed to connect to the server.
+    The default value is 0, meaning that the driver will connect to the portmapper to determine
+    the port to use. 
+    </TD>
+    <TD HEADERS="cat1t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat1t4"></TD>
+    <TD HEADERS="cat1t5">0</TD>
+  </TR>
+  <TR VALIGN="TOP">
     <TD HEADERS="cat1">&quot;prompt&quot;</TD>
     <TD HEADERS="cat1t2">Specifies whether the user should be prompted if a user name or password 
       is needed to connect to the system. If a connection can not be made without 
