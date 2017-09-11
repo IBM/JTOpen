@@ -177,7 +177,7 @@ class NPDataStream extends ClientAccessDataStream
     // a new datastream.  We (NP) have this method called when we are
     // receiving a list of objects back from the server - each item in the
     // the list has a new datastream created to catch it.
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new NPDataStream(this);
     }
@@ -197,7 +197,7 @@ class NPDataStream extends ClientAccessDataStream
         this.actionID_ = actionID;
     }
 
-    void setCorrelation( int correlation )
+    protected void setCorrelation( int correlation )
     {
         this.correlation_ = correlation;
     }
@@ -382,7 +382,7 @@ class NPDataStream extends ClientAccessDataStream
 
     // Most of the work for a reply data stream happens here.
 
-    int readAfterHeader( InputStream in )
+    protected int readAfterHeader( InputStream in )
         throws IOException
     {
         // The header has already been read by ClientAccessDataStream().

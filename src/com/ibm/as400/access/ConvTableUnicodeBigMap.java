@@ -22,8 +22,10 @@ public class ConvTableUnicodeBigMap extends ConvTable
         super(ccsid);
     }
 
-    // Perform an OS/400 CCSID to Unicode conversion.
-    final String byteArrayToString(byte[] buf, int offset, int length, int type)
+/** Perform an OS/400 CCSID to Unicode conversion.
+ * 
+ */
+    public final String byteArrayToString(byte[] buf, int offset, int length, int type)
     {
         return byteArrayToString(buf, offset, length);
     }
@@ -33,7 +35,7 @@ public class ConvTableUnicodeBigMap extends ConvTable
         return byteArrayToString(buf, offset, length);
     }
 
-    final String byteArrayToString(byte[] buf, int offset, int length)
+    public final String byteArrayToString(byte[] buf, int offset, int length)
     {
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
         char[] dest = new char[length / 2];
@@ -46,7 +48,7 @@ public class ConvTableUnicodeBigMap extends ConvTable
     }
 
     // Perform a Unicode to OS/400 CCSID conversion.
-    final byte[] stringToByteArray(String source, int type)
+    public final byte[] stringToByteArray(String source, int type)
     {
         char[] src = source.toCharArray();
         return stringToByteArray(src, 0, src.length);
@@ -58,7 +60,7 @@ public class ConvTableUnicodeBigMap extends ConvTable
         return stringToByteArray(src, 0, src.length);
     }
 
-    final byte[] stringToByteArray(char[] src, int offset, int length)
+    public final byte[] stringToByteArray(char[] src, int offset, int length)
     {
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length));
         byte[] dest = new byte[length * 2];
@@ -71,7 +73,7 @@ public class ConvTableUnicodeBigMap extends ConvTable
         return dest;
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
+    public final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
     {
         char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
@@ -91,7 +93,7 @@ public class ConvTableUnicodeBigMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, src.length*2);
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
+    public final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
     {
         char[] src = source.toCharArray();
         int copyLength = Math.min(src.length, length / 2);
@@ -112,12 +114,12 @@ public class ConvTableUnicodeBigMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, copyLength * 2);
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset, int length, int type) throws CharConversionException
+    public final void stringToByteArray(String source, byte[] buf, int offset, int length, int type) throws CharConversionException
     {
         stringToByteArray(source, buf, offset, length);
     }
 
-    final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    public final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         stringToByteArray(source, buf, offset, length);
         return 0; //@trnc

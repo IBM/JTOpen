@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 import java.util.Locale;
 
-class ExecutionEnvironment
+public class ExecutionEnvironment
 {
     // No need for instances of this class.
     private ExecutionEnvironment()
@@ -24,7 +24,7 @@ class ExecutionEnvironment
 
     // Get the "best guess" CCSID for the server based on the default locale.
     // @return  The CCSID.
-    static int getBestGuessAS400Ccsid()
+    public static int getBestGuessAS400Ccsid()
     {
       if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting best guess CCSID.");
       try
@@ -67,7 +67,7 @@ class ExecutionEnvironment
 
     // Get the CCSID for this execution environment.
     // @return  The CCSID.
-    static int getCcsid()
+    public static int getCcsid()
     {
         return 13488;  // Unicode.
     }
@@ -86,7 +86,7 @@ class ExecutionEnvironment
 
     // Get the NLV for the given Locale.
     // @return  String that represents the national language version.
-    static String getNlv(Locale locale)
+    public static String getNlv(Locale locale)
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting NLV.");
         try

@@ -273,7 +273,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         }
     }
 
-    final DataStream getExchangeAttrReply()
+    public final DataStream getExchangeAttrReply()
     {
         return exchangeAttrReply_;
     }
@@ -485,14 +485,14 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         discardList_.add(correlationID);
     }
 
-    final DataStream sendAndReceive(DataStream requestStream) throws IOException, InterruptedException
+    public final DataStream sendAndReceive(DataStream requestStream) throws IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ...");
         int correlationID = send(requestStream);
         return receive(correlationID);
     }
 
-    final synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException, InterruptedException
+    public final synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException, InterruptedException
     {
         if (exchangeAttrReply_ == null)
         {

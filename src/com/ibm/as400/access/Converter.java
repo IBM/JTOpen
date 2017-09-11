@@ -19,19 +19,21 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
-// A character set converter between Java String objects and native code pages.
-class Converter implements Serializable
+/** A character set converter between Java String objects 
+ * 
+ */
+public class Converter implements Serializable
 {
     static final long serialVersionUID = 4L;
     private static final String BUFFER_OVERFLOWED = "Converted field overflows destination array.";
 
-    transient ConverterImpl impl;
+    public transient ConverterImpl impl;
     private String encoding_ = null;
     private int ccsid_ = -1;
     private AS400 system_ = null;
 
     // Gets a Converter object from the pool using a "best guess" based on the default Locale.
-    Converter()
+    public Converter()
     {
         ccsid_ = ExecutionEnvironment.getBestGuessAS400Ccsid();
         try
@@ -48,7 +50,7 @@ class Converter implements Serializable
     // Constructs a character set conversion object using the specified character encoding.
     // @param  encoding  The name of a character encoding.
     // @exception  UnsupportedEncodingException  If the encoding is not supported.
-    Converter(String encoding) throws UnsupportedEncodingException
+    public Converter(String encoding) throws UnsupportedEncodingException
     {
         encoding_ = encoding;
         chooseImpl();
@@ -58,7 +60,7 @@ class Converter implements Serializable
     // @param  ccsid  The CCSID of the server text.
     // @param  system  The system object representing the server with which to connect.
     // @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
-    Converter(int ccsid) throws UnsupportedEncodingException
+    public Converter(int ccsid) throws UnsupportedEncodingException
     {
         ccsid_ = ccsid;
         chooseImpl();
@@ -68,7 +70,7 @@ class Converter implements Serializable
     // @param  ccsid  The CCSID of the server text.
     // @param  system  The system object representing the server with which to connect.
     // @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
-    Converter(int ccsid, AS400 system) throws UnsupportedEncodingException
+    public Converter(int ccsid, AS400 system) throws UnsupportedEncodingException
     {
         ccsid_ = ccsid;
         system_ = system;
@@ -126,7 +128,7 @@ class Converter implements Serializable
     // Converts the specified bytes into a String.
     // @param  source  The bytes to convert.
     // @return  The resultant String.
-    String byteArrayToString(byte[] source)
+    public String byteArrayToString(byte[] source)
     {
         return impl.byteArrayToString(source, 0, source.length);
     }
@@ -135,7 +137,7 @@ class Converter implements Serializable
     // @param  source  The bytes to convert.
     // @param  offset  The offset into the source array for the start of the data.
     // @return  The resultant String.
-    String byteArrayToString(byte[] source, int offset)
+    public String byteArrayToString(byte[] source, int offset)
     {
         return impl.byteArrayToString(source, offset, source.length - offset);
     }
@@ -145,7 +147,7 @@ class Converter implements Serializable
     // @param  offset  The offset into the source array for the start of the data.
     // @param  length  The number of bytes of data to read from the array.
     // @return  The resultant String.
-    String byteArrayToString(byte[] source, int offset, int length)
+    public String byteArrayToString(byte[] source, int offset, int length)
     {
         return impl.byteArrayToString(source, offset, length);
     }
@@ -174,14 +176,14 @@ class Converter implements Serializable
 
     // Returns the ccsid of this conversion object.
     // @return  The ccsid.
-    int getCcsid()
+    public int getCcsid()
     {
         return impl.getCcsid();
     }
 
     // Returns the encoding of this conversion object.
     // @return  The encoding.
-    String getEncoding()
+    public String getEncoding()
     {
         return impl.getEncoding();
     }
@@ -189,7 +191,7 @@ class Converter implements Serializable
     // Converts the specified String into bytes.
     // @param  source  The String to convert.
     // @return  The resultant byte array.
-    byte[] stringToByteArray(String source)
+    public byte[] stringToByteArray(String source)
     {
         return impl.stringToByteArray(source);
     }
@@ -216,7 +218,7 @@ class Converter implements Serializable
     // @param  source  The String to convert.
     // @param  destination  The destination byte array.
     // @exception  CharConversionException  If destination is not large enough to hold the converted string.
-    void stringToByteArray(String source, byte[] destination) throws CharConversionException
+    public void stringToByteArray(String source, byte[] destination) throws CharConversionException
     {
         byte[] convertedBytes = impl.stringToByteArray(source);
         if (convertedBytes.length > destination.length)
@@ -234,7 +236,7 @@ class Converter implements Serializable
     // @param  destination  The destination byte array.
     // @param  offset  The offset into the destination array for the start of the data.
     // @exception  CharConversionException  If destination is not large enough to hold the converted string.
-    void stringToByteArray(String source, byte[] destination, int offset) throws CharConversionException
+    public void stringToByteArray(String source, byte[] destination, int offset) throws CharConversionException
     {
         byte[] convertedBytes = impl.stringToByteArray(source);
         if (convertedBytes.length > destination.length - offset)
@@ -253,7 +255,7 @@ class Converter implements Serializable
     // @param  offset  The offset into the destination array for the start of the data.
     // @param  length  The number of bytes of data to write into the array.
     // @exception  CharConversionException  If destination is not large enough to hold the converted string.
-    void stringToByteArray(String source, byte[] destination, int offset, int length) throws CharConversionException
+    public void stringToByteArray(String source, byte[] destination, int offset, int length) throws CharConversionException
     {
         byte[] convertedBytes = impl.stringToByteArray(source);
         if (convertedBytes.length > length)

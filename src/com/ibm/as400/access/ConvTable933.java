@@ -15,11 +15,11 @@ package com.ibm.as400.access;
 
 import java.io.UnsupportedEncodingException;
 
-class ConvTable933 extends ConvTable1364
+public class ConvTable933 extends ConvTable1364
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    ConvTable933() throws UnsupportedEncodingException
+    public ConvTable933() throws UnsupportedEncodingException
     {
         super(933);
     }

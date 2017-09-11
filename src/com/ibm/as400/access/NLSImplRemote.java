@@ -63,7 +63,7 @@ class NLSImplRemote extends NLSImpl
             if(NLSReply.primaryRC_ != 0)
             {
               Trace.log(Trace.WARNING, "Exchange attribute failed, primary return code =", NLSReply.primaryRC_);
-              Trace.log(Trace.ERROR, "Exchange attribute failed, secondary return code =", NLSReply.secondaryRC_ );
+              Trace.log(Trace.ERROR, "Exchange attribute failed, secondary return code =", NLSReply.getSecondaryRC_() );
               disconnect();
               throw new IOException();
             }

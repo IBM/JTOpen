@@ -16,11 +16,11 @@ package com.ibm.as400.access;
 // ----------------------------------------------------
 // Exchange Attributes
 // ----------------------------------------------------
-class NLSExchangeAttrRequest extends ClientAccessDataStream
+public class NLSExchangeAttrRequest extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    NLSExchangeAttrRequest()
+    public NLSExchangeAttrRequest()
     {
         super();
         data_ = new byte [38];
@@ -43,7 +43,7 @@ class NLSExchangeAttrRequest extends ClientAccessDataStream
     }
     
     /* SurrogateSupport @KDA */ 
-    NLSExchangeAttrRequest(boolean surrogateSupport)
+    public NLSExchangeAttrRequest(boolean surrogateSupport)
     {
         super();
         data_ = new byte [38];

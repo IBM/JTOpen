@@ -13,11 +13,13 @@
 
 package com.ibm.as400.access;
 
-// The parent class for all ConvTableXXX classes that represent bidi ccsids.
-abstract class ConvTableBidiMap extends ConvTable
+/** The parent class for all ConvTableXXX classes that represent bidi ccsids.
+ * 
+ */
+public abstract class ConvTableBidiMap extends ConvTable
 {
-    char[] toUnicode_ = null;
-    byte[] fromUnicode_ = null;
+    public char[] toUnicode_ = null;
+    public byte[] fromUnicode_ = null;
   
     // Constructor.
     ConvTableBidiMap(int ccsid, char[] toUnicode, char[] fromUnicode)

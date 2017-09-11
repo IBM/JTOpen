@@ -80,7 +80,7 @@ Sets the correlation ID.
 
 @param id The correlation ID.
 **/
-    void setCorrelation(int id)
+    protected void setCorrelation(int id)
     {
         // Since we only need a reply from the last request, then
         // we will set its correlation ID.  The rest will be 0.

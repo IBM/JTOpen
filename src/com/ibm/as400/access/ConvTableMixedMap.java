@@ -15,14 +15,16 @@ package com.ibm.as400.access;
 
 import java.io.UnsupportedEncodingException;
 
-// This is the parent class for all ConvTableXXX classes that represent mixed-byte ccsids.
-abstract class ConvTableMixedMap extends ConvTable
+/** This is the parent class for all ConvTableXXX classes that represent mixed-byte ccsids.
+ * 
+ */
+public abstract class ConvTableMixedMap extends ConvTable
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
-    ConvTableSingleMap sbTable_ = null; // The single-byte portion of this mixed-byte table.
-    ConvTableDoubleMap dbTable_ = null; // The double-byte portion of this mixed-byte table.
+    public ConvTableSingleMap sbTable_ = null; // The single-byte portion of this mixed-byte table.
+    public ConvTableDoubleMap dbTable_ = null; // The double-byte portion of this mixed-byte table.
 
 
     static final byte shiftOut_ = 0x0E; // Byte used to shift-out of single byte mode.

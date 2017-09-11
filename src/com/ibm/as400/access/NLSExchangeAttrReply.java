@@ -16,12 +16,12 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.IOException;
 
-class NLSExchangeAttrReply extends ClientAccessDataStream
+public class NLSExchangeAttrReply extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    int primaryRC_=0;            // return code returned by server
-    int secondaryRC_=0;          // return code returned by server
+    public int primaryRC_=0;            // return code returned by server
+    private int secondaryRC_=0;          // return code returned by server
     int ccsid_=0;                // host CCSCID
 
     /* @KDA */ 
@@ -32,7 +32,7 @@ class NLSExchangeAttrReply extends ClientAccessDataStream
     private int function3Level_;
     private int[] ccsidList_;
 
-    NLSExchangeAttrReply()
+    public NLSExchangeAttrReply()
     {
         super();
     }
@@ -78,7 +78,7 @@ class NLSExchangeAttrReply extends ClientAccessDataStream
         int bytes=super.readAfterHeader(in);
         // get return codes
         primaryRC_ = get16bit(HEADER_LENGTH+2);
-        secondaryRC_ = get16bit(HEADER_LENGTH+4);
+        setSecondaryRC_(get16bit(HEADER_LENGTH+4));
         dataStreamLevel_ = get16bit(HEADER_LENGTH+6);
         ccsid_ = get32bit(HEADER_LENGTH+8);
         /* Adding new surrogate information @KDA*/ 
@@ -101,5 +101,13 @@ class NLSExchangeAttrReply extends ClientAccessDataStream
         // Note: chain,  version, function levels
         // not currently used.
         return bytes;
+    }
+
+    public int getSecondaryRC_() {
+      return secondaryRC_;
+    }
+
+    public void setSecondaryRC_(int secondaryRC_) {
+      this.secondaryRC_ = secondaryRC_;
     }
 }

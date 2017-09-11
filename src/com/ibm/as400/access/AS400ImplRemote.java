@@ -43,8 +43,12 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
-// This is the functional implementation of the AS400Impl interface.
-class AS400ImplRemote implements AS400Impl
+/** This is the functional implementation of the AS400Impl interface.
+ * While declared as public, it is only intended for the internal
+ * use of the driver. 
+ *
+ */
+public class AS400ImplRemote implements AS400Impl
 {
     private static boolean PASSWORD_TRACE = false;
     private static final boolean DEBUG = false;
@@ -612,7 +616,7 @@ class AS400ImplRemote implements AS400Impl
 
     // Disconnects the system and removes it from the system list.
     // param  server  The AS400Server to disconnect and remove.
-    void disconnectServer(AS400Server server)
+    public void disconnectServer(AS400Server server)
     {
         server.forceDisconnect();
         int service = server.getService();
@@ -1219,7 +1223,7 @@ class AS400ImplRemote implements AS400Impl
         }
     }
 
-    AS400Server getConnection(int service, boolean forceNewConnection) throws AS400SecurityException, IOException {
+    public AS400Server getConnection(int service, boolean forceNewConnection) throws AS400SecurityException, IOException {
       return getConnection(service, forceNewConnection, false); 
     }
 

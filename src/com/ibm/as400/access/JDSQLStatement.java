@@ -22,7 +22,8 @@ import java.util.Vector;
 
 
 /**
- Represents a parsed SQL statement.
+ Internal class that represents a parsed SQL statement.
+ This should only be used internally by the JDBC driver.
 **/
 //
 // Implementation note:
@@ -35,7 +36,7 @@ import java.util.Vector;
 // most statements, so now all parsing is done at object
 // construction time.
 //
-class JDSQLStatement
+public class JDSQLStatement
 {
     // Native statement types.
     //
@@ -152,7 +153,7 @@ class JDSQLStatement
     /**
      * Adds an AS400JDBCStatementListener.
     **/
-    static void addStatementListener(AS400JDBCStatementListener listener)
+    public static void addStatementListener(AS400JDBCStatementListener listener)
     {
       if (listener != null) statementListeners_.add(listener);
     }
@@ -160,7 +161,7 @@ class JDSQLStatement
     /**
      * Removes an AS400JDBCStatementListener.
     **/
-    static void removeStatementListener(AS400JDBCStatementListener listener)
+    public static void removeStatementListener(AS400JDBCStatementListener listener)
     {
       if (listener != null) statementListeners_.remove(listener);
     }

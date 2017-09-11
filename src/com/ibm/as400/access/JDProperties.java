@@ -23,7 +23,9 @@ import java.util.Properties;
 
 /**
 Represents the properties passed as connection
-attributes for the driver.
+attributes for the driver.  Though marked as public, only 
+intended to internal use within the com.ibm.as400.access
+package. 
 **/
 //
 // Implementation notes:
@@ -60,7 +62,7 @@ attributes for the driver.
 //    for them.  This saves the descriptions from being
 //    loaded in all cases.
 //
-class JDProperties implements Serializable, Cloneable //@PDC 550
+public class JDProperties implements Serializable, Cloneable //@PDC 550
 {
     static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
@@ -126,7 +128,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              EXTENDED_METADATA       = 48;   // @F5A
     static final int              CURSOR_SENSITIVITY      = 49;   // @F6A
     static final int              BEHAVIOR_OVERRIDE       = 50;   // @F7A
-    static final int              PACKAGE_CCSID           = 51;   // @M0A - support sending SQL to system in UTF-16 and storing it in a UTF-16 package
+    public static final int              PACKAGE_CCSID           = 51;   // @M0A - support sending SQL to system in UTF-16 and storing it in a UTF-16 package
     static final int              MINIMUM_DIVIDE_SCALE    = 52;   // @M0A - support 63 digit decimal precision
     static final int              MAXIMUM_PRECISION       = 53;
     static final int              MAXIMUM_SCALE           = 54;
@@ -1785,7 +1787,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     @param      index   Property index.
     @return     The value.
     **/
-    int getInt (int index)
+    public int getInt (int index)
     {
         try
         {                                                               // @C2A

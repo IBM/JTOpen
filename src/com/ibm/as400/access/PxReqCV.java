@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 The PxReqCV class represents the client
 portion of a request.
 **/
-abstract class PxReqCV
+public  abstract class PxReqCV
 extends PxCompDS
 implements PxDSWV
 {

@@ -34,7 +34,7 @@ package com.ibm.as400.access;
  *
  */
 
-class BidiText
+public class BidiText
 {
 
 /**

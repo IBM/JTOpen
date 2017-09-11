@@ -29,7 +29,7 @@ import java.nio.CharBuffer;
  *
  */
 
-class BidiConvert
+public class BidiConvert
 {
 /**
  *  Default Bidi parms for Unicode string

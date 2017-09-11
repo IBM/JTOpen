@@ -79,12 +79,12 @@ class AS400NoThreadServer extends AS400Server
         return closed_ == false;
     }
 
-    DataStream getExchangeAttrReply()
+    public DataStream getExchangeAttrReply()
     {
         return exchangeAttrReply_;
     }
 
-    synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException
+    public synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException
     {
         if (exchangeAttrReply_ == null)
         {
@@ -103,7 +103,7 @@ class AS400NoThreadServer extends AS400Server
         instanceReplyStreams_.clear();
     }
 
-    DataStream sendAndReceive(DataStream requestStream) throws IOException
+    public DataStream sendAndReceive(DataStream requestStream) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ..."); //@pdc 
         int correlationID = send(requestStream);

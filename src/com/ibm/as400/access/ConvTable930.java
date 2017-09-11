@@ -15,9 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.UnsupportedEncodingException;
 
-class ConvTable930 extends ConvTableMixedMap
+public class ConvTable930 extends ConvTableMixedMap
 {
-    ConvTable930() throws UnsupportedEncodingException
+    public ConvTable930() throws UnsupportedEncodingException
     {
         super(930, 290, 16684);  // 16684 is a superset of 300.
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");

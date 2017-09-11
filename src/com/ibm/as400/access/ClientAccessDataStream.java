@@ -18,8 +18,11 @@ import java.io.InputStream;
 import java.util.Hashtable;
 
 
-// Base class for client access server data streams.  Provides methods to access common client access data stream header.
-class ClientAccessDataStream extends DataStream
+/** Base class for client access server data streams.  
+ * Provides methods to access common client access data stream header.
+ * 
+ */
+public class ClientAccessDataStream extends DataStream
 {
   static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
@@ -217,7 +220,7 @@ class ClientAccessDataStream extends DataStream
   }
 
   // Constructs an empty ClientAccessDataStream object. 
-  ClientAccessDataStream()
+  protected ClientAccessDataStream()
   {
     super(HEADER_LENGTH);
   }
@@ -296,28 +299,28 @@ class ClientAccessDataStream extends DataStream
 
   // Set the request correlation for this data stream.
   // @param  id  The request correlation number.
-  void setCorrelation(int id)
+  protected void setCorrelation(int id)
   {
     set32bit(id, 12);
   }
 
   // Set the CS instance for this data stream.
   // @param  id  The CS instance.
-  void setCSInstance(int id)
+  protected void setCSInstance(int id)
   {
     set32bit(id, 8);
   }
 
   // Set the header ID for the data stream.  It should be set to 0 for most of the Client Access servers.
   // @param  id  The header ID to set.
-  void setHeaderID(int id)
+  protected void setHeaderID(int id)
   {
     set16bit(id, 4);
   }
 
   // Set the length of the data stream.  This is the total length of the data stream.
   // @param  len  The length of the data stream.
-  void setLength(int len)
+  protected void setLength(int len)
   {
     //@P0D set32bit(len, 0);
     data_[0] = (byte)(len >>> 24);
@@ -328,21 +331,21 @@ class ClientAccessDataStream extends DataStream
 
   // Set the request/reply ID for the data stream.
   // @param  id  The request/reply ID to set.
-  void setReqRepID(int id)
+  protected void setReqRepID(int id)
   {
     set16bit(id, 18);
   }
 
   // Set the server ID for the data stream.  This is the ID of the server to talk to.
   // @param  id  The ID of the server.
-  void setServerID(int id)
+  protected void setServerID(int id)
   {
     set16bit(id, 6);
   }
 
   // Set the template length for the data stream.
   // @param  len  The template length.
-  void setTemplateLen(int len)
+  protected void setTemplateLen(int len)
   {
     set16bit(len, 16);
   }

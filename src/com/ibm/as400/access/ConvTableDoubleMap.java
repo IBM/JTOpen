@@ -18,8 +18,10 @@ import java.util.Enumeration;
 
 import java.util.Hashtable;
 
-// This is the parent class for all ConvTableXXX classes that represent double-byte ccsids.
-class ConvTableDoubleMap extends ConvTable
+/** This is the parent class for all ConvTableXXX classes that represent double-byte ccsids.
+ * 
+ */
+public class ConvTableDoubleMap extends ConvTable
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
@@ -359,7 +361,7 @@ class ConvTableDoubleMap extends ConvTable
     }
 
     
-    char[] getFromUnicode() {
+    public char[] getFromUnicode() {
       return fromUnicode_;
     }
 
@@ -367,7 +369,7 @@ class ConvTableDoubleMap extends ConvTable
       fromUnicode_ = fromUnicode; 
     }
 
-    char[] getToUnicode() {
+    public char[] getToUnicode() {
       return toUnicode_;
     }
 

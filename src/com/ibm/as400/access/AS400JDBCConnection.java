@@ -1244,7 +1244,7 @@ void handleAbort() {
 
     @return    The connection properties.
     **/
-    JDProperties getProperties ()
+    public JDProperties getProperties ()
     throws SQLException // @EGA
     {
         return properties_;

@@ -16,9 +16,9 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 
-class ConvTable5035 extends ConvTable1399
+public class ConvTable5035 extends ConvTable1399
 {
-    ConvTable5035() throws UnsupportedEncodingException
+    public ConvTable5035() throws UnsupportedEncodingException
     {
         super(5035);
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");

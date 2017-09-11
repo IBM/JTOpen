@@ -20,7 +20,7 @@ package com.ibm.as400.access;
   *
   **/
 
-class NPDataAnalyzer extends Object
+public class NPDataAnalyzer extends Object
 {
     static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -563,7 +563,7 @@ class NPDataAnalyzer extends Object
       *         value of what this data is most likely (*SCS,
       *          *AFPDS or *USERASCII).
       **/
-    static String sniff(byte[] buf, int offset, int len)
+    public static String sniff(byte[] buf, int offset, int len)
     {
         String str = DT_USERASCII;
         if (dataIsAFP(buf, offset, len))

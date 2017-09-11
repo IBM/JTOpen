@@ -1708,8 +1708,10 @@ public class AS400 implements Serializable
         return gssOption_;
     }
 
-    // Get underlying AS400Impl object.
-    AS400Impl getImpl()
+    /**  Get underlying AS400Impl object.
+     *   Should only be used by code internal to the driver.
+     */
+    public AS400Impl getImpl()
     {
         chooseImpl();
         return impl_;

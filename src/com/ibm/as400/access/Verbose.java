@@ -21,7 +21,7 @@ import java.io.PrintStream;
 The Verbose class prints verbose output depending
 on the state of a flag.
 **/
-class Verbose
+public class Verbose
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 

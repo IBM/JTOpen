@@ -13,13 +13,15 @@
 
 package com.ibm.as400.access;
 
-// This is the parent class for all ConvTableXXX classes that represent single-byte ASCII ccsids.
-abstract class ConvTableAsciiMap extends ConvTable
+/** This is the parent class for all ConvTableXXX classes that represent single-byte ASCII ccsids.
+ * 
+ */
+public abstract class ConvTableAsciiMap extends ConvTable
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    char[] toUnicode_ = null;
-    byte[] fromUnicode_ = null;
+    public char[] toUnicode_ = null;
+    public byte[] fromUnicode_ = null;
 
     // Constructor.
     ConvTableAsciiMap(int ccsid, char[] toUnicode, char[] fromUnicode)
@@ -51,7 +53,7 @@ abstract class ConvTableAsciiMap extends ConvTable
         return stringToByteArray(src, 0, src.length);
     }
 
-    final byte[] stringToByteArray(char[] src, int offset, int length)
+    public final byte[] stringToByteArray(char[] src, int offset, int length)
     {
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length));
         byte[] dest = new byte[length];

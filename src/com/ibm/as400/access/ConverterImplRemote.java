@@ -16,17 +16,17 @@ package com.ibm.as400.access;
 import java.io.CharConversionException;
 import java.io.UnsupportedEncodingException;
 
-class ConverterImplRemote implements ConverterImpl
+public class ConverterImplRemote implements ConverterImpl
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    ConvTable table_;
+    public ConvTable table_;
 
-    ConverterImplRemote()
+    public ConverterImplRemote()
     {
     }
 
-    ConverterImplRemote(ConvTable table)
+    public ConverterImplRemote(ConvTable table)
     {
         table_ = table;
     }

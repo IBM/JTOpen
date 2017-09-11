@@ -22,7 +22,7 @@ class DQExchangeAttributesNormalReplyDataStream extends ClientAccessDataStream
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new DQExchangeAttributesNormalReplyDataStream();
     }
@@ -32,7 +32,7 @@ class DQExchangeAttributesNormalReplyDataStream extends ClientAccessDataStream
         return 0x8000;  // Returns the reply ID.
     }
 
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving data queue exchange client/server attributes (normal) reply...");
         return super.readAfterHeader(in);

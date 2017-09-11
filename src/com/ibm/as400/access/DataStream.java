@@ -19,8 +19,10 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-// Base class for data streams.  Provides methods to access common data stream parts.
-abstract class DataStream
+/** Base class for data streams.  Provides methods to access common data stream parts.
+ * 
+ */
+public abstract class DataStream
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
@@ -191,7 +193,7 @@ abstract class DataStream
 
     // Get a new instance of this class.  The code for this method should be provided by the subclasses.  In the event that a sub-class does not override this method, null will be returned.
     // @return  Object representing a clone of this object.
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return null;
     }
@@ -237,7 +239,7 @@ abstract class DataStream
     // Read from input stream into this data stream placing the data read into this data stream after the header portion of the data stream.
     // @param  in  InputStream from which to read the data.
     // @exception  IOException  Unable to read from the input stream.
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         // int bytesRead = readFromStreamDebug(in, data_, headerLength_, data_.length - headerLength_);
         int bytesRead = readFromStream(in, data_, headerLength_, data_.length - headerLength_);

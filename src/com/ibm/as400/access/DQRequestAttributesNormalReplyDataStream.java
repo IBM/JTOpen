@@ -22,7 +22,7 @@ class DQRequestAttributesNormalReplyDataStream extends ClientAccessDataStream
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new DQRequestAttributesNormalReplyDataStream();
     }
@@ -71,7 +71,7 @@ class DQRequestAttributesNormalReplyDataStream extends ClientAccessDataStream
         return description;
     }
 
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving query data queue attributes (normal) reply...");
 

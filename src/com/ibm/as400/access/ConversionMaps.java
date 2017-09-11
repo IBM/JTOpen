@@ -16,15 +16,15 @@ package com.ibm.as400.access;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-abstract class ConversionMaps
+public abstract class ConversionMaps
 {
     // To prevent rehashing of a Hashtable as it's being built, we construct it with a certain number of entries.  However, the default load factor for a table is .75, meaning that when it becomes 3/4 full, the table is automatically increased in size and rehashed.  We could specify a load factor of 1.0 on the constructor, since that would efficiently utilize memory and prevent rehashing, but we might get ineffective hashing since the algorithm might not be good, so instead, we leave the load factor at the default .75 and just use a size of hash table big enough to accommodate the number of entries we have without rehashing.  This is a pretty good tradeoff between lookup time and memory footprint.
 
     // If we ever pre-req Java 2, we should use HashMaps for these instead of Hashtables.  Hashtables are synchronized which makes the table lookup slow, especially if multiple threads bottleneck on these static tables.  HashMaps are not synchronized yet provide the same function.
-    final static Hashtable ccsidEncoding_ = new Hashtable(175); // 127 actual entries.
-    final static Hashtable encodingCcsid_ = new Hashtable(175); // 127 actual entries.
-    final static Hashtable localeCcsidMap_ = new Hashtable(120); // 87 actual entries.
-    final static Hashtable localeNlvMap_ = new Hashtable(100); // 74 actual entries.
+    public final static Hashtable ccsidEncoding_ = new Hashtable(175); // 127 actual entries.
+    public final static Hashtable encodingCcsid_ = new Hashtable(175); // 127 actual entries.
+    public final static Hashtable localeCcsidMap_ = new Hashtable(120); // 87 actual entries.
+    public final static Hashtable localeNlvMap_ = new Hashtable(100); // 74 actual entries.
 
     // Convenience function to get corresponding ccsid number as String.
     static final String encodingToCcsidString(String encoding)

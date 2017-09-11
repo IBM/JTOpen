@@ -16,11 +16,11 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 
-class ConvTable1364 extends ConvTableMixedMap
+public class ConvTable1364 extends ConvTableMixedMap
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    ConvTable1364() throws UnsupportedEncodingException
+    public ConvTable1364() throws UnsupportedEncodingException
     {
         this(1364);
     }

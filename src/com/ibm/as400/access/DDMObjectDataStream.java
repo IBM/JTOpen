@@ -72,7 +72,7 @@ class DDMObjectDataStream extends DDMDataStream
    *used by the DDMDataStream.construct() method.
    *@return a new instance of a DDMObjectDataStream.
   **/
-  Object getNewDataStream()
+  public Object getNewDataStream()
   {
     return new DDMObjectDataStream();
   }

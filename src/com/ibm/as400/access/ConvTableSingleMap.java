@@ -15,13 +15,15 @@ package com.ibm.as400.access;
 
 import java.io.CharConversionException;
 
-// This is the parent class for all ConvTableXXX classes that represent single-byte ccsids.
-abstract class ConvTableSingleMap extends ConvTable
+/**  This is the parent class for all ConvTableXXX classes that represent single-byte ccsids.
+ * 
+ */
+public abstract class ConvTableSingleMap extends ConvTable
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    char[] toUnicode_ = null;
-    byte[] fromUnicode_ = null;
+    public char[] toUnicode_ = null;
+    public byte[] fromUnicode_ = null;
 
     // Constructor.
     ConvTableSingleMap(int ccsid, char[] toUnicode, char[] fromUnicode)
@@ -56,7 +58,7 @@ abstract class ConvTableSingleMap extends ConvTable
         return stringToByteArray(src, 0, src.length);
     }
 
-    final byte[] stringToByteArray(char[] src, int offset, int length)
+    public final byte[] stringToByteArray(char[] src, int offset, int length)
     {
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length));
         byte[] dest = new byte[length];
@@ -65,7 +67,7 @@ abstract class ConvTableSingleMap extends ConvTable
         return dest;
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
+    public final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
     {
         char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
@@ -80,7 +82,7 @@ abstract class ConvTableSingleMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, src.length);
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
+    public final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
     {
         char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));

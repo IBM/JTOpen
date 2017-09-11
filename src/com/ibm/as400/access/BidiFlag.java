@@ -40,7 +40,7 @@ package com.ibm.as400.access;
  *
  */
 
-class BidiFlag
+public class BidiFlag
  {
 /**
  *  Value identifying Implicit type of text

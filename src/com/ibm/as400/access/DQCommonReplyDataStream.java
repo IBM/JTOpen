@@ -28,7 +28,7 @@ class DQCommonReplyDataStream extends ClientAccessDataStream
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new DQCommonReplyDataStream();
     }
@@ -59,7 +59,7 @@ class DQCommonReplyDataStream extends ClientAccessDataStream
         return null;
     }
 
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving data queue common reply...");
 

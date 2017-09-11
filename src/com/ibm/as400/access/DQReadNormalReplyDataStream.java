@@ -22,7 +22,7 @@ class DQReadNormalReplyDataStream extends ClientAccessDataStream
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new DQReadNormalReplyDataStream();
     }
@@ -72,7 +72,7 @@ class DQReadNormalReplyDataStream extends ClientAccessDataStream
         return parameter;
     }
 
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving receive record from data queue (normal) reply...");
 

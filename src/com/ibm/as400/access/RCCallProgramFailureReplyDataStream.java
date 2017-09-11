@@ -13,12 +13,14 @@
 
 package com.ibm.as400.access;
 
-// Program failed, same datastream except for request ID.
+/** Program failed, same datastream except for request ID.
+ * 
+ */
 class RCCallProgramFailureReplyDataStream extends RCCallProgramReplyDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new RCCallProgramFailureReplyDataStream();
     }

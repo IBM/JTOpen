@@ -19,7 +19,7 @@ package com.ibm.as400.access;
 The ProxyConstants class defines global contants for the
 proxy support.
 **/
-class ProxyConstants
+public class ProxyConstants
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -40,7 +40,7 @@ class ProxyConstants
     // on 01/29/1999.  For a complete list of registered port numbers,
     // or http://www.isi.edu/in-notes/iana/assignments/port-numbers
     // for the complete list.
-    static final int    PORT_NUMBER                     =  3470;
+    public static final int    PORT_NUMBER                     =  3470;
     static final int    SECURE_PORT_NUMBER              =  3471;   //$B1C
 
 
@@ -81,7 +81,7 @@ class ProxyConstants
     static final short   DS_CONNECT_TUNNEL_REQ           = 11015;  // @D1a
     static final short   DS_DISCONNECT_REQ               = 11020;
     static final short   DS_CONFIGURE_REQ                = 11030;
-    static final short   DS_END_REQ                      = 11040;
+    public static final short   DS_END_REQ                      = 11040;
     static final short   DS_LOAD_REQ                     = 11050;
 
     static final short   DS_CONSTRUCTOR_REQ              = 12010;

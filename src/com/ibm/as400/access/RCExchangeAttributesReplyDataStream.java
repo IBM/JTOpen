@@ -20,7 +20,7 @@ class RCExchangeAttributesReplyDataStream extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new RCExchangeAttributesReplyDataStream();
     }
@@ -50,7 +50,7 @@ class RCExchangeAttributesReplyDataStream extends ClientAccessDataStream
         return get16bit(34);
     }
 
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving remote command exchange client/server attributes reply...");
         return super.readAfterHeader(in);

@@ -166,7 +166,7 @@ class ConvTable1208 extends ConvTable
         return ret;
     }
 
-    final byte[] stringToByteArray(char[] src, int offset, int length)
+    public final byte[] stringToByteArray(char[] src, int offset, int length)
     {
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length));
         byte[] buf = new byte[src.length * 4];
@@ -224,7 +224,7 @@ class ConvTable1208 extends ConvTable
         return ret;
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
+    public final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
     {
         int bufCount = offset;
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
@@ -282,7 +282,7 @@ class ConvTable1208 extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException {
+    public final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException {
       stringToByteArrayTruncation(source, buf, offset, length); 
     }
     /* detected truncation  @H2C*/ 
@@ -402,7 +402,7 @@ class ConvTable1208 extends ConvTable
      * @throws CharConversionException
      */
 
-    final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    public final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         // Don't have a Bidi string type for UTF-8.
         return stringToByteArrayTruncation(source, buf, offset, length); /*@H2C*/

@@ -36,7 +36,7 @@ import java.net.*;
 The PxClientConnectionAdapter class represents the connection
 to a proxy server.
 **/
-abstract class PxClientConnectionAdapter
+public abstract class PxClientConnectionAdapter
 {
   private static final String copyright = "Copyrixght (C) 1997-2000 International Business Machines Corporation and others.";
 

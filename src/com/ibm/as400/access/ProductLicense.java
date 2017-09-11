@@ -704,7 +704,7 @@ public class ProductLicense implements java.io.Serializable
                     Trace.log(Trace.ERROR, ("Exchange attribute failed, primary return code =" +
                                              NLSReply.primaryRC_ +
                                             "secondary return code =" +
-                                             NLSReply.secondaryRC_) );
+                                             NLSReply.getSecondaryRC_()) );
                     disconnect();
                     throw new IOException();
                 }

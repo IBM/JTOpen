@@ -40,7 +40,7 @@ import java.util.StringTokenizer;
  *
  */
 
-class BidiFlagSet
+public class BidiFlagSet
 {
 /**
  *  Mask to apply on a BidiFlagSet value to isolate the

@@ -428,7 +428,7 @@ public class AS400BidiTransform
     }
     
     //Bidi-HCG3
-    static int getStringTypeX(int ccsid, AS400 as400){
+    public static int getStringTypeX(int ccsid, AS400 as400){
     	if(as400 == null)
     		return getStringType(ccsid);   
     	

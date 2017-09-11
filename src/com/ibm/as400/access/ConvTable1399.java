@@ -17,11 +17,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
 
-class ConvTable1399 extends ConvTableMixedMap
+public class ConvTable1399 extends ConvTableMixedMap
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    ConvTable1399() throws UnsupportedEncodingException
+    public ConvTable1399() throws UnsupportedEncodingException
     {
         this(1399);
         dbTable_ = ConvTable1399.makeAlternateMap(dbTable_);  /*@KDA*/

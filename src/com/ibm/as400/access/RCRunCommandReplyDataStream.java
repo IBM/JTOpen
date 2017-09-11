@@ -19,7 +19,7 @@ import java.io.InputStream;
 // Run remote command reply data stream class.
 class RCRunCommandReplyDataStream extends ClientAccessDataStream
 {
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new RCRunCommandReplyDataStream();
     }
@@ -39,7 +39,7 @@ class RCRunCommandReplyDataStream extends ClientAccessDataStream
         return RemoteCommandImplRemote.parseMessages(data_, converter);
     }
 
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving run command reply...");
         return super.readAfterHeader(in);

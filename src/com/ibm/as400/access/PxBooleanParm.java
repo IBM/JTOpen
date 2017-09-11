@@ -25,7 +25,7 @@ import java.io.OutputStream;
 The PxBooleanParm class represents a boolean
 parameter in a proxy datastream.
 **/
-class PxBooleanParm 
+public class PxBooleanParm 
 extends PxDS
 implements PxParm
 {

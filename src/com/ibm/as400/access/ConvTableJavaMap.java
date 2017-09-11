@@ -19,8 +19,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
-// This is the class representing a Java converter table.  Each instance of this class handles an encoding that the Toolbox does not support and Java does.  Hence, multiple instances of this class could be cached in the converter pool.
-class ConvTableJavaMap extends ConvTable
+/** This is the class representing a Java converter table.  Each instance of this class handles an encoding that the Toolbox does not support and Java does.  Hence, multiple instances of this class could be cached in the converter pool.
+ * 
+ */
+public class ConvTableJavaMap extends ConvTable
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 

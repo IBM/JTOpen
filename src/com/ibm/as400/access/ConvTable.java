@@ -17,8 +17,10 @@ import java.io.CharConversionException;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 
-// Internal class representing a character set conversion table.
-abstract class ConvTable
+/** Internal class representing a character set conversion table.
+ * 
+ */
+public abstract class ConvTable
 {
     static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
@@ -67,7 +69,7 @@ abstract class ConvTable
     }
 
     // Perform an OS/400 CCSID to Unicode conversion.
-    String byteArrayToString(byte[] source, int offset, int length, int type)
+    public String byteArrayToString(byte[] source, int offset, int length, int type)
     {
         return byteArrayToString(source, offset, length, new BidiConversionProperties(type));
     }
@@ -75,7 +77,7 @@ abstract class ConvTable
     abstract String byteArrayToString(byte[] source, int offset, int length, BidiConversionProperties properties);
 
     // This method can be overridden by subclasses for better performance.
-    String byteArrayToString(byte[] source, int offset, int length)
+    public String byteArrayToString(byte[] source, int offset, int length)
     {
         return byteArrayToString(source, offset, length, new BidiConversionProperties(bidiStringType_));
     }
@@ -194,20 +196,20 @@ abstract class ConvTable
 
     // Returns the ccsid of this conversion object.
     // @return  The ccsid.
-    int getCcsid()
+    public int getCcsid()
     {
         return ccsid_;
     }
 
     // Returns the encoding of this conversion object.
     // @return  The encoding.
-    String getEncoding()
+    public String getEncoding()
     {
         return encoding_;
     }
 
     // Factory method for finding appropriate table based on encoding name.
-    static final ConvTable getTable(String encoding) throws UnsupportedEncodingException
+    public static final ConvTable getTable(String encoding) throws UnsupportedEncodingException
     {
         String className = (NLS.forceJavaTables_) ? encoding : prefix_ + ConversionMaps.encodingToCcsidString(encoding);
 
@@ -250,7 +252,7 @@ abstract class ConvTable
     }
 
     // Factory method for finding appropriate table based on ccsid number.  System may be null if no system was provided.
-    static final ConvTable getTable(int ccsid, AS400ImplRemote system) throws UnsupportedEncodingException
+    public static final ConvTable getTable(int ccsid, AS400ImplRemote system) throws UnsupportedEncodingException
     {
         ccsid = ccsid & 0x00FFFF; // Remove sign-extended shorts that JDBC gives us.
 
@@ -322,26 +324,26 @@ abstract class ConvTable
     }
 
     // Perform a Unicode to OS/400 CCSID conversion.
-    byte[] stringToByteArray(String source, int type)
+    public byte[] stringToByteArray(String source, int type)
     {
         return stringToByteArray(source, new BidiConversionProperties(type));
     }
     abstract byte[] stringToByteArray(String source, BidiConversionProperties properties);
 
     // This method can be overridden by subclasses for better performance.
-    byte[] stringToByteArray(String source)
+    public byte[] stringToByteArray(String source)
     {
         return stringToByteArray(source, new BidiConversionProperties(bidiStringType_));
     }
 
     // Subclasses should override this to avoid creating superflous String objects and char arrays.
-    byte[] stringToByteArray(char[] source, int offset, int length)
+    public byte[] stringToByteArray(char[] source, int offset, int length)
     {
         return stringToByteArray(new String(source, offset, length));
     }
 
     // Subclasses should override this to avoid creating superfluous byte arrays.
-    void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
+    public void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
     {
         byte[] b = stringToByteArray(source, new BidiConversionProperties(bidiStringType_));
         try
@@ -355,13 +357,13 @@ abstract class ConvTable
     }
 
     // This method can be overridden by subclasses for better performance.
-    void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
+    public void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
     {
         stringToByteArray(source, buf, offset, length, new BidiConversionProperties(bidiStringType_));
     }
 
     // Subclasses should override this to avoid creating superfluous byte arrays.
-    void stringToByteArray(String source, byte[] buf, int offset, int length, int type) throws CharConversionException
+    public void stringToByteArray(String source, byte[] buf, int offset, int length, int type) throws CharConversionException
     {
         stringToByteArray(source, buf, offset, length, new BidiConversionProperties(type));
     }
@@ -377,7 +379,7 @@ abstract class ConvTable
      * @return  number of bytes that were truncated 
      * @throws CharConversionException
      */
-    int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    public int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         int truncated = 0; //@trnc
         byte[] b = stringToByteArray(source, properties);

@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 class RCCallProgramReplyDataStream extends ClientAccessDataStream
 {
-    Object getNewDataStream()
+    public Object getNewDataStream()
     {
         return new RCCallProgramReplyDataStream();
     }
@@ -65,7 +65,7 @@ class RCCallProgramReplyDataStream extends ClientAccessDataStream
         }
     }
 
-    int readAfterHeader(InputStream in) throws IOException
+    protected int readAfterHeader(InputStream in) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving call program reply...");
         return super.readAfterHeader(in);

@@ -17,8 +17,10 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.Hashtable;
 
-// A class representing an IBM i server job.
-abstract class AS400Server
+/** Abstract class representing an IBM i server job.
+ *  Designed for use only by this driver. 
+ */
+public abstract class AS400Server
 {
     protected int connectionID_;
 
@@ -95,11 +97,11 @@ abstract class AS400Server
     // Add a prototype reply data stream to the collection of reply prototypes.  There must be a prototype reply for every type of reply that must be constructed automatically on receipt.  This method detects an attempt to add the same prototype reply more than once and ignores redundant attempts.
     // @param  replyStream  The prototype reply data stream to be added.
     // @param  serviceName  The service name of the server job that is the source of the reply streams.
-    static void addReplyStream(DataStream replyStream, String serviceName)
+    public static void addReplyStream(DataStream replyStream, String serviceName)
     {
         addReplyStream(replyStream, AS400Server.getServiceId(serviceName));
     }
-    static void addReplyStream(DataStream replyStream, int service)
+    public static void addReplyStream(DataStream replyStream, int service)
     {
         replyStreamsHashTables[service].put(replyStream, replyStream);
     }
@@ -108,11 +110,11 @@ abstract class AS400Server
     abstract int getService();
     abstract String getJobString();
     abstract boolean isConnected();
-    abstract DataStream getExchangeAttrReply();
-    abstract DataStream sendExchangeAttrRequest(DataStream req) throws IOException, InterruptedException;
+    public abstract DataStream getExchangeAttrReply();
+    public abstract DataStream sendExchangeAttrRequest(DataStream req) throws IOException, InterruptedException;
     abstract void addInstanceReplyStream(DataStream replyStream);
     abstract void clearInstanceReplyStreams();
-    abstract DataStream sendAndReceive(DataStream requestStream) throws IOException, InterruptedException;
+    public abstract DataStream sendAndReceive(DataStream requestStream) throws IOException, InterruptedException;
     abstract void sendAndDiscardReply(DataStream requestStream) throws IOException;
     abstract void sendAndDiscardReply(DataStream requestStream,int correlationId) throws IOException;//@M8A
     abstract int send(DataStream requestStream) throws IOException;
