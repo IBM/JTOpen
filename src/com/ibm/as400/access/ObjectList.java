@@ -329,9 +329,9 @@ public class ObjectList implements Serializable
    * allocated for the library that contains the object or one of the following special values:
    * <ul>
    * <li>{@link #ASP_NAME_ALL ASP_NAME_ALL} - The ASPs in the thread's library name space.</li>
-   * <li>{@link #ASP_NAME_ALLAVL ASP_NAME_ALLAVL} - The system ASP (ASP 1) and defined basic user ASPs (ASPs 2-32).</li>
+   * <li>{@link #ASP_NAME_ALLAVL ASP_NAME_ALLAVL} - All available ASPs.</li>
    * <li>{@link #ASP_NAME_CURASPGRP ASP_NAME_CURASPGRP} - The ASPs in the current thread's ASP group.</li>
-   * <li>{@link #ASP_NAME_SYSBAS ASP_NAME_SYSBAS} - All available ASPs.</li>
+   * <li>{@link #ASP_NAME_SYSBAS ASP_NAME_SYSBAS} - The system ASP (ASP 1) and defined basic user ASPs (ASPs 2-32).</li>
    * </ul>
   **/
   public ObjectList(AS400 system, String objectLibrary, String objectName, String objectType, String aspDeviceName)
