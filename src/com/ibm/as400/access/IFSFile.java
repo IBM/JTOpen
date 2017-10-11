@@ -1223,8 +1223,7 @@ public class IFSFile
 
       //@SCa
       if(this.isDirectory() && getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){ //@T2C
-        int userHandle = getSystem().createUserHandle();
-        result = impl_.getCCSID(userHandle);
+        result = impl_.getCCSIDByUserHandle();//@V4C
       }else
       {
         result = impl_.getCCSID();
@@ -1467,8 +1466,7 @@ public class IFSFile
     
     //@SCa
     if(this.isDirectory() && getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){//@T2C
-      int userHandle = getSystem().createUserHandle();
-      return impl_.getOwnerName(userHandle);
+      return impl_.getOwnerNameByUserHandle();//@V4C
     }
     else
       return impl_.getOwnerName();
@@ -1800,8 +1798,7 @@ public class IFSFile
     if (impl_ == null)
         chooseImpl();
     if(getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){//@T2A
-      int userHandle = getSystem().createUserHandle();
-      return impl_.getASP(userHandle);
+     return impl_.getASP();//@V4C
     }
     return -1;//@T2A
   }
@@ -1818,8 +1815,7 @@ public class IFSFile
       chooseImpl();
 
     if(getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){//@T2A
-      int userHandle = getSystem().createUserHandle();
-      return impl_.getFileSystemType(userHandle);
+      return impl_.getFileSystemType();//@V4C
     }
     return "";//@T2A
   }

@@ -40,12 +40,11 @@ interface IFSFileImpl
   long getAvailableSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
   long getTotalSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
   int getCCSID() throws IOException, AS400SecurityException;
-  int getCCSID(int userHandle) throws IOException, AS400SecurityException;            //@A2a //@SCc
+  int getCCSIDByUserHandle() throws IOException, AS400SecurityException;            //@A2a //@SCc //@V4A
   String getOwnerName() throws IOException, AS400SecurityException;
-  String getOwnerName(int userHandle) throws IOException, AS400SecurityException; //@SCc
-  //int getASP() throws IOException, AS400SecurityException;//@RDA @SAD
-  int getASP(int userHandle)throws IOException, AS400SecurityException;//@SAA
-  String getFileSystemType(int userHandle)throws IOException, AS400SecurityException;//@SAA
+  String getOwnerNameByUserHandle() throws IOException, AS400SecurityException; //@SCc //@V4A
+  int getASP() throws IOException, AS400SecurityException;//@RDA @SAD
+  String getFileSystemType()throws IOException, AS400SecurityException;//@SAA //@V4A
   long getOwnerUID()  throws IOException, AS400SecurityException;       //@B7a @C0c
   String getPathPointedTo() throws IOException, AS400SecurityException;
   String getSubtype() throws IOException, AS400SecurityException;      //@B5a

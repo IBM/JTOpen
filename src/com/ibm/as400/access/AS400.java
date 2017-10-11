@@ -1406,8 +1406,8 @@ public class AS400 implements Serializable
         }
     }
     
-    //@SAA
-    public int createUserHandle() throws AS400SecurityException, IOException {
+    //@SAA   @V4D Remove the createUserHandle to IFSFileDescriptorImplRemote 
+   /* public int createUserHandle() throws AS400SecurityException, IOException {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Create user handle.");
       connectService(AS400.FILE);
       
@@ -1426,6 +1426,8 @@ public class AS400 implements Serializable
           chooseImpl();
       return impl_.createUserHandle();
     }
+    */
+
 
     /**
      Disconnects all services.  All socket connections associated with this object will be closed.  The signon information is not changed, and connection properties remain frozen.

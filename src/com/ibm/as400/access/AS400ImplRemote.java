@@ -465,7 +465,9 @@ public class AS400ImplRemote implements AS400Impl
     }
     
     //@SAA Create user handle for the connection
-    public int createUserHandle() throws AS400SecurityException, IOException {
+    //@V4D Moved to IFSFileDescriptorImplRemote. Although we do not recommend to use one as400 object in multi-thread, if users do this, keep one user handle in one connection might cause problems when 
+    //free the handle.
+    /*public int createUserHandle() throws AS400SecurityException, IOException {
       ClientAccessDataStream ds = null;
       int UserHandle = UNINITIALIZED;
       if (userHandle_ != UNINITIALIZED) {
@@ -567,14 +569,14 @@ public class AS400ImplRemote implements AS400Impl
     }
     
     //@SAA
-    public int getUserHandle_() {
+    public int getUserHandle(){
       return userHandle_;
     }
 
     //@SAA
     public void setUserHandle(int userHandle_) {
       this.userHandle_ = userHandle_;
-    }
+    }*/
 
     // Implementation for disconnect.
     public void disconnect(int service)
@@ -1454,7 +1456,7 @@ public class AS400ImplRemote implements AS400Impl
     }
 
     // Get the encrypted password with the seeds folded in.
-    private byte[] getPassword(byte[] clientSeed, byte[] serverSeed) throws AS400SecurityException, IOException
+    byte[] getPassword(byte[] clientSeed, byte[] serverSeed) throws AS400SecurityException, IOException
     {
         int credType = credVault_.getType();
 

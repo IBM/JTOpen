@@ -108,18 +108,6 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
             throw ProxyClientConnection.rethrow2(e);
         }
     }
-    
-    //@SAA
-    public int createUserHandle() throws AS400SecurityException, IOException {
-      try
-      {
-        return connection_.callMethod(pxId_,"createUserHandle").getReturnValueInt();
-      }
-      catch (InvocationTargetException e)
-      {
-        throw ProxyClientConnection.rethrow2(e);
-      }
-    }
 
     // Disconnect from service.
     public void disconnect(int service)

@@ -153,13 +153,12 @@ implements IFSFileImpl
       throw ProxyClientConnection.rethrow2 (e);
     }
   }
-  //@SCa
-  public int getCCSID(int userHandle)
+  //@SCa //@V4C
+  public int getCCSIDByUserHandle()
       throws IOException, AS400SecurityException
     {
       try {
-        return connection_.callMethod (pxId_, "getCCSID", new Class[] { Integer.TYPE },
-            new Object[] { new Integer(userHandle)}).getReturnValueInt();
+        return connection_.callMethod (pxId_, "getCCSIDByUserHandle").getReturnValueInt();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);
@@ -207,12 +206,11 @@ implements IFSFileImpl
     }
   }
   //@SCa
-  public String getOwnerName(int userHandle)
+  public String getOwnerNameByUserHandle()
       throws IOException, AS400SecurityException
     {
       try {
-        return (String)connection_.callMethod (pxId_, "getOwnerName",new Class[] { Integer.TYPE },
-            new Object[] { new Integer(userHandle)}).getReturnValue();
+        return (String)connection_.callMethod (pxId_, "getOwnerNameByUserHandle").getReturnValue();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);
@@ -232,12 +230,12 @@ implements IFSFileImpl
     }*/
   
   //@SAA
-  public int getASP(int userHandle)
+ 
+  public int getASP()
       throws IOException, AS400SecurityException
     {
       try {
-        return connection_.callMethod(pxId_, "getASP", new Class[] { Integer.TYPE },
-            new Object[] { new Integer(userHandle)}).getReturnValueInt();
+        return connection_.callMethod(pxId_, "getASP").getReturnValueInt();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);
@@ -245,12 +243,11 @@ implements IFSFileImpl
     }
   
   //@SAA
-  public String getFileSystemType(int userHandle)
+  public String getFileSystemType()
       throws IOException, AS400SecurityException
     {
       try {
-        return (String) connection_.callMethod (pxId_, "getUserHandleSeed",new Class[] { Integer.TYPE },
-            new Object[] { new Integer(userHandle)}).getReturnValue();
+        return (String) connection_.callMethod (pxId_, "getUserHandleSeed").getReturnValue();
       }
       catch (InvocationTargetException e) {
         throw ProxyClientConnection.rethrow2 (e);
