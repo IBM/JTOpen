@@ -51,5 +51,10 @@ class ConvTable278 extends ConvTableSingleMap
     ConvTable278()
     {
         super(278, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+        
+        // Fix up a couple of mappings to match system behavior @V5A
+        super.fromUnicode_[0x0110] = super.fromUnicode_[0x00d0];  /* capital D with stroke to capital letter eth */ 
+        super.fromUnicode_[0x203E] = super.fromUnicode_[0x00af];  /* overline to macron */ 
+
     }
 }

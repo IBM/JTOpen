@@ -21,6 +21,6 @@ public class ConvTable939 extends ConvTable1399
     {
         super(939);
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");
-        dbTable_ = ConvTable4396.makeAlternateMap(dbTable_); 
+        dbTable_ = ConvTable4396.makeAlternateMap(dbTable_, 939); 
     }
 }

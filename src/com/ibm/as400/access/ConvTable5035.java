@@ -22,7 +22,7 @@ public class ConvTable5035 extends ConvTable1399
     {
         super(5035);
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");
-        dbTable_ = ConvTable4396.makeAlternateMap(dbTable_); 
+        dbTable_ = ConvTable4396.makeAlternateMap(dbTable_, 5035); 
     }
     
     

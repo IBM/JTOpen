@@ -2,7 +2,7 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename:  AS400.java
+// Filename:  NLSTableDownload.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.*; 
 import java.net.UnknownHostException;
 
-class NLSTableDownload extends Object
+public class NLSTableDownload extends Object
 {
   private static final String copyright = "Copyright (C) 1997-2016 International Business Machines Corporation and others.";
 
@@ -34,7 +34,7 @@ class NLSTableDownload extends Object
     /**
      * @param  system  The server to execute the program.
      **/
-    NLSTableDownload(AS400ImplRemote system)
+    public NLSTableDownload(AS400ImplRemote system)
     {
         setSystem(system);
 
@@ -48,7 +48,7 @@ class NLSTableDownload extends Object
     /**
      * connect to the previously set server.
      **/
-    void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException
+    public void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException
     {
         // Connect to server
         if (server_ == null)
@@ -105,7 +105,7 @@ class NLSTableDownload extends Object
     /**
      * Disconnect from the host server.
      **/
-    void disconnect()
+    public void disconnect()
     {
         if (server_ != null)
             try {
@@ -116,10 +116,26 @@ class NLSTableDownload extends Object
         {}
     }
 
+    public final static int SINGLE_BYTE_FROM_CCSID = 1;
+    public final static int DOUBLE_BYTE_FROM_CCSID = 2;
+    /* Get the double byte portion of a mixed CCSID */ 
+    public final static int MIXED_BYTE_FROM_CCSID = 3;
+
+     
+    public char[] download( int fromCCSID, int toCCSID, boolean doubleByteFrom ) throws ConnectionDroppedException, IOException, InterruptedException {
+        if (doubleByteFrom) {
+          return download(fromCCSID, toCCSID, DOUBLE_BYTE_FROM_CCSID); 
+        } else {
+          return download(fromCCSID, toCCSID, SINGLE_BYTE_FROM_CCSID); 
+      
+        }
+    }
+    
     /**
      * Download table
+     * 
      **/
-    char[] download( int fromCCSID, int toCCSID, boolean doublebyte ) throws ConnectionDroppedException, IOException, InterruptedException
+    public char[] download( int fromCCSID, int toCCSID, int fromType ) throws ConnectionDroppedException, IOException, InterruptedException
     {
 	NLSGetTableReply NLSReply = null; 
         NLSGetTableRequest reqDs = null;
@@ -127,11 +143,15 @@ class NLSTableDownload extends Object
 	boolean retry = true;
 	while (retry) {
 	    retry = false; 
-	    if (doublebyte) { 
-		reqDs = new NLSGetDoubleByteTableRequest(fromCCSID);
-	    } else { 
-		reqDs = new NLSGetTableRequest();
-	    }
+      if (fromType == DOUBLE_BYTE_FROM_CCSID) {
+        reqDs = new NLSGetDoubleByteTableRequest(fromCCSID);
+      } else if (fromType == SINGLE_BYTE_FROM_CCSID) {
+        reqDs = new NLSGetTableRequest();
+      } else if (fromType == MIXED_BYTE_FROM_CCSID) {
+        reqDs = new NLSGetMixedByteTableRequest(fromCCSID, toCCSID);
+      } else {
+        throw new IOException("Invalid fromType=" + fromType);
+      }
 	    reqDs.setCCSIDs( fromCCSID, toCCSID );
 	    DataStream repDs = server_.sendAndReceive(reqDs);
 	    if (repDs instanceof NLSGetTableReply)
@@ -139,7 +159,7 @@ class NLSTableDownload extends Object
 		NLSReply = (NLSGetTableReply)repDs;
 		if (NLSReply.primaryRC_ != 0)
 		{
-		    System.out.println("fromCCSID="+fromCCSID+" toCCSID="+toCCSID+" doublebyte="+doublebyte); 
+		    System.out.println("fromCCSID="+fromCCSID+" toCCSID="+toCCSID+" fromType="+fromType); 
 		    System.out.println("ERROR:  Exchange attribute failed, primary return code ="+ NLSReply.primaryRC_);
 		    System.out.println("ERROR:    Exchange attribute failed, secondary return code ="+ NLSReply.secondaryRC_ );
 		    Trace.log(Trace.WARNING, "Exchange attribute failed, primary return code =", NLSReply.primaryRC_);

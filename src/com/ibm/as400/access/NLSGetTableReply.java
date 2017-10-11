@@ -50,11 +50,24 @@ class NLSGetTableReply extends ClientAccessDataStream
 
 	// Note: chain not currently used.
 	int ll=get32bit(HEADER_LENGTH+8) - 6;
+	if ((ll %2 ) == 1) {
+	  // Make sure length is even 
+	  ll++; 
+	}
 	table_ = new char[ll/2];
 	int ii = 0;
+	int errorCount = 0; 
 	for (int i=0; i<ll; i+=2)
 	{
-	    table_[ii++] = (char)get16bit(HEADER_LENGTH+8+6+i);
+	  int offset = HEADER_LENGTH+8+6+i;
+	  if (offset + 1 < data_.length) {  
+	     table_[ii++] = (char)get16bit(offset);
+	  } else {
+	    // Just one byte left 
+	    if (offset < data_.length) {
+	       table_[ii++] = (char) (data_[offset] << 8); 
+	    }
+	  }
 	}
 	return bytes;
     }

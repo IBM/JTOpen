@@ -51,5 +51,10 @@ class ConvTable871 extends ConvTableSingleMap
     ConvTable871()
     {
         super(871, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+        
+        // Fix up mapping to match system @V5A
+        super.fromUnicode_[0x0110] = super.fromUnicode_[0x00d0];  /* capital D with stroke to capital letter eth */ 
+        super.fromUnicode_[0x203E] = super.fromUnicode_[0x00af];  /* overline to macron */ 
+
     }
 }

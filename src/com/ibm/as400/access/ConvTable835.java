@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.util.Hashtable;
+
 class ConvTable835 extends ConvTableDoubleMap
 {
     private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
@@ -2031,4 +2033,62 @@ class ConvTable835 extends ConvTableDoubleMap
     {
         super(ccsid, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
     }
+    
+    //
+    // Support for extensions with fixes detected by testing @V5A
+    // 
+    
+    static Hashtable alternateToUnicodeMap = new Hashtable(); 
+    static Hashtable alternateFromUnicodeMap = new Hashtable(); 
+    
+    static ConvTableDoubleMap makeAlternateMap(ConvTableDoubleMap inMap, int ccsid) {
+      ConvTableDoubleMap newMap = new ConvTableDoubleMap(inMap);  
+      char[] toUnicode = inMap.getToUnicode(); 
+      char [] newToUnicode = (char []) alternateToUnicodeMap.get(""+ccsid); 
+      if (newToUnicode == null) { 
+          newToUnicode = new char[toUnicode.length]; 
+          System.arraycopy(toUnicode, 0, newToUnicode, 0, toUnicode.length); 
+          if (ccsid == 1371) { 
+            newToUnicode[0xBE4C] = '\u9f84';
+            newToUnicode[0xBE4D] = '\u9f8e';
+            newToUnicode[0xBE4E] = '\u9f8f';
+            newToUnicode[0xBE4F] = '\u9f93';
+            newToUnicode[0xBE50] = '\u9f96';
+            newToUnicode[0xBE51] = '\u9f97';
+            newToUnicode[0xBE52] = '\u9f99';
+            newToUnicode[0xBE53] = '\u9f9a';
+            newToUnicode[0xBE54] = '\u9f9d';
+            newToUnicode[0xBE55] = '\u9f96';
+            newToUnicode[0xBE56] = '\u9fa1';
+            newToUnicode[0xBE57] = '\u9fa3';
+            newToUnicode[0xBE58] = '\u9fa5';
+            newToUnicode[0xBE59] = '\u9fab';
+            newToUnicode[0xBE5A] = '\u9fb0';
+            newToUnicode[0xBE5B] = '\u9fb1';
+          }
+          alternateToUnicodeMap.put(""+ccsid, newToUnicode); 
+      }
+      newMap.setToUnicode( newToUnicode); 
+
+      char[] fromUnicode = inMap.getFromUnicode(); 
+      char[] newFromUnicode = (char[]) alternateFromUnicodeMap.get(""+ccsid);
+      if (newFromUnicode == null) { 
+        newFromUnicode = new char[fromUnicode.length]; 
+        System.arraycopy(fromUnicode, 0, newFromUnicode, 0, fromUnicode.length); 
+        
+        if (ccsid == 1371) { 
+          // newFromUnicode[0x525D] = '\u5481';  
+          // newFromUnicode[0x5c5B] = '\u5443';  
+          // newFromUnicode[0x7c1e] = '\u54CA';  
+        }
+        
+        alternateToUnicodeMap.put(""+ccsid, newFromUnicode); 
+      }
+      newMap.setFromUnicode(newFromUnicode); 
+      return newMap; 
+    }
+    
+
+    
+    
 }

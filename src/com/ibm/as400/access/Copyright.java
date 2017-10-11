@@ -212,6 +212,7 @@ package com.ibm.as400.access;
 //@V2    20170911  Misc:  Testability improvements 
 //@V3    20170914  Correct ObjectList javadoc
 //@V4    20171011  Free user handle
+//@V5    20171011  Conversion:  Fix various ccsid conversions to match host conversions
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -219,8 +220,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
-    //                                                                                         built=20170925 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.4, codebase 5770-SS1 V7R3M0.00 built=20171011 @V4";  
+    //                                                                                         built=20171010 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.4, codebase 5770-SS1 V7R3M0.00 built=20171011 @V5";  
 
 
     // Constants for reference by AS400JDBCDriver.

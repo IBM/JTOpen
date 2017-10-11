@@ -48,10 +48,10 @@ class ConvTable4396 extends ConvTable300
     static Hashtable alternateToUnicodeMap = new Hashtable(); 
     static Hashtable alternateFromUnicodeMap = new Hashtable(); 
     
-    static ConvTableDoubleMap makeAlternateMap(ConvTableDoubleMap inMap) {
+    static ConvTableDoubleMap makeAlternateMap(ConvTableDoubleMap inMap, int ccsid) {
       ConvTableDoubleMap newMap = new ConvTableDoubleMap(inMap);  
       char[] toUnicode = inMap.getToUnicode(); 
-      char [] newToUnicode = (char []) alternateToUnicodeMap.get(toUnicode); 
+      char [] newToUnicode = (char []) alternateToUnicodeMap.get(""+ccsid); 
       if (newToUnicode == null) { 
           newToUnicode = new char[toUnicode.length]; 
           System.arraycopy(toUnicode, 0, newToUnicode, 0, toUnicode.length); 
@@ -60,12 +60,12 @@ class ConvTable4396 extends ConvTable300
           newToUnicode[0x447C] = '\u2225';
           newToUnicode[0x4260] = '\uFF0D';
           newToUnicode[0x426A] = '\uFFE4';
-          alternateToUnicodeMap.put(toUnicode, newToUnicode); 
+          alternateToUnicodeMap.put(""+ccsid, newToUnicode); 
       }
       newMap.setToUnicode( newToUnicode); 
 
       char[] fromUnicode = inMap.getFromUnicode(); 
-      char[] newFromUnicode = (char[]) alternateFromUnicodeMap.get(fromUnicode);
+      char[] newFromUnicode = (char[]) alternateFromUnicodeMap.get(""+ccsid);
       if (newFromUnicode == null) { 
         newFromUnicode = new char[fromUnicode.length]; 
         System.arraycopy(fromUnicode, 0, newFromUnicode, 0, fromUnicode.length); 
@@ -74,7 +74,17 @@ class ConvTable4396 extends ConvTable300
         newFromUnicode[0x2225] = '\u447C';
         newFromUnicode[0xFF0D] = '\u4260';
         newFromUnicode[0xFFE4] = '\u426A';
-        alternateToUnicodeMap.put(fromUnicode, newFromUnicode); 
+        
+        /* @V5A */ 
+        if ((ccsid == 5035) || (ccsid == 5026) || (ccsid == 930) || (ccsid == 939) ) { 
+          newFromUnicode[0x525D] = '\u5481';  
+          newFromUnicode[0x5c5B] = '\u5443';  
+          newFromUnicode[0x7c1e] = '\u54CA';  
+          newFromUnicode[0x87ec] = '\u53E8';  
+          newFromUnicode[0x9a52] = '\u53DA';  
+        }
+        
+        alternateToUnicodeMap.put(""+ccsid, newFromUnicode); 
       }
       newMap.setFromUnicode(newFromUnicode); 
       return newMap; 

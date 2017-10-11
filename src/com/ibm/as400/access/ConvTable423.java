@@ -53,5 +53,9 @@ class ConvTable423 extends ConvTableSingleMap
     ConvTable423()
     {
         super(423, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+        
+        // Fix up mappings to match system behavior @V5A
+        super.fromUnicode_[0x03d5] = super.fromUnicode_[0x03c6];  /* phi symobl to phi letter */ 
+
     }
 }

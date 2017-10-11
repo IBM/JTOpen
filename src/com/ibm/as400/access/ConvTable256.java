@@ -52,5 +52,9 @@ class ConvTable256 extends ConvTableSingleMap
     ConvTable256()
     {
         super(256, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+        
+        // Fix up mapping to match system behavior @V5A
+        super.fromUnicode_[0x203E] = super.fromUnicode_[0x00af];  /* overline to macron */ 
+
     }
 }

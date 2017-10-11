@@ -51,5 +51,8 @@ class ConvTable1026 extends ConvTableSingleMap
     ConvTable1026()
     {
         super(1026, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+        
+        super.fromUnicode_[0x203E] = super.fromUnicode_[0x00af];  /* overline to macron */ 
+
     }
 }

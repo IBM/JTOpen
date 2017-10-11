@@ -55,5 +55,9 @@ class ConvTable870 extends ConvTableSingleMap
     ConvTable870()
     {
         super(870, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+        
+        // Fix up mappings to match system behavior @V5A
+        super.fromUnicode_[0x00d0] = super.fromUnicode_[0x0110];  /* capital letter eth to capital D with stroke   */ 
+
     }
 }

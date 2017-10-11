@@ -54,5 +54,8 @@ class ConvTable1132 extends ConvTableSingleMap
     ConvTable1132()
     {
         super(1132, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+        
+        super.fromUnicode_[0x20ad] = super.fromUnicode_[0x006b];  /* Kip Sign to k */ 
+
     }
 }

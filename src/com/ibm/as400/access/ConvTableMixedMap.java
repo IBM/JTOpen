@@ -181,14 +181,14 @@ public abstract class ConvTableMixedMap extends ConvTable
                     sbLookup = sbTable_.fromUnicode_[curChar];
                     if (sbLookup == sbSubChar_)
                     {
-                        // Character wasn't in the single-byte table either, so use double-byte substitution character.
-                        if (inSBMode)
-                        {
-                            inSBMode = false;
-                            dest[destPos++] = shiftOut_;
-                        }
-                        dest[destPos++] = (byte)((0xFFFF & dbSubChar_) >>> 8);
-                        dest[destPos++] = (byte)(0x00FF & dbSubChar_);
+                      // Use the subsitition character value for the current mode @V5A
+                      if (inSBMode) { 
+                        dest[destPos++] = sbSubChar_;
+                      } else {
+                        dest[destPos++] = (byte) ((0xFFFF & dbSubChar_) >>> 8);
+                        dest[destPos++] = (byte) (0x00FF & dbSubChar_);
+                      }
+  
                     }
                     else
                     {

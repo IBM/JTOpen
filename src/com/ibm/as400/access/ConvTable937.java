@@ -22,5 +22,6 @@ import java.io.UnsupportedEncodingException;
     public ConvTable937() throws UnsupportedEncodingException
     {
         super(937, 37, 835);
+
     }
 }

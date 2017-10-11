@@ -36,7 +36,7 @@ class NLSGetTableRequest extends ClientAccessDataStream
         set16bit(0, 20);            // chain, not used
         set32bit(37, 22);   // from CCSID
         set32bit(0xF200, 26);     // to CCSID
-        set16bit(2, 30);            // mapping type (Substitution)
+        set16bit(2, 30);            // mapping type (Substitution =2 )
         set16bit(1, 32);            // parameter count
         // optional parameter (the table LLCP)
         set32bit(256+6, 34);        // LL
