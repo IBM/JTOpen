@@ -233,7 +233,6 @@ implements IFSFileInputStreamImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    @see IFSKey
    @see #unlock
@@ -383,7 +382,6 @@ implements IFSFileInputStreamImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public int read()
@@ -409,7 +407,7 @@ implements IFSFileInputStreamImpl
   /**
    Reads up to <i>length</i> bytes of data from this input stream into <i>data</i>, starting at the array offset <i>dataOffset</i>.
    @param data The buffer into which the data is read.
-   @param offset The start offset of the data in the buffer.
+   @param dataOffset The start offset of the data in the buffer.
    @param length The maximum number of bytes to read
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
@@ -417,7 +415,6 @@ implements IFSFileInputStreamImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public int read(byte[] data,
@@ -455,8 +452,6 @@ implements IFSFileInputStreamImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
-   @exception UnsupportedEncodingException If the file's character encoding is not supported.
    **/
   public String readText(int length)
     throws IOException
@@ -506,7 +501,6 @@ implements IFSFileInputStreamImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
   
    **/
   public long skip(long bytesToSkip)
@@ -543,7 +537,7 @@ implements IFSFileInputStreamImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+
  
    @see IFSKey
    @see #lock

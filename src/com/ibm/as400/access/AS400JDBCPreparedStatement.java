@@ -4283,7 +4283,7 @@ endif */
 
   /**
    * Return the name of the parameter for a stored procedure call. 
-   * @param the parameter number to get the name for
+   * @param parm the parameter number to get the name for
    * @return the parameter name. 
    * @throws SQLException
    */
@@ -4404,8 +4404,6 @@ endif */
    *              if parameterIndex does not correspond to a parameter marker in
    *              the SQL statement; if a database access error occurs or this
    *              method is called on a closed <code>PreparedStatement</code>
-   * @throws SQLFeatureNotSupportedException
-   *           if the JDBC driver does not support this method
    */
   public void setAsciiStream(int parameterIndex, InputStream x)
       throws SQLException {
@@ -4437,8 +4435,6 @@ endif */
    *              if parameterIndex does not correspond to a parameter marker in
    *              the SQL statement; if a database access error occurs or this
    *              method is called on a closed <code>PreparedStatement</code>
-   * @throws SQLFeatureNotSupportedException
-   *           if the JDBC driver does not support this method
    */
   public void setBinaryStream(int parameterIndex, InputStream x)
       throws SQLException {
@@ -4470,8 +4466,6 @@ endif */
    *           is called on a closed <code>PreparedStatement</code> or if
    *           parameterIndex does not correspond to a parameter marker in the
    *           SQL statement,
-   * @throws SQLFeatureNotSupportedException
-   *           if the JDBC driver does not support this method
    * 
    */
   public void setBlob(int parameterIndex, InputStream inputStream)
@@ -4573,8 +4567,6 @@ endif */
    *              if parameterIndex does not correspond to a parameter marker in
    *              the SQL statement; if a database access error occurs or this
    *              method is called on a closed <code>PreparedStatement</code>
-   * @throws SQLFeatureNotSupportedException
-   *           if the JDBC driver does not support this method
    */
   public void setCharacterStream(int parameterIndex, Reader reader)
       throws SQLException {
@@ -4613,8 +4605,6 @@ endif */
    *           parameterIndex does not correspond to a parameter marker in the
    *           SQL statement
    * 
-   * @throws SQLFeatureNotSupportedException
-   *           if the JDBC driver does not support this method
    */
   public void setClob(int parameterIndex, Reader reader) throws SQLException {
     if (JDTrace.isTraceOn()) {
@@ -4651,8 +4641,6 @@ endif */
    *           character sets; if the driver can detect that a data conversion
    *           error could occur; if a database access error occurs; or this
    *           method is called on a closed <code>PreparedStatement</code>
-   * @throws SQLFeatureNotSupportedException
-   *           if the JDBC driver does not support this method
    */
   public void setNCharacterStream(int parameterIndex, Reader value)
       throws SQLException {
@@ -4689,8 +4677,6 @@ endif */
    *           character sets; if the driver can detect that a data conversion
    *           error could occur; if a database access error occurs or this
    *           method is called on a closed <code>PreparedStatement</code>
-   * @throws SQLFeatureNotSupportedException
-   *           if the JDBC driver does not support this method
    */
   public void setNClob(int parameterIndex, Reader reader) throws SQLException {
     if (JDTrace.isTraceOn()) {
@@ -4733,8 +4719,6 @@ endif */
  * is called on a closed PreparedStatement or if the Java Object specified by x 
  * is an InputStream or Reader object and the value of the scale parameter is 
  * less than zero
- * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
- * this data type
  */
   public void setObject(int parameterIndex,
         Object x,
@@ -4788,8 +4772,6 @@ Object
    * @throws SQLException - if parameterIndex does not correspond to a parameter marker 
    * in the SQL statement; if a database access error occurs or this method is called 
    * on a closed PreparedStatement
-   * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
-   * this data type
    */
   public void setObject(int parameterIndex,
                          Object x,
@@ -4816,9 +4798,6 @@ Object
   * (2) 0 for SQL statements that return nothing
   * @throws SQLException - if a database access error occurs; this method is called on a 
   * closed PreparedStatement or the SQL statement returns a ResultSet object
-  * @throws SQLTimeoutException - when the driver has determined that the timeout value 
-  * that was specified by the setQueryTimeout method has been exceeded and has at least 
-  * attempted to cancel the currently running Statement
   */
 
   public long executeLargeUpdate() throws SQLException {

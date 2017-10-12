@@ -7763,6 +7763,7 @@ endif */
      * rollback operation, or by doing neither a commit nor a rollback.  A potential result of this difference
      * is in whether or not holdable ResultSets are closed.
      *
+     *
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      */
@@ -7777,10 +7778,10 @@ endif */
      * that the driver supports.  The result set contains the following columns
      * <p>
          * <ol>
-     * <li><b>NAME</b> String=> The name of the client info property<br>
-     * <li><b>MAX_LEN</b> int=> The maximum length of the value for the property<br>
-     * <li><b>DEFAULT_VALUE</b> String=> The default value of the property<br>
-     * <li><b>DESCRIPTION</b> String=> A description of the property.  This will typically
+     * <li><b>NAME</b> String =&gt; The name of the client info property<br>
+     * <li><b>MAX_LEN</b> int =&gt; The maximum length of the value for the property<br>
+     * <li><b>DEFAULT_VALUE</b> String =&gt; The default value of the property<br>
+     * <li><b>DESCRIPTION</b> String =&gt; A description of the property.  This will typically
      *                      contain information as to where this property is
      *                      stored in the database.
      * </ol>
@@ -7822,12 +7823,12 @@ endif */
   //JDBC40DOC      * <p>
   //JDBC40DOC      * The returned int values have the following relationship:
   //JDBC40DOC      * <pre>
-  //JDBC40DOC      *     ROWID_UNSUPPORTED < ROWID_VALID_OTHER < ROWID_VALID_TRANSACTION
-  //JDBC40DOC      *         < ROWID_VALID_SESSION < ROWID_VALID_FOREVER
+  //JDBC40DOC      *     ROWID_UNSUPPORTED &lt; ROWID_VALID_OTHER &lt; ROWID_VALID_TRANSACTION
+  //JDBC40DOC      *         &lt; ROWID_VALID_SESSION &lt; ROWID_VALID_FOREVER
   //JDBC40DOC      * </pre>
   //JDBC40DOC      * so conditional logic such as
   //JDBC40DOC      * <pre>
-  //JDBC40DOC      *     if (metadata.getRowIdLifetime() > DatabaseMetaData.ROWID_VALID_TRANSACTION)
+  //JDBC40DOC      *     if (metadata.getRowIdLifetime() &gt; DatabaseMetaData.ROWID_VALID_TRANSACTION)
   //JDBC40DOC      * </pre>
   //JDBC40DOC      * can be used. Valid Forever means valid across all Sessions, and valid for
   //JDBC40DOC      * a Session means valid across all its contained Transactions.
@@ -7848,8 +7849,8 @@ endif */
      *
      * <P>The schema column is:
      *  <OL>
-     *  <LI><B>TABLE_SCHEM</B> String => schema name
-     *  <LI><B>TABLE_CATALOG</B> String => catalog name (may be <code>null</code>)
+     *  <LI><B>TABLE_SCHEM</B> String =&gt; schema name
+     *  <LI><B>TABLE_CATALOG</B> String =&gt; catalog name (may be <code>null</code>)
      *  </OL>
      *
      *
@@ -7914,19 +7915,19 @@ endif */
      *
      * <P>Each function description has the the following columns:
      *  <OL>
-     *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
-     *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *  <LI><B>FUNCTION_NAME</B> String => function name.  This is the name
+     *  <LI><B>FUNCTION_CAT</B> String =&gt; function catalog (may be <code>null</code>)
+     *  <LI><B>FUNCTION_SCHEM</B> String =&gt; function schema (may be <code>null</code>)
+     *  <LI><B>FUNCTION_NAME</B> String =&gt; function name.  This is the name
      * used to invoke the function
-     *  <LI><B>REMARKS</B> String => explanatory comment on the function
-     * <LI><B>FUNCTION_TYPE</B> short => kind of function:
+     *  <LI><B>REMARKS</B> String =&gt; explanatory comment on the function
+     * <LI><B>FUNCTION_TYPE</B> short =&gt; kind of function:
      *      <UL>
      *      <LI>functionResultUnknown - Cannot determine if a return value
      *       or table will be returned
      *      <LI> functionNoTable- Does not return a table
      *      <LI> functionReturnsTable - Returns a table
      *      </UL>
-     *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies
+     *  <LI><B>SPECIFIC_NAME</B> String  =&gt; the name which uniquely identifies
      *  this function within its schema.  This is a user specified, or DBMS
      * generated, name that may be different then the <code>FUNCTION_NAME</code>
      * for example with overload functions
@@ -8002,12 +8003,12 @@ endif */
      * is a parameter description, column description or
      * return type description with the following fields:
      *  <OL>
-     *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
-     *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *  <LI><B>FUNCTION_NAME</B> String => function name.  This is the name
+     *  <LI><B>FUNCTION_CAT</B> String =&gt; function catalog (may be <code>null</code>)
+     *  <LI><B>FUNCTION_SCHEM</B> String =&gt; function schema (may be <code>null</code>)
+     *  <LI><B>FUNCTION_NAME</B> String =&gt; function name.  This is the name
      * used to invoke the function
-     *  <LI><B>COLUMN_NAME</B> String => column/parameter name
-     *  <LI><B>COLUMN_TYPE</B> Short => kind of column/parameter:
+     *  <LI><B>COLUMN_NAME</B> String =&gt; column/parameter name
+     *  <LI><B>COLUMN_TYPE</B> Short =&gt; kind of column/parameter:
      *      <UL>
      *      <LI> functionColumnUnknown - nobody knows
      *      <LI> functionColumnIn - IN parameter
@@ -8017,30 +8018,30 @@ endif */
      *      <LI> functionColumnResult - Indicates that the parameter or column
      *  is a column in the <code>ResultSet</code>
      *      </UL>
-     *  <LI><B>DATA_TYPE</B> int => SQL type from java.sql.Types
-     *  <LI><B>TYPE_NAME</B> String => SQL type name, for a UDT type the
+     *  <LI><B>DATA_TYPE</B> int =&gt; SQL type from java.sql.Types
+     *  <LI><B>TYPE_NAME</B> String =&gt; SQL type name, for a UDT type the
      *  type name is fully qualified
-     *  <LI><B>PRECISION</B> int => precision
-     *  <LI><B>LENGTH</B> int => length in bytes of data
-     *  <LI><B>SCALE</B> short => scale -  null is returned for data types where
+     *  <LI><B>PRECISION</B> int =&gt; precision
+     *  <LI><B>LENGTH</B> int =&gt; length in bytes of data
+     *  <LI><B>SCALE</B> short =&gt; scale -  null is returned for data types where
      * SCALE is not applicable.
-     *  <LI><B>RADIX</B> short => radix
-     *  <LI><B>NULLABLE</B> short => can it contain NULL.
+     *  <LI><B>RADIX</B> short =&gt; radix
+     *  <LI><B>NULLABLE</B> short =&gt; can it contain NULL.
      *      <UL>
      *      <LI> functionNoNulls - does not allow NULL values
      *      <LI> functionNullable - allows NULL values
      *      <LI> functionNullableUnknown - nullability unknown
      *      </UL>
-     *  <LI><B>REMARKS</B> String => comment describing column/parameter
-     *  <LI><B>CHAR_OCTET_LENGTH</B> int  => the maximum length of binary
+     *  <LI><B>REMARKS</B> String =&gt; comment describing column/parameter
+     *  <LI><B>CHAR_OCTET_LENGTH</B> int  =&gt; the maximum length of binary
      * and character based parameters or columns.  For any other datatype the returned value
      * is a NULL
-     *  <LI><B>ORDINAL_POSITION</B> int  => the ordinal position, starting
+     *  <LI><B>ORDINAL_POSITION</B> int  =&gt; the ordinal position, starting
      * from 1, for the input and output parameters. A value of 0
      * is returned if this row describes the function's return value.
      * For result set columns, it is the
      * ordinal position of the column in the result set starting from 1.
-     *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine
+     *  <LI><B>IS_NULLABLE</B> String  =&gt; ISO rules are used to determine
      * the nullability for a parameter or column.
      *       <UL>
      *       <LI> YES           --- if the parameter or column can include NULLs
@@ -8048,7 +8049,7 @@ endif */
      *       <LI> empty string  --- if the nullability for the
      * parameter  or column is unknown
      *       </UL>
-     *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies
+     *  <LI><B>SPECIFIC_NAME</B> String  =&gt; the name which uniquely identifies
      * this function within its schema.  This is a user specified, or DBMS
      * generated, name that may be different then the <code>FUNCTION_NAME</code>
      * for example with overload functions
@@ -8147,18 +8148,18 @@ endif */
      * They are ordered by TABLE_CAT,TABLE_SCHEM, TABLE_NAME and COLUMN_NAME.
      * <p>Each column description has the following columns:
      * <ol>
-     * <li>TABLE_CAT String => table catalog (may be null)
-     * <li>TABLE_SCHEM String => table schema (may be null)
-     * <li>TABLE_NAME String => table name
-     * <li>COLUMN_NAME String => column name
-     * <li>DATA_TYPE int => SQL type from java.sql.Types
-     * <li>COLUMN_SIZE int => column size.
-     * <li>DECIMAL_DIGITS int => the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
-     * <li>NUM_PREC_RADIX int => Radix (typically either 10 or 2)
-     * <li>COLUMN_USAGE String => The allowed usage for the column. The value returned will correspond to the enum name returned by PseudoColumnUsage.name()
-     * <li>REMARKS String => comment describing column (may be null)
-     * <li>CHAR_OCTET_LENGTH int => for char types the maximum number of bytes in the column
-     * <li>IS_NULLABLE String => ISO rules are used to determine the nullability for a column.
+     * <li>TABLE_CAT String =&gt; table catalog (may be null)
+     * <li>TABLE_SCHEM String =&gt; table schema (may be null)
+     * <li>TABLE_NAME String =&gt; table name
+     * <li>COLUMN_NAME String =&gt; column name
+     * <li>DATA_TYPE int =&gt; SQL type from java.sql.Types
+     * <li>COLUMN_SIZE int =&gt; column size.
+     * <li>DECIMAL_DIGITS int =&gt; the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
+     * <li>NUM_PREC_RADIX int =&gt; Radix (typically either 10 or 2)
+     * <li>COLUMN_USAGE String =&gt; The allowed usage for the column. The value returned will correspond to the enum name returned by PseudoColumnUsage.name()
+     * <li>REMARKS String =&gt; comment describing column (may be null)
+     * <li>CHAR_OCTET_LENGTH int =&gt; for char types the maximum number of bytes in the column
+     * <li>IS_NULLABLE String =&gt; ISO rules are used to determine the nullability for a column.
      * <ul>
      * <li>YES --- if the column can include NULLs
      * <li>NO --- if the column cannot include NULLs

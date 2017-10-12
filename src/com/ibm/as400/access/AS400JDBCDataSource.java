@@ -4897,7 +4897,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     * Sets the numeric range error property, which indicates how
     * the driver should handle numberic range errors. 
-    * @param parseOption The numeric range error behavior.
+    * @param setting The numeric range error behavior.
     * <p>Valid values are:
     * <ul>
     *   <li>"default" ()

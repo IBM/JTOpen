@@ -424,6 +424,7 @@ public class PTF
 
    /**
    * Return product status for PTF getting by PTFGroup.getPTFs()
+   * @return product status
    */
   public String getProductStatus() {  //@L12A
     if (!partiallyLoadedGroup_) {
@@ -1385,6 +1386,12 @@ public class PTF
    * the product is supported. The save file status should also be checked.
    * @return true if the PTF save file is released and can be distributed; false if
    * the save file cannot be distributed.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
    * @see #getSaveFile
   **/
   public boolean isReleased()
@@ -1404,6 +1411,12 @@ public class PTF
    * Indicates if this PTF is required on the system because it is a pre-requisite
    * for another PTF.
    * @return true if this PTF is required on the system, false if it is not required.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
   **/ 
   public boolean isRequired()
   throws AS400Exception,
@@ -1420,6 +1433,12 @@ public class PTF
 
   /**
    * Refreshes all the values for this PTF by retrieving them from the system.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
   **/
   public void refresh()
        throws AS400Exception,

@@ -3624,6 +3624,7 @@ implements Statement
 
     @return     true if the statement is closed;
                 false otherwise.
+     * @throws SQLException 
     **/
     public boolean isClosed () throws SQLException //@PDC jdbc40
     {
@@ -4458,7 +4459,7 @@ implements Statement
    * on a closed Statement or the driver does not support batch statements. 
    * Throws BatchUpdateException (a subclass of SQLException) if one of the commands 
    * sent to the database fails to execute properly or attempts to return a result set.
-   * @throws SQLTimeoutException - when the driver has determined that the timeout value
+   * @throws SQLException - when the driver has determined that the timeout value
    *  that was specified by the setQueryTimeout method has been exceeded and has at least
    *   attempted to cancel the currently running Statement
    */
@@ -4488,10 +4489,6 @@ implements Statement
  * @throws SQLException - if a database access error occurs, this method is 
  * called on a closed Statement, the given SQL statement produces a ResultSet 
  * object, the method is called on a PreparedStatement or CallableStatement.
- * @throws SQLTimeoutException - when the driver has determined that the 
- * timeout value that was specified by the setQueryTimeout method has been 
- * exceeded and has at least attempted to cancel the currently running 
- * Statement
  */
  public long executeLargeUpdate(String sql)   throws SQLException {
    return (long) executeUpdate(sql); 

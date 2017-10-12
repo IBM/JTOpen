@@ -32,87 +32,82 @@ import java.beans.VetoableChangeListener;
   * <PRE>
       // Get certificates from the local system
     AS400 as400 = new AS400();
-<BR>
+
       // Local variables
     AS400Certificate   as400certificate;
     AS400Certificate[] certs;
-<BR>
+
     Vector  certVector = new Vector();
     byte[]  handle;
     int     numberCerts;
     String  userName;
-<BR>
-<BR>
+
+
     try
     {
-<BR>
+
     AS400CertificateUserProfileUtil usrprf =
        new AS400CertificateUserProfileUtil(as400, "/QSYS.LIB/MYNAME.USRPRF");
-<BR>
+
     AS400CertificateVldlUtil vldl =
        new AS400CertificateVldlUtil(as400, "/QSYS.LIB/MYLIB.LIB/TEST.VLDL");
-<BR>
+
     AS400CertificateAttribute[] certAttribute = new AS400CertificateAttribute[2];
-<BR>
-<BR>
+
+
       // Copy certificates that belong to both "US" and "myname".
     certAttribute[0] =
        new AS400CertificateAttribute(AS400CertificateAttribute.SUBJECT_COUNTRY, "US");
-<BR>
+
     certAttribute[1] =
        new AS400CertificateAttribute(AS400CertificateAttribute.SUBJECT_COMMON_NAME, "myname");
-<BR>
-<BR>
+
+
       // Copy matching certificates from the user profile to user space, MYSPACE.
     numberCerts = usrprf.listCertificates(certAttribute, "/QSYS.LIB/MYLIB.LIB/MYSPACE.USRSPC");
-<BR>
-    System.out.println("Number of certificates found => " +  numberCerts);
-<BR>
-<BR>
+
+    System.out.println("Number of certificates found = " +  numberCerts);
+
+
       // Start reading certificates from the user space into AS400Certificate[].
       // All complete certificates in the 8 Kbyte buffer will be returned.
     certs = usrprf.getCertificates("/QSYS.LIB/MYLIB.LIB/MYSPACE.USRSPC", 0, 8);
-<BR>
+
        // Continue to read the entire user space using 8 Kbyte buffer
      while (null != certs)
      {
             // Gather certificates in a vector
-          for (int i = 0; i < certs.length; ++i)
+          for (int i = 0; i &lt; certs.length; ++i)
           {
             certVector.addElement(certs[i]);
           }
-<BR>
+
             certs = usrprf.getNextCertificates(8);
      }
-<BR>
-<BR>
+
+
       // Add all the certificates to validation list object
-     for (int i = 0; i < certVector.size(); ++i)
+     for (int i = 0; i &lt; certVector.size(); ++i)
      {
        as400certificate =  (AS400Certificate)certVector.elementAt(i);
        vldl.addCertificate(as400certificate.getEncoded());
      }
-<BR>
-       // Delete first certificate added to vldl using its handle
+     // Delete first certificate added to vldl using its handle
      as400certificate =  (AS400Certificate)certVector.elementAt(0);
      handle = usrprf.getCertificateHandle(as400certificate.getEncoded());
      vldl.deleteCertificateByHandle(handle);
-<BR>
        // Delete 2nd certificate added to vldl using entire ASN.1 certificate
      as400certificate =  (AS400Certificate)certVector.elementAt(1);
      vldl.deleteCertificate(as400certificate.getEncoded());
-<BR>
        // Display user profile name associated with the 1st certificate
      userName = usrprf.findCertificateUserByHandle(handle);
-<BR>
-     System.out.println("User profile name => " + userName);
+     System.out.println("User profile name = " + userName);
     }
-<BR>
     catch (Exception e)
     {
         System.out.println(e.toString());
     }
-  * </PRE>
+  </PRE>
   *
   *@see AS400CertificateVldlUtil
   *@see AS400CertificateUserProfileUtil

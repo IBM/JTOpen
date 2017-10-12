@@ -147,10 +147,10 @@ abstract class NPAttribute extends Object implements Cloneable,
     /**
      * method hashCode overrides the hashCode method that comes in the Object class
      * to return the attribute ID as the hashCode.  This is done so that the
-     * NPAttributeValue class can use a hashTable to store the attributes in.
+     * NPAttribute class can use a hashTable to store the attributes in.
      * @see Object
-     * @see NPAttributeValue
-     * @see Hashtable
+     * @see NPAttribute
+     * @see java.util.Hashtable
      **/
     public  int hashCode()
     {

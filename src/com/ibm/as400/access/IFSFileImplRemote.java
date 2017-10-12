@@ -2473,7 +2473,7 @@ implements IFSFileImpl
    is true, the bit is turned on.  If <i>attribute</i> is turned off,
    the bit is turned off.
 
-   @param attributes The new state of the hidden attribute.  The hidden
+   @param attribute The new state of the hidden attribute.  The hidden
                      attribute is the second bit from the right.
 
    @return true if successful; false otherwise.
@@ -2773,7 +2773,7 @@ implements IFSFileImpl
    is true, the bit is turned on.  If <i>attribute</i> is turned off,
    the bit is turned off.
 
-   @param attributes The new state of the read only attribute
+   @param attribute The new state of the read only attribute
 
    @return true if successful; false otherwise.
    **/

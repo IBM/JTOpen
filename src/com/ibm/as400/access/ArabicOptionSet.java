@@ -357,7 +357,7 @@ class ArabicOptionSet
  *  Compares two ArabicOptionSets.
  *  Two ArabicOptionSets are considered equal if they represent the same values
  *  for the four Arabic options.
- *  @param  other       The ArabicOptionSet to compare to this.
+ *  @param  obj       The ArabicOptionSet to compare to this.
  *  @return true if the ArabicOptionSets are equal, false otherwise.
  */
     public boolean equals(Object obj)

@@ -1449,7 +1449,7 @@ public class ObjectList implements Serializable
    * group named will be searched.</li>
    * </ul>
    * The default value is {@link #ASP_SEARCH_TYPE_ASP ASP_SEARCH_TYPE_ASP}. 
-   * @exception ExtendedIllegalArgumentExceptiion if an invalid search type is specified.  
+   * @exception ExtendedIllegalArgumentException if an invalid search type is specified.  
    */
   public void setAspSearchType(String aspSearchType) throws ExtendedIllegalArgumentException{
 	  if (aspSearchType == null) throw new NullPointerException("aspSearchType");

@@ -711,12 +711,13 @@ implements Connection
    * @param properties
    *            the list of client info properties to set
    *            <p>
-   * @throws ClientInfoException
+//JDBC40DOC    * @throws ClientInfoException
+   * @throws SQLException
    *             if the database server returns an error while setting the
    *             clientInfo values on the database server
    *             <p>
-   * @see java.sql.Connection#setClientInfo(String, String)
-   *      setClientInfo(String, String)
+//JDBC40DOC    * @see java.sql.Connection#setClientInfo(String, String)
+//JDBC40DOC    *      setClientInfo(String, String)
    */
   public void setClientInfo(Properties properties) 
   /* ifdef JDBC40 
@@ -763,7 +764,7 @@ implements Connection
    * @throws SQLException     if the database server returns an error when 
    *                          fetching the client info value from the database.
    * <p>
-   * @see java.sql.DatabaseMetaData#getClientInfoProperties
+//JDBC40DOC    * @see java.sql.DatabaseMetaData#getClientInfoProperties
    */
   public String getClientInfo(String name) throws SQLException
   {
@@ -881,7 +882,6 @@ implements Connection
    * @param elements the elements that populate the returned object
    * @return an Array object whose elements map to the specified SQL type
    * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
    */
   public Array createArrayOf(String typeName, Object[] elements) throws SQLException
   {
@@ -899,7 +899,6 @@ implements Connection
    * @param attributes the attributes that populate the returned object
    *  @return a Struct object that maps to the given SQL type and is populated with the given attributes
    * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
    */
   public Struct createStruct(String typeName, Object[] attributes) throws SQLException
   {   

@@ -957,6 +957,7 @@ public class AS400DecFloat implements AS400DataType
       @param  bd BigDecimal to truncate.
       @param  precision to truncate bd to. (16 or 34)
       @param  roundingMode to use when truncating
+     * @return the rounded BigDecimal
     **/
     public static BigDecimal roundByMode(BigDecimal bd, int precision, String roundingMode)
     {        

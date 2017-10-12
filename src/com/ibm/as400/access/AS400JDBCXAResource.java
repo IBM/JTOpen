@@ -944,6 +944,7 @@ specified.
   Specifies the number of seconds that the system will wait on any lock request during this transaction.
   
   @param lockWait The time in seconds to wait.
+   * @throws SQLException 
   **/
   public void setLockWait(int lockWait)
   throws SQLException

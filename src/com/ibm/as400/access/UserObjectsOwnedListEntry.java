@@ -391,7 +391,7 @@ public class UserObjectsOwnedListEntry
   <ul>
     <li>{@link #getObjectName() getObjectName()}
     <li>{@link #getLibraryName() getLibraryName()}
-    <li>{@link #getAspDeviceNameOfLibrary()() getAspDeviceNameOfLibrary()()}
+    <li>{@link #getAspDeviceNameOfLibrary() getAspDeviceNameOfLibrary()()}
     <li>{@link #getPathName() getPathName()}
   </ul> 
   @return true if this entry is for a QSYS based object; false otherwise

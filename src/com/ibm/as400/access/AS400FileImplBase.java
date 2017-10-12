@@ -404,7 +404,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the
    * server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    **/
   public void addPhysicalFileMember(String name, String textDescription)
   throws AS400Exception,
@@ -678,6 +677,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    * This is a convenience method for setting all 4 properties at once, so as to
    * avoid 4 separate proxy calls.
+   * @param system 
+   * @param pathName 
+   * @param rf 
+   * @param readNoUpdate 
+   * @param isKeyed 
+   * @param ssp 
+   * @throws IOException 
   **/
   public void setAll(AS400Impl system, String pathName, RecordFormat rf, boolean readNoUpdate, boolean isKeyed, boolean ssp) //@B5C
   throws IOException //@B5A - 06/08/1999
@@ -767,6 +773,12 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    * Retrieves rfCache_[rf]. If the cache is empty, retrieves the record
    * formats from the server.
+   * @param rf 
+   * @return recordFormat
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws InterruptedException 
+   * @throws IOException 
   **/
   public RecordFormat setRecordFormat(int rf)
   throws AS400Exception,
@@ -792,6 +804,12 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    * Retrieves "rf" from rfCache_. If the cache is empty, retrieves the record
    * formats from the server.
+   * @param rf 
+   * @return recordFormat
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws InterruptedException 
+   * @throws IOException 
   **/
   public RecordFormat setRecordFormat(String rf)
   throws AS400Exception,
@@ -879,6 +897,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param access The type of access desired.  Valid values are "KEY" or "SEQ".
    *@param userBuffering if true use user buffering
    *@return The user file control block to be sent on an open() invocation.
+   * @throws IOException 
   **/
   /*@D2D protected*/public byte[] createUFCB(int openType, int bf, String access,
                                              boolean userBuffering)
@@ -1155,7 +1174,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    **/
   public void deleteMember()
   throws AS400Exception,
@@ -1281,7 +1299,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    **/
   public void startCommitmentControl(int commitLockLevel)
   throws AS400Exception,
@@ -1427,7 +1444,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    **/
   public void releaseExplicitLocks()
   throws AS400Exception,
@@ -1491,7 +1507,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Executes a command on the server.
    *@param cmd the command
-   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
@@ -1602,7 +1617,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    **/
   public void create(int recordLength, String fileType, String textDescription)
   throws AS400Exception,
@@ -1675,7 +1689,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    **/
   public void create(String ddsSourceFile,
                      String textDescription)
@@ -1780,8 +1793,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
-  **/
+    */
   public abstract void createDDSSourceFile(RecordFormat recordFormat, //@D0C 7/15/99 @E1C
                                            String altSeq,
                                            String ccsid,
@@ -1810,7 +1822,6 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    **/
   public void delete()
   throws AS400Exception,
@@ -1860,8 +1871,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
-   **/
+   */
   public void lock(int lockToObtain)
   throws AS400Exception,
   AS400SecurityException,
@@ -2297,6 +2307,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Positions the file cursor to the specified position (first, last, next,
    *previous).
    *@param type the type of position operation
+   * @return array of records.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
@@ -2588,7 +2599,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   
   /**
    *Positions the cursor to the record at the specified file position.
-   *@parm index the file position
+   *@param index the file position
+   *@return record at the specified file position
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
@@ -2606,6 +2618,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *specified key.
    *@param key the key
    *@param searchType the way to compare keys
+   *@return Record after positioning 
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
@@ -2627,6 +2640,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
    *@param key the byte array that contains the byte values of the key
    *@param searchType the way to compare keys
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
+   * @return Record after positioning
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
@@ -2929,7 +2943,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
   /**
    *Reads the first record with the specified key based on the specified search type.
    *@param key The values that make up the key with which to find the record.
-   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@return The record read.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -2950,7 +2964,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
   /**
    *Reads the first record with the specified key based on the specified search type.
    *@param key The byte array that contains the byte values that make up the key with which to find the record.
-   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.
    *@exception AS400Exception If the server returns an error message.
@@ -3122,6 +3136,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
   /**
    *Reads all the records in the file.
    *@param fileType The type of file.  Valid values are: key or seq
+   * @param bf 
    *@return The records read.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -3532,6 +3547,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
    *Reads the next record whose key matches the specified key.  The search does
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
+   * @param key 
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -3875,6 +3891,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
    *Reads the previous record whose key matches the specified key.  The search does
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
+   * @param key 
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.

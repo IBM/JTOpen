@@ -258,8 +258,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @param serverName The name of the system.
    @param user The user id.
    @param password The user password.
-   @param keyRingNameX Not used.
-   @param keyRingPasswordX Not used.
+   @param keyRingName Not used.
+   @param keyRingPassword Not used.
    @deprecated
    **/
   public AS400JDBCManagedDataSource(String serverName, String user, String password,
@@ -1681,7 +1681,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Initializes the connection pool and the built-in pool manager.
    If <tt>dataSourceName</tt> property has not been set (via {@link #setDataSourceName setDataSourceName()}, this method does nothing.
-   <br>This method gets called upon the first invocation of {@link #getConnection() getConnection()} or {@link getConnection(String,String) getConnection(user,password)}.
+   <br>This method gets called upon the first invocation of {@link #getConnection() getConnection()} or {@link #getConnection(String,String) getConnection(user,password)}.
    @throws SQLException If a database error occurs.
    **/
   void initializeConnectionPool() throws SQLException
@@ -4297,7 +4297,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
   * Sets the numeric range error property, which indicates how
   * the driver should handle numberic range errors. 
-  * @param parseOption The numeric range error behavior.
+  * @param setting The numeric range error behavior.
   * <p>Valid values are:
   * <ul>
   *   <li>"default" ()
@@ -4686,7 +4686,7 @@ public boolean isUseDrdaMetadataVersion()
 
  /**
   Sets the variable field compression property.
-  @param parseOption The variable field compression setting. 
+  @param option The variable field compression setting. 
   **/
  public void setVariableFieldCompression(String option)
  {

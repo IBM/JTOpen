@@ -52,6 +52,8 @@ extends SQLException
     private String sqlStatementText_; 
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object. 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     public AS400JDBCSQLSyntaxErrorException(int locationOfSyntaxError, String sqlStatementText) {
       super(); 
@@ -60,6 +62,9 @@ extends SQLException
     }
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object with a given reason. 
+     * @param reason 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, int locationOfSyntaxError, String sqlStatementText) {
@@ -70,6 +75,10 @@ extends SQLException
 
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object with a given reason and SQLState. 
+     * @param reason 
+     * @param SQLState 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, String SQLState, int locationOfSyntaxError, String sqlStatementText) {
@@ -80,6 +89,11 @@ extends SQLException
     
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object with a given reason, SQLState and vendorCode. 
+     * @param reason 
+     * @param SQLState 
+     * @param vendorCode 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     public AS400JDBCSQLSyntaxErrorException(String reason, String SQLState, int vendorCode, int locationOfSyntaxError, String sqlStatementText) {
       super(reason,SQLState,vendorCode); 
@@ -89,6 +103,12 @@ extends SQLException
     
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object with a given reason, SQLState, vendorCode and cause. 
+     * @param reason 
+     * @param sqlState 
+     * @param vendorCode 
+     * @param cause 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, String sqlState, int vendorCode, Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
@@ -105,6 +125,11 @@ extends SQLException
     
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object with a given reason, SQLState and cause. 
+     * @param reason 
+     * @param sqlState 
+     * @param cause 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, String sqlState, Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
@@ -120,6 +145,10 @@ extends SQLException
     
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object with a given reason and cause. 
+     * @param reason 
+     * @param cause 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
@@ -135,6 +164,9 @@ extends SQLException
     
     /**
      * Constructs a AS400JDBCSQLSyntaxErrorException object with a given cause. 
+     * @param cause 
+     * @param locationOfSyntaxError 
+     * @param sqlStatementText 
      */
     
     public AS400JDBCSQLSyntaxErrorException(Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
@@ -152,6 +184,7 @@ extends SQLException
     /**
      * returns the location of the syntax error, if available.
      * Returns 0 if the location is not available.    
+     * @return location of the syntax error
      */
     public int getLocationOfSyntaxError() { 
       return locationOfSyntaxError_; 
@@ -160,6 +193,7 @@ extends SQLException
     /**
      * returns the sql statement text which encountered the error, if available.
      * returns null if the statement is not available.  
+     * @return sql statement text for the error
      */
     public String getSqlStatementText() { 
       

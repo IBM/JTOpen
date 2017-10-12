@@ -4769,8 +4769,6 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @exception SQLException if a database access error occurs 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public Reader getNCharacterStream(int columnIndex) throws SQLException
     {
@@ -4793,8 +4791,6 @@ implements RowSet, Serializable             // @A3C
      * <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public Reader getNCharacterStream(String columnLabel) throws SQLException
     {
@@ -4864,8 +4860,6 @@ implements RowSet, Serializable             // @A3C
      * value returned is <code>null</code>
      * @exception SQLException if a database access error occurs 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public String getNString(int columnIndex) throws SQLException
     {
@@ -4887,8 +4881,6 @@ implements RowSet, Serializable             // @A3C
      * value returned is <code>null</code>
      * @exception SQLException if a database access error occurs 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public String getNString(String columnLabel) throws SQLException
     {
@@ -5009,8 +5001,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException
     {
@@ -5035,8 +5025,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException
     {
@@ -5061,8 +5049,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException
     {
@@ -5087,8 +5073,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException
     {
@@ -5124,8 +5108,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException
     {
@@ -5161,8 +5143,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException
     {
@@ -5187,8 +5167,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException
     {
@@ -5214,8 +5192,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -5250,8 +5226,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method 
      */
     public void updateClob(int columnIndex, Reader reader, long length) throws SQLException
     {
@@ -5286,8 +5260,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateClob(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -5317,8 +5289,6 @@ implements RowSet, Serializable             // @A3C
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs, 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
     {
@@ -5349,8 +5319,6 @@ implements RowSet, Serializable             // @A3C
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -5444,8 +5412,6 @@ implements RowSet, Serializable             // @A3C
      *  error could occur; this method is called on a closed result set,  
      * if a database access error occurs or
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException
     {
@@ -5483,8 +5449,6 @@ implements RowSet, Serializable             // @A3C
      *  error could occur; this method is called on a closed result set;
      *  if a database access error occurs or
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -5511,8 +5475,6 @@ implements RowSet, Serializable             // @A3C
      *  error could occur; this method is called on a closed result set,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * or if a database access error occurs
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNString(int columnIndex, String nString) throws SQLException
     {
@@ -5539,8 +5501,6 @@ implements RowSet, Serializable             // @A3C
      *  error could occur; this method is called on a closed result set;
      * the result set concurrency is <CODE>CONCUR_READ_ONLY</code> 
      *  or if a database access error occurs
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNString(String columnLabel, String nString) throws SQLException
     {
@@ -5701,7 +5661,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the Java input stream that contains the ASCII parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException
     {
@@ -5728,8 +5687,6 @@ implements RowSet, Serializable             // @A3C
      * @param length the number of bytes in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException
     {
@@ -5757,7 +5714,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the Java input stream that contains the ASCII parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
     */
     public void setAsciiStream(String parameterName, InputStream x) throws SQLException
     {
@@ -5776,8 +5732,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getBigDecimal
      */
     public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException
@@ -5806,7 +5760,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the java input stream which contains the binary parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException
     {
@@ -5832,8 +5785,6 @@ implements RowSet, Serializable             // @A3C
      * @param length the number of bytes in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException
     {
@@ -5860,7 +5811,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the java input stream which contains the binary parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setBinaryStream(String parameterName, InputStream x) throws SQLException
     {
@@ -5889,7 +5839,6 @@ implements RowSet, Serializable             // @A3C
      * to a parameter marker in the SQL statement,  if the length specified
      * is less than zero or if the number of bytes in the inputstream does not match
      * the specfied length.
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
      */
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException
@@ -5919,7 +5868,6 @@ implements RowSet, Serializable             // @A3C
      * this method is called on a closed <code>PreparedStatement</code> or
      * if parameterIndex does not correspond
      * to a parameter marker in the SQL statement,
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
      */
     public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException
@@ -5938,8 +5886,6 @@ implements RowSet, Serializable             // @A3C
      * @param x a <code>Blob</code> object that maps an SQL <code>BLOB</code> value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setBlob(String parameterName, Blob x) throws SQLException
     {
@@ -5969,8 +5915,6 @@ implements RowSet, Serializable             // @A3C
      * is less than zero; if the number of bytes in the inputstream does not match
      * the specfied length; if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      *
      */
     public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException
@@ -5997,7 +5941,6 @@ implements RowSet, Serializable             // @A3C
      * value to.
      * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
      */
     public void setBlob(String parameterName, InputStream inputStream) throws SQLException
@@ -6017,8 +5960,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getBoolean
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setBoolean(String parameterName, boolean x) throws SQLException
     {
@@ -6036,8 +5977,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getByte
      */
     public void setByte(String parameterName, byte x) throws SQLException
@@ -6058,8 +5997,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getBytes
      */
     public void setBytes(String parameterName, byte[] x) throws SQLException
@@ -6091,7 +6028,6 @@ implements RowSet, Serializable             // @A3C
      *        Unicode data
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException
     {
@@ -6119,8 +6055,6 @@ implements RowSet, Serializable             // @A3C
      * @param length the number of characters in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException
     {
@@ -6150,7 +6084,6 @@ implements RowSet, Serializable             // @A3C
      *        Unicode data
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setCharacterStream(String parameterName, Reader reader) throws SQLException
     {
@@ -6175,7 +6108,6 @@ implements RowSet, Serializable             // @A3C
      * a closed <code>PreparedStatement</code>, if parameterIndex does not correspond to a parameter
      * marker in the SQL statement, or if the length specified is less than zero.
      *
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this metho
      */
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException
     {
@@ -6202,7 +6134,6 @@ implements RowSet, Serializable             // @A3C
      * a closed <code>PreparedStatement</code>or if parameterIndex does not correspond to a parameter
      * marker in the SQL statement
      *
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setClob(int parameterIndex, Reader reader) throws SQLException
     {
@@ -6220,8 +6151,6 @@ implements RowSet, Serializable             // @A3C
      * @param x a <code>Clob</code> object that maps an SQL <code>CLOB</code> value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setClob(String parameterName, Clob x) throws SQLException
     {
@@ -6246,8 +6175,6 @@ implements RowSet, Serializable             // @A3C
      * marker in the SQL statement; if the length specified is less than zero;
      * a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      *
      */
     public void setClob(String parameterName, Reader reader, long length) throws SQLException
@@ -6274,7 +6201,6 @@ implements RowSet, Serializable             // @A3C
      * @throws SQLException if a database access error occurs or this method is called on
      * a closed <code>CallableStatement</code>
      *
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setClob(String parameterName, Reader reader) throws SQLException
     {
@@ -6299,8 +6225,6 @@ implements RowSet, Serializable             // @A3C
      *            to construct the date
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getDate
      */
     public void setDate(String parameterName, Date x, Calendar cal) throws SQLException
@@ -6321,8 +6245,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getDate
      */
     public void setDate(String parameterName, Date x) throws SQLException
@@ -6341,8 +6263,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getDouble
      */
     public void setDouble(String parameterName, double x) throws SQLException
@@ -6361,8 +6281,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getFloat
      */
     public void setFloat(String parameterName, float x) throws SQLException
@@ -6381,8 +6299,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getInt
      */
     public void setInt(String parameterName, int x) throws SQLException
@@ -6401,8 +6317,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getLong
      */
     public void setLong(String parameterName, long x) throws SQLException
@@ -6432,7 +6346,6 @@ implements RowSet, Serializable             // @A3C
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur ; if a database access error occurs; or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException
     {
@@ -6460,7 +6373,6 @@ implements RowSet, Serializable             // @A3C
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur ; if a database access error occurs; or
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setNCharacterStream(String parameterName, Reader value) throws SQLException
     {
@@ -6487,7 +6399,6 @@ implements RowSet, Serializable             // @A3C
      * if the driver can detect that a data conversion
      *  error could occur;  if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
      */
     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException
@@ -6516,7 +6427,6 @@ implements RowSet, Serializable             // @A3C
      * if the driver can detect that a data conversion
      *  error could occur;  if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
      */
     public void setNClob(int parameterIndex, Reader reader) throws SQLException
@@ -6545,8 +6455,6 @@ implements RowSet, Serializable             // @A3C
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setNClob(String parameterName, Reader reader, long length) throws SQLException
     {
@@ -6572,8 +6480,6 @@ implements RowSet, Serializable             // @A3C
      * if the driver can detect that a data conversion
      *  error could occur;  if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     *
      */
     public void setNClob(String parameterName, Reader reader) throws SQLException
     {
@@ -6610,8 +6516,6 @@ implements RowSet, Serializable             // @A3C
      *        SQL <code>REF</code> value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setNull(String parameterName, int sqlType, String typeName) throws SQLException
     {
@@ -6629,8 +6533,6 @@ implements RowSet, Serializable             // @A3C
      * @param sqlType the SQL type code defined in <code>java.sql.Types</code>
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setNull(String parameterName, int sqlType) throws SQLException
     {
@@ -6669,13 +6571,6 @@ implements RowSet, Serializable             // @A3C
      *          types, this value will be ignored.
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if <code>targetSqlType</code> is
-     * a <code>ARRAY</code>, <code>BLOB</code>, <code>CLOB</code>,
-     * <code>DATALINK</code>, <code>JAVA_OBJECT</code>, <code>NCHAR</code>,
-     * <code>NCLOB</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>,
-     *  <code>REF</code>, <code>ROWID</code>, <code>SQLXML</code>
-     * or  <code>STRUCT</code> data type and the JDBC driver does not support
-     * this data type
      * @see Types
      * @see #getObject
      */
@@ -6697,13 +6592,6 @@ implements RowSet, Serializable             // @A3C
      *                      sent to the database
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if <code>targetSqlType</code> is
-     * a <code>ARRAY</code>, <code>BLOB</code>, <code>CLOB</code>,
-     * <code>DATALINK</code>, <code>JAVA_OBJECT</code>, <code>NCHAR</code>,
-     * <code>NCLOB</code>, <code>NVARCHAR</code>, <code>LONGNVARCHAR</code>,
-     *  <code>REF</code>, <code>ROWID</code>, <code>SQLXML</code>
-     * or  <code>STRUCT</code> data type and the JDBC driver does not support
-     * this data type
      * @see #getObject
      */
     public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException
@@ -6744,8 +6632,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>CallableStatement</code> or if the given
      *            <code>Object</code> parameter is ambiguous
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getObject
      */
     public void setObject(String parameterName, Object x) throws SQLException
@@ -6764,8 +6650,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getShort
      */
     public void setShort(String parameterName, short x) throws SQLException
@@ -6787,8 +6671,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getString
      */
     public void setString(String parameterName, String x) throws SQLException
@@ -6814,8 +6696,6 @@ implements RowSet, Serializable             // @A3C
      *            to construct the time
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getTime
      */
     public void setTime(String parameterName, Time x, Calendar cal) throws SQLException
@@ -6834,8 +6714,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getTime
      */
     public void setTime(String parameterName, Time x) throws SQLException
@@ -6861,8 +6739,6 @@ implements RowSet, Serializable             // @A3C
      *            to construct the timestamp
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getTimestamp
      */
     public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException
@@ -6882,8 +6758,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #getTimestamp
      */
     public void setTimestamp(String parameterName, Timestamp x) throws SQLException
@@ -6902,7 +6776,6 @@ implements RowSet, Serializable             // @A3C
      * @param x the <code>java.net.URL</code> object to be set
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setURL(int parameterIndex, URL x) throws SQLException
     {
@@ -6931,8 +6804,6 @@ implements RowSet, Serializable             // @A3C
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException
     {
@@ -6963,8 +6834,6 @@ implements RowSet, Serializable             // @A3C
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException
     {
@@ -6995,8 +6864,6 @@ implements RowSet, Serializable             // @A3C
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException
     {
@@ -7027,8 +6894,6 @@ implements RowSet, Serializable             // @A3C
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException
     {
@@ -7058,8 +6923,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException
     {
@@ -7089,8 +6952,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException
     {
@@ -7121,8 +6982,6 @@ implements RowSet, Serializable             // @A3C
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(int columnIndex, Reader x) throws SQLException
     {
@@ -7153,8 +7012,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException
     {
@@ -7188,8 +7045,6 @@ implements RowSet, Serializable             // @A3C
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method 
      */
     public void updateClob(int columnIndex, Reader reader) throws SQLException
     {
@@ -7222,8 +7077,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateClob(String columnLabel, Reader reader) throws SQLException
     {
@@ -7258,8 +7111,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException
     {
@@ -7295,8 +7146,6 @@ implements RowSet, Serializable             // @A3C
      * @exception SQLException if the columnLabel is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException
     {
@@ -7332,8 +7181,6 @@ implements RowSet, Serializable             // @A3C
      *  error could occur; this method is called on a closed result set,  
      * if a database access error occurs or
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNClob(int columnIndex, Reader reader) throws SQLException
     {
@@ -7368,8 +7215,6 @@ implements RowSet, Serializable             // @A3C
      *  error could occur; this method is called on a closed result set;
      *  if a database access error occurs or
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNClob(String columnLabel, Reader reader) throws SQLException
     {

@@ -54,7 +54,11 @@ public abstract class SQLDataBase implements SQLData
    protected boolean                 outOfBounds_; 
    protected SQLConversionSettings   settings_;
 
-   public SQLDataBase(SQLConversionSettings settings) {
+   /**
+    * Create a new SQLDataBase object with the specified settings
+   * @param settings
+   */
+  public SQLDataBase(SQLConversionSettings settings) {
      this.settings_= settings; 
      truncated_ = 0; outOfBounds_ = false; 
 
@@ -149,8 +153,6 @@ public abstract class SQLDataBase implements SQLData
     Returns the display size.  This is defined in Appendix
     D of the ODBC 2.0 Programmer's Reference.
     @return                 the display size (in characters).
-    @exception  SQLException    If the index is invalid
-                                or an error occurs.
     **/
     public abstract int getDisplaySize();
 

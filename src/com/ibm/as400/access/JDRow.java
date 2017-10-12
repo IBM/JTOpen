@@ -48,7 +48,6 @@ interface JDRow
     
     @return     The number of fields.
     
-    @exception  SQLException    If an error occurs.
     **/
     public abstract int getFieldCount ();
 

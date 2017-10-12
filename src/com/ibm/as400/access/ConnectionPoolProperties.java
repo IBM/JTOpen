@@ -348,6 +348,7 @@ class ConnectionPoolProperties implements Serializable
    *  and whether the pool uses threads for running maintenance.   
    *  The default value is true.   
    *  @param useThreads true to use threads; false otherwise.
+   * @param isInUse 
    **/
   public void setThreadUsed(boolean useThreads, boolean isInUse)
   {

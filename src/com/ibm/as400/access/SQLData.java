@@ -129,6 +129,7 @@ extends Cloneable
     @param  rawBytes         the raw bytes for the system.
     @param  offset           the offset into the byte array.
     @param  ccsidConverter   the converter.
+     * @throws SQLException 
     **/
     public abstract void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException;
@@ -184,8 +185,6 @@ extends Cloneable
     Returns the display size.  This is defined in Appendix
     D of the ODBC 2.0 Programmer's Reference.
     @return                 the display size (in characters).
-    @exception  SQLException    If the index is invalid
-                                or an error occurs.
     **/
     public abstract int getDisplaySize();
 
@@ -316,6 +315,7 @@ extends Cloneable
      * data was out of bounds of the range of the requested
      * datatype.  This will only happen when requesting
      * conversion to a numeric type.  
+     * @return out of bounds indicator
      */
     public abstract boolean getOutOfBounds(); 
     /** 
@@ -507,6 +507,7 @@ extends Cloneable
     Converts the data to a Java String object.  This
     conversion must be provided by the implementation.
     @return             the result of the conversion.
+     * @throws SQLException 
     **/
     public abstract String getString()
     throws SQLException;

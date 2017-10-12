@@ -33,14 +33,12 @@ extends DBBaseRequestDS
        @param  requestId the 4 digit code that represents the function being called.
        @param  rpbId   the request parameter block id.
        @param  operationResultsBitmap the bitmap which describes how the results are to be returned.
-       @param  basedOnORSHandle	the based on operational results set.
        @param  parameterMarkerDescriptorHandle the Parameter marker descriptor handle identifier.
     **/
 
     public DBSQLAttributesDS(int requestId,
                              int rpbId,
                              int operationResultsBitmap,
-                             //@P0D int basedOnORSHandle, // This isn't used
                              int parameterMarkerDescriptorHandle)
 
     {

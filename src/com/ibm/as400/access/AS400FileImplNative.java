@@ -107,7 +107,6 @@ class AS400FileImplNative extends AS400FileImplBase
     /**
      *Closes the file on the server.
      *@param handle the file handle.
-     *@return the message feedback data
      **/
     native void closeNtv(int handle)
       throws NativeException;
@@ -200,7 +199,6 @@ class AS400FileImplNative extends AS400FileImplBase
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the server.
      *@exception ServerStartupException If the host server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
      **/
     public synchronized void createDDSSourceFile(RecordFormat recordFormat,
                                                  String altSeq,
@@ -490,7 +488,6 @@ class AS400FileImplNative extends AS400FileImplBase
      *Deletes the record at the current cursor position.  The file must be open and
      *the cursor must be positioned on an active record.
      *@param handle the file handle
-     *@return the message feedback data and the I/O feedback data
      *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
@@ -502,7 +499,6 @@ class AS400FileImplNative extends AS400FileImplBase
     /**
      *Executes a command on the server.
      *@param cmd the command
-     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the server.
@@ -563,7 +559,6 @@ class AS400FileImplNative extends AS400FileImplBase
      *record or after the last record.
      *@param handle the file handle
      *@param optl the options list
-     *@return the message feedback data and the I/O feedback data
      **/
     native void forceEndOfData(int handle,
                                byte[] optl)
@@ -668,7 +663,6 @@ class AS400FileImplNative extends AS400FileImplBase
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the server.
      *@exception ServerStartupException If the host server cannot be started..
-     *@exception UnknownHostException If the server cannot be located.
      **/
     public DDMS38OpenFeedback openFile(int openType, int bf, String access)
       throws AS400Exception, AS400SecurityException, InterruptedException, IOException
@@ -1197,8 +1191,8 @@ class AS400FileImplNative extends AS400FileImplBase
       {return positionCursorToIndex((int)index);}
     /**
      *Positions the cursor to the first record in the file that matches the
-     *specified key.
-     *@param key the key
+     *specified keys.
+     *@param keys the keys
      *@param searchType the way to compare keys
      *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
@@ -1418,8 +1412,8 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     // @A2A
     /**
      *Positions the cursor to the first record in the file that matches the
-     *specified key.
-     *@param key the key
+     *specified keys.
+     *@param keys the keys
      *@param searchType the way to compare keys
      *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
@@ -1546,7 +1540,6 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
      *@param optl option list
      *@param ctll control list
      *@param data record data
-     *@return message feedback data, I/O feedback data
      **/
     native void put(int handle,
                     byte[] optl,
@@ -1660,7 +1653,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     /**
      *Reads the first record with the specified key based on the specified search type.
      *@param key The values that make up the key with which to find the record.
-     *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+     *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
      *@return The record read.
      *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
@@ -1874,7 +1867,7 @@ return null;
     /**
      *Reads the first record with the specified key based on the specified search type.
      *@param key The values that make up the key with which to find the record.
-     *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+     *@param searchType The type of read.  This value is one of the TYPE_GETKEY_* constants.
      *@return The record read.
      *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
@@ -2240,7 +2233,6 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
 
     /**
      *Rollback changes to files under commitment control.
-     *@return message feedback data.
      **/
     native void rollbackNtv()
       throws NativeException;
@@ -2251,7 +2243,6 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
      *@param optl option list
      *@param ctll control list
      *@param recordData record data
-     *@return message feedback data, I/O feedback
      **/
     native void updat(int handle,
                       byte[] optl,

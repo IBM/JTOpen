@@ -514,6 +514,7 @@ public class AS400 implements Serializable
     /**
      * Constructs an AS400 object.  The specified ProfileTokenProvider is used.
      * The token refresh threshold is determined by the ProfileTokenProvider.
+     * @param systemName  The name of the IBM i system.
      * @param tokenProvider The provider to use when a new profile token needs to be generated.
      * @see #AS400(String,ProfileTokenProvider,int)
      */
@@ -524,6 +525,7 @@ public class AS400 implements Serializable
 
     /**
      * Constructs an AS400 object.  The specified ProfileTokenProvider is used.
+     * @param systemName  The name of the IBM i system.
      * @param tokenProvider The provider to use when a new profile token needs to be generated.
      * @param refreshThreshold The refresh threshold, in seconds, for the profile token.
      *                         Used by the vault to manage the currency of the profile token
@@ -630,6 +632,11 @@ public class AS400 implements Serializable
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws IOException 
+     * @throws InterruptedException 
+     * @throws PropertyVetoException 
      */
     public void setIASPGroup(String IASPGroup) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       this.currentLib_ = "*CURUSR";
@@ -651,6 +658,11 @@ public class AS400 implements Serializable
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws IOException 
+     * @throws InterruptedException 
+     * @throws PropertyVetoException 
      */
     public void setIASPGroup(String IASPGroup, String currentLib) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -678,6 +690,11 @@ public class AS400 implements Serializable
      * @param IASPGroup asp group name
      * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
      * @param librariesForThread Libraries for current thread with single value. If null or "" is set, default value *CURUSR is used.
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws IOException 
+     * @throws InterruptedException 
+     * @throws PropertyVetoException 
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -714,6 +731,11 @@ public class AS400 implements Serializable
      * @param IASPGroup asp group name
      * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
      * @param librariesForThread Libraries for current thread. If null is set, default value *CURUSR is used. Up to 250 libraries can be set.
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws IOException 
+     * @throws InterruptedException 
+     * @throws PropertyVetoException 
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -1712,6 +1734,7 @@ public class AS400 implements Serializable
 
     /**  Get underlying AS400Impl object.
      *   Should only be used by code internal to the driver.
+     * @return underlying AS400Impl object
      */
     public AS400Impl getImpl()
     {
@@ -2484,6 +2507,7 @@ public class AS400 implements Serializable
     /**
      Initialize conversion table for the given CCSID.  The default EBCDIC to unicode converters are not shipped with some browsers.  This method can be used to check and download converters if they are not available locally.
      @param  ccsid  the CCSID for the conversion table to initialize.
+     * @throws UnsupportedEncodingException 
      **/
     public void initializeConverter(int ccsid) throws UnsupportedEncodingException
     {
@@ -2722,6 +2746,12 @@ public class AS400 implements Serializable
         return usePasswordCache_;
     }
     
+    /**
+     * Is the AS400 object configured to use a pass phrase
+     * @return true if pass phrase can be used
+     * @throws AS400SecurityException
+     * @throws IOException
+     */
     public boolean isUsePassphrase() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if use password phrase");
@@ -4479,6 +4509,7 @@ public class AS400 implements Serializable
     /**
      * Sets bidi string type of the connection.
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     * @param bidiStringType bidi string type to use for the connection.
      */
     public void setBidiStringType(int bidiStringType){
         this.bidiStringType = bidiStringType;
@@ -4487,6 +4518,7 @@ public class AS400 implements Serializable
     /**
      * Returns bidi string type of the connection.
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     * @return The bidi string type of the connection.
      */
     public int getBidiStringType(){
         return bidiStringType;
