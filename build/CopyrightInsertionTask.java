@@ -114,7 +114,11 @@ public class CopyrightInsertionTask extends MatchingTask
       if (verbose_) System.out.println("Stamped. Time: "+(end-start)+" ms");
       numFilesStamped_++;
     }
-    catch (Exception e) { throw new BuildException(e); }
+    catch (Exception e) { 
+    	Exception e2 = new Exception(e.toString()+" caught processing "+classFile.toString());
+    	e2.initCause(e); 
+    	throw new BuildException(e2); 
+    }
   }
 
 
@@ -126,6 +130,10 @@ public class CopyrightInsertionTask extends MatchingTask
     public static final int CONSTANT_Fieldref_info = 9;
     public static final int CONSTANT_Methodref_info = 10;
     public static final int CONSTANT_InterfaceMethodref_info = 11;
+    public static final int CONSTANT_MethodHandle_info = 15; 
+    public static final int CONSTANT_InvokeDynamic_info = 18;
+    public static final int CONSTANT_Module_info = 19; 
+    public static final int CONSTANT_Package_info = 20; 
     public static final int CONSTANT_String_info = 8;
     public static final int CONSTANT_Integer_info = 3;
     public static final int CONSTANT_Float_info = 4;
@@ -166,6 +174,8 @@ public class CopyrightInsertionTask extends MatchingTask
           break;
         case CONSTANT_Class_info:
         case CONSTANT_String_info:
+        case CONSTANT_Module_info:
+        case CONSTANT_Package_info:
           data1_ = read(2);
           break;
         case CONSTANT_Double_info:
@@ -184,9 +194,14 @@ public class CopyrightInsertionTask extends MatchingTask
         case CONSTANT_InterfaceMethodref_info:
         case CONSTANT_Methodref_info:
         case CONSTANT_NameAndType_info:
+        case CONSTANT_InvokeDynamic_info: 
           data1_ = read(2);
           data2_ = read(2);
           break;
+        case CONSTANT_MethodHandle_info: 
+            data1_ = read(2);
+            data2_ = read(1);
+            break;
         default:
           throw new IllegalArgumentException("wrong type: "+type_);
       }
@@ -209,6 +224,8 @@ public class CopyrightInsertionTask extends MatchingTask
           break;
         case CONSTANT_Class_info:
         case CONSTANT_String_info:
+        case CONSTANT_Module_info:
+        case CONSTANT_Package_info:
           write(2, data1_);
           break;
         case CONSTANT_Double_info:
@@ -224,9 +241,14 @@ public class CopyrightInsertionTask extends MatchingTask
         case CONSTANT_InterfaceMethodref_info:
         case CONSTANT_Methodref_info:
         case CONSTANT_NameAndType_info:
+        case CONSTANT_InvokeDynamic_info:
           write(2, data1_);
           write(2, data2_);
           break;
+        case CONSTANT_MethodHandle_info:
+            write(2, data1_);
+            write(1, data2_);
+        	break;
         default:
           throw new IllegalArgumentException("wrong type: "+type_);
       }
