@@ -100,7 +100,7 @@ Returns the list of actions that can be performed.
 /**
 Indiciates if the node allows children.
 
-@param  Always true.
+@returns  Always true.
 **/
     public boolean getAllowsChildren ()
     {
@@ -162,7 +162,7 @@ Returns the child for the details at the specified index.
 /**
 Returns the number of children for the details.
 
-@param  Always 0.
+@returns  Always 0.
 **/
     public int getDetailsChildCount ()
     {
@@ -279,7 +279,7 @@ Returns the text.  This is the name of the directory.
 /**
 Indicates if the node is a leaf.
 
-@param Always true.
+@returns Always true.
 **/
     public boolean isLeaf ()
     {

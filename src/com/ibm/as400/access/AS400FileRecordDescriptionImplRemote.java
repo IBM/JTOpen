@@ -815,8 +815,6 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400FileRecordDescription#setPath
    *@see AS400FileRecordDescription#setSystem
-   *@param filePath The path in which to create the file.  If <i>filePath</i> is null,
-   *the file is created in the current working directory.
    *@param packageName The name of the package in which the class belongs. The <i>packageName</i>
    *is used to specify the package statement in the source code for the class.
    * If this value is null, no package statement is specified in the source code for the class.
@@ -828,7 +826,6 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *server.
    *@exception InterruptedException If this thread is interrupted.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
    *@return An array of Strings: { rfName0, contents0, rfName1, contents1, etc... }.
   **/
   public /*@E0D synchronized */ String[] createRecordFormatSource(String packageName) //@C0C
@@ -1162,7 +1159,6 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *server.
    *@exception InterruptedException If this thread is interrupted.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
 
   **/
   public /*@E0D synchronized */ RecordFormat[] retrieveRecordFormat()
@@ -1414,7 +1410,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *is created with information extracted from the Record object provided.
    *@param sourceFile The file to which to write the field description.
    *@param record The record from which to obtain the field information.
-   *@exception If an error occurs during conversion.
+   * @throws UnsupportedEncodingException If an error occurs during conversion.
   **/
   public void writeFieldDescription(PrintWriter sourceFile, Record record)
   throws UnsupportedEncodingException

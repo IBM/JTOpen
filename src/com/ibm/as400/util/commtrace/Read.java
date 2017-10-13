@@ -46,6 +46,7 @@ class Read implements Runnable {
 	/**
 	 * Creates a read object which will open an IFSFileStream on the remote file
 	 * from the given system and read into the local file.
+	 * @param comm 
 	 * @param rmtfile   Path of the remote file to download
 	 * @param lclfile   Path of the local file to save to
 	 * @param sys	    The system to connect to
@@ -160,7 +161,8 @@ class Read implements Runnable {
 
 	/**
 	 * Returns the thread that this read process is executing under.
-	 * @returns Thread
+	 * @return Threads
+	
 	 */
 	public Thread getThread() {
 		return readThread_;
@@ -168,7 +170,7 @@ class Read implements Runnable {
 
 	/**
 	 * Sets the thread this process is executing under.
-	 * @param Thread The thread to execute under
+	 * @param thread The thread to execute under
 	 */
 	public void setThread(Thread thread) {
 		readThread_= thread;

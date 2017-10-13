@@ -59,6 +59,7 @@ is called.
 Constructs a DBExtendedDataFormat object.  Use this when overlaying
 on a request datastream.  This sets the cached data so that
 the total length can be calculated before calling overlay().
+ * @param numberOfFields 
 **/
   public DBExtendedDataFormat (int numberOfFields)
   {

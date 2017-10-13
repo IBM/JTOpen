@@ -37,8 +37,7 @@ implements java.sql.DatabaseMetaData
 
   /**
    Constructs a JDDatabaseMetaDataProxy object.
-
-   @param connectionProxy The Connection object that caused this object to be created.
+   * @param jdConnection  The Connection object that caused this object to be created.
    **/
   public JDDatabaseMetaDataProxy (JDConnectionProxy jdConnection)
   {

@@ -202,6 +202,9 @@ class JdbcMeService implements Service
     TODO:  We will probably change this so that that handle
     is really the object hash code instead of the CLI handle.
     Otherwise we can't be JDBC driver neutral.
+     * @param handle 
+     * @return Object
+     * @throws IOException 
     **/
     public Object  processJdbcObject(int handle) throws IOException 
     {
@@ -266,6 +269,7 @@ class JdbcMeService implements Service
     /**
     This function can handle adding statements, preparedStatements,
     and callableStatements to the internal data structures.
+     * @param s 
     **/
     public void addStatement(Statement s)
     {
@@ -276,6 +280,7 @@ class JdbcMeService implements Service
 
     /**
     This function adds connections to the internal data structures.
+     * @param c 
     **/
     public void addConnection(Connection c)
     {
@@ -284,6 +289,9 @@ class JdbcMeService implements Service
 
     /**
      * This function adds result sets to the internal data structure
+     * @param s 
+     * @param rs 
+     * @throws SQLException 
      */
     public void addResultSet(Statement s, ResultSet rs) throws SQLException 
     {     // DOMINO
@@ -300,6 +308,7 @@ class JdbcMeService implements Service
     /**
     This function can handle removing statements, preparedStatements,
     and callableStatements to the internal data structures.
+     * @param s 
     **/
     public void removeStatement(Statement s)
     {
@@ -328,6 +337,7 @@ class JdbcMeService implements Service
 
     /**
     This function removes connections to the internal data structures.
+     * @param c 
     **/
     public void removeConnection(Connection c)
     {
@@ -362,6 +372,8 @@ class JdbcMeService implements Service
     /**
     This is the generic exception handler for all SQLExceptions
     that can happen.
+     * @param e 
+     * @throws IOException 
     **/
     public void handleException(SQLException e) throws IOException 
     {
@@ -389,6 +401,7 @@ class JdbcMeService implements Service
 
     /**
     This function returns the next usable object id..
+     * @return next usable object id
     **/
     public int getNextObjectId()
     {
@@ -403,6 +416,8 @@ class JdbcMeService implements Service
 
     /**
     This method encapsulates the map out of the service handlers.
+     * @param object 
+     * @return int
     **/
     public int mapObject(Object object)
     {
@@ -436,6 +451,8 @@ class JdbcMeService implements Service
 
 
     /**
+     * @param funcId 
+     * @return true if funcId is a service request
     **/
     public boolean isServiceRequest(int funcId)
     {
@@ -450,6 +467,8 @@ class JdbcMeService implements Service
 
     /**
     Process service requests
+     * @param funcId 
+     * @throws IOException 
     **/
     public void process(int funcId) throws IOException
     {
@@ -469,6 +488,7 @@ class JdbcMeService implements Service
     /**
     Allows JDBCME service handlers to determine the type of
     data type flows the user application is interested in.
+     * @return data file type
     **/
     public int getDataFlowType()
     {
@@ -477,6 +497,7 @@ class JdbcMeService implements Service
 
 
     /**
+     * @throws IOException 
     **/
     public void setDataFlowType() throws IOException
     {
@@ -503,6 +524,8 @@ class JdbcMeService implements Service
 
     /**
     Handles exceptions that happen at a service level.
+     * @param message 
+     * @throws IOException 
     **/
     public void handleServiceException(String message) throws IOException 
     {

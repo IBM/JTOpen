@@ -158,6 +158,7 @@ public class URLParser
 
     /**
      *  Returns the HTMLHyperlink.
+     * @param text 
      *  @return The HTMLHyperlink.
      **/
     public HTMLHyperlink getHTMLHyperlink(String text)
@@ -171,6 +172,7 @@ public class URLParser
 
     /**
      *  Returns the ServletHyperlink.
+     * @param text 
      *  @return The ServletHyperlink.
      **/
     public ServletHyperlink getServletHyperlink(String text)

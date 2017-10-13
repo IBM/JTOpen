@@ -33,6 +33,10 @@ class DBReplyPackageInfo {
     /**
        Constructs a new DBReplyPackageInfo object.  It initializes
        the variables using the data provided.
+     * @param data 
+     * @param offset 
+     * @param length 
+     * @param jobCCSID 
     **/
     public DBReplyPackageInfo (byte[] data,
                                int offset,

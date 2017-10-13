@@ -2112,6 +2112,7 @@ to be used when rendering the pages of spooled file for viewing.
 
     /**
     Constructs a PaperSizeBox_ Dialog
+     * @param parent 
     **/
         public PaperSizeBox_(JFrame parent)
         {
@@ -2233,6 +2234,7 @@ for viewing.
 
     /**
     Constructs a ViewingFidelityBox_ Dialog
+     * @param parent 
     **/
         public ViewingFidelityBox_(JFrame parent)
         {
@@ -2352,6 +2354,7 @@ to view.
 
     /**
     Constructs a GoToBox_ Dialog
+     * @param parent 
     **/
         public GoToBox_(JFrame parent)
         {
@@ -2462,6 +2465,10 @@ The WarningDialogBox_ class represents a dialog for displaying a warning.
 
     /**
     Constructs a WarningDialogBox_ Dialog
+     * @param parent 
+     * @param warning 
+     * @param prop 
+     * @param val 
     **/
         public WarningDialogBox_(JFrame parent,
                                  String warning,
@@ -2585,6 +2592,7 @@ The ZoomToBox_ class represents a dialog for selecting a magnification
 
     /**
     Constructs a ZoomToBox_ Dialog
+     * @param parent 
     **/
         public ZoomToBox_(JFrame parent)
         {

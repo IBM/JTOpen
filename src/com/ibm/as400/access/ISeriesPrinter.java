@@ -578,7 +578,7 @@ public class ISeriesPrinter implements Serializable
      Returns whether or not the specified object is equal to this object.
      @return  true if the specified object is an ISeriesPrinter and the following contract is true:
      <pre>
-         obj.getSystem().equals(this.getSystem()) && obj.getName().equals(this.getName())
+         obj.getSystem().equals(this.getSystem()) &amp;&amp; obj.getName().equals(this.getName())
      </pre>
      Otherwise, false is returned.
      **/

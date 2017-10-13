@@ -20,10 +20,6 @@ package com.ibm.as400.access;
 class IFSLookupReq extends IFSDataStreamReq
 {
 
-/**
-Construct a list attributes request.
-@param name the file name (may contain wildcard characters * and ?)
-**/
   private static final int Parent_HANDLE_OFFSET = 22;
   private static final int Object_HANDLE_OFFSET = 26;
   private static final int CCSID_OFFSET = 30;
@@ -43,6 +39,10 @@ Construct a list attributes request.
   static final int OA2     = 2;
   static final int ASP_FLAG = 0x00100000;
 
+  /**
+  Construct a list attributes request.
+  @param name the file name (may contain wildcard characters * and ?)
+  **/
 
   IFSLookupReq(byte[] name,int fileNameCCSID)
   {

@@ -99,7 +99,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public void flush()
@@ -148,7 +147,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long length()
@@ -255,7 +253,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    @see IFSKey
    @see #unlock
@@ -460,7 +457,7 @@ implements IFSRandomAccessFileImpl
    file into the byte array; this method reads repeatedly from the file
    until all the bytes are read or an exception is thrown.
    @param data The buffer into which the data is read.
-   @param offset The start offset of the data in the buffer.
+   @param dataOffset The start offset of the data in the buffer.
    @param length The maximum number of bytes to read.
    @param readFully Whether or not to read fully.
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
@@ -469,7 +466,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public int read(byte[] data,
@@ -568,7 +564,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public final synchronized String readLine()
@@ -642,7 +637,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
    @exception UTFDataFormatException If the bytes do not represent a valid UTF-8 encoding of a Unicode string.
    **/
   public final String readUTF()
@@ -853,7 +847,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    @see IFSKey
    @see #lock
@@ -889,7 +882,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public void writeBytes(byte[]  data,
@@ -929,7 +921,6 @@ implements IFSRandomAccessFileImpl
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
 
    **/
   public final void writeUTF(String s)

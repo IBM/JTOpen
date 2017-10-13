@@ -77,6 +77,7 @@ private static final String [] otherChoices = {"AND", "OR"};
 
 /**
 Constructs a SQLQueryHavingPane object.
+ * @param parent 
 **/
 public SQLQueryHavingPane (SQLQueryBuilderPane parent)
 {

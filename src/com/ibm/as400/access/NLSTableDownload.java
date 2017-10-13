@@ -47,6 +47,12 @@ public class NLSTableDownload extends Object
 
     /**
      * connect to the previously set server.
+     * @throws ServerStartupException 
+     * @throws UnknownHostException 
+     * @throws AS400SecurityException 
+     * @throws ConnectionDroppedException 
+     * @throws InterruptedException 
+     * @throws IOException 
      **/
     public void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException
     {
@@ -133,6 +139,13 @@ public class NLSTableDownload extends Object
     
     /**
      * Download table
+     * @param fromCCSID the ccsid to translate from
+     * @param toCCSID  the ccsid to traslate to 
+     * @param fromType the type of the from CCSID, i.e. DOUBLE_TYPE_FROM_CCSID, etc.. 
+     * @return table as character array
+     * @throws ConnectionDroppedException 
+     * @throws IOException 
+     * @throws InterruptedException 
      * 
      **/
     public char[] download( int fromCCSID, int toCCSID, int fromType ) throws ConnectionDroppedException, IOException, InterruptedException

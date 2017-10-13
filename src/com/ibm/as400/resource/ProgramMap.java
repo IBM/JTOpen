@@ -316,6 +316,8 @@ the appropriate logical values.
 @param indices          The indices, or null if not applicable,
                         or if the indices are specified as
                         part of the entry.
+ * @return array of Objects
+ * @throws PcmlException 
 **/
     public Object[] getValues(Object[] ids,
                               AS400 system,

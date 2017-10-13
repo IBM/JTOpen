@@ -251,6 +251,7 @@ public class UserSpace implements Serializable
      Closes the user space and releases any system resources associated with the stream.
      This will not close the connection to the Host Server job held by the associated AS400 object.
      Note: Closing the user space does not delete it.  It simply closes this UserSpace object's file stream connection to the user space.
+     * @throws IOException 
      @see #delete
      **/
     public synchronized void close() throws IOException

@@ -48,7 +48,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
     * the provided information.
     *
     * @deprecated As of V5R3, replaced 
-    * by {@link #generateTokenExtended(String,byte[],int,int)}.
+    * by {@link #generateTokenExtended(String,String,int,int)}.
     *
     * @param uid
     *		The name of the user profile for which the token

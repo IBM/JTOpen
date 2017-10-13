@@ -81,6 +81,7 @@ implements java.io.Serializable
    
     /**
       * Returns the printer list filter.
+     * @return list filter
       **/
     public String getPrinterFilter()
     {

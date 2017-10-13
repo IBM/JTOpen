@@ -541,7 +541,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
   /**
    Shuts down the connection pool in an orderly manner.  Closes all connections in the pool.
-   @throws Throwable If an error occurs.
    **/
   public void closePool()
   {
@@ -581,6 +580,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    Returns the output string type of bidi data. See <a href="BidiStringType.html">
    BidiStringType</a> for more information and valid values.  -1 will be returned
    if the value has not been set.
+   * @return the bidi string type
    **/
   public int getBidiStringType()
   {
@@ -1053,6 +1053,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    </ul>
    The default value is "toolbox".
    Note:  Not supported in a connection pool.
+   * @return the JDBC driver implementation
    **/
   public String getDriver()
   {
@@ -1310,6 +1311,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     * Note, this setting is ignored when running to i5/OS V5R4 or earlier
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
+     * @return the storage limit
     **/
     public int getQueryStorageLimit()
     {
@@ -2401,6 +2403,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   /**
    Sets the output string type of bidi data. See <a href="BidiStringType.html">
    BidiStringType</a> for more information and valid values.
+   * @param bidiStringType output bidi string type
    **/
   public void setBidiStringType(int bidiStringType)
   {
@@ -2596,6 +2599,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    The default is "asensitive".
    This property is ignored when connecting to systems
    running V5R1 and earlier versions of OS/400.
+   * @param cursorSensitivity cursor sensitivity
    **/
   public void setCursorSensitivity(String cursorSensitivity)
   {
@@ -3916,6 +3920,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    </ul>
    The default value is "toolbox".
    Note:  Not supported in a connection pool.
+   * @param driver 
    **/
   public void setDriver(String driver)
   {

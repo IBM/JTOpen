@@ -92,6 +92,7 @@ implements java.io.Serializable
 
     /**
       * Returns the formtype list filter.
+     * @return list filter
       *
       **/
     public String getFormTypeFilter()
@@ -108,6 +109,7 @@ implements java.io.Serializable
 
     /**
       * Returns the output queue filter.
+     * @return queue filter
       *
       **/
     public String getQueueFilter()
@@ -124,6 +126,7 @@ implements java.io.Serializable
 
     /**
       * Returns the user ID list filter.
+     * @return user filters
       *
       **/
     public String getUserFilter()
@@ -140,6 +143,7 @@ implements java.io.Serializable
 
     /**
       * Returns the user data list filter.
+     * @return user data filter
       *
       **/
     public String getUserDataFilter()
@@ -154,6 +158,7 @@ implements java.io.Serializable
 
     /**
      * Returns the create job system filter.
+     * @return job system filters
      *
      **/
    public String getJobSystemFilter()
@@ -166,6 +171,7 @@ implements java.io.Serializable
 
    /**
      * Returns the create end date filter.
+   * @return end date filter
      *
      **/
    public String getEndDateFilter()
@@ -178,6 +184,7 @@ implements java.io.Serializable
    
    /**
      * Returns the create end time filter.
+   * @return end time filter
      *
      **/
    public String getEndTimeFilter()
@@ -197,6 +204,7 @@ implements java.io.Serializable
 
    /**
      * Returns the create start date filter.
+   * @return start date filter
      *
      **/
    public String getStartDateFilter()
@@ -209,6 +217,7 @@ implements java.io.Serializable
 
    /**
      * Returns the create start time filter.
+   * @return start time filter
      *
      **/
    public String getStartTimeFilter()

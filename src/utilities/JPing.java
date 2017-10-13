@@ -105,6 +105,7 @@ public class JPing
    
    /**
     *   Run JPing.
+   * @param args 
     **/
    public static void main(String args[])
    {

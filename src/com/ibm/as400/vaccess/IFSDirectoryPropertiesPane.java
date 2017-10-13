@@ -165,7 +165,6 @@ Applies the changes made by the user.
 Returns the graphical component.
 
 @return             The graphical component.
-@throws Exception   If an error occurs.
 **/
     public Component getComponent ()
     {

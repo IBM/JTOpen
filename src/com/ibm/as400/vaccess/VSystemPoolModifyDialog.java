@@ -151,7 +151,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The action is performed.
      *
-     * @param event The action event.
+     * @param e The action event.
     **/
     public void actionPerformed(ActionEvent e)
     {
@@ -597,7 +597,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The window is activated.
      *
-     * @param event The window event.
+     * @param e The window event.
     **/
     public void windowActivated(WindowEvent e)
     {
@@ -607,7 +607,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The window is closed.
      *
-     * @param event The window event.
+     * @param e The window event.
     **/
     public void windowClosed(WindowEvent e)
     {
@@ -627,7 +627,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The window is closing.
      *
-     * @param event The window event.
+     * @param e The window event.
     **/
    public void windowClosing(WindowEvent e)
     {
@@ -639,7 +639,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The window is deactivated.
      *
-     * @param event The window event.
+     * @param e The window event.
     **/
     public void windowDeactivated(WindowEvent e)
     {
@@ -649,7 +649,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The window is deiconified.
      *
-     * @param event The window event.
+     * @param e The window event.
     **/
     public void windowDeiconified(WindowEvent e)
     {
@@ -659,7 +659,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The window is iconified.
      *
-     * @param event The window event.
+     * @param e The window event.
     **/
     public void   windowIconified(WindowEvent e)
     {
@@ -669,7 +669,7 @@ class VSystemPoolModifyDialog extends JDialog
     /**
      * The window is opened.
      *
-     * @param event The window event.
+     * @param e The window event.
     **/
     public void   windowOpened(WindowEvent e)
     {

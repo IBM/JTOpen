@@ -80,6 +80,7 @@ Constructs a PxClassParm object.
 Returns the Class value.
 
 @return The Class value.
+ * @throws ClassNotFoundException 
 **/
     public Class getClassValue ()
         throws ClassNotFoundException

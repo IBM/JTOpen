@@ -133,6 +133,7 @@ public class JDDataSourceURL implements Serializable {
    * happening later that are difficult to debug.
    * 
    * @return URL schema, or null if it is invalid.
+   * @throws SQLException 
    **/
   public String getSchema() throws SQLException {
     int length = schema_.length();

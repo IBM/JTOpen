@@ -32,6 +32,7 @@ private int pheight_ = 0;         // Height in pixels of component
 
 /**
 Constructs a SQLQueryClause object.
+ * @param rows 
 **/
 public SQLQueryClause(int rows)
 {

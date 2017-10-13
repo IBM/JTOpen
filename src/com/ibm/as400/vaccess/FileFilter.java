@@ -34,6 +34,8 @@ public class FileFilter
 
     /**
        Constructs a FileFilter object.
+     * @param description 
+     * @param pattern 
     **/
     public FileFilter(String description, String pattern)
     {

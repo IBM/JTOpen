@@ -327,6 +327,7 @@ Returns the return code.
 Indicates if the exception is expected by the user.  For
 example, if the user explicitly canceled an operation,
 then the user expects the resulting exception.
+ * @return true if exception expected
 **/
     public boolean isExpected()
     {

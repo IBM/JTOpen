@@ -27,6 +27,7 @@ class PermissionAccessRoot extends PermissionAccess
 {
     /**
      * Constructs a PermissionAccessRoot object.
+     * @param system 
      *
     **/
     public PermissionAccessRoot(AS400 system)
@@ -263,7 +264,6 @@ class PermissionAccessRoot extends PermissionAccess
 
     /**
      * Returns authorized users' permissions.
-     * @return a vector of authorized users' permission.
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.

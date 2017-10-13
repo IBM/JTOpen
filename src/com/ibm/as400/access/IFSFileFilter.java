@@ -21,6 +21,8 @@ public interface IFSFileFilter
 {
  /**
     Tests if a specified file should be in a file list.
+ * @param file 
+ * @return true if file is accepted by the filter
  **/ 
   public abstract boolean accept(IFSFile file);
 }

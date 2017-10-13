@@ -300,6 +300,12 @@ public class Command implements Serializable
   /**
    * Indicates whether or not a user with limited authorities is allowed to run this command.
    * @return true if a limited user is allowed to run this command; false otherwise.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public boolean allowsLimitedUser() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -315,6 +321,12 @@ public class Command implements Serializable
    * Returns the coded character set ID (CCSID) associated with this command.
    * It is the value of the job CCSID when this command was created.
    * @return The CCSID of the command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public int getCCSID() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -331,6 +343,12 @@ public class Command implements Serializable
    * that accepts parameters from this command processes this command.
    * @return The command processing program name, or *REXX if the command processing
    * program is a REXX procedure.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getCommandProcessingProgram() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -350,6 +368,12 @@ public class Command implements Serializable
    * <LI>{@link #USER_STATE USER_STATE} - The command processing program is called from user state.
    * </UL>
    * @return The state.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getCommandProcessingState() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -373,6 +397,12 @@ public class Command implements Serializable
    * processing is complete.
    * </UL>
    * @return The current library name.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getCurrentLibrary() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -387,6 +417,12 @@ public class Command implements Serializable
   /**
    * Returns the user text used to briefly describe this command and its function.
    * @return The text description, or "" if there is none.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getDescription() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -406,6 +442,12 @@ public class Command implements Serializable
    * <LI>*CMD - The name of the command is used.
    * </UL>
    * @return The help identifier.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getHelpIdentifier() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -422,6 +464,12 @@ public class Command implements Serializable
    * the online help information exists for this command.
    * @return The help panel group, or null if no help panel group is defined
    * for this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public PanelGroup getHelpPanelGroup() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -438,6 +486,12 @@ public class Command implements Serializable
    * Returns the fully qualified integrated file system path of the help search index
    * used for this command.
    * @return The search index name, or *NONE if no help search index is specified.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getHelpSearchIndex() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -454,6 +508,12 @@ public class Command implements Serializable
    * manner for this command.
    * @return The number of parameters, or -1 if there is no maximum positional coding
    * limit specified for this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public int getMaximumPositionalParameters() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -470,6 +530,12 @@ public class Command implements Serializable
    * from which messages identified on the DEP statements used to define the command
    * are retrieved.
    * @return The message file.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public MessageFile getMessageFile() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -498,6 +564,12 @@ public class Command implements Serializable
    * or {@link #THREADSAFE_CONDITIONAL THREADSAFE_CONDITIONAL},
    * then the multithreaded job action will be returned as {@link #ACTION_NO_MESSAGE ACTION_NO_MESSAGE}.
    * @return The multithreaded job action for this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
    * @see #getThreadSafety
   **/
   public byte getMultithreadedJobAction() throws AS400Exception, AS400SecurityException,
@@ -530,6 +602,12 @@ public class Command implements Serializable
    * <LI>*NONE - There is no product library in the job's library list.
    * </UL>
    * @return The product library name.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getProductLibrary() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -546,6 +624,12 @@ public class Command implements Serializable
    * that contains the prompt text for this command.
    * @return The message file, or null if no message file was specified for
    * the prompt text.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public MessageFile getPromptMessageFile() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -566,6 +650,12 @@ public class Command implements Serializable
    * actual values for the parameter.
    * @return The prompt override program name, or *NONE if no prompt override
    * program was specified for this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getPromptOverrideProgram() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -585,6 +675,12 @@ public class Command implements Serializable
    * <LI>{@link #USER_STATE USER_STATE} - The prompt override program is called from user state.
    * </UL>
    * @return The state.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getPromptOverrideState() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -603,6 +699,12 @@ public class Command implements Serializable
    * the target release parameter on the Create CL Program (CRTCLPGM) command.
    * @return The release in the format "VxRxMx", or "" if the command can be used in
    * the current release.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
    * @see com.ibm.as400.access.AS400#getVRM
   **/
   public String getRestrictedRelease() throws AS400Exception, AS400SecurityException,
@@ -620,6 +722,12 @@ public class Command implements Serializable
    * source file member that contains the command definition statements
    * used to create this command.
    * @return The source file name, or null if the source file is not known.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getSourceFile() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -657,6 +765,12 @@ public class Command implements Serializable
    * under which the command can be used safely in a multithreaded job.
    * </UL>
    * @return The threadsafety indicator for this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
    * @see #getMultithreadedJobAction
   **/
   public byte getThreadSafety() throws AS400Exception, AS400SecurityException,
@@ -675,6 +789,12 @@ public class Command implements Serializable
    * for this command.
    * @return The validity check program name, or *NONE if no separate user-defined
    * validity checking is done for this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getValidityCheckProgram() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -694,6 +814,12 @@ public class Command implements Serializable
    * <LI>{@link #USER_STATE USER_STATE} - The validity check program is called from user state.
    * </UL>
    * @return The state.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getValidityCheckState() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -716,6 +842,12 @@ public class Command implements Serializable
    * <LI>{@link #isAllowedToRunInteractive isAllowedToRunInteractive}
    * </UL>
    * @return The "where allowed to run" field.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getWhereAllowedToRun() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -730,6 +862,12 @@ public class Command implements Serializable
   /**
    * Retrieves the XML source for this CL command.
    * @return The XML describing this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public String getXML() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -749,6 +887,12 @@ public class Command implements Serializable
    * If the system does not support this format, an AS400Exception will be
    * thrown with a message ID of CPF3C21, and you should use the getXML() method instead.
    * @return The XML describing this command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
    * @see #getXML
   **/
   public String getXMLExtended() throws AS400Exception, AS400SecurityException,
@@ -765,6 +909,14 @@ public class Command implements Serializable
    * Parses the XML source for this CL command and returns
    * the help identifiers.
    * @return The help identifiers, or null if no panel group was found in the XML source.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
   **/
   public PanelGroupHelpIdentifier[] getXMLHelpIdentifiers() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -779,6 +931,14 @@ public class Command implements Serializable
    * Parses the XML source for this CL command and returns
    * the product library.
    * @return The product library, or null if no panel group was found in the XML source.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
   **/
   public String getXMLProductLibrary() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -793,6 +953,14 @@ public class Command implements Serializable
    * Parses the XML source for this CL command and returns
    * the name of the panel group.
    * @return The panel group, or null if no panel group was found in the XML source.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
   **/
   public String getXMLPanelGroup() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -807,6 +975,14 @@ public class Command implements Serializable
    * Parses the XML source for this CL command and returns
    * the help text.
    * @return The help text, or null if no panel group was found in the XML source.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
   **/
   public String getXMLHelpText() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -823,6 +999,14 @@ public class Command implements Serializable
    * the text generated by {@link #getXMLHelpText getXMLHelpText()}.
    * @param panelGroup The panel group used to generate the help text, instead of the Command's defined panel group.
    * @return The help text.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
    * @see #getXMLPanelGroup
   **/
   public synchronized String getXMLHelpText(PanelGroup panelGroup) throws AS400Exception, AS400SecurityException,
@@ -1050,6 +1234,12 @@ public class Command implements Serializable
    * <LI>{@link #ALLOW_ALL ALLOW_ALL}
    * </UL>
    * @return true if this command is allowed to run in the specified environment; false otherwise.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public boolean isAllowedToRun(int environment) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -1092,6 +1282,12 @@ public class Command implements Serializable
    * <LI>{@link #ALLOW_BATCH_REXX_PROCEDURE ALLOW_BATCH_REXX_PROCEDURE}
    * </UL>
    * @return true if this command is allowed to run in one or more of the batch environments; false otherwise.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
    * @see #isAllowedToRun
   **/
   public boolean isAllowedToRunBatch() throws AS400Exception, AS400SecurityException,
@@ -1115,6 +1311,12 @@ public class Command implements Serializable
    * <LI>{@link #ALLOW_INTERACTIVE_REXX_PROCEDURE ALLOW_INTERACTIVE_REXX_PROCEDURE}
    * </UL>
    * @return true if this command is allowed to run in one or more of the interactive environments; false otherwise.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
    * @see #isAllowedToRun
   **/
   public boolean isAllowedToRunInteractive() throws AS400Exception, AS400SecurityException,
@@ -1135,6 +1337,12 @@ public class Command implements Serializable
    * @return true if the command prompt panels are enabled for conversion to a
    * graphical user interface by including information about the panel content in
    * the 5250 data stream; false otherwise.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public boolean isEnabledForGUI() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -1157,6 +1365,12 @@ public class Command implements Serializable
    * <LI>{@link #MODE_ALL MODE_ALL} - All of the above modes.
    * </UL>
    * @return true if this command applies to the specified operating mode; false otherwise.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public boolean isOperatingMode(int mode) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -1200,6 +1414,14 @@ public class Command implements Serializable
    * <p>
    * The necessary information is implicitly refreshed by the various getter methods.
    * The system and path must be set before refresh() is called.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
    * @see #setPath
    * @see #setSystem
   **/

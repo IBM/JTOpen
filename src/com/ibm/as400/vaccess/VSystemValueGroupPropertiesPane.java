@@ -75,7 +75,7 @@ class VSystemValueGroupPropertiesPane implements VPropertiesPane
      * Constructs a VSystemValueGroupPropertiesPane object. It creates a 
      * properties panel for VSystemValueGroup.
      * @param   vSystemValueGroup       The specified system values group.
-     * @param   systemValueList         The list of the system values.
+     * 
      **/
     public VSystemValueGroupPropertiesPane(VSystemValueGroup vSystemValueGroup)
     {

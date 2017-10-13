@@ -542,6 +542,7 @@ public class BinaryConverter
     for a hexadecimal String (0-9 and A-F), an exception will be thrown.
     @param  s  The String containing the hexadecimal representation of the data.
     @return  A byte array containing the byte values of the hex characters.
+   * @throws NumberFormatException 
   **/
   public static final byte[] stringToBytes(String s) throws NumberFormatException
   {

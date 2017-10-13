@@ -510,6 +510,7 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Output value: number of characters processed in the source data by the last transform.
+     * @return input count
      **/
     public int getInputCount()
     {
@@ -518,6 +519,7 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Output value: number of characters written in the destination data by the last transform
+     * @return output count
      **/
     public int getOutputCount()
     {
@@ -529,6 +531,7 @@ public class BidiConversionProperties implements Serializable
      <p>If when starting a transformation this field refers to a large enough array of integers, this array will be re-used to put the new map.  Otherwise a new array will be created.
      <p>This map has a number for each character processed in the source data by the last transform.  This number is the index of where this character is moved in the character array of the destination BidiText.  If the removeMarkers option was specified and LRM or RLM markers have been removed from the destination text, the corresponding elements of srcToDstMap will contain -1.
      <p>Note that the allocated array may have more elements than the number of characters processed in the source BidiText.  In that case, the extra elements should be ignored.  The number of relevant elements can be found from getInputCount()..
+     * @return map
      **/
     public int[] getSourceToDestinationMap()
     {
@@ -540,6 +543,7 @@ public class BidiConversionProperties implements Serializable
      <p>If when starting a transformation this field refers to a large enough array of integers, this array will be re-used to put the new map.  Otherwise a new array will be created.
      <p>This map has a number for each character in the "interesting" data of the destination BidiText.  This number is the index of the source character from which the destination character originates.  This index is relative to the beginning of the "interesting" data.  If the offset of the source BidiText is not zero, index 0 does not indicate the first character of the data array, but the character at position "offset".  If the insertMarkers option was specified and LRM or RLM markers have been added, the corresponding elements of dstToSrcMap will contain -1.
      <p>Note that the allocated array may have more elements than the number of characters in the "interesting" part of the destination BidiText.  In that case, the extra elements should be ignored.  The number of relevant elements can be found from getOutputCount().
+     * @return map
      **/
     public int[] getDestinationToSourceMap()
     {
@@ -552,6 +556,7 @@ public class BidiConversionProperties implements Serializable
      <p>This map has a byte for each character processed in the source data by the last transform.  The 6 lower bits of each property element is the Bidi level of the corresponding input character.  The highest bit is a new-cell indicator for composed character environments: a value of 0 indicates a zero-length composing character element, and a value of 1 indicates an element that begins a new cell.
      <p>Note: the content of this map has no simple interpretation if the bidi implicit reordering property is true.
      <p>Note also that the allocated array may have more elements than the number of characters processed in the source BidiText.  In that case, the extra elements should be ignored.  The number of relevant elements can be found from getInputCount().
+     * @return map
      **/
     public byte[] getPropertyMap()
     {
@@ -562,6 +567,7 @@ public class BidiConversionProperties implements Serializable
     /**
     Indicates whether lam-alef ligatures should get decomposed into lam and alef characters
     when transforming from visual to logical.  Not the buffer may expand when this is done.
+     * @return are decomposed
     **/
 	public boolean isBidiExpandLamAlef() {
 		return expandLamAlef;
@@ -569,12 +575,17 @@ public class BidiConversionProperties implements Serializable
     /**
     Sets whether lam-alef ligatures should get decomposed into lam and alef characters
     when transforming from visual to logical.
+     * @param expandLamAlef 
     **/
 	public void setBidiExpandLamAlef(boolean expandLamAlef) {
 		this.expandLamAlef = expandLamAlef;
 	}
 	//@bd1a_end_ramysaid
 
+	/**
+	 * @param category
+	 * @param message
+	 */
 	public void traceLog(int category, String message) {
 	  Trace.log(category, this.toString()+":"+message);
 	}

@@ -37,6 +37,7 @@ Constructs a PxConnectReqCV object.
                         to connect to a proxy server and been
                         rejected.
 @param clientLocale     The client locale.
+ * @param normalOrTunnel 
 **/
     public PxConnectReqCV (String  modification,
                            int     rejections,

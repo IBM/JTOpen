@@ -321,6 +321,7 @@ Returns the resource list from which all information for the model is gathered.
 Returns the resource properties.  The resource properties object
 describes the arrangement of the Properties dialog that is presented
 when the user right clicks on a list item and selects "Properties".
+ * @return resource properties
 **/
     public ResourceProperties getResourceProperties()
     {

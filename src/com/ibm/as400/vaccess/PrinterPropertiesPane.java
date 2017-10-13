@@ -162,9 +162,8 @@ implements VPropertiesPane, ItemListener
 
 /**
 Constructs an PrinterPropertiesPane object.
-
-@param  resource The printer output resource.
-@param  list spooled file list
+ * @param printer 
+ * @param printerOutput 
 **/
     public PrinterPropertiesPane (VPrinter printer, VPrinterOutput printerOutput)
     {
@@ -986,7 +985,6 @@ Builds Writer pane for the properties pane
 Returns the editor pane.
 
 @return             The properties pane.
-@throws Exception   If an error occurs.
 **/
     public Component getComponent ()
     {

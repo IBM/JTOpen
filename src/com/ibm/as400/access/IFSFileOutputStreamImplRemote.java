@@ -356,7 +356,7 @@ implements IFSFileOutputStreamImpl
    Writes <i>length</i> bytes of data from the byte array <i>data</i>, starting
    at <i>offset</i>, to this file output stream.
    @param data The data to be written.
-   @param offset The start offset in the data.
+   @param dataOffset The start offset in the data.
    @param length The number of bytes to write.
 
    @exception IOException If an error occurs while communicating with the server.

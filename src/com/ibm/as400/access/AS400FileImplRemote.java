@@ -514,7 +514,6 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   /**
    Executes a command on the server.
    @param cmd the command
-   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
@@ -1359,6 +1358,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Processes the <i>replys</i> vector for records read.  Throws exceptions
    *in error cases.
    *@param replys The reply datastream(s) containing the record(s) read.
+   * @param discardRecords should records be discarded
    *@return The records read from the system.  Returns null if no records were
    *read.
    *@exception AS400Exception If the server returns an error message.
@@ -1653,7 +1653,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   /**
    Process replys.
    @param replys the replys from a request.
-   *@exception AS400Exception If the server returns an error message.
+   * @return array AS400Messages associated with the replies
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
@@ -2555,9 +2555,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Verifies the reply datastream as an S38MSGRM with the specified
    *information.  If msgID is not null, svrCode is not checked.
    *If msgId is null, svrCode is verified.
-   @param reply The DDM reply data stream.
+   @param replyParm The DDM reply data stream.
    @param msgId The message id that this reply should contain.
    @param svrCode The severity code that this reply should contain.
+   * @return true if datais is a S38MSGRM with specified information
    *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.

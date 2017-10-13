@@ -74,6 +74,7 @@ Adds the component and sets its grid bag constraints.
 @param  component   The component.
 @param  panel       The panel.
 @param  layout      The grid bag layout.
+ * @param constraints 
 @param  gridx       The grid x position.
 @param  gridwidth   The grid width.
 @param  weightx     How much extra horizontal space the component will get.
@@ -206,6 +207,9 @@ imbed \n's in it.
 these as expected.  Instead, use a JTextArea, setEditable (false),
 and set its background color to the same as the panel.  This
 gives you the same effect as a JLabel.
+ * @param helpText 
+ * @param width 
+ * @return formatted help text
 **/
     public static String formatHelp(String helpText, int width)
     {
@@ -245,6 +249,9 @@ imbed \n's in it at word breaks only.
 these as expected.  Instead, use a JTextArea, setEditable (false),
 and set its background color to the same as the panel.  This
 gives you the same effect as a JLabel.
+ * @param input 
+ * @param width 
+ * @return formatted help text
 **/
     public static String formatHelp2(String input, int width)
     {
@@ -323,6 +330,8 @@ gives you the same effect as a JLabel.
 Returns the text associated with an exception.  This handles
 exceptions with "" and null text, in which case the exception
 class name will be used.
+ * @param e 
+ * @return exception text
 **/
     public static String getExceptionText (Exception e)
     {
@@ -339,6 +348,7 @@ class name will be used.
 /**
 Returns the frame which contains a component.  This only works if
 the component has already been added to a frame.
+ * @param component 
 
 @return The frame, or null if the component has not yet been added
         to a frame.

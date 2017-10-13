@@ -466,7 +466,7 @@ class DataStreamCompression
   @param escape              The escape character. Use DEFAULT_ESCAPE.
   @param emptyDestination    If set to true, assumes that the destination contains only 
                              zeros and the decompression can be optimized
-  @return  The decompressed bytes.
+  
   
   **/                                         
   static void decompressRLE (byte[] source,

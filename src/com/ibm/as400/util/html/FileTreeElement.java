@@ -171,6 +171,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
    *  Constructs a FileTreeElement with the specified <i>file</i>.
    *
    *  @param file The file.
+   * @param parameter 
    **/
   public FileTreeElement(File file, String parameter)
   {
@@ -203,6 +204,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
    *  @param file The file.
    *  @param shareName The name of the NetServer share.
    *  @param sharePath The path of the NetServer share.
+   * @param parameter 
    **/
   public FileTreeElement(File file, String shareName, String sharePath, String parameter)    // @B1A
   {                                                                        // @B1A
@@ -297,6 +299,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
   /**
    *  Returns the file represented by this FileTreeElement.
+   * @return File
    **/
   public File getFile()
   {
@@ -306,6 +309,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
   /**
    *  Returns the NetServer share name.
+   * @return share name
    **/
   public String getShareName()                                // @B1A
   {                                                           // @B1A
@@ -320,6 +324,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
   /**
    *  Returns the NetServer share path.
+   * @return share path
    **/
   public String getSharePath()                                // @B1A
   {                                                           // @B1A           

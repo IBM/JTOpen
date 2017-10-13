@@ -39,7 +39,7 @@ class PSLoadBalancer
 Constructs a PSLoadBalancer object.
 
 @param  load        The load.
-@param  peers       The semicolon-delimied list of peers.                   
+                 
 **/
     public PSLoadBalancer (PSLoad load)
     {

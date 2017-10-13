@@ -146,6 +146,7 @@ public class AS400Timestamp extends AS400AbstractTime
   
   /**
    Constructs an AS400Timestamp object.
+   * @param timeZone 
    **/
   public AS400Timestamp(TimeZone timeZone)
   {

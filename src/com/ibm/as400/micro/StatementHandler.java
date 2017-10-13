@@ -33,6 +33,9 @@ class StatementHandler
     /**
     Constructor.  Creates a new JDBC-ME handler for Statement
     objects.
+     * @param jdbcme 
+     * @param in 
+     * @param out 
     **/
     public StatementHandler(JdbcMeService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
     {
@@ -45,6 +48,9 @@ class StatementHandler
     /**
     The process function routes the function id and the Statement
     to the proper handler.
+     * @param statement 
+     * @param funcId 
+     * @throws IOException 
     **/
     public void process(Statement statement, int funcId) throws IOException 
     {
@@ -78,8 +84,10 @@ class StatementHandler
     <output>
        - nothing more
     <P>
+    
  
-    @param connection    The connection object to close.
+    @param statement    The statement object to close.
+     * @throws IOException 
     **/
     public void close(Statement statement) throws IOException
     {
@@ -119,7 +127,8 @@ class StatementHandler
        -1:   An exception occurred (see exception handling for details)
     <P>
  
-    @param rs    The ResultSet object to use.
+    @param statement    The statement object to use.
+     * @throws IOException 
     **/
     public void execute(Statement statement) throws IOException
     {

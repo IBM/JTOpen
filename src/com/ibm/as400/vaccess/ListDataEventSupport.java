@@ -102,7 +102,7 @@ Fires a contents changed event.
 /**
 Fires an interval added event.
 
-@param  type            The type.
+
 @param  index0          The index 0.
 @param  index1          The index 1.
 **/
@@ -120,7 +120,7 @@ Fires an interval added event.
 /**
 Fires an interval removed event.
 
-@param  type            The type.
+
 @param  index0          The index 0.
 @param  index1          The index 1.
 **/

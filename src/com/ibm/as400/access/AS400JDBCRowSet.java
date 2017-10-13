@@ -99,7 +99,7 @@ import java.util.Map;
 *  rowset.setPassword("myPasswd");
 *
 *  // Set the prepared statement and initialize the parameters.
-*  rowset.setCommand("SELECT * FROM MYLIBRARY.MYTABLE WHERE STATE = ? AND BALANCE > ?");
+*  rowset.setCommand("SELECT * FROM MYLIBRARY.MYTABLE WHERE STATE = ? AND BALANCE &gt; ?");
 *  rowset.setString(1, "MINNESOTA");
 *  rowset.setDouble(2, MAXIMUM_LIMIT);
 *

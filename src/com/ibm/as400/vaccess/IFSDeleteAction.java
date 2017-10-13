@@ -48,7 +48,7 @@ Constructs an IFSDeleteAction object.
 
 @param  object      The object representing the file or directory.
 @param  file        The file or directory.
-@param  parent      The parent directory.
+
 **/
     public IFSDeleteAction (VObject object,
                             IFSFile file)

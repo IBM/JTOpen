@@ -38,6 +38,8 @@ extends PxReqSV
 
 /**
 Constructs a PxListenerReqSV object.
+ * @param connection 
+ * @param proxyTable 
 **/
     public PxListenerReqSV (PSConnection connection, PxTable proxyTable)
     { 

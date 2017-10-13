@@ -21,7 +21,8 @@ package com.ibm.as400.data;
 
 class RfmlDescriptor extends PcmlDescriptor
 {
-    /** Constructor. **/
+    /** Constructor. 
+     * @param node **/
     public RfmlDescriptor(PcmlDocNode node)
     {
         super(node);

@@ -66,6 +66,7 @@ class ResourceLoader extends Object
      * be loaded, <code>getString</code> returns "RESOURCEBUNDLEERROR".
      *
      * @param key  the key which identifies the string to be loaded.
+     * @return string resource
      */
     public String getString(String key)
     {
@@ -102,6 +103,7 @@ class ResourceLoader extends Object
      * be loaded, <code>getString</code> returns "RESOURCEBUNDLEERROR".
      *
      * @param key  the key which identifies the string to be loaded.
+     * @return string resource
      */
     public String getStringWithNoSubstitute(String key)
     {

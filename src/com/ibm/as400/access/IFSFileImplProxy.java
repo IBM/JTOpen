@@ -660,8 +660,6 @@ implements IFSFileImpl
    @param sort If <tt>true</tt>: Return lists of files in sorted order.
    If <tt>false</tt>: Return lists of files in whatever order the file system provides.
 
-   @exception IOException If an error occurs while communicating with the server.
-   @exception AS400SecurityException If a security or authority error occurs.
    **/
   public void setSorted(boolean sort)
   {

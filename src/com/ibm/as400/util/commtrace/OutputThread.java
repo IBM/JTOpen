@@ -36,7 +36,7 @@ class OutputThread implements Runnable {
 
 	/**
 	 * Sets the thread. 
-	 * @param Thread The thread this object is running under.
+	 * @param tr The thread this object is running under.
 	 */
 	public void setThread(Thread tr) {
 		outThread_= tr;

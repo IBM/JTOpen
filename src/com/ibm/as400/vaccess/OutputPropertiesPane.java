@@ -1021,7 +1021,6 @@ Builds Printer/Queue pane for the properties pane
 Returns the properties pane.
 
 @return             The properties pane.
-@throws Exception   If an error occurs.
  **/
     public Component getComponent ()
     {

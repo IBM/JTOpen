@@ -47,6 +47,7 @@ extends AbstractVAction
 
 /**
 Constructs a DialogAction object.
+ * @param object 
 **/
     public DialogAction (VObject object)
     {

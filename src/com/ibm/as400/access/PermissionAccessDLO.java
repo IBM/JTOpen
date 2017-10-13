@@ -27,6 +27,7 @@ class PermissionAccessDLO extends PermissionAccess
 {
     /**
      * Constructs a PermissionAccessDLO object.
+     * @param system 
      *
     **/
     public PermissionAccessDLO(AS400 system)
@@ -306,7 +307,6 @@ class PermissionAccessDLO extends PermissionAccess
 
     /**
      * Sets the authorized user's permissions.
-     * @return The UserPermission object.
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.

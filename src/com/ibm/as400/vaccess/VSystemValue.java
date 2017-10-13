@@ -133,7 +133,7 @@ class VSystemValue implements VObject
    /**
     * Adds a listener to be notified when work starts and stops on 
     * potentially long-running operations.
-    * @param listener      The working listener.
+    * @param workin1      The working listener.
    **/
     public void addWorkingListener(WorkingListener workin1)
     {
@@ -353,7 +353,7 @@ class VSystemValue implements VObject
     /**
      * Removes a working listener.
      * 
-     * @param  listener    The listener.
+     * @param  workin1    The listener.
     **/
     public void removeWorkingListener(WorkingListener workin1)
     {

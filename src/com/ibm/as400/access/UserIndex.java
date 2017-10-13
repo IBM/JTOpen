@@ -89,6 +89,7 @@ public class UserIndex
      Constructs a UserIndex object.
      @param  system  The system object representing the system on which the user index exists.
      @param  path  The fully qualified integrated file system path name of the user index.  
+     * @throws Exception 
                   
      **/
     public UserIndex(AS400 system, String path) throws Exception
@@ -171,6 +172,7 @@ public class UserIndex
      @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  ObjectAlreadyExistsException  If the object already exists on the system.
+     * @throws Exception 
      **/
 	public void create(String extendedAttribute, 
 			byte entryLengthAttribute,
@@ -238,6 +240,7 @@ public class UserIndex
 	 * @param insertionRuleOption
 	 *            The rule used for inserting the entries. Valid values are : 	 
 	 *            RULE_INSERT, RULE_INSERT_REPLACE, RULE_INSERT_NO_REPLACE                                      
+	 * @throws Exception 
 	 */
 	public void insertEntry(String key, String value, int insertionRuleOption) throws Exception {
 		byte[] keyBytes = key.getBytes("IBM-037");
@@ -309,6 +312,11 @@ public class UserIndex
      * The translation is done using the translation CCSID (Currently IBM-037). 
      * 
      *  Currently only supported for fixed length keys. 
+     * @param key 
+     * @param rule 
+     * @param occCount 
+     * @return entries from user index
+     * @throws Exception 
      */
        
     public String[][] findEntries(String key, int rule, int occCount) throws Exception { 
@@ -379,6 +387,7 @@ public class UserIndex
      *  @param optionBytes Byte array containing the options for the query.  Also returns
      *                     information about the retrieved entries. 
      *  @param keyBytes    Byte array containing the key used to find the entries.
+     * @throws Exception 
      */
     public void findEntries(byte[] outputBytes, byte[] optionBytes, byte[] keyBytes) throws Exception {
 		if (handle_ == 0) {
@@ -484,6 +493,7 @@ public class UserIndex
     * The occurrence count is limited to a maximum value of 4095.
     * The number of bytes in the optionBytes must be at least
     * 10 + 4 * "Occurrence Count" 
+   * @param optionBytes 
     */ 
    public static void resetOptionBytes(byte[] optionBytes) {
        Arrays.fill(optionBytes, (byte) 0x0);  
@@ -491,6 +501,8 @@ public class UserIndex
    
    /**
     * Utility method to set the rule option in the option bytes 
+   * @param optionBytes 
+   * @param insertionRuleOption 
     */
    public static void setOptionBytesRule(byte[] optionBytes, int insertionRuleOption) { 
    	optionBytes[0] = 0; 
@@ -498,6 +510,8 @@ public class UserIndex
    }
    /**
     * Utility method to set the argument length in the option bytes 
+   * @param optionBytes 
+   * @param argLength 
     */
    public static void setOptionBytesArgLength(byte[] optionBytes, int argLength) {
 	   	optionBytes[2] = (byte) ((argLength / 0x100) & 0xFF); 
@@ -505,6 +519,8 @@ public class UserIndex
   }
    /**
     * Utility method to set the occurrence count in the option bytes 
+   * @param optionBytes 
+   * @param occurrenceCount 
     */
    public static void setOptionBytesOccCount(byte[] optionBytes, int occurrenceCount) {
    	optionBytes[6] = (byte) ((occurrenceCount / 0x100) & 0xFF); 

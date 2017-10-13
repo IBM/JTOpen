@@ -50,6 +50,8 @@ class PxEventSupport
 
 /**
 Adds a listener.
+ * @param proxyId 
+ * @param listener 
                                                        
 @return             true if this is the first listener of its type
                     to be added to the proxy object, false otherwise.

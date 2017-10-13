@@ -40,6 +40,7 @@ class PSEventDispatcher
 Constructs a PxMethodEventDispatcher object.
 
 @param connection   The proxy server connection.
+ * @param proxyTable 
 @param proxyId      The proxy id.
 **/
     public PSEventDispatcher (PSConnection connection, PxTable proxyTable, long proxyId)

@@ -1541,6 +1541,7 @@ public class SystemPool
     /**
      * Indicates whether the pool name is a valid name for a shared system pool.
      * <br>Note: In some cases, this method may incorrectly report <tt>false</tt> for a name that actually specifies a shared pool; for example, for a shared pool with a non-standard name.
+     * @param name 
      * @return true if poolName is *MACHINE, *BASE, *INTERACT, *SPOOL, or *SHRPOOLxx; false otherwise.
     **/
   public static final boolean isValidNameForSharedPool(String name)

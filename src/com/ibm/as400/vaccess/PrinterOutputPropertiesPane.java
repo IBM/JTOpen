@@ -274,6 +274,7 @@ Applies the changes made by the user.
 /**
 Builds Include pane for the properties pane.
 Also used by VPrinter class
+ * @return JPanel
 **/
     public JPanel buildIncludePane()
     {
@@ -566,7 +567,6 @@ Also used by VPrinter class
 Returns the editor pane.
 
 @return             The properties pane.
-@throws Exception   If an error occurs.
 **/
     public Component getComponent ()
     {

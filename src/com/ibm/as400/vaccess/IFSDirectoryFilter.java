@@ -43,7 +43,7 @@ Constructs an IFSDirectoryFilter object.
 
 @param include    One of the constants: INCLUDE_FILES,
                   INCLUDE_DIRECTORIES, or INCLUDE_BOTH.
-@param filter     The other filter, or null if none.
+@param otherFilter     The other filter, or null if none.
 **/
     public IFSDirectoryFilter (int include,
                                IFSFileFilter otherFilter)
@@ -141,7 +141,7 @@ children.
 Sets the other filter which determines which files are
 accepted.
 
-@param filter  The other filter, or null if none.
+@param otherFilter  The other filter, or null if none.
 **/
     public void setOtherFilter (IFSFileFilter otherFilter)
     {

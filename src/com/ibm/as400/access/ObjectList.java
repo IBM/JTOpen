@@ -894,7 +894,6 @@ public class ObjectList implements Serializable
    * @exception IOException                     If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException     If the object does not exist on the system.
    * @exception ServerStartupException          If the host server cannot be started.
-   * @exception UnknownHostException            If the system cannot be located.
    * @see #load
   **/
   public synchronized int getLength() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1232,7 +1231,6 @@ public class ObjectList implements Serializable
    * @exception IOException                     If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException     If the object does not exist on the system.
    * @exception ServerStartupException          If the host server cannot be started.
-   * @exception UnknownHostException            If the system cannot be located.
    * @see #getLength
    * @see #close
   **/

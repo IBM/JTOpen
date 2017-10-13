@@ -29,6 +29,7 @@ class PoolConnectionEventListener implements ConnectionEventListener
 
   /**
   *  Constructs a default PoolConnectionEventListener.
+   * @param pool 
   **/
   public PoolConnectionEventListener(AS400JDBCConnectionPool pool)
   {

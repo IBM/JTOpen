@@ -426,7 +426,6 @@ no more data because the end of file has been reached.
 /**
 Retrieves the number of bytes of transformed data available in the stream.
 
-@return The number of bytes of transformed data available in the stream.
 **/
     private void retrieveNumberOfBytes()
        throws IOException,

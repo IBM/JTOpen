@@ -181,7 +181,6 @@ Renders the value for a tree.
 @param  selected    true if the item is selected, false otherwise.
 @param  expanded    true if the item is expanded, false otherwise.
 @param  leaf        true if the item is a leaf, false otherwise.
-@param  row         The index within the tree.
 @param  hasFocus    true if the item has focus, false otherwise.
 @return             The rendered component.
 **/

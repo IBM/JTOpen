@@ -50,6 +50,7 @@ class SerializationListener implements FocusListener, Serializable
 
   /**
    * Construct a SerializationListener object with the specified component.
+   * @param component 
    * @parm component The component whose UI will be uninstalled before serialization.
   **/
   public SerializationListener(Container component)
@@ -59,6 +60,8 @@ class SerializationListener implements FocusListener, Serializable
 
   /**
    * Construct a SerializationListener object with the specified model and component.
+   * @param model 
+   * @param listener 
    * @parm model The table model whose listeners we need to remove before serialization.
    * @parm listener The component to be removed from listening to the model.
   **/

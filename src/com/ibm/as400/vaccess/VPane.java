@@ -63,6 +63,7 @@ Returns the object at a given point on the pane.
 Sets the root.
 
 @param root The root, or null if none.
+ * @throws PropertyVetoException 
 **/
     public abstract void setRoot (VNode root)
         throws PropertyVetoException;

@@ -220,7 +220,8 @@ Positions the cursor to the previous row.
 
 /**
 Positions the cursor to a relative row number.
-@return             The current row, or null if none.
+ * @param rowIndex 
+
 
 @exception  SQLException    If an error occurs.
 */

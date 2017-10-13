@@ -133,6 +133,7 @@ Returns part of the contents of the BLOB.
 Returns the handle to this BLOB locator in the database.
 
 @return             The handle to this locator in the database.
+ * @throws SQLException 
 **/
   public int getHandle() throws SQLException //@free called from rs.updateValue(), which in turn will throw exc back to rs.updateX() caller
   {
@@ -508,6 +509,7 @@ Returns the position at which a pattern is found in the BLOB.
   }
   
   /** Get the locator handle corresponding to this ClobLocator
+   * @return locator handle
    * 
    */
   public int getLocator() { 

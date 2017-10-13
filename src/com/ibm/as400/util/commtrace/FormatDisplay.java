@@ -137,6 +137,10 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 
     /**
 	 * Displays a formatted trace. Used to display a file remotely.
+     * @param path 
+     * @param file 
+     * @param sys 
+     * @param oper 
      */
     public FormatDisplay(String path,String file,AS400 sys,int oper) {
 		this.oper = oper;
@@ -622,6 +626,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
     /** 
      * Saves the output from the trace to the user specified location as ASCII 
 	 * text.
+     * @return true if save is successful
      */
     public boolean save() {
 		// Display file dialog so user can specify a place to save the trace
@@ -767,7 +772,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
     
     /**
      * Sets the thread to execute under.
-     * @param Thread
+     * @param tr
      */
     public void setThread(Thread tr) {
     	fmtThread = tr;

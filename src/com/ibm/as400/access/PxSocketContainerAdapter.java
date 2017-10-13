@@ -88,6 +88,7 @@ Closes the socket.
 
 /**
 Returns an input stream for reading from the socket.
+ * @return input stream
 
 @exception IOException If an error occurs.
 **/
@@ -101,6 +102,7 @@ Returns an input stream for reading from the socket.
 
 /**
 Returns an output stream for writing to the socket.
+ * @return output stream
 
 @exception IOException If an error occurs.
 **/

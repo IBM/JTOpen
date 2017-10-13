@@ -850,6 +850,7 @@ public class Format {
 
 	/**
 	 * Opens an ObjectInputStream and IFSFileInputStream on the outfile. Used for displaying previously formatted traces.
+	 * @param outfile 
 	 * @return An error code if any.
 	 */
 	public int openIFSFile(String outfile) {
@@ -1149,6 +1150,7 @@ public class Format {
 
 	/**
 	 * Returns the number of records that have been formatted.
+	 * @return number of formatted records
 	 */
 	public int getRecsProcessed() {
 		return numrecs;

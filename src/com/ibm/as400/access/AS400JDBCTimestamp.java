@@ -60,6 +60,7 @@ public class AS400JDBCTimestamp extends Timestamp {
  
   /**
    * Sets the picos value for this Timestamp object. 
+   * @param picos 
    */
   public void setPicos(long picos) {
       picos_ = picos ; 

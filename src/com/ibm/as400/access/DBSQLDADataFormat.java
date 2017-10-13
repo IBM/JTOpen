@@ -46,6 +46,7 @@ implements DBDataFormat
     Constructs a DBSQLDADataFormat object.  Use this when overlaying
     on a reply datastream.  The cached data will be set when overlay()
     is called.
+     * @param jobCCSID 
     **/
     public DBSQLDADataFormat(int jobCCSID)    // @D1C
     {

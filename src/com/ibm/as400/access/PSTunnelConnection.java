@@ -101,6 +101,8 @@ class PSTunnelConnection
 
      /**
      Processes a single request and sends the reply, if any, using tunneling.
+     * @param request 
+     * @param outputStream 
      **/
      public void runRequest (PxReqSV request, OutputStream outputStream)
      {
@@ -116,6 +118,8 @@ class PSTunnelConnection
 
      /**
      Sends a reply.
+     * @param reply 
+     * @param outputStream 
      **/
      public void sendTunneling (PxRepSV reply, OutputStream outputStream)
      {

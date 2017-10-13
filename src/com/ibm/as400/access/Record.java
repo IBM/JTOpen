@@ -1518,7 +1518,6 @@ public class Record implements Serializable
    *@param index The position in this record of the field whose contents are to be set.  The <i>index</i> must be between 0 and getNumberOfFields() - 1.
    *@param value The value to which to set the contents of the field.  Specify null for
    *<i>value</i> to indicate that the field is null.
-   * @throws UnsupportedEncodingException 
   **/
   public void setField(int index, Object value)
   {
@@ -1651,7 +1650,6 @@ public class Record implements Serializable
    *@param name The name of the field whose contents are to be set.
    *@param value The value to which to set the contents of the field.  Specify null for
    *<i>value</i> to indicate that the field is null.
-   * @throws UnsupportedEncodingException 
   **/
   public void setField(String name, Object value)
   {

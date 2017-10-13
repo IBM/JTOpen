@@ -198,7 +198,7 @@ public class OrderedListItem extends HTMLListItem
 
     /**
     *  Returns a number's Roman numeral equivalent.
-    *  @param n, The number to get the roman numeral for.
+    *  @param n The number to get the roman numeral for.
     *  @return The roman numeral.
     **/
     String toRoman(int n)                                 //@C1A

@@ -31,12 +31,12 @@ class Flag extends Field {
 	}
 	/**
 	 * Constructor which creates a default flag with the specified true and false values.  
-	 * @param BitBuf         BitBuf which represents this flag field.
-	 * @param truevalue		the true value of this flag.
-	 * @param falsevalue	the false value of thie flag.
+	 * @param bitbuf         BitBuf which represents this flag field.
+	 * @param tv		the true value of this flag.
+	 * @param fv	the false value of thie flag.
 	 */
-	public Flag(BitBuf b, String tv, String fv) {
-		super(b);
+	public Flag(BitBuf bitbuf, String tv, String fv) {
+		super(bitbuf);
 		truevalue = tv;
 		falsevalue = fv;
 		usetext = true;

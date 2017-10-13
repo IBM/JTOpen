@@ -261,6 +261,7 @@ class IFSList extends java.awt.List
       * Fills the list with the requested information.  If the system or
       * system name is not set, the user will be prompted for it.  The
       * list is cleared and repopulated each time this method is called.
+     * @throws IOException 
       *
       *
       **/

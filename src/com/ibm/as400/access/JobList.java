@@ -692,6 +692,7 @@ public class JobList implements Serializable
      <li>{@link #SELECTION_JOB_TYPE_ENHANCED SELECTION_JOB_TYPE_ENHANCED}
      </ul>
      @param  selectionValue  The value for the selection type. See the individual selection type constants for the appropriate object or constant to use. Some selection types allow multiple selection values to be added.
+     * @throws PropertyVetoException 
      @see  #clearJobSelectionCriteria
      @see  com.ibm.as400.access.Job
      **/
@@ -837,6 +838,7 @@ public class JobList implements Serializable
 
     /**
      Clears the selection types and values used to filter the list of jobs.  This resets all of the job selection parameters to their default values.
+     * @throws PropertyVetoException 
      @see  #addJobSelectionCriteria
      **/
     public void clearJobSelectionCriteria() throws PropertyVetoException
@@ -1012,6 +1014,7 @@ public class JobList implements Serializable
         <i>Note: Prior to JTOpen 7.2, this parameter was incorrectly described.</i>
      @param  number  The number of jobs to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
      @return  The array of retrieved {@link com.ibm.as400.access.Job Job} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
+     * @throws AS400Exception 
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.

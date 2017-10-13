@@ -459,6 +459,14 @@ class PcmlProgram extends PcmlDocNode
     }
 
     /**
+     * @param as400 
+     * @return true if the program returns success
+     * @throws AS400SecurityException 
+     * @throws ObjectDoesNotExistException 
+     * @throws InterruptedException 
+     * @throws ErrorCompletingRequestException 
+     * @throws IOException 
+     * @throws PcmlException 
     */
     public boolean callProgram(AS400 as400)
            throws AS400SecurityException,

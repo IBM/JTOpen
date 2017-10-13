@@ -92,6 +92,9 @@ extends DBOverlay
 
     /** 
      * Return the CCSID for the UDTName.  If not available, return -1.
+     * @param fieldIndex 
+     * @return CCSID
+     * @throws DBDataStreamException 
      */
     /*@L1A*/
     public abstract int getUDTNameCCSID (int fieldIndex)
@@ -99,6 +102,10 @@ extends DBOverlay
 
     /** 
      * Return the UDTName.  If not available, return null. 
+     * @param fieldIndex 
+     * @param converter 
+     * @return UDTName
+     * @throws DBDataStreamException 
      */
     /*@L1A*/
     public abstract String getUDTName (int fieldIndex, ConvTable converter) 

@@ -114,6 +114,7 @@ public class AS400Time extends AS400AbstractTime
   /**
   Constructs an AS400Time object.
   Format {@link #FORMAT_ISO FORMAT_ISO} and separator '.' are used.
+   * @param timeZone 
   **/
  public AS400Time(TimeZone timeZone)
  {
@@ -141,6 +142,7 @@ public AS400Time(int format)
   /**
    Constructs an AS400Time object.
    The specified format's default separator is used.
+   * @param timeZone 
    @param format  The format for this object.
    For a list of valid values, refer to {@link #AS400Time(int,Character) AS400Time(int,Character)}.
    **/
@@ -171,7 +173,7 @@ public AS400Time(int format)
   <li>':' <i>(colon)</i>
   <li>'.' <i>(period)</i>
   <li>',' <i>(comma)</i>
-  <li>'&' <i>(ampersand)</i>
+  <li>'&amp;' <i>(ampersand)</i>
   <li>(null)
   </ul>
   </tt>
@@ -189,6 +191,7 @@ public AS400Time(int format)
   /**
    Constructs an AS400Time object.
    The specified format's default separator is used.
+   * @param timeZone 
    @param format  The format for this object.
    Valid values are:
    <ul>
@@ -206,7 +209,7 @@ public AS400Time(int format)
    <li>':' <i>(colon)</i>
    <li>'.' <i>(period)</i>
    <li>',' <i>(comma)</i>
-   <li>'&' <i>(ampersand)</i>
+   <li>'&amp;' <i>(ampersand)</i>
    <li>(null)
    </ul>
    </tt>

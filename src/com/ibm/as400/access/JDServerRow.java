@@ -893,7 +893,8 @@ implements JDRow
 
     /**
      * Return the length of element in an array
-     * @return
+     * @param index index of array element to examine
+     * @return length of the array data element
      */
      /*@G2A*/ 
     
@@ -1002,6 +1003,7 @@ implements JDRow
 
 
    /** Update the settings used by this object
+   * @param settings settings to use for this object
     * 
     */
    public void updateSettings(SQLConversionSettings settings) {

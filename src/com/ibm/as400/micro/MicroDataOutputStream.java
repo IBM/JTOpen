@@ -29,6 +29,8 @@ class MicroDataOutputStream
 
     /**
     Constructor.
+     * @param out 
+     * @throws IOException 
     **/
     public MicroDataOutputStream(OutputStream out) throws IOException 
     {
@@ -38,6 +40,7 @@ class MicroDataOutputStream
 
     /**
     Flush the underlying DataOutputStream.
+     * @throws IOException 
     **/
     public void flush() throws IOException 
     {
@@ -48,6 +51,8 @@ class MicroDataOutputStream
     /**
     Write a boolean to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param b 
+     * @throws IOException 
     **/
     public void writeBoolean(boolean b) throws IOException 
     {
@@ -61,6 +66,8 @@ class MicroDataOutputStream
     /**   
     Write a byte to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param b 
+     * @throws IOException 
     **/
     public void writeByte(byte b) throws IOException 
     {
@@ -74,6 +81,8 @@ class MicroDataOutputStream
     /**   
     Write an array of bytes to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param b 
+     * @throws IOException 
     **/
     public void writeBytes(byte[] b) throws IOException 
     {
@@ -87,6 +96,8 @@ class MicroDataOutputStream
     /**
     Write a double to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param d 
+     * @throws IOException 
     **/
     public void writeDouble(double d) throws IOException 
     {
@@ -100,6 +111,8 @@ class MicroDataOutputStream
     /**
     Write a float to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param f 
+     * @throws IOException 
     **/
     public void writeFloat(float f) throws IOException 
     {
@@ -113,6 +126,8 @@ class MicroDataOutputStream
     /**   
     Write an int to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param i 
+     * @throws IOException 
     **/
     public void writeInt(int i) throws IOException 
     {
@@ -126,6 +141,8 @@ class MicroDataOutputStream
     /**
     Write a long to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param l 
+     * @throws IOException 
     **/
     public void writeLong(long l) throws IOException 
     {
@@ -139,6 +156,8 @@ class MicroDataOutputStream
     /**
     Write a short to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param s 
+     * @throws IOException 
     **/
     public void writeShort(short s) throws IOException 
     {
@@ -152,6 +171,8 @@ class MicroDataOutputStream
     /**
     Convenience method... the fact that a string gets put into UTF format is 
     just an implementation detail.
+     * @param s 
+     * @throws IOException 
     **/
     public void writeString(String s) throws IOException 
     {
@@ -162,6 +183,8 @@ class MicroDataOutputStream
     /**
     Write a String to the underlying DataOutputStream.  Optionally trace
     the value.
+     * @param s 
+     * @throws IOException 
     **/
     public void writeUTF(String s) throws IOException 
     {

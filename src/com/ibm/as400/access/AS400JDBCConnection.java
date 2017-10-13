@@ -1243,6 +1243,7 @@ void handleAbort() {
     Returns the connection properties.
 
     @return    The connection properties.
+     * @throws SQLException 
     **/
     public JDProperties getProperties ()
     throws SQLException // @EGA
@@ -3230,6 +3231,7 @@ void handleAbort() {
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
+     * @throws SQLException 
      */
     public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
     {
@@ -3276,6 +3278,7 @@ void handleAbort() {
     eWLM correlators require IBM i V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
 
     @param bytes The eWLM correlator value
+     * @throws SQLException 
     **/
     public void setDB2eWLMCorrelator(byte[] bytes)
     throws SQLException //@eWLM
@@ -4976,9 +4979,10 @@ void handleAbort() {
      *                  value is null, the current value of the specified
      *                  property is cleared.
      * <p>
-     * @throws  SQLClientInfoException if the database returns an error while
-     *          setting the client info value on the database server.
+//JDBC40DOC      * @throws  SQLClientInfoException if the database returns an error while
+//JDBC40DOC      *          setting the client info value on the database server.
      * <p>
+     * @throws SQLException 
      */
     public void setClientInfo(String name, String value)
 /* ifdef JDBC40
@@ -5135,10 +5139,11 @@ endif */
      * @param properties
      *            the list of client info properties to set
      *            <p>
-     * @throws SQLClientInfoException
-     *             if the database returns an error while setting the
-     *             clientInfo values on the database
+//JDBC40DOC      * @throws SQLClientInfoException
+//JDBC40DOC      *             if the database returns an error while setting the
+//JDBC40DOC      *             clientInfo values on the database
      *             <p>
+     * @throws SQLException 
      */
     public void setClientInfo(Properties properties)
     /* ifdef JDBC40
@@ -5410,7 +5415,6 @@ endif */
      * @param elements the elements that populate the returned object
      * @return an Array object whose elements map to the specified SQL type
      * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
      */
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException
     {
@@ -5429,7 +5433,6 @@ endif */
      * @param attributes the attributes that populate the returned object
      *  @return a Struct object that maps to the given SQL type and is populated with the given attributes
      * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
      */
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException
     {
@@ -5629,12 +5632,11 @@ endif */
     *  or the value specified for seconds is less than 0.
     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
     *  setNetworkTimeout.
-    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
     * @see SecurityManager#checkPermission(java.security.Permission)
     * @see Statement#setQueryTimeout(int)
     * @see #getNetworkTimeout()
-    * @see #abort(java.util.concurrent.Executor)
-    * @see Executor
+//JDBC40DOC     * @see #abort(java.util.concurrent.Executor)
+//JDBC40DOC     * @see Executor
     */
 
    public void setNetworkTimeout(int timeout) throws SQLException {
@@ -5684,9 +5686,8 @@ endif */
     * Retrieves the number of milliseconds the driver will wait for a database request to complete. If the limit is exceeded, a SQLException is thrown.
     * @return The current timeout limit in milliseconds; zero means there is no limit
     * @throws SQLException - if a database access error occurs or this method is called on a closed Connection
-    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
     * @since JTOpen 7.X
-    * @see #setNetworkTimeout(java.util.concurrent.Executor, int)
+//JDBC40DOC     * @see #setNetworkTimeout(java.util.concurrent.Executor, int)
     */
   public int getNetworkTimeout() throws SQLException {
     checkOpen ();

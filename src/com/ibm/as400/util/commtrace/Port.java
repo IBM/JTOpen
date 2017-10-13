@@ -156,6 +156,7 @@ class Port {
     /**
      * Given a port number returns a text description of that port number.
      * @param i	    this port number as an int.
+     * @return string description of port number
      */
     public static Object get(int i) {
 	   	if(ports.isEmpty()) { initialize();}
@@ -165,6 +166,7 @@ class Port {
     /**
      * Given a port number returns a text description of that port number.
      * @param i	    this port number as a String.
+     * @return text description
      */
     public static Object get(String i) {
     	if(ports.isEmpty()) { initialize();}

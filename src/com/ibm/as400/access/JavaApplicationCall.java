@@ -114,7 +114,7 @@ import java.util.Vector;
  *           if (jaCall.run() != true)
  *           {
  *                AS400Message[] messageList = jaCall.getMessageList();
- *                for (int msg = 0; msg < messageList.length; msg++)
+ *                for (int msg = 0; msg &lt; messageList.length; msg++)
  *                    System.out.println(messageList[msg].toString());
  *           }
  *       }

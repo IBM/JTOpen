@@ -202,6 +202,7 @@ extends NetServerShare
 
   /**
    Constructs a NetServerFileShare object.
+   * @param system 
    @param name  The name of the share.
    **/
   public NetServerFileShare(AS400 system, String name)

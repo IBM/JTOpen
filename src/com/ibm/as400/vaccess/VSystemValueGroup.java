@@ -320,7 +320,7 @@ class VSystemValueGroup implements VNode
     /**
      *  Returns the index of the specified child for the details.
      * 
-     *  @param  detailsChild   The details child.
+     *  @param  vObject   The details child.
      *  @return                The index, or -1 if the child is not found
      *                          in the details.
      **/
@@ -389,7 +389,7 @@ class VSystemValueGroup implements VNode
     /**
      * Returns a property value.
      * 
-     * @param      propertyIdentifier  The property identifier.  
+     * @param      object  The property identifier.  
      *             The choices are
      *                  <ul>
      *                     <li>NAME_PROPERTY
@@ -522,8 +522,8 @@ class VSystemValueGroup implements VNode
      * Sorts the children for the details. Since sorting is not supported,
        this method does nothing.
      * 
-     * @param  propertyIdentifiers The property identifiers.
-     * @param  orders              The sorting orders for each property
+     * @param  object The property identifiers.
+     * @param  b             The sorting orders for each property
      *                             identifier. True for ascending order;
      *                             false for descending order.
      **/

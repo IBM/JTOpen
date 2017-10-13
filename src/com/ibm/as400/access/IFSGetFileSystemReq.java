@@ -23,10 +23,6 @@ import java.io.InputStream;
 class IFSGetFileSystemReq extends IFSDataStreamReq
 {
 
-/**
-Construct a list attributes request.
-@param name the file name (may contain wildcard characters * and ?)
-**/
   static final int NO_AUTHORITY_REQUIRED = 0;
   static final int READ_AUTHORITY_REQUIRED = 1;
   static final int WRITE_AUTHORITY_REQUIRED = 2;
@@ -62,6 +58,9 @@ Construct a list attributes request.
   private static final int TEMPLATE_LENGTH = 6;
   private static final int LLCP_LENGTH = 6;            // @A1a
 
+  /**
+  Construct a list attributes request.
+  **/
 
   IFSGetFileSystemReq(int objectHandler)
   {

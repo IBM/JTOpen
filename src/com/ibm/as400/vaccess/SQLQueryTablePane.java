@@ -432,8 +432,7 @@ protected void rowPicked(int index)
 /**
 Sets the system this pane contains data for.
 The new value will not be in effect until a load() is done.
-
-@param tables The system this pane will contain data for.
+ * @param connection  The system this pane will contain data for.
 **/
 public void setConnection (Connection connection)
 {

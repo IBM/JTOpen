@@ -125,6 +125,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
   /**
    Sets the access available from the network for this share.
    Valid values are {@link #READ_ONLY READ_ONLY} and {@link #READ_WRITE READ_WRITE}.
+   * @param permissions 
    **/
   public void setPermissions(int permissions)
   {

@@ -414,6 +414,7 @@ public final class ProfileTokenCredential extends AS400Credential
 
     /**
      * Returns the hashcode for the super class @E1A
+     * @return hashcode for super class
      */
     public int superHashCode() { 
       return super.hashCode(); 
@@ -1400,6 +1401,7 @@ public final class ProfileTokenCredential extends AS400Credential
     
     /**
      * Block the thread to refresh profile token credential.
+     * @throws InterruptedException 
      */
     public synchronized void preventRefresh() throws InterruptedException {
       if (Trace.isTraceOn())

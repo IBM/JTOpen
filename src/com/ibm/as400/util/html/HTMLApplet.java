@@ -151,6 +151,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
   /**
    *  Constructs an HTMLApplet object with the specified Applet <i>code</i>, <i>codebase</i>, <i>width</i>, and <i>height</i>.
+   * @param archive  The archive name
    *
    *  @param code The applet name.
    *  @param codebase  The base URL.

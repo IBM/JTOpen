@@ -234,7 +234,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
 
     /**
     *  Returns the item attribute tags.
-    *  @param type, The type of numbering or bulleting used as defined in HTMLConstants
+    *  @param type The type of numbering or bulleting used as defined in HTMLConstants
     *  @return The item tags.
     **/
     String getItemAttributeFOTag(String type)               //@D1A

@@ -67,6 +67,7 @@ public class BidiText
 /**
  *  Constructs a BidiText object based on an existing BidiFlagSet.
  *  There is no data and no character array.
+ * @param initFlags 
  */
   public BidiText(BidiFlagSet initFlags)
   {

@@ -269,6 +269,7 @@ implements Connection
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
+   * @throws SQLException 
    */
   public int getConcurrentAccessResolution ()  throws SQLException
   {
@@ -601,6 +602,7 @@ implements Connection
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
+   * @throws SQLException 
    */
   public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
   {  
@@ -922,8 +924,8 @@ endif */
    *             if the database server returns an error while setting the
    *             clientInfo values on the database server
    *             <p>
-   * @see java.sql.Connection#setClientInfo(String, String)
-   *      setClientInfo(String, String)
+//JDBC40DOC   * @see java.sql.Connection#setClientInfo(String, String)
+//JDBC40DOC   *      setClientInfo(String, String)
    */
   public void setClientInfo(Properties properties) 
   /* ifdef JDBC40 
@@ -999,7 +1001,7 @@ endif */
    * @throws SQLException     if the database server returns an error when 
    *                          fetching the client info value from the database.
    * <p>
-   * @see java.sql.DatabaseMetaData#getClientInfoProperties
+//JDBC40DOC   * @see java.sql.DatabaseMetaData#getClientInfoProperties
    */
   public String getClientInfo(String name) throws SQLException
   {
@@ -1116,7 +1118,6 @@ endif */
    * @param elements the elements that populate the returned object
    * @return an Array object whose elements map to the specified SQL type
    * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
    */
   public Array createArrayOf(String typeName, Object[] elements) throws SQLException
   {  
@@ -1136,7 +1137,6 @@ endif */
    * @param attributes the attributes that populate the returned object
    *  @return a Struct object that maps to the given SQL type and is populated with the given attributes
    * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
    */
   public Struct createStruct(String typeName, Object[] attributes) throws SQLException
   {   
@@ -1164,6 +1164,7 @@ endif */
   </pre></blockquote>
   
   @return The server job identifier, or null if not known.
+   * @throws SQLException 
   **/
   public String getServerJobIdentifier() throws SQLException          // @pd2
   {                                                                   // @pd2

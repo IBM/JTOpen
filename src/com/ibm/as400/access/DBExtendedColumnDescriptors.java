@@ -31,6 +31,8 @@ class DBExtendedColumnDescriptors {
     /**
        Constructs a new DBExtendedColumnDescriptors object.  It initializes
        the variables using the data provided.
+     * @param data 
+     * @param offset 
     **/
     public DBExtendedColumnDescriptors (byte[] data,
                                         int offset)                                

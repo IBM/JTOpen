@@ -372,6 +372,9 @@ extends DBBaseRequestDS
 
  /** This is a version of setParameterMarkerData that returns the offset where the 
   * length in the request should be updated using request.updateLength(offset, newLength); 
+ * @param value 
+ * @return offset after adding marker
+ * @throws DBDataStreamException 
     */
  // @K3A    
  public int setParameterMarkerDataReserve(DBData value) throws DBDataStreamException{

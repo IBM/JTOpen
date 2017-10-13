@@ -107,6 +107,12 @@ public class PTFCoverLetter
    * of this cover letter. The text is automatically converted to
    * Unicode based on the NLV of this cover letter.
    * @return The cover letter reader.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
   **/
   public Reader getContents()
   throws AS400Exception,

@@ -219,6 +219,7 @@ public class QSYSPermission extends UserPermission
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
+     * @throws ObjectDoesNotExistException 
      */
     public static boolean hasObjectAuthorities(AS400 system, String userProfileName, String objectPath, String[] authorityList)
       throws AS400Exception,

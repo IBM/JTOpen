@@ -33,6 +33,9 @@ class ConnectionHandler
     
     /**
     Constructor.  Creates a JDBC-ME handler for Connection objects.
+     * @param jdbcme 
+     * @param in 
+     * @param out 
     **/
     public ConnectionHandler(JdbcMeService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
     {
@@ -45,6 +48,9 @@ class ConnectionHandler
     /**
     The process function routes the function id and the Connection
     to the proper handler.
+     * @param connection 
+     * @param funcId 
+     * @throws IOException 
     **/
     public void process(Connection connection, int funcId) throws IOException
     {
@@ -99,6 +105,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to close.
+     * @throws IOException 
     **/
     public void close(Connection connection) throws IOException
     {
@@ -129,6 +136,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void createStatement(Connection connection) throws IOException
     {
@@ -165,6 +173,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void createStatement2(Connection connection) throws IOException
     {
@@ -207,6 +216,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void prepareStatement(Connection connection) throws IOException
     {
@@ -272,6 +282,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void prepareStatement2(Connection connection) throws IOException
     {
@@ -329,6 +340,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void setAutoCommit(Connection connection) throws IOException
     {
@@ -358,6 +370,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void setTransactionIsolation(Connection connection) throws IOException
     {
@@ -387,6 +400,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void commit(Connection connection) throws IOException
     {
@@ -415,6 +429,7 @@ class ConnectionHandler
     <P>
  
     @param connection    The connection object to use.
+     * @throws IOException 
     **/
     public void rollback(Connection connection) throws IOException
     {

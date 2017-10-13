@@ -161,7 +161,7 @@ class VSystemValueModifyAction implements VAction
     /**
      * Removes an error listener.
      * 
-     * @param  listener    The listener.
+     * @param  errorL1    The listener.
     **/
     public void removeErrorListener(ErrorListener errorL1)
     {
@@ -171,7 +171,7 @@ class VSystemValueModifyAction implements VAction
     /**
      * Removes a VObjectListener.
      * 
-     * @param  listener    The listener.
+     * @param  vObjec1    The listener.
     **/
     public void removeVObjectListener(VObjectListener vObjec1)
     {
@@ -181,7 +181,7 @@ class VSystemValueModifyAction implements VAction
     /**
      * Removes a working listener.
      * 
-     * @param  listener    The listener.
+     * @param  workin1    The listener.
     **/
     public void removeWorkingListener(WorkingListener workin1)
     {

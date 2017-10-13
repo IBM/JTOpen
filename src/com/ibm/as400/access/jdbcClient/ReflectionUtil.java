@@ -6,6 +6,10 @@ import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+/**
+ * @author jeber
+ *
+ */
 public class ReflectionUtil {
   static Object dummyObject = null;
   static Class objectClass = null;
@@ -14,6 +18,10 @@ public class ReflectionUtil {
     objectClass = dummyObject.getClass();
   }
 
+  /**
+   * @param ite
+   * @throws Exception
+   */
   public static void handleIte(java.lang.reflect.InvocationTargetException ite)
       throws Exception {
     Throwable target = ite.getTargetException();
@@ -33,6 +41,12 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o object in which to call the method
+   * @param methodName method to call
+   * @param argType type of the parameter
+   * @param p1 parameter
+   * @return object that is a result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName, Class argType,
       Object p1) throws Exception {
@@ -64,6 +78,13 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param argTypes 
+   * @param p1 
+   * @param p2 
+   * @return object that is a result of the method call 
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName,
       Class[] argTypes, Object p1, Object p2) throws Exception {
@@ -95,6 +116,14 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param argTypes 
+   * @param p1 
+   * @param p2 
+   * @param p3 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName,
       Class[] argTypes, Object p1, Object p2, Object p3) throws Exception {
@@ -128,6 +157,15 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param argTypes 
+   * @param p1 
+   * @param p2 
+   * @param p3 
+   * @param p4 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName,
       Class[] argTypes, Object p1, Object p2, Object p3, Object p4)
@@ -162,6 +200,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName)
       throws Exception {
@@ -191,6 +233,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param i 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName, int i)
       throws Exception {
@@ -222,6 +269,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param c 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName, Class c)
       throws Exception {
@@ -255,6 +307,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param s 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_OS(Object o, String methodName, String s)
       throws Exception {
@@ -282,6 +339,14 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param s1
+   * @param s2
+   * @return object that is the result of the method call
+   * @throws Exception
+   */
   public static Object callMethod_OSS(Object o, String methodName, String s1,
       String s2) throws Exception {
 
@@ -310,6 +375,14 @@ public class ReflectionUtil {
   }
 
   // created for Connection.createArrayOf()
+  /**
+   * @param o
+   * @param methodName
+   * @param s1
+   * @param o2
+   * @return object that is the result of the method call
+   * @throws Exception
+   */
   public static Object callMethod_OSA(Object o, String methodName, String s1,
       Object[] o2) throws Exception {
 
@@ -338,6 +411,15 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param s1
+   * @param s2
+   * @param s3
+   * @return object that is the result of the method call
+   * @throws Exception
+   */
   public static Object callMethod_OSSS(Object o, String methodName, String s1,
       String s2, String s3) throws Exception {
 
@@ -367,6 +449,16 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param s1
+   * @param s2
+   * @param s3
+   * @param s4
+   * @return object that is the result of the method call
+   * @throws Exception
+   */
   public static Object callMethod_OSSSS(Object o, String methodName, String s1,
       String s2, String s3, String s4) throws Exception {
 
@@ -404,6 +496,12 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param s 
+   * @param parm2 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName, String s,
       Object parm2) throws Exception {
@@ -507,6 +605,12 @@ public class ReflectionUtil {
    * Examples
    * 
    * Object o = callMethod_O(ds, ... ");
+   * @param o 
+   * @param methodName 
+   * @param i 
+   * @param j 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static Object callMethod_O(Object o, String methodName, long i, long j)
       throws Exception {
@@ -540,6 +644,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * String property = callMethod_S(ds, "getTranslateHex");
+   * @param o 
+   * @param methodName 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static String callMethod_S(Object o, String methodName)
       throws Exception {
@@ -569,6 +677,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * String property = callMethod_S(ds, "getTranslateHex");
+   * @param o 
+   * @param methodName 
+   * @param i 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static String callMethod_S(Object o, String methodName, int i)
       throws Exception {
@@ -601,6 +714,12 @@ public class ReflectionUtil {
    * 
    * String property = JDReflectionUtil.callMethod_S(outNClob, "getSubString",
    * 1, outLength);
+   * @param o 
+   * @param methodName 
+   * @param l 
+   * @param j 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
   public static String callMethod_S(Object o, String methodName, long l, int j)
       throws Exception {
@@ -634,6 +753,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * int value = callMethod_I(ds, "getMaximumPrecision");
+   * @param o 
+   * @param methodName 
+   * @return integer that is the result of the method call
+   * @throws Exception 
    */
   public static int callMethod_I(Object o, String methodName) throws Exception {
     java.lang.reflect.Method method;
@@ -659,6 +782,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * int value = callMethod_I(ds, "getMaximumPrecision");
+   * @param o 
+   * @param methodName 
+   * @param parm 
+   * @return integer that is the result of the method call
+   * @throws Exception 
    */
   public static int callMethod_I(Object o, String methodName, int parm)
       throws Exception {
@@ -681,6 +809,13 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param parm1
+   * @return object that is the result of the method call
+   * @throws Exception
+   */
   public static int callMethod_I(Object o, String methodName, Object parm1)
       throws Exception {
     java.lang.reflect.Method method = null;
@@ -771,6 +906,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * int value = callMethod_L(ds, "length");
+   * @param o 
+   * @param methodName 
+   * @return long that is the result of the method call
+   * @throws Exception 
    */
   public static long callMethod_L(Object o, String methodName) throws Exception {
     java.lang.reflect.Method method;
@@ -796,6 +935,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * boolean value = callMethod_B(ds, "getReturnExtendedMetaData");
+   * @param o 
+   * @param methodName 
+   * @return boolean that is the result of the method call
+   * @throws Exception 
    */
   public static boolean callMethod_B(Object o, String methodName)
       throws Exception {
@@ -822,6 +965,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * boolean value = callMethod_B(connection, "isValid", 60)
+   * @param o 
+   * @param methodName 
+   * @param i 
+   * @return boolean that is the result of the method call
+   * @throws Exception 
    * 
    */
   public static boolean callMethod_B(Object o, String methodName, int i)
@@ -851,6 +999,11 @@ public class ReflectionUtil {
    * 
    * boolean value = callMethod_B(ds, "isWrapperFor",
    * Class.forName("java.lang.String");
+   * @param o 
+   * @param methodName 
+   * @param x 
+   * @return boolean that is the result of the method call
+   * @throws Exception 
    */
   public static boolean callMethod_B(Object o, String methodName, Class x)
       throws Exception {
@@ -872,6 +1025,13 @@ public class ReflectionUtil {
     }
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param parm1
+   * @return boolean that is the result of the method call
+   * @throws Exception
+   */
   public static boolean callMethod_B(Object o, String methodName, Object parm1)
       throws Exception {
     java.lang.reflect.Method method = null;
@@ -965,6 +1125,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ds, "setReturnExtendedMetaData", argTypes, args);
+   * @param o 
+   * @param methodName 
+   * @param argTypes 
+   * @param args 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName,
@@ -987,6 +1152,9 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ds, "close");
+   * @param o 
+   * @param methodName 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName) throws Exception {
@@ -1012,6 +1180,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ds, "setMaximumPrecision", 34);
+   * @param o 
+   * @param methodName 
+   * @param parm1 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName, int parm1)
@@ -1041,6 +1213,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ps, "setNString", 1, "character");
+   * @param o 
+   * @param methodName 
+   * @param parm1 
+   * @param parm2 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName, int parm1,
@@ -1072,6 +1249,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ps, "setNString", "col1", "character");
+   * @param o 
+   * @param methodName 
+   * @param parm1 
+   * @param parm2 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName, String parm1,
@@ -1102,6 +1284,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ds, "setReturnExtendedMetaData", true);
+   * @param o 
+   * @param methodName 
+   * @param parm1 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName, boolean parm1)
@@ -1130,6 +1316,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ds, "setTranslateHex", "character");
+   * @param o 
+   * @param methodName 
+   * @param parm1 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName, byte[] parm1)
@@ -1164,6 +1354,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(ps, "psSetNClob", 1, "character");
+   * @param o 
+   * @param methodName 
+   * @param i 
+   * @param parm2 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName, int i,
@@ -1252,6 +1447,13 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param parm1
+   * @param i
+   * @throws Exception
+   */
   public static void callMethod_V(Object o, String methodName, Object parm1,
       int i) throws Exception {
     java.lang.reflect.Method method = null;
@@ -1338,6 +1540,13 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param parm1
+   * @param b
+   * @throws Exception
+   */
   public static void callMethod_V(Object o, String methodName, Object parm1,
       boolean b) throws Exception {
     java.lang.reflect.Method method = null;
@@ -1424,6 +1633,12 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param parm1
+   * @throws Exception
+   */
   public static void callMethod_V(Object o, String methodName, Object parm1)
       throws Exception {
     java.lang.reflect.Method method = null;
@@ -1508,6 +1723,10 @@ public class ReflectionUtil {
 
   }
 
+  /**
+   * @param interfacesHashtable
+   * @param checkClass
+   */
   public static void addInterfacesToHashtable(Hashtable interfacesHashtable,
       Class checkClass) {
     if (checkClass.isInterface()) {
@@ -1519,6 +1738,13 @@ public class ReflectionUtil {
     }
   }
 
+  /**
+   * @param o
+   * @param methodName
+   * @param parm1
+   * @param parm2
+   * @throws Exception
+   */
   public static void callMethod_V(Object o, String methodName, String parm1,
       Object parm2) throws Exception {
     java.lang.reflect.Method method = null;
@@ -1619,6 +1845,11 @@ public class ReflectionUtil {
    * Examples
    * 
    * callMethod_V(nclob, "setString", 1, "character");
+   * @param o 
+   * @param methodName 
+   * @param l 
+   * @param parm2 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName, long l,
@@ -1712,6 +1943,12 @@ public class ReflectionUtil {
    * Examples
    * 
    * JDReflectionUtil.callMethod_V(ps, "setBlob", 1, is, (long) 4);
+   * @param o 
+   * @param methodName 
+   * @param parameterIndex 
+   * @param inputStream 
+   * @param length 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName,
@@ -1746,6 +1983,12 @@ public class ReflectionUtil {
    * Examples
    * 
    * JDReflectionUtil.callMethod_V(ps, "setBlob", "col1", is, (long) 4);
+   * @param o 
+   * @param methodName 
+   * @param parameterName 
+   * @param inputStream 
+   * @param length 
+   * @throws Exception 
    */
   // @pdc adding _IS (inputStream) to method name so that abiguity errors get
   // fixed on calls like callMethod_V(o, "aa", "bb", null, 1) //null type is not
@@ -1781,6 +2024,12 @@ public class ReflectionUtil {
    * Examples
    * 
    * JDReflectionUtil.callMethod_V(ps, "setClob", 1, r, (long) 4);
+   * @param o 
+   * @param methodName 
+   * @param parameterIndex 
+   * @param reader 
+   * @param length 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName,
@@ -1813,6 +2062,12 @@ public class ReflectionUtil {
    * Examples
    * 
    * JDReflectionUtil.callMethod_V(ps, "setClob", "C1", r, (long) 4);
+   * @param o 
+   * @param methodName 
+   * @param parameterName 
+   * @param reader 
+   * @param length 
+   * @throws Exception 
    */
 
   public static void callMethod_V(Object o, String methodName,
@@ -1845,6 +2100,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * JDReflectionUtil.callStaticMethod_O("", "newInstance");
+   * @param classname 
+   * @param methodName 
+   * @return object that is the result of the method call
+   * @throws Exception 
    */
 
   public static Object callStaticMethod_O(String classname, String methodName)
@@ -1875,6 +2134,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * JDReflectionUtil.callStaticMethod_O("", "newInstance");
+   * @param classname 
+   * @param methodName 
+   * @return integer that is the result of the method call
+   * @throws Exception 
    */
 
   public static int callStaticMethod_I(String classname, String methodName)
@@ -1909,6 +2172,9 @@ public class ReflectionUtil {
    * JDReflectionUtil.createObject("com.ibm.db2.jcc.DB2XADataSource")
    * 
    * callMethod_V(ds, "setTranslateHex", "character");
+   * @param classname 
+   * @return created object
+   * @throws Exception 
    */
 
   public static Object createObject(String classname) throws Exception {
@@ -1932,6 +2198,10 @@ public class ReflectionUtil {
    * create an object using reflection Examples
    * 
    * JDReflectionUtil.createObject("com.ibm.db2.app.DB2RowId", testArray)
+   * @param classname 
+   * @param arg 
+   * @return created object
+   * @throws Exception 
    * 
    */
 
@@ -1963,6 +2233,11 @@ public class ReflectionUtil {
    * 
    * JDReflectionUtil.createObject("javax.xml.transform.stax.StAXSource",
    * "javax.xml.stream.XMLStreamReader", xmlStreamReader);
+   * @param classname 
+   * @param parameterClass 
+   * @param arg 
+   * @return created object
+   * @throws Exception 
    * 
    */
 
@@ -1994,6 +2269,10 @@ public class ReflectionUtil {
    * Examples
    * 
    * int value = getField_I(ds, "getMaximumPrecision");
+   * @param o 
+   * @param fieldName 
+   * @return integer value of field
+   * @throws Exception 
    */
   public static int getField_I(Object o, String fieldName) throws Exception {
     java.lang.reflect.Field field;

@@ -288,6 +288,7 @@ Constructor.
 
 /**
 Adds another operation result to the operation result bitmap.
+ * @param value 
 **/
   public void addOperationResultBitmap(int value)
   {
@@ -720,6 +721,7 @@ throws DBDataStreamException
 
 /**
 Clears an operation result from the operation result bitmap.
+ * @param value 
 **/
   public void clearOperationResultBitmap(int value)                   // @E3A
   {                                                                   // @E3A
@@ -932,6 +934,8 @@ byte array and grow it as needed.
     /** update the length of the block using the previously saved
      *  offset.  Add 6 to the length to include the 6 bytes at the 
      *  beginning 
+     * @param offset 
+     * @param length 
      */
     public void updateLength(int offset, int length) { 
       set32bit(length + 6, offset);       
@@ -978,6 +982,7 @@ Set (ORS) into the request datastream.
 
 /**
 Sets the parameter marker descriptor handle.
+ * @param value 
 **/
   public void setParameterMarkerDescriptorHandle(int value)
   {

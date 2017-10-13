@@ -349,6 +349,7 @@ public class Trace implements Runnable
   /**
     Returns the trace file name for the specified component.  Null
     is returned if no file name has been set for the component.
+   * @param component 
     @return  The file name for the specified component.  Null is
              returned if no file name has been set for the component.
    **/
@@ -376,6 +377,7 @@ public class Trace implements Runnable
     is returned if no writer or file name has been set.  If a file
     name for a component is set, that component automatically
     gets a print writer.
+   * @param component 
     @return  The print writer object for the specified component.
     If no writer or file name has been set, null is returned.
    **/
@@ -1096,6 +1098,7 @@ public class Trace implements Runnable
   /**
   Logs a message and byte data in the specified category.  If the category is disabled, nothing is logged.  The byte data is appended to the end of the message, sixteen bytes per line.
   @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+   * @param source 
   @param  message  The message to log.
   @param  data  The bytes to log.
  **/

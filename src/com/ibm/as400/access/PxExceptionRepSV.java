@@ -33,6 +33,7 @@ extends PxRepSV
 
 /**
 Constructs a PxExceptionRepSV object.
+ * @param e 
 **/
    public PxExceptionRepSV (Throwable e)
    {

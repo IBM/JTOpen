@@ -36,6 +36,7 @@ private SQLQueryBuilderPane parent_;
 
 /**
 Constructs a SQLQuerySummaryPane object.
+ * @param parent 
 **/
 public SQLQuerySummaryPane (SQLQueryBuilderPane parent)
 {

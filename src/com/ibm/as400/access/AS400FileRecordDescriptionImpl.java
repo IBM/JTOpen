@@ -81,7 +81,6 @@ interface AS400FileRecordDescriptionImpl
    *server.
    *@exception InterruptedException If this thread is interrupted.
    *@exception ServerStartupException If the host server cannot be started.
-   *@exception UnknownHostException If the server cannot be located.
 
   **/
   public abstract RecordFormat[] retrieveRecordFormat()

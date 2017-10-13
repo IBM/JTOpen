@@ -37,6 +37,7 @@ abstract class PermissionAccess
 
     /**
      * Constructs a PermissionAccess object.
+     * @param system 
      *
     **/
     public PermissionAccess(AS400 system)
@@ -94,6 +95,7 @@ abstract class PermissionAccess
 
     /**
      * Returns authorized users' permissions.
+     * @param objName 
      * @return A vector of authorized users' permission.
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
@@ -102,6 +104,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception ObjectDoesNotExistException If the server object does not exist.
+     * @throws UnsupportedEncodingException 
      * @exception PropertyVetoException If the change is vetoed.
      * @exception UnknownHostException If the server cannot be located.
      *
@@ -466,6 +469,7 @@ abstract class PermissionAccess
 
     /**
      * Returns the user's permission retrieved from the system.
+     * @param userRecord 
      * @return The user's permission retrieved from the system.
      * @exception UnsupportedEncodingException The Character Encoding is not supported.
      *

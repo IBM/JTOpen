@@ -269,6 +269,12 @@ public class DirectoryEntryList
    * Retrieves the directory entry information from the system.
    * This method internally calls the following system API: QOKSCHD
    * @return An array of directory entries.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
   **/
   public DirectoryEntry[] getEntries()
   throws AS400Exception,
@@ -436,6 +442,7 @@ public class DirectoryEntryList
    * then it has no effect on how the list is sorted when returned by {@link #getEntries getEntries()}.
    * <p>
    * If no key has been set, then the first entry added via addSelection() is used.
+   * @return key
    * @see #setKey
   **/
   public String getKey()
@@ -460,6 +467,7 @@ public class DirectoryEntryList
    * then it has no effect on how the list is sorted when returned by {@link #getEntries getEntries()}.
    * <p>
    * If no key has been set, then the first entry added via addSelection() is used.
+   * @param selectionID 
    * @see #addSelection
    * @see #getKey
   **/

@@ -34,6 +34,9 @@ class ResultSetHandler
     /**
     Constructor.  Creates a new JDBC-ME handler for ResultSet
     objects.
+     * @param jdbcme 
+     * @param in 
+     * @param out 
     **/
     public ResultSetHandler(JdbcMeService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
     {
@@ -46,6 +49,9 @@ class ResultSetHandler
     /**
     The process function routes the function id and the ResultSet
     to the proper handler.
+     * @param rs 
+     * @param funcId 
+     * @throws IOException 
     **/
     public void process(ResultSet rs, int funcId) throws IOException
     {
@@ -133,6 +139,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to close.
+     * @throws IOException 
     **/
     public void close(ResultSet rs) throws IOException
     {
@@ -173,6 +180,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void deleteRow(ResultSet rs) throws IOException
     {
@@ -203,6 +211,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void insertRow(ResultSet rs) throws IOException
     {
@@ -254,6 +263,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void next(ResultSet rs) throws IOException
     {
@@ -294,6 +304,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void previous(ResultSet rs) throws IOException
     {
@@ -334,6 +345,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void first(ResultSet rs) throws IOException
     {
@@ -374,6 +386,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void last(ResultSet rs) throws IOException
     {
@@ -414,6 +427,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void relative(ResultSet rs) throws IOException
     {
@@ -455,6 +469,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void absolute(ResultSet rs) throws IOException
     {
@@ -494,6 +509,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void beforeFirst(ResultSet rs) throws IOException
     {
@@ -524,6 +540,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void afterLast(ResultSet rs) throws IOException
     {
@@ -556,6 +573,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void isAfterLast(ResultSet rs) throws IOException
     {
@@ -590,6 +608,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void isBeforeFirst(ResultSet rs) throws IOException
     {
@@ -625,6 +644,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void isFirst(ResultSet rs) throws IOException
     {
@@ -660,6 +680,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void isLast(ResultSet rs) throws IOException
     {
@@ -693,6 +714,7 @@ class ResultSetHandler
     <P>
  
     @param rs    The ResultSet object to use.
+     * @throws IOException 
     **/
     public void updateRow(ResultSet rs) throws IOException
     {

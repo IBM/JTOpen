@@ -765,7 +765,6 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
    *
    * @param system The system name.
    *
-   * @exception PropertyVetoException If the change is vetoed.
    *
    **/
   public void setSystem(AS400Impl system)

@@ -140,7 +140,8 @@ public void complete()
 
 /**
 Gets the sql clause fo this panel.
-@param The index of the join clause to return.
+ * @param index The index of the join clause to return.
+ * @return sql clause
 **/
 public String getClause(int index)
 {

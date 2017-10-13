@@ -39,6 +39,7 @@ extends PSServerSocketContainerAdapter
 Constructs a PSServerSocketContainer object.
 
 @param port   The port.
+ * @throws IOException 
 **/
     public PSServerSocketContainer (int port)
         throws IOException

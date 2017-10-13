@@ -30,11 +30,12 @@ interface PxDSWV
 /**
 Writes the contents of the datastream to an output stream.
 
+
 @param output   The output stream.
 
 @exception IOException  If an error occurs.                
 **/
-    public abstract void writeTo (OutputStream input)
+    public abstract void writeTo (OutputStream output)
         throws IOException;
 
 

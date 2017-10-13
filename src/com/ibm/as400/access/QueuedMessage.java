@@ -375,6 +375,7 @@ public class QueuedMessage extends AS400Message implements Serializable
     /**
      Returns the number of statement numbers or instruction numbers available for the receiving program or procedure. For original program model (OPM) programs and nonoptimized procedures, this count is 1.For optimized procedures, this count can be greater than 1. In this case, each statement number represents a potential point at which the message could have been received. If the mapping table information has been removed from the program, this field returns a count of 0 and no statement numbers are available. The array of receiving statement numbers or instruction numbers immediately follows this field in the returned data.
      return The number of statement numbers or instruction numbers available for the receiving program or procedure or a null string array if nothing is set. 
+     * @return receiver statement numbers
      **/
     public String[] getReceiverStatementNumbers()
     {

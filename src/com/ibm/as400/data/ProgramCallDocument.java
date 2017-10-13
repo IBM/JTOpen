@@ -325,6 +325,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
      @param docName The document resource name of the PCML document for the programs to be called.
      @param loader The ClassLoader that will be used when loading the specified document resource.
+     * @throws XmlException 
 
      @exception PcmlException when the specified PCML document cannot be found
      */
@@ -380,6 +381,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     /**
 	 * Provides a command line interface to ProgramCallDocument.  See the class description.
     * Note that XPCML documents cannot be serialized.
+     * @param args 
 	 *
      */
     public static void main(String[] args)
@@ -434,6 +436,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
      Calls the named program.
 
      @param name The name of the &lt;program&gt; element in the PCML document.
+     * @return true if the call is successful 
      @exception PcmlException
                 If an error occurs.
     */
@@ -656,6 +659,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @return The integer value for the named element.
 
     @param name The name of the &lt;data&gt; element in the PCML document.
+     * @param indices 
     @exception PcmlException
                If an error occurs.
     */
@@ -684,6 +688,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     The default bidi string type is assumed ({@link com.ibm.as400.access.BidiStringType#DEFAULT BidiStringType.DEFAULT}).
 
     @param name The name of the &lt;data&gt; element in the PCML document.
+     * @return string value of the named elements
     @exception PcmlException If an error occurs.
     */
     public String getStringValue(String name)
@@ -706,6 +711,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representation Architecture).
+     * @return string value of the named element
     @exception PcmlException
                If an error occurs.
     @see com.ibm.as400.access.BidiStringType
@@ -728,6 +734,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param indices An array of indices for setting the value of an element in an array.
+     * @return string valud for the names element
     @exception PcmlException
                If an error occurs.
     */
@@ -754,6 +761,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @param indices An array of indices for setting the value of an element in an array.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representation Architecture).
+     * @return string value of the named element
     @exception PcmlException
                If an error occurs.
     @see com.ibm.as400.access.BidiStringType
@@ -1308,6 +1316,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     Gets the value of the override of the threadsafe attribute of a program element.
 
     @param program The name of the &lt;program&gt; element in the PCML document.
+     * @return true if the program is threadsafe
     @exception PcmlException
                If an error occurs.
     */
@@ -1815,6 +1824,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
      @param xpcmlStream  The output XPCML stream.
      @exception IOException  If an error occurs while writing the data.
      @exception PcmlException  If an error occurs while processing XPCML.
+     * @throws TransformerException 
+     * @throws SAXException 
 
      **/
 
@@ -1845,6 +1856,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
      @param xsdStreamName  The name of the xsd stream ("name.xsd") that will be created
      @exception IOException  If an error occurs while writing the data.
      @exception PcmlException  If an error occurs while processing XPCML.
+     * @throws TransformerException 
+     * @throws SAXException 
 
      **/
 

@@ -73,7 +73,7 @@ implements Serializable
 Constructs a ProgramKeyAttributeSetter object.
 
 @param system               The system.
-@param documentName         The PCML document.
+@param document         The PCML document.
 @param programName          The program name.
 @param keysDataName         The keys data name.
 @param attributeKeys        The attribute keys.

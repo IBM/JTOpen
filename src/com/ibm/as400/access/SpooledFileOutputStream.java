@@ -389,6 +389,7 @@ public class SpooledFileOutputStream extends OutputStream
     /** Returns the spooled file that was created (or is being created) with
       * this output stream.
       * @return A reference to the spooled file object.
+     * @throws IOException 
       **/
     public SpooledFile getSpooledFile()
        throws IOException

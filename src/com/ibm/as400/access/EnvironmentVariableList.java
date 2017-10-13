@@ -106,6 +106,7 @@ public class EnvironmentVariableList implements Serializable
 
     /**
      Returns an enumeration that contains an EnvironmentVariable object for each environment variable on the system.
+     * @return Enumeration of environment variables
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.

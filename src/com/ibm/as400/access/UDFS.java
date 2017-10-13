@@ -66,6 +66,10 @@ public class UDFS
      <li>The user must have input/output (I/O) system configuration (*IOSYSCFG) special authority.
      <li>A maximum of approximately 4,000 user-defined file systems can be created on an independent auxiliary storage pool (ASP).
      </ol>
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
      @see #setPreferredStorageUnit
      **/
     public void create() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -183,6 +187,10 @@ public class UDFS
      <li>"*BLANK" - Text is not specified.
      <li>description - Specify no more than 50 characters.
      </ul>
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
      @see #setPreferredStorageUnit
      **/
     public void create(String publicDataAuthority, String[] publicObjectAuthority, String auditingValue, String scanningOption, boolean specialRestrictions, String defaultDiskStorageOption, String defaultMainStorageOption, String caseSensitivity, String defaultFileFormat, String description) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -229,6 +237,10 @@ public class UDFS
      <li>Only a user with input/output (I/O) system configuration (*IOSYSCFG) special authority can specify this command.
      <li>The user must have object existence (*OBJEXIST) authority to all of the objects in the UDFS.
      </ol>
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
      **/
     public void delete() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -246,6 +258,10 @@ public class UDFS
      </ol>
      @param  mountPoint  Specifies the path name of the existing directory that the file system will be mounted over.  This directory gets 'covered' by the mounted file system.  This directory must exist.
      <p>Multiple file systems can be mounted over the same directory, one on top of the other.  However, only the topmost mounted file system is accessible, and the file systems must later be unmounted in the opposite order from which they were mounted (last-in first-out order).
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
      **/
     public void mount(String mountPoint) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -265,6 +281,10 @@ public class UDFS
      <p>Multiple file systems can be mounted over the same directory, one on top of the other.  However, only the topmost mounted file system is accessible, and the file systems must later be unmounted in the opposite order from which they were mounted (last-in first-out order).
      @param  rwOption  This option specifies the protection for the mounted file system.  true if read-write, false if read-only.
      @param  suidOption  This option specifies whether setuid execution is allowed.  true if suid is specified and setuid execution is allowed.  This means that bits other than the permission bits may be set.  false if nosuid is specified, setuid execution is not allowed.  This parameter is ignored on Version 5 Release 2 and earlier of IBM i.
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
      **/
     public void mount(String mountPoint, boolean rwOption, boolean suidOption) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -277,6 +297,10 @@ public class UDFS
      <p>Restrictions:
      <ol>
      <li>The user must have input/output (I/O) system configuration (*IOSYSCFG) special authority to use this command.
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
      **/
     public void unmount() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -335,6 +359,11 @@ public class UDFS
     /**
      Returns information about a UDFS.
      @return  Information about a UDFS.
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
      **/
     public UdfsInformationStructure getUdfsInformationStructure() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -358,6 +387,11 @@ public class UDFS
     /**
      Returns information about a mounted file system.
      @return  Information about a mounted file system.
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
      **/
     public MountedFsInformationStructure getMountedFsInformationStructure() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {

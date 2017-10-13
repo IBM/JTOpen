@@ -543,9 +543,9 @@ Sets the enabled state of the action.
 
 @param enabled true if the action is enabled, false otherwise.
 **/
-    public void setEnabled(boolean enable)
+    public void setEnabled(boolean enabled)
     {
-        enabled_ = enable;
+        enabled_ = enabled;
     }
 
 

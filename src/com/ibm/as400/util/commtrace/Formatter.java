@@ -140,8 +140,8 @@ abstract class Formatter {
 
 	/**
 	 * creates a string consisting of s repeated n times.
-	 * @param string         String to repeat.                
-	 * @param number         number of times to repeat s.
+	 * @param s        String to repeat.                
+	 * @param n        number of times to repeat s.
 	 * @return		String
 	 */
 	public static String repeater(String s, int n) {

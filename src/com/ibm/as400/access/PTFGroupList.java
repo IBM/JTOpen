@@ -42,6 +42,12 @@ public class PTFGroupList
   /**
    * Returns a list of all PTF groups that are known to the system.
    * @return The array of PTFGroups. 
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
   **/
   public PTFGroup[] getPTFGroup()
   throws AS400Exception,

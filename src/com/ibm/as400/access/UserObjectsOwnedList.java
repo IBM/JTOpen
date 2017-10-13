@@ -141,6 +141,12 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
    <p>This method retrieves the list of objects from the system based on the selection critera set via the constructor or
    modified by any of the set methods.
    @return The array of objects retrieved from the system.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
   **/
   public UserObjectsOwnedListEntry[] getObjectList()
   throws AS400Exception,

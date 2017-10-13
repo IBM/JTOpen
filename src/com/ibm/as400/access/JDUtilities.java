@@ -841,6 +841,8 @@ Reads an input stream and returns its data as a String.
 
     /**
      * returns the type names based on the type from java.sql.Types
+     * @param typeNumber java.sql.Types value
+     * @return name corresponding to the java.sql.Types value
      */
 
     public static String getTypeName(int typeNumber) {
@@ -1056,7 +1058,7 @@ Reads an input stream and returns its data as a String.
     /**
      * Remove all trailing space from a String. 
      * @param inString
-     * @return
+     * @return the updated string
      */
     /*@O7A*/ 
     public static String trimTrailingSpace(String inString) {

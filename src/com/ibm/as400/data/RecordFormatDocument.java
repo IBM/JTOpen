@@ -145,6 +145,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
      </ul>
 
      @param record The Record object.
+     * @throws XmlException 
      */
     public RecordFormatDocument(Record record)
       throws XmlException
@@ -168,6 +169,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
      </ul>
 
     @param recordFormat The RecordFormat object.
+     * @throws XmlException 
     */
     public RecordFormatDocument(RecordFormat recordFormat)
       throws XmlException
@@ -599,6 +601,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     The default bidi string type is assumed ({@link com.ibm.as400.access.BidiStringType#DEFAULT BidiStringType.DEFAULT}).
 
     @param name The name of the <code>&lt;data&gt;</code> element in the RFML document.
+     * @return StringValue
     @exception XmlException  If an error occurs while processing RFML.
     **/
     public String getStringValue(String name)
@@ -618,6 +621,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     @param name The name of the <code>&lt;data&gt;</code> element in the RFML document.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representation Architecture).
+     * @return stringValue
     @exception XmlException  If an error occurs while processing RFML.
     **/
     public String getStringValue(String name, int type)
@@ -644,6 +648,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     @param indices An array of indices for setting the value of an element in an array.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representation Architecture).
+     * @return stringValue
     @exception XmlException  If an error occurs while processing RFML.
     **/
     public String getStringValue(String name, int[] indices, int type)
@@ -1345,6 +1350,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     @return The data contained by the record.
 
     @param formatName The name of the <code>&lt;recordformat&gt;</code> element in the RFML document.
+     * @throws XmlException 
     **/
     public byte[] toByteArray(String formatName)
         throws XmlException
@@ -1391,6 +1397,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
      @return A RecordFormat object with the same structure as the specified <code>&lt;recordformat&gt;</code> element.
 
      @param formatName The name of the <code>&lt;recordformat&gt;</code> element in the RFML document.
+     * @throws XmlException 
      **/
     public RecordFormat toRecordFormat(String formatName)
         throws XmlException

@@ -118,6 +118,7 @@ public class AS400JDBCArray implements Array {
 
   /**
    * This method will free the internal memory that this object holds.
+   * @throws SQLException 
    **/
   synchronized public void free() throws SQLException {
     // na no locators can be in arrays.

@@ -528,6 +528,7 @@ implements Serializable
    Returns the target release level of the operating system on which you intend to restore and use the object(s) saved in the save file by a subsequent invocation of one of the <tt>save()</tt> methods.
    The format VxRxMx is used to specify the target release, where Vx is the version, Rx is the release, and Mx is the modification level. For example, V5R2M0 is version 5, release 2, modification level 0.
    Special values include {@link #CURRENT_RELEASE CURRENT_RELEASE} and {@link #PREVIOUS_RELEASE PREVIOUS_RELEASE}.  The default is CURRENT_RELEASE.
+   * @return targetRelease
    **/
   public String getTargetRelease()
   {
@@ -576,6 +577,7 @@ implements Serializable
   /**
    Indicates whether output from called API's will be saved in the job's spooled output.
    <br>By default, output is not saved.
+   * @return true if output will be saved
    **/
   public boolean isSaveOutput()
   {
@@ -586,6 +588,7 @@ implements Serializable
    Reports whether the open data path (ODP) for the save file is shared with other programs in the routing step.  When an ODP is shared, the programs accessing the file, share facilities such as the file status and the buffer.
    <br>The default is "not shared".
    <br>If the save file doesn't exist on the system, an exception is thrown.
+   * @return true if the ODP is shared
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
@@ -617,6 +620,7 @@ implements Serializable
    @throws  InterruptedException  If this thread is interrupted.
    @throws  IOException  If an error occurs while communicating with the system.
    @throws  ObjectDoesNotExistException  If the object does not exist on the system.
+   * @throws UnsupportedEncodingException 
    **/
   public SaveFileEntry[] listEntries()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, UnsupportedEncodingException
@@ -1306,6 +1310,7 @@ implements Serializable
    <br>If the current number of records in the save file is greater than the new maximumNumberOfRecords value, an exception is thrown, and the save file is not changed.
    <br>Special value: {@link #NO_MAX NO_MAX}
    <br>If the save file doesn't exist on the system, an exception is thrown.
+   * @param maximumNumberOfRecords 
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.

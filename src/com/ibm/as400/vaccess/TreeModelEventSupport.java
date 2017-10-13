@@ -92,8 +92,8 @@ Fires a tree nodes changed event.
 Fires a tree nodes changed event.
 
 @param  path            The path.
-@param  childIndices    The child index.
-@param  children        The child.
+@param  childIndex    The child index.
+@param  child        The child.
 **/
     public void fireTreeNodesChanged (TreePath path, int childIndex, Object child)
     {
@@ -125,8 +125,8 @@ Fires a tree nodes inserted event.
 Fires a tree nodes inserted event.
 
 @param  path            The path.
-@param  childIndices    The child index.
-@param  children        The child.
+@param  childIndex      The child index.
+@param  child           The child.
 **/
     public void fireTreeNodesInserted (TreePath path, int childIndex, Object child)
     {
@@ -158,8 +158,8 @@ Fires a tree nodes removed event.
 Fires a tree nodes removed event.
 
 @param  path            The path.
-@param  childIndices    The child index.
-@param  children        The child.
+@param  childIndex     The child index.
+@param  child          The child.
 **/
     public void fireTreeNodesRemoved (TreePath path, int childIndex, Object child)
     {

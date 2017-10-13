@@ -399,6 +399,7 @@ public class ServiceProgramCall extends ProgramCall
      <li>{@link #RETURN_INTEGER RETURN_INTEGER}  The procedure returns an integer.
      </ul>
      @param  parameterList  A list of up to 7 parameters with which to call the program.
+     * @return true if program calls is successful
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the system.

@@ -1364,7 +1364,8 @@ public class JarMaker
 
 
   /**
-   @deprecated Use getFilesRequired() instead.
+   @return Vector
+   * @deprecated Use getFilesRequired() instead.
    **/
   public Vector getRequiredFiles() { return filesRequired_; }
 
@@ -2471,7 +2472,8 @@ public class JarMaker
 
 
   /**
-   @deprecated Use setFilesRequired() instead.
+   @param entryList 
+   * @deprecated Use setFilesRequired() instead.
    **/
   public void setRequiredFiles(Vector entryList)
   {

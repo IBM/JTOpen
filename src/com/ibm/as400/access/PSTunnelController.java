@@ -198,6 +198,9 @@ class PSTunnelController
 
 	/**
 	Runs the controller with an InputStream and an OutputStream.
+	 * @param inputStream 
+	 * @param outputStream 
+	 * @throws IOException 
 	**/
 	public void runInputStream (InputStream inputStream, OutputStream outputStream)
 	throws IOException

@@ -152,6 +152,7 @@ public class JDSQLStatement
 
     /**
      * Adds an AS400JDBCStatementListener.
+     * @param listener 
     **/
     public static void addStatementListener(AS400JDBCStatementListener listener)
     {
@@ -160,6 +161,7 @@ public class JDSQLStatement
 
     /**
      * Removes an AS400JDBCStatementListener.
+     * @param listener 
     **/
     public static void removeStatementListener(AS400JDBCStatementListener listener)
     {

@@ -60,8 +60,7 @@ implements VPropertiesPane, ItemListener
 
 /**
 Constructs an PrintersPropertiesPane object.
-
-@param  resource The printer output resource.
+@param  object The printer output resource.
 @param  list spooled file list
 **/
     public PrintersPropertiesPane (VPrinters object, PrinterList list)
@@ -207,7 +206,6 @@ Builds Include pane for the properties pane
 Returns the editor pane.
 
 @return             The properties pane.
-@throws Exception   If an error occurs.
 **/
     public Component getComponent ()
     {

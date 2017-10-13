@@ -278,6 +278,11 @@ implements java.io.Serializable
     @param key The possible key.
     @return Returns true if and only if the specified key is in this clustered hash table; false otherwise.
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public boolean containsKey(byte[] key) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -332,6 +337,11 @@ implements java.io.Serializable
     </ul>
     @return Returns an array of all the ClusteredHashTableEntry objects including keys but not data.
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public ClusteredHashTableEntry[] elements() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -364,6 +374,7 @@ implements java.io.Serializable
     @exception ErrorCompletingRequestException  If an error occurs before the request is completed.
     @exception IOException  If an error occurs while communicating with the system.
     @exception InterruptedException  If this thread is interrupted.
+   * @throws ObjectDoesNotExistException 
   **/
   public ClusteredHashTableEntry[] elements(String userProfile, String lastModifiedProfile, int status) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -562,6 +573,11 @@ implements java.io.Serializable
     </ul>
     @return The generated key.
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   synchronized public byte[] generateKey() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -646,6 +662,11 @@ implements java.io.Serializable
     @param key The key to use to return information.
     @return The entry for the specified key
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   synchronized public ClusteredHashTableEntry get(byte[] key) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -829,6 +850,11 @@ implements java.io.Serializable
     @return Returns true if the clustered hash table does not contain any keys;
                    false if the clustered hash table contains keys.
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public boolean isEmpty() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -851,6 +877,11 @@ implements java.io.Serializable
     <li>The Clustered Hash table server must be active on the system.
     </ul>
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   synchronized public void open() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -940,6 +971,11 @@ implements java.io.Serializable
 
     @param entry This object describes the information to put in the clustered hash table.
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   synchronized public void put(ClusteredHashTableEntry entry) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -1161,6 +1197,11 @@ implements java.io.Serializable
     </ul>
     @return The number of entries in the clustered hash table.
     @exception AS400Exception If the system returns an error message.
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public int size()  throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {

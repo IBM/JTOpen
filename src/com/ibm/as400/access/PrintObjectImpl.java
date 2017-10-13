@@ -27,6 +27,7 @@ interface PrintObjectImpl
      * The getAttrValue (package scope) method is introduced to allow the
      * propagation of any changes made to attrs (by updateAttrs) to the ImplRemote
      * object.
+     * @return attr value
      **/
     public abstract NPCPAttribute getAttrValue();
 
@@ -92,6 +93,9 @@ interface PrintObjectImpl
     /**
      * The setPrintObjectAttrs (package scope) method is introduced to allow
      * the propagation of PrintObject property changes to the ImplRemote object.
+     * @param idCodePoint 
+     * @param cpAttrs 
+     * @param type 
      **/
     public abstract void setPrintObjectAttrs(NPCPID idCodePoint,
                                              NPCPAttribute cpAttrs,

@@ -45,14 +45,16 @@ class LicenseBaseReply extends ClientAccessDataStream
         return new LicenseBaseReply();
     }
 
-    /** <p> This method returns the primary retrun code for the license release datastream. </p>
+    /** <p> This method returns the primary return code for the license release datastream. </p>
+     * @return primary return code
     **/
     public int getPrimaryRC()
     {
         return get16bit(REPLY_PRIMARY_RETURN_CODE_LOCATION);
     }
     
-    /** <p> This method returns the secondary retrun code for the license release datastream. </p>
+    /** <p> This method returns the secondary return code for the license release datastream. </p>
+     * @return secondary return code
     **/
     public int getSecondaryRC()
     {

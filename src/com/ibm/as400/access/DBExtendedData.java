@@ -51,6 +51,8 @@ implements DBData
 Constructs a DBExtendedData object.  Use this when overlaying
 on a reply datastream.  The cached data will be set when overlay()
 is called.
+ * @param actualLength 
+ * @param dataCompressed 
 **/
 	public DBExtendedData (int actualLength, boolean dataCompressed)        // @D0C
 	{ 
@@ -64,6 +66,9 @@ is called.
 Constructs a DBExtendedData object.  Use this when overlaying
 on a reply datastream.  The cached data will be set when overlay()
 is called.
+ * @param actualLength 
+ * @param dataCompressed 
+ * @param vlfCompressed 
 **/
 public DBExtendedData (int actualLength, boolean dataCompressed, boolean vlfCompressed)       
 {
@@ -76,6 +81,11 @@ public DBExtendedData (int actualLength, boolean dataCompressed, boolean vlfComp
 Constructs a DBExtendedData object.  Use this when overlaying
 on a request datastream.  This sets the cached data so that
 the total length can be calculated before calling overlay().
+ * @param rowCount 
+ * @param columnCount 
+ * @param indicatorSize 
+ * @param rowSize 
+ * @throws DBDataStreamException 
 **/
 	public DBExtendedData (int rowCount,
 	                        int columnCount,
@@ -222,7 +232,8 @@ when it was not previously set by the constructor.
 	}
 
 	
-	/** the current offset_ value */ 
+	/** the current offset_ value 
+	 * @return current offset value*/ 
 	//@K3A
 	public int getRawOffset() {
 	  return offset_; 
@@ -263,6 +274,7 @@ when it was not previously set by the constructor.
 
     /**
      * Set the flag that variable length parameter marker input compression is used.
+     * @param b 
      */
     // @K3A
     public void setParameterMarkerInputCompression(boolean b) {

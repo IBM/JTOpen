@@ -30,6 +30,7 @@ class PermissionAccessQSYS extends PermissionAccess
 {
     /**
      * Constructs a PermissionAccessQSYS object.
+     * @param system 
      *
     **/
     public PermissionAccessQSYS(AS400 system)

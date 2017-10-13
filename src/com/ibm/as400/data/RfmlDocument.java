@@ -62,6 +62,7 @@ class RfmlDocument extends PcmlDocument {
 
     /**
      Returns the ccsid= String value.  If not set, returns null.
+     * @return ccsid
      **/
     public final String getCcsid()
     {
@@ -71,6 +72,7 @@ class RfmlDocument extends PcmlDocument {
 
     /**
      Returns the ccsid= integer literal value.  If not set, returns 65535.
+     * @return ccsid
      **/
     public final int getCcsidInt()
     {

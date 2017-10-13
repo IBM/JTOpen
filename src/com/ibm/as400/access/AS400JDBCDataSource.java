@@ -477,6 +477,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Returns the output string type of bidi data. See <a href="BidiStringType.html">
     *  BidiStringType</a> for more information and valid values.  -1 will be returned
     *  if the value has not been set.
+     * @return output string type
     **/
     public int getBidiStringType()                                                               //@B3C
     {
@@ -926,6 +927,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  </ul>
     *  The default value is "toolbox".
     *  Note:  Not supported in a connection pool.
+     * @return JDBC driver implementation
     **/
     public String getDriver()
     {
@@ -1432,6 +1434,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
      * Returns the port number
+     * @return the port number
      */
     /*@V1A*/
     public int getPortNumber() { 
@@ -1483,6 +1486,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i.
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
+     * @return the storage limit
     **/
     public int getQueryStorageLimit()
     {
@@ -1632,6 +1636,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     
+    /**
+     * @return variable filed compression setting
+     */
     public String getVariableFieldCompression()
     {
     	/*@K3A*/
@@ -2253,6 +2260,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
      *  Sets the output string type of bidi data. See <a href="BidiStringType.html">
      *  BidiStringType</a> for more information and valid values.
+     * @param bidiStringType the bidi string type
      **/
     public void setBidiStringType(int bidiStringType)                          //@B3C
     {
@@ -2505,6 +2513,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *
     *  This property is ignored when connecting to systems
     *  running OS/400 V5R1 and earlier. 
+     * @param cursorSensitivity 
     **/
     public void setCursorSensitivity(String cursorSensitivity)
     {
@@ -2748,6 +2757,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the decimal data errors property. 
+     * @param decimalDataErrors 
     **/
     public void setDecimalDataErrors(String decimalDataErrors)
     {
@@ -4009,6 +4019,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
    
      /**
      * Sets the describe option property.
+     * @param option 
      **/
      public void setDescribeOption(String option)
      {
@@ -4041,6 +4052,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  </ul>
     *  The default value is "toolbox".
     *  Note:  Not supported in a connection pool.
+     * @param driver 
     **/
     public void setDriver(String driver)
     {

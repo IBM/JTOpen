@@ -166,6 +166,12 @@ public final class NLS
    * @param system The system.
    * @param countryID The country or region identifier.
    * @return The descriptive text.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
    * @see #getLanguageDescription
   **/
   public static String getCountryDescription(AS400 system, String countryID)
@@ -236,6 +242,12 @@ public final class NLS
    * @param system The system.
    * @param languageID The language identifier.
    * @return The descriptive text.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws InterruptedException 
+   * @throws IOException 
+   * @throws ObjectDoesNotExistException 
    * @see #getCountryDescription
   **/
   public static String getLanguageDescription(AS400 system, String languageID)

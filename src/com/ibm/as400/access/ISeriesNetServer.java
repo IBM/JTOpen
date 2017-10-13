@@ -2565,6 +2565,7 @@ implements Serializable
   /**
    Ends a specific NetServer session.
    <br>This method requires *IOSYSCFG special authority on the system.
+   * @param sessionID 
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
@@ -2581,6 +2582,7 @@ implements Serializable
   /**
    Ends all the sessions that were established from the specified workstation.
    <br>This method requires *IOSYSCFG special authority on the system.
+   * @param workstationName 
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.

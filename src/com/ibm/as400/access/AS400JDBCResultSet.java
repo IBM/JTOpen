@@ -866,8 +866,8 @@ implements ResultSet
     
     @return     true if this result set is closed;
                 false otherwise.
+     * @throws SQLException 
     **/
-    //@PDA jdbc40 make public and allow SQLException
     public boolean isClosed () throws SQLException
     {
         return closed_;
@@ -6405,8 +6405,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException
     {
@@ -6433,8 +6431,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(String columnLabel, InputStream x, long length) throws SQLException
     {
@@ -6457,8 +6453,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException
     {
@@ -6484,8 +6478,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(String columnLabel, InputStream x, long length) throws SQLException
     {
@@ -6518,8 +6510,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException
     {
@@ -6556,8 +6546,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException
     {
@@ -6579,8 +6567,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException
     {
@@ -6606,8 +6592,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -6639,8 +6623,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method 
      */
     public void updateClob(int columnIndex, Reader reader, long length) throws SQLException
     {
@@ -6676,8 +6658,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateClob(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -6705,8 +6685,6 @@ endif */
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs, 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
     {
@@ -6739,8 +6717,6 @@ endif */
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -6775,8 +6751,6 @@ endif */
       *  error could occur; this method is called on a closed result set,  
       * if a database access error occurs or
       * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-      * this method
      */
     public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException
     {
@@ -6813,8 +6787,6 @@ endif */
      * @exception SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException
     {
@@ -6843,8 +6815,6 @@ endif */
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException
     {
@@ -6874,8 +6844,6 @@ endif */
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException
     {
@@ -6904,8 +6872,6 @@ endif */
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException
     {
@@ -6935,8 +6901,6 @@ endif */
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException
     {
@@ -6964,8 +6928,6 @@ endif */
      * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException
     {
@@ -6994,8 +6956,6 @@ endif */
      * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException
     {
@@ -7024,8 +6984,6 @@ endif */
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(int columnIndex, Reader x) throws SQLException
     {
@@ -7055,8 +7013,6 @@ endif */
      * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException
     {
@@ -7088,8 +7044,6 @@ endif */
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method 
      */
     public void updateClob(int columnIndex, Reader reader) throws SQLException
     {
@@ -7121,8 +7075,6 @@ endif */
      * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void updateClob(String columnLabel, Reader reader) throws SQLException
     {
@@ -7155,8 +7107,7 @@ endif */
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
+     
      */
     public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException
     {
@@ -7191,8 +7142,7 @@ endif */
      * @exception SQLException if the columnLabel is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
+     * 
      */
     public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException
     {
@@ -7228,8 +7178,7 @@ endif */
      *  error could occur; this method is called on a closed result set,  
      * if a database access error occurs or
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
+     * 
      */
     public void updateNClob(int columnIndex, Reader reader) throws SQLException
     {
@@ -7263,8 +7212,7 @@ endif */
      *  error could occur; this method is called on a closed result set;
      *  if a database access error occurs or
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
+     * 
      */ 
     public void updateNClob(String columnLabel, Reader reader) throws SQLException
     {
@@ -7463,7 +7411,6 @@ endif */
  *@param type - Class representing the Java data type to convert the designated column to.
  *@return   an instance of type holding the column value
  *@exception  SQLException - if conversion is not supported, type is null or another error occurs. The getCause() method of the exception may provide a more detailed exception, for example, if a conversion error occurs
- *@exception SQLFeatureNotSupportedException - if the JDBC driver does not support this method
  */
     
 /* 
@@ -7576,8 +7523,6 @@ Object
    * @throws SQLException - if the columnIndex is not valid; if a database 
    * access error occurs; the result set concurrency is CONCUR_READ_ONLY or 
    * this method is called on a closed result set
-   * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
-   * support this method; if the JDBC driver does not support this data type
    */
 
   public void updateObject(int columnIndex,
@@ -7616,8 +7561,6 @@ Object
  * @throws SQLException - if the columnLabel is not valid; if a database access
  *  error occurs; the result set concurrency is CONCUR_READ_ONLY or this 
  *  method is called on a closed result set
- *  @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
- *  support this method; if the JDBC driver does not support this data type
  */
   public  void updateObject(String columnLabel,
                             Object x,
@@ -7645,8 +7588,6 @@ Object
  * @throws SQLException  - if the columnIndex is not valid; if a database 
  * access error occurs; the result set concurrency is CONCUR_READ_ONLY or this 
  * method is called on a closed result set
- * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
- * support this method; if the JDBC driver does not support this data type
  */
 
   public void updateObject(int columnIndex,
@@ -7676,9 +7617,6 @@ Object
    * @throws SQLException - if the columnLabel is not valid; if a database 
    * access error occurs; the result set concurrency is CONCUR_READ_ONLY 
    * or this method is called on a closed result set
-   * @throws SQLFeatureNotSupportedException - if the JDBC driver does 
-   * not support this method; if the JDBC driver does not support this 
-   * data type
    */
   public void updateObject(String columnLabel,
                             Object x,

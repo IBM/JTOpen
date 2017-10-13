@@ -48,7 +48,6 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the system.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void clear()
        throws AS400SecurityException,
@@ -84,7 +83,6 @@ implements DataAreaImpl
      @exception ObjectAlreadyExistsException    If the system object already exists.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void create(int length, String initialValue,
                       String textDescription, String authority)
@@ -127,7 +125,6 @@ implements DataAreaImpl
      @exception ObjectAlreadyExistsException    If the system object already exists.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void create(int length, int decimalPositions,
                       BigDecimal initialValue, String textDescription,
@@ -172,7 +169,6 @@ implements DataAreaImpl
      @exception ObjectAlreadyExistsException    If the system object already exists.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void create(boolean initialValue, String textDescription,
                       String authority)
@@ -205,7 +201,6 @@ implements DataAreaImpl
      @exception InterruptedException            If this thread is interrupted.
      @exception ObjectDoesNotExistException     If the object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
      @exception IOException                     If an error occurs while communicating with the system.
    **/
    public void delete()
@@ -527,7 +522,6 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the system.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void write(String data, int dataAreaOffset)
        throws AS400SecurityException,
@@ -564,7 +558,6 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the system.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void write(String data, int dataAreaOffset, int type)      //$A2C
        throws AS400SecurityException,
@@ -594,7 +587,6 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the system.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void write(BigDecimal data)
        throws AS400SecurityException,
@@ -624,7 +616,6 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the system.
      @exception ObjectDoesNotExistException     If the system object does not exist.
      @exception ServerStartupException          If the host server cannot be started.
-     @exception UnknownHostException            If the system cannot be located.
    **/
    public void write(boolean data)
        throws AS400SecurityException,

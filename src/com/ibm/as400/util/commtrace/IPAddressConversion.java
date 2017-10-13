@@ -78,6 +78,7 @@ class IPAddressConversion {
 	 * Splits a string into string arrays based on the given strin.
 	 * @param str		The string to split.
 	 * @param splitstr	The string to split on.
+	 * @return array with split string
 	 */
 	public String[] split(String str, String splitstr) {
 		String[] ret;
@@ -98,6 +99,7 @@ class IPAddressConversion {
 
 	/**
 	 * Converts this IP address from numeric to presentation.
+	 * @return string presentation
 	 */
 	public String ntop() {
 		if (type == IPv4 || type == IPv4Hex) {
@@ -276,6 +278,7 @@ class IPAddressConversion {
 
 	/**
 	 * Converts this IP address from presentation to numeric. 
+	 * @return numeric string
 	 */
 	public String pton() {
 		if (type == IPv4 || type == IPv4Hex) {

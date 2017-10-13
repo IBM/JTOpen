@@ -23,16 +23,19 @@ public interface OutputQueueListener extends java.util.EventListener
 {
     /**
      * Invoked when the output queue has been cleared.
+     * @param evt 
      **/
     public abstract void outputQueueCleared(OutputQueueEvent evt);
 
     /**
      * Invoked when the output queue has been held.
+     * @param evt 
      **/
     public abstract void outputQueueHeld(OutputQueueEvent evt);
 
     /**
      * Invoked when the output queue has been released.
+     * @param evt 
      **/
     public abstract void outputQueueReleased(OutputQueueEvent evt);
 }

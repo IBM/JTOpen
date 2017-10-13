@@ -3367,8 +3367,6 @@ implements CallableStatement
      * <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public Reader getCharacterStream(String parameterName) throws SQLException
     {
@@ -3389,8 +3387,6 @@ implements CallableStatement
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public Reader getNCharacterStream(int parameterIndex) throws SQLException
     {
@@ -3453,8 +3449,6 @@ implements CallableStatement
      * <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public Reader getNCharacterStream(String parameterName) throws SQLException
     {
@@ -3576,8 +3570,6 @@ implements CallableStatement
      * <code>NCHAR</code>, <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #setNString
      */
     public String getNString(int parameterIndex) throws SQLException
@@ -3644,8 +3636,6 @@ implements CallableStatement
      * <code>NCHAR</code>, <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @see #setNString
      */
     public String getNString(String parameterName) throws SQLException
@@ -3832,8 +3822,6 @@ implements CallableStatement
      * @param length the number of bytes in the stream 
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException
     {
@@ -3866,8 +3854,6 @@ implements CallableStatement
      * @param length the number of bytes in the stream 
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method.
      */
     public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException
     {
@@ -3892,8 +3878,6 @@ implements CallableStatement
      * @param x a <code>Blob</code> object that maps an SQL <code>BLOB</code> value
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setBlob(String parameterName, Blob x) throws SQLException
     {
@@ -3929,8 +3913,6 @@ implements CallableStatement
      * is less than zero; if the number of bytes in the inputStream does not match
      * the specfied length; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      *
      */
     public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException
@@ -3966,8 +3948,6 @@ implements CallableStatement
      * @param length the number of characters in the stream 
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException
     {
@@ -3992,8 +3972,6 @@ implements CallableStatement
      * @param x a <code>Clob</code> object that maps an SQL <code>CLOB</code> value
      * @exception SQLException if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setClob(String parameterName, Clob x) throws SQLException
     {
@@ -4026,8 +4004,6 @@ implements CallableStatement
      * marker in the SQL statement; if the length specified is less than zero;
      * a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      *
      */
     public void setClob(String parameterName, Reader reader, long length) throws SQLException
@@ -4056,8 +4032,6 @@ implements CallableStatement
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException
     {
@@ -4121,8 +4095,6 @@ implements CallableStatement
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */     
     public void setNClob(String parameterName, Reader reader, long length) throws SQLException
     {
@@ -4148,8 +4120,6 @@ implements CallableStatement
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      */
     public void setNString(String parameterName, String value) throws SQLException
     {
@@ -4244,7 +4214,7 @@ implements CallableStatement
      * @exception SQLException if parameterName does not correspond to a named 
      * parameter; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     * 
     */
     public void setAsciiStream(String parameterName, InputStream x) throws SQLException
     {
@@ -4278,7 +4248,7 @@ implements CallableStatement
      * @exception SQLException if parameterName does not correspond to a named 
      * parameter; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     * 
      */
     public void setBinaryStream(String parameterName, InputStream x) throws SQLException
     {
@@ -4311,7 +4281,7 @@ implements CallableStatement
      * @throws SQLException if parameterName does not correspond to a named 
      * parameter; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     * 
      */
     public void setBlob(String parameterName, InputStream inputStream) throws SQLException
     {
@@ -4348,7 +4318,6 @@ implements CallableStatement
      * @exception SQLException if parameterName does not correspond to a named 
      * parameter; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setCharacterStream(String parameterName, Reader reader) throws SQLException
     {
@@ -4381,7 +4350,6 @@ implements CallableStatement
      * parameter; if a database access error occurs or this method is called on
      * a closed <code>CallableStatement</code>
      *
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setClob(String parameterName, Reader reader) throws SQLException
     {
@@ -4416,7 +4384,7 @@ implements CallableStatement
      *         character sets;  if the driver can detect that a data conversion
      *  error could occur; if a database access error occurs; or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     * 
      */
     public void setNCharacterStream(String parameterName, Reader value) throws SQLException
     {
@@ -4449,7 +4417,7 @@ implements CallableStatement
      * if the driver can detect that a data conversion
      *  error could occur;  if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
-     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
+     * 
      *
      */
     public void setNClob(String parameterName, Reader reader) throws SQLException
@@ -4670,8 +4638,6 @@ endif */
      *  if a database access error occurs or this method is called on a closed 
      *  CallableStatement or if the Java Object specified by x is an InputStream or 
      *  Reader object and the value of the scale parameter is less than zero
-     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
-     * this data type
      */
     public void setObject(String parameterName,
                            Object x,
@@ -4699,8 +4665,6 @@ endif */
      * @throws SQLException  - if parameterName does not correspond to a named parameter;
      *  if a database access error occurs or this method is called on a closed 
      *  CallableStatement
-     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
-     *   this data type
      */
 
    public void setObject(String parameterName,
@@ -4739,8 +4703,6 @@ endif*/
     * a scale value should be used.
     * @throws SQLException - if the parameterIndex is not valid; if a database access 
     * error occurs or this method is called on a closed CallableStatement
-    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
-    * this data type
     */
     public void registerOutParameter(int parameterIndex,
 /* ifdef JDBC42        
@@ -4771,8 +4733,6 @@ endif*/
      * point. It must be greater than or equal to zero.
      * @throws SQLException - if the parameterIndex is not valid; if a database 
      * access error occurs or this method is called on a closed CallableStatement
-     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
-     * support this data type
      */
     
     public void registerOutParameter(int parameterIndex,
@@ -4813,8 +4773,6 @@ endif*/
  * @param typeName - the fully-qualified name of an SQL structured type
  * @throws SQLException - if the parameterIndex is not valid; if a database 
  * access error occurs or this method is called on a closed CallableStatement
- * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
- * support this data type
  */
     public void registerOutParameter(int parameterIndex,
 /* ifdef JDBC42        
@@ -4848,8 +4806,6 @@ endif*/
  * @throws SQLException - if parameterName does not correspond to a named 
  * parameter; if a database access error occurs or this method is called 
  * on a closed CallableStatement
- * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
- * support this data type or if the JDBC driver does not support this method
  */
    public void registerOutParameter(String parameterName,
        /* ifdef JDBC42        
@@ -4881,8 +4837,6 @@ endif*/
     * @throws SQLException - if parameterName does not correspond to a named 
     * parameter; if a database access error occurs or this method is called 
     * on a closed CallableStatement
-    * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
-    * support this data type or if the JDBC driver does not support this method
     */
   public void registerOutParameter(String parameterName,
       /* ifdef JDBC42        
@@ -4927,8 +4881,6 @@ endif*/
    * @throws SQLException - if parameterName does not correspond to a named 
    * parameter; if a database access error occurs or this method is called 
    * on a closed CallableStatement
-   * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
-   * support this data type or if the JDBC driver does not support this method
    */
   public void registerOutParameter(String parameterName,
       /* ifdef JDBC42        

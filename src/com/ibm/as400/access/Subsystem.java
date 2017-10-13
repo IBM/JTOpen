@@ -697,6 +697,7 @@ public class Subsystem
 
   /**
    Lists all subsystems on the system.
+   * @param system 
    @return A list of all defined subsystems, both active and inactive.
    @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.

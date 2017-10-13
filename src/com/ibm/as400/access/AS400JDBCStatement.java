@@ -4396,7 +4396,7 @@ implements Statement
      * @param  max the new max rows limit; zero means there is no limit
      * @throws SQLException - if a database access error occurs, this 
      * method is called on a closed Statement or the 
-     * condition max >= 0 is not satisfied
+     * condition max &gt;= 0 is not satisfied
      */
     public void setLargeMaxRows(long max) throws SQLException {
       int intMax = (int) max; 
@@ -4514,12 +4514,6 @@ implements Statement
  * called on a closed Statement, the given SQL statement returns a ResultSet 
  * object, the given constant is not one of those allowed, the method is 
  * called on a PreparedStatement or CallableStatement
- * @throws SQLFeatureNotSupportedException - if the JDBC driver does not 
- * support this method with a constant of Statement.RETURN_GENERATED_KEYS
- * @throws SQLTimeoutException - when the driver has determined that the 
- * timeout value that was specified by the setQueryTimeout method has been 
- * exceeded and has at least attempted to cancel the currently running 
- * Statement
  */
 
   public long executeLargeUpdate(String sql,
@@ -4549,11 +4543,6 @@ implements Statement
  * on a closed Statement, the SQL statement returns a ResultSet object,the second 
  * argument supplied to this method is not an int array whose elements are valid 
  * column indexes, the method is called on a PreparedStatement or CallableStatement
- * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support 
- * this method
- * @throws SQLTimeoutException - when the driver has determined that the timeout 
- * value that was specified by the setQueryTimeout method has been exceeded and 
- * has at least attempted to cancel the currently running Statement
  * 
  */
 
@@ -4588,12 +4577,6 @@ implements Statement
  * object, the second argument supplied to this method is not a String 
  * array whose elements are valid column names, the method is called on a 
  * PreparedStatement or CallableStatement
- * @throws SQLFeatureNotSupportedException - if the JDBC driver does 
- * not support this method
- *  @throws SQLTimeoutException - when the driver has determined that 
- *  the timeout value that was specified by the setQueryTimeout method 
- *  has been exceeded and has at least attempted to cancel the 
- *  currently running Statement
   */
   public long executeLargeUpdate(String sql,
                                   String[] columnNames)  throws SQLException {

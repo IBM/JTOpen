@@ -129,6 +129,8 @@ public class IFSFileReader extends Reader
    Constructs an IFSFileReader object. 
    The file is opened if it exists; otherwise an exception is thrown.
    @param fd The file descriptor to be opened for reading.
+   * @throws AS400SecurityException 
+   * @throws IOException 
    **/
   public IFSFileReader(IFSFileDescriptor fd)
     throws AS400SecurityException, IOException

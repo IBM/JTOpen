@@ -939,6 +939,9 @@ endif */
     /**
     Truncates the precision of a BigDecimal by removing digits from
     the left side of the decimal point.
+     * @param bd 
+     * @param precision 
+     * @return truncated BigDecimal
     **/
     public static BigDecimal truncatePrecision(BigDecimal bd, int precision)
     {
@@ -951,6 +954,9 @@ endif */
     /**
     Truncates the precision of a String representation of a number
     by removing digits from the right side of the decimal point.
+     * @param value 
+     * @param scale 
+     * @return truncated String
     **/
     public static String truncateScale(String value, int scale)
     {

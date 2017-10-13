@@ -223,6 +223,7 @@ public class JobLog implements Serializable
               including the default attributes. 
      @param  attribute  The message attribute to retrieve.  Possible values are all joblog attributes in the 
          api document for the Open List of Job Log Messages (QGYOLJBL) API.
+     * @throws IOException 
      **/
     public void addAttributeToRetrieve(int attribute) throws IOException 
     {

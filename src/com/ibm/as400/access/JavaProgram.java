@@ -197,6 +197,12 @@ public class JavaProgram implements Serializable
     <li>{@link #ADOPTED_AUTHORITY_PROFILE_USER ADOPTED_AUTHORITY_PROFILE_USER}
     <li>{@link #ADOPTED_AUTHORITY_PROFILE_OWNER ADOPTED_AUTHORITY_PROFILE_OWNER}
     </ul>
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public String getAdoptedAuthorityProfile()
     throws AS400Exception,
@@ -217,6 +223,12 @@ public class JavaProgram implements Serializable
     Returns the date and time the file was last modified or changed.
     
     @return the last-changed date and time
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public Date getFileChangeDate()
     throws AS400Exception,
@@ -235,6 +247,12 @@ public class JavaProgram implements Serializable
     
     The string is in job CCSID
     @return the file owner
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public String getFileOwner()
     throws AS400Exception,
@@ -252,6 +270,12 @@ public class JavaProgram implements Serializable
     Returns the date and time the Java program was created for the file.
 
     @return the creation date
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public Date getJavaProgramCreationDate()
     throws AS400Exception,
@@ -269,6 +293,12 @@ public class JavaProgram implements Serializable
     Returns the IBM i version the Java program was created for.
 
     @return the version
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public String getJavaProgramVersion()
     throws AS400Exception,
@@ -286,6 +316,12 @@ public class JavaProgram implements Serializable
     Returns the number of classes.
 
     @return the number of classes.
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public int getNumberOfClasses()
     throws AS400Exception,
@@ -303,6 +339,12 @@ public class JavaProgram implements Serializable
     Returns the number of classes with representations up-to-date in the attached Java programs.
 
     @return the number of classes with current java programs.
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public int getNumberOfClassesWithCurrentJavaPrograms()
     throws AS400Exception,
@@ -320,6 +362,12 @@ public class JavaProgram implements Serializable
     Returns the number of classes containing errors.
 
     @return the number of classes with errors.
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public int getNumberOfClassesWithErrors()
     throws AS400Exception,
@@ -337,6 +385,12 @@ public class JavaProgram implements Serializable
     Returns the number of classes with representations out-of-date.
 
     @return the number of classes without current java programs.
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public int getNumberOfClassesWithoutCurrentJavaPrograms()
     throws AS400Exception,
@@ -354,6 +408,12 @@ public class JavaProgram implements Serializable
     Returns the number of Java prgroams attached to the .class or .jar/sip file.
 
     @return the number of programs
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public int getNumberOfAttachedPrograms()
     throws AS400Exception,
@@ -378,6 +438,12 @@ public class JavaProgram implements Serializable
     <li>30</li>
     <li>40</li>
     </ul>
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public int getOptimizationLevel()
     throws AS400Exception,
@@ -399,6 +465,12 @@ public class JavaProgram implements Serializable
     <li>0 - "NONE</li>
     <li>1 - on</li>
     </ul>
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public String getPerformanceCollectionEnabledFlag()
     throws AS400Exception,
@@ -420,6 +492,12 @@ public class JavaProgram implements Serializable
     <li>{@link #PERFORMANCE_COLLECTION_TYPE_ENTRYEXIT PERFORMANCE_COLLECTION_TYPE_ENTRYEXIT}</li>
     <li>{@link #PERFORMANCE_COLLECTION_TYPE_FULL PERFORMANCE_COLLECTION_TYPE_FULL}</li>
     </ul>
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public String getPerformanceCollectionType()
     throws AS400Exception,
@@ -440,6 +518,12 @@ public class JavaProgram implements Serializable
     Returns whether or not the used adopted authority is set.
 
     @return true if the use adopted authority is set, false otherwise
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public boolean isUseAdoptedAuthority()
     throws AS400Exception,
@@ -457,6 +541,12 @@ public class JavaProgram implements Serializable
     Returns the size in kilobytes of all the attached java programs.
 
     @return the size
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public int getSizeOfAttachedJavaPrograms() 
     throws AS400Exception,
@@ -479,6 +569,12 @@ public class JavaProgram implements Serializable
     <li>{@link #PROFILING_DATA_STATUS_COL PROFILING_DATA_STATUS_COL}</li>
     <li>{@link #PROFILING_DATA_STATUS_APY PROFILING_DATA_STATUS_APY}</li>
     </ul>
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public String getProfilingDataStatus()
     throws AS400Exception,
@@ -501,6 +597,12 @@ public class JavaProgram implements Serializable
     Returns the LIC options string specified when the java program was last modified. 
     
     @return the LIC options.
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws ObjectDoesNotExistException 
     **/
     public String getLICOptions()
     throws AS400Exception,
@@ -516,6 +618,14 @@ public class JavaProgram implements Serializable
 
     /**
     Refreshes all the values for this PTF by retrieving them from the system.
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ConnectionDroppedException 
+     * @throws ErrorCompletingRequestException 
+     * @throws InterruptedException 
+     * @throws ObjectDoesNotExistException 
+     * @throws IOException 
+     * @throws UnsupportedEncodingException 
     **/
     public void refresh()
     throws AS400Exception,

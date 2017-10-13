@@ -78,7 +78,7 @@ class BitBuf implements Cloneable {
 
     /**
      * Constructs an BitBuf of length 8 from a single byte.
-     * @param byte	    The byte
+     * @param b	    The byte
      */
     public BitBuf(byte b) {
         data = new byte[1];
@@ -88,7 +88,7 @@ class BitBuf implements Cloneable {
 
     /**
      * Constructs a zero-filled BitBuf of length i*8.
-     * @param int	    The length of the BitBuf.
+     * @param i	    The length of the BitBuf.
      */
     public BitBuf(int i) {
         data = new byte[i];
@@ -224,7 +224,7 @@ class BitBuf implements Cloneable {
 
     /**
      * Shifts the BitBuf left by x bits, shifting zeros in on the right.
-     * @param int length to shift to the left
+     * @param x length to shift to the left
      */
     public void shiftLeft(int x) {
 	    shiftBufferLeft(x);
@@ -234,7 +234,7 @@ class BitBuf implements Cloneable {
      * Shifts the BitBuf right by x bits, shifting zeros in on the left.<br>
      * Slack bits remain zero (meaning that 11101 shifted right by 2 is 00111, 
      * even though internally the pattern would be stored using 8 bytes)
-     * @param int 	   length to shift to the right
+     * @param x 	   length to shift to the right
      */
     public void shiftRight(int x) {
         shiftBufferRight(x);
@@ -245,7 +245,7 @@ class BitBuf implements Cloneable {
      * Efficient left-shifting of entire buffer.<br>
      * First, byte-resolution shifting is done in one pass, 
      * then bit-resolution in one more pass through the buffer.
-     * @param length	    length to shift left
+     * @param d	    length to shift left
      */
     public void shiftBufferLeft(int d) {
         int byteshift = d / 8;
@@ -269,7 +269,7 @@ class BitBuf implements Cloneable {
      * Efficient right-shifting of entire buffer.<br>
      * First, byte-resolution shifting is done in one pass, 
      * then bit-resolution in one more pass through the buffer.
-     * @param length	    length to shift right
+     * @param d	    length to shift right
      */
     public void shiftBufferRight(int d) {
         int byteshift = d / 8;
@@ -292,7 +292,7 @@ class BitBuf implements Cloneable {
     
     /**
      * Returns a new BitBuf consisting of all bits from offset s and beyond.
-     * @param offset	    offset at which to slice
+     * @param s	    offset at which to slice
      * @return The new BitBuf containing the subset of data
      */
     public BitBuf slice(int s) {
@@ -301,8 +301,8 @@ class BitBuf implements Cloneable {
 
     /**
      * Returns a new BitBuf consisting of l bits starting with offset s.
-     * @param offset	    offset at which to slice
-     * @param length	    how may bits to slice
+     * @param s	    offset at which to slice
+     * @param l	    how may bits to slice
      * @return The new BitBuf containing the subset of data
      */
     public BitBuf slice(int s, int l) {
@@ -320,6 +320,8 @@ class BitBuf implements Cloneable {
     /**
      * Returns a binary string representing the BitBuf. The separator
      * string is inserted into the result after every groupsize bytes.
+     * @param groupsize 
+     * @param separator 
      * @return String
      */
     public String toBinString(int groupsize, String separator) {
@@ -335,6 +337,7 @@ class BitBuf implements Cloneable {
     /**
      * Returns a binary string representing the bit buf. Every 8 bits
      * is separated by the string sep.
+     * @param sep 
      * @return String
      */
     public String toBinString(String sep) {
@@ -360,6 +363,8 @@ class BitBuf implements Cloneable {
     /**
      * Returns a hex string representing the BitBuf.  The separator
      * string is inserted into the result after every groupsize bytes.
+     * @param groupsize 
+     * @param separator 
      * @return String
      */
     public String toHexString(int groupsize, String separator) {
@@ -375,6 +380,7 @@ class BitBuf implements Cloneable {
     /**
      * Returns a hex string representing the bit buf. Every 2 hex digits
      * are separated by the string sep.
+     * @param sep 
      * @return String
      */
     public String toHexString(String sep) {
@@ -385,6 +391,8 @@ class BitBuf implements Cloneable {
      * Works like toHexString(grouplen, separator) except that if the bitlen
      * of the BitBuf is not a multiple of 8, the slack bits will be on the left
      * instead of the right.
+     * @param grouplen 
+     * @param separator 
      * @return String
      */
     public String toHexStringJustified(int grouplen, String separator) {

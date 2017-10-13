@@ -3036,6 +3036,8 @@ Computes the resource key.
 /**
 Creates the resource using the specified attribute values.  This method
 is not supported for this class and always throws a ResourceException.
+ * @param attributeIDs 
+ * @param values 
 
 @exception ResourceException                If an error occurs.
 **/

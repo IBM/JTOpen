@@ -47,6 +47,7 @@ class RfmlRecordFormat extends PcmlDocNode
 
     /**
      Constructor
+     * @param attrs 
      **/
     public RfmlRecordFormat(PcmlAttributeList attrs)
     {
@@ -551,6 +552,9 @@ class RfmlRecordFormat extends PcmlDocNode
 
     /**
      Sets the values of the current node and its children, from the values of the corresponding fields in the specified Record.
+     * @param record 
+     * @throws java.io.UnsupportedEncodingException 
+     * @throws XmlException 
      **/
     public void setValues(Record record)
            throws java.io.UnsupportedEncodingException,
@@ -588,6 +592,8 @@ class RfmlRecordFormat extends PcmlDocNode
 
     /**
      Generates bytes representing the values of the current node and its children, in correct sequence.
+     * @return bytes for current node
+     * @throws XmlException 
      **/
     public byte[] toBytes()
            throws XmlException
@@ -630,6 +636,8 @@ class RfmlRecordFormat extends PcmlDocNode
 
     /**
      Creates a RecordFormat object whose fields correspond to the current node and its children.
+     * @return RecordFormat
+     * @throws XmlException 
      **/
     public RecordFormat toRecordFormat() throws XmlException
     {

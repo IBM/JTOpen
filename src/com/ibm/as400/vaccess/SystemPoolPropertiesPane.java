@@ -80,7 +80,7 @@ class SystemPoolPropertiesPane implements VPropertiesPane
      * Constructs an SystemPoolPropertiesPane object.
      *
      * @param object     The object.
-     * @param SystemPool The SystemPool object.
+     * @param systemPool The SystemPool object.
     **/
     public SystemPoolPropertiesPane (VSystemPool object, SystemPool systemPool)
     {

@@ -23,18 +23,24 @@ services to provide from the MEServer.
 interface Service
 {
     /**
+     * @param in 
+     * @param out 
     **/
     void setDataStreams(MicroDataInputStream in, MicroDataOutputStream out);
 
     /**
     Given a function id, returns whether or not 
     this service knows how to handle the given function.
+     * @param functionId 
+     * @return true if the service knows how to handle the function
     **/
     boolean acceptsRequest(int functionId);
 
     /**
     Takes care of handling a given request, including
     all needed stream input and output.
+     * @param functionId 
+     * @throws IOException 
     **/
     void handleRequest(int functionId) throws IOException;
 }

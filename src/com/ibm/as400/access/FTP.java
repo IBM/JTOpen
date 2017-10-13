@@ -52,7 +52,7 @@ import java.beans.*;
  * client.setDataTransferType(FTP.BINARY);
  * String [] entries = client.ls();
  *
- * for (int i = 0; i < entries.length; i++)
+ * for (int i = 0; i &lt entries.length; i++)
  * {
  *    System.out.println("Copying " + entries[i]);
  *    try
@@ -2004,6 +2004,7 @@ public class FTP implements java.io.Serializable
     * The message returned from the system is saved.  Use getLastMessage()
     * to retrieve it.
     * <br>Throws SecurityException if userid or password is invalid.
+   * @param transferType 
     *   @exception IOException If an error occurs while communicating with the system.
    **/
 

@@ -313,8 +313,6 @@ implements SpooledFileOutputStreamImpl
       *                          spooled file.  The output queue must reside on
       *                          the same server system that the spooled file
       *                          is being created on.
-      * @return An output stream that can be used to write data into the spooled
-      *         file and to close the spooled file.
       * @exception AS400Exception If the server returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.

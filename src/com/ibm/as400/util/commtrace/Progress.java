@@ -30,8 +30,9 @@ class Progress implements Runnable {
 
     /**
      * Creates the ProgressDialog.
-     * @param file  The name of the file we are monitoring.
+     * @param action 
      * @param total The total number of records we are processing.
+     * @param description 
      */
     public Progress(String action,int total,String description) {
 		this.total = total;
@@ -47,7 +48,7 @@ class Progress implements Runnable {
    
     /**
      * Updates the progress Bar.
-     * @param msg   The number of records processed.
+     * @param num   The number of records processed.
      */
     public void updateProgress(int num) {
 		progressMonitor.setProgress(num);
@@ -64,7 +65,7 @@ class Progress implements Runnable {
 	
 	/**
 	 * Sets the thread. 
-	 * @param Thread The thread this object is running under.
+	 * @param tr The thread this object is running under.
 	 */
 	public void setThread(Thread tr) {
 		progThread_ = tr;

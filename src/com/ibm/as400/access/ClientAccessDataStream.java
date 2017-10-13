@@ -384,7 +384,7 @@ public class ClientAccessDataStream extends DataStream
   /**
    * Can this be used.  If not, false is returned.
    * If it can be used, then inUse_ is set to return and true is returned
-   * @return
+   * @return true if this can be used 
    */
   public boolean canUse() {
 	 synchronized (inUseLock_) {  

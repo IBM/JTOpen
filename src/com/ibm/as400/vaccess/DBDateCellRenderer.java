@@ -67,6 +67,7 @@ static
 
 /**
 Constructs a DBDateCellRenderer object.
+ * @param type 
 **/
 public DBDateCellRenderer (int type)
 {
@@ -80,6 +81,8 @@ public DBDateCellRenderer (int type)
 /**
 Returns the display size for one of the formatters.
 This is useful to size GUIs regardless of locale.
+ * @param type 
+ * @return display size
 **/
 public static int getDisplaySize(int type)
 {

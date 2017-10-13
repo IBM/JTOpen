@@ -491,9 +491,9 @@ public class AS400Message implements Serializable
      Returns the message help.
      <p>Message formatting characters may appear in the message help and are defined as follows:
      <ul>
-     <li>&N - Force the text to a new line indented to column 2.  If the text is longer than 1 line, the next lines should be indented to column 4 until the end of the text or another format control character is found.
-     <li>&P - Force the text to a new line indented to column 6.  If the text is longer than 1 line, the next lines should start in column 4 until the end of the text or another format control character is found.
-     <li>&B - Force the text to a new line starting in column 4.  If the text is longer than 1 line, the next lines should start in column 6 until the end of the text or another format control character is found.
+     <li>&amp;N - Force the text to a new line indented to column 2.  If the text is longer than 1 line, the next lines should be indented to column 4 until the end of the text or another format control character is found.
+     <li>&amp;P - Force the text to a new line indented to column 6.  If the text is longer than 1 line, the next lines should start in column 4 until the end of the text or another format control character is found.
+     <li>&amp;B - Force the text to a new line starting in column 4.  If the text is longer than 1 line, the next lines should start in column 6 until the end of the text or another format control character is found.
      </ul>
      <i>Usage hint:</i> If getHelp() returns null, try "priming" the AS400Message object by first calling load(), then getHelp().
      @return  The message help, or null if it is not set.
@@ -915,6 +915,7 @@ public class AS400Message implements Serializable
     /**
      * Returns the 4-byte message key..  The message key is usually only available 
      * from messages returned by a command or program call. 
+     * @return key
      */
     public byte[] getKey() { 
       return key_; 
@@ -931,6 +932,7 @@ public class AS400Message implements Serializable
     /**
      * Get the message file library specified.  This is usually only available 
      * from messages returned by a command or program call. 
+     * @return library name
      */
     public String getMessageFileLibrarySpecified() { 
       return messageFileLibrarySpecified_; 
@@ -946,6 +948,7 @@ public class AS400Message implements Serializable
     /**
      * Get the sending program name.  This is usually only available 
      * from messages returned by a command or program call. 
+     * @return program name
      */
     public String getSendingProgramName() { 
       return sendingProgramName_; 
@@ -961,6 +964,7 @@ public class AS400Message implements Serializable
     /**
      * Get the sending program instruction number.  This is usually only available 
      * from messages returned by a command or program call. 
+     * @return instruction number
      */
     public String getSendingProgramInstructionNumber() { 
       return sendingProgramInstructionNumber_; 
@@ -977,6 +981,7 @@ public class AS400Message implements Serializable
     /**
      * Get the receiving program name.  This is usually only available 
      * from messages returned by a command or program call. 
+     * @return program name
      */
     public String getReceivingProgramName() { 
       return receivingProgramName_; 
@@ -993,6 +998,7 @@ public class AS400Message implements Serializable
     /**
      * Get the receiving program instruction number.  This is usually only available 
      * from messages returned by a command or program call. 
+     * @return instruction number
      */
     public String getReceivingProgramInstructionNumber() { 
       return receivingProgramInstructionNumber_; 
@@ -1020,6 +1026,7 @@ public class AS400Message implements Serializable
      * the sending program name is blank, and the name is unavailable.
      * </ul>  
      * The type is usually only available from messages returned by a command or program call. 
+     * @return sendingType
      */
     public String getSendingType() { 
       return sendingType_; 
@@ -1047,6 +1054,7 @@ public class AS400Message implements Serializable
      * the sending program name is blank, and the name is unavailable.
      * </ul>  
      * The type is usually only available from messages returned by a command or program call. 
+     * @return receiving type
      */
     public String getReceivingType() { 
       return receivingType_; 
@@ -1075,6 +1083,7 @@ public class AS400Message implements Serializable
      * </ul> 
      * This is usually only available 
      * from messages returned by a command or program call. 
+     * @return conversion status indicator
      */
     public int getTextCcsidConversionStatusIndicator() { 
       return textCcsidConversionStatusIndicator_; 
@@ -1102,6 +1111,7 @@ public class AS400Message implements Serializable
      * </ul> 
      * This is usually only available 
      * from messages returned by a command or program call. 
+     * @return status indicator
      */
     public int getDataCcsidConversionStatusIndicator() { 
       return dataCcsidConversionStatusIndicator_; 
@@ -1127,6 +1137,7 @@ public class AS400Message implements Serializable
      * </ul> 
      * This is usually only available 
      * from messages returned by a command or program call. 
+     * @return alert option
      */
     
     public String getAlertOption() { 

@@ -412,6 +412,7 @@ public class FileListElement implements java.io.Serializable
    *
    *  @param system  The system.
    *  @param request The Http servlet request. 
+   * @param parameterPathInfo 
    **/
   public FileListElement(AS400 system, HttpServletRequest request, String parameterPathInfo)
   {
@@ -479,6 +480,7 @@ public class FileListElement implements java.io.Serializable
    *  @param request   The Http servlet request.
    *  @param shareName The NetServer share name.
    *  @param sharePath The NetServer share path.
+   * @param parameterPathInfo 
    *
    **/
   public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath, String parameterPathInfo) // @B1A

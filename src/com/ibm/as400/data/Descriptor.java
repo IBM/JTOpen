@@ -41,6 +41,7 @@ public interface Descriptor
 
    /**
     * Returns the value of the named attribute.
+   * @param attr 
     *
     * @return String containing the value of the specified attribute.
     *         If the named attribute is not valid for this descriptor, null is returned.
@@ -57,6 +58,7 @@ public interface Descriptor
 
    /**
     * Returns the Descriptor for another element contained within the same document.
+   * @param qualifiedName 
     *
     * @return Descriptor for another element  within the same document given a qualified
     *         name (i.e. - "structName1.structName2.dataElementName").

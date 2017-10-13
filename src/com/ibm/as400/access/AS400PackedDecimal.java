@@ -140,6 +140,7 @@ public class AS400PackedDecimal implements AS400DataType
      * Sets whether to return a {@link java.lang.Double Double} object or a
      * {@link java.math.BigDecimal BigDecimal} object on a call to
      * {@link #toObject toObject()}.
+     * @param b 
      * @see com.ibm.as400.access.AS400ZonedDecimal#setUseDouble
     **/
     public void setUseDouble(boolean b)

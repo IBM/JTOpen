@@ -312,6 +312,7 @@ Returns an SQL warning based on an error in the
 error table.
 
 @param  sqlState    The SQL State.
+ * @return SQLWarning
 **/
   public static SQLWarning getSQLWarning (String sqlState)
   {
@@ -344,6 +345,7 @@ retrieved from the IBM i system.
 @param  id          id for the last operation.
 @param  errorClass  error class from the system reply.
 @param  returnCode  return code from the system reply.
+ * @return SQLWarning
 **/
   public static SQLWarning getSQLWarning (AS400JDBCConnection connection,
                                           int id,
@@ -401,8 +403,9 @@ error table.
 Throws an SQL exception based on an error in the
 error table.
 
-@param  Object      The object throwing the exception.  This can be null.
+@param  thrower      The object throwing the exception.  This can be null.
 @param  sqlState    The SQL State.
+ * @return SQLException
 
 
 @exception          SQLException    Always.
@@ -475,7 +478,7 @@ trace for debugging purposes.
 Throws an SQL exception based on an error in the
 error table and dumps an internal exception stack
 trace for debugging purposes.
-
+@param  thrower     The thrower of the error.
 @param  sqlState    The SQL State.
 @param  message     The message text.
 
@@ -522,6 +525,7 @@ trace for debugging purposes.
 Throws an SQL exception based on an error in the
 error table and dumps an internal exception stack
 trace for debugging purposes.
+ * @param thrower  The thrower of the error
 
 @param  sqlState    The SQL State.
 @param  e           The internal exception.
@@ -671,11 +675,13 @@ retrieved from the IBM i system.
 /**
 Throws an SQL exception based on information
 retrieved from the system.
+ * @param thrower 
 
 @param  connection  connection to the system.
 @param  id          id for the last operation.
 @param  errorClass  error class from the system reply.
 @param  returnCode  return code from the system reply.
+ * @return SQLException
 
 @exception          SQLException    Always.
 **/

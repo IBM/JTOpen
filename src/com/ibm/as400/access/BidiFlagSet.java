@@ -401,7 +401,7 @@ public class BidiFlagSet
  *  Compares two BidiFlagSets.
  *  Two BidiFlagSets are considered equal if they represent the same values
  *  for the 5 Bidi flags.
- *  @param  other       The BidiFlagSet to compare to this.
+ *  @param  obj      The BidiFlagSet to compare to this.
  *  @return true if the BidiFlagSets are equal, false otherwise.
  */
     public boolean equals(Object obj)

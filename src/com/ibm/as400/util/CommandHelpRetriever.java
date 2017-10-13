@@ -501,6 +501,16 @@ public class CommandHelpRetriever
    *
    * @param command The command.
    * @return An HTML string consisting of the help documentation for the command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
+   * @throws TransformerConfigurationException 
+   * @throws TransformerException 
    * @see java.util.Locale
    * @see com.ibm.as400.access.AS400
    * @see com.ibm.as400.access.Command
@@ -533,6 +543,16 @@ public class CommandHelpRetriever
    * @param command The command.
    * @param panelGroup The panel group used to generate the help text, instead of the Command's defined panel group.
    * @return An HTML string consisting of the help documentation for the command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
+   * @throws TransformerConfigurationException 
+   * @throws TransformerException 
    * @see java.util.Locale
    * @see com.ibm.as400.access.AS400
    * @see com.ibm.as400.access.Command
@@ -565,6 +585,16 @@ public class CommandHelpRetriever
    * @param command The command.
    * @param panelGroup The panel group used to generate the help text. Specify null to use the Command's defined panel group.
    * @return An HTML document encoded in UTF-8 bytes, consisting of the help documentation for the command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
+   * @throws TransformerConfigurationException 
+   * @throws TransformerException 
    * @see java.util.Locale
    * @see com.ibm.as400.access.AS400
    * @see com.ibm.as400.access.Command
@@ -759,6 +789,16 @@ public class CommandHelpRetriever
    * object for the given {@link com.ibm.as400.access.Command Command}.
    * @param command The command.
    * @return A UIM string consisting of the UIM template for the command.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
+   * @throws SAXException 
+   * @throws ParserConfigurationException 
+   * @throws TransformerConfigurationException 
+   * @throws TransformerException 
    * @see java.util.Locale
    * @see com.ibm.as400.access.AS400
    * @see com.ibm.as400.access.Command

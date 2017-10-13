@@ -151,6 +151,7 @@ public class Permission
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
      * @exception ObjectDoesNotExistException If the system object does not exist.
+     * @throws UnsupportedEncodingException 
      *
     **/
     public Permission(IFSFile file)
@@ -193,6 +194,7 @@ public class Permission
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
      * @exception ObjectDoesNotExistException If the system object does not exist.
+     * @throws UnsupportedEncodingException 
      *
     **/
     public Permission(IFSFile file, boolean pathMayStartWithIASP)
@@ -241,6 +243,7 @@ public class Permission
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
      * @exception ObjectDoesNotExistException If the system object does not exist.
+     * @throws UnsupportedEncodingException 
      *
     **/
     public Permission(IFSFile file, boolean pathMayStartWithIASP, boolean followLinks)
@@ -268,6 +271,7 @@ public class Permission
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
      * @exception ObjectDoesNotExistException If the system object does not exist.
+     * @throws UnsupportedEncodingException 
      *
     **/
     public Permission(AS400 as400, String fileName)
@@ -310,6 +314,7 @@ public class Permission
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
      * @exception ObjectDoesNotExistException If the system object does not exist.
+     * @throws UnsupportedEncodingException 
      *
     **/
     public Permission(AS400 as400, String fileName, boolean pathMayStartWithIASP)
@@ -359,6 +364,7 @@ public class Permission
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
      * @exception ObjectDoesNotExistException If the system object does not exist.
+     * @throws UnsupportedEncodingException 
      *
     **/
     public Permission(AS400 as400, String fileName, boolean pathMayStartWithIASP, boolean followLinks)

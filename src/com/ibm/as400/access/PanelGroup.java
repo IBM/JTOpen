@@ -90,6 +90,12 @@ public class PanelGroup implements Serializable
    * @param keywords An array of keywords for which to retrieve help. The panel group to which
    * the keywords belong is assumed to be the path of this PanelGroup object.
    * @return The help identifiers.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public synchronized PanelGroupHelpIdentifier[] getHelpIdentifiers(String[] keywords) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -222,6 +228,12 @@ public class PanelGroup implements Serializable
    * @param keywords An array of keywords for which to retrieve help. The panel group to which
    * the keywords belong is assumed to be the path of this PanelGroup object.
    * @return The help text.
+   * @throws AS400Exception 
+   * @throws AS400SecurityException 
+   * @throws ErrorCompletingRequestException 
+   * @throws IOException 
+   * @throws InterruptedException 
+   * @throws ObjectDoesNotExistException 
   **/
   public synchronized String getHelpText(String[] keywords) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,

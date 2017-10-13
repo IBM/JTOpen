@@ -25,6 +25,7 @@ public class HTMLVector extends Vector
    * than the actual number of elements. Therefore, the objects at the end
    * of the array could be null. Care should be taken to avoid these when
    * looping, by using the elementCount returned by getCount().
+   * @return data array
   **/
   public Object[] getData()
   {
@@ -37,6 +38,7 @@ public class HTMLVector extends Vector
    * Use this number for the maximum element count when looping through the
    * element data, to avoid grabbing the null elements at the end of the
    * element data array.
+   * @return count
   **/
   public int getCount()
   {

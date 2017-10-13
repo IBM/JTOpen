@@ -122,6 +122,7 @@ public class KeyedFile extends AS400File implements Serializable
 //@RBA
   /**
    * Set to read records with Record Number in long type. 
+   * @param v 
    */
   public void setLongRecordNumber(boolean v){
     longRecordNumber = v;
@@ -924,6 +925,7 @@ public class KeyedFile extends AS400File implements Serializable
    *A subsequent call to any of the positionCursor() methods will unlock 
    *the last (i.e. most recent) record locked.  In addition, the close() 
    *method will also unlock the last (i.e. most recent) record locked.
+   * @param key 
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -1036,6 +1038,7 @@ public class KeyedFile extends AS400File implements Serializable
    *Reads the previous record whose key matches the specified key.  The search does
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
+   * @param key 
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.

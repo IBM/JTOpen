@@ -50,6 +50,8 @@ implements DBData
 Constructs a DBOriginalData object.  Use this when overlaying
 on a reply datastream.  The cached data will be set when overlay()
 is called.
+ * @param actualLength 
+ * @param dataCompressed 
 **/
 	public DBOriginalData (int actualLength, boolean dataCompressed)        // @D0C
 	{ 
@@ -63,6 +65,11 @@ is called.
 Constructs a DBOriginalData object.  Use this when overlaying
 on a request datastream.  This sets the cached data so that
 the total length can be calculated before calling overlay().
+ * @param rowCount 
+ * @param columnCount 
+ * @param indicatorSize 
+ * @param rowSize 
+ * @throws DBDataStreamException 
 **/
 	public DBOriginalData (int rowCount,
 	                       int columnCount,

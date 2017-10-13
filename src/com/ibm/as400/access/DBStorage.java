@@ -107,6 +107,7 @@ Checks the size of the array and resizes the storage if needed.
 
 /**
  * Reduce the size of the allocated buffer if needed.   @A8A
+ * @param length size to reduce the buffer to
  */
 public synchronized void reclaim(int length) {
 	  if(data_.length>length && length >= DEFAULT_SIZE ) {
@@ -167,7 +168,7 @@ public void returnToPool() {
  * Can this be used.  If not, false is returned.
  * If it can be used, then inUse_ is set to return and true is returned.
  * Note:  We first check unsynchronized.  Then check after synchronizing.
- * @return
+ * @return true if this can be used
  */
 public boolean canUse() {
    if (inUse_) {
@@ -187,6 +188,7 @@ public boolean canUse() {
 
 /**
  * get the data buffer
+ * @return the data buffer
  */
 public synchronized byte[] getData() {
 	// if (!inUse_) {

@@ -48,7 +48,7 @@ import com.ibm.as400.resource.RJob;  // Remove when getJob() is removed.
  *        }
  *        // Show the messages (returned whether or not there was an error.)
  *        AS400Message[] messagelist = command.getMessageList();
- *        for (int i = 0; i < messagelist.length; ++i)
+ *        for (int i = 0; i &lt; messagelist.length; ++i)
  *        {
  *            // Show each message.
  *            System.out.println(messagelist[i].getText());
@@ -72,7 +72,7 @@ import com.ibm.as400.resource.RJob;  // Remove when getJob() is removed.
  *    {
  *        // Show messages.
  *        AS400Message[] messageList = command.getMessageList();
- *        for (int i = 0; i < messageList.length; ++i)
+ *        for (int i = 0; i &lt messageList.length; ++i)
  *        {
  *            // Show each message.
  *            System.out.println(messageList[i].getText());
@@ -368,6 +368,11 @@ public class CommandCall implements Serializable
 //     **/
     /**
      Do not use this method. <b>It is obsolete and will be removed in a future release.</b>
+     * @return RJob
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws IOException 
+     * @throws InterruptedException 
      @deprecated  Use getServerJob() instead.
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -464,7 +469,9 @@ public class CommandCall implements Serializable
      <li> The command has not been marked as thread safe.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException 
      @exception  IOException  If an error occurs while communicating with the system.
+     * @throws InterruptedException 
      **/
     public Thread getSystemThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {

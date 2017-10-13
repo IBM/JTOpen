@@ -1016,7 +1016,6 @@ endif */
      * @return a stream to which data can be written.
      * @throws SQLException   if there is an error processing the XML value. An exception
      *             is thrown if the state is not writable.
-     * @exception If there is an error
      */
     public synchronized OutputStream setBinaryStream() throws SQLException
     {
@@ -1045,7 +1044,6 @@ endif */
      *   The getCause() method of the exception may provide a more detailed exception, for example,
      *   if the stream does not contain valid characters.
      *   An exception is thrown if the state is not writable.
-     * @exception If there is an error
      */
     public synchronized Writer setCharacterStream() throws SQLException
     {

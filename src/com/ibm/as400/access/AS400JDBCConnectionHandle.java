@@ -416,6 +416,7 @@ implements Connection //@A5A
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
+   * @throws SQLException 
    */
   public int getConcurrentAccessResolution ()  throws SQLException
   {
@@ -1333,6 +1334,7 @@ ResultSet.CONCUR_READ_ONLY.
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
+   * @throws SQLException 
    */
   public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
   {  
@@ -1346,6 +1348,7 @@ ResultSet.CONCUR_READ_ONLY.
     eWLM correlators require i5/OS V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
     
     @param bytes The eWLM correlator value
+   * @throws SQLException 
     **/
     public void setDB2eWLMCorrelator(byte[] bytes)
     throws SQLException //@eWLM
@@ -1882,7 +1885,6 @@ endif */
    * @param elements the elements that populate the returned object
    * @return an Array object whose elements map to the specified SQL type
    * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
    */
   public Array createArrayOf(String typeName, Object[] elements) throws SQLException
   {
@@ -1901,7 +1903,6 @@ endif */
    * @param attributes the attributes that populate the returned object
    *  @return a Struct object that maps to the given SQL type and is populated with the given attributes
    * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
-   * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
    */
   public Struct createStruct(String typeName, Object[] attributes) throws SQLException
   {   
@@ -1991,6 +1992,7 @@ endif */
      * and is ignored if you specified to turn on database host server tracingfs
      * using the 'server trace' connection property.
      * @param trace true to start database host server tracing, false to end it.
+     * @throws SQLException 
      */
     public void setDBHostServerTrace(boolean trace) throws SQLException { //@pdc
         /* ifdef JDBC40 	

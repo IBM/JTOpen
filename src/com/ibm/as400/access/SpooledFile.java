@@ -286,6 +286,7 @@ implements java.io.Serializable
      * Creates a copy of the spooled file this (SpooledFile) object represents.  The
      * new spooled file is created on the same output queue and on the same system 
      * as the original spooled file. A reference to the new spooled file is returned.
+     * @return SpooledFile
      *
      * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
@@ -320,6 +321,7 @@ implements java.io.Serializable
      *       original spooled file.  The spooled file will be created to the first
      *       position on this output queue.  The output queue and this spooled
      *       file must reside on the same system.
+     * @return SpooledFile
      *
      * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
@@ -429,6 +431,7 @@ implements java.io.Serializable
       * stored on the server.  To transform the bytes into other forms, use
       * {@link #getPageInputStream getPageInputStream} or
       * {@link #getTransformedInputStream getTransformedInputStream}.
+     * @param ppl print parameter list
       *
       * @return The input stream object that can be used to read the contents
       *         of this spooled file.
@@ -457,7 +460,15 @@ implements java.io.Serializable
     
     
     /**
-      *  @deprecated Use getAFPInputStream() instead.
+      *  @param acifB 
+     * @return PrintObjectInputStream 
+     * @throws AS400Exception 
+     * @throws AS400SecurityException 
+     * @throws ErrorCompletingRequestException 
+     * @throws IOException 
+     * @throws InterruptedException 
+     * @throws RequestNotSupportedException 
+     * @deprecated Use getAFPInputStream() instead.
       *  @see #getAFPInputStream
       **/
     public PrintObjectInputStream getInputACIFMergedStream(boolean acifB)

@@ -27,7 +27,8 @@ class RfmlStruct extends PcmlStruct {
     // Note: The following PcmlStruct attributes are irrelevant to this class:
     // usage, count, minvrm, maxvrm, offset, offsetfrom, outputsize.
 
-    /** Constructor. **/
+    /** Constructor. 
+     * @param attrs **/
     public RfmlStruct(PcmlAttributeList attrs)
     {
         super(attrs);

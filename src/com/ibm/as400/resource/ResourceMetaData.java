@@ -346,6 +346,7 @@ are valid for the specified level.
 
 /**
 Returns the type of value.
+ * @return class
 **/
     public Class getType()
     {

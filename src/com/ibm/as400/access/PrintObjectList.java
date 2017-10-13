@@ -71,6 +71,7 @@ implements java.io.Serializable
      * Calling this method with a value of true will save memory in these cases, but the getObjectList()
      * method will return an empty Enumeration, so this method only becomes useful if code has
      * registered a PrintObjectListListener with this PrintObjectList.
+     * @param f 
      * @see #addPrintObjectListListener
      * @see #getObjects
      * @see com.ibm.as400.access.PrintObjectListEvent#getObject
@@ -291,6 +292,7 @@ implements java.io.Serializable
       * Returns one object from the list.
       *
       * @param index The index of the desired object.
+     * @return PrintObject
       *
       * @exception ArrayIndexOutOfBoundsException If an invalid index is given.
       **/
@@ -345,6 +347,7 @@ implements java.io.Serializable
 
     /**
      * Returns an enumeration of the PrintObjects in the list.
+     * @return Enumeration
      *
      **/
     public /* @A5D synchronized */ Enumeration getObjects()
@@ -785,6 +788,7 @@ implements java.io.Serializable
 
     /**
      * Returns the current size of the list.
+     * @return size
      **/
     public synchronized int size()
     {

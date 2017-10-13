@@ -40,6 +40,9 @@ implements DBOverlay
 /**
 Constructs a DBLobData object.  Use this when overlaying
 on a reply datastream. 
+ * @param actualLength 
+ * @param physicalLength 
+ * @param dataCompressed 
 **/
 	public DBLobData (int actualLength, 
                       int physicalLength,                                       // @A1A

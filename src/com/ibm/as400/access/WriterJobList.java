@@ -79,6 +79,7 @@ implements java.io.Serializable
 
     /**
       * Returns the output queue filter.
+     * @return queue filter
       *
       **/
     public String getQueueFilter()
@@ -94,6 +95,7 @@ implements java.io.Serializable
 
     /**
       * Returns the writer filter.
+     * @return writer filter
       *
       **/
     public String getWriterFilter()

@@ -90,6 +90,7 @@ Returns the port on which the socket is listening.
 
 /**
 Indicates if the socket is secure.
+ * @return true if socket is secure
 **/
     public boolean isSecure ()
     {

@@ -73,6 +73,7 @@ implements VPropertiesPane
 Constructs a UserListPropertyPane object.
 
 @param object   The object.
+ * @param list 
 **/
     public UserListPropertiesPane (VUserList object, UserList list) //@A1C
     {

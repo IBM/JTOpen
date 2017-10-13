@@ -142,6 +142,7 @@ public interface RowMetaData
       *  @param columnIndex The column index (0-based).
       *  @param alignment The horizontal column alignment.  One of the following constants
       *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+     * @throws RowDataException 
       *  @see com.ibm.as400.util.html.HTMLConstants
       **/
     public abstract void setColumnAlignment(int columnIndex, String alignment) throws RowDataException;  //@D5A
@@ -151,6 +152,7 @@ public interface RowMetaData
     *  Sets the specified <i>direction</i> for the column data specified by <i>columnIndex</i>.
     *  @param columnIndex The column index (0-based).
     *  @param alignment The column direction.
+     * @throws RowDataException 
     *  @see com.ibm.as400.util.html.HTMLConstants
     **/
     public abstract void setColumnDirection(int columnIndex, String alignment) throws RowDataException;  //@D5A

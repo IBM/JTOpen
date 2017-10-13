@@ -253,6 +253,10 @@ extends SQLDataBase
      * Convert a timestamp to a string and get rid of trailing zeros. 
      * To be in JDBC timestamp format, you need to leave at least a
      * xx:xx:xx.0
+     * @param ts 
+     * @param calendar 
+     * @param settings 
+     * @return trimmed timestamp string
      */
     /*@I2A*/
     public static String timestampToStringTrimTrailingZeros(Timestamp ts,

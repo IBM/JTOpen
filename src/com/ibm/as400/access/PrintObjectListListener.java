@@ -25,26 +25,31 @@ public interface PrintObjectListListener
 {
     /**
      * Invoked when the list was closed.
+     * @param e 
      **/
     public abstract void listClosed(PrintObjectListEvent e);
 
     /**
      * Invoked when the list has completed.
+     * @param e 
      **/
     public abstract void listCompleted(PrintObjectListEvent e);
 
     /**
      * Invoked when an error occurred while retrieving the list.
+     * @param e 
      **/
     public abstract void listErrorOccurred(PrintObjectListEvent e);
 
     /**
      * Invoked when the list was opened.
+     * @param e 
      **/
     public abstract void listOpened(PrintObjectListEvent e);
 
     /**
      * Invoked when an object was added to the list.
+     * @param e 
      **/
     public abstract void listObjectAdded(PrintObjectListEvent e);
 }
