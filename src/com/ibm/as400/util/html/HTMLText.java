@@ -29,7 +29,7 @@ import java.io.Serializable;
 *
 *  <P>This example creates an HTMLText object and sets its attributes.
 *  
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  HTMLText text = new HTMLText("IBM");
 *  text.setBold(true);
 *  text.setSize(3);
@@ -37,12 +37,12 @@ import java.io.Serializable;
 *  </PRE></BLOCKQUOTE>
 *
 *  Here is the output of the tag:
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;font size="3"&gt;&lt;b&gt;IBM&lt;/b&gt;&lt;/font&gt;
 *  </PRE></BLOCKQUOTE>
 *  <p>
 *  Here is the output of calling getFOTag():
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:block font-size='9pt' font-weight='bold'&gt;IBM&lt;/fo:block&gt;
 *  </PRE></BLOCKQUOTE>
 *

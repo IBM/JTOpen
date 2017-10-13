@@ -85,7 +85,7 @@ public class MyFile extends Object<br>
 }<br>
 }<p>
 
-Note: This class uses APIs that are available only when connecting to systems running OS/400 V5R2M0 or later.<p>
+Note: This class uses APIs that are available only when connecting to systems running OS/400 V5R2M0 or later.
 
 **/
 

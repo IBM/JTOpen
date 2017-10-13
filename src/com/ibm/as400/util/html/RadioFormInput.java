@@ -29,7 +29,7 @@ import java.beans.PropertyVetoException;
 *  &lt;input type=&quot;radio&quot; name=&quot;age&quot; value=&quot;twentysomething&quot; 
 *  checked=&quot;checked&quot; /&gt; Age 20-29
 *  
-*  <P>
+*  
 *  @see com.ibm.as400.util.html.RadioFormInputGroup
 **/
 public class RadioFormInput extends ToggleFormInput

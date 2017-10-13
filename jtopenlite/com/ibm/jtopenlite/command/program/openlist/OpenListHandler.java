@@ -17,7 +17,7 @@ import java.io.*;
 
 /**
  * Use this to easily read entries created by an OpenListProgram.
- * <p/>
+ * <p>
  * Example: Get a list of journal objects (*JRN) on the system
  * <pre>
  * // Start by getting a connection.

@@ -52,18 +52,21 @@ import com.ibm.as400.access.Trace;
 *  <BLOCKQUOTE><PRE>
 *  // The TextFormInput with an encoded string.
 *  &lt;input type=&quot;text&quot; name=&quot;myText&quot; value=&quot;&amp;lt;a href=&amp;quot;http://www.myLink.com/&amp;quot;&amp;gt;Link&amp;lt;/a&amp;gt;&quot; size=&quot;45&quot; /&gt;
+*
 *  // The encoded string.
 *  &amp;lt;a href=&amp;quot;http://www.myLink.com/&amp;quot;&amp;gt;Link&amp;lt;/a&amp;gt;
+*
 *  // The decode string.
 *  &lt;a href=&quot;http://www.myLink.com/&quot;&gt;Link&lt;/a&gt;
-*  </BLOCKQUOTE></PRE>
+*  </PRE></BLOCKQUOTE>
 *
 *  <P>Here is what the browser will show:
-*  <form>
-*  <label for="myTextID"></label>
-*  <input type="text" name="myText" value="&lt;a href=&quot;http://www.myLink.com/&quot;&gt;Link&lt;/a&gt;" size="45" id="myTextID" />
-*  </form>
-*  
+*  <pre>
+*  &lt;form&gt;
+*  &lt;label for="myTextID"&gt;&lt;/label&gt;
+*  &lt;input type="text" name="myText" value="&lt;a href=&quot;http://www.myLink.com/&quot;&gt;Link&lt;/a&gt;" size="45" id="myTextID" /&gt;
+*  &lt;/form&gt;
+*  </pre>
 *  <P>The tags that are encoded include:
 *    <UL>
 *    <LI>&quot;

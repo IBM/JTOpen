@@ -25,7 +25,7 @@ import com.ibm.as400.data.ProgramCallDocument;
  <p>
  <i>Note: The methods that <b>add</b> or <b>change</b> NetServer File Shares are not supported prior to OS/400 V5R1.</i>
 <p>
-<a name="attributeIDs">The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #DESCRIPTION DESCRIPTION}
 <li>{@link #MAXIMUM_USERS MAXIMUM_USERS}

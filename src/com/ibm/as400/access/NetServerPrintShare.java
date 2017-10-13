@@ -23,7 +23,7 @@ import com.ibm.as400.data.ProgramCallDocument;
  <p>
  <i>Note: This class uses some API fields that are not available prior to OS/400 V5R1.</i>
 <p>
-<a name="attributeIDs">The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #DESCRIPTION DESCRIPTION}
 <li>{@link #OUTPUT_QUEUE_LIBRARY OUTPUT_QUEUE_LIBRARY}

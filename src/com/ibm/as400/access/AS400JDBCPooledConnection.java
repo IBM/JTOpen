@@ -31,7 +31,7 @@ import java.lang.ref.SoftReference;
 *
 *  The following example creates an AS400JDBCPooledConnection object that can be used to cache JDBC connections.
 *
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  // Create a data source for making the connection.
 *  AS400JDBCConnectionPoolDataSource dataSource = new AS400JDBCConnectionPoolDataSource("myAS400");
 *  datasource.setUser("Mickey Mouse");
@@ -53,16 +53,17 @@ import java.lang.ref.SoftReference;
 *
 *  // Close the physical connection.
 *  pooledConnection.close();  
-*  </blockquote></pre>
+*  </pre></blockquote>
 *
 *  <p>
 *  AS400JDBCPooledConnection objects generate the following events:
 *  <UL>
-*  <li>javax.sql.ConnectionEvent - The events fired are:</li>
+*  <li>javax.sql.ConnectionEvent - The events fired are:
 *    <ul>
 *       <li>connectionClosed</li>
 *       <li>connectionErrorOccurred</li>
 *    </ul>
+*  </li>  
 *  </ul>
 **/
 public class AS400JDBCPooledConnection implements PooledConnection

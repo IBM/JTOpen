@@ -164,7 +164,7 @@ to present a ResourceList in a graphical user interface.  Use
 {@link com.ibm.as400.util.servlet.ResourceListRowData ResourceListRowData }
 to present a ResourceList in a servlet.
 
-<a name="subclass"><p><b>Subclass notes:</b></a>
+<a name="subclass"><b>Subclass notes:</b></a>
 <p>If you are extending this class to override the mechanism for getting
 selection values, consider whether you need to support bidirectional
 character conversion.  If you do not plan to support bidirectional character

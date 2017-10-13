@@ -46,7 +46,6 @@ import java.net.MalformedURLException;
  * <p>
  * <b><a name="inoptions">Options</a></b>
  *
- * <p>
  * <dl>
  * <dt><b><code>-install</code></b>
  * <dd>Indicates that the specified packages are to be installed.

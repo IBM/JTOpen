@@ -1349,7 +1349,7 @@ public class JavaApplicationCall implements Serializable
        <li>*JIT      All Java class files will be run using the just in time
                      compiler (JIT) regardless of the OPTIMIZE value
                      used when the associated Java program was created.
-
+       </ul>
        @param interpret  How all Java class files should be run interpretively.
        @exception PropertyVetoException If the change is vetoed.
     **/

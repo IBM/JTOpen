@@ -36,12 +36,12 @@ internal job identifier need to be set.  A valid combination of
 these must be set by getting or setting any of the job's attributes.
 
 <a name="default">
-<p>If you do not specify any of the job name, user name, job number,
+If you do not specify any of the job name, user name, job number,
 or internal job identifier properties, the default job is used.
 The default job is the host server job for remote program calls.
 </a>
 
-<a name="attributeIDs"><p>The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #ACCOUNTING_CODE ACCOUNTING_CODE}
 <li>{@link #ACTIVE_JOB_STATUS ACTIVE_JOB_STATUS}
@@ -131,7 +131,6 @@ The default job is the host server job for remote program calls.
 <li>{@link #USER_NAME USER_NAME}
 <li>{@link #USER_RETURN_CODE USER_RETURN_CODE}
 </ul>
-</a>
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue(java.lang.Object) getAttributeValue()}

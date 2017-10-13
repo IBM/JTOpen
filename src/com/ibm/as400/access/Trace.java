@@ -171,7 +171,7 @@ import java.net.UnknownHostException;
       ..
       // Pre-determine if we should log.  This may be more efficient
       // if a lot of processing in needed to generate the trace data.
-      if (Trace.isTraceOn() && Trace.isTraceInformationOn())
+      if (Trace.isTraceOn() &amp;&amp; Trace.isTraceInformationOn())
       {
             Trace.log(Trace.INFORMATION, "I got here...");
       }

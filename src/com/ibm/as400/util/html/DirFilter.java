@@ -30,22 +30,22 @@ import com.ibm.as400.access.IFSJavaFile;
 *  <pre>
 *  // Create an IFSJavaFile object.
 *  IFSJavaFile root = new IFSJavaFile(system, "/QIBM");
-*  <p>
+*  
 *  // Create a DirFilter object.
 *  DirFilter filter = new DirFilter();
-*  <p>
+*  
 *  // Get the list of directories.
 *  File[] dirList = root.listFiles(filter);
-*  <p>
+*  
 *  // Create a tree element with each directory.
-*  for (int i=0; i < dirList.length; i++)
+*  for (int i=0; i &lt; dirList.length; i++)
 *  {  
 *     FileTreeElement node = new FileTreeElement(dirList[i]);                       
-*     <p>
+*     
 *     ServletHyperlink sl = new ServletHyperlink(urlParser.getURI());
 *     sl.setHttpServletResponse(resp);
 *     node.setIconUrl(sl);        
-*     <p>
+*     
 *     tree.addElement(node);				
 *  }
 *  </pre>

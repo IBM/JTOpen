@@ -39,68 +39,68 @@ import com.ibm.as400.util.servlet.RowDataException;
 *
 *  <P>This example creates an FileListElement object:
 *  
-*  <P>
+*  
 *  <PRE>
 *  // Create a HTMLTree object.
 *  HTMLTree tree = new HTMLTree(req);
-*  <p>
+*  
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(httpServletRequest.getRequestURI());
-*  <p>
+*  
 *  // Create a object to represent the connection to the system.
 *  AS400 system = new AS400(mySystem, myUserId, myPassword);
-*  <p>
+*  
 *  // Create an IFS object.
 *  IFSJavaFile root = new IFSJavaFile(system, "/QIBM");
-*  <p>
+*  
 *  // Create a DirFilter object and get the directories.
 *  DirFilter filter = new DirFilter();
 *  File[] dirList = root.listFiles(filter);
-*  <p>
 *  
-*  for (int i=0; i < dirList.length; i++)
-*  {  <p>
+*  
+*  for (int i=0; i &lt; dirList.length; i++)
+*  {  
 *     // Create a FileTreeElement.
 *     FileTreeElement element = new FileTreeElement(dirList[i]);
-*     <p>
+*     
 *     // Set the Icon URL.
 *     ServletHyperlink sl = new ServletHyperlink(urlParser.getURI());
 *     sl.setHttpServletResponse(resp);
 *     element.setIconUrl(sl);
-*     <p>
+*     
 *     // Set the text url so it calls another
 *     // servlet to display the contents of the FileTreeElement.
 *     ServletHyperlink tl = new ServletHyperlink("/servlet/myListServlet");        
 *     tl.setTarget("listFrame");
-*     <p>
+*     
 *     // Set the TextUrl for the FileTreeElement.
 *     element.setTextUrl(tl);
-*     <p>
+*     
 *     // Add the FileTreeElement to the tree.
 *     tree.addElement(element);
 *  }
 *
-*  <p>
+*  
 *  // When the user clicks on text url in the HTMLTree it should call another
 *  // servlet to display the contents.  It is here that the FileListElement
 *  // will be created.
 *  AS400 sys = new AS400(mySystem, myUserId, myPassword);
-*  <p>
+*  
 *  // The FileTreeElment will properly create the text url and pass the
 *  // file and path information through the httpservletrequest.  If the
 *  // list is meant to display the contents of the local file system,
 *  // then only pass the HttpServletRequest on the constructor.
 *  FileListElement fileList = new FileListElement(sys, httpservletrequest);
-*  <p>
+*  
 *  // Output the content of the FileListElement.
 *  out.println(fileList.list());
 *  </PRE>
 *
 *  Once the contents are listed and a user traverses the HTML tree down to /QIBM/ProdData/Http/Public/  and clicks on the
 *  jt400 directory link, the FileListElement will look something like the following:
-*  <P>
+*  
 *
-*  <table cellpadding="7">
+*  <table cellpadding="7" summary="">
 *  <tr>
 *  <th>Name</th>
 *  <th>Size</th>

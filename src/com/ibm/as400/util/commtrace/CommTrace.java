@@ -97,13 +97,15 @@ import com.ibm.as400.vaccess.IFSFileDialog;
  *
  * CommTrace can be run as an application as follows:
  * <blockquote><pre>
- * <b>java com.ibm.as400.commtrace.Commtrace</b> [options]</pre></blockquote>
+ * <b>java com.ibm.as400.commtrace.Commtrace</b> [options]
+ * </pre></blockquote>
  * Options:
  * <dl>
  * <dt><b>-verbose/-v</b> [true|false]</dt>
  * <dd>
  * Specifies whether to print status and other information to System.out
  * </dd>
+ * </dl>
  */
 
 public class CommTrace extends WindowAdapter {

@@ -35,14 +35,14 @@ The list does not include objects the user is solely authorized to because:
       UserObjectsOwnedList list1 = new UserObjectsOwnedList(system, "USER1", UserObjectsOwnedList.SELECTION_FILE_SYSTEM_LIBRARY, UserObjectsOwnedList.SELECTION_OBJECT_RELATION_OWNED_OR_AUTHORIZED);
       UserObjectsOwnedListEntry[] entries1 = list1.getObjectList();
       System.out.println(list1);
-      for (int i=0; i < entries1.length; ++i)
+      for (int i=0; i &lt; entries1.length; ++i)
       {
         System.out.println("Entry["+i+"/"+entries1.length+"]= "+entries1[i]);
       }      
       list1.setSelectionObjectRelation(UserObjectsOwnedList.SELECTION_OBJECT_RELATION_OWNED);
       entries1 = list1.getObjectList();
       System.out.println(list1);
-      for (int i=0; i < entries1.length; ++i)
+      for (int i=0; i &lt; entries1.length; ++i)
       {
         System.out.println("Entry["+i+"/"+entries1.length+"]= "+entries1[i]);
       }      

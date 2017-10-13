@@ -349,11 +349,17 @@ implements java.io.Serializable
       * The following special values are supported for this parameter:
       *@param jobSystemFilter
       *<br>
-      *  <I>*ALL</I> The returned list is not to be filtered based on job system name.
+      *  <ul>
+      *  <li><I>*ALL</I> The returned list is not to be filtered based on job system name.
+      *  </li>
+      *  <li>
       *  <I>*CURRENT</I>
       *              Only spooled files created on the current system are to be returned.
-      *  <job-system-name>
-      *              Only spooled files created on the system specified are to be returned.</ul>
+      *  </li>
+      *  <li><I>job-system-name</I>
+      *              Only spooled files created on the system specified are to be returned.
+      *  </li>
+      *  </ul>
       * <br>
       * The system referenced by <I>system</I> must be at V5R2 or later to 
       * support this filter.

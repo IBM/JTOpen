@@ -219,7 +219,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
     }
 
     /**
-    *  Adds the <head> HTML tag or the page header for an XSL-FO page.
+    *  Adds the &lt;head&gt; HTML tag or the page header for an XSL-FO page.
     *  @param head An HTMLHead object.
     **/
     public void setHTMLHead(HTMLHead head)

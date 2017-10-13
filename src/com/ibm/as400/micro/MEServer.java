@@ -46,7 +46,7 @@ import com.ibm.as400.access.*;
  *  <p>Options:
  *  <dl>
  *
- *  <dt><b><code>-pcml</b></code> pcml doc1 [;pcml doc2;...]</dt>
+ *  <dt><b><code>-pcml</code></b> pcml doc1 [;pcml doc2;...]</dt>
  *  <dd>
  *  Specifies the PCML document to pre-load and parse. This option may be abbreviated -pc.<p>
  *
@@ -65,21 +65,21 @@ import com.ibm.as400.access.*;
  *  <code>-pc</code>.  
  *  </dd>
  *
- *  <dt><b><code>-port</b></code> port</dt>
+ *  <dt><b><code>-port</code></b> port</dt>
  *  <dd>
  *  Specifies the port to use for accepting connections from clients. This option may be abbreviated -po.
  *  The default port is 3470.   This option may be abbreviated
  *  <code>-po</code>.  
  *  </dd>
  *  
- *  <dt><b><code>-verbose</b></code> [true|false]</dt>
+ *  <dt><b><code>-verbose</code></b> [true|false]</dt>
  *  <dd>
  *  Specifies whether to print status and connection
  *  information to System.out. This option may be abbreviated
  *  <code>-v</code>.  
  *  </dd>
  *
- *  <dt><b><code>-help</b></code></dt>
+ *  <dt><b><code>-help</code></b></dt>
  *  <dd>
  *  Prints usage information to System.out.  This option may be abbreviated
  *  <code>-h</code> or <code>-?</code>.  The default is not to print usage

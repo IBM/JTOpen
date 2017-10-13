@@ -52,14 +52,14 @@ import java.util.Vector;
 *
 *  <P>The following example creates an HTMLTableConverter object and does the conversion.
 *  <BLOCKQUOTE><PRE>
-*  <P>         // Create an HTMLTableConverter object.
+*  // Create an HTMLTableConverter object.
 *  HTMLTableConverter converter = new HTMLTableConverter();
-*  <P>         // Setup the table tag with a maximum of 25 rows/table.
+*  // Setup the table tag with a maximum of 25 rows/table.
 *  HTMLTable table = new HTMLTable();
 *  converter.setMaximumTableSize(25);
 *  converter.setTable(table);
-*  <P>         // Convert the row data.
-*  <P>         // Assume the RowData object was created and initialized in a previous step.
+*  // Convert the row data.
+*  // Assume the RowData object was created and initialized in a previous step.
 *  String[] html = converter.convert(rowdata);
 *  </PRE></BLOCKQUOTE>
 **/

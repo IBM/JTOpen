@@ -28,7 +28,7 @@ import java.io.UnsupportedEncodingException;
  *
  * Here is a example:
  *
- * <p><blockquote><pre>
+ * <blockquote><pre>
  *  try {
  *      // Creates AS400 object.
  *      AS400 as400 = new AS400("systemName");
@@ -41,7 +41,7 @@ import java.io.UnsupportedEncodingException;
  *  {
  *      System.out.println("error : "+e)
  *  }
- * </pre></blockquote></p>
+ * </pre></blockquote>
  *
  **/
 public class SystemPool
@@ -1057,7 +1057,8 @@ public class SystemPool
       * Returns the name of this storage pool.  The name may be a number, in
       * which case it is a non-shared pool associated with a subsystem.
       * The following special values may be returned, in the case of shared pools:
-      *<p>
+      *
+      *<ul>
       *<li> *MACHINE  The specified pool definition is defined to be the
       *   machine pool.
       *<li> *BASE     The specified pool definition is defined to be the base
@@ -1068,7 +1069,7 @@ public class SystemPool
       *   shared pool used for spooled writers.
       *<li> *SHRPOOL1 - *SHRPOOL60  The specified pool definition is defined
       *   to be a shared pool.
-      *</p>
+      *</ul>
       *
       * @return The pool name.
       * @deprecated Use getName() instead.
@@ -1083,7 +1084,7 @@ public class SystemPool
       * Returns the name of this storage pool.  The name may be a number, in
       * which case it is a non-shared pool associated with a subsystem.
       * The following special values may be returned, in the case of shared pools:
-      *<p>
+      *<ul>
       *<li> *MACHINE  The specified pool definition is defined to be the
       *   machine pool.
       *<li> *BASE     The specified pool definition is defined to be the base
@@ -1094,7 +1095,7 @@ public class SystemPool
       *   shared pool used for spooled writers.
       *<li> *SHRPOOL1 - *SHRPOOL60  The specified pool definition is defined
       *   to be a shared pool.
-      *</p>
+      *</ul>
       *
       * @return The pool name.  If the pool name cannot be determined, null is returned.
       **/
@@ -1966,10 +1967,10 @@ public class SystemPool
       * made are written to the current job's job log and to the QHST message
       * log.  This affects the logging of change-related messages only; it does
       * not affect the logging of error messages.  Valid values are:
-      *<p>
+      *<ul>
       *<li> true - Log change messages.
       *<li> false - Do not log change messages.
-      *</p>
+      *</ul>
       *    The default value for messages logging is true.
       *
       * @param log The value indicating whether messages reporting that a
@@ -2158,13 +2159,13 @@ public class SystemPool
       * Sets the value indicating whether the system dynamically adjust the
       * paging characteristics of the storage pool for optimum performance.
       * Valid values are:
-      *<p>
+      *<ul>
       *<li> *SAME  - The paging option for the storage pool is not changed.
       *<li> *FIXED - The system will not dynamically adjust the paging
       *               characteristics; system default values are used.
       *<li> *CALC  - The system will dynamically adjust the paging
       *               characteristics.
-      *
+      *</ul>
       * @param value The value indicating whether the system dynamically adjust
       *              the paging characteristics of the sorage pool for optimum
       *              performance.

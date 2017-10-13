@@ -18,29 +18,29 @@ package com.ibm.jtopenlite.command;
  * Used by classes that wish to implement a program call, this essentially represents a System i program (PGM).
  * The {@link CommandConnection#call(Program) CommandConnection.call()} method will internally call the methods
  * on this interface when it needs information about the Program being called.
- * <p></p>
+ * <p>
  * The current order of operations (subject to change) that CommandConnection uses when call(Program) is invoked is as follows:
  * <ol>
  * <li>CommandConnection.call(program)</li>
- * <li>--> program.newCall()</li>
- * <li>--> program.getNumberOfParameters()</li>
- * <li>--> begin loop</li>
- * <li>------> program.getParameterInputLength()</li>
- * <li>--> end loop</li>
- * <li>--> program.getProgramName()</li>
- * <li>--> program.getProgramLibrary()</li>
- * <li>--> begin loop</li>
- * <li>------> program.getParameterInputLength()</li>
- * <li>------> program.getParameterOutputLength()</li>
- * <li>------> program.getParameterType()</li>
- * <li>------> program.getParameterInputData()</li>
- * <li>--> end loop</li>
- * <li>--> program.getNumberOfParameters()</li>
- * <li>--> begin loop</li>
- * <li>------> program.getParameterOutputLength()</li>
- * <li>------> program.getTempDataBuffer()</li>
- * <li>------> program.setParameterOutputData()</li>
- * <li>--> end loop</li>
+ * <li>--&gt; program.newCall()</li>
+ * <li>--&gt; program.getNumberOfParameters()</li>
+ * <li>--&gt; begin loop</li>
+ * <li>------&gt; program.getParameterInputLength()</li>
+ * <li>--&gt; end loop</li>
+ * <li>--&gt; program.getProgramName()</li>
+ * <li>--&gt; program.getProgramLibrary()</li>
+ * <li>--&gt; begin loop</li>
+ * <li>------&gt; program.getParameterInputLength()</li>
+ * <li>------&gt; program.getParameterOutputLength()</li>
+ * <li>------&gt; program.getParameterType()</li>
+ * <li>------&gt; program.getParameterInputData()</li>
+ * <li>--&gt; end loop</li>
+ * <li>--&gt; program.getNumberOfParameters()</li>
+ * <li>--&gt; begin loop</li>
+ * <li>------&gt; program.getParameterOutputLength()</li>
+ * <li>------&gt; program.getTempDataBuffer()</li>
+ * <li>------&gt; program.setParameterOutputData()</li>
+ * <li>--&gt; end loop</li>
  * </ol>
  * @see CommandConnection#call(Program)
 **/

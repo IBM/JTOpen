@@ -77,7 +77,7 @@ jdbc:jtopenlite://<em>system-name</em>;PROPERTIES
 to a corresponding IBM i system.
 
 <p>Only the following properties are supported
-<table>
+<table summary="">
 <tr>
 <th>Property</th>
 <th>Description</th>
@@ -126,14 +126,12 @@ database on system <em>mysystem.helloworld.com</em>.
 jdbc:jtopenlite://mysystem.helloworld.com
 </pre>
 
-<p>
-<p>
 <p> The following is a simple JDBC program
 <pre>
 import java.sql.*;
 import java.io.*;
 public class RunSql {
-   public final static String PROMPT="ENTER SQL STATEMENT or exit > ";
+   public final static String PROMPT="ENTER SQL STATEMENT or exit &gt; ";
    public static void main(String[] args) {
 	   try {
 		   Class.forName("com.ibm.jtopenlite.database.jdbc.JDBCDriver");
@@ -156,7 +154,7 @@ public class RunSql {
 					   while (rs.next()) {
 						  sb.setLength(0);
 						  sb.append(rs.getString(1));
-						  for (int column = 2; column <= columnCount; column++) {
+						  for (int column = 2; column &lt;= columnCount; column++) {
 							  sb.append(",");
 							  sb.append(rs.getString(column));
 						  }

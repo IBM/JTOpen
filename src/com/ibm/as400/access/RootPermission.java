@@ -79,7 +79,7 @@ public class RootPermission extends UserPermission
         <LI>*AUTL The public authorities
         to the object comes from the public authority on the authorization list
         that secures the object. The value can be returned only if there an authorization
-        list that secures the object and the authorized user is *PUBLIC.</DD>
+        list that secures the object and the authorized user is *PUBLIC.
 
         <LI>*NONE The user has no authority to the object.
     </UL>
@@ -186,7 +186,7 @@ public class RootPermission extends UserPermission
         <LI>*AUTL The public authorities
         to the object comes from the public authority on the authorization list
         that secures the object. The value can be returned only if there an authorization
-        list that secures the object and the authorized user is *PUBLIC.</DD>
+        list that secures the object and the authorized user is *PUBLIC.
 
     <LI>*NONE The user has no authority to the object.
     </UL>

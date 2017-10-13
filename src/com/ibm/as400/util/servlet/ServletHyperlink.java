@@ -39,7 +39,7 @@ import javax.servlet.http.*;
 *
 *  <P>Here is the output of the ServletHyperlink:
 *  <BLOCKQUOTE><PRE>
-*  &lt;a href=&quot;http://www.myCompany.com/myServletDirectory/servlet&SomeSessionID=942349280740&quot;&gt;myCompany Home Page&lt;/a&gt;
+*  &lt;a href=&quot;http://www.myCompany.com/myServletDirectory/servlet&amp;SomeSessionID=942349280740&quot;&gt;myCompany Home Page&lt;/a&gt;
 *  </PRE></BLOCKQUOTE>
 *
 *  <P>This example creates an ServletHyperlink and sets two properties.
@@ -56,7 +56,7 @@ import javax.servlet.http.*;
 *
 *  <P>Here is the output of the ServletHyperlink:
 *  <BLOCKQUOTE><PRE>
-*  &lt;a href=&quot;http://www.myCompany.com/myServletDirectory/servlet?userid=fred&amp;employeeID=01234567&SomeSessionID=942349280740&quot;&gt;myCompany Home Page&lt;/a&gt;
+*  &lt;a href=&quot;http://www.myCompany.com/myServletDirectory/servlet?userid=fred&amp;employeeID=01234567&amp;SomeSessionID=942349280740&quot;&gt;myCompany Home Page&lt;/a&gt;
 *  </PRE></BLOCKQUOTE>
 *
 *  <p>ServletHyperlink objects generate the following events:

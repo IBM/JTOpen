@@ -392,13 +392,14 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Sets the numeral shaping property.  By default this takes its value from the string type.
-     <p>The possible values are: <ul>
+     <p>The possible values are: 
+     <ul>
      <li>{@link #NUMERALS_NOMINAL NUMERALS_NOMINAL}
      <li>{@link #NUMERALS_NATIONAL NUMERALS_NATIONAL}
      <li>{@link #NUMERALS_CONTEXTUAL NUMERALS_CONTEXTUAL}
      <li>{@link #NUMERALS_ANY NUMERALS_ANY}
      <li>{@link #NUMERALS_DEFAULT NUMERALS_DEFAULT}
-     </ol>
+     </ul>
      @param  numeralShaping  what shapes to use for numerals
      **/
     public void setBidiNumeralShaping(int numeralShaping)
@@ -419,7 +420,7 @@ public class BidiConversionProperties implements Serializable
      <li>{@link #NUMERALS_CONTEXTUAL NUMERALS_CONTEXTUAL}
      <li>{@link #NUMERALS_ANY NUMERALS_ANY}
      <li>{@link #NUMERALS_DEFAULT NUMERALS_DEFAULT}
-    </ol>
+    </ul>
     @return what shapes to use for numerals
     **/
     public int getBidiNumeralShaping()

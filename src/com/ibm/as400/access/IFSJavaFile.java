@@ -48,17 +48,14 @@ import java.net.MalformedURLException;
  * integrated file system, IFSJavaFile is a good choice.
  * IFSJavaFile also provides SecurityManager features defined in
  * java.io.File.
- * <p>
  * <li>
  * If you need to take full advantage of the IBM i integrated file
  * system, {@link IFSFile IFSFile} is more useful.  IFSFile is written to
  * handle more of the specific IBM i integrated file system details.
- * <p>
  * <li>
  * java.io.File can be used to access the IBM i file system
  * if you use a product like IBM i Access for Windows to map a local drive
  * to the IBM i integrated file system.
- * <p>
  * </ul>
  *
  * <p>

@@ -16,10 +16,11 @@ package com.ibm.jtopenlite.components;
  * Order of operations:
  * <ul>
  * <li>totalRecords()</li>
- * <li>start loop</li>
- * <ul>
- * <li>newSpooledFileInfo()</li>
- * </ul>
+ * <li>start loop
+ *   <ul>
+ *    <li>newSpooledFileInfo()</li>
+ *   </ul>
+ * </li>
  * <li>end loop</li>
  * </ul>
 **/

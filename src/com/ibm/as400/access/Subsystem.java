@@ -35,14 +35,14 @@ import java.util.Enumeration;
    SystemPool[] pools = sbs.getPools();
    System.out.print("Pools: ");
    if (pools == null) System.out.println("null");
-   else for (int i=0; i<pools.length; i++) {
+   else for (int i=0; i&lt;pools.length; i++) {
      System.out.print(" " + (pools[i] == null ? "null" : pools[i].getName()));
    }
    System.out.println();
  }
  System.out.println("All subsystems on "+system.getSystemName());
  Subsystem[] list = Subsystem.listAllSubsystems(system);
- for (int i=0; i<list.length; i++) {
+ for (int i=0; i&lt;list.length; i++) {
    System.out.println(list[i].getLibrary()+"/"+list[i].getName());
  }
  </pre>

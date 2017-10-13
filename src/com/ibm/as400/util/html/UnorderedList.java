@@ -28,16 +28,16 @@ import java.beans.PropertyChangeSupport;
 *  <BLOCKQUOTE><PRE>
 *  // Create an UnorderedList.
 *  UnorderedList list = new UnorderedList();
-*  <p>
+*  
 *  // Use circles when displaying the list items.
 *  list.setType(HTMLConstants.CIRCLE);
-*  <p>
+*  
 *  // Create an UnorderedListItem.
 *  UnorderedListItem listItem = new UnorderedListItem();
-*  <p>
+*  
 *  // Set the data in the list item.
 *  listItem.setItemData(new HTMLText("my list item"));
-*  <p>
+*  
 *  // Add the list item to the UnorderedList.
 *  list.addListItem(listItem);
 *  System.out.println(list.toString());
@@ -50,7 +50,7 @@ import java.beans.PropertyChangeSupport;
 *  &lt;/ul&gt;
 *  </PRE></BLOCKQUOTE>
 *  <P>Here is the output of the UnorderedList tag using XSL-Formatting Objects:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:block-container&gt;
 *  &lt;fo:list-block&gt;
 *  &lt;fo:list-item&gt;

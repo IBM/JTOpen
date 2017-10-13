@@ -72,7 +72,7 @@ import com.ibm.as400.resource.RJob;  // Remove when getJob() is removed.
  *    {
  *        // Show messages.
  *        AS400Message[] messageList = command.getMessageList();
- *        for (int i = 0; i &lt messageList.length; ++i)
+ *        for (int i = 0; i &lt; messageList.length; ++i)
  *        {
  *            // Show each message.
  *            System.out.println(messageList[i].getText());

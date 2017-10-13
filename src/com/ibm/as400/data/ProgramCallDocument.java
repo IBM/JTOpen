@@ -74,8 +74,8 @@ import org.xml.sax.SAXException;                                    //@E1A
  * <dt><kbd>-serialize</kbd>
  * <dd>Parses the PCML document and creates a serialized version of the document.
  * The name of the serialized file will match the document name, and the file extension will be
- * <code><strong>.pcml.ser</code></strong> (lowercase).
- * <p><dt><kbd><i>PCML document name</i></kbd>
+ * <strong><code>.pcml.ser</code></strong> (lowercase).
+ * <dt><kbd><i>PCML document name</i></kbd>
  * <dd>The fully-qualified resource name of the PCML document
  * which defines the program interface.
  * </dl>
@@ -823,37 +823,37 @@ public class ProgramCallDocument implements Serializable, Cloneable
     be converted from IBM i system data to a Java Object.
     <p>
     The type of object returned depends on the description in the PCML document.
-    <table border=1>
+    <table border=1 summary="">
     <tr valign=top><th>PCML Description</th><th>Object Returned</th></tr>
-    <tr valign=top><td><code>type=char</td><td><code>String</code></td></tr>
-    <tr valign=top><td><code>type=byte</td><td><code>byte[]</code></td></tr>
+    <tr valign=top><td><code>type=char</code></td><td><code>String</code></td></tr>
+    <tr valign=top><td><code>type=byte</code></td><td><code>byte[]</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=2<br>
-                             precision=15</td><td><code>Short</code></td></tr>
+                             precision=15</code></td><td><code>Short</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=2<br>
-                             precision=16</td><td><code>Integer</code></td></tr>
+                             precision=16</code></td><td><code>Integer</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=4<br>
-                             precision=31</td><td><code>Integer</code></td></tr>
+                             precision=31</code></td><td><code>Integer</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=4<br>
-                             precision=32</td><td><code>Long</code></td></tr>
+                             precision=32</code></td><td><code>Long</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=8<br>
-                             precision=63</td><td><code>Long</code></td></tr>
+                             precision=63</code></td><td><code>Long</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=8<br>
-                             precision=64</td><td><code>BigInteger</code></td></tr>
-    <tr valign=top><td><code>type=packed</td><td><code>BigDecimal</code></td></tr>
-    <tr valign=top><td><code>type=zoned</td><td><code>BigDecimal</code></td></tr>
+                             precision=64</code></td><td><code>BigInteger</code></td></tr>
+    <tr valign=top><td><code>type=packed</code></td><td><code>BigDecimal</code></td></tr>
+    <tr valign=top><td><code>type=zoned</code></td><td><code>BigDecimal</code></td></tr>
     <tr valign=top><td><code>type=float<br>
-                             length=4</td><td><code>Float</code></td></tr>
+                             length=4</code></td><td><code>Float</code></td></tr>
     <tr valign=top><td><code>type=float<br>
-                             length=8</td><td><code>Double</code></td></tr>
-    <tr valign=top><td><code>type=date</td><td><code>java.sql.Date</code></td></tr>
-    <tr valign=top><td><code>type=time</td><td><code>java.sql.Time</code></td></tr>
-    <tr valign=top><td><code>type=timestamp</td><td><code>java.sql.Timestamp</code></td></tr>
+                             length=8</code></td><td><code>Double</code></td></tr>
+    <tr valign=top><td><code>type=date</code></td><td><code>java.sql.Date</code></td></tr>
+    <tr valign=top><td><code>type=time</code></td><td><code>java.sql.Time</code></td></tr>
+    <tr valign=top><td><code>type=timestamp</code></td><td><code>java.sql.Timestamp</code></td></tr>
     </table>
 
     @return The Java object value for the named &lt;data&gt; element in the PCML document.
@@ -883,37 +883,37 @@ public class ProgramCallDocument implements Serializable, Cloneable
     be converted from IBM i system data to a Java Object.
     <p>
     The type of object returned depends on the description in the PCML document.
-    <table border=1>
+    <table border=1 summary="">
     <tr valign=top><th>PCML Description</th><th>Object Returned</th></tr>
-    <tr valign=top><td><code>type=char</td><td><code>String</code></td></tr>
-    <tr valign=top><td><code>type=byte</td><td><code>byte[]</code></td></tr>
+    <tr valign=top><td><code>type=char</code></td><td><code>String</code></td></tr>
+    <tr valign=top><td><code>type=byte</code></td><td><code>byte[]</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=2<br>
-                             precision=15</td><td><code>Short</code></td></tr>
+                             precision=15</code></td><td><code>Short</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=2<br>
-                             precision=16</td><td><code>Integer</code></td></tr>
+                             precision=16</code></td><td><code>Integer</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=4<br>
-                             precision=31</td><td><code>Integer</code></td></tr>
+                             precision=31</code></td><td><code>Integer</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=4<br>
-                             precision=32</td><td><code>Long</code></td></tr>
+                             precision=32</code></td><td><code>Long</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=8<br>
-                             precision=63</td><td><code>Long</code></td></tr>
+                             precision=63</code></td><td><code>Long</code></td></tr>
     <tr valign=top><td><code>type=int<br>
                              length=8<br>
-                             precision=64</td><td><code>BigInteger</code></td></tr>
-    <tr valign=top><td><code>type=packed</td><td><code>BigDecimal</code></td></tr>
-    <tr valign=top><td><code>type=zoned</td><td><code>BigDecimal</code></td></tr>
+                             precision=64</code></td><td><code>BigInteger</code></td></tr>
+    <tr valign=top><td><code>type=packed</code></td><td><code>BigDecimal</code></td></tr>
+    <tr valign=top><td><code>type=zoned</code></td><td><code>BigDecimal</code></td></tr>
     <tr valign=top><td><code>type=float<br>
-                             length=4</td><td><code>Float</code></td></tr>
+                             length=4</code></td><td><code>Float</code></td></tr>
     <tr valign=top><td><code>type=float<br>
-                             length=8</td><td><code>Double</code></td></tr>
-    <tr valign=top><td><code>type=date</td><td><code>java.sql.Date</code></td></tr>
-    <tr valign=top><td><code>type=time</td><td><code>java.sql.Time</code></td></tr>
-    <tr valign=top><td><code>type=timestamp</td><td><code>java.sql.Timestamp</code></td></tr>
+                             length=8</code></td><td><code>Double</code></td></tr>
+    <tr valign=top><td><code>type=date</code></td><td><code>java.sql.Date</code></td></tr>
+    <tr valign=top><td><code>type=time</code></td><td><code>java.sql.Time</code></td></tr>
+    <tr valign=top><td><code>type=timestamp</code></td><td><code>java.sql.Timestamp</code></td></tr>
     </table>
 
     @return The Java object value for the named &lt;data&gt; element in the PCML document.

@@ -51,7 +51,7 @@ endif */
 *
 *  <p>
 *  The following example obtains a connection handle to a pooled connection.
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  // Create a data source for making the connection.
 *  AS400JDBCConnectionPoolDataSource dataSource = new AS400JDBCConnectionPoolDataSource("CheeseDataBase");
 *  datasource.setServerName("myAS400");
@@ -66,7 +66,7 @@ endif */
 *
 *  // Close the connection handle to it make available again for reuse.
 *  connection.close();
-*  </blockquote></pre>
+*  </pre></blockquote>
 *
 **/
 public class AS400JDBCConnectionHandle 
@@ -1526,7 +1526,7 @@ ResultSet.CONCUR_READ_ONLY.
   *  isolation levels.  The following table provides a terminology 
   *  mapping:
   *
-  *  <p><table border>
+  *  <p><table border summary="">
   *  <tr><th>DB2 for IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
   *  <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
   *  <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>

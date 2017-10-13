@@ -7,9 +7,9 @@ import com.ibm.jtopenlite.ddm.*;
 /**
  * Sample program to read a file using the DDM support of jtopenlite.
  * A sample run looks like this.
- * <p>
+ * <pre>
  * java DDMRead SYSTEM USERID PASSWORD QIWS QCUSTCDT *FIRST
- * <p>
+ * </pre>
  */
 public class DDMRead {
 	public static void main(String[] args) {

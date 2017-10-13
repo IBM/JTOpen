@@ -52,8 +52,8 @@ import java.util.MissingResourceException;
  * <dt><kbd>-serialize</kbd>
  * <dd>Parses the RFML document and creates a serialized version of the document.
  * The name of the serialized file will match the document name, and the file extension will be
- * <code><strong>.rfml.ser</code></strong> (lowercase).
- * <p><dt><kbd><i>rfml document name</i></kbd>
+ * <strong><code>.rfml.ser</code></strong> (lowercase).
+ * <dt><kbd><i>rfml document name</i></kbd>
  * <dd>The fully-qualified resource name of the RFML document
  * which defines the record format(s).
  * </dl>
@@ -448,7 +448,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     @param documentName The document resource name of the RFML document for which the Descriptor is returned.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myRfml"
 
-    @return A descriptor for the <rfml> element of the named RFML file.
+    @return A descriptor for the &lt;rfml&gt; element of the named RFML file.
 
 	@exception XmlException when the specified RFML document cannot be found.
     **/
@@ -473,7 +473,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     @param documentName The document resource name of the RFML document for which the Descriptor is returned.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myRfml"
     @param loader The ClassLoader that will be used when loading the specified document resource.
-    @return A descriptor for the <rfml> element of the named RFML file.
+    @return A descriptor for the &lt;rfml&gt; element of the named RFML file.
 
 	@exception XmlException when the specified RFML document cannot be found.
     **/
@@ -492,7 +492,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     /**
     Returns a Descriptor representing the current RFML document.
 
-    @return A descriptor for the <rfml> element of the current RFML file, or
+    @return A descriptor for the &lt;rfml&gt; element of the current RFML file, or
             null if the RFML document has not be set.
     **/
     public Descriptor getDescriptor()     // @A7c
@@ -668,7 +668,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     Returns the Java object value for the named element.
     <p>
     The type of object returned depends on the description in the RFML document.
-    <table border=1>
+    <table border=1 summary="">
     <tr valign=top><th>RFML Description</th><th>Object Returned</th></tr>
     <tr valign=top><td>type=char</td><td>String</td></tr>
     <tr valign=top><td>type=byte</td><td>byte[]</td></tr>

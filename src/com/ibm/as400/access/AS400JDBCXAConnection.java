@@ -37,7 +37,7 @@ This support is only available when connecting to systems running OS/400 V5R1 or
 <p>The following example creates an AS400JDBCXAConnection object 
 that can be used to manage XA transactions.
 
-<pre><blockquote>
+<blockquote><pre>
 // Create an XA data source for making the XA connection.
 AS400JDBCXADataSource xaDataSource = new AS400JDBCXADataSource("myAS400");
 xaDataSource.setUser("muUser");
@@ -53,7 +53,7 @@ XAResource xaResource = xaConnection.getXAResource();
 // Close the XA connection when done.  This implicitly
 // closes the XA resource.
 xaConnection.close();
-</blockquote></pre>
+</pre></blockquote>
 
 @see AS400JDBCXADataSource
 @see AS400JDBCXAResource

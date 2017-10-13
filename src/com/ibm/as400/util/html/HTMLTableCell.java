@@ -28,7 +28,7 @@ import java.io.Serializable;
 *
 *  <P>This example creates an HTML text HTMLTableCell object.
 *
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  // Create an HTMLText object.
 *  HTMLText ibmText = new HTMLText("IBM");
 *  ibmText.setBold(true);
@@ -39,11 +39,11 @@ import java.io.Serializable;
 *  </PRE></BLOCKQUOTE>
 *
 *  Here is the output of the tag:
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  <BR>&lt;td align="center"&gt;&lt;b&gt;&lt;i&gt;IBM&lt;/i&gt;&lt;/b&gt;&lt;/td&gt;
-*  <P></PRE></BLOCKQUOTE>  
+*  </PRE></BLOCKQUOTE>  
 *  <P>Calling getFOTag() produces the following:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px' text-align='center'&gt;&lt;fo:block-container&gt;
 *  &lt;fo:block font-weight='bold' font-style='italic'&gt;IBM&lt;/fo:block&gt;
 *  &lt;/fo:block-container&gt;
@@ -53,7 +53,7 @@ import java.io.Serializable;
 *  <P>This example creates an HTMLTableCell object with the element as an HTMLForm
 *  object containing a submit button.
 *
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  HTMLTableCell formCell = new HTMLTableCell();
 *  // create an HTMLForm object.
 *  SubmitFormInput submitButton = new SubmitFormInput("Submit", "Send");
@@ -65,7 +65,7 @@ import java.io.Serializable;
 *  </PRE></BLOCKQUOTE>
 *
 *  Here is the output of the tag:
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;td&gt;&lt;form action=&quot;http://myCompany.com/myServlet&quot; method=&quot;get&quot;&gt;
 *  &lt;input type=&quot;submit&quot; value=&quot;Send&quot; /&gt;
 *  &lt;/form&gt;&lt;/td&gt;

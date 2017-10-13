@@ -90,7 +90,7 @@ Returns a Presentation object with text loaded from the resource bundle.
 The keys in the resource bundle correspond to the key base name as
 follows:
 
-<p><table border>
+<p><table border summary="">
 <tr>
    <td>name</td>
    <td><em>keyBaseName</em><code>_NAME</code></td>
@@ -129,7 +129,7 @@ Returns a Presentation object with text loaded from the resource bundle.
 The keys in the resource bundle correspond to the key base name as
 follows:
 
-<p><table border>
+<p><table border summary="">
 <tr>
    <td>name</td>
    <td><em>keyBaseName</em><code>_NAME</code></td>
@@ -174,7 +174,7 @@ Returns a Presentation object with text loaded from the resource bundle.
 The keys in the resource bundle correspond to the key base name and
 key suffix as follows:
 
-<p><table border>
+<p><table border summary="">
 <tr>
    <td>name</td>
    <td><em>keyBaseName</em>_<em>keySuffix</em><code>_NAME</code></td>
@@ -216,7 +216,7 @@ Returns a Presentation object with text loaded from the resource bundle.
 The keys in the resource bundle correspond to the key base name and
 key suffix as follows:
 
-<p><table border>
+<p><table border summary="">
 <tr>
    <td>name</td>
    <td><em>keyBaseName</em>_<em>keySuffix</em><code>_NAME</code></td>

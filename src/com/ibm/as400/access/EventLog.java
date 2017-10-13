@@ -30,12 +30,11 @@ import java.lang.StringBuffer;
   *
   *  Here is an example use of EventLog, which will
   *  write a timestamp and message to the specified file:
-  *  <p>
   *  <BLOCKQUOTE><PRE>
   *  EventLog myLog = new EventLog("myFile");
   *  myLog.log("You have successfully written to my log file.");
   *  myLog.log("Another log message.");
-  *  </BLOCKQUOTE></PRE>
+  *  </PRE></BLOCKQUOTE>
   *  <p>
   *  Each successive message will be appended to the previous
   *  messages in the log.

@@ -49,7 +49,7 @@ application, as follows:
 <p>Options:
 <dl>
 
-<dt><b><code>-balanceThreshold </b></code><var>balanceThreshold</var></dt>
+<dt><b><code>-balanceThreshold </code></b><var>balanceThreshold</var></dt>
 <dd>
 Specifies the number of connections that must be active before
 the peer server starts load balancing by dispatching requests to
@@ -59,7 +59,7 @@ peer proxy servers.  Specify 0 to start load balancing immediately or
 proxy servers are specified.
 </dd>
 
-<dt><b><code>-configuration </b></code><var>configuration</var></dt>
+<dt><b><code>-configuration </code></b><var>configuration</var></dt>
 <dd>
 Specifies a properties file which lists configuration
 properties in the following format:
@@ -76,7 +76,7 @@ a configuration and specified in a command line argument,
 then the command line argument takes precedence.
 </dd>
 
-<dt><b><code>-jdbcDrivers </b></code><var>jdbcDriver1[;jdbcDriver2;...]</var></dt>
+<dt><b><code>-jdbcDrivers </code></b><var>jdbcDriver1[;jdbcDriver2;...]</var></dt>
 <dd>
 Specifies a list of JDBC driver class names to register with
 the JDBC DriverManager.  Use this to register any JDBC drivers
@@ -85,7 +85,7 @@ to which clients might need to connect.  This option may be abbreviated
 for Java JDBC driver.
 </dd>
 
-<dt><b><code>-maxConnections </b></code><var>maxConnections</var></dt>
+<dt><b><code>-maxConnections </code></b><var>maxConnections</var></dt>
 <dd>
 Specifies the maximum number of connections which can be active
 at any particular time.  This refers to connections to the proxy
@@ -97,7 +97,7 @@ This option may be abbreviated <code>-mc</code>.  The default is
 to allow an unlimited number of connections.
 </dd>
 
-<dt><b><code>-peers </b></code><var>hostname1[:port1][;hostname2[:port2];...]</var></dt>
+<dt><b><code>-peers </code></b><var>hostname1[:port1][;hostname2[:port2];...]</var></dt>
 <dd>
 Specifies a list of peer proxy servers for use in load balancing.
 In some cases, connections to this proxy server will be
@@ -105,7 +105,7 @@ reassigned to a peer.  This option may be abbreviated
 <code>-pe</code>.  The default is not to do load balancing.
 </dd>
 
-<dt><b><code>-port </b></code><var>port</var></dt>
+<dt><b><code>-port </code></b><var>port</var></dt>
 <dd>
 Specifies the port to use for accepting connections from clients.
 This option may be abbreviated <code>-po</code>.  The default port is 3470.
@@ -114,7 +114,7 @@ This option may be abbreviated <code>-po</code>.  The default port is 3470.
 
 
 
-<dt><b><code>-verbose</b></code> [true|false]</dt>
+<dt><b><code>-verbose</code></b> [true|false]</dt>
 <dd>
 Specifies whether to print status and connection
 information to System.out. This option may be abbreviated
@@ -122,7 +122,7 @@ information to System.out. This option may be abbreviated
 connection information.
 </dd>
 
-<dt><b><code>-help</b></code></dt>
+<dt><b><code>-help</code></b></dt>
 <dd>
 Prints usage information to System.out.  This option may be abbreviated
 <code>-h</code> or <code>-?</code>.  The default is not to print usage

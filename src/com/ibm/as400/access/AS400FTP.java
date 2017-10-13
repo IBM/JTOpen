@@ -38,7 +38,7 @@ import java.beans.*;
  * the userid and password must be
  * set on the AS400 object in this environment.  That is, *CURRENT
  * will not work when connecting from one IBM i system to another IBM i system.
- * <P><LI>
+ * <LI>
  * Automatically setting the current directory to the
  * root directory on the system when a connection is made. If the
  * FTP class is used, the root may be QSYS.LIB when
@@ -47,7 +47,7 @@ import java.beans.*;
  * For example, /QSYS.LIB/MYLIB.LIB/MYFILE.FILE.  See
  * <A HREF="QSYSObjectPathName.html">
  * QSYSObjectPathName</A> documentation for more information.
- * <P><LI>
+ * <LI>
  * Handling extra work necessary to put a save file
  * to the system.  If you use the FTP class, you have to
  * do the extra steps.  The extra processing is done only

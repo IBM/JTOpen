@@ -38,66 +38,66 @@ import javax.xml.parsers.ParserConfigurationException;
  *  This class requires that valid XML and XSL processors (e.g. Xerces and Xalan) be in the CLASSPATH.
  *
  *   CommandHelpRetriever can be run as a command line program, as follows:
- *  <BLOCKQUOTE></PRE>
- *  <strong>java com.ibm.as400.util.CommandHelpRetriever</strong>  -library <library> -command <command> [ -system <systemName> -userid <userid> -password <password> -showChoicePgmValues -output <outputDirectory> -debug ]
+ *  <BLOCKQUOTE><PRE>
+ *  java com.ibm.as400.util.CommandHelpRetriever  -library &lt;library&gt; -command &lt;command&gt; [ -system &lt;systemName&gt; -userid &lt;userid&gt; -password &lt;password&gt; -showChoicePgmValues -output &lt;outputDirectory&gt; -debug ]
  *  </PRE></BLOCKQUOTE> 
  *  <b>Options:</b>
- *  <p> 
+ *
  *  <dl>
  *
- *  <dt><b><code>-help </b></code>
+ *  <dt><b><code>-help </code></b>
  *  <dd>Displays the help text.
  *  The -help option may be abbreviated to -h or -?.
  *  </dl>
  *  <p>
  *  <b>Parameters:</b>
- *  <p>
+ *  
  *  <dl>
  *
- *  <dt><b><code>-library </b></code><var>IBM i library.</var></dt>
+ *  <dt><b><code>-library </code></b><var>IBM i library.</var></dt>
  *  <dd>Specifies the IBM i library.
  *  This parameter may be abbreviated <code>-l</code> or <code>-lib</code>.
  *  </dd>
  *
- *  <dt><b><code>-command </b></code><var>IBM i command.</var></dt>
+ *  <dt><b><code>-command </code></b><var>IBM i command.</var></dt>
  *  <dd>Specifies the IBM i command.
  *  This parameter may be abbreviated <code>-c</code> or <code>-cmd</code>.
  *  </dd>
  *
- *  <dt><b><code>-system </b></code><var>IBM i system name</var></dt>
+ *  <dt><b><code>-system </code></b><var>IBM i system name</var></dt>
  *  <dd>Specifies the IBM i system.  If an IBM i system name is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-s</code> or <code>-sys</code>.
  *  </dd>
  *  
- *  <dt><b><code>-userid </b></code><var>IBM i userID.</var></dt>
+ *  <dt><b><code>-userid </code></b><var>IBM i userID.</var></dt>
  *  <dd>Specifies the IBM i userId.    If an IBM i userID is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-u</code> or <code>-uid</code>.
  *  </dd>
  *
- *  <dt><b><code>-password </b></code><var>IBM i password.</var></dt>
+ *  <dt><b><code>-password </code></b><var>IBM i password.</var></dt>
  *  <dd>Specifies the IBM i password.  If an IBM i password is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-p</code> or <code>-pwd</code>.
  *  </dd>
  * 
- *  <dt><b><code>-showChoicePgmValues </b></code>[true | false] </dt>
+ *  <dt><b><code>-showChoicePgmValues </code></b>[true | false] </dt>
  *  <dd>Specifies whether or not parameter choices returned from choice programs are shown in the Choices cells of the parameter summary table.
  *  The default is false.  
  *  This optional parameter may be abbreviated <code>-scpv</code>.
  *  </dd>
  *
- *  <dt><b><code>-output </b></code><var>output location.</var>
+ *  <dt><b><code>-output </code></b><var>output location.</var>
  *  <dd>Specifies the output location for the generated help.  The default is the current directory. The output
  *  cannot be a file when the command (-c) parameter contains a wildcard (*).
  *  This optional parameter may be abbreviated <code>-o</code>.
  *  </dd>
  *
- *  <dt><b><code>-debug </b></code><var></code>[true | false] </var>
+ *  <dt><b><code>-debug </code></b><var>[true | false] </var>
  *  <dd>Specifies whether to output the source command help and xml files to the output location specified by the <i>-output</i> parameter.  The default is false.
  *  This optional parameter may be abbreviated <code>-d</code>.
  *  </dd>
  *
  *  </dl>
- *  </PRE></BLOCKQUOTE>
+ *  
  * @see com.ibm.as400.access.Command
  * @see com.ibm.as400.access.CommandList
 **/

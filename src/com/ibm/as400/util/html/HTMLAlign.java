@@ -34,7 +34,7 @@ import java.beans.PropertyChangeListener;
 *  OrderedListItem listItem = new OrderedListItem();
 *  listItem.setItemData(new HTMLText("my list item"));
 *  list.addListItem(listItem);
-*  <p>
+*  
 *  // Align the list.
 *  HTMLAlign align = new HTMLAlign(list, HTMLConstants.CENTER);
 *  System.out.println(align);
@@ -43,7 +43,7 @@ import java.beans.PropertyChangeListener;
 *  Here is the output of the HTMLAlign tag:<br>
 *  <BLOCKQUOTE><PRE>
 *  &lt;div align=&quot;center&quot;&gt;
-*  &lt;ol type=&quotI&quot&gt;
+*  &lt;ol type=&quot;I&quot;&gt;
 *  &lt;li type=&quot;i&quot;&gt;my list item&lt;/li&gt;
 *  &lt;/ol&gt;
 *  &lt;/div&gt;

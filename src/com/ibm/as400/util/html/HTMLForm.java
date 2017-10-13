@@ -43,23 +43,29 @@ import java.beans.PropertyVetoException;
 *  <P>
 *  This examples creates an HTMLForm object and adds some form input types to it.
 *  <BLOCKQUOTE><PRE>
-*  <P>         // Create a text input form element for the system.
+*  // Create a text input form element for the system.
 *  LabelFormElement sysPrompt = new LabelFormElement("System:");
 *  TextFormInput system = new TextFormInput("System");
-*  <P>         // Create a text input form element for the userId.
+*  
+*  // Create a text input form element for the userId.
 *  LabelFormElement userPrompt = new LabelFormElement("User:");
 *  TextFormInput user = new TextFormInput("User");
-*  <P>         // Create a password input form element for the password.
+*
+*  // Create a password input form element for the password.
 *  LabelFormElement passwordPrompt = new LabelFormElement("Password:");
 *  PasswordFormInput password = new PasswordFormInput("Password");
-*  <P>         // Create a properties object.
+*
+*  // Create a properties object.
 *  Properties prop = new Properties();
-*  <P>         // Add customer name and ID values to the properties object.
+* 
+*  // Add customer name and ID values to the properties object.
 *  prop.put("custName", "Mr. Toolbox");
 *  prop.put("custID", "12345");
-*  <P>         // Create the submit button to the form.
+*  
+*  // Create the submit button to the form.
 *  SubmitFormInput logonButton = new SubmitFormInput("logon", "Logon");
-*  <P>         // Create HTMLForm object and add the panel to it.
+*  
+*  // Create HTMLForm object and add the panel to it.
 *  HTMLForm form = new HTMLForm(servletURI);
 *  form.setHiddenParameterList(prop);
 *  form.addElement(sysPrompt);
@@ -72,7 +78,7 @@ import java.beans.PropertyVetoException;
 *  </PRE></BLOCKQUOTE>
 *  <P>
 *  Here is an example of an HTMLForm tag:<br>
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;form action=&quot;servletURI&quot; method=&quot;get&quot;&gt;
 *     System:   &lt;input type=&quot;text&quot; name=&quot;System&quot; /&gt;
 *     User:     &lt;input type=&quot;text&quot; name=&quot;User&quot; /&gt;

@@ -55,7 +55,7 @@ import java.util.Vector;
  *            System.out.println("Program failed!");
  *            // Show the messages.
  *            AS400Message[] messagelist = program.getMessageList();
- *            for (int i = 0; i < messagelist.length; ++i)
+ *            for (int i = 0; i &lt; messagelist.length; ++i)
  *            {
  *                // Show each message.
  *                System.out.println(messagelist[i]);
@@ -83,7 +83,7 @@ import java.util.Vector;
  *    {
  *        // Show messages.
  *        AS400Message[] messageList = program.getMessageList();
- *        for (int i = 0; i < messageList.length; ++i)
+ *        for (int i = 0; i &lt; messageList.length; ++i)
  *        {
  *            // Show each message.
  *            System.out.println(messageList[i].getText());
@@ -103,6 +103,8 @@ import java.util.Vector;
  *    system.setIASPGroup("iasp1"); //If do not use *CURUSR for current library and library list, call other setIASPGroup interfaces.
  *    ProgramCall program = new ProgramCall(system);
  *    program.setProgram("/QSYS.LIB/TESTLIB.LIB/TESTPROG.PGM");
+ </pre>
+ 
  @see  ProgramParameter
  @see  AS400Message
  @see  ServiceProgramCall

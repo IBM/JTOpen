@@ -29,11 +29,11 @@ import java.beans.PropertyChangeListener;
 *  <BLOCKQUOTE><PRE>
 *  // Create an HTMLApplet.
 *  HTMLApplet applet = new HTMLApplet("myApplet", "http://myCompany.com/dir/", 100, 100);
-*  <p>
+*  
 *  // Create a parameter, then add it to the applet.
 *  HTMLParameter param = new HTMLParameter("parm1", "value1");
 *  applet.addParameter(param);
-*  <p>
+*  
 *  // Create and add second parameter
 *  HTMLParameter param2 = applet.addParameter("parm2", "value2");
 *  System.out.println(applet);
@@ -41,7 +41,7 @@ import java.beans.PropertyChangeListener;
 *  <P>
 *  Here is the output of the HTMLApplet tag:<br>
 *  <BLOCKQUOTE><PRE>
-*  &lt;applet name=&quot;myApplet&quot; codebase=&quot;http://server:port/dir&quot width=&quot;100&quot; height=&quot;100&quot;;&gt;
+*  &lt;applet name=&quot;myApplet&quot; codebase=&quot;http://server:port/dir&quot; width=&quot;100&quot; height=&quot;100&quot;&gt;
 *  &lt;param name=&quot;parm1&quot; value=&quot;value1&quot;&gt;
 *  &lt;param name=&quot;parm2&quot; value=&quot;value2&quot;&gt;
 *  If you see this text, the browser does not support the APPLET tag or the applet has failed to load.

@@ -452,7 +452,7 @@ public class PTF
    * <LI>{@link #ACTION_NOT_REQUIRED ACTION_NOT_REQUIRED}
    * <LI>{@link #ACTION_REQUIRED_EXIT_PROGRAM ACTION_REQUIRED_EXIT_PROGRAM}
    * <LI>{@link #ACTION_REQUIRED_CANNOT_VERIFY ACTION_REQUIRED_CANNOT_VERIFY}
-   * <UL>
+   * </UL>
    * @return The action required.
    * @throws AS400Exception 
    * @throws AS400SecurityException 

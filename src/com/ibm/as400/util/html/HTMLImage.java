@@ -39,7 +39,7 @@ import java.beans.PropertyChangeSupport;
 *
 *  <p>
 *  The equivalent tag using XSL Formatting Objects looks like the following:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:block&gt;
 *  &lt;fo:external-graphic src="file:http://myWebPage/pic.gif" content-height="50px" content-width="50px"/&gt;
 *  &lt;/fo:block&gt;

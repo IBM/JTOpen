@@ -38,7 +38,7 @@ import java.beans.PropertyChangeListener;
 *
 *  <p>
 *  Calling getFOTag() would produce the following XSL Formatting Object tag:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:block-container&gt;
 *  &lt;fo:block font-size='25pt' text-align='center'&gt;My Heading&lt;/fo:block&gt;
 *  &lt;/fo:block-container&gt;

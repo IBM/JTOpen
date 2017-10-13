@@ -27,7 +27,7 @@ import javax.naming.spi.ObjectFactory; // JNDI
 *  userName, pwd, and secure properties.  
 *  
 *  <p>For Example:        
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  XADataSource xads = null; 
 *  String objFactoryName = "com.ibm.as400.access.AS400JDBCObjectFactory";
 *  String xadsName = "com.ibm.as400.access.AS400JDBCXADataSource";
@@ -46,7 +46,7 @@ import javax.naming.spi.ObjectFactory; // JNDI
 *      ex.printStackTrace();
 *      System.err.println("Exception caught: " + ex);
 *  }
-*  </blockquote></pre>
+*  </pre></blockquote>
 *  The following classes implement the javax.naming.Referenceable interface.
 *  @see com.ibm.as400.access.AS400JDBCDataSource
 *  @see com.ibm.as400.access.AS400JDBCConnectionPoolDataSource

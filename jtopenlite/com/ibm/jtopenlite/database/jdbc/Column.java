@@ -26,7 +26,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.TimeZone;
 
-import sun.util.BuddhistCalendar;
 
 final class Column
 {
@@ -3385,7 +3384,7 @@ public static Calendar getGregorianInstance() {
   boolean isGregorian = (returnCalendar  instanceof GregorianCalendar);
   boolean isBuddhist = false;
   try {
-      isBuddhist  = (returnCalendar  instanceof BuddhistCalendar);
+      isBuddhist  = isBuddhistCalendar(returnCalendar);
   } catch (Throwable ncdfe) {
     // Just ignore if any exception occurs.
     // Possible exceptions (from Javadoc) are:
@@ -3402,6 +3401,21 @@ public static Calendar getGregorianInstance() {
     return gregorianCalendar;
   }
 }
+
+private static boolean isBuddhistCalendar(Calendar calendar) {
+  try {
+      Class c = Class.forName("sun.util.BuddhistCalendar");
+      return c.isInstance(calendar); 
+
+} catch (Throwable ncdfe) {
+  // Just ignore if any exception occurs.  @F2C
+  // Possible exceptions (from Javadoc) are:
+  // java.lang.NoClassDefFoundError
+  // java.security.AccessControlException (if sun.util classes cannot be used)
+}
+  return false; 
+}
+
 
 
 /*  Get an instance of a calendar from the GMT timezone  */

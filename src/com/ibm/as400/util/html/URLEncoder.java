@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 *
 *  <P>For example, the following HTML URL string is not valid and would need to be encoded:
 *  <BLOCKQUOTE><PRE>
-*  http://mySystem.myCompany.com/servlet/myServlet?parm1="/library/test1#partA"&parm2="/library/test2#partB"
+*  http://mySystem.myCompany.com/servlet/myServlet?parm1="/library/test1#partA"&amp;parm2="/library/test2#partB"
 *  </PRE></BLOCKQUOTE>
 *
 *  <P>The following example uses the URLEncoder class to encode two URL string parameter values:
@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 *  String action = "http://mySystem.myCompany.com/servlet/myServlet";
 *  String parm1 = "parm1=" + URLEncoder.encode("\"/library/test1#partA\"");
 *  String parm2 = "parm2=" + URLEncoder.encode("\"/library/test2#partB\"");
-*  form.setURL(action + "?" + parm1 + "&" + parm2);
+*  form.setURL(action + "?" + parm1 + "&amp;" + parm2);
 *  </PRE></BLOCKQUOTE>
 *  
 *  <P>The delimiters that are encoded include:

@@ -2592,7 +2592,7 @@ public class AS400 implements Serializable
      If no services have been connected, this method returns false; it doesn't implicitly connect services.
      <p>Note: This method is <b>not fully supported until IBM i 7.1</b>.  If running to IBM i 6.1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
      <p>Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
-     </ul>
+     
      @return  true if the connection is still working; false otherwise.
      @see #isConnected
      @see AS400JPing

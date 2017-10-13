@@ -36,16 +36,20 @@ import java.beans.*;
 *  <P>
 *  This examples creates a GridLayoutFormPanel object with two columns.
 *  <BLOCKQUOTE><PRE>
-*  <P>         // Create a text form input element for the system.
+*  
+*  // Create a text form input element for the system.
 *  LabelFormElement sysPrompt = new LabelFormElement("System:");
 *  TextFormInput system = new TextFormInput("System");
-*  <P>         // Create a text form input element for the userId.
+*  
+*  // Create a text form input element for the userId.
 *  LabelFormElement userPrompt = new LabelFormElement("User:");
 *  TextFormInput user = new TextFormInput("User");
-*  <P>         // Create a password form input element for the password.
+*  
+*  // Create a password form input element for the password.
 *  LabelFormElement passwordPrompt = new LabelFormElement("Password:");
 *  PasswordFormInput password = new PasswordFormInput("Password");
-*  <P>         // Create the GridLayoutFormPanel object with two columns and add the form elements.
+*  
+*  // Create the GridLayoutFormPanel object with two columns and add the form elements.
 *  GridLayoutFormPanel panel = new GridLayoutFormPanel(2);
 *  panel.addElement(sysPrompt);
 *  panel.addElement(system);
@@ -53,9 +57,11 @@ import java.beans.*;
 *  panel.addElement(user);
 *  panel.addElement(passwordPrompt);
 *  panel.addElement(password);
-*  <P>         // Create the submit button to the form.
+*  
+*  // Create the submit button to the form.
 *  SubmitFormInput logonButton = new SubmitFormInput("logon", "Logon");
-*  <P>         // Create HTMLForm object and add the panel to it.
+*  
+*  // Create HTMLForm object and add the panel to it.
 *  HTMLForm form = new HTMLForm(servletURI);
 *  form.addElement(panel);
 *  form.addElement(logonButton);

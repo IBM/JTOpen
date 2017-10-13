@@ -16,11 +16,12 @@ package com.ibm.jtopenlite.components;
  * Order of operations:
  * <ul>
  * <li>totalRecords()</li>
- * <li>start loop</li>
+ * <li>start loop
  * <ul>
  * <li>newJobInfo()</li>
  * <li>other various setters</li>
  * </ul>
+ * </li>
  * <li>end loop</li>
  * </ul>
 **/

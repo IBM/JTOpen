@@ -26,8 +26,8 @@ import java.io.IOException;
   *
   *  Error events are generated if errors are encountered.
   *
-  *  @see com.ibm.as400.access.ErrorEvent
-  *  @see com.ibm.as400.access.ErrorListener
+  *  @see com.ibm.as400.vaccess.ErrorEvent
+  *  @see com.ibm.as400.vaccess.ErrorListener
   *  @see com.ibm.as400.access.IFSFile
   *  @see com.ibm.as400.access.IFSFileFilter
   *  @see java.awt.List

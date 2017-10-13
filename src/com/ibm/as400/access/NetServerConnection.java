@@ -32,7 +32,7 @@ import java.util.Vector;
  <li>{@link NetServerSession#listConnections() NetServerSession.listConnections}
  </ul>
 <p>
-<a name="attributeIDs">The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #CONNECT_TIME CONNECT_TIME}
 <li>{@link #FILES_OPEN_COUNT FILES_OPEN_COUNT}

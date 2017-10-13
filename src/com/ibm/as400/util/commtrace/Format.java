@@ -88,7 +88,7 @@ import com.ibm.as400.access.Trace;
  * <b>java com.ibm.as400.commtrace.Format</b> [ options ]<br></pre></blockquote>
  * Options:
  * <dl>
- * The first argument is the system to connect to.
+ * <dt><i>First argument</i></dt><dd>System to connect to</dd>
  * <dt><b>-u/-userID</b></dt><dd>The userID for the system</dd>
  * <dt><b>-p/-password</b></dt><dd>The password for the system</dd>
  * <dt><b>-t/-trace</b></dt><dd>The trace to parse</dd>

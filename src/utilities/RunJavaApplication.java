@@ -78,7 +78,7 @@ import java.util.Vector;
   * The format of the java command is:
   * <a name="ex"> </a>
   * <PRE>
-  * java [-classpath=<value>] [-verbose] [-D<property>=<value> [...]] class [<programParameter1> [...]]
+  * java [-classpath=&lt;value&gt;] [-verbose] [-D&lt;property&gt;=&lt;value&gt; [...]] class [&lt;programParameter1&gt; [...]]
   * </PRE>
   *
  **/

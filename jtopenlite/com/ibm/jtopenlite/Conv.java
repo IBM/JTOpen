@@ -1624,7 +1624,7 @@ public final class Conv
   }
 
   /**
-   * The scale is 0, and 0 < numDigits <= 20.
+   * The scale is 0, and 0 &lt; numDigits &lt;= 20.
   **/
   public static final long zonedDecimalToLong(final byte[] data, final int offset, final int numDigits)
   {
@@ -1657,7 +1657,7 @@ public final class Conv
   }
 
   /**
-   * The scale is 0, and 0 < numDigits <= 10.
+   * The scale is 0, and 0 &lt; numDigits &lt;= 10.
   **/
   public static final int zonedDecimalToInt(final byte[] data, final int offset, final int numDigits)
   {
@@ -1819,7 +1819,7 @@ public final class Conv
   }
 
   /**
-   * The scale is 0, and 0 < numDigits <= 20.
+   * The scale is 0, and 0 &lt; numDigits &lt;= 20.
   **/
   public static final void longToZonedDecimal(long l, final byte[] data, final int offset, final int numDigits)
   {

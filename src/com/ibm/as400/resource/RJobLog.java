@@ -33,17 +33,16 @@ and job number or internal job identifier need to be set.  A valid combination
 of these must be set by getting any of the job log's messages.
 
 <a name="default">
-<p>If you do not specify any of the job name, user name, job number,
+If you do not specify any of the job name, user name, job number,
 or internal job identifier, the default job is used.
 The default job is the host server job for remote program calls.
 </a>
 
-<a name="selectionIDs"><p>The following selection IDs are supported:
+<a name="selectionIDs">The following selection IDs are supported:</a>
 <ul>
 <li>{@link #LIST_DIRECTION LIST_DIRECTION}
 <li>{@link #STARTING_MESSAGE_KEY STARTING_MESSAGE_KEY}
 </ul>
-</a>
 
 <p>Use one or more of these selection IDs with
 {@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}

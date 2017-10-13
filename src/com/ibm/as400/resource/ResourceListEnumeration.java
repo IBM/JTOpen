@@ -31,11 +31,11 @@ an alternative to using the methods defined in ResourceList.
 ResourceListEnumeration is in use, the enumerated Resource objects
 may not be consistent.
 
-<code><pre>
+<code>
 // Create an RUserList object to represent a list of users.
 AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 RUserList userList = new RUserList(system);
-<br>
+
 // Create a ResourceListEnumeration to iterate through
 // the users in the list.
 ResourceListEnumeration list = new ResourceListEnumeration(userList);
@@ -46,7 +46,7 @@ while(list.hasMoreElements())
     System.out.println(user.getAttributeValue(RUser.TEXT_DESCRIPTION);
     System.out.println();
 }
-</pre></code>
+</code>
 **/
 class ResourceListEnumeration
 implements Enumeration

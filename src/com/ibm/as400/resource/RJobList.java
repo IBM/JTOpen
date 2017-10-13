@@ -25,7 +25,7 @@ import java.beans.PropertyVetoException;
 /**
 The RJobList class represents a list of server jobs.
 
-<a name="selectionIDs"><p>The following selection IDs are supported:
+<a name="selectionIDs">The following selection IDs are supported:</a>
 <ul>
 <li>{@link #JOB_NAME JOB_NAME}
 <li>{@link #JOB_NUMBER JOB_NUMBER}
@@ -33,14 +33,13 @@ The RJobList class represents a list of server jobs.
 <li>{@link #PRIMARY_JOB_STATUSES PRIMARY_JOB_STATUSES}
 <li>{@link #USER_NAME USER_NAME}
 </ul>
-</a>
 
 <p>Use one or more of these selection IDs with 
 {@link com.ibm.as400.resource.ResourceList#getSelectionValue(java.lang.Object) getSelectionValue()}
 and {@link com.ibm.as400.resource.ResourceList#setSelectionValue(java.lang.Object, java.lang.Object) setSelectionValue()}
 to access the selection values for an RJobList.
 
-<a name="sortIDs"><p>The following sort IDs are supported:
+<a name="sortIDs">The following sort IDs are supported:</a>
 <ul>
 <li>{@link com.ibm.as400.resource.RJob#JOB_NAME RJob.JOB_NAME}
 <li>{@link com.ibm.as400.resource.RJob#USER_NAME RJob.USER_NAME}
@@ -48,7 +47,7 @@ to access the selection values for an RJobList.
 <li>{@link com.ibm.as400.resource.RJob#JOB_TYPE RJob.JOB_TYPE}
 <li>{@link com.ibm.as400.resource.RJob#JOB_SUBTYPE RJob.JOB_SUBTYPE}
 </ul>
-</a>                                                            
+                                                           
 
 <p>Use one or more of these sort IDs with 
 {@link com.ibm.as400.resource.ResourceList#getSortValue() getSortValue()}

@@ -29,11 +29,11 @@ import java.beans.PropertyChangeListener;
 *  <BLOCKQUOTE><PRE>
 *  // Create an HTMLServlet.
 *  HTMLServlet servlet = new HTMLServlet("myServlet", "http://server:port/dir");
-*  <p>
+*  
 *  // Create a parameter, then add it to the servlet.
 *  HTMLParameter param = new HTMLParameter("parm1", "value1");
 *  servlet.addParameter(param);
-*  <p>
+*  
 *  // Create and add second parameter
 *  HTMLParameter param2 = servlet.add("parm2", "value2");
 *  System.out.println(servlet);

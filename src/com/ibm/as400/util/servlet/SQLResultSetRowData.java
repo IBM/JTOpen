@@ -43,14 +43,16 @@ import java.util.Vector;
   <P>The following example creates an SQLResultSetRowData object and initializes it to an
   SQL ResultSet.
   <BLOCKQUOTE><PRE>
-  <P>       // Register and get a connection to the database.
+  // Register and get a connection to the database.
   DriverManager.registerDriver(new com.ibm.as400.access.AS400JDBCDriver());
   Connection connection = DriverManager.getConnection("jdbc:as400://mySystem");
-  <P>       // Execute an SQL statement and get the result set.
+  
+  // Execute an SQL statement and get the result set.
   Statement statement = connection.createStatement();
   statement.execute("select * from qiws.qcustcdt");
   ResultSet resultSet = statement.getResultSet();
-  <P>       // Create the SQLResultSetRowData object and initialize to the result set.
+  
+  // Create the SQLResultSetRowData object and initialize to the result set.
   SQLResultSetRowData rowData = new SQLResultSetRowData(resultSet);
   </PRE></BLOCKQUOTE>
 **/

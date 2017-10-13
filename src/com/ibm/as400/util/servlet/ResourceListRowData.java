@@ -36,10 +36,10 @@ import java.util.Vector;
  * {@link com.ibm.as400.resource.ResourceList ResourceList} interface.  The row data
  * columns are specified as an array of column attribute IDs. The row data will contain a column
  * for each element of the array. The following can be specified as column attribute IDs:
- * <P>
+ * 
  * <UL>
  *   <LI>null - The name from each Resource's Presentation object are presented in the column.
- *   <P>
+ *   
  *   <LI>Resource attribute IDs - These are defined by the Resource objects that make up the rows data.
  *   The corresponding attribute value is presented in the column.
  * </UL>
@@ -52,32 +52,40 @@ import java.util.Vector;
  * starting from 0.
  *
  * <P>The following example creates a ResourceListRowData object using an RUserList:
- * <P><BLOCKQUOTE><PRE>
- * <P>          // Create an object to represent the system.
- * AS400 mySystem = new AS400("mySystem.myCompany.com");
- * <P>          // Create a resource user list.
- * RUserList userList = new RUserList(sys);
- * <P>          // Set the selection so that all user profiles
- *              // are included in the list.
- * userList.setSelectionValue(RUserList.SELECTION_CRITERIA, RUserList.ALL);
- * <P>          // Create an HTMLTableConverter object.
- * HTMLTableConverter converter = new HTMLTableConverter();
- *              // Set up the table tag with a maximum of 20 rows per table.
- * converter.setMaximumTableSize(20);
- * <P>          // Create an HTMLTable and use the meta data for the table headers.
- * HTMLTable table = new HTMLTable();
- * table.setCellSpacing(6);
- * table.setBorderWidth(8);
- * converter.setTable(table);
- * converter.setUseMetaData(true);
- * <P>          // Create a ResourceListRowData.
- * ResourceListRowData rowdata = new ResourceListRowData(userList, new Object[] { null, RUser.TEXT_DESCRIPTION } );
- * <P>          // Convert the ResourceListRowData into an HTMLTable.
- * String[] html = converter.convert(rowdata);
- * <P>          // Print out the first table of 20 users from the html array.
- * System.out.println(html[0]);
+ * <BLOCKQUOTE><PRE>
+ *  // Create an object to represent the system.
+ *  AS400 mySystem = new AS400("mySystem.myCompany.com");
+ *  
+ *  // Create a resource user list.
+ *  RUserList userList = new RUserList(sys);
+ *  
+ *  // Set the selection so that all user profiles
+ *  // are included in the list.
+ *  userList.setSelectionValue(RUserList.SELECTION_CRITERIA, RUserList.ALL);
+ *  
+ *  // Create an HTMLTableConverter object.
+ *  HTMLTableConverter converter = new HTMLTableConverter();
+ *  
+ *  // Set up the table tag with a maximum of 20 rows per table.
+ *  converter.setMaximumTableSize(20);
+ *  
+ *  // Create an HTMLTable and use the meta data for the table headers.
+ *  HTMLTable table = new HTMLTable();
+ *  table.setCellSpacing(6);
+ *  table.setBorderWidth(8);
+ *  converter.setTable(table);
+ *  converter.setUseMetaData(true);
+ *  
+ *  // Create a ResourceListRowData.
+ *  ResourceListRowData rowdata = new ResourceListRowData(userList, new Object[] { null, RUser.TEXT_DESCRIPTION } );
+ * 
+ *  // Convert the ResourceListRowData into an HTMLTable.
+ *  String[] html = converter.convert(rowdata);
+ * 
+ *  // Print out the first table of 20 users from the html array.
+ *  System.out.println(html[0]);
  *
- * </PRE></BLOCKQUOTE></P>
+ * </PRE></BLOCKQUOTE>
  */
 public class ResourceListRowData extends RowData implements java.io.Serializable
 {

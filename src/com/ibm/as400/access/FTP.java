@@ -52,7 +52,7 @@ import java.beans.*;
  * client.setDataTransferType(FTP.BINARY);
  * String [] entries = client.ls();
  *
- * for (int i = 0; i &lt entries.length; i++)
+ * for (int i = 0; i &lt; entries.length; i++)
  * {
  *    System.out.println("Copying " + entries[i]);
  *    try

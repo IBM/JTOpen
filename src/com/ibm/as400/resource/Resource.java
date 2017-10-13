@@ -112,7 +112,7 @@ values.  {@link com.ibm.as400.resource.ChangeableResource ChangeableResource},
 which is a subclass of Resource, adds methods which provide write access to
 the attribute values. 
 
-<a name="subclass"><p><b>Subclass notes:</b></a>
+<a name="subclass"><b>Subclass notes:</b></a>
 <p>If you are extending this class to override the mechanism for getting
 attribute values, consider whether you need to support bidirectional
 character conversion.  If you do not plan to support bidirectional character

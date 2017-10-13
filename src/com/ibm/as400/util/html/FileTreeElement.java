@@ -32,47 +32,47 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *
 *  <P>This example creates an FileTreeElement object:
 *
-*  <P>
+*  
 *  <PRE>
 *  // Create an HTMLTree object.
 *  HTMLTree tree = new HTMLTree(httpServletRequest);
-*  <p>
+*  
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(httpServletRequest.getRequestURI());
-*  <p>
+*  
 *  // Create a object to represent the connection to the system.
 *  AS400 system = new AS400(mySystem, myUserId, myPassword);
-*  <p>
+*  
 *  // Create an IFS object.
 *  IFSJavaFile root = new IFSJavaFile(system, "/QIBM");
-*  <p>
+*  
 *  // Create a DirFilter object and get the directories.
 *  DirFilter filter = new DirFilter();
 *  File[] dirList = root.listFiles(filter);
-*  <p>
+*  
 *
-*  for (int i=0; i < dirList.length; i++)
-*  {  <p>
+*  for (int i=0; i &lt; dirList.length; i++)
+*  {  
 *     // Create a FileTreeElement.
 *     FileTreeElement node = new FileTreeElement(dirList[i]);
-*     <p>
+*     
 *     // Set the Icon URL.
 *     ServletHyperlink sl = new ServletHyperlink(urlParser.getURI());
 *     sl.setHttpServletResponse(resp);
 *     node.setIconUrl(sl);
-*     <p>
+*     
 *     // Add the FileTreeElement to the tree.
 *     tree.addElement(node);
 *  }
 *  </PRE>
 *
 *  Once the elements are added to an HTMLTree object, the FileTreeElements will look like this:
-*  <P>
+*  
 *
-*  <table cellpadding="0" cellspacing="3">
+*  <table cellpadding="0" cellspacing="3" summary="">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=exapand&hashcode=2050603#2050603" name="2050603">+</a>
+*  <a href="/servlet/myServlet?action=exapand&amp;hashcode=2050603" name="X2050603">+</a>
 *  </td>
 *  <td>
 *  include
@@ -80,7 +80,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=exapand&hashcode=2050584#2050584" name="2050584">+</a>
+*  <a href="/servlet/myServlet?action=exapand&amp;hashcode=2050584" name="X2050584">+</a>
 *  </td>
 *  <td>
 *  locales
@@ -88,7 +88,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=exapand&hashcode=2050485#2050485" name="2050485">+</a>
+*  <a href="/servlet/myServlet?action=exapand&amp;hashcode=2050485" name="X2050485">+</a>
 *  </td>
 *  <td>
 *  ProdData
@@ -96,7 +96,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=exapand&hashcode=2050574#2050574" name="2050574">+</a>
+*  <a href="/servlet/myServlet?action=exapand&amp;hashcode=2050574" name="X2050574">+</a>
 *  </td>
 *  <td>
 *  Test Folder
@@ -104,7 +104,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=exapand&hashcode=2050555#2050555" name="2050555">+</a>
+*  <a href="/servlet/myServlet?action=exapand&amp;hashcode=2050555" name="X2050555">+</a>
 *  </td>
 *  <td>
 *  UserData
@@ -112,7 +112,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=exapand&hashcode=2050536#2050536" name="2050536">+</a>
+*  <a href="/servlet/myServlet?action=exapand&amp;hashcode=2050536" name="X2050536">+</a>
 *  </td>
 *  <td>
 *  XML

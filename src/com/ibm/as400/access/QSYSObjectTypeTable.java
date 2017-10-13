@@ -27,7 +27,7 @@ and extended attributes for objects on the system.
 the "FILE" object type.
 <pre><code>
 String[] extendedAttributes = QSYSObjectTypeTable.getSupportedAttributes("FILE");
-for(int i = 0; i < extendedAttributes.length; ++i)
+for(int i = 0; i &lt; extendedAttributes.length; ++i)
 {
 System.out.println(QSYSObjectTypeTable.getLocalizedObjectType("FILE", extendedAttributes[i]));
 }

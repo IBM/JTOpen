@@ -60,36 +60,44 @@ import java.util.Vector;
 *
 *  <P>The following example creates a ListRowData object and adds rows to represent a directory in the
 *  integrated file system.
-*  <P><BLOCKQUOTE><PRE>
-*  <P>          // Get the files in a directory.
+*  <BLOCKQUOTE><PRE>
+*  
+*  // Get the files in a directory.
 *  AS400 mySystem = new AS400("mySystem.myCompany.com");
 *  IFSFile f = new IFSFile(mySystem, pathName);
 *  FileListener listener = new FileListener();
 *  f.list(listener);
 *  Vector files = listener.getFiles();
-*  <P>          // Create a metadata object.
+*  
+*  // Create a metadata object.
 *  ListMetaData metaData = new ListMetaData(4);
-*  <P>          // Set first column to be the file name.
+*  
+*  // Set first column to be the file name.
 *  metaData.setColumnName(0, "Name");
 *  metaData.setColumnLabel(0, "Name");
 *  metaData.setColumnType(0, RowMetaDataType.STRING_DATA_TYPE);
-*  <P>          // Set second column to be the file size.
+*  
+*  // Set second column to be the file size.
 *  metaData.setColumnName(1, "Size");
 *  metaData.setColumnLabel(1, "Size");
 *  metaData.setColumnType(1, RowMetaDataType.INTEGER_DATA_TYPE);
-*  <P>          // Set third column to the file data/time stamp.
+*  
+*  // Set third column to the file data/time stamp.
 *  metaData.setColumnName(2, "DateTime");
 *  metaData.setColumnLabel(2, "Date/Time");
 *  metaData.setColumnType(2, RowMetaDataType.STRING_DATA_TYPE);
-*  <P>          // Set fourth column to the file type.
+*  
+*  // Set fourth column to the file type.
 *  metaData.setColumnName(3, "Type");
 *  metaData.setColumnLabel(3, "Type");
 *  metaData.setColumnType(3, RowMetaDataType.STRING_DATA_TYPE);
-*  <P>          // Create a ListRowData object.
+*  
+*  // Create a ListRowData object.
 *  ListRowData rowData = new ListRowData();
 *  rowData.setMetaData(metaData);
-*  <P>          // Add directory entries to list.
-*  for (int i=0; i < files.size(); i++)
+*  
+*  // Add directory entries to list.
+*  for (int i=0; i &lt; files.size(); i++)
 *  {
 *     Object[] row = new Object[4];
 *     IFSFile file = (IFSFile)files.elementAt(i);
@@ -106,7 +114,7 @@ import java.util.Vector;
 *     }
 *     rowData.addRow(row);
 *  }
-*  </PRE></BLOCKQUOTE></P>
+*  </PRE></BLOCKQUOTE>
 *
 *  @see com.ibm.as400.util.servlet.ListMetaData
 **/

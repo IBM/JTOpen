@@ -89,7 +89,7 @@ void resetAttributeValues(ChangeableResource resource) throws ResourceException
 }
 </pre></blockquote>
 
-<a name="subclass"><p><b>Subclass notes:</b></a>
+<a name="subclass"><b>Subclass notes:</b></a>
 <p>If you are extending this class to override the mechanism for getting
 attribute values, you need to override either 
 {@link #getAttributeUnchangedValue(java.lang.Object) getAttributeUnchangedValue(Object)}

@@ -4704,7 +4704,7 @@ void handleAbort() {
     isolation levels.  The following table provides a terminology
     mapping:
 
-    <p><table border>
+    <p><table border summary="">
     <tr><th>IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
     <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
     <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
@@ -5742,7 +5742,6 @@ endif */
 //JDBC40DOC     *  the executor is null, or the value specified for seconds is less than 0.
 //JDBC40DOC     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
 //JDBC40DOC     *  setNetworkTimeout.
-//JDBC40DOC     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
 //JDBC40DOC     * @see  SecurityManager#checkPermission(java.security.Permission)
 //JDBC40DOC     * @see  Statement#setQueryTimeout(int)
 //JDBC40DOC     * @see  #getNetworkTimeout()

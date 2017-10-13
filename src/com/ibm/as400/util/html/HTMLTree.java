@@ -33,41 +33,41 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  The first three elements will be added directly to the HTMLTree and the remaining two
 *  elements will extend off one of the first three elements.
 *
-*  <P>
+*
 *
 *  <BLOCKQUOTE><PRE>
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(myHttpServletRequest.getRequestURI());
-*  <P>
+*  
 *  // Create parent HTMLTreeElements.
 *  HTMLTreeElement parentElement = new HTMLTreeElement();
 *  parentElement.setTextUrl(new HTMLHyperlink("http://myWebPage", "My Web Page"));
-*  <P>
+*  
 *  HTMLTreeElement parentElement2 = new HTMLTreeElement();
 *  parentElement2.setText(new HTMLText("Parent Element 2"));
-*  <P>
+*  
 *  HTMLTreeElement parentElement3 = new HTMLTreeElement();
 *  parentElement3.setText(new HTMLText("Parent Element 3"));
-*  <P>
+*  
 *  // Create children HTMLTreeElements.
 *  HTMLTreeElement childElement1 = new HTMLTreeElement();
 *  childElement1.setTextUrl(new HTMLHyperlink("http://anotherWebPage", "Another Web Page"));
 *  parentElement.addElement(childElement1);
-*  <P>
+*  
 *  // Create a child of the first Child Element.
 *  HTMLTreeElement subChildElement1 = new HTMLTreeElement();
 *  subChildElement1.setText(new HTMLHyperlink("http://myHomePage", "Home"));
-*  <P>
+*  
 *  // Add the sub-child to the parent child element.
 *  childElement1.addElement(subChildElement1);
-*  <P>
+*  
 *  // Set the URL link for the Expand/Collapsed Icon.
 *  ServletHyperlink iconUrl = new ServletHyperlink(urlParser.getURI());
 *  iconUrl.setHttpServletResponse(resp);
 *  parentElement.setIconUrl(iconUrl);
 *  parentElement2.setIconUrl(iconUrl);
 *  parentElement3.setIconUrl(iconUrl);
-*  <P>
+*  
 *  // Add the parent elements to the tree.
 *  tree.addElement(parentElement);
 *  tree.addElement(parentElement2);
@@ -77,12 +77,11 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  <P>
 *  When the HTMLTree is first viewed in a browser, none of the elements in the tree will be
 *  expanded, so the tree will look like this:
-*  <P>
 *
-*  <table cellpadding="0" cellspacing="3">
+*  <table cellpadding="0" cellspacing="3" summary="">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=expand&hashcode=2043557#2043557" name="2043557">+</a>
+*  <a href="/servlet/myServlet?action=expand&amp;hashcode=2043557" name="X2043557">+</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
@@ -105,27 +104,26 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *
 *  <P>
 *  When the elements in the HTMLTree are expanded by traversing the hierarchy, the tree will look like:
-*  <P>
 *
-*  <table cellpadding="0" cellspacing="3">
+*  <table cellpadding="0" cellspacing="3" summary="">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=contract&hashcode=2043557#2043557" name="2043557">-</a>
+*  <a href="/servlet/myServlet?action=contract&amp;hashcode=2043557" name="X2043558">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
 *  </tr>
 *  <tr><td>&nbsp;</td><td>
-*  <table cellpadding="0" cellspacing="3">
+*  <table cellpadding="0" cellspacing="3" summary="">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=contract&hashcode=2043712#2043712" name="2043712">-</a>
+*  <a href="/servlet/myServlet?action=contract&amp;hashcode=2043712" name="X2043712">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebServer/anotherWebPage">Another Web Page</a></td>
 *  </tr>
 *  <tr><td>&nbsp;</td><td>
-*  <table cellpadding="0" cellspacing="3">
+*  <table cellpadding="0" cellspacing="3" summary="">
 *  <tr>
 *  <td>
 *  </td>

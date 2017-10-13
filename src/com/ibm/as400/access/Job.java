@@ -6301,6 +6301,7 @@ public class Job implements Serializable
     /**
      Sets the action taken for interactive jobs when an I/O error occurs for the job's requesting program device.
      @param  deviceRecoveryAction  The action taken for interactive jobs when an I/O error occurs for the job's requesting program device.  Possible values are:
+     <ul>
      <li>{@link #DEVICE_RECOVERY_ACTION_SYSTEM_VALUE DEVICE_RECOVERY_ACTION_SYSTEM_VALUE} - The value in the system value QDEVRCYACN is used as the device recovery action for this job.
      <li>{@link #DEVICE_RECOVERY_ACTION_MESSAGE DEVICE_RECOVERY_ACTION_MESSAGE} - Signals the I/O error message to the application and lets the application program perform error recovery.
      <li>{@link #DEVICE_RECOVERY_ACTION_DISCONNECT_MESSAGE DEVICE_RECOVERY_ACTION_DISCONNECT_MESSAGE} - Disconnects the job when an I/O error occurs.  When the job reconnects, the system sends an error message to the application program, indicating the job has reconnected and that the work station device has recovered.

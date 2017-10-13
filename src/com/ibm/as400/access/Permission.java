@@ -60,14 +60,14 @@ import java.util.Enumeration;
  *                            structure. This includes everything that is not in QSYS.LIB or QDLS.
  * </ul>
  * Here is a simple example:
- * <p><blockquote><pre>
+ * <blockquote><pre>
  * AS400 as400 = new AS400();
  * Permission permission = new Permission(as400,"/QSYS.LIB/QJAVA.LIB");
  * permission.addAuthorizedUser("user1");
  * QSYSPermission userPermission = (QSYSPermission)permission.getUserPermission("user1");
  * userPermission.setObjectAuthority("*CHANGE");
  * permission.commit();
- * </pre></blockquote></p>
+ * </pre></blockquote>
  * @see UserPermission
  * @see DLOPermission
  * @see QSYSPermission
@@ -1006,7 +1006,7 @@ public class Permission
 
     /**
      * Serialization support.  
-     * @exception Thrown when an application tries to load in a class through its string name,
+     * @exception ClassNotFoundException Thrown when an application tries to load in a class through its string name,
      *            but no definition for the class with the specifed name could be found. 
      * @exception IOException If an error occurs while communicating with the system.
      *
@@ -1127,13 +1127,13 @@ public class Permission
 
     /**
      * Sets the authorizations list of the object. For example:
-     * <p><blockquote><pre>
+     * <blockquote><pre>
      * Permission permisson = new Permisson(new AS400(),"/QSYS.LIB/FRED.LIB";
      * permission.setAuthorizationList("testautl");
      * System.out.println("The authorization list of fred.lib is " + permissin.geAuthorizationList();
      * permission.setAuthorizationList("*NONE");
      * System.out.println("The authorization list of fred.lib is " + permissin.geAuthorizationList();
-     * </pre></blockquote></p>
+     * </pre></blockquote>
      * @param autList The authorizations list of the object.
      *
     **/

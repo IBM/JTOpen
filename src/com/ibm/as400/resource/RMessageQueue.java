@@ -32,7 +32,7 @@ queue path is set, then the default is {@link #CURRENT CURRENT},
 which represents the current user's message queue,
 <blockquote>/QSYS.LIB/QUSRSYS.LIB/<em>userID</em>.MSGQ</blockquote>.
 
-<a name="selectionIDs"><p>The following selection IDs are supported:
+<a name="selectionIDs">The following selection IDs are supported:</a>
 <ul>
 <li>{@link #FORMATTING_CHARACTERS FORMATTING_CHARACTERS}
 <li>{@link #LIST_DIRECTION LIST_DIRECTION}
@@ -43,7 +43,6 @@ which represents the current user's message queue,
 <li>{@link #STARTING_USER_MESSAGE_KEY STARTING_USER_MESSAGE_KEY}
 <li>{@link #STARTING_WORKSTATION_MESSAGE_KEY STARTING_WORKSTATION_MESSAGE_KEY}
 </ul>
-</a>
 
 <p>Use one or more of these selection IDs with
 {@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}
@@ -74,8 +73,9 @@ objects returned in a list of messages:
 </ul>
 
 <a name="receiveIDs">
-<p>The following is a list of attribute IDs whose values are set on
+The following is a list of attribute IDs whose values are set on
 objects returned by {@link #receive receive()}:
+</a>
 <ul>
 <li>{@link com.ibm.as400.resource.RQueuedMessage#ALERT_OPTION ALERT_OPTION }
 <li>{@link com.ibm.as400.resource.RQueuedMessage#DATE_SENT DATE_SENT  }
@@ -92,7 +92,7 @@ objects returned by {@link #receive receive()}:
 <li>{@link com.ibm.as400.resource.RQueuedMessage#SENDING_PROGRAM_NAME SENDING_PROGRAM_NAME }
 <li>{@link com.ibm.as400.resource.RQueuedMessage#SUBSTITUTION_DATA  SUBSTITUTION_DATA }
 </ul>
-</a>
+
 
 <blockquote><pre>
 // Create an RMessageQueue object to represent a specific message queue.

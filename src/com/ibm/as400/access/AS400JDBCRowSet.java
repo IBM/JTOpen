@@ -66,7 +66,7 @@ import java.util.Map;
 *  is established.  The command property must be set to specify how to create the PreparedStatement.
 *
 *  <p>This example creates an AS400JDBCRowSet object, populates it, and then updates its contents.
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  DriverManager.registerDriver(new AS400JDBCDriver());
 *  AS400JDBCRowSet rowset = new AS400JDBCRowSet("jdbc:as400://mySystem","myUser", "myPassword");
 *
@@ -83,12 +83,12 @@ import java.util.Map;
 *     rowset.updateDouble("BALANCE", newBalance);
 *     rowset.updateRow();
 *  }
-*  </blockquote></pre>
+*  </pre></blockquote>
 *
 *  <p>This example creates an AS400JDBCRowSet object, sets the data source and command parameters and then
 *  populates it.
 *
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  // Get the data source that is registered in JNDI (assumes JNDI environment is set).
 *  Context context = new InitialContext();
 *  AS400JDBCDataSource dataSource = (AS400JDBCDataSource) context.lookup("jdbc/customer");
@@ -105,11 +105,11 @@ import java.util.Map;
 *
 *  // Populate the rowset.
 *  rowset.execute();
-*  </blockquote></pre>
+*  </pre></blockquote>
 *
 *  <P>AS400JDBCRowSet objects generate the following events:
 *  <ul>
-*    <li>RowSetEvent</a> - The events fired are:
+*    <li>RowSetEvent - The events fired are:
 *      <ul>
 *       <li>cursorMoved</li>
 *       <li>rowChanged</li>

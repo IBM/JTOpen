@@ -31,7 +31,7 @@ for use in XA transaction management.
 <p>The following example creates an AS400JDBCXAResource object
 that can be used to work with the XA resource manager.
 
-<pre><blockquote>
+<blockquote><pre>
 // Create an XA data source for making the XA connection.
 AS400JDBCXADataSource xaDataSource = new AS400JDBCXADataSource("myAS400");
 xaDataSource.setUser("myUser");
@@ -47,7 +47,7 @@ XAResource xaResource = xaConnection.getXAResource();
 // Close the XA connection when done.  This implicitly
 // closes the XA resource.
 xaConnection.close();
-</blockquote></pre>
+</pre></blockquote>
 
 @see AS400JDBCXAConnection
 @see AS400JDBCXADataSource

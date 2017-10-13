@@ -26,7 +26,7 @@ import java.util.Vector;
  <p>
  NetServerSession objects are created and returned by {@link NetServer#listSessions() NetServer.listSessions()}.
 <p>
-<a name="attributeIDs">The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #CONNECTION_COUNT CONNECTION_COUNT}
 <li>{@link #SESSION_TIME SESSION_TIME}

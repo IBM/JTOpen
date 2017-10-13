@@ -24,13 +24,12 @@ import java.beans.PropertyVetoException;
 /**
 The RUserList class represents a list of users on the system.
 
-<a name="selectionIDs"><p>The following selection IDs are supported:
+<a name="selectionIDs">The following selection IDs are supported:</a>
 <ul>
 <li>{@link #SELECTION_CRITERIA SELECTION_CRITERIA}
 <li>{@link #GROUP_PROFILE GROUP_PROFILE}
 <li>{@link #USER_PROFILE USER_PROFILE}
 </ul>
-</a>
 
 <p>Use one or more of these selection IDs with
 {@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}

@@ -20,7 +20,7 @@ import java.beans.PropertyVetoException;
 *  The HTMLTableHeader represents an HTML table header tag.
 *
 *  <P>This example creates an HTMLTableHeader and displays the tag output.
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  HTMLTableHeader header = new HTMLTableHeader();
 *  header.setHorizontalAlignment(HTMLTableHeader.CENTER);
 *  HTMLText headerText = new HTMLText("Customer Name");
@@ -32,7 +32,7 @@ import java.beans.PropertyVetoException;
 *  &lt;th align="center"&gt;Customer Name&lt;/th&gt;
 *  </PRE></BLOCKQUOTE>
 *  <P>Calling getFOTag() produces the following tag with the default cell border and padding properties:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px'&gt;
 *  &lt;fo:block font-weight='bold'&gt;&lt;fo:block&gt;Customer Name&lt;/fo:block&gt;
 *  &lt;/fo:block&gt;

@@ -15,17 +15,16 @@ package com.ibm.jtopenlite.ddm;
 
 /**
  * Used by DDMConnection to obtain the input for a write operation from the user in a memory-conscious fashion.
- * <p></p>
- * Order of operations:
+ * <p>Order of operations:
  * <ol>
  * <li>DDMConnection.write(file, callback)</li>
- * <li>--> callback.getNumberOfRecords()</li>
- * <li>--> begin loop</li>
- * <li>------> callback.getRecordData()</li>
- * <li>------> callback.getRecordDataOffset()</li>
- * <li>------> callback.getNullFieldValues()</li>
- * <li>------> Record is written</li>
- * <li>--> end loop</li>
+ * <li>--&gt; callback.getNumberOfRecords()</li>
+ * <li>--&gt; begin loop</li>
+ * <li>------&gt; callback.getRecordData()</li>
+ * <li>------&gt; callback.getRecordDataOffset()</li>
+ * <li>------&gt; callback.getNullFieldValues()</li>
+ * <li>------&gt; Record is written</li>
+ * <li>--&gt; end loop</li>
  * </ol>
 **/
 public interface DDMWriteCallback

@@ -50,8 +50,9 @@ public class SecureAS400 extends AS400
     public static final int CLIENT_TO_SERVER = 3;
     
     /**
-     * @P4A Indicate whether the cipher suits changed by the caller. We add this for iNav.
+     * Indicate whether the cipher suites changed by the caller. We add this for iNav.
      */
+     /* @P4A*/
     public static boolean changeCipherSuites = false;
     public static String[] newCipherSuites;
 

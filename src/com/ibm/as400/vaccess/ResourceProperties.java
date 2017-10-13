@@ -32,12 +32,12 @@ starting at 0, in the order they are added.  There is always at least
 one tab, created by default.  The first tab always displays the icon 
 and full name of the object being represented.
 
-<a name="#properties">                                  
+<p><a name="properties">Properties</a>                                  
 <p>Properties are specified using either attribute IDs (for Resource objects),
 or selection or sort IDs (for ResourceList objects).  Each implementation
 of Resource or ResourceList documents its set of valid attribute, selection,
 and sort IDs.  
-</a>
+
 
 <p>This class alone does not present the properties pane.  It is
 intended for use in conjunction with 
@@ -47,28 +47,28 @@ or {@link com.ibm.as400.vaccess.ResourceListPane ResourceListPane}.
 <p>Here is an example which creates a ResourceProperties object for
 a list of jobs:
 
-<code><pre>
+<code>
 // Create the resource list.  This example creates
 // a list of all jobs on the system.
 AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 RJobList resourceList = new RJobList(system);
-<br>
+
 // Create and initialize a ResourceProperties object
 // which defines the arrangement of job attributes
 // to be presented when the end user views the 
 // properties for a specific job.
 ResourceProperties properties = new ResourceProperties();
-<br>
+
 // Add the job number, user name, and job type to the first tab.
 properties.addProperty(RJob.JOB_NUMBER);
 properties.addProperty(RJob.USER_NAME);
 properties.addProperty(RJob.JOB_TYPE);
-<br>
+
 // Add a new "Special" tab which contains the job status and subtype.
 int specialTab = properties.addTab("Special");
 properties.addProperty(specialTab, RJob.JOB_STATUS);
 properties.addProperty(specialTab, RJob.JOB_SUBTYPE);
-<br>
+
 // Create the ResourceListDetailsPane.  In this example,
 // there are four columns in the table.  The first column
 // contains the icons and names for each job.  The remaining
@@ -77,18 +77,18 @@ properties.addProperty(specialTab, RJob.JOB_SUBTYPE);
 // object defined earlier.
 Object[] columnAttributes = new Object[] { null, RJob.JOB_NUMBER, RJob.USER_NAME, RJob.JOB_STATUS, RJob.JOB_TYPE, RJob.JOB_SUBTYPE };
 ResourceListDetailsPane detailsPane = new ResourceListDetailsPane(resourceList, columnAttributes, properties);
-<br>
+
 // Add the ResourceListDetailsPane to a JFrame and show it.
 JFrame frame = new JFrame("My Window");
 frame.getContentPane().add(detailsPane);
 frame.pack();
 frame.show();
-<br>
+
 // The ResourceListDetailsPane will appear empty until
 // we load it.  This gives us control of when the list
 // of jobs is retrieved from the system.
 detailsPane.load();
-</pre></code>
+</code>
 @deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ResourceProperties

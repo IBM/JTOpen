@@ -45,7 +45,7 @@ import javax.naming.StringRefAddr;                // JNDI
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a
 *  connection to the database.
 *
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  // Create a data source for making the connection.
 *  AS400JDBCDataSource datasource = new AS400JDBCDataSource("myAS400");
 *  datasource.setUser("myUser");
@@ -53,11 +53,11 @@ import javax.naming.StringRefAddr;                // JNDI
 
 *  // Create a database connection to the system.
 *  Connection connection = datasource.getConnection();
-*  </blockquote></pre>
+*  </pre></blockquote>
 *
 *  <P>The following example registers an AS400JDBCDataSource object with JNDI and then
 *  uses the object returned from JNDI to obtain a database connection.
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  // Create a data source to the IBM i database.
 *  AS400JDBCDataSource dataSource = new AS400JDBCDataSource();
 *  dataSource.setServerName("myAS400");
@@ -4511,7 +4511,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <li>"false" -- no compression will be used
     *  <li>"insert" -- compression will only be used for batched insert data
     *  <li> "all" -- compression will be used for result set data and for batched insert data
-    *  <ul>
+    *  </ul>
     *  The default value is  "all" when connected to a server that supports compression of batched insert data and
     *  "true" when the server does not support compression of batched insert date
     **/

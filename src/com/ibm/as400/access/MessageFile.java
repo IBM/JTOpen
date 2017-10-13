@@ -380,7 +380,7 @@ public class MessageFile implements Serializable
 
     /**
      Returns an AS400Message object containing the message.  The system and message file name must be set before calling this method.  Up to 1024 bytes of substitution text can be supplied to this method.  The calling program is responsible for correctly formatting the string containing the substitution text for the specified message.
-     <p>For example, using CL command DSPMSGD, we see the format of the substitution text for message CPD0170 is char 4, char 10, char 10.  Passing string <pre>"12  abcd      xyz"</pre> as the substitution text on this call means "12" will be substituted for &1, "abcd" will be substituted for &2, and "xyz" will be substituted for &3.
+     <p>For example, using CL command DSPMSGD, we see the format of the substitution text for message CPD0170 is char 4, char 10, char 10.  Passing string <pre>"12  abcd      xyz"</pre> as the substitution text on this call means "12" will be substituted for &amp;1, "abcd" will be substituted for &amp;2, and "xyz" will be substituted for &amp;3.
      @param  ID  The message identifier, {@link #FIRST FIRST}, or {@link #NEXT NEXT}.
      @param  substitutionText  The substitution text.
      @param  type  The bidi message string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.

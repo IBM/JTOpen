@@ -30,7 +30,7 @@ This support is only available when connecting to systems running OS/400 V5R1 or
 <p>The following example creates an AS400JDBCXADataSource 
 object and creates a connection to the database.
 
-<pre><blockquote>
+<blockquote><pre>
 // Create an XA data source for making the connection.
 AS400JDBCXADataSource xaDataSource = new AS400JDBCXADataSource("myAS400");
 xaDataSource.setUser("myUser");
@@ -38,7 +38,7 @@ xaDataSource.setPassword("myPasswd");
 
 // Get the XAConnection.
 XAConnection xaConnection = xaDataSource.getXAConnection();
-</blockquote></pre>
+</pre></blockquote>
 
 @see AS400JDBCXAConnection
 @see AS400JDBCXAResource

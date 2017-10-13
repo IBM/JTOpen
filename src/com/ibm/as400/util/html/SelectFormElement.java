@@ -34,7 +34,7 @@ import java.beans.PropertyVetoException;
 *  This example creates a SelectFormElement object with three options and prints out the HTML tag.
 *  The first two options added specify the option text, name, and select attributes.  The third
 *  option added is defined by a SelectOption object.
-*  <P>
+*  
 *  <BLOCKQUOTE><PRE>
 *  SelectFormElement list = new SelectFormElement("list1");
 *  SelectOption option1 = list.addOption("Option1", "opt1");

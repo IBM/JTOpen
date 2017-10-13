@@ -37,12 +37,12 @@ import java.io.Serializable;
 *  </PRE></BLOCKQUOTE>
 *
 *  <P>Here is the output of the tag:
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;caption&gt;MY TABLE&lt;/caption&gt;
 *  </PRE></BLOCKQUOTE>
 *  <P>
 *  The equivalent tag using XSL Formatting Objects is:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:block&gt;&lt;fo:block&gt;MY TABLE&lt;/fo:block&gt;
 *  &lt;/fo:block&gt;
 *  </PRE></BLOCKQUOTE>
@@ -59,7 +59,7 @@ import java.io.Serializable;
 *  </PRE></BLOCKQUOTE>
 *
 *  <P>Here is the output of the tag:
-*  <P><BLOCKQUOTE><PRE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;caption align="bottom"&gt;&lt;a href="http://www.myCompany.com&gt;My Company"&lt;/a&gt;&lt;/caption&gt;
 *  </PRE></BLOCKQUOTE>
 *

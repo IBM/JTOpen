@@ -27,16 +27,16 @@ import java.beans.PropertyChangeSupport;
 *  <BLOCKQUOTE><PRE>
 *  // Create an OrderedList.
 *  OrderedList list = new OrderedList();
-*  <p>
+*  
 *  // Use large roman numerals when displaying the list items.
 *  list.setType(HTMLConstants.LARGE_ROMAN);
-*  <p>
+*  
 *  // Create an OrderedListItem.
 *  OrderedListItem listItem = new OrderedListItem();
-*  <p>
+*  
 *  // Set the data in the list item.
 *  listItem.setItemData(new HTMLText("my list item"));
-*  <p>
+*  
 *  // Add the list item to the OrderedList.
 *  list.addListItem(listItem);
 *  System.out.println(list.toString());
@@ -49,7 +49,7 @@ import java.beans.PropertyChangeSupport;
 *  &lt;/ol&gt;
 *  </PRE></BLOCKQUOTE>
 *  <p>Here is the output of the OrderedList tag using XSL Formatting Objects:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:block-container&gt;
 *  &lt;fo:list-block&gt;
 *  &lt;fo:list-item&gt;

@@ -193,6 +193,7 @@ public class CallStackEntry implements java.io.Serializable
   /**
    * Returns the library in which the program is located.
    * @return The name of the program library. Special values include:
+   * <ul>
    * <li>"*N" - The program library name is unavailable because the library has been destroyed
    * or is locked.
    * <li>"" (empty String) - The program is not located in a library.

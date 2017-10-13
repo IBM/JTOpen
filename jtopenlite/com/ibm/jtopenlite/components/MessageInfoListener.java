@@ -16,11 +16,12 @@ package com.ibm.jtopenlite.components;
  * Order of operations:
  * <ul>
  * <li>totalRecords()</li>
- * <li>start loop</li>
- * <ul>
- * <li>newMessageInfo()</li>
- * <li>replyStatus() and/or messageText()</li>
- * </ul>
+ * <li>start loop
+ *  <ul>
+ *   <li>newMessageInfo()</li>
+ *   <li>replyStatus() and/or messageText()</li>
+ *  </ul>
+ * </li>
  * <li>end loop</li>
  * </ul>
 **/

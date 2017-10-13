@@ -29,11 +29,11 @@ import java.beans.PropertyChangeListener;
 *  <BLOCKQUOTE><PRE>
 *  // Create an HTMLHead with a title.
 *  HTMLHead head = new HTMLHead("My HTML Document");
-*  <p>
+*  
 *  // Create an HTMLMeta.
 *  HTMLMeta meta = new HTMLMeta("expires", "Mon, 01 Jun 2000 12:00:00 CST");
 *  HTMLMeta meta2 = new HTMLMeta("refresh", "5", "http://www.sample.com/next.html");
-*  <p>
+*  
 *  // Add the meta information to the HTMLHead
 *  head.addMetaInformation(meta);
 *  head.addMetaInformation(meta2);
@@ -43,7 +43,7 @@ import java.beans.PropertyChangeListener;
 *  <BLOCKQUOTE><PRE>
 *  &lt;head&gt;
 *  &lt;meta http-equiv=&quot;expired&quot; content=&quot;Mon, 06 Jun 2000 12:00:00 CST&quot; /&gt;
-*  &lt;meta http-equiv=&quot;refresh&quot; content=&quot;5; URL=http://www.sample.com/next.html&quot /&gt;
+*  &lt;meta http-equiv=&quot;refresh&quot; content=&quot;5; URL=http://www.sample.com/next.html&quot; /&gt;
 *  &lt;title&gt;My HTML Document&lt;/title&gt;
 *  &lt;/head&gt;
 *  </PRE></BLOCKQUOTE>
@@ -51,12 +51,12 @@ import java.beans.PropertyChangeListener;
 *  Using XSL Formatting Objects, the head tag represents a page header.
 *  <p>
 *  Calling getFOTag() would produce the following.  
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:static-content flow-name='xsl-region-before'&gt;
 *  &lt;fo:block-container&gt;
 *  My HTML Document&lt;/fo:block-container&gt;
 *  &lt;/fo:static-content&gt;
-*  </PRE></BLOCKQUTOE>
+*  </PRE></BLOCKQUOTE>
 *
 *
 *  <p>HTMLHead objects generate the following events:

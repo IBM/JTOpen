@@ -351,12 +351,13 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
     }
     
     /**
-     * @M4A
+     * 
     Constructs an AS400SecurityException.
     <p>An AS400SecurityException indicates that a security error has occurred.
     @param  returnCode  The return code which identifies the message to be returned.  Possible values are defined as constants on this class.
     @param e cause of the exception
     **/
+    /*@M4A*/
    protected AS400SecurityException(int returnCode, Throwable e)
    {
        super(ResourceBundleLoader.getText(getMRIKey(returnCode)));

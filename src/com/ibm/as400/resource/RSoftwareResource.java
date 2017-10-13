@@ -25,7 +25,7 @@ import java.beans.PropertyVetoException;
 /**
 The RSoftwareResource class represents a software product.
 
-<a name="attributeIDs"><p>The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #LEVEL LEVEL}
 <li>{@link #LOAD_ERROR_INDICATOR LOAD_ERROR_INDICATOR}
@@ -44,7 +44,6 @@ The RSoftwareResource class represents a software product.
 <li>{@link #SUPPORTED_FLAG SUPPORTED_FLAG}
 <li>{@link #SYMBOLIC_LOAD_STATE SYMBOLIC_LOAD_STATE}
 </ul>
-</a>
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}

@@ -29,7 +29,7 @@ import javax.sql.PooledConnection;
 *  The following is an example that creates an AS400JDBCConnectionPoolDataSource object
 *  that can be used to cache JDBC connections.
 *
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  // Create a data source for making the connection.
 *  AS400JDBCConnectionPoolDataSource dataSource = new AS400JDBCConnectionPoolDataSource("myAS400");
 *  datasource.setUser("myUser");
@@ -37,7 +37,7 @@ import javax.sql.PooledConnection;
 *
 *  // Get the PooledConnection.
 *  PooledConnection pooledConnection = datasource.getPooledConnection();
-*  </blockquote></pre>
+*  </pre></blockquote>
 **/
 public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource implements ConnectionPoolDataSource, Referenceable, Serializable
 {

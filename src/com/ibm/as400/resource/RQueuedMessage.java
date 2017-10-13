@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
 The RQueuedMessage class represents a message in a message queue
 or job log.
 
-<a name="attributeIDs"><p>The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #ALERT_OPTION ALERT_OPTION}
 <li>{@link #DATE_SENT DATE_SENT}
@@ -43,7 +43,7 @@ or job log.
 <li>{@link #SENDING_PROGRAM_NAME SENDING_PROGRAM_NAME}
 <li>{@link #SUBSTITUTION_DATA SUBSTITUTION_DATA}
 </ul>
-</a>
+
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.Resource#getAttributeValue getAttributeValue()}

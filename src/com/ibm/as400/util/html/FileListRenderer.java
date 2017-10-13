@@ -51,11 +51,11 @@ import javax.servlet.http.HttpServletRequest;
 *
 *  <P>
 *  This example creates an FileListElement object with a renderer:
-*  <P>
+*  
 *  <PRE>
 *   // Create a FileListElement.
 *  FileListElement fileList = new FileListElement(sys, httpservletrequest);
-*  <p>
+*  
 *  // Set the renderer specific to this servlet, which extends
 *  // FileListRenderer and overrides applicable methods.
 *  fileList.setRenderer(new myFileListRenderer(request));

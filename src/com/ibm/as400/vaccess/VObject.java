@@ -157,7 +157,7 @@ AS400DetailsModel object.
 properties that it supports.  At minimum, it should support
 the following property identifiers:
 
-<table border=1>
+<table border=1 summary="">
 <tr>
   <th>Property</th>
   <th>Return value</th>

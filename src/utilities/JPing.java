@@ -35,14 +35,14 @@ import java.util.ResourceBundle;
  *  <strong>java utilities.JPing</strong>  <i>systemName</i>   [ options ]
  *  </PRE></BLOCKQUOTE> 
  *  <b>Options:</b>
- *  <p> 
+ *   
  *  <dl>
  *
- *  <dt><b><code>-help </b></code>
+ *  <dt><b><code>-help </code></b>
  *  <dd>Displays the help text.
  *  The -help option may be abbreviated to -h.
  *
- *  <dt><b><code>-service </b></code><i>serviceName</i>
+ *  <dt><b><code>-service </code></b><i>serviceName</i>
  *  <dd>Specifies the specific service to ping.
  *  The -service option may be abbreviated to -s.  The valid
  *  services include:  <i>as-file, as-netprt, as-rmtcmd, as-dtaq,
@@ -50,23 +50,21 @@ import java.util.ResourceBundle;
  *  option is not specified, by default, all of the services
  *  will be pinged.
  *  
- *  <dt><b><code>-ssl </b></code>
+ *  <dt><b><code>-ssl </code></b>
  *  <dd>Specifies whether or not to ping the SSL port(s).
  *  The default setting will not ping the SSL port(s).
  *
- *  <dt><b><code>-timeout </b></code>
+ *  <dt><b><code>-timeout </code></b>
  *  <dd>Specifies the timeout period in milliseconds.
  *  The -timeout option may be abbreviated to -t.  The default 
  *  setting is 20000 (20 sec).  
  *
- *  <dt><b><code>-verbose </b></code>
+ *  <dt><b><code>-verbose </code></b>
  *  <dd>Specifies verbose output.
  *  The -verbose option may be abbreviated to -v.  The default 
  *  setting is non-verbose.  
  *  
  *  </dl>
- *  </PRE></BLOCKQUOTE>
- *  <p>
  *  <br>
  *  Here is an example of calling JPing from the command line:
  *  <br>

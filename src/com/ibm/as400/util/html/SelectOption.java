@@ -30,7 +30,7 @@ import java.beans.PropertyVetoException;
 *  the XHTML specification.
 *  <P>
 *  This example creates a SelectOption object named <i>item1</i> that is initially selected.
-*  <P>
+*  
 *  <BLOCKQUOTE><PRE>
 *  SelectOption item1 = new SelectOption("Item1", "item1", true);
 *  System.out.println(item1.getTag());

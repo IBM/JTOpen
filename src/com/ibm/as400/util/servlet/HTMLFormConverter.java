@@ -58,19 +58,19 @@ import java.util.Vector;
 *  <P>The following example creates an HTMLFormConverter object and converts the row data
 *  to an array of forms (html strings).
 *  <BLOCKQUOTE><PRE>
-*  <P>         // Create an HTMLFormConverter object.
+*  // Create an HTMLFormConverter object.
 *  HTMLFormConverter converter = new HTMLFormConverter();
-*  <P>         // Convert the row data.
-*  <P>         // Assume the RowData object was created and initialized in a previous step.
+*  // Convert the row data.
+*  // Assume the RowData object was created and initialized in a previous step.
 *  String[] html = converter.convert(rowdata);
 *  </PRE></BLOCKQUOTE>
 *
 *  <P>The following examples creates an HTMLFormConverter object and converts the row data
 *  to an array of forms (one-row HTMLTable objects).
 *  <BLOCKQUOTE><PRE>
-*  <P>         // Creates an HTMLFormConverter object.
+*  // Creates an HTMLFormConverter object.
 *  HTMLFormConverter converter = new HTMLFormConverter();
-*  <P>         // Convert the row data.  Assume the RowData object was created and initialized
+*  // Convert the row data.  Assume the RowData object was created and initialized
 *  in a previous step.
 *  HTMLTable[] forms = converter.convertToForms(rowdata);
 *  </PRE></BLOCKQUOTE>
@@ -78,25 +78,25 @@ import java.util.Vector;
 *  <P>The following example creates an HTMLFormConverter object and sets the column header
 *  hyperlinks before doing the conversion.
 *  <BLOCKQUOTE><PRE>
-*  <P>         // Create an HTMLFormConverter object with a border.
+*  // Create an HTMLFormConverter object with a border.
 *  HTMLFormConverter converter = new HTMLFormConverter();
 *  converter.setBorderWidth(1);
-*  <P>         // Create the rowdata.
+*  // Create the rowdata.
 *  int numberOfColumns = 3;
 *  ListMetaData metadata = new ListMetaData(numberOfColumns);
 *  metadata.setColumnLabel(0, "Animal ID");
 *  metadata.setColumnLabel(1, "Animal Name");
 *  metadata.setColumnLabel(2, "Date of Birth");
 *  ListRowData rowdata = new ListRowData(metadata);
-*  <P>         // Add a row.
+*  // Add a row.
 *  Object[] data = { new Integer(123456), "Timberwolf", (new Date()).toString() };
 *  rowdata.addRow(data);
-*  <P>         // Create the header hyperlinks.
+*  // Create the header hyperlinks.
 *  HTMLHyperlink[] links = new HTMLHyperlink[numberOfColumns];
 *  links[0] = new HTMLHyperlink("http://www.myZoo.com/IDList.html", "MyZoo Animal Identification List");
 *  links[1] = new HTMLHyperlink("http://www.myZoo.com/animals.html", "MyZoo Animal List");
 *  converter.setHeaderHyperlinks(links);
-*  <P>         // Convert the rowdata.
+*  // Convert the rowdata.
 *  String[] html = converter.convert(rowdata);
 *  System.out.println(html[0]);
 *  </PRE></BLOCKQUOTE>
@@ -120,7 +120,7 @@ import java.util.Vector;
 *  </PRE></BLOCKQUOTE>
 *
 *  <P>Here is what the form will look like in the browser:
-*  <table border="1">
+*  <table border="1" summary="">
 *  <tr>
 *  <th><a href="http://www.myZoo.com/IDList.html">Animal ID</a></th>
 *  <td>123456</td>

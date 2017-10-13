@@ -295,8 +295,9 @@ public class UDFS
     /**
      Makes a previously mounted file system inaccessible within the integrated file system name space.  If any of the objects in the file system are in use, the command will return an error message to the user.  Note that if any part of the file system has itself been mounted over, then this file system cannot be unmounted until it is uncovered.
      <p>Restrictions:
-     <ol>
-     <li>The user must have input/output (I/O) system configuration (*IOSYSCFG) special authority to use this command.
+     <ul>
+     <li>The user must have input/output (I/O) system configuration (*IOSYSCFG) special authority to use this command.</li>
+     </ul>
      * @throws AS400SecurityException 
      * @throws ErrorCompletingRequestException 
      * @throws InterruptedException 

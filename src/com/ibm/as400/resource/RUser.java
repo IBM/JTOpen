@@ -29,8 +29,8 @@ import java.util.Date;
 
 /**
 The RUser class represents a user profile and directory entry on the system.
-
-<a name="attributeIDs"><p>The following attribute IDs are supported:
+<p>
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #ACCOUNTING_CODE ACCOUNTING_CODE}
 <li>{@link #ALLOW_SYNCHRONIZATION ALLOW_SYNCHRONIZATION}
@@ -123,7 +123,7 @@ The RUser class represents a user profile and directory entry on the system.
 <li>{@link #USER_OPTIONS USER_OPTIONS}
 <li>{@link #USER_PROFILE_NAME USER_PROFILE_NAME}
 </ul>
-</a>
+
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}

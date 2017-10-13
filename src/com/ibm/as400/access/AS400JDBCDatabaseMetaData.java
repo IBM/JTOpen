@@ -7248,7 +7248,7 @@ endif */
     <p>This chart describes the combinations of result set concurrency
     and type that this driver supports:
     <br> <br>
-    <table border=1>
+    <table border=1 summary="">
     <tr><th><br></th><th>CONCUR_READ_ONLY</th><th>CONCUR_UPDATABLE</th></tr>
     <tr><td>TYPE_FORWARD_ONLY</td><td>Yes</td><td>Yes</td></tr>
     <tr><td>TYPE_SCROLL_INSENSITIVE</td><td>Yes</td><td>No</td></tr>

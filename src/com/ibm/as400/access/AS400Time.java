@@ -167,7 +167,6 @@ public AS400Time(int format)
   </ul>
   @param separator  The separator character.
   Valid values are:
-  <tt>
   <ul>
   <li>' ' <i>(blank)</i>
   <li>':' <i>(colon)</i>
@@ -176,7 +175,6 @@ public AS400Time(int format)
   <li>'&amp;' <i>(ampersand)</i>
   <li>(null)
   </ul>
-  </tt>
   A null value indicates "no separator".
   Refer to the IBM i programming reference to determine which separator characters are valid with each format.
   **/
@@ -203,7 +201,6 @@ public AS400Time(int format)
    </ul>
    @param separator  The separator character.
    Valid values are:
-   <tt>
    <ul>
    <li>' ' <i>(blank)</i>
    <li>':' <i>(colon)</i>
@@ -212,7 +209,6 @@ public AS400Time(int format)
    <li>'&amp;' <i>(ampersand)</i>
    <li>(null)
    </ul>
-   </tt>
    A null value indicates "no separator".
    Refer to the IBM i programming reference to determine which separator characters are valid with each format.
    **/
@@ -338,7 +334,6 @@ public AS400Time(int format)
    This method is provided for use by the PCML infrastructure.
    @param formatName  The format name.
    Valid values are:
-   <tt>
    <ul>
     <li>HMS
     <li>ISO
@@ -346,7 +341,6 @@ public AS400Time(int format)
     <li>EUR
     <li>JIS
    </ul>
-   </tt>
    @return the format value.  For example, if formatName is "ISO", then {@link #FORMAT_ISO FORMAT_ISO} is returned.
    **/
   public static int toFormat(String formatName)

@@ -245,7 +245,6 @@ public AS400Date(int format)
  </ul>
  @param separator  The separator character.
  Valid values are:
- <tt>
  <ul>
  <li>'&amp;' <i>(ampersand)</i>
  <li>' ' <i>(blank)</i>
@@ -255,7 +254,6 @@ public AS400Date(int format)
  <li>'/' <i>(slash)</i>
  <li>(null)
  </ul>
- </tt>
  A null value indicates "no separator".
  Refer to the IBM i programming reference to determine which separator characters are valid with each format.
  **/
@@ -269,7 +267,7 @@ public AS400Date(int format, Character separator)
   /**
    Constructs an AS400Date object.
    The specified format's default separator is used.
-   * @param timeZone 
+   * @param timeZone time zone. 
    @param format The date format.
    <br>Valid values are:
    <ul>
@@ -292,7 +290,6 @@ public AS400Date(int format, Character separator)
    </ul>
    @param separator  The separator character.
    Valid values are:
-   <tt>
    <ul>
    <li>'&amp;' <i>(ampersand)</i>
    <li>' ' <i>(blank)</i>
@@ -302,7 +299,6 @@ public AS400Date(int format, Character separator)
    <li>'/' <i>(slash)</i>
    <li>(null)
    </ul>
-   </tt>
    A null value indicates "no separator".
    Refer to the IBM i programming reference to determine which separator characters are valid with each format.
    **/
@@ -472,7 +468,6 @@ public AS400Date(int format, Character separator)
    This method is provided for use by the PCML infrastructure.
    @param formatName  The date format name.
    <br>Valid values are:
-   <tt>
    <ul>
    <li>MDY
    <li>DMY
@@ -491,7 +486,6 @@ public AS400Date(int format, Character separator)
    <li>MYY
    <li>YYM
    </ul>
-   </tt>
    @return the format value.  For example, if formatName is "ISO", then {@link #FORMAT_ISO FORMAT_ISO} is returned.
    **/
   public static int toFormat(String formatName)

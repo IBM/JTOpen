@@ -30,10 +30,10 @@ import com.ibm.as400.access.IFSJavaFile;
 *  <pre>
 *  // Create an IFSJavaFile object.
 *  IFSJavaFile root = new IFSJavaFile(system, "/QIBM");
-*  <p>
+*  
 *  // Create a HTMLFileFilter object.
 *  HTMLFileFilter filter = new HTMLFileFilter();
-*  <p>
+*  
 *  // Get the list of File objects.
 *  File[] files = root.listFiles(filter);
 *  </pre>

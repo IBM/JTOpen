@@ -55,7 +55,7 @@ import java.util.Vector;                                        // @A2A
 *   is granted, the ProductLicense object contains information about the license such
 *   as the compliance type and license condition.
 *
-* <h4>Example</h4>
+* <h3>Example</h3>
 *
 * <pre>
 *

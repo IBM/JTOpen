@@ -29,7 +29,7 @@ import java.util.Vector;                              // Java2
 *  Note: AS400JDBCConnectionPool objects are threadsafe.
 *
 *  <p>The following example creates a connection pool with 10 connections.
-*  <pre><blockquote>
+*  <blockquote><pre>
 *  // Obtain an AS400JDBCConnectionPoolDataSource object from JNDI.
 *  Context context = new InitialContext(environment);
 *  AS400JDBCConnectionPoolDataSource datasource = (AS400JDBCConnectionPoolDataSource)context.lookup("jdbc/myDatabase");
@@ -52,7 +52,7 @@ import java.util.Vector;                              // Java2
 *
 *  // Close the pool to release all resources.
 *  pool.close();
-*  </blockquote></pre>
+*  </pre></blockquote>
 **/
 public class AS400JDBCConnectionPool extends ConnectionPool implements Serializable
 {

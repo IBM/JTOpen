@@ -1077,7 +1077,7 @@ endif */
   //JDBC40DOC      *   The getCause() method of the exception may provide a more detailed exception, for example,
   //JDBC40DOC      *   if an XML parser exception occurs.
   //JDBC40DOC      *   An exception is thrown if the state is not writable.
-  //JDBC40DOC      * @exception If there is an error
+  //JDBC40DOC      * 
   //JDBC40DOC      */
     /* ifdef JDBC40
     public synchronized <T extends Result> T setResult(Class<T> resultClass) throws SQLException

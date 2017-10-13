@@ -33,7 +33,7 @@ except that it is a subclass of {@link com.ibm.as400.resource.Resource Resource}
 As a result, it can be used directly in conjunction with components
 written for Resource objects.
 
-<a name="attributeIDs"><p>The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #ABSOLUTE_PATH ABSOLUTE_PATH}
 <li>{@link #CANONICAL_PATH CANONICAL_PATH}
@@ -55,7 +55,7 @@ written for Resource objects.
 <li>{@link #PATH PATH}
 <li>{@link #TYPE TYPE}
 </ul>
-</a>
+
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}

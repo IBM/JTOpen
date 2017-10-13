@@ -81,7 +81,7 @@ import java.io.IOException;
  *    {
  *        // Get the error messages when the call fails.
  *        AS400Message[] messageList = sPGMCall.getMessageList();
- *        for (int i = 0; i < messageList.length; ++i)
+ *        for (int i = 0; i &lt; messageList.length; ++i)
  *        {
  *            System.out.println(messageList[i].getText());
  *        }
@@ -101,6 +101,7 @@ import java.io.IOException;
  *    system.setIASPGroup("iasp1"); //If do not use *CURUSR for current library and library list, call other setIASPGroup interfaces.
  *    ServiceProgramCall sPGMCall = new ServiceProgramCall(system);
  *    sPGMCall.setProgram("/QSYS.LIB/MYPGM.LIB/ENTRYPTS.SRVPGM");
+ </pre>
  **/
 public class ServiceProgramCall extends ProgramCall
 {

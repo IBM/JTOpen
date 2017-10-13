@@ -44,8 +44,8 @@ import java.util.Enumeration;
  <li>if the system release is V5R3M0 or greater, sending current user
  <li>sending program name
  </ul>
- <a name="receiveIDs">
- <p>The following is a list of attributes whose values are set on objects returned by receive():
+ <p><a name="receiveIDs">
+ The following is a list of attributes whose values are set on objects returned by receive():</a>
  <ul>
  <li>alert option
  <li>date sent
@@ -63,7 +63,7 @@ import java.util.Enumeration;
  <li>sending program name
  <li>substitution data
  </ul>
- </a>
+
  @see  com.ibm.as400.access.QueuedMessage
  **/
 public class MessageQueue implements Serializable

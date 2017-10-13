@@ -30,48 +30,48 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *
 *  <P>This example creates an HTMLTreeElement object.
 *
-*  <P>
+*  
 *  <BLOCKQUOTE><PRE>
 *  // Create parent HTMLTreeElement.
 *  HTMLTreeElement parentElement = new HTMLTreeElement();
 *  parentElement.setTextUrl(new HTMLHyperlink("http://myWebPage", "My Web Page"));
-*  <P>
+*  
 *  // Create HTMLTreeElement Child.
 *  HTMLTreeElement childElement = new HTMLTreeElement();
 *  childElement.setTextUrl(new HTMLHyperlink("http://anotherWebPage", "Another Web Page"));
 *  parentElement.addElement(childElement);
-*  <P>
+*  
 *
 *  </PRE></BLOCKQUOTE>
 *
 *  Once the elements are added to an HTMLTree object and the elements are expanded, the
 *  HTMLTreeElements will look like this:
-*  <P>
+*  
 *
-*  <table cellpadding="0" cellspacing="3">
+*  <table cellpadding="0" cellspacing="3" summary="">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?action=contract&hashcode=2043557#2043557" name="2043557">-</a>
+*  <a href="/servlet/myServlet?action=contract&amp;hashcode=2043557" name="X2043557">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a>
 *  </td>
 *  </tr>
+
 *  <tr><td>&nbsp;</td><td>
-*  <table cellpadding="0" cellspacing="3">
-*  <tr>
-*  <td>
-*  <a href="/servlet/myServlet?action=contract&hashcode=2043712#2043712" name="2043712">-</a>
-*  </td>
-*  <td>
-*  <a href="http://myWebServer/anotherWebPage">Another Web Page</a>
-*  </td>
-*  </td>
+
+*   <table cellpadding="0" cellspacing="3" summary="">
+*   <tr>
+*     <td>
+*      <a href="/servlet/myServlet?action=contract&amp;hashcode=2043712" name="X2043712">-</a>
+*     </td>
+*     <td>
+*      <a href="http://myWebServer/anotherWebPage">Another Web Page</a>
+*     </td>
+*    </tr>
+*    </table>
 *  </tr>
 *  </table>
-*  </tr>
-*  </table>
-*
 *  <P>
 *  HTMLTreeElement objects generate the following events:
 *  <ul>

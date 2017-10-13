@@ -36,7 +36,7 @@ import java.util.*;
 *    </ul>
 *  <li>PropertyChangeEvent
 *  </ul>
-*  <P>
+*  
 **/
 public abstract class HTMLList extends HTMLTagAttributes implements java.io.Serializable     // @Z1C
 {

@@ -44,7 +44,7 @@ particular list item is loaded, call {@link #waitForResource waitForResource()}.
 To ensure that the entire list is loaded, call {@link #waitForComplete waitForComplete()}.
 Note that both wait methods will block until the requested resource(s) are loaded.
 
-<a name="selectionIDs"><p>The following selection IDs are supported:
+<a name="selectionIDs">The following selection IDs are supported:</a>
 <ul>
 <li>{@link #FILTER FILTER}
 <li>{@link #PATTERN PATTERN}
@@ -61,14 +61,14 @@ to access the selection values for an RIFSFileList.
 // Create an RIFSFileList object to represent a list of files.
 AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 RIFSFileList fileList = new RIFSFileList(system, "/home/myuserid");
-<br>
+
 // Set the selection so that only Java source files are listed.
 fileList.setSelectionValue(RIFSFileList.PATTERN, "*.java");
-<br>
+
 // Open the list and get the first 50 items.
 fileList.open();
 fileList.waitForResource(50);
-<br>
+
 // Read and print the file names and last modified dates
 // for the first 50 items in the list.
 for(long i = 0; i &lt; 50; ++i)
@@ -78,7 +78,7 @@ for(long i = 0; i &lt; 50; ++i)
     System.out.println(file.getAttributeValue(RIFSFile.LAST_MODIFIED));
     System.out.println();
 }
-<br>
+
 // Close the list.
 fileList.close();
 </pre></blockquote>

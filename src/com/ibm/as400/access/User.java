@@ -3602,8 +3602,9 @@ public class User implements Serializable
      </ul>
      @param supplementalGroups The user's supplemental group profiles.  Possible values for the elements of this array are:
      <ul>
-     <li>{@link #NONE NONE} - No supplemental group profiles are used with this user profile.
-     <li>The group profile names to be used with this user profile and the group profile specified on the GRPPRF parameter to determine a job's eligibility for getting access to existing objects and special authority.  A maximum of 15 group profile names may be specified.
+     <li>{@link #NONE NONE} - No supplemental group profiles are used with this user profile.</li>
+     <li>The group profile names to be used with this user profile and the group profile specified on the GRPPRF parameter to determine a job's eligibility for getting access to existing objects and special authority.  A maximum of 15 group profile names may be specified.</li>
+     </ul>
      * @throws AS400SecurityException 
      * @throws ErrorCompletingRequestException 
      * @throws InterruptedException 

@@ -50,7 +50,7 @@ import java.util.Vector;
 *  </PRE></BLOCKQUOTE>
 *  <p>
 *  Using XSL Formatting Objects, the output generated is:
-*  <PRE><BLOCKQUOTE>
+*  <BLOCKQUOTE><PRE>
 *  &lt;fo:table-row text-align="center"&gt;
 *  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px'&gt;&lt;fo:block-container&gt;
 *  &lt;fo:block&gt;data1&lt;/fo:block&gt;

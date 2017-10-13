@@ -61,19 +61,24 @@ import java.util.Vector;
 *  <P>The following example creates a RecordListRowData object and adds the records from a
 *  sequential file.
 *  <BLOCKQUOTE><PRE>
-*  <P>       // Create an object to represent the system.
+*  
+*  // Create an object to represent the system.
 *  AS400 mySystem = new AS400("mySystem.myCompany.com");
-*  <P>       // Create a file object that represents the file.
+* 
+*   // Create a file object that represents the file.
 *  SequentialFile sf = new SequentialFile(mySystem, ifspath);
-*  <P>       // Set the record format of the file.
+*
+*  // Set the record format of the file.
 *  sf.setRecordFormat();
-*  <P>       // Get the records in the file.
+*
+*  // Get the records in the file.
 *  Record[] records = sf.readAll();
-*  <P>       // Create a RecordListRowData object and add the records.
+*
+*  // Create a RecordListRowData object and add the records.
 *  RecordListRowData rowData = new RecordListRowData();
-*  for (int i=0; i < records.length; i++)
+*  for (int i=0; i &lt; records.length; i++)
 *  {
-*  <P>   rowData.addRow(records[i]);
+*    rowData.addRow(records[i]);
 *  }
 *  </PRE></BLOCKQUOTE>
 **/

@@ -22,7 +22,7 @@ import com.ibm.jtopenlite.command.program.openlist.*;
  * API to access the list of job on the IBM i. 
  * This class fully implements the V5R4 specification of QGYOLJOB.
  *
- * <p></p>
+ * <p>
  * Example:
  *
  * <pre>
@@ -72,7 +72,7 @@ import com.ibm.jtopenlite.command.program.openlist.*;
  * OpenListOfJobsFormatOLJB0200Listener callback = ...; // Define your own.
  * jobFormat.setListener(callback); // Ready to process.
  *
- * while (startingRecord <= totalRecords)
+ * while (startingRecord &lt;= totalRecords)
  * {
  *   result = conn.call(getJobs);
  *   // Assuming it succeeded...

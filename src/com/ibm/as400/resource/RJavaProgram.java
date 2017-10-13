@@ -31,7 +31,7 @@ only when connecting to systems running OS/400 V5R1, and is not supported beyond
 <p>
 In the context of this discussion, a "Java program" is the IBM i executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 
-<a name="attributeIDs"><p>The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS}
 <li>{@link #CLASSES_WITH_CURRENT_JAVA_PROGRAMS CLASSES_WITH_CURRENT_JAVA_PROGRAMS}
@@ -50,7 +50,6 @@ In the context of this discussion, a "Java program" is the IBM i executable obje
 <li>{@link #USE_ADOPTED_AUTHORITY USE_ADOPTED_AUTHORITY}
 <li>{@link #USER_PROFILE USER_PROFILE}
 </ul>
-</a>
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}

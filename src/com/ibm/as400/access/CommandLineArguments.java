@@ -27,29 +27,29 @@ import java.util.Vector;
  *  <br>
  *  <BLOCKQUOTE><PRE>
  *  A sample program:  java myProgram systemName -userid myID -password myPWD
- *  <p>
+ *
  *  The Java code to parse the command:
- *  <br>
+ *   
  *  // Create a vector to hold all the defined/expected command line arguments.
  *  Vector options = new Vector();
  *  options.addElement("-userID");
  *  options.addElement("-password");
- *  <p>
+ *  
  *  // Create a Hashtable to map shortcuts to the command line arguments. 
  *  Hashtable shortcuts = new Hashtable();
  *  shortcuts.put("-u", "-userID");
  *  shortcuts.put("-p", "-password");
- *  <p>
+ *  
  *  // Create a CommandLineArguments object with the args array passed into main(String args[])
  *  // along with the vector and hashtable just created.
  *  CommandLineArguments arguments = new CommandLineArguments(args, options, shortcuts);
- *  <p>
+ *  
  *  // Get the name of the IBM i system that the user wants to run to.
  *  String system = arguments.getOptionValue("");
- *  <p>
+ *  
  *  // Get the user ID that the user wants to log in with.
  *  String uid = arguments.getOptionValue("-userID");
- *  <p>
+ *  
  *  // Get the password that the user wants to log in with.
  *  String pwd = arguments.getOptionValue("-password");
  *  

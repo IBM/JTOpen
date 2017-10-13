@@ -25,7 +25,7 @@ import java.beans.PropertyVetoException;
 /**
 The RPrinter class represents a printer connected to the system.
 
-<a name="attributeIDs <p>The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #ADVANCED_FUNCTION_PRINTING ADVANCED_FUNCTION_PRINTING}
 <li>{@link #ALIGN_FORMS ALIGN_FORMS}
@@ -76,7 +76,6 @@ The RPrinter class represents a printer connected to the system.
 <li>{@link #WRITER_STATUS WRITER_STATUS}
 <li>{@link #WRITING_STATUS WRITING_STATUS}
 </ul>
-</a>
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}
@@ -426,7 +425,7 @@ attribute, which represents the status of the printer device.
 /**
 Attribute ID for device type.  This identifies a read-only String
 attribute, which represents the type of the printer.
-</ul>
+
 **/
     public static final String DEVICE_TYPE                   = "DEVICE_TYPE";
     static {

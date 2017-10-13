@@ -21,7 +21,7 @@ package com.ibm.jtopenlite;
  * If a connection is constructed using a system name, user, and password, then an implicit SignonConnection
  * is made to
  * obtain the SystemInfo object, and then closed.
- * <p></p>
+ * <p>
  * For performance reasons, when multiple connections need to be made to
  * the same host (Command, DDM, File, etc), an application may want to explicitly retrieve the SystemInfo
  * object directly

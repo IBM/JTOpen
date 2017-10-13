@@ -39,7 +39,7 @@ import java.util.Vector;
  <p>
  Note: This class uses some API fields that are not available prior to OS/400 V5R1.
 <p>
-<a name="attributeIDs">The following attribute IDs are supported:
+<a name="attributeIDs">The following attribute IDs are supported:</a>
 <ul>
 <li>{@link #ALLOW_SYSTEM_NAME ALLOW_SYSTEM_NAME}
 <li>{@link #ALLOW_SYSTEM_NAME_PENDING ALLOW_SYSTEM_NAME_PENDING}

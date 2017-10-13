@@ -25,12 +25,12 @@ import java.beans.PropertyVetoException;
 /**
 The RPrinterList class represents a list of printers that are attached to the system.
 
-<a name="selectionIDs"><p>The following selection IDs are supported:
+<a name="selectionIDs">The following selection IDs are supported:</a>
 <ul>
 <li>{@link #PRINTER_NAMES PRINTER_NAMES}
 <li>{@link #OUTPUT_QUEUES OUTPUT_QUEUES}
 </ul>
-</a>
+
 
 <p>Use one or more of these selection IDs with
 {@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}
