@@ -20,7 +20,7 @@ import java.io.IOException;
  * An instance of this class can be used to manipulate an individual
  * printer.
  *
- * See <a href="PrinterAttrs.html">Printer Attributes</a> for
+ * See <a href="doc-files/PrinterAttrs.html">Printer Attributes</a> for
  * valid attributes.
  *
  **/
@@ -155,7 +155,7 @@ implements PrinterImpl
 
     /**
      * Sets one or more attributes of the object.  See
-     * <a href="PrinterAttrs.html">Printer Attributes</a> for
+     * <a href="doc-files/PrinterAttrs.html">Printer Attributes</a> for
      * a list of valid attributes that can be changed.
      *
      * @param attributes A print parameter list that contains the

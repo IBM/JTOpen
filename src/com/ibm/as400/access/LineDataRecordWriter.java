@@ -282,22 +282,22 @@ public class LineDataRecordWriter extends Object
       * If the OutputStream is a SpooledFileOutputStream, the SpooledFileOutputStream 
       * must have the following parameters set:
       * <ul>
-      *   <li> <A HREF="PrinterAttributes.html#HDRKEY17.5">
+      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY17.5">
       *        ATTR_CONTROL_CHARACTER - Forms Control Character set to *NONE
       *        </A>
-      *   <li> <A HREF="PrinterAttributes.html#HDRKEY177">
+      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY177">
       *        ATTR_CONVERT_LINE_DATA - Convert Line Data set to *YES
       *        </A>
-      *   <li> <A HREF="PrinterAttributes.html#HDRKEYIFS_3">
+      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEYIFS_3">
       *          ATTR_FORM_DEFINITION - Form definition integrated file system 
       *          name
       *        </A>
       *
-      *   <li>  <A HREF="PrinterAttributes.html#HDRKEYIFS_D">
+      *   <li>  <A HREF="doc-files/PrintAttributes.html#HDRKEYIFS_D">
       *          ATTR_PAGE_DEFINITION - Page definition integrated file system 
       *         name
       *        </A>
-      *   <li> <A HREF="PrinterAttributes.html#HDRKEY93">
+      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY93">
       *          ATTR_PRTDEVTYPE - Printer device type set to *LINE 
       *        </A>
       * </ul>

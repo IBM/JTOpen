@@ -22,7 +22,7 @@ import java.io.IOException;
  * To create new spooled files on the server, use the
  * SpooledFileOutputStream class.
  *
- * See <a href="SpooledFileAttrs.html">Spooled File Attributes</a> for
+ * See <a href="doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
  * valid attributes.
  *
  * @see PrintObjectInputStream
@@ -992,7 +992,7 @@ implements SpooledFileImpl
 
     /**
      * Sets one or more attributes of the object.  See
-     * <a href="SpooledFileAttrs.html">Spooled File Attributes</a> for
+     * <a href="doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
      * a list of valid attributes that can be changed.
      *
      * @param attributes A print parameter list that contains the

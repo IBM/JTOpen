@@ -74,7 +74,7 @@ public class SpooledFileOutputStream extends OutputStream
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY17">
       *          ATTR_COPIES - Copies
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY0x0140">  
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY0x0140">  
       *          ATTR_DAYS_UNTIL_EXPIRE - Days Until File Expires
       *       </A>
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY24">
@@ -110,7 +110,7 @@ public class SpooledFileOutputStream extends OutputStream
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY40">
       *          ATTR_ENDPAGE - Ending page
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY0x0141">  
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY0x0141">  
       *          ATTR_EXPIRATION_DATE - Expiration Date
       *       </A>
       *  <li> (2) <A HREF="doc-files/PrintAttributes.html#HDRKEY41">
