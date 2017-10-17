@@ -465,15 +465,12 @@ public class AS400ImplRemote implements AS400Impl
     }
     
     //@SAA Create user handle for the connection
-    //@V4D Moved to IFSFileDescriptorImplRemote. Although we do not recommend to use one as400 object in multi-thread, if users do this, keep one user handle in one connection might cause problems when 
-    //free the handle.
-    /*public int createUserHandle() throws AS400SecurityException, IOException {
+    public int createUserHandle() throws AS400SecurityException, IOException {
+      if (userHandle_ != UNINITIALIZED) {
+        return userHandle_;
+      }
       ClientAccessDataStream ds = null;
       int UserHandle = UNINITIALIZED;
-      if (userHandle_ != UNINITIALIZED) {
-          UserHandle = userHandle_;
-          return UserHandle;
-      } 
       
       AS400Server connectedServer = getConnectedServer(new int[] {AS400.FILE});
       if (connectedServer != null) {
@@ -576,7 +573,19 @@ public class AS400ImplRemote implements AS400Impl
     //@SAA
     public void setUserHandle(int userHandle_) {
       this.userHandle_ = userHandle_;
-    }*/
+    }
+    
+    public void freeUserHandle() throws IOException, AS400SecurityException{
+      if(userHandle_ !=UNINITIALIZED){
+        IFSFreeUserHandlerReq req = new IFSFreeUserHandlerReq(userHandle_);
+        AS400Server connectedServer = getConnectedServer(new int[] {AS400.FILE});
+        if (connectedServer != null) {
+            connectedServer.send(req);
+          
+        }
+      }
+      userHandle_ = UNINITIALIZED;
+    }
 
     // Implementation for disconnect.
     public void disconnect(int service)
@@ -587,6 +596,11 @@ public class AS400ImplRemote implements AS400Impl
         }
         else
         {
+          if(userHandle_ != UNINITIALIZED && service == AS400.FILE){
+            try{
+              freeUserHandle();
+            }catch(Exception e){}
+          }
             Vector serverList = serverPool_[service];
             synchronized (serverList)
             {

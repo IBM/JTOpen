@@ -684,9 +684,9 @@ implements IFSFileDescriptorImpl
       connect();
       
       //create user handle
-      int userHandle = UNINITIALIZED;
+      int userHandle = UNINITIALIZED, objectHandle = UNINITIALIZED;
       try{
-        userHandle = createUserHandle();
+        userHandle = system_.createUserHandle();
 
         try
         {
@@ -714,6 +714,7 @@ implements IFSFileDescriptorImpl
         if (ds instanceof IFSLookupRep)
         {
           fileDataCCSID_ = ((IFSLookupRep) ds).getCCSID(serverDatastreamLevel_);
+          objectHandle = ((IFSLookupRep) ds).getHandle();
         }
         else if (ds instanceof IFSReturnCodeRep)
         {
@@ -734,8 +735,10 @@ implements IFSFileDescriptorImpl
               InternalErrorException.DATA_STREAM_UNKNOWN);
         }
       }finally{
-          if(userHandle != UNINITIALIZED)
-            freeUserHandle(userHandle);
+         // if(userHandle != UNINITIALIZED)
+           // freeUserHandle(userHandle);
+          if(objectHandle != UNINITIALIZED)
+            freeHandle(objectHandle);
       }
       
     }
@@ -1725,6 +1728,11 @@ implements IFSFileDescriptorImpl
     server_.send(req);
   }
   
+  public void freeHandle(int objectHandle) throws IOException, AS400SecurityException{
+    IFSFreeHandleReq req = new IFSFreeHandleReq(objectHandle);
+    server_.send(req);
+  }
+  
   public int getASP() throws IOException, AS400SecurityException {
     if (fileAsp_ == UNINITIALIZED)
     { 
@@ -1737,9 +1745,9 @@ implements IFSFileDescriptorImpl
       byte[] pathname = getConverter().stringToByteArray(path_);
 
       //create user handle
-      int userHandle = UNINITIALIZED;
+      int userHandle = UNINITIALIZED, objectHandle = UNINITIALIZED;
       try{
-        userHandle = createUserHandle();
+        userHandle = system_.createUserHandle();
         try
         {
           // Issue a Look up request to create an object handle.
@@ -1764,6 +1772,7 @@ implements IFSFileDescriptorImpl
         rc = 0;
         if (ds instanceof IFSLookupRep)
         {
+          objectHandle = ((IFSLookupRep) ds).getHandle();
           fileAsp_ = ((IFSLookupRep) ds).getASP();
         }
         else if (ds instanceof IFSReturnCodeRep)
@@ -1785,8 +1794,10 @@ implements IFSFileDescriptorImpl
               InternalErrorException.DATA_STREAM_UNKNOWN);
         }
       }finally{
-        if(userHandle != UNINITIALIZED)
-          freeUserHandle(userHandle);
+        //if(userHandle != UNINITIALIZED)
+         // freeUserHandle(userHandle);
+        if(objectHandle != UNINITIALIZED)
+          freeHandle(objectHandle);
       }
     }
 
@@ -1803,9 +1814,9 @@ implements IFSFileDescriptorImpl
     byte[] pathname = getConverter().stringToByteArray(path_);
     
     //create user handle
-    int userHandle = UNINITIALIZED;
+    int userHandle = UNINITIALIZED, objectHandle = UNINITIALIZED;
     try{
-      userHandle = createUserHandle();
+      userHandle = system_.createUserHandle();
       try
       {
         // Issue a Look up request to create an object handle.
@@ -1832,6 +1843,7 @@ implements IFSFileDescriptorImpl
       if (ds instanceof IFSLookupRep)
       {
         ownerName = ((IFSLookupRep) ds).getOwnerName(system_.getCcsid());
+        objectHandle = ((IFSLookupRep) ds).getHandle();
       }
       else if (ds instanceof IFSReturnCodeRep)
       {
@@ -1852,8 +1864,10 @@ implements IFSFileDescriptorImpl
             InternalErrorException.DATA_STREAM_UNKNOWN);
       }
     }finally{
-      if(userHandle != UNINITIALIZED)
-        freeUserHandle(userHandle);
+     // if(userHandle != UNINITIALIZED)
+       // freeUserHandle(userHandle);
+      if(objectHandle != UNINITIALIZED)
+        freeHandle(objectHandle);
     }
     return (ownerName == null ? "" : ownerName);
   }
@@ -1867,13 +1881,13 @@ implements IFSFileDescriptorImpl
       int rc = 0;
       connect();
 
-      int objectHandle;
+      int objectHandle = UNINITIALIZED;
       byte[] pathname = getConverter().stringToByteArray(path_);
 
       //create user handle
       int userHandle = UNINITIALIZED;
       try{
-        userHandle = createUserHandle();
+        userHandle = system_.createUserHandle();
         try
         {
           // Issue a Look up request to create an object handle.
@@ -1966,8 +1980,10 @@ implements IFSFileDescriptorImpl
               Integer.toHexString(ds.getReqRepID()),null);
         }
       }finally{
-        if(userHandle != UNINITIALIZED)
-          freeUserHandle(userHandle);
+        //if(userHandle != UNINITIALIZED)
+         // freeUserHandle(userHandle);
+        if(objectHandle != UNINITIALIZED)
+          freeHandle(objectHandle);
       }
     }
     switch(fileSystemType_) {
