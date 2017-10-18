@@ -3501,7 +3501,12 @@ void handleAbort() {
             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
         if (properties.isExtraPropertySpecified ())
             postWarning (JDError.getSQLWarning (JDError.WARN_PROPERTY_EXTRA_IGNORED));
-
+        if (dataSourceUrl_.isPortSpecified ())  {
+          if (dataSourceUrl_.getPortNumber() == 0) { 
+             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
+          }  
+        }
+        
         // Initialize the library list.
         String urlSchema = dataSourceUrl_.getSchema ();
         if (urlSchema == null)
