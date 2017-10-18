@@ -27,7 +27,7 @@ com/ibm/as400/access/RetryInputStream.class
 #---------------------------------------------------
 # Proxy Client Keyring
 #---------------------------------------------------
-com/ibm/as400/access/KeyRing.class
+# com/ibm/as400/access/KeyRing.class
 
 #---------------------------------------------------
 # Toolbox infrastructure
