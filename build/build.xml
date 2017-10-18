@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2014 International Business Machines Corporation and
+// Copyright (C) 1997-2017 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,7 @@
 //   - JDK 9     (for java9 version)
 //   - Apache Ant 1.10
 //   - CVS client (to download source)
+//   - SVN client (to download source)
 //
 // 1. In this file, change the value of the "build" property to be the directory
 //    where you want the JTOpen files to be downloaded and built to. It
@@ -63,6 +64,21 @@
 //    you're reading this, you've already done that, or you've just 
 //    overwritten your own build.xml with this one.  :)
 //
+// 4+. In order to download the source, you need a SVN client installed and in
+//    your path.  If you don't, Ant will not be able to automatically
+//    download the JTOpen source repository... you will have to do it by hand.
+//    Most distributions of Linux call install a 'svn' client.  
+//    See https://subversion.apache.org/packages.html#windows for a Windows version.
+//    (Make sure that svn.exe is in your PATH when you run Ant.)
+//
+//    To download the source, run the "sourceSvn" target for this build. 
+//    This will download the additional Ant tasks that are required, 
+//    and set up the initial directory structure. 
+//
+//    Ironically, this file will get downloaded in his step... so if 
+//    you're reading this, you've already done that, or you've just 
+//    overwritten your own build.xml with this one.  :)
+//
 // 5. Obtain the necessary include files from the list of requisite jars and
 //    place them in the "/jtopen_build/include" directory. Also obtain the
 //    necessary executables and place them in the "/jtopen_build/bin" directory.
@@ -91,7 +107,7 @@
 //
 // The following is a list of jar files and the URLs from which they can be
 // obtained. These jar files are required in order to build JTOpen. We cannot
-// include these jar files in the JTOpen CVS repository due to licensing issues.
+// include these jar files in the JTOpen repository due to licensing issues.
 // These files needs to be placed in the /jtopen_build/include directory after
 // they are downloaded.
 //
@@ -142,6 +158,14 @@
 //              Most versions of Linux already include a cvs executable.
 //              The location link is for Windows users to obtain a CVS client.
 //
+// Filename: svn or snv.exe
+// Location: https://subversion.apache.org/packages.html#windows
+// Description: Required to access the JTOpen SVN repository using the "sourceSvn" target.
+//              This file must be in the PATH when this Ant script is run.
+//              It may need to be in a different directory than the build.xml file.
+//              Most versions of Linux can easily install svn executable.
+//              The location link is for Windows users to obtain a SVN client.
+//
 //
 // .. The following executables are needed for the micro package, which since July 2014
 //    is no longer built or maintained. 
@@ -174,6 +198,9 @@
 //    clean-source  - Removes the source. This target is not a pre-requisite for any other
 //                    targets.
 //    source        - Downloads the JTOpen repository files off of the IBM CVS server
+//                    using an anonymous login. Internet connection required. This target
+//                    is not a pre-requisite for any other targets.
+//    sourceSvn     - Downloads the JTOpen repository files off of the IBM SVN server
 //                    using an anonymous login. Internet connection required. This target
 //                    is not a pre-requisite for any other targets.
 //    jar           - Builds just the jars (and any pre-requisite targets, such as compile...).
@@ -260,6 +287,7 @@
 	<property name="cvsPassword" value=""/>
 	<property name="cvsProtocol" value="pserver"/>
 
+
 	<!-- Set the javadoc compiler -->
 	<property name="javadocExecDefault" value="${jdk15}/bin/javadoc"/>
 	<property name="javadoc6ExecDefault" value="${jdk16}/bin/javadoc"/>
@@ -285,8 +313,6 @@
 	<property name="dist8" value="${build}/dist8"/>
 	<property name="dist9" value="${build}/dist9"/>
 	<property name="include" value="${build}/include"/>
-	<property name="stubs" value="${build}/stubs"/>
-	<!-- stubs are classes we need for compiling, but we don't ship. -->
 	<property name="javadoc" value="${build}/javadoc"/>
 	<property name="javadoc-micro" value="${build}/javadoc-micro"/>
 	<property name="javadoc6" value="${build}/javadoc6"/>
@@ -1843,8 +1869,6 @@
 		<cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="build" dest="${build}"/>
 		<cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
-             command="checkout -P -A" package="stubs" dest="${build}"/>
-		<cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="license.html" dest="${build}"/>
 		<cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="readme.html" dest="${build}"/>
@@ -1856,6 +1880,78 @@
              command="checkout -P -A" package="androidStubs" dest="${build}"/>
 	</target>
 
+	
+	<!--///////////////////////////////////////////////////////////////////////////
+    // Target: source
+    ///////////////////////////////////////////////////////////////////////////-->
+	<target name="sourceSvn" depends="init">
+		<fail message="Trying to source in eclipse"  if="inEclipse"/>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/src" />
+		    <arg value="${build}/src" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/jdbc40" />
+		    <arg value="${build}/jdbc40" />
+		</exec>
+		<exec executable="svn"  failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/contrib" />
+		    <arg value="${build}/contrib" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/include" />
+		    <arg value="${build}/include" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
+		    <arg value="${build}/build" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/jtopenlite" />
+		    <arg value="${build}/jtopenlite" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/androidStubs" />
+		    <arg value="${build}/androidStubs" />
+		</exec>
+
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/license.html" />
+		    <arg value="${build}" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/readme.html" />
+		    <arg value="${build}" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+			   <arg value="export" />
+			    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/changes.html" />
+			    <arg value="${build}" />
+		</exec>
+
+	</target>
+
+	
+	
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: source-build ...... download the build directories
 	    ///////////////////////////////////////////////////////////////////////////-->
@@ -1865,6 +1961,19 @@
 		<cvs cvsRoot=":${cvsProtocol}:${cvsUserid}@jt400.cvs.sourceforge.net:/cvsroot/jt400"
 	             command="checkout -P -A" package="build" dest="${build}"/>
 	</target>
+
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: source-buildSvn ...... download the build directories
+	    ///////////////////////////////////////////////////////////////////////////-->
+	<target name="source-buildSvn" depends="init">
+		<exec executable="svn" failonerror="true">
+		    <arg value="--force" />
+		    <arg value="export" />
+		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
+		    <arg value="${build}/build" />
+		</exec>
+	</target>
+
 
 
 
