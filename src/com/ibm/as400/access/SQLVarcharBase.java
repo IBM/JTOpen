@@ -118,11 +118,18 @@ extends SQLDataBase  implements SQLVariableCompressible
             
             // The length in the first 2 bytes is actually the length in characters.
             byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
+            
             BinaryConverter.unsignedShortToByteArray(temp.length/bytesPerCharacter_, rawBytes, offset);
             sizeAfterTruncation_ = temp.length; 
             if(temp.length > maxLength_)
             {
-                sizeAfterTruncation_ = maxLength_; 
+              // Normally truncation is detected before setting the string.  In the case of UTF-8
+              // truncation may be detected here. 
+              // Make sure the length sent to the server is the truncated length -- otherwise the string
+              // would include garbage. @V6A 
+              BinaryConverter.unsignedShortToByteArray(maxLength_/bytesPerCharacter_, rawBytes, offset);
+              
+              sizeAfterTruncation_ = maxLength_; 
                 truncated_ = temp.length - maxLength_;  /*@H2C*/
                 // Not sure why maxLength_ was changed. 
                 // maxLength_ = temp.length;

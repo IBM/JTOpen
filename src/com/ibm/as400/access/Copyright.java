@@ -213,6 +213,7 @@ package com.ibm.as400.access;
 //@V3    20170914  Correct ObjectList javadoc
 //@V4    20171011  Free user handle
 //@V5    20171011  Conversion:  Fix various ccsid conversions to match host conversions
+//@V6    20171030  JDBC:  Fix detection of UTF-8 parameter truncation
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
