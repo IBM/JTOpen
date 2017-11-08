@@ -1856,7 +1856,7 @@
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
-		    <arg value="export" />
+		    <arg value="co" />
 		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/jtopenlite" />
 		    <arg value="${build}/jtopenlite" />
 		</exec>
