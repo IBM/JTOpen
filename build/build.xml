@@ -1818,12 +1818,13 @@
     ///////////////////////////////////////////////////////////////////////////-->
 	<target name="source" depends="init">
 		<fail message="Trying to source in eclipse"  if="inEclipse"/>
-		<exec executable="svn" failonerror="true"><exec executable="svn" failonerror="true">
+		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
 		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
 		    <arg value="${build}/build" />
 		</exec>
+		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="co" />
 		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/src" />
