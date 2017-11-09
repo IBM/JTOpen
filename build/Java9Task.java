@@ -115,7 +115,8 @@ public class Java9Task extends MatchingTask
   final static int FOUND_JDBC40DOC = 8; 
   final static int FOUND_IFDEF9 = 9; 
   final static int FOUND_IFNDEF9 = 10; 
-  final static int FOUND_JAVA9DOC = 11; 
+  final static int FOUND_ENDIF9  = 11; 
+  final static int FOUND_JAVA9DOC = 12; 
   
   private int getLineType(String line, String filename, int lineNumber) { 
 	  String originalLine = line; 
@@ -170,7 +171,11 @@ public class Java9Task extends MatchingTask
 			  if (line.indexOf("*/") == 0) {
 			     typeCode = FOUND_ENDIF; 
 			  } else {
-				  System.out.println("Warning.  Invalid /* endif */  structure: '"+line+"' at "+filename+":"+lineNumber); 
+				  if ( line.indexOf("JAVA9") >= 0) {
+					  typeCode = FOUND_ENDIF9; 
+				  } else {
+				    System.out.println("Warning.  Invalid /* endif */  structure: '"+line+"' at "+filename+":"+lineNumber);
+				  }
 			  }
 		  } else {
 			  typeCode = FOUND_COMMENT; 
@@ -180,7 +185,12 @@ public class Java9Task extends MatchingTask
 		  if (line.indexOf("*/") == 0) {
 		     typeCode = FOUND_ENDIF; 
 		  } else {
+			  if ( line.indexOf("JAVA9") >= 0) {
+				  typeCode = FOUND_ENDIF9; 
+			  } else {
+			
 			  System.out.println("Warning.  Invalid endif */ structure: '"+line+"' at "+filename+":"+lineNumber); 
+			  }
 		  }
 	  } else if (line.indexOf("endif") > 0) { 
 		  System.out.println("Warning.  Invalid endif... structure: '"+line+"' at "+filename+":"+lineNumber); 
@@ -232,6 +242,8 @@ public class Java9Task extends MatchingTask
       PrintWriter writer = new PrintWriter(new FileWriter(outputFile)); 
       BufferedReader reader = new BufferedReader(new FileReader(inputFile)); 
       
+      /* Allow 2 levels of nesting using parent State */ 
+      int parentState = STATE_NONE; 
       int state = STATE_NONE; 
       int linetype = 0; 
       int stateChangeLineNumber = 0; 
@@ -246,46 +258,52 @@ public class Java9Task extends MatchingTask
     	    	    case FOUND_COMMENT: 
     	    		     break; 
     	    	    case FOUND_IFDEF40:
+    	    	    	parentState = state; 
     	    	    	state = STATE_IFDEF40;
     	    	    	stateChangeLineNumber = lineNumber; 
     	    	    	line = "/* ifdef JDBC40 */";
     	    	    	break;
     	    	    case FOUND_IFDEF42:
+    	    	    	parentState = state; 
     	    	    	state = STATE_IFDEF42;
     	    	    	stateChangeLineNumber = lineNumber; 
     	    	    	line = "/* ifdef JDBC42 */";
     	    	    	break;
-    	    	    case FOUND_IFDEF9:
-    	    	    	state = STATE_IFDEF9;
-    	    	    	stateChangeLineNumber = lineNumber; 
-    	    	    	line = "/* ifdef JAVA9 */";
-    	    	    	break;
     	    	    case FOUND_IFNDEF40:
+    	    	    	parentState = state; 
     	    	    	state = STATE_IFNDEF40; 
     	    	    	stateChangeLineNumber = lineNumber; 
     	    	    	line = "/* ifndef JDBC40 ";
     	    	    	break;
     	    	    case FOUND_IFNDEF42:
+    	    	    	parentState = state; 
     	    	    	state = STATE_IFNDEF42; 
     	    	    	stateChangeLineNumber = lineNumber; 
     	    	    	line = "/* ifndef JDBC42 ";
     	    	    	break;
+    	    	    case FOUND_IFDEF9:
+    	    	    	parentState = state; 
+    	    	    	state = STATE_IFDEF9;
+    	    	    	stateChangeLineNumber = lineNumber; 
+    	    	    	line = "/* ifdef JAVA9 */";
+    	    	    	break;
     	    	    case FOUND_IFNDEF9:
+    	    	    	parentState = state; 
     	    	    	state = STATE_IFNDEF9; 
     	    	    	stateChangeLineNumber = lineNumber; 
-    	    	    	line = "/* ifndef JAVA9 ";
+    	    	    	line = "// ifndef JAVA9 ";
     	    	    	break;
     	    	    case FOUND_JDBC40DOC:
     	    	    	line = removeJdbc40Doc(line); 
     	    	    	break; 
     	    	    case FOUND_ENDIF:
+    	    	    case FOUND_ENDIF9:
  				        writer.close(); 
     	    	    	throw new Exception("FOUND INVALID ENDIF:"+stateChangeLineNumber+" '"+line+ "' AT "+filename+":" + lineNumber);
     	    	 }
     	    	 break;
     	     case STATE_IFDEF40:
     	     case STATE_IFDEF42:
-    	     case STATE_IFDEF9:
 					switch (linetype) {
 					case FOUND_NONE:
 						break;
@@ -293,13 +311,61 @@ public class Java9Task extends MatchingTask
 					case FOUND_IFNDEF40:
 					case FOUND_IFDEF42:
 					case FOUND_IFNDEF42:
-					case FOUND_IFDEF9:
-					case FOUND_IFNDEF9:
- 				        writer.close(); 
+				        writer.close(); 
 						throw new Exception("FOUND INVALID IFDEF (currently processing IFDEF:"+stateChangeLineNumber+") '" + line
 								+ "' AT "+filename+":" + lineNumber);
+					case FOUND_ENDIF9:
+						writer.close(); 
+						throw new Exception("FOUND ENDIF 9 (currently processing IFDEF:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
+    	    	    case FOUND_IFNDEF9:
+    	    	    	parentState = state; 
+    	    	    	state = STATE_IFNDEF9; 
+    	    	    	stateChangeLineNumber = lineNumber; 
+    	    	    	line = "// ifndef JAVA9 ";
+    	    	    	break;
+    	    	    case FOUND_IFDEF9:
+    	    	    	/* Nesting within IDEF is not supported */ 
+				        writer.close(); 
+						throw new Exception("FOUND INVALID IFDEF (invalid nest: currently processing IFDEF:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
 					case FOUND_ENDIF:
-						state = STATE_NONE;
+						state = parentState;
+						parentState = STATE_NONE;
+						stateChangeLineNumber = lineNumber; 
+						line = "/* endif */ ";
+						break;
+					case FOUND_COMMENT:
+						System.out.println("WARNING:  found comment in line '"+line+"' processing IFDEF:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
+						break; 
+ 	    	    case FOUND_JDBC40DOC:
+ 	    	    	line = removeJdbc40Doc(line); 
+ 	    	    	break; 
+					}
+ 	    	 break;
+    	    	 
+    	     case STATE_IFDEF9:
+					switch (linetype) {
+					case FOUND_NONE:
+						break;
+					case FOUND_IFDEF9:
+					case FOUND_IFNDEF9:
+    	    	    case FOUND_IFDEF40:
+    	    	    case FOUND_IFDEF42:
+    	    	    case FOUND_IFNDEF40:
+    	    	    case FOUND_IFNDEF42:
+ 				        writer.close(); 
+						throw new Exception("FOUND INVALID IFDEF (currently processing IFDEF9:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
+
+    	    	    case FOUND_ENDIF:
+ 				        writer.close(); 
+						throw new Exception("FOUND INVALID ENDIF (currently processing IFDEF9:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
+					case FOUND_ENDIF9:
+						state = parentState;
+						parentState = STATE_NONE;
     	    	    	stateChangeLineNumber = lineNumber; 
 						line = "/* endif */ ";
 						break;
@@ -320,13 +386,30 @@ public class Java9Task extends MatchingTask
 					case FOUND_IFNDEF40:
 					case FOUND_IFDEF42:
 					case FOUND_IFNDEF42:
-					case FOUND_IFDEF9:
-					case FOUND_IFNDEF9:
  				        writer.close(); 
 						throw new Exception("FOUND INVALID IFDEF (currently processing IFNDEF:"+stateChangeLineNumber+") '" + line
 								+ "' AT "+filename+":" + lineNumber);
+					case FOUND_ENDIF9:
+ 				        writer.close(); 
+						throw new Exception("FOUND INVALID ENDIF9 (currently processing IFNDEF:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
+						
+					case FOUND_IFNDEF9:
+    	    	    	parentState = state; 
+    	    	    	state = STATE_IFNDEF9; 
+    	    	    	stateChangeLineNumber = lineNumber; 
+    	    	    	line = "// ifndef JAVA9 ";
+    	    	    	break;
+    	    	    case FOUND_IFDEF9:
+    	    	    	parentState = state; 
+    	    	    	state = STATE_IFDEF9;
+    	    	    	stateChangeLineNumber = lineNumber; 
+    	    	    	line = "/* ifdef JAVA9 */";
+    	    	    	break;
+						
 					case FOUND_ENDIF:
-						state = STATE_NONE;
+						state = parentState;
+						parentState = STATE_NONE;
     	    	    	stateChangeLineNumber = lineNumber; 
 						line = " endif */ ";
 						break;
@@ -342,7 +425,6 @@ public class Java9Task extends MatchingTask
 					}
     	    	 break;
     	     case STATE_IFNDEF42:
-    	     case STATE_IFNDEF9:
 					switch (linetype) {
 					case FOUND_NONE:
 						break;
@@ -350,24 +432,62 @@ public class Java9Task extends MatchingTask
 					case FOUND_IFNDEF40:
 					case FOUND_IFDEF42:
 					case FOUND_IFNDEF42:
-					case FOUND_IFDEF9:
-					case FOUND_IFNDEF9:
- 				        writer.close(); 
+				        writer.close(); 
 						throw new Exception("FOUND INVALID IFDEF (currently processing IFNDEF:"+stateChangeLineNumber+") '" + line
 								+ "' AT "+filename+":" + lineNumber);
-					case FOUND_ENDIF:
-						state = STATE_NONE;
+					case FOUND_ENDIF9:
+				        writer.close(); 
+						throw new Exception("FOUND INVALID ENDIF9 (currently processing IFNDEF:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
+						
+					case FOUND_IFNDEF9:
+    	    	    	parentState = state; 
+    	    	    	state = STATE_IFNDEF9; 
     	    	    	stateChangeLineNumber = lineNumber; 
+    	    	    	line = "// ifndef JAVA9 ";
+    	    	    	break;
+    	    	    case FOUND_IFDEF9:
+    	    	    	parentState = state; 
+    	    	    	state = STATE_IFDEF9;
+    	    	    	stateChangeLineNumber = lineNumber; 
+    	    	    	line = "/* ifdef JAVA9 */";
+    	    	    	break;
+						
+					case FOUND_ENDIF:
+						state = parentState;
+						parentState = STATE_NONE;
+ 	    	    	stateChangeLineNumber = lineNumber; 
 						line = " endif */ ";
 						break;
 					case FOUND_COMMENT:
 						System.out.println("WARNING:  found comment in line '"+line+"' processing IFNDEF:"+stateChangeLineNumber+") '" + line
 								+ "' AT "+filename+":" + lineNumber);
 						break; 
-    	    	    case FOUND_JDBC40DOC:
+					case FOUND_JDBC40DOC:
 						System.out.println("WARNING:  found JDBC40DOC in line '"+line+"' processing IFNDEF:"+stateChangeLineNumber+") '" + line
 								+ "' AT "+filename+":" + lineNumber);
-    	    	    	
+ 	    	    	
+ 	    	    	break; 
+					}
+ 	    	 break;
+    	    	 
+    	     case STATE_IFNDEF9:
+    	    	 /* Once we are in the IFNDEF9 state -- everything is commented out */ 
+					switch (linetype) {
+						
+					case FOUND_IFDEF9:
+					case FOUND_IFNDEF9:
+ 				        writer.close(); 
+						throw new Exception("FOUND INVALID IFDEF9 (currently processing IFNDEF9:"+stateChangeLineNumber+") '" + line
+								+ "' AT "+filename+":" + lineNumber);
+					case FOUND_ENDIF9:
+						state = parentState;
+						parentState = STATE_NONE;
+    	    	    	stateChangeLineNumber = lineNumber; 
+						line = "// End of IFNDEF 9 ";
+						break;
+				    default:
+				        line = "// IFNDEF JAVA9 removed line "; 
     	    	    	break; 
 					}
     	    	 break;
