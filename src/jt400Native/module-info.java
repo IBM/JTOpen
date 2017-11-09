@@ -25,4 +25,4 @@ module jt400Native {
 
 }
 
-endif */ 
+endif JAVA9 */ 
