@@ -47,6 +47,11 @@ public class JVMInfo
           jdk14 = true;
           jdk16 = false;
         }
+        // Java 9 return 9 
+        if ("9".equals(version)) {
+          jdk14 = true;
+          jdk16 = true;
+        }
       }
     }
 

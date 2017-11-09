@@ -168,6 +168,12 @@ implements DatabaseMetaData
     	      if ("0".equals(javaVersionString)) {
     	        javaVersion = 4;
     	      }
+    	      // Java 9 returns 9
+    	      if ("0".equals(javaVersionString)) {
+              javaVersion = 19;
+            }
+    	      
+    	      
     	    }
     	}
     }
