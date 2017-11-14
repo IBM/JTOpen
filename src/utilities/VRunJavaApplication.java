@@ -57,6 +57,7 @@ import javax.swing.border.*;
  * {@link com.ibm.as400.access.JavaApplicationCall JavaApplicationCall}
  * for a list of commands to run once the program is started.
  *
+ *   @deprecated No longer supported.  
 **/
 
 public class VRunJavaApplication
