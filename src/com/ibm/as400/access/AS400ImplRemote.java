@@ -1568,6 +1568,12 @@ public class AS400ImplRemote implements AS400Impl
                 // Do SHA-1 encryption.
                 byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
 
+                // Screen out passwords that are empty
+                if (password.length == 0) { 
+                  Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  
+                }
                 // Screen out passwords that start with a star.
                 if (password[0] == '*')
                 {
