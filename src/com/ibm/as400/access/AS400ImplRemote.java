@@ -351,10 +351,18 @@ public class AS400ImplRemote implements AS400Impl
                 byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
 
                 // Screen out passwords that start with a star.
+                if (oldPassword.length == 0) {
+                  Trace.log(Trace.ERROR, "Parameter 'oldPassword' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                }
                 if (oldPassword[0] == '*')
                 {
                     Trace.log(Trace.ERROR, "Parameter 'oldPassword' begins with a '*' character.");
                     throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                }
+                if (newPassword.length == 0) { 
+                  Trace.log(Trace.ERROR, "Parameter 'newPassword' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
                 }
                 if (newPassword[0] == '*')
                 {
@@ -838,6 +846,10 @@ public class AS400ImplRemote implements AS400Impl
                         byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
 
                         // Screen out passwords that start with a star.
+                        if (password.length == 0) { 
+                          Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                          throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                        }
                         if (password[0] == '*')
                         {
                             Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
@@ -1926,6 +1938,11 @@ public class AS400ImplRemote implements AS400Impl
             else
             {
 
+                if (password.length == 0)  {
+                  Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  
+                }
                 // Screen out passwords that start with a star.
                 if (password[0] == '*')
                 {
