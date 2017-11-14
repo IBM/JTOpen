@@ -263,15 +263,27 @@ public class Main implements Runnable {
     //
     // Look for debug setting
     //
-    String debug = System.getProperty("com.ibm.as400.access.jdbcClient.debug");
-    if (debug != null) {
+    try {
+      String debug = System
+          .getProperty("com.ibm.as400.access.jdbcClient.debug");
+      if (debug != null) {
         debug = debug.toUpperCase();
         if (debug.equals("TRUE")) {
           debug_ = true;
-    }
+        }
+      }
+    } catch (java.security.AccessControlException ace) {
+      // Just ignore error reading property
     }
 
-    String moreDrivers = System.getProperty("com.ibm.as400.access.jdbcClient.drivers");
+    String moreDrivers = null;
+    try {
+      moreDrivers = System
+          .getProperty("com.ibm.as400.access.jdbcClient.drivers");
+    } catch (java.security.AccessControlException ace) {
+      // Just ignore error reading property
+    }
+    
     while (moreDrivers != null) {
       String loadDriver = null;
       int colonIndex = moreDrivers.indexOf(":");
