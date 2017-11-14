@@ -81,6 +81,7 @@ import java.util.Vector;
   * java [-classpath=&lt;value&gt;] [-verbose] [-D&lt;property&gt;=&lt;value&gt; [...]] class [&lt;programParameter1&gt; [...]]
   * </PRE>
   *
+  *   @deprecated No longer supported.
  **/
 
 public class RunJavaApplication

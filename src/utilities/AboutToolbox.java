@@ -36,6 +36,8 @@ import com.ibm.as400.access.AS400JDBCDriver;
  * Syntax: java utilities.AboutToolbox
  * @see java.lang.Package
  * @see com.ibm.as400.access.Copyright
+ * 
+ *  @deprecated Use the com.ibm.as400.util version instead. 
  **/
 public class AboutToolbox
 {

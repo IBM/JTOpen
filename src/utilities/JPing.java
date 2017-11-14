@@ -82,6 +82,8 @@ import java.util.ResourceBundle;
  *  To determine from within a program, if the services are running, use
  *  {@link com.ibm.as400.access.AS400JPing AS400JPing}.
  *
+ *   @deprecated Use the com.ibm.as400.util version instead. 
+ *
  **/
 public class JPing
 {

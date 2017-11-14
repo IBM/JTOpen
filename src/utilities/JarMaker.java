@@ -260,6 +260,8 @@ java utilities.JarMaker -source myJar.jar
 </pre>
 
 
+ *  @deprecated Use the Java 9 module tools instead.   
+
 **/
 
 //

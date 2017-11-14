@@ -315,6 +315,7 @@ Any additional files could then be manually copied into appropriate locations
 in the directory tree, and a customized JAR file could be generated using the
 <code>jar</code> tool provided as part of the JDK.
 
+ *  @deprecated Use the Java 9 module tools instead.   
 
 **/
 

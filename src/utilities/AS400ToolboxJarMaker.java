@@ -330,7 +330,7 @@ in the directory tree, and a customized JAR file could be generated using the
 
 
 
-@deprecated Use {@link ToolboxJarMaker ToolboxJarMaker} instead.
+@deprecated Use Java 9 module tools instead.
 **/
 
 // Design notes
