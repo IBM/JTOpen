@@ -169,7 +169,7 @@ implements DatabaseMetaData
     	        javaVersion = 4;
     	      }
     	      // Java 9 returns 9
-    	      if ("0".equals(javaVersionString)) {
+    	      if ("9".equals(javaVersionString)) {
               javaVersion = 19;
             }
     	      
