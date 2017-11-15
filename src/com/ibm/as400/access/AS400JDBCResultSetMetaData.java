@@ -262,6 +262,23 @@ implements ResultSetMetaData
         return row_.getSQLType(columnIndex).getType();
     }
 
+    
+    /**
+    Returns the CCSID of a character column. 
+    Returns 0 if the column is not a character column. 
+    @param  columnIndex     The column index (1-based).
+    @return                 CCSID of a character column, otherwise 0.
+    @exception  SQLException    If the column index is not valid.
+    **/
+    /* @V8A */
+    public int getColumnCCSID(int columnIndex)
+    throws SQLException
+    {
+        checkIndex(columnIndex);
+        return row_.getCCSID(columnIndex); 
+    }
+
+
     /**
     Returns the type name of a column.  If the type is a distinct
     type, this returns the underlying type name.

@@ -177,6 +177,7 @@ implements JDRow
         return toRow_.getSQLData (index);
     }
 
+    
     public boolean isDataMappingError(int index)
     throws SQLException
     {
@@ -201,6 +202,17 @@ implements JDRow
     /*@L1A*/
     public String getSQLTypeName(int index) throws SQLException {
           return toRow_.getSQLData (index).getTypeName();
+    }
+
+
+    /* Return the CCSID of the column @V8A*/ 
+    public int getCCSID(int index) throws SQLException {
+      SQLData sqlData = getSQLType(index); 
+      if (SQLDataBase.isCharacterType(sqlData.getSQLType())) {
+        return -1; 
+      } else { 
+        return 0;
+      } 
     }
 
 

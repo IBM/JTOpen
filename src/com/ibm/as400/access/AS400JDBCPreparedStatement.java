@@ -2050,6 +2050,31 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     }
   }
 
+  //
+  // Return the ccsid of a parameter for ParameterMetaData support.
+  // @V8A
+  int getParameterCcsid(int param) throws SQLException {
+    validatePSParameterIndex(param);
+    synchronized (internalLock_) {
+      checkOpen();
+
+      if (useReturnValueParameter_) // @G8a
+      {
+        // @G8a
+        if (param == 1) // @G8a
+          return 0; // return value is a number which does not have a CCSID 
+        else
+          // @G8a
+          param--; // @G8a
+      } // @G8a
+
+      return parameterRow_.getCCSID(param);
+    }
+  }
+
+
+  
+  
   // @G4A
   // Return the type name of a parameter for ParameterMetaData support.
   String getParameterTypeName(int param) throws SQLException {

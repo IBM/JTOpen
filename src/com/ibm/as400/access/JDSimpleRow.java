@@ -312,4 +312,16 @@ implements JDRow
     }
 
 
+    /* get the CCSID of the column @V8A*/ 
+    public int getCCSID(int index) throws SQLException {
+      SQLData sqlData = getSQLType(index); 
+      if (SQLDataBase.isCharacterType(sqlData.getSQLType())) {
+        return -1; 
+      } else { 
+        return 0;
+      } 
+      
+    }
+
+
 }

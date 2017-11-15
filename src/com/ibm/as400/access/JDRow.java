@@ -176,6 +176,16 @@ interface JDRow
     public abstract String getSQLTypeName (int index)
     throws SQLException;
 
-
+    /**
+     *  Return the CCSID for the column
+     *  
+     *  @param  index   The field index (1-based).
+    @return         CCSID of the column , 0 if not a character type, -1 if not known
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+     */
+    /* @V8A */ 
+    public abstract int getCCSID(int index) throws SQLException; 
 }
 

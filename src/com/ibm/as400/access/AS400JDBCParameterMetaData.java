@@ -130,6 +130,22 @@ endif */
     }
 
 
+    /**
+    Returns the CCSID of the specified parameter. 
+
+    @param  parameterIndex    The parameter index (1-based).
+    @return                   The ccisd of the parameter.
+
+    @exception  SQLException  If the prepared statement is not open.
+    **/
+    /* @V8A */
+    public int getParameterCCSID (int parameterIndex)
+    throws SQLException
+    {
+        return prepStmt_.getParameterCcsid(parameterIndex);
+    }
+
+
 
     /**
     Returns the database-specific type name of the specified parameter. 

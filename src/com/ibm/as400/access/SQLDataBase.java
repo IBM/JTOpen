@@ -25,6 +25,7 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+import java.sql.Types;
 /* ifdef JDBC40 
 import java.sql.NClob;
 import java.sql.Ref;
@@ -1032,4 +1033,19 @@ public abstract class SQLDataBase implements SQLData
    }
    return value; 
    }
+   /* Returns true if the sqlType is a character type */ 
+   /* @V8A */ 
+  public static boolean isCharacterType(int sqlType) {
+    switch (sqlType) { 
+    case Types.CHAR:
+    case Types.CLOB:
+    case Types.LONGVARCHAR:
+    case Types.VARCHAR:
+    
+      return true; 
+    default:
+        return false; 
+    }
+    
+  }
 }
