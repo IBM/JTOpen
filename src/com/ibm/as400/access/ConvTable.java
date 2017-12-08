@@ -300,7 +300,9 @@ public abstract class ConvTable
             if (className == null)
             {
                 if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Could not find an encoding that matches ccsid: " + ccsid);
-                throw new UnsupportedEncodingException("CCSID " + ccsid);
+                UnsupportedEncodingException uee = new UnsupportedEncodingException("CCSID " + ccsid);
+                uee.initCause(e); 
+                throw uee;
             }
             newTable = (ConvTable)converterPool_.get(className);
             if (newTable != null)

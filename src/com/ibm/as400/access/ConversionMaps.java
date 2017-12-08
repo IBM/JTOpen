@@ -145,6 +145,7 @@ public abstract class ConversionMaps
         encodingCcsid_.put("Cp1256",   "1256");
         encodingCcsid_.put("Cp1257",   "1257");
         encodingCcsid_.put("Cp1258",   "1258");
+        encodingCcsid_.put("Cp1377",   "1377"); 
         encodingCcsid_.put("Cp1381",   "1381");
         encodingCcsid_.put("Cp1383",   "1383");
         encodingCcsid_.put("Cp33722", "33722");
