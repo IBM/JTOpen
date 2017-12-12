@@ -60,7 +60,8 @@ class ConvTable4396 extends ConvTable300
           newToUnicode[0x447C] = '\u2225';
           newToUnicode[0x4260] = '\uFF0D';
           newToUnicode[0x426A] = '\uFFE4';
-          alternateToUnicodeMap.put(""+ccsid, newToUnicode); 
+          alternateToUnicodeMap.put(""+ccsid, newToUnicode);
+         
       }
       newMap.setToUnicode( newToUnicode); 
 
@@ -84,7 +85,7 @@ class ConvTable4396 extends ConvTable300
           newFromUnicode[0x9a52] = '\u53DA';  
         }
         
-        alternateToUnicodeMap.put(""+ccsid, newFromUnicode); 
+        alternateFromUnicodeMap.put(""+ccsid, newFromUnicode); 
       }
       newMap.setFromUnicode(newFromUnicode); 
       return newMap; 
