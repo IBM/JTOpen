@@ -217,6 +217,7 @@ package com.ibm.as400.access;
 //@V7    20171109  JDBC:  Handle java.version for Java 9
 //@V8    20171115  JDBC:  Provide methods to get CCSIDs for Columns and Parameters
 //@V9    20171212  Conversion:  Fix ConvTable4396
+//@VA    20180103  Update setIASPGroup javadoc 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -225,7 +226,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                         built=20171109 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.4, codebase 5770-SS1 V7R3M0.00 built=20171212 @V9";  
+    public static String version   = "Open Source Software, JTOpen 9.4, codebase 5770-SS1 V7R3M0.00 built=20180103 @VA";  
 
 
     // Constants for reference by AS400JDBCDriver.

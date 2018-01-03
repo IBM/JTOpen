@@ -626,7 +626,7 @@ public class AS400 implements Serializable
 
     //@M2A
     /**
-     * Set ASP group for the AS400 connection. 
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.  
      * Current library default is *CURUSR.
      * Libraries for current thread default is *CURUSR.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
@@ -652,7 +652,7 @@ public class AS400 implements Serializable
     }
     //@P5A START
     /**
-     * Set ASP group for the AS400 connection. 
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection. 
      * Libraries for current thread default is *CURUSR.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
@@ -684,7 +684,7 @@ public class AS400 implements Serializable
         aspName = IASPGroup;
     } 
     /**
-     * Set ASP group for the AS400 connection. 
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
@@ -725,7 +725,7 @@ public class AS400 implements Serializable
     }
     
     /**
-     * Set ASP group for the AS400 connection. 
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
