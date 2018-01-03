@@ -37,7 +37,7 @@ public class KeyedDataQueue extends BaseDataQueue
     }
 
     /**
-     Constructs a KeyedDataQueue object.
+     Constructs a KeyedDataQueue object. For data queue on an IASP, the user profile of the AS400 connection must have the job description with the IASP set.
      @param  system  The system object representing the system on which the data queue exists.
      @param  path  The fully qualified integrated file system path name of the data queue.  The library and queue name must each be 10 characters or less.
      **/
