@@ -1,0 +1,85 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RPrinter.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+
+
+<program name="qgyrprta_rpta0100" path="/QSYS.LIB/QGY.LIB/QGYRPRTA.PGM">
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="rpta0100"
+                                                                                outputsize="receiverVariableLength"/>
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="370"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="RPTA0100"/>
+        <data name="deviceName"                         usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="rpta0100">
+        <data name="bytesReturned"                              type="int" length="4"/>
+        <data name="bytesAvailable"                             type="int" length="4"/>
+        <data name="deviceName"                                 type="char" length="10"/>
+        <data name="writerStarted"                              type="char" length="1"/>  
+        <data name="writerStatus"                               type="byte" length="1"/>  
+        <data name="deviceStatus"                               type="int" length="4"/>
+        <data name="overallStatus"                              type="int" length="4"/>
+        <data name="textDescription"                            type="char" length="50"/>  
+        <data                                                   type="byte" length="2"/>  
+        <data name="startedByUser"                              type="char" length="10"/>
+        <data name="writingStatus"                              type="char" length="1"/>  
+        <data name="waitingForMessageStatus"                    type="char" length="1"/>  
+        <data name="heldStatus"                                 type="char" length="1"/>  
+        <data name="endPendingStatus"                           type="char" length="1"/>  
+        <data name="holdPendingStatus"                          type="char" length="1"/>  
+        <data name="betweenFilesStatus"                         type="char" length="1"/>  
+        <data name="betweenCopiesStatus"                        type="char" length="1"/>  
+        <data name="waitingForDataStatus"                       type="char" length="1"/>  
+        <data name="waitingForDeviceStatus"                     type="char" length="1"/>  
+        <data name="onJobQueueStatus"                           type="char" length="1"/>  
+        <data                                                   type="byte" length="4"/>  
+        <data name="writerJobName"                              type="char" length="10"/>  
+        <data name="writerJobUserName"                          type="char" length="10"/>  
+        <data name="writerJobNumber"                            type="char" length="6"/>  
+        <data name="printerDeviceType"                          type="char" length="10"/>  
+        <data name="numberOfSeparators"                         type="int" length="4"/>
+        <data name="drawerForSeparators"                        type="int" length="4"/>
+        <data name="alignForms"                                 type="char" length="10"/>  
+        <data name="outputQueue"                                type="char" length="20"/>  
+        <data name="outputQueueStatus"                          type="char" length="1"/>  
+        <data name="publishedStatus"                            type="char" length="1"/>  
+        <data name="formType"                                   type="char" length="10"/>  
+        <data name="messageOption"                              type="char" length="10"/>  
+        <data name="automaticallyEndWriter"                     type="char" length="10"/>  
+        <data name="allowDirectPrinting"                        type="char" length="10"/>  
+        <data name="messageQueue"                               type="char" length="20"/>  
+        <data                                                   type="byte" length="2"/>  
+        <data name="changesTakeEffect"                          type="char" length="10"/>  
+        <data name="nextOutputQueue"                            type="char" length="20"/>  
+        <data name="nextFormType"                               type="char" length="10"/>  
+        <data name="nextMessageOption"                          type="char" length="10"/>  
+        <data name="nextFileSeparators"                         type="int" length="4"/>
+        <data name="nextSeparatorDrawer"                        type="int" length="4"/>
+        <data name="spooledFileName"                            type="char" length="10"/>  
+        <data name="jobName"                                    type="char" length="10"/>  
+        <data name="userName"                                   type="char" length="10"/>  
+        <data name="jobNumber"                                  type="char" length="6"/>  
+        <data name="spooledFileNumber"                          type="int" length="4"/>
+        <data name="pageBeingWritten"                           type="int" length="4"/>
+        <data name="totalPages"                                 type="int" length="4"/>
+        <data name="copiesLeftToProduce"                        type="int" length="4"/>
+        <data name="totalCopies"                                type="int" length="4"/>
+        <data name="advancedFunctionPrinting"                   type="char" length="10"/>  
+        <data name="messageKey"                                 type="byte" length="4"/>  
+</struct>        
+
+</pcml>        
+
