@@ -1,0 +1,464 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.61 [en] (X11; U; OpenBSD 2.6 i386) [Netscape]">
+   <meta name="Author" content="Jack J. Woehr">
+   <meta name="Description" content="User manual for QCDemo tabbed notebook.">
+   <title>SoftWoehr QCDemo User Manual</title>
+</head>
+<body>
+
+<center>
+<h1>
+<a href="http://www.well.com/user/jax/SoftWoehr">SoftWoehr</a> QCDemo User
+Manual</h1></center>
+
+<center>Copyright 2000, <a href="/jax@well.com">Jack J. Woehr</a>
+<br>P.O. Box 51, Golden, Colorado 80402-0051</center>
+
+<h2>
+<a NAME="Table of Contents"></a>Table of Contents</h2>
+
+<ul>
+<li>
+<b><a href="http://oss.software.ibm.com/developerworks/opensource/license10.html">LICENSE</a></b></li>
+
+<li>
+<b><a href="#DISCLAIMER">DISCLAIMER</a></b></li>
+
+<li>
+<a href="#System Requirements">System Requirements</a></li>
+
+<li>
+<a href="#Launching QCDemo">Launching QCDemo</a></li>
+
+<li>
+<a href="#General Considerations">General Considerations</a></li>
+
+<li>
+<a href="#The Individual Tabs">The Individual Tabs</a></li>
+
+<ul>
+<li>
+<a href="#The Command Tab">The Command Tab</a></li>
+
+<li>
+<a href="#The IFS Tab">The IFS Tab</a></li>
+
+<li>
+<a href="#The User List Tab">The User List Tab</a></li>
+
+<li>
+<a href="#The Job List Tab">The Job List Tab</a></li>
+
+<li>
+<a href="#The Printer List Tab">The Printer List Tab</a></li>
+
+<li>
+<a href="#The Spooled File Viewer Tab">The Spooled File Viewer Tab</a></li>
+
+<li>
+<a href="#The SQL Query Builder Tab">The SQL Query Builder Tab</a></li>
+
+<li>
+<a href="#The SQL Result Table Tab">The SQL Result Table Tab</a></li>
+
+<li>
+<a href="#The SQL Result Form Tab">The SQL Result Form Tab</a></li>
+
+<li>
+<a href="#The Connection Manager Tab">The Connection Manager Tab</a></li>
+</ul>
+
+<li>
+<a href="#Bugs">Bugs</a></li>
+</ul>
+
+<h2>
+<a NAME="DISCLAIMER"></a><a href="#Table of Contents">DISCLAIMER</a></h2>
+<b><u>USE AT YOUR OWN RISK. THERE IS NO GUARANTEE OR WARANTEE FOR THIS
+FREE SOFTWARE.</u></b> QCDemo can modify files and settings on any AS/400
+to which it is connected. To the best of our belief, it performs exactly
+what you direct it to do, which is dangerous enough, isn't it? Other slightly
+dangerous aspects of JTOpen itself include the following:
+<ul>
+<li>
+Your logins are real AS400 logins!</li>
+
+<ul>
+<li>
+Three password failures and OS/400 may lock you out of your account until
+QSECOFR deals with it.</li>
+</ul>
+
+<li>
+<b><u>YOUR LOGINS ARE ENCRYPTED BUT YOUR DATA GO OVER THE NETWORK UNENCRYPTED.</u></b></li>
+
+<ul>
+<li>
+There is indeed a SecureAS400 component in the JTOpen toolkit, but your
+author didn't use it in QCDemo.</li>
+</ul>
+</ul>
+
+<h2>
+<a NAME="System Requirements"></a><a href="#Table of Contents">System Requirements</a></h2>
+To run QCDemo you need the following which are not provided with QCDemo:
+<ul>
+<li>
+The <a href="http://www.javasoft.com">Java</a> environment.</li>
+
+<ul>
+<li>
+We have only tested QCDemo on <a href="http://www.javasoft.com/j2se/">Java
+1.3</a>.</li>
+</ul>
+
+<li>
+IBM's <a href="http://oss.software.ibm.com/developerworks/opensource/jt400/">JTOpen
+toolkit</a> for the AS/400.</li>
+
+<li>
+An AS/400 which is accessible via TCP/IP from the machine on which QCDemo
+runs.</li>
+
+<ul>
+<li>
+We have not tested QCDemo running on an AS/400 under the RemoteAWT.</li>
+</ul>
+</ul>
+
+<h2>
+<a NAME="Launching QCDemo"></a><a href="#Table of Contents">Launching QCDemo</a></h2>
+Make sure the following are in your classpath, or add them via the -classpath
+argument to the Java environment:
+<ul>
+<li>
+The JTOpen jar file <tt>jt400.jar</tt></li>
+
+<li>
+The QCDemo jar file <tt>qcdemo.jar</tt></li>
+</ul>
+The main class of the QCDemo jar file is
+<blockquote><tt>com.SoftWoehr.JTOpenContrib.QCDemo.QCDemo</tt></blockquote>
+Enter a command appropriate to your installation to run the main class
+of the QCDemo jar file, such as
+<blockquote><tt>java com.SoftWoehr.JTOpenContrib.QCDemo.QCDemo</tt></blockquote>
+
+<h2>
+<a NAME="General Considerations"></a><a href="#Table of Contents">General
+Considerations</a></h2>
+QCDemo opens a window with a tabbed notebook in it. Each tab demonstrates
+one or more beans from the JTOpen project and offers access to different
+resources. The tabs should be self-explanatory. Use the widgets which the
+tab pane presents to operate on your AS/400, or flip to another tab to
+perform a different task. <u>Please remember when you are connected to
+your AS/400 that any changes you make using QCDemo are real!</u>
+<p>Each tab pane allows you to make a connection to an AS/400 independently
+of the other tab panes. Thus, all the tab panes can be connected to the
+same AS/400 or to different AS/400s. You can change the connection of any
+page. Connections are managed centrally so that resources are used economically.
+There is a tab pane for seeing the managed connections; its tab says "Connection
+Manager".
+<p>Help for using QCDemo is provided by this document and by flyover text
+which pops up over different fields and buttons if you leave the mouse
+pointer sitting over these fields and buttons for a few seconds.
+<p>Much of the data returned by JT400 components is in the form of graphic
+objects having their own popup menus. Try right-clicking on graphic objects
+returned in the windows of QCDemo; often more information can be returned
+and operations performed on the target AS400 in this fashion.
+<h2>
+<a NAME="The Individual Tabs"></a><a href="#Table of Contents">The Individual
+Tabs</a></h2>
+There are currently ten (10) tabs to the QCDemo notebook. They are described
+and illustrated below in their notebook order.
+<h2>
+<a NAME="The Command Tab"></a><a href="#Table of Contents">The Command
+Tab</a></h2>
+The Command Tab illustrates JTOpen's AS400CommandButto and allows you to
+execute a non-interactive command on the AS/400. You are informed of completion
+of the command and any error messages are returned.
+<ol>
+<li>
+Enter the name of the server.</li>
+
+<li>
+Press the Set System button.</li>
+
+<li>
+Enter the command and press enter.</li>
+
+<li>
+The command button is now set to the command and its legend changes.</li>
+
+<li>
+Press the button to execute the command.</li>
+
+<li>
+Wait for the completion message before continuing.</li>
+</ol>
+Below, the execution of a successful command is illustrated.
+<p><img SRC="images/QCCommandPanel.jpg" ALT="QCDemo Command Tab" NOSAVE height=527 width=608>
+<p>Below, the execution of an unsuccessful command is illustrated.
+<p><img SRC="images/QCCommandPanelBad.jpg" ALT="QCDemo Command Tab after a bad command" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The IFS Tab"></a><a href="#Table of Contents">The IFS Tab</a></h2>
+The IFS Tab allows you to navigate the file system. Clicking on graphic
+objects returned frequently returns more information. Please note that
+while your author has set the hourglass "wait" cursor for the original
+load of the IFS data, the returned graphic components don't do the same.
+Therefore, if you click on an object and the window seems to lock up, it's
+just the component fetching more data.
+<ol>
+<li>
+Enter the system name</li>
+
+<li>
+Press the Set System button.</li>
+
+<li>
+Enter the IFS path you wish to explore.</li>
+
+<li>
+Press the Set IFS Path button.</li>
+</ol>
+You may also switch views between
+<ul>
+<li>
+Explorer</li>
+
+<li>
+Details</li>
+
+<li>
+List</li>
+
+<li>
+Tree</li>
+</ul>
+views by using the clearly labeled buttons provided for this purpose.
+<p>Below, a session with the IFS Tab in an explorer view is illustrated.
+<p><img SRC="images/QCIFSPanel.jpg" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The User List Tab"></a><a href="#Table of Contents">The User List
+Tab</a></h2>
+The User List Tab returns a list of those users whose profiles you are
+authorized to access on the server of your choice.
+<ol>
+<li>
+Enter the system name.</li>
+
+<li>
+Press the Get User List button.</li>
+</ol>
+Below, a session with the User List Tab is illustrated.
+<p><img SRC="images/QCUserListPanel.jpg" ALT="QCDemo User List Tab" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The Job List Tab"></a><a href="#Table of Contents">The Job List
+Tab</a></h2>
+The Job List Tab returns a list of active jobs you are authorized to access
+on the server of your choice.
+<ol>
+<li>
+Enter the system name.</li>
+
+<li>
+Enter the selection criteria or *ALL.</li>
+
+<li>
+Press the Get User List button.</li>
+</ol>
+<b>NOTE</b> that if you ask for jobs you aren't authorized to see, you
+may receive many, many error dialog popups, one after another, one or two
+for each job!
+<p>Below, a session with the Job List Tab is illustrated.
+<p><img SRC="images/QCJobListPanel.jpg" ALT="QCDemo Job List Panel" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The Printer List Tab"></a><a href="#Table of Contents">The Printer
+List Tab</a></h2>
+The Printer List Tab returns a list of printers and documents on the server
+of your choice.
+<ol>
+<li>
+Enter the system name.</li>
+
+<li>
+Enter the selection criteria or *ALL.</li>
+
+<li>
+Press the Get Printer List button.</li>
+</ol>
+<b>NOTE</b> that this panel may come up with the separator bar all the
+way over to the left hiding the printer list. Just grab the bar with the
+mouse and slide it to the right. <i>(See <a href="#Bugs">Bugs</a>.)</i>
+<p>Click on a printer to see its documents.
+<p>Below, a session with the Printer List Tab is illustrated.
+<p><img SRC="images/QCPrinterListPanel.jpg" ALT="QCDemo Printer List Panel" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The Spooled File Viewer Tab"></a><a href="#Table of Contents">The
+Spooled File Viewer Tab</a></h2>
+The Spooled File Viewer Tab returns a printable WYSIWYG view of spooled
+files on the server of your choice.
+<ol>
+<li>
+Enter the system name.</li>
+
+<li>
+Enter the spooled file name.</li>
+
+<li>
+Enter the spooled file number</li>
+
+<li>
+Enter the job name which produced the spooled file.</li>
+
+<li>
+Enter the user name which produced the spooled file.</li>
+
+<li>
+Enter the job number which produced the spooled file.</li>
+
+<li>
+Press the View Spool File button.</li>
+</ol>
+<b>NOTE</b> that since graphic data is transferred in this operation it
+may take a bit of time.
+<p>Below, a session with the Spooled File Viewer Tab is illustrated.
+<p><img SRC="images/QCSpooledFilePanel.jpg" ALT="QCDemo Spooled File Viewer Tab" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The SQL Query Builder Tab"></a><a href="#Table of Contents">The
+SQL Query Builder Tab</a></h2>
+The SQL Query Builder Tab presents a JTOpen SQL Query Builder pane. You
+can create SQL queries and execute them, sending the results to either
+the <a href="#The SQL Result Table Tab">SQL Result Table Tab</a> or the
+<a href="#The SQL Result Form Tab">SQL
+Result Form Tab</a>.
+<ol>
+<li>
+Choose a driver from the radio buttons offered. The URL will then be partially
+filled in by QCDemo.</li>
+
+<ul>
+<li>
+If you choose "Custom" you must enter the full classname of the driver
+you wish to load, as well as edit the JDBC URL to suit what that driver
+expects.</li>
+
+<ul>
+<li>
+QCDemo assumes that the custom driver possesses a class static method which
+will register the driver. QCDemo does not attempt to register the custom
+driver.</li>
+</ul>
+</ul>
+
+<li>
+Finish the partial URL by adding the server name and any other JDBC URL
+information such as</li>
+
+<ul>
+<li>
+Database</li>
+
+<li>
+Username</li>
+
+<li>
+Password</li>
+</ul>
+
+<li>
+Press the Connect Now button.</li>
+
+<li>
+If you connect successfully, you are now ready to formulate queries.</li>
+
+<ul>
+<li>
+See the JTOpen documentation for more information on using the SQL Query
+Builder itself.</li>
+</ul>
+
+<li>
+When you wish to execute the query, press either Do Query button depending
+on which Result Tab you wish the results of your query to go to.</li>
+
+<li>
+Flip to the Result Tab of your choice to see the results of your query.</li>
+</ol>
+Below, a session with SQL Query Builder Tab is illustrated.
+<p><img SRC="images/QCSQLQueryBuilderPanel.jpg" ALT="QCDemo SQL Query Builder Tab" NOSAVE height=527 width=608>
+<p>See also the <a href="#The SQL Result Table Tab">SQL Result Table Tab</a>
+and <a href="#The SQL Result Form Tab">SQL Result Form Tab</a>.
+<h2>
+<a NAME="The SQL Result Table Tab"></a><a href="#Table of Contents">The
+SQL Result Table Tab</a></h2>
+The SQL Result Table Tab shows the results of using the <a href="#The SQL Query Builder Tab">SQL
+Query Builder Tab</a> in a table, as illustrated below.
+<p><img SRC="images/QCSQLResultTablePanel.jpg" ALT="QCDemo SQL Query Result Table Tab" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The SQL Result Form Tab"></a><a href="#Table of Contents">The
+SQL Result Form Tab</a></h2>
+The SQL Result Table Tab shows the results of using the <a href="#The SQL Query Builder Tab">SQL
+Query Builder Tab</a> in a form, as illustrated below.
+<p><img SRC="images/QCSQLResultFormPanel.jpg" ALT="QCDemo SQL Result Form Tab" NOSAVE height=527 width=608>
+<h2>
+<a NAME="The Connection Manager Tab"></a><a href="#Table of Contents">The
+Connection Manager Tab</a></h2>
+The Connection Manager Tab shows the QCDemo simple connection manager's
+current status. This view does not update itself. You must push the Refresh
+button to update the view.
+<p>The display of the Connection Manager Tab is illustrated below.
+<p><img SRC="images/QCConnectionManagerViewer.jpg" ALT="QCDemo Connection Manager Tab" NOSAVE height=527 width=608>
+<p>There is more information about the Connection Manager in the <a href="progman.html">QCDemo
+Programmer Manual</a>.
+<h2>
+<a NAME="Bugs"></a><a href="#Table of Contents">Bugs</a></h2>
+
+<ul>
+<li>
+Your author has not really mastered window resizing issues with JTOpen
+JavaBean component windows. With certain panels such as the <a href="#The IFS Tab">IFS
+Tab</a>, when they load their data they occasionally resize themselves
+so that either their draggable panel separator bar is over to one side
+of the screen hiding the data, or they redraw a bit small. You can usually
+straighten this effect out by moving separator bars with your mouse.</li>
+
+<li>
+Some panels misbehave a bit if you fail to connect or if you repeatedly
+do not log on correctly. Usually poking around with the mouse (not too
+much or too rapidly!) and waiting a while will straighten this out.</li>
+
+<ul>
+<li>
+Some of the JTOpen components themselves are not terribly graceful about
+a large number of errors, e.g., when you ask for a list of all jobs and
+there are many jobs which you don't have authorization for. Try it yourself
+if you are bored but patient!</li>
+</ul>
+
+<li>
+The connection manager is extremely simplistic and serves only as an illustration,
+e.g.:</li>
+
+<ul>
+<li>
+It thinks <tt>AS400</tt> and <tt>as400</tt> are two different machines.</li>
+
+<li>
+It may have the service names wrong for the services actually used.</li>
+</ul>
+
+<li>
+Your author was learning the Sun Forte IDE at the same time as experimenting
+with JTOpen. You will notice some of the panels are better designed than
+others. The better designed ones were done later in the week :-).</li>
+
+<li>
+Please report other bugs you find to the author, <a href="mailto:jax@well.com?subject=Bug in QCOpen">Jack
+J. Woehr (jax@well.com)</a></li>
+</ul>
+<i>Fairmount, Colorado July, 2000</i>
+</body>
+</html>

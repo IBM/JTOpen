@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<Form version="1.0" type="com.netbeans.developer.modules.loaders.form.forminfo.JPanelFormInfo">
+  <SyntheticProperties>
+    <SyntheticProperty name="encoding" type="java.lang.String" value="ISO-8859-1"/>
+  </SyntheticProperties>
+
+  <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JTextArea" name="jTextArea1">
+      <Properties>
+        <Property name="editable" type="boolean" editor="sun.beans.editors.BoolEditor" value="false"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="North"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Container class="javax.swing.JPanel" name="jPanel1">
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="South"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout">
+        <Property name="columns" type="int" value="2"/>
+      </Layout>
+      <SubComponents>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCCommandButtonPanel" name="qCCommandButtonPanel1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Component class="javax.swing.JTextField" name="commandTextField">
+          <Properties>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="com.netbeans.developer.editors.DimensionEditor">
+              <Dimension value="[4, 40]"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Type the command you wish to execute, then hit Enter. This sets the CommandButton to the command."/>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="commandTextFieldActionPerformed"/>
+          </Events>
+
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="QCCommandPanel_jTextField1"/>
+          </AuxValues>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JButton" name="systemButton">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Sets the system to the one you typed in."/>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Set System"/>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="systemButtonActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JTextField" name="systemNameTextField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Type in the system name on which you wish to execute a command."/>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="systemNameTextFieldActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="com.ibm.as400.vaccess.AS400DetailsPane" name="aS400DetailsPane1">
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+    </Container>
+  </SubComponents>
+</Form>
