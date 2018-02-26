@@ -64,6 +64,7 @@ public class JDMRI2 extends ListResourceBundle
 //    { "JD08001", "The application requester cannot establish the connection." },
 //    { "JD08004", "The application server rejected the connection." },
       { "JD08003", "The connection does not exist." },
+      { "JD08506", "A connection failed but has been re-established. Special register settings have been replayed if necessary. Host name or IP address of the connection: &0. Service name or port number of the connection: &1."},
       { "JD08S01", "Communication link failure." },                   // @F1A
       { "JD22522", "CCSID value is not valid." },
       { "JD22524", "Character conversion resulted in truncation." },
