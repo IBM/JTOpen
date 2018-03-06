@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.sql.DriverManager;
 import java.util.Vector;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -963,12 +962,13 @@ specified.
   {
     if (JDTrace.isTraceOn())
     {
-      synchronized(DriverManager.class)
-      {
-        e.printStackTrace(DriverManager.getLogWriter ());
-      }
+      JDTrace.logException(this, "throwing XAException(XAER_RMFAIL) because of", e); 
     }
-    throw new XAException(XAException.XAER_RMFAIL);
+    XAException xaex = new XAException(XAException.XAER_RMFAIL);
+    try { 
+      xaex.initCause(e);
+    } catch (Throwable t) {}
+    throw xaex; 
   }
 
 
