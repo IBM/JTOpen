@@ -16,7 +16,6 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.OutputStream; 
 import java.sql.SQLException;
-import java.sql.DriverManager;
 
 
 
@@ -104,7 +103,9 @@ abstract class AS400JDBCOutputStream extends OutputStream
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logException(this, "Exception caught", e);
+      }
       closed_ = true;
       IOException throwException = new IOException(e.getMessage());
       try { 
@@ -139,7 +140,9 @@ abstract class AS400JDBCOutputStream extends OutputStream
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logException(this, "Exception caught", e);
+      }
       closed_ = true;
       IOException throwException = new IOException(e.getMessage());
       try { 
