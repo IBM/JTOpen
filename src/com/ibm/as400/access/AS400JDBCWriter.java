@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 
@@ -173,7 +172,9 @@ class AS400JDBCWriter extends Writer
     }
     catch (SQLException e)
     {
-      if (JDTrace.isTraceOn()) e.printStackTrace(DriverManager.getLogWriter());
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logException(this, "Exception caught", e); 
+      }
       closed_ = true;
       IOException throwException = new IOException(e.getMessage());
       try {
