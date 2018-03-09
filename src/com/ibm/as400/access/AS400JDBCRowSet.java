@@ -3258,7 +3258,10 @@ implements RowSet, Serializable             // @A3C
     public void updateArray (int columnIndex, Array columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+      validateResultSet();
+      resultSet_.updateArray(columnIndex, columnValue);
+
+      eventSupport_.fireRowChanged(new RowSetEvent(this));
     }
 
 
@@ -3276,7 +3279,11 @@ implements RowSet, Serializable             // @A3C
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        validateResultSet();
+        resultSet_.updateArray(columnName, columnValue);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));
+
     }
 
 
@@ -4264,7 +4271,11 @@ implements RowSet, Serializable             // @A3C
     public void updateRef (int columnIndex, Ref columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        validateResultSet();
+        resultSet_.updateRef(columnIndex, columnValue);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));
+
     }
 
 
@@ -4283,7 +4294,11 @@ implements RowSet, Serializable             // @A3C
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        validateResultSet();
+        resultSet_.updateRef(columnName, columnValue);
+
+        eventSupport_.fireRowChanged(new RowSetEvent(this));
+
     }
 
 

@@ -5927,12 +5927,13 @@ endif */
   /**
    * Tests if a DataTruncation occurred on the write of a piece of data and
    * throws a DataTruncation exception if so. The data truncation flag is also
-   * taken into consideration for string data. The rules are: 1) If updating
-   * database with numeric data and data truncated, throw exception 2) If
-   * numeric data is part of a query and data truncated, post warning 3) If
-   * string data and suppress truncation, return 4) If updating database with
-   * string data and check truncation and data truncated, throw exception 5) If
-   * string data is part of a query and check truncation and data truncated,
+   * taken into consideration for string data. The rules are: 
+   * 1) If updating or querying database with numeric data and data truncated, 
+   * throw exception
+   * 2) If string data and suppress truncation, return 
+   * 3) If updating database with string data and check truncation and data 
+   * truncated, throw exception 
+   * 4) If string data is part of a query and check truncation and data truncated,
    * post warning
    * 
    * @param index
@@ -5954,7 +5955,7 @@ endif */
           // We now always throw a data type mismatch for a range error.
           // In some cases, a truncation exception was being thrown. 
           // To be consistent, we will now throw the same error.  
-          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
           break;
         case NUMERIC_RANGE_ERROR_WARNING:
           if (statementWarningObject  != null) { 

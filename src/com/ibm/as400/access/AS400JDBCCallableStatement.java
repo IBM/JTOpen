@@ -409,7 +409,7 @@ implements CallableStatement
                 case Types.JAVA_OBJECT:
                   break;
                   default:
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH,"P#="+parameterIndex);
                     
                 }
 
@@ -496,7 +496,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -568,7 +568,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1] ); 
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex ); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -656,7 +656,7 @@ implements CallableStatement
         case Types.JAVA_OBJECT:
           break;
         default:
-          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
         }
 
                 // Get the data and check for SQL NULL.
@@ -746,7 +746,7 @@ implements CallableStatement
 
                 // make sure the registered type is valid for this get method
                 // 16 is the value of Types.BOOLEAN added for JDK 1.4
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -842,7 +842,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1022,7 +1022,7 @@ implements CallableStatement
                   case Types.JAVA_OBJECT:
                     break; 
                     default:
-                      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
   
                 }
                     
@@ -1143,7 +1143,7 @@ implements CallableStatement
                   case Types.JAVA_OBJECT:
                   break; 
                   default: 
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
                 }
 
                 // Get the data and check for SQL NULL.
@@ -1250,7 +1250,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1333,7 +1333,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex);
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1415,7 +1415,7 @@ implements CallableStatement
                 if(registered_[parameterIndex-1] == false)
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex); 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
             }
@@ -1507,7 +1507,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]); 
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex); 
 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1695,7 +1695,7 @@ implements CallableStatement
     public Ref getRef(int parameterIndex)
     throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
         return null;
     }
 
@@ -1712,8 +1712,7 @@ implements CallableStatement
     public Ref getRef(String parameterName)
     throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+      return getRef(findParameterIndex(parameterName));
     }
 
     /**
@@ -1767,7 +1766,7 @@ implements CallableStatement
                     JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // make sure the registered type is valid for this get method
-                validateNumericRegisteredType(registeredTypes_[parameterIndex-1]);
+                validateNumericRegisteredType(registeredTypes_[parameterIndex-1], parameterIndex);
                 
                 // Get the data and check for SQL NULL.
                 data = getValue(parameterIndex);
@@ -1973,7 +1972,7 @@ implements CallableStatement
                   case Types.JAVA_OBJECT:
                   break;
                   default: 
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
                 }
 
                 // Get the data and check for SQL NULL.
@@ -2120,7 +2119,7 @@ implements CallableStatement
                   case Types.JAVA_OBJECT:
                      break;
                   default:
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
                     
                 }
 
@@ -2229,7 +2228,7 @@ implements CallableStatement
         case Types.JAVA_OBJECT:
           break;
         default:
-          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
         }
 
         // Get the data and check for SQL NULL.
@@ -2339,7 +2338,7 @@ implements CallableStatement
                 if(parameterIndex == 1)
                 {                                                  // @E2A
                     if(sqlType != Types.INTEGER)                                           // @E2A
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);         // @E2A
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);         // @E2A
                     returnValueParameterRegistered_ = true;                                 // @E2A
                     return;                                                                 // @E2A
                 }                                                                           // @E2A
@@ -3251,7 +3250,7 @@ implements CallableStatement
             {
               if((exceptionOnTrunc == true))   {  //@trunc
                   if (data.getOutOfBounds()) { 
-                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex); //@trunc
                   }
               }                                                                    //@trunc
                 int actualSize = data.getActualSize();
@@ -3516,7 +3515,7 @@ implements CallableStatement
                    case Types.JAVA_OBJECT:
                      break;
                    default:
-                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
                 }
 
                 // Get the data and check for SQL NULL.
@@ -4554,7 +4553,7 @@ endif */
      * Previously, getInt, ...., could only get used against a type registered as INT.   
      * @param registeredType
      */
-    private void validateNumericRegisteredType(int registeredType) throws SQLException { 
+    private void validateNumericRegisteredType(int registeredType, int parameterIndex) throws SQLException { 
       // make sure the registered type is valid for this get method
       // Assuming that the compatibility should be the same as the get methods, 
       // the following registered types are allowed.
@@ -4579,7 +4578,7 @@ endif */
           /* types are good */ 
           break; 
         default:
-          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "P#="+parameterIndex);
       }
       }
 

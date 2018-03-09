@@ -2135,7 +2135,7 @@ implements ResultSet
     public Array getArray (int columnIndex)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, "C#="+columnIndex);
         return null;
     }
 
@@ -3294,7 +3294,7 @@ implements ResultSet
     public Ref getRef (int columnIndex)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, "C#="+columnIndex);
         return null;
     }
 
@@ -3824,7 +3824,7 @@ implements ResultSet
                 //if 610, follow Native driver to thow exc if data is text and getX() is a number type getter method.
                 if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm610)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
                 {                                                                    //@trunc
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "C#="+columnIndex); //@trunc
                 }                                                                    //@trunc
                 int actualSize = data.getActualSize ();
                 postWarning (new DataTruncation (columnIndex, false, true,
@@ -4166,7 +4166,7 @@ implements ResultSet
     public void updateArray (int columnIndex, Array columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, "C#="+columnIndex);
     }
 
 
@@ -4186,7 +4186,7 @@ implements ResultSet
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+      updateArray (findColumn (columnName), columnValue);
     }
 
 
@@ -5413,7 +5413,7 @@ endif */
     public void updateRef (int columnIndex, Ref columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, "C#="+columnIndex);
     }
 
 
@@ -5434,7 +5434,7 @@ endif */
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+      updateRef(findColumn (columnName), columnValue); 
     }
 
 
