@@ -395,8 +395,7 @@ implements RowSet, Serializable             // @A3C
             {
                 if (JDTrace.isTraceOn ())
                 {
-                    JDTrace.logInformation(this, "Cannot find JNDI data source.");
-                    ne.printStackTrace(DriverManager.getLogWriter());
+                    JDTrace.logException(this, "Cannot find JNDI data source.", ne);
                 }
                 ExtendedIllegalStateException eise =new ExtendedIllegalStateException("dataSourceName", ExtendedIllegalStateException.OBJECT_CANNOT_BE_FOUND);
                 eise.initCause(ne); 
