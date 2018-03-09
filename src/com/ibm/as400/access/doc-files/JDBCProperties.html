@@ -838,9 +838,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
       <p>When this property is "false", writing truncated data to the database 
         or using such data in a query generates no exception or warning.</p>
       <p> The default value is &quot;true&quot;.</p>
-      <p>This property does not affect <strong>numeric data</strong>. Writing 
-        truncated numeric data to the database always throws an error and using 
-        truncated numeric data in a query always posts a warning. 
+      <p>This property does not affect <strong>numeric data</strong>. An error occurs if a 
+         conversion error occurs when setting a numeric parameter.  
       </p>
     </TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
