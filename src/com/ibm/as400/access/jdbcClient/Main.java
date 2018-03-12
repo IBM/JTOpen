@@ -1161,7 +1161,6 @@ public class Main implements Runnable {
 
             }
           }
-          out1.println("");
         } else {
           if (t != null) {
             t.printStackTrace( out1);
@@ -1175,7 +1174,11 @@ public class Main implements Runnable {
 
           }
         }
-
+        if (t != null) { 
+          out1.println("Next exception:"); 
+        } else {
+          out1.println("");
+        }
       } // while
     }
 }
