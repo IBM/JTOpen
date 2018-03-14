@@ -25,7 +25,6 @@ import java.sql.SQLClientInfoException;
 import java.sql.SQLPermission;
 endif */
 import java.sql.Clob;
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DataTruncation;
 /* ifdef JDBC40
@@ -106,7 +105,7 @@ public class AS400JDBCConnection
 /*ifdef JDBC40
 extends ToolboxWrapper
 endif */
-implements Connection
+implements AS400JDBCConnectionI
 {
 
     private class CancelLock extends Object {}          //@C7A
@@ -171,12 +170,9 @@ implements Connection
 
     // The max number of open statements per connection.  If this          @DAA
     // changes, then change the relevant sentence in the javadoc, too.     @DAA
-    static final int            MAX_STATEMENTS_         = 9999;         // @DAC
+                   static final int            MAX_STATEMENTS_         = 9999;         // @DAC
     private final boolean[] assigned_ = new boolean[MAX_STATEMENTS_]; //@P0C
 
-    static final int            DATA_COMPRESSION_NONE_  = 0;            // @ECA
-    static final int            DATA_COMPRESSION_OLD_   = 1;            // @ECA
-    static final int            DATA_COMPRESSION_RLE_   = 0x3832;       // @ECA @EIC @EJC
 
 
     // Private data.
@@ -327,7 +323,7 @@ implements Connection
 
     @exception              SQLException    If the statement cannot be executed.
     **/
-    void cancel(int id)
+    public void cancel(int id)
     throws SQLException
     {
         // Lock out all other operations for this connection.
@@ -418,7 +414,7 @@ implements Connection
 
     @exception              SQLException    If the statement cannot be executed.
     **/
-    void checkAccess (JDSQLStatement sqlStatement)
+    public void checkAccess (JDSQLStatement sqlStatement)
     throws SQLException
     {
         String access = properties_.getString (JDProperties.ACCESS);
@@ -449,7 +445,7 @@ implements Connection
     Checks to see if we are cancelling a statement.  If so, wait until the
     cancel is done.  If not, go ahead.
     **/
-    private void checkCancel()
+    public void checkCancel()
     {
         synchronized(cancelLock_)
         {
@@ -472,7 +468,7 @@ implements Connection
     /**
     Checks if what the user passed in for holdability is valid.
     **/
-    private boolean checkHoldabilityConstants (int holdability)
+     public boolean checkHoldabilityConstants (int holdability)
     {
         if ((holdability == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
             (holdability == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT)  ||
@@ -490,7 +486,7 @@ implements Connection
 
     @exception  SQLException    If the connection is not open.
     **/
-    void checkOpen ()
+    public void checkOpen ()
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
@@ -588,7 +584,7 @@ implements Connection
     /*
      * handle the processing of the abort.   @D7A
      */
-void handleAbort() {
+public void handleAbort() {
 
   // Cancel any existing statement.
   try {
@@ -677,7 +673,7 @@ void handleAbort() {
     @exception SQLException     If the connection is not open
                                 or an error occurs.
     **/
-    void setCheckStatementHoldability(boolean check)
+    public void setCheckStatementHoldability(boolean check)
     {
         checkStatementHoldability_ = check;
     }
@@ -692,7 +688,7 @@ void handleAbort() {
     @param resultSetConcurrency     The result set concurrency.
     @return                         The correct result set type.
     **/
-    private int correctResultSetType (int resultSetType,
+     public int correctResultSetType (int resultSetType,
                                       int resultSetConcurrency)
     throws SQLException // @EGA
     {
@@ -723,7 +719,15 @@ void handleAbort() {
     public Statement createStatement ()
     throws SQLException
     {
-        return createStatement (ResultSet.TYPE_FORWARD_ONLY,
+        return createStatement (this, ResultSet.TYPE_FORWARD_ONLY,
+                                ResultSet.CONCUR_READ_ONLY, getInternalHoldability());  //@G4C
+    }
+
+    public Statement createStatement (AS400JDBCConnectionI con)
+    throws SQLException
+    {
+        return createStatement (con,
+                                ResultSet.TYPE_FORWARD_ONLY,
                                 ResultSet.CONCUR_READ_ONLY, getInternalHoldability());  //@G4C
     }
 
@@ -758,10 +762,18 @@ void handleAbort() {
                                       int resultSetConcurrency)
     throws SQLException
     {
-        return createStatement (resultSetType,                         //@G4A
+        return createStatement (this, resultSetType,                         //@G4A
                                 resultSetConcurrency, getInternalHoldability());         //@G4A
         //@G4M Moved code to createStatement (int, int, int)
     }
+    public Statement createStatement (AS400JDBCConnectionI con, int resultSetType,
+        int resultSetConcurrency)
+    throws SQLException
+{
+return createStatement (con, resultSetType,                         //@G4A
+  resultSetConcurrency, getInternalHoldability());         //@G4A
+//@G4M Moved code to createStatement (int, int, int)
+}
 
 
     //@G4A JDBC 3.0
@@ -799,7 +811,16 @@ void handleAbort() {
                                     or an error occurs.
     @since Modification 5
     **/
+    
     public Statement createStatement (int resultSetType,
+        int resultSetConcurrency,
+        int resultSetHoldability)
+throws SQLException
+{
+     return createStatement(this, resultSetType, resultSetConcurrency, resultSetHoldability);
+}
+    public Statement createStatement (AS400JDBCConnectionI con, 
+                                 int resultSetType,
                                       int resultSetConcurrency,
                                       int resultSetHoldability)
     throws SQLException
@@ -814,7 +835,7 @@ void handleAbort() {
 
         // Create the statement.
         int statementId = getUnusedId (resultSetType); // @B1C
-        AS400JDBCStatement statement = new AS400JDBCStatement (this,
+        AS400JDBCStatement statement = new AS400JDBCStatement (con,
                                                                statementId, transactionManager_, packageManager_,
                                                                properties_.getString (JDProperties.BLOCK_CRITERIA),
                                                                properties_.getInt (JDProperties.BLOCK_SIZE),
@@ -852,7 +873,7 @@ void handleAbort() {
 
     @param   request     The request.
     **/
-    private void debug (DBBaseRequestDS request)
+    public void debug (DBBaseRequestDS request)
     {
         if (DEBUG_COMM_TRACE_ >= 1)
             System.out.println ("Server request: "
@@ -871,7 +892,7 @@ void handleAbort() {
 
     @param   reply     The reply.
     **/
-    private void debug (DBReplyRequestedDS reply)
+    public void debug (DBReplyRequestedDS reply)
     {
         if (DEBUG_COMM_TRACE_ >= 1)
             System.out.println ("Server reply:   "
@@ -899,7 +920,7 @@ void handleAbort() {
 
     @exception   Throwable      If an error occurs.
     **/
-    protected void finalize ()
+    public void finalize ()
     throws Throwable
     {
         if (! isClosed ()) {
@@ -916,7 +937,7 @@ void handleAbort() {
 
     @return     The AS400 object.
     **/
-    AS400Impl getAS400 ()
+    public AS400Impl getAS400 ()
     throws SQLException // @EGA
     {
         return as400_;
@@ -996,7 +1017,7 @@ void handleAbort() {
 
     @return     The converter.
     **/
-    //@P0D    ConverterImplRemote getConverter ()
+    //@P0D    ConverterImplRemote  ()
     //@P0D    throws SQLException // @EGA
     //@P0D    {
     //@P0D        return converter_;
@@ -1016,7 +1037,7 @@ void handleAbort() {
 
     @exception  SQLException    If the CCSID is not valid.
     **/
-    ConvTable getConverter (int ccsid) //@P0C
+    public ConvTable getConverter (int ccsid) //@P0C
     throws SQLException
     {
         try
@@ -1052,7 +1073,7 @@ void handleAbort() {
     @return The style of data compression.  Possible values are DATA_COMPRESSION_NONE_,
             DATA_COMPRESSION_OLD_, and DATA_COMPRESSION_RLE_.
     **/
-    int getDataCompression()                                                                // @ECA
+    public int getDataCompression()                                                                // @ECA
     {                                                                                       // @ECA
         return dataCompression_;                                                            // @ECA
     }                                                                                       // @ECA
@@ -1065,7 +1086,7 @@ void handleAbort() {
     @return     The default SQL schema, or QGPL if none was
                 specified.
     **/
-    String getDefaultSchema ()
+    public String getDefaultSchema ()
     throws SQLException // @EGA
     {
         return((defaultSchema_ == null) ? "QGPL" : defaultSchema_);
@@ -1079,7 +1100,7 @@ void handleAbort() {
     @param returnRawValue Indicates what to return if default SQL schema has not been set.  If true, return raw value; if false, then return QGPL rather than null.
     @return     The default SQL schema.  If returnRawValue==false and no default SQL schema was specified, then return QGPL rather than null.
     **/
-    String getDefaultSchema (boolean returnRawValue)
+    public String getDefaultSchema (boolean returnRawValue)
     throws SQLException
     {
       return((returnRawValue || defaultSchema_ != null) ? defaultSchema_ : "QGPL");
@@ -1143,7 +1164,7 @@ void handleAbort() {
      Returns the ID of the connection.
      @return The connection ID.
      **/
-    int getID()
+    public int getID()
     {
       return id_;
     }
@@ -1164,7 +1185,7 @@ void handleAbort() {
 
     @since Modification 5
     **/
-    int getInternalHoldability ()
+    public int getInternalHoldability ()
     {
         return holdability_;
     }
@@ -1265,10 +1286,10 @@ void handleAbort() {
     </ul>
 
     <p>Note: Since this method is not defined in the JDBC Connection interface,
-    you typically need to cast a Connection object to AS400JDBCConnection in order
+    you typically need to cast a Connection object to AS400JDBCConnectionI in order
     to call this method:
     <blockquote><pre>
-    String serverJobIdentifier = ((AS400JDBCConnection)connection).getServerJobIdentifier();
+    String serverJobIdentifier = ((AS400JDBCConnectionI)connection).getServerJobIdentifier();
     </pre></blockquote>
 
     @return The server job identifier, or null if not known.
@@ -1281,7 +1302,7 @@ void handleAbort() {
 
 
 
-    int getServerFunctionalLevel()                                      // @EEA
+    public int getServerFunctionalLevel()                                      // @EEA
     {                                                                   // @EEA
         return serverFunctionalLevel_;                                  // @EEA
     }                                                                   // @EEA
@@ -1292,10 +1313,10 @@ void handleAbort() {
     Returns the system object which is managing the connection to the system.
 
     <p>Note: Since this method is not defined in the JDBC Connection interface,
-    you typically need to cast a Connection object to AS400JDBCConnection in order
+    you typically need to cast a Connection object to AS400JDBCConnectionI in order
     to call this method:
     <blockquote><pre>
-    AS400 system = ((AS400JDBCConnection)connection).getSystem();
+    AS400 system = ((AS400JDBCConnectionI)connection).getSystem();
     </pre></blockquote>
 
     @return The system.
@@ -1334,7 +1355,7 @@ void handleAbort() {
 
 
 
-    JDTransactionManager getTransactionManager()                                // @E4A
+    public JDTransactionManager getTransactionManager()                                // @E4A
     {                                                                           // @E4A
         return transactionManager_;                                             // @E4A
     }                                                                           // @E4A
@@ -1373,7 +1394,7 @@ void handleAbort() {
     // Implementation note:  This method needs to be synchronized
     // so that the same id does not get assigned twice.
     //
-    private int getUnusedId (int resultSetType) //@P0C
+    public int getUnusedId (int resultSetType) //@P0C
     throws SQLException
     {
       synchronized(assigned_) //@P1A
@@ -1447,7 +1468,7 @@ void handleAbort() {
 
 
 
-    // @j31a new method -- Must the user have "for update" on their
+    public // @j31a new method -- Must the user have "for update" on their
     //       SQL statement to guarantee an updatable cursor?  The answer is
     //       no for v5r2 and v5r1 systems with a PTF.  For V5R1 systems
     //       without the PTF, v4r5, and earlier, the answer is yes.
@@ -1465,7 +1486,7 @@ void handleAbort() {
 
     @return      The URL for the database.
     **/
-    String getURL ()
+    public String getURL ()
     throws SQLException // @EGA
     {
         return dataSourceUrl_.toString ();
@@ -1478,7 +1499,7 @@ void handleAbort() {
 
     @return      The user name.
     **/
-    String getUserName ()
+    public String getUserName ()
     throws SQLException // @EGA
     {
         if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact IBM i system
@@ -1495,7 +1516,7 @@ void handleAbort() {
 
 
 
-    int getVRM()                                            // @D0A
+    public int getVRM()                                            // @D0A
     throws SQLException // @EGA
     {                                                       // @D0A
         return vrm_;                                        // @D0A
@@ -1527,7 +1548,7 @@ void handleAbort() {
     @return     true if the cursor name is already used;
                 false otherwise.
     **/
-    boolean isCursorNameUsed (String cursorName)
+    public boolean isCursorNameUsed (String cursorName)
     throws SQLException // @EGA
     {
         // Make a clone of the vector, since it will be modified as each statement @FAA
@@ -1596,7 +1617,7 @@ void handleAbort() {
     }
 
     // Called by AS400JDBCPooledConnection.
-    boolean isReadOnlyAccordingToProperties()
+    public boolean isReadOnlyAccordingToProperties()
       throws SQLException
     {
         checkOpen ();
@@ -1611,7 +1632,7 @@ void handleAbort() {
 
     @param  isRollback True if we called this from rollback(), false if we called this from commit().
     **/
-    void markCursorsClosed(boolean isRollback)  //@F3C //@XAC
+    public void markCursorsClosed(boolean isRollback)  //@F3C //@XAC
     throws SQLException                  //@F2A
     {
         if (JDTrace.isTraceOn())
@@ -1646,7 +1667,7 @@ void handleAbort() {
     A statement may become partially closed if the user closed the statement and set the "hold statements" connection
     property to true when making the connection.  Additionally, the statement must have been used to access a locator.
     */
-    private void markStatementsClosed()
+    public void markStatementsClosed()
     {
         if(!statements_.isEmpty())
             {
@@ -1681,7 +1702,7 @@ void handleAbort() {
     /*
     * Prepares and executes the statement needed to retrieve generated keys.
     */
-    String makeGeneratedKeySelectStatement(String sql, int[] columnIndexes, String[] columnNames)
+    public String makeGeneratedKeySelectStatement(String sql, int[] columnIndexes, String[] columnNames)
     throws SQLException
     {
         if(columnIndexes != null)
@@ -1748,7 +1769,7 @@ void handleAbort() {
     /*
     * Prepares and executes the statement needed to retrieve generated keys
     */
-    String makeGeneratedKeySelectStatement(String sql)
+    public String makeGeneratedKeySelectStatement(String sql)
     throws SQLException
     {
         // @B4C.  Use NEW TABLE instead of FINAL TABLE.  With FINAL TABLE, the query will fail if
@@ -1778,9 +1799,15 @@ void handleAbort() {
     public String nativeSQL (String sql)
     throws SQLException
     {
+      return nativeSQL(this, sql); 
+    }
+
+    public String nativeSQL (AS400JDBCConnectionI con, String sql)
+    throws SQLException
+    {
         JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                           properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-                                                          properties_.getString (JDProperties.PACKAGE_CRITERIA), this); // @A2A @G4A
+                                                          properties_.getString (JDProperties.PACKAGE_CRITERIA), con); // @A2A @G4A
         return sqlStatement.toString ();
     }
 
@@ -1793,7 +1820,7 @@ void handleAbort() {
     @param   statement   The statement.
     @param   id          The statement's id.
     **/
-    void notifyClose (AS400JDBCStatement statement, int id)
+    public void notifyClose (AS400JDBCStatement statement, int id)
     throws SQLException // @EGA
     {
         statements_.removeElement(statement);           // @DAC
@@ -1817,7 +1844,7 @@ void handleAbort() {
 
     @param   sqlWarning  The warning.
     **/
-    void postWarning (SQLWarning sqlWarning)
+    public void postWarning (SQLWarning sqlWarning)
     throws SQLException // @EGA
     {
       String sqlState = sqlWarning.getSQLState(); 
@@ -1853,10 +1880,16 @@ void handleAbort() {
     public CallableStatement prepareCall (String sql)
     throws SQLException
     {
-        return prepareCall (sql, ResultSet.TYPE_FORWARD_ONLY,
+        return prepareCall (this, sql, ResultSet.TYPE_FORWARD_ONLY,
                             ResultSet.CONCUR_READ_ONLY, getInternalHoldability()); //@G4A
     }
 
+    public CallableStatement prepareCall (AS400JDBCConnectionI con, String sql)
+    throws SQLException
+    {
+        return prepareCall (con, sql, ResultSet.TYPE_FORWARD_ONLY,
+                            ResultSet.CONCUR_READ_ONLY, getInternalHoldability()); //@G4A
+    }
 
 
     // JDBC 2.0
@@ -1891,11 +1924,17 @@ void handleAbort() {
                                           int resultSetConcurrency)
     throws SQLException
     {
-        return prepareCall(sql, resultSetType, resultSetConcurrency,
+        return prepareCall(this, sql, resultSetType, resultSetConcurrency,
                            getInternalHoldability());   //@G4A
         //@G4M Moved code below
     }
 
+  public CallableStatement prepareCall(AS400JDBCConnectionI con, String sql,
+      int resultSetType, int resultSetConcurrency) throws SQLException {
+    return prepareCall(con, sql, resultSetType, resultSetConcurrency,
+        getInternalHoldability()); // @G4A
+    // @G4M Moved code below
+  }
 
     //@G4A JDBC 3.0
     /**
@@ -1933,13 +1972,16 @@ void handleAbort() {
                                     or an error occurs.
     @since Modification 5
     **/
-    public CallableStatement prepareCall (String sql,
-                                          int resultSetType,
-                                          int resultSetConcurrency,
-                                          int resultSetHoldability)
-    throws SQLException
-    {
-        // Validation.
+  public CallableStatement prepareCall(String sql, int resultSetType,
+      int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+    return prepareCall(this, sql, resultSetType, resultSetConcurrency,
+        resultSetHoldability);
+  }
+
+  public CallableStatement prepareCall(AS400JDBCConnectionI con, String sql,
+      int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+      throws SQLException {
+    // Validation.
         checkOpen ();
         if (! metaData_.supportsResultSetConcurrency (resultSetType, resultSetConcurrency))
             resultSetType = correctResultSetType (resultSetType, resultSetConcurrency);
@@ -1952,7 +1994,7 @@ void handleAbort() {
                                                           properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
                                                           properties_.getString (JDProperties.PACKAGE_CRITERIA), this); // @A2A @G4A
         int statementId = getUnusedId (resultSetType); // @B1C
-        AS400JDBCCallableStatement statement = new AS400JDBCCallableStatement (this,
+        AS400JDBCCallableStatement statement = new AS400JDBCCallableStatement (con,
                                                                                statementId, transactionManager_, packageManager_,
                                                                                properties_.getString (JDProperties.BLOCK_CRITERIA),
                                                                                properties_.getInt (JDProperties.BLOCK_SIZE),
@@ -2002,10 +2044,14 @@ void handleAbort() {
                                for this connection has been reached,  or an
                                     error occurs.
     **/
-    public PreparedStatement prepareStatement (String sql)
+      public PreparedStatement prepareStatement (String sql)
+          throws SQLException {
+          return prepareStatement(this, sql); 
+      }
+    public PreparedStatement prepareStatement (AS400JDBCConnectionI con, String sql)
     throws SQLException
     {
-        return prepareStatement (sql, ResultSet.TYPE_FORWARD_ONLY,
+        return prepareStatement (con, sql, ResultSet.TYPE_FORWARD_ONLY,
                                  ResultSet.CONCUR_READ_ONLY,
                                  getInternalHoldability());     //@G4A
     }
@@ -2045,6 +2091,11 @@ void handleAbort() {
     public PreparedStatement prepareStatement (String sql, int autoGeneratedKeys)
     throws SQLException
     {
+      return prepareStatement(this, sql, autoGeneratedKeys);
+    }
+    public PreparedStatement prepareStatement (AS400JDBCConnectionI con, String sql, int autoGeneratedKeys)
+    throws SQLException
+    {
         if (getVRM() < JDUtilities.vrm520)                                         //@F5A
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);   //@F5A
 
@@ -2054,7 +2105,7 @@ void handleAbort() {
         // Create the statement.
         JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                           properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-                                                          properties_.getString (JDProperties.PACKAGE_CRITERIA), this);  // @A2A @G4A
+                                                          properties_.getString (JDProperties.PACKAGE_CRITERIA), con);  // @A2A @G4A
 
         if(getVRM() >= JDUtilities.vrm610 && autoGeneratedKeys==Statement.RETURN_GENERATED_KEYS)    //@GKA added new generated key support
         {
@@ -2067,7 +2118,7 @@ void handleAbort() {
                 //wrapper the statement
                 String selectStatement = makeGeneratedKeySelectStatement(sql);
                 sqlStatement = new JDSQLStatement (selectStatement, properties_.getString(JDProperties.DECIMAL_SEPARATOR), true,
-                                                   properties_.getString(JDProperties.PACKAGE_CRITERIA), this);
+                                                   properties_.getString(JDProperties.PACKAGE_CRITERIA), con);
                 wrappedInsert_ = true;
 
             }
@@ -2080,7 +2131,7 @@ void handleAbort() {
             wrappedInsert_ = false;
         }
 
-        AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (this,
+        AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (con,
                                                                                statementId, transactionManager_, packageManager_,
                                                                                properties_.getString (JDProperties.BLOCK_CRITERIA),
                                                                                properties_.getInt (JDProperties.BLOCK_SIZE),
@@ -2148,11 +2199,17 @@ void handleAbort() {
                                                int resultSetConcurrency)
     throws SQLException
     {
-        return prepareStatement (sql, resultSetType,     //@G4A
+        return prepareStatement (this, sql, resultSetType,     //@G4A
                                  resultSetConcurrency, getInternalHoldability());  //@G4A
         //@G4M Moved code to next method.
     }
 
+  public PreparedStatement prepareStatement(AS400JDBCConnectionI con,
+      String sql, int resultSetType, int resultSetConcurrency)
+      throws SQLException {
+    return prepareStatement(con, sql, resultSetType, // @G4A
+        resultSetConcurrency, getInternalHoldability()); // @G4A
+  }
 
     //@G4A
     // JDBC 3.0
@@ -2193,7 +2250,18 @@ void handleAbort() {
                                                int resultSetHoldability)
     throws SQLException
     {
-        // Validation.
+      return prepareStatement(this, sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+      
+      public PreparedStatement prepareStatement (AS400JDBCConnectionI con, String sql,
+          int resultSetType,
+          int resultSetConcurrency,
+          int resultSetHoldability)
+throws SQLException
+{
+
+      
+      // Validation.
         checkOpen ();
         if (! metaData_.supportsResultSetConcurrency (resultSetType, resultSetConcurrency))
             resultSetType = correctResultSetType (resultSetType, resultSetConcurrency);
@@ -2204,9 +2272,9 @@ void handleAbort() {
         // Create the statement.
         JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                           properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-                                                          properties_.getString (JDProperties.PACKAGE_CRITERIA), this);  // @A2A @G4A
+                                                          properties_.getString (JDProperties.PACKAGE_CRITERIA), con);  // @A2A @G4A
         int statementId = getUnusedId (resultSetType); // @B1C
-        AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (this,
+        AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (con,
                                                                                statementId, transactionManager_, packageManager_,
                                                                                properties_.getString (JDProperties.BLOCK_CRITERIA),
                                                                                properties_.getInt (JDProperties.BLOCK_SIZE),
@@ -2254,7 +2322,12 @@ void handleAbort() {
      *                 or an error occurs.
      * @since Modification 5
     **/
-    public PreparedStatement prepareStatement (String sql, int[] columnIndexes)
+      public PreparedStatement prepareStatement (String sql, int[] columnIndexes)
+          throws SQLException
+          {
+        return prepareStatement(this, sql, columnIndexes);
+          }
+      public PreparedStatement prepareStatement (AS400JDBCConnectionI con, String sql, int[] columnIndexes)
     throws SQLException
     {
         if(getVRM() >= JDUtilities.vrm610)   //@GKA added support for generated keys
@@ -2265,14 +2338,14 @@ void handleAbort() {
             //Create a JDSQLStatement
             JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-                                                              properties_.getString (JDProperties.PACKAGE_CRITERIA), this);
+                                                              properties_.getString (JDProperties.PACKAGE_CRITERIA), con);
             //Check if the statement is an insert
             if(sqlStatement.isInsert_){
                 wrappedInsert_ = true;
-                return prepareStatement(makeGeneratedKeySelectStatement(sql, columnIndexes, null), Statement.RETURN_GENERATED_KEYS);
+                return prepareStatement(con, makeGeneratedKeySelectStatement(sql, columnIndexes, null), Statement.RETURN_GENERATED_KEYS);
             }
             else    // treat like prepareStatement(sql) was called
-                return prepareStatement(sql);
+                return prepareStatement(con, sql);
         }
         else        //@GKA Throw an exception.  V5R4 and earlier does not support retrieving generated keys by column index.
         {
@@ -2300,7 +2373,12 @@ void handleAbort() {
      *                 or an error occurs.
      * @since Modification 5
     **/
-    public PreparedStatement prepareStatement (String sql, String[] columnNames)
+      public PreparedStatement prepareStatement (String sql, String[] columnNames)
+          throws SQLException
+          {
+        return prepareStatement(this, sql, columnNames); 
+          }
+    public PreparedStatement prepareStatement (AS400JDBCConnectionI con, String sql, String[] columnNames)
     throws SQLException
     {
         if(getVRM() >= JDUtilities.vrm610)  //@GKA added generated key support
@@ -2311,14 +2389,14 @@ void handleAbort() {
             //Create a JDSQLStatement
             JDSQLStatement sqlStatement = new JDSQLStatement (sql,
                                                               properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-                                                              properties_.getString (JDProperties.PACKAGE_CRITERIA), this);
+                                                              properties_.getString (JDProperties.PACKAGE_CRITERIA), con);
             //Check if the statement is an insert
             if(sqlStatement.isInsert_){
                 wrappedInsert_ = true;
-                return prepareStatement(makeGeneratedKeySelectStatement(sql, null, columnNames), Statement.RETURN_GENERATED_KEYS);
+                return prepareStatement(con, makeGeneratedKeySelectStatement(sql, null, columnNames), Statement.RETURN_GENERATED_KEYS);
             }
             else    // treat like prepareStatement(sql) was called
-                return prepareStatement(sql);
+                return prepareStatement(con, sql);
         }
         else        //@GKA Throw an exception.  V5R4 and earlier does not support retrieving generated keys by column name.
         {
@@ -2330,7 +2408,7 @@ void handleAbort() {
 
 
     //@E10a new method
-    void processSavepointRequest(String savepointStatement)
+    public void processSavepointRequest(String savepointStatement)
     throws SQLException
     {
         // must be OS/400 v5r2 or IBM i
@@ -2369,7 +2447,7 @@ void handleAbort() {
     Partial closing of the connection.
     @exception SQLException If a database error occurs.
     **/
-    void pseudoClose() throws SQLException                      // @E1
+    public void pseudoClose() throws SQLException                      // @E1
     {
         // Rollback before closing.
         if ((transactionManager_.isLocalTransaction()) && (transactionManager_.isLocalActive()))  // @E4A
@@ -2685,7 +2763,7 @@ void handleAbort() {
     //
     // See implementation notes for sendAndReceive().
     //
-    void send (DBBaseRequestDS request)
+    public void send (DBBaseRequestDS request)
     throws SQLException
     {
         send (request, id_, true);
@@ -2702,7 +2780,7 @@ void handleAbort() {
 
     @exception           SQLException   If an error occurs.
     **/
-    //
+    public //
     // See implementation notes for sendAndReceive().
     //
     void send (DBBaseRequestDS request, int id)
@@ -2726,7 +2804,7 @@ void handleAbort() {
 
     @exception              SQLException   If an error occurs.
     **/
-    //
+    public //
     // See implementation notes for sendAndReceive().
     //
     void send (DBBaseRequestDS request, int id, boolean leavePending)
@@ -2873,7 +2951,7 @@ void handleAbort() {
     //
     // See implementation notes for sendAndReceive().
     //
-    void sendAndHold(DBBaseRequestDS request, int id)
+    public void sendAndHold(DBBaseRequestDS request, int id)
     throws SQLException
     {
         checkCancel();                                                                      // @E8A
@@ -2938,7 +3016,7 @@ void handleAbort() {
     //
     // See implementation notes for sendAndReceive().
     //
-    DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request)
+    public DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request)
     throws SQLException
     {
         return sendAndReceive (request, id_);
@@ -2977,7 +3055,7 @@ void handleAbort() {
     //    The status of the based on id depends on whether a
     //    request is pending, which is maintained in the id table.
     //
-    DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request, int id)
+    public DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request, int id)
     throws SQLException
     {
         checkCancel();                                                                      // @E8A
@@ -3064,7 +3142,7 @@ void handleAbort() {
 
 
     //@D2A
-    DBReplyRequestedDS sendAndMultiReceive (DBBaseRequestDS request)
+    public DBReplyRequestedDS sendAndMultiReceive (DBBaseRequestDS request)
     throws SQLException
     {
         checkCancel();                                                                      // @E8A
@@ -3126,7 +3204,7 @@ void handleAbort() {
     }
 
     //@DA2 - sew added new receive method.
-    DBReplyRequestedDS receiveMoreData()
+    public DBReplyRequestedDS receiveMoreData()
     throws SQLException{
         DBReplyRequestedDS reply = null;
         try{
@@ -3323,7 +3401,7 @@ void handleAbort() {
     @param  drda        true if the connection is being used for DRDA,
                         false otherwise.
     **/
-    void setDRDA (boolean drda)
+    public void setDRDA (boolean drda)
     throws SQLException // @EGA
     {
         drda_ = drda;
@@ -3373,8 +3451,8 @@ void handleAbort() {
 
 
     //@D4A
-    void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties,
-                        AS400 as400)
+    public void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties,
+                        AS400 as400, Properties info)
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact IBM i system
@@ -3438,25 +3516,25 @@ void handleAbort() {
     }
 
 
-    void setProperties(JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400)
+    public void setProperties(JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400)
     throws SQLException
     {
         setProperties(dataSourceUrl, properties, as400, false, false);
     }
 
     /* Should the warning be ignored  @Q1A*/
-    boolean ignoreWarning(String sqlState) { 
+    public boolean ignoreWarning(String sqlState) { 
       if (ignoreWarnings_.indexOf(sqlState ) >= 0) {
         return true; 
       } else { 
         return false; 
       }
     }
-    boolean ignoreWarning(SQLWarning warning) { 
+    public boolean ignoreWarning(SQLWarning warning) { 
       return ignoreWarning(warning.getSQLState());
     }
     //@A3A - This logic formerly resided in the ctor.
-    void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400, boolean newServer, boolean skipSignonServer)
+    public void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400, boolean newServer, boolean skipSignonServer)
     throws SQLException
     {
         // Initialization.
@@ -3919,7 +3997,7 @@ void handleAbort() {
     }
 
     // @E10 new method
-    private Savepoint setSavepoint(String name, int id)
+    public Savepoint setSavepoint(String name, int id)
     throws SQLException
     {
         if (id > 0)
@@ -3948,7 +4026,7 @@ void handleAbort() {
 
     @exception  SQLException    If an error occurs.
     **/
-    private void setServerAttributes ()
+    public void setServerAttributes ()
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
@@ -4691,7 +4769,7 @@ void handleAbort() {
     //@A3A
     // Implementation note:  Don't use this object internally because we could be running in a proxy environment
     // The purpose of this method is to simply hold the full AS400 object so it can be retrieved from the Connection
-    void setSystem (AS400 as400)
+    public void setSystem (AS400 as400)
     throws SQLException // @EGA
     {
         as400PublicClassObj_    = as400;
@@ -4786,7 +4864,7 @@ void handleAbort() {
     @return     true if the connection is using extended formats, false
                 otherwise.
     **/
-    boolean useExtendedFormats ()
+    public boolean useExtendedFormats ()
     throws SQLException // @EGA
     {
         return extendedFormats_;
@@ -4794,7 +4872,7 @@ void handleAbort() {
 
 
     //@pda jdbc40
-    protected String[] getValidWrappedList()
+    public   String[] getValidWrappedList()
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCConnection", "java.sql.Connection" };
     }
@@ -5830,7 +5908,7 @@ endif */
    * Is SQL cancel used for the query timeout mechanism
    * @return true if cancel will be used as the query timeout mechanism
    */
-  protected boolean isQueryTimeoutMechanismCancel() {
+  public boolean isQueryTimeoutMechanismCancel() {
     return queryTimeoutMechanism_ == QUERY_TIMEOUT_CANCEL;
   }
 
@@ -5838,7 +5916,7 @@ endif */
   /**
    * Setup the variableFieldCompression flags @K3A
    */
-  void setupVariableFieldCompression() {
+  public void setupVariableFieldCompression() {
     if (!variableFieldCompressionPropertyEvaluated_) {
 
       boolean variableFieldInsertCompressionAvailable = false;
@@ -5883,14 +5961,14 @@ endif */
     }
   }
 
-  boolean useVariableFieldCompression() {
+  public boolean useVariableFieldCompression() {
     if (!variableFieldCompressionPropertyEvaluated_) {
       setupVariableFieldCompression(); 
     }
     return useVariableFieldCompression_; 
   }
 
-  boolean useVariableFieldInsertCompression() {
+  public boolean useVariableFieldInsertCompression() {
     if (!variableFieldCompressionPropertyEvaluated_) {
       setupVariableFieldCompression(); 
     }
@@ -5927,12 +6005,13 @@ endif */
   /**
    * Tests if a DataTruncation occurred on the write of a piece of data and
    * throws a DataTruncation exception if so. The data truncation flag is also
-   * taken into consideration for string data. The rules are: 1) If updating
-   * database with numeric data and data truncated, throw exception 2) If
-   * numeric data is part of a query and data truncated, post warning 3) If
-   * string data and suppress truncation, return 4) If updating database with
-   * string data and check truncation and data truncated, throw exception 5) If
-   * string data is part of a query and check truncation and data truncated,
+   * taken into consideration for string data. The rules are: 
+   * 1) If updating or querying database with numeric data and data truncated, 
+   * throw exception
+   * 2) If string data and suppress truncation, return 
+   * 3) If updating database with string data and check truncation and data 
+   * truncated, throw exception 
+   * 4) If string data is part of a query and check truncation and data truncated,
    * post warning
    * 
    * @param index
@@ -5940,7 +6019,7 @@ endif */
    * @param data
    *          The data that was written or null for SQL NULL.
    **/
-  void testDataTruncation(AS400JDBCStatement statementWarningObject, 
+  public void testDataTruncation(AS400JDBCStatement statementWarningObject, 
         AS400JDBCResultSet resultSetWarningObject, 
         int parameterIndex, boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
       throws SQLException // @trunc
@@ -6027,5 +6106,78 @@ endif */
     }
   }
 
+  public ConvTable  getConverter() {
+    return converter_; 
+  }
+  
+  public void setLastServerSQLState(String lastSqlState) {
+    lastServerSQLState_ = lastSqlState; 
+  }
+  
+  public String getLastServerSQLState() {
+    return lastServerSQLState_; 
+  }
+  public ConvTable getPackageCCSID_Converter() {
+    return packageCCSID_Converter; 
+  }
 
+
+  /** 
+   * transferr objects associated with this connection to a new connection. 
+   * @param newConnection
+   */
+  void transferObjects(AS400JDBCConnection newConnection) {
+    for (int i =0; i< MAX_STATEMENTS_; i++) {
+      newConnection.assigned_[i] = assigned_[i]; 
+    }
+    newConnection.statements_ = statements_; 
+    statements_ = new Vector(); 
+    
+
+    // Todo:  Restore any special registers that were set. 
+    
+    
+  }
+
+
+  /**
+   * close all the current result sets in preparation for moving the 
+   * statements to another connection. 
+   */
+  void closeAllResultSets() {
+    Enumeration statementsEnum = statements_.elements(); 
+    while (statementsEnum.hasMoreElements()){
+      AS400JDBCStatement statement = (AS400JDBCStatement) statementsEnum.nextElement(); 
+      try { 
+        statement.closeResultSet(JDCursor.REUSE_NO); 
+      } catch (SQLException e) { 
+        
+      }
+    }
+  }
+  /** 
+   * mark the statements so they know that the connection was reset.
+   * If the connection is reset, any prepared statements will be
+   * lazily reprepard.  
+   */
+  void resetStatements() {
+    Enumeration statementsEnum = statements_.elements(); 
+    while (statementsEnum.hasMoreElements()){
+      AS400JDBCStatement statement = (AS400JDBCStatement) statementsEnum.nextElement(); 
+      statement.setConnectionReset(true);  
+    }
+    
+  }
+
+
+
+  public boolean getReadOnly() {
+    return readOnly_; 
+  }
+
+
+
+  public boolean getCheckStatementHoldability() {
+    return checkStatementHoldability_; 
+  }
 }

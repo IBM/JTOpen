@@ -80,14 +80,14 @@ implements Connection //@A5A
   static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
   private AS400JDBCPooledConnection pooledConnection_ = null;
-  private AS400JDBCConnection connection_ = null;
+  private AS400JDBCConnectionI connection_ = null;
 
   /**
   *  Constructs an AS400JDBCConnectionHandle object.
   *  @param pooledConnection The pooled connection from which the handle originated.
   *  @param connection The physical connection that the handle represents.
   **/
-  AS400JDBCConnectionHandle(AS400JDBCPooledConnection pooledConnection, AS400JDBCConnection connection)
+  AS400JDBCConnectionHandle(AS400JDBCPooledConnection pooledConnection, AS400JDBCConnectionI connection)
   {
     if (pooledConnection == null)
       throw new NullPointerException("pooledConnection");
@@ -448,7 +448,7 @@ implements Connection //@A5A
   throws SQLException                                      // @A3A
   {
     validateConnection();
-    return connection_.converter_; //@P0C
+    return connection_.getConverter(); //@P0C
   }
 
   /**
@@ -1408,12 +1408,12 @@ ResultSet.CONCUR_READ_ONLY.
   /**
   *  Sets the connection properties.
   **/
-  void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400 as400)
+  void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400 as400, Properties info)
   throws SQLException
   {
     validateConnection();
     try {
-      connection_.setProperties(dataSourceUrl, properties, as400);
+      connection_.setProperties(dataSourceUrl, properties, as400,  info);
     }
     catch (SQLException e) {
       fireEventIfErrorFatal(e);
