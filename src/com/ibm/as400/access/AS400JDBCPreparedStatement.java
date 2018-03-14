@@ -298,7 +298,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
    *              If the SQL statement contains a syntax error or an error
    *              occurs.
    **/
-  AS400JDBCPreparedStatement(AS400JDBCConnection connection, int id,
+  AS400JDBCPreparedStatement(AS400JDBCConnectionI connection, int id,
       JDTransactionManager transactionManager, JDPackageManager packageManager,
       String blockCriteria, int blockSize, boolean prefetch,
       JDSQLStatement sqlStatement, boolean outputParametersExpected,
@@ -544,7 +544,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
 
         parameterMarkerDataFormat.setFieldNameLength(i, 0);
         parameterMarkerDataFormat.setFieldNameCCSID(i, 0);
-        parameterMarkerDataFormat.setFieldName(i, "", connection_.converter_); // @P0C
+        parameterMarkerDataFormat.setFieldName(i, "", connection_.getConverter()); // @P0C
 
         // @array (arrays sent in as the element type and zda will know they are
         // arrays)
@@ -1921,7 +1921,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
       if (extendedDescriptors != null) // @G6A
       {
         // @G6A
-        convTable = ((AS400JDBCConnection) connection_).converter_; // @G6A
+        convTable = connection_.getConverter(); // @G6A
       } // @G6A
       return new AS400JDBCResultSetMetaData(connection_.getCatalog(),
           resultSetConcurrency_, cursor_.getName(), resultRow_,
@@ -4829,4 +4829,28 @@ Object
     return (long) executeUpdate(); 
   }
   
+  /**
+  Checks that the statement is open.  Public methods
+  that require an open statement should call this first.
+
+  @exception  SQLException    If the statement is not open.
+  **/
+  void checkOpen ()
+  throws SQLException
+  {
+    super.checkOpen(); 
+      if (connectionReset_) {
+        try {
+          resultRow_ = commonPrepare(sqlStatement_);
+        } catch (SQLException e) {
+          close();
+          throw e;
+        }
+
+        connectionReset_ = false; 
+      }
+
+  }
+
+
 }

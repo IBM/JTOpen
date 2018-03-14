@@ -90,14 +90,15 @@ implements Statement
     private     boolean                 cancelled_;
     private     boolean                 closed_;
     private     boolean                 closeOnCompletion_;  //@D7A
-    protected AS400JDBCConnection     connection_;    // private protected
+    protected AS400JDBCConnectionI     connection_;    // private protected
+    protected   boolean                 connectionReset_; // Connection is reset and must be reprepared
     JDCursor                cursor_;    // private protected
     private     String                  cursorDefaultName_;
     private     boolean                 escapeProcessing_;
     protected     DBExtendedColumnDescriptors  extendedColumnDescriptors_;    // @F3A@P6C
     private     int                     fetchDirection_;
     private     int                     fetchSize_;
-    private     AS400JDBCResultSet      generatedKeys_;    // @G4A
+    private AS400JDBCResultSet      generatedKeys_;    // @G4A
     int                     id_;    // private protected
     AS400JDBCStatementLock              internalLock_;    // private protected    // @E6A@C7C
     private     boolean                 lastPrepareContainsLocator_;    // @B2A
@@ -176,7 +177,7 @@ implements Statement
 
     @exception  SQLException    If an error occurs.
     **/
-    AS400JDBCStatement (AS400JDBCConnection connection,
+    AS400JDBCStatement (AS400JDBCConnectionI connection,
                         int id,
                         JDTransactionManager transactionManager,
                         JDPackageManager packageManager,
@@ -358,6 +359,7 @@ implements Statement
         connection_.checkOpen ();
         if(closed_)
             JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE);
+
     }
 
 
@@ -471,10 +473,11 @@ implements Statement
                 return;             // Mark the statement as closed, but don't notify the connection it has been closed or delete the RPB and ORS.
             }
 
+            
             // Delete the RPB.  Remember the error information                                             @EDC
             // in order to report later...                                                                 @EDC
             SQLException e = null;    // @EDA
-            if(rpbCreated_)
+            if(rpbCreated_ && !connectionReset_)
             {    // @EDA
                 DBSQLRPBDS request3 = null;    //@P0A
                 DBReplyRequestedDS closeReply = null;    //@P0A
@@ -537,8 +540,9 @@ implements Statement
             try
             {    //@P0A
                 request2 = DBDSPool.getDBSQLResultSetDS(DBSQLResultSetDS.FUNCTIONID_DELETE_RESULTS_SET, id_, 0, 0);    //@P0C
-
-                connection_.send(request2, id_, false);    // @EDC
+                if (!connectionReset_) { 
+                   connection_.send(request2, id_, false);    // @EDC
+                }
             }
             finally
             {    //@P0A
@@ -676,11 +680,13 @@ implements Statement
     void closeResultSet (int reuseFlag)    // private protected
     throws SQLException
     {
+        synchronized(this) { 
         if(resultSet_ != null)
         {
             if(! resultSet_.isClosed ())
                 resultSet_.close ();
             resultSet_ = null;
+        }
         }
 
         if (threadInterrupted) {
@@ -832,16 +838,16 @@ implements Statement
                     else if(extendedMetaData){      //@541A Doing an execute.  If running to V5R4 and higher, and the extendedMetaData property is true, set the extended column descriptor option
                         request.setExtendedColumnDescriptorOption((byte)0xF1);
                     }
-
+                    ConvTable converter = connection_.getConverter(); 
                     if(nameOverride_.length() != 0)
                     {
-                        request.setPrepareStatementName(nameOverride_, connection_.converter_);    //@P0C
+                        request.setPrepareStatementName(nameOverride_, converter);    //@P0C
                         usedNameOverride = true;
                     }
 
                     if(packageManager_.isEnabled() && sqlStatement.isPackaged())
                     {
-                        request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
+                        request.setPackageName (packageManager_.getName (), converter);    //@P0C
                     }
 
                     String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@H1A
@@ -977,7 +983,7 @@ implements Statement
                     // @S2A
                       
                     if (errorClass == 0) {
-                      String sqlState = sqlca.getSQLState (connection_.converter_); 
+                      String sqlState = sqlca.getSQLState (converter); 
                       if ("01004".equals(sqlState)) { 
                          errorClass = 2; 
                       }
@@ -1012,7 +1018,7 @@ implements Statement
                     {
                         lastBlock = true;
                         returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
-                        String sqlState = sqlca.getSQLState (connection_.converter_);              //@issue 34500
+                        String sqlState = sqlca.getSQLState (converter);              //@issue 34500
                         if(sqlState.startsWith("00") || sqlState.startsWith("02"))                    //@pda (issue 32120)  //@issue 34500 //@35199
                         	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
@@ -1022,7 +1028,7 @@ implements Statement
                         lastBlock = true;
                         cursor_.setState(true); //closed cursor already on system
                         returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
-                        String sqlState = sqlca.getSQLState (connection_.converter_);              //@issue 34500
+                        String sqlState = sqlca.getSQLState (converter);              //@issue 34500
                         if(sqlState.startsWith("00") || sqlState.startsWith("02"))                 //@pda (issue 32120)  //@issue 34500 //@35199
                         	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
@@ -1040,7 +1046,7 @@ implements Statement
                           // If so, delay error until fetch occurs.  @F3A
                           //
                           int errd6 = sqlca.getErrd(6);
-                          String errp = sqlca.getErrp(connection_.converter_);   /*@N7A*/ 
+                          String errp = sqlca.getErrp(converter);   /*@N7A*/ 
                           if ( errd6 == 1 || 
                               ( "QSQFETCH".equals(errp) && 
                                   (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH))) {
@@ -1058,7 +1064,7 @@ implements Statement
                         }
                         else
                         {
-                            String sqlState = sqlca.getSQLState (connection_.converter_);  //@igwrn
+                            String sqlState = sqlca.getSQLState (converter);  //@igwrn
                             postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
                         }
                     }
@@ -1447,6 +1453,7 @@ implements Statement
         if(nameOverride_.length() == 0)
         {
 
+            
             // @E7A - start
             //
             // CASE 2a: Statement is a DRDA CONNECT.
@@ -1466,20 +1473,21 @@ implements Statement
                     boolean extended = false;                                                         //@540
                     if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
                     //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
-                    request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
+                    request.setStatementText(sqlStatement.toString(), connection_.getPackageCCSID_Converter(), extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
 
+                    ConvTable converter = connection_.getConverter(); 
                     if(packageManager_.isEnabled())
                     {
                         if(sqlStatement.isPackaged())
                         {
                             request.setPrepareOption (1);
-                            request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
+                            request.setPackageName (packageManager_.getName (), converter);    //@P0C
                         }
                         else
                         {
                             request.setPrepareOption (0);
-                            request.setPackageName(null, connection_.converter_);         //send empty code point per
+                            request.setPackageName(null, converter);         //send empty code point per
                         }
                     }
                     else
@@ -1585,23 +1593,23 @@ implements Statement
                     boolean extended = false;                                                         //@540
                     if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
                     //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
-                    request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
+                    request.setStatementText(sqlStatement.toString(), connection_.getPackageCCSID_Converter(), extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     int openAttributes = cursor_.getOpenAttributes (sqlStatement, blockCriteria_);
                     request.setOpenAttributes (openAttributes);
-
+                    ConvTable converter = connection_.getConverter(); 
                     if(packageManager_.isEnabled())
                     {
                         if(sqlStatement.isPackaged())
                         {
                             request.setPrepareOption (1);
-                            request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
+                            request.setPackageName (packageManager_.getName (), converter);    //@P0C
                         }
                         else
                         {
                             request.setPrepareOption (0);
-                            request.setPackageName(null, connection_.converter_);          //send empty code point
+                            request.setPackageName(null, converter);          //send empty code point
                         }
                     }
                     else
@@ -1787,20 +1795,21 @@ implements Statement
                     boolean extended = false;                                                         //@540
                     if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
                     //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
-                    request.setStatementText(sqlStatement.toString(), connection_.packageCCSID_Converter, extended);//Bidi-HCG
+                    request.setStatementText(sqlStatement.toString(), connection_.getPackageCCSID_Converter(), extended);//Bidi-HCG
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     if(packageManager_.isEnabled())
                     {
+                        ConvTable converter = connection_.getConverter(); 
                         if(sqlStatement.isPackaged())
                         {
                             request.setPrepareOption (1);
-                            request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
+                            request.setPackageName (packageManager_.getName (), converter);    //@P0C
                         }
                         else
                         {
                             request.setPrepareOption (0);
-                            request.setPackageName(null, connection_.converter_);              //send empty code point
+                            request.setPackageName(null, converter);              //send empty code point
                         }
                     }
                     else
@@ -3732,6 +3741,8 @@ implements Statement
             //@F4 just move the code here that we need to clean up our internal variables.
             //@F4 Otherwise, we'd make an unnecessary flow to the system to tell it to
             //@F4 close the cursor which it already has.
+           // synchronized to prevent race with closeResultSet 
+            synchronized(this) { 
             if(resultSet_ != null)    //@F4A
             {
                 //@F4A
@@ -3739,6 +3750,7 @@ implements Statement
                     resultSet_.close ();    //@F4A
                 resultSet_ = null;    //@F4A
             }    //@F4A
+            }
             updateCount_ = -1;    //@F4A
         }
     }
@@ -3855,6 +3867,7 @@ implements Statement
                 else
                     closeResultSet (JDCursor.REUSE_YES);
             }
+            
 
             // If name is null, then use the default name.
             if(cursorName == null)
@@ -3883,6 +3896,7 @@ implements Statement
                 // Since we store the cursor name in the RPB, we need
                 // to sync it after a change.
                 rpbSyncNeeded_ = true;
+                connectionReset_ = false; 
 
             }
         }
@@ -4154,13 +4168,14 @@ implements Statement
             DBSQLRPBDS request = null;    //@P0A
             try
             {
+                ConvTable converter = connection_.getConverter(); 
                 request = DBDSPool.getDBSQLRPBDS(functionId, id_, 0, 0);    //@P0C
 
-                request.setPrepareStatementName (name_, connection_.converter_);    //@P0C
-                request.setCursorName (cursor_.getName (), connection_.converter_);    //@P0C
+                request.setPrepareStatementName (name_, converter);    //@P0C
+                request.setCursorName (cursor_.getName (), converter);    //@P0C
 
                 if(packageManager_.isEnabled())
-                    request.setLibraryName (packageManager_.getLibraryName (), connection_.converter_);    //@P0C
+                    request.setLibraryName (packageManager_.getLibraryName (), converter);    //@P0C
 
                 if(rpbQueryTimeoutChanged_)    //@EFA
                 {
@@ -4587,5 +4602,15 @@ implements Statement
   JDSQLStatement getJDSQLStatement() {
     return currentJDSQLStatement_ ;  
   }
+
+
+
+  void setConnectionReset(boolean reset) {
+    rpbSyncNeeded_ = true; 
+    rpbCreated_ = false; 
+    connectionReset_ = reset; 
+  }
+
+
 
 }

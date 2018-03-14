@@ -204,7 +204,7 @@ implements ResultSet
     private boolean                     closed_;
     private int                         columnCount_;
     private int                         concurrency_;
-    private AS400JDBCConnection         connection_;
+    private AS400JDBCConnectionI         connection_;
     private String                      correlationName_;
     private String                      cursorName_;
     private boolean                     dataTruncation_;    // @B2A
@@ -280,9 +280,9 @@ implements ResultSet
         catalog_                = catalog;
         closed_                 = false;
         concurrency_            = concurrency;
-        connection_             = (AS400JDBCConnection) ((statement != null) ? statement.getConnection () : null);
+        connection_             = (AS400JDBCConnectionI) ((statement != null) ? statement.getConnection () : null);
         if (connection_ != null) {
-          settings_               = SQLConversionSettings.getConversionSettings ((AS400JDBCConnection) connection_); /*@Q8A*/
+          settings_               = SQLConversionSettings.getConversionSettings ((AS400JDBCConnectionI) connection_); /*@Q8A*/
         } else {
           settings_ = null; 
         }
@@ -319,7 +319,7 @@ implements ResultSet
         // system and "for update" is not specified)
         if((connection_  == null) ||
            (sqlStatement == null) ||
-           (((((AS400JDBCConnection) connection_).getMustSpecifyForUpdate()) &&   // @J3a @J31c
+           (((((AS400JDBCConnectionI) connection_).getMustSpecifyForUpdate()) &&   // @J3a @J31c
              (! sqlStatement.isForUpdate()))))
         {
             selectTable_        = null;
@@ -349,7 +349,7 @@ implements ResultSet
 
         // Initialize the data truncation.                                             @B2A
         if(connection_ != null)                                                    // @B2A
-            dataTruncation_ = ((AS400JDBCConnection) connection_).getProperties ().getBoolean (JDProperties.DATA_TRUNCATION); // @B2A
+            dataTruncation_ = ((AS400JDBCConnectionI) connection_).getProperties ().getBoolean (JDProperties.DATA_TRUNCATION); // @B2A
         else                                                                        // @B2A
             dataTruncation_ = false;
 
@@ -384,7 +384,7 @@ implements ResultSet
     AS400JDBCResultSet (JDRowCache rowCache,
                         String catalog,
                         String cursorName,
-                        AS400JDBCConnection con, 
+                        AS400JDBCConnectionI con, 
                         DBReplyRequestedDS reply)  //@in2
     throws SQLException
     {
@@ -3164,7 +3164,7 @@ implements ResultSet
                 if(extendedDescriptors_ != null)                                                     // @G5A
                 {
                     // @G5A
-                    convTable = ((AS400JDBCConnection)connection_).converter_;                       // @G5A
+                    convTable = ((AS400JDBCConnectionI)connection_).getConverter();                       // @G5A
                 }                                                                                    // @G5A
             return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
                                                    cursorName_, row_, 
@@ -3822,7 +3822,7 @@ implements ResultSet
             {
                 //if 610 and number data type and called on certain getX() methods, then throw SQLException
                 //if 610, follow Native driver to thow exc if data is text and getX() is a number type getter method.
-                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm610)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
+                if((((AS400JDBCConnectionI)connection_).getVRM() >= JDUtilities.vrm610)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
                 {                                                                    //@trunc
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "C#="+columnIndex); //@trunc
                 }                                                                    //@trunc
@@ -5494,10 +5494,10 @@ endif */
                     if(extendedDescriptors_ != null)                                                        // @K1A@P6C
                     {
                         // @K1A
-                        convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
+                        convTable = ((AS400JDBCConnectionI)connection_).getConverter();                         // @K1A
                         String columnName = extendedDescriptors_.getColumnDescriptors(i+1, convTable, settings_).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel //@SS1//@P6C//@Q8C
                         if(columnName != null) {
-                            if (((AS400JDBCConnection)connection_).getVRM() < JDUtilities.vrm540) { //@DELIMa
+                            if (((AS400JDBCConnectionI)connection_).getVRM() < JDUtilities.vrm540) { //@DELIMa
                               buffer.append(JDUtilities.stripOuterDoubleQuotes(columnName));  // if pre-V5R4, just strip outer quotes (no double-up necessary)
                             }
                             else {
@@ -5647,7 +5647,7 @@ endif */
         // @B1D     JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
     	
         //if(columnIndex <= columnCount_ && columnIndex > 0) //@pdc
-        //    columnValue = AS400BidiTransform.convertDataToHostCCSID(columnValue, (AS400JDBCConnection) connection_,	((JDServerRow) row_).getCCSID(columnIndex));	//Bidi-HCG
+        //    columnValue = AS400BidiTransform.convertDataToHostCCSID(columnValue, (AS400JDBCConnectionI) connection_,	((JDServerRow) row_).getCCSID(columnIndex));	//Bidi-HCG
     	
         updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
@@ -5942,7 +5942,7 @@ endif */
             {                                                                            //@cur
                 int vrm = 0;                                                             //@cur3
                 if(connection_ != null)                                                  //@cur3
-                    vrm = ((AS400JDBCConnection)connection_).getVRM();                   //@cur3
+                    vrm = ((AS400JDBCConnectionI)connection_).getVRM();                   //@cur3
                 if(statement_.cursor_.getCursorAttributeHoldable() == 0 
                         &&  (vrm <= JDUtilities.vrm610 
                              || (vrm >= JDUtilities.vrm710 && statement_.cursor_.getCursorIsolationLevel() != 0)))                  //@cur //@cur3 *none is always hold
@@ -5962,8 +5962,8 @@ endif */
             }                                                                            //@cur
             
             //if above cannot determine holdability, then do best guess
-            if(connection_ instanceof AS400JDBCConnection && connection_ != null)        //@cur
-                return ((AS400JDBCConnection) connection_).getHoldability();             //@cur  CAST needed for JDK 1.3 
+            if(connection_ instanceof AS400JDBCConnectionI && connection_ != null)        //@cur
+                return ((AS400JDBCConnectionI) connection_).getHoldability();             //@cur  CAST needed for JDK 1.3 
             else                                                                         //@cur
                 return ResultSet.CLOSE_CURSORS_AT_COMMIT;                                //@cur (if no statment exists for this, then safest is to return close at commit to prevent cursor reuse errors)
         }

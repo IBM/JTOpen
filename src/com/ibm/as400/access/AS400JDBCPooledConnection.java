@@ -70,7 +70,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
 {
   static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 
-  private AS400JDBCConnection connection_;                          // The database connection.
+  private AS400JDBCConnectionI connection_;                          // The database connection.
 //@CRS - If we maintain a [direct] reference to the handle, and the user doesn't call close(), it
 // will never get closed because it will never get garbage collected.
 // Instead, we are a listener to the handle, so we know when either the user or the
@@ -125,7 +125,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
   AS400JDBCPooledConnection(Connection connection) throws SQLException
   {
     if (connection == null) throw new NullPointerException("connection");
-    connection_ = (AS400JDBCConnection)connection;
+    connection_ = (AS400JDBCConnectionI)connection;
     
     // Save default settings for several changeable properties @L16A
     defaultAutoCommit_ = connection_.getAutoCommit(); 
@@ -135,7 +135,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
     if ("*LIBL".equals(defaultSchema_)) { 
       defaultSchema_="DEFAULT"; 
     }
-    defaultReadOnly_ = connection_.readOnly_; 
+    defaultReadOnly_ = connection_.getReadOnly(); 
     
     properties_ = new PoolItemProperties();
     eventManager_ = new AS400JDBCConnectionEventSupport();
@@ -297,7 +297,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
   }
 
 
-  AS400JDBCConnection getInternalConnection()        //@G1A
+  AS400JDBCConnectionI getInternalConnection()        //@G1A
   {                                                  //@G1A
     return connection_;        //@G1A
   }                                                  //@G1A
@@ -411,7 +411,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
         // cannot set the schema, then other code
         // code not set the schema. 
       }
-      connection_.readOnly_ = defaultReadOnly_; 
+      connection_.setReadOnly(defaultReadOnly_); 
       
       if (handle_ != null) //@pda handle
       {

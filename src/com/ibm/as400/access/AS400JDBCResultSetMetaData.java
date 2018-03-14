@@ -70,7 +70,7 @@ implements ResultSetMetaData
     private JDRow               row_;
     private DBExtendedColumnDescriptors extendedColumnDescriptors_;   //@G1A
     private ConvTable           convTable_;                           //@G1A
-    private Connection          con_;                                 //@in1
+    private AS400JDBCConnectionI    con_;                                 //@in1
     SQLConversionSettings       settings_;  /*@Q8A*/
     
     /**
@@ -89,7 +89,7 @@ implements ResultSetMetaData
                                 JDRow row,
                                 DBExtendedColumnDescriptors extendedColumnDescriptors,   //@G1A
                                 ConvTable convTable,                                     //@G1A
-                                Connection con) throws SQLException                                 //@in1
+                                AS400JDBCConnectionI con) throws SQLException                                 //@in1
     {
         catalog_        = catalog;
         concurrency_    = concurrency;
@@ -98,7 +98,7 @@ implements ResultSetMetaData
         extendedColumnDescriptors_ = extendedColumnDescriptors;                          //@G1A
         convTable_      = convTable;                                                     //@G1A
         con_            = con;                                                           //@in1
-        settings_       = SQLConversionSettings.getConversionSettings ((AS400JDBCConnection) con_); /*@Q8A*/
+        settings_       = SQLConversionSettings.getConversionSettings ( con_); /*@Q8A*/
     }
 
     /**
@@ -622,7 +622,7 @@ implements ResultSetMetaData
     throws SQLException
     {
         String catalogSeparator;
-        if (((AS400JDBCConnection)con_).getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))
+        if (con_.getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))
             catalogSeparator = ".";
         else
             catalogSeparator = "/";

@@ -512,7 +512,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   {
     AS400JDBCConnection connection = new AS400JDBCConnection();
 
-    connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400);  // Note: This also does an AS400.connectService() to the database host server.
+    connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null);  // Note: This also does an AS400.connectService() to the database host server.
 
     if (JDTrace.isTraceOn() || log_ != null) logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));
     return connection;
@@ -730,9 +730,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (DEBUG)
     {
       // Verify that the connection is for the correct user.
-      if (connection instanceof AS400JDBCConnection)
+      if (connection instanceof AS400JDBCConnectionI)
       {
-        AS400JDBCConnection conn = (AS400JDBCConnection)connection;
+        AS400JDBCConnectionI conn = (AS400JDBCConnectionI)connection;
         String userForConn = conn.getUserName();
         if (!userForConn.equalsIgnoreCase(cpds_.getUser())) {
           logError("MDS.getConnection() is returning a connection with incorrect user: [" + userForConn +"]");
@@ -804,8 +804,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (DEBUG)
     {
       // Verify that the connection is for the correct user.
-      if (connection instanceof AS400JDBCConnection) {
-        AS400JDBCConnection conn = (AS400JDBCConnection)connection;
+      if (connection instanceof AS400JDBCConnectionI) {
+        AS400JDBCConnectionI conn = (AS400JDBCConnectionI)connection;
         String userForConn = conn.getUserName();
         if (!userForConn.equalsIgnoreCase(user)) {
           logError("MDS.getConnection("+user+") is returning a connection with incorrect user: [" + userForConn +"]");

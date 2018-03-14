@@ -142,7 +142,7 @@ implements XAResource
   private static int              nextResourceManagerID_          = 0xC001;
   private static Object           nextResourceManagerIDLock_      = new Object();
 
-  private AS400JDBCConnection     connection_;
+  private AS400JDBCConnectionI     connection_;
   // @A1D private boolean                 closed_                         = false;
   private int                     resourceManagerID_              = -1;
   private Xid                     started_                        = null;
@@ -159,7 +159,7 @@ Constructs an AS400JDBCXAResource object.
 
 @exception XAException If an error occurs.
 **/
-  AS400JDBCXAResource(AS400JDBCConnection connection)
+  AS400JDBCXAResource(AS400JDBCConnectionI connection)
   throws XAException
   {
     connection_ = connection;
@@ -261,8 +261,8 @@ Commits a global transaction.
       //@KKB resend the transaction isolation since IBM i gets reset somehow
       transactionManager_.resetXAServer();
       
-      if ((connection_.transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE )//@XAC
-          || (connection_.checkStatementHoldability_ && connection_.getVRM() >= JDUtilities.vrm520))  // @F3A
+      if ((connection_.getTransactionManager().getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE )//@XAC
+          || (connection_.getCheckStatementHoldability() && connection_.getVRM() >= JDUtilities.vrm520))  // @F3A
           connection_.markCursorsClosed(false);     //@XAC                                      
       
       //@pda throw XAException for return codes not thrown in processXAReturnCode()

@@ -220,6 +220,7 @@ package com.ibm.as400.access;
 //@VA    20180103  Update setIASPGroup javadoc
 //@VB    20180109  JTOpen 9.5
 //@W1    20180309  JDBC:  Add parameter number to DATA_TYPE_MISMATCH exceptions
+//@W2    20180228  JDBC:  enableClientAffinitiesList property
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -227,8 +228,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
-    //                                                                                         built=20180309 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180309 @W1";  
+    //                                                                                         built=20180314 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180314 @W2";  
 
 
     // Constants for reference by AS400JDBCDriver.
