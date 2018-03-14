@@ -86,7 +86,7 @@ final class JDError
   static final String EXC_SAVEPOINT_DOES_NOT_EXIST     = "3B502"; // @E10a
   static final String EXC_RDB_DOES_NOT_EXIST           = "42705"; // @J2a
   static final String EXC_XML_PARSING_ERROR            = "2200M"; // @xml2
-
+  static final String EXC_CONNECTION_REESTABLISHED     = "08506"; 
   static final String WARN_ATTRIBUTE_VALUE_CHANGED     = "01608";
   static final String WARN_EXTENDED_DYNAMIC_DISABLED   = "01H11";
   static final String WARN_OPTION_VALUE_CHANGED        = "01S02";
@@ -140,7 +140,7 @@ Returns the message text for the last operation on the IBM i system.
 @param  returnCode  The return code from the last operation.
 @return             Reason - error description.
 **/
-  private static String getReason (AS400JDBCConnection connection,
+  private static String getReason (AS400JDBCConnectionI connection,
                                    int id,
                                    int returnCode)                                    // @E2A
   {
@@ -191,12 +191,12 @@ Returns the message text for the last operation on the IBM i system.
           {
             if (absReturnCode == 438)                                                               // @E2A @E4C @E5C
             {
-              errorDescription.append(sqlca.getErrmc(connection.converter_));                 // @E2A @P0C
+              errorDescription.append(sqlca.getErrmc(connection.getConverter()));                 // @E2A @P0C
               textAppended = true;                          // @E8A
             }
             else if (absReturnCode == 443)                                                          // @E5A
             {
-              errorDescription.append(sqlca.getErrmc(6, connection.converter_));              // @E5A @P0C
+              errorDescription.append(sqlca.getErrmc(6, connection.getConverter()));              // @E5A @P0C
               textAppended = true;                          // @E8A
             }
           }                                                                                           // @E6A
@@ -220,9 +220,10 @@ Returns the message text for the last operation on the IBM i system.
       // Get the SQL state and remember it for the next
       // call to getSQLState().
       // Remember it for the connection @Q4A
-      connection.lastServerSQLState_ = sqlca.getSQLState (connection.converter_);                   // @E2C @P0C
-      if (connection.lastServerSQLState_ == null)
-        connection.lastServerSQLState_ = EXC_SERVER_ERROR;
+      String lastSqlState = sqlca.getSQLState (connection.getConverter()); 
+      connection.setLastServerSQLState(lastSqlState);                 // @E2C @P0C
+      if (lastSqlState == null)
+        connection.setLastServerSQLState(EXC_SERVER_ERROR);
 
       return errorDescription.toString ();
       }
@@ -256,17 +257,18 @@ Returns the SQL state for the last operation on the IBM i system.
 @param  id          Id for the last operation.
 @return             The SQL state.
 **/
-  private static String getSQLState (AS400JDBCConnection connection,
+  private static String getSQLState (AS400JDBCConnectionI connection,
                                      int id)
   {
     // If the SQL state was retrieved by a previous call to
     // getReason(), then use that.
 	// Remember for the connection @Q4C
-    if (connection.lastServerSQLState_ != null)
+    String lastServerSQLState = connection.getLastServerSQLState(); 
+    if (lastServerSQLState != null)
     {
-      String sqlState = connection.lastServerSQLState_;
-      connection.lastServerSQLState_ = null;
-      return sqlState;
+     
+      connection.setLastServerSQLState(null); 
+      return lastServerSQLState; 
     }
 
     // Otherwise, go to the system to get it.
@@ -282,7 +284,7 @@ Returns the SQL state for the last operation on the IBM i system.
 
         reply = connection.sendAndReceive (request, id); //@P0C
 
-      String sqlState = reply.getSQLCA ().getSQLState (connection.converter_); //@P0C
+      String sqlState = reply.getSQLCA ().getSQLState (connection.getConverter()); //@P0C
 
       if (sqlState == null)
         sqlState = EXC_SERVER_ERROR;
@@ -316,19 +318,16 @@ error table.
 **/
   public static SQLWarning getSQLWarning (String sqlState)
   {
-    // The DB2 for IBM i SQL CLI manual says that
-    // we should set the native error code to -99999
-    // when the driver generates the warning.
-    //
     String reason = getReason(sqlState);
-    SQLWarning warning = new SQLWarning (reason, sqlState, -99999);
+    int sqlCode = getSqlCode(sqlState); 
+    SQLWarning warning = new SQLWarning (reason, sqlState, sqlCode);
 
     if (JDTrace.isTraceOn ())                                           // @J3a
     {
       // @J3a
       String message = "Posting warning, sqlState: " + sqlState        // @J3a
                        + " reason: " + reason         // @J3a
-                       + " vendor code -99999";       // @J3a
+                       + " vendor code "+sqlCode;       // @J3a
       JDTrace.logException(null, message, warning);                    // @J3a
     }                                                                   // @J3a
 
@@ -347,7 +346,7 @@ retrieved from the IBM i system.
 @param  returnCode  return code from the system reply.
  * @return SQLWarning
 **/
-  public static SQLWarning getSQLWarning (AS400JDBCConnection connection,
+  public static SQLWarning getSQLWarning (AS400JDBCConnectionI connection,
                                           int id,
                                           int errorClass,
                                           int returnCode)
@@ -413,22 +412,41 @@ error table.
   public static SQLException throwSQLException (Object thrower, String sqlState)
   throws SQLException
   {
-    // The DB2 for IBM i SQL CLI manual says that
-    // we should set the native error code to -99999
-    // when the driver generates the error.
-    //
     String reason  = getReason(sqlState);
-    SQLException e = createSQLExceptionSubClass(thrower, reason, sqlState, -99999); //@PDA jdbc40
+    SQLException e ;
+    int sqlCode = getSqlCode(sqlState); 
+    
+    e = createSQLExceptionSubClass(thrower, reason, sqlState, sqlCode); //@PDA jdbc40
     if (JDTrace.isTraceOn ())
     {
        String message = "Throwing exception, sqlState: " + sqlState
                         +  " reason: "   + reason
-                        +  " vendor code -99999";
+                        +  " vendor code "+sqlCode;
        JDTrace.logException(thrower, message, e);
     }
 
     throw e;
   }
+
+
+/** 
+ * Return the sqlcode to use for the specified SQL state. 
+ * @param sqlState
+ * @return
+ */
+private static int getSqlCode(String sqlState) {
+  // If we re-established the connection, use a different sqlCode
+  if (sqlState.equals(EXC_CONNECTION_REESTABLISHED)) { 
+    return -4498; 
+  }
+  // 
+  // The DB2 for IBM i SQL CLI manual says that
+  // we should set the native error code to -99999
+  // when the driver generates the error.
+  //
+
+  return -99999; 
+}
 
 
 
@@ -496,12 +514,8 @@ trace for debugging purposes.
       buffer.append(')');
     }
 
-    // The DB2 for IBM i SQL CLI manual says that
-    // we should set the native error code to -99999
-    // when the driver generates the error.
-    //
-
-    SQLException e2 = createSQLExceptionSubClass(thrower, buffer.toString(), sqlState, -99999); //@PDA jdbc40
+    int sqlCode = getSqlCode(sqlState); 
+    SQLException e2  = createSQLExceptionSubClass(thrower, buffer.toString(), sqlState, sqlCode); 
     if (JDTrace.isTraceOn ())
     {
       String m2 = "Throwing exception. Message text: "+message;
@@ -510,7 +524,7 @@ trace for debugging purposes.
       m2 = "Throwing exception.  Actual exception: "
            + buffer.toString()
            + " sqlState: " + sqlState
-           + " vendor code -99999";
+           + " vendor code "+sqlCode;
       JDTrace.logException(thrower, m2, e2);
     }
 
@@ -556,12 +570,10 @@ trace for debugging purposes.
       buffer.append(')'); // @E7A
     }
 
-    // The DB2 for IBM i SQL CLI manual says that
-    // we should set the native error code to -99999
-    // when the driver generates the error.
-    //
-    SQLException e2 = createSQLExceptionSubClass(thrower, buffer.toString(), sqlState, -99999); //@PDA jdbc40
+    int sqlCode = getSqlCode(sqlState); 
 
+    SQLException e2 = createSQLExceptionSubClass(thrower, buffer.toString(), sqlState, sqlCode); //@PDA jdbc40
+    
     if (JDTrace.isTraceOn ())                                           // @J3a
     {                                                                   // @J3a
       String m2 = "Throwing exception. Original exception: ";          // @J3a
@@ -570,7 +582,7 @@ trace for debugging purposes.
       m2 = "Throwing exception.  Actual exception: "                   // @J3a
            + buffer.toString()                      // @J3a
            + " sqlState: " + sqlState               // @J3a
-           + " vendor code -99999";                 // @J3a
+           + " vendor code "+sqlCode;                 // @J3a
       JDTrace.logException(thrower, m2, e2);                            // @J3a
     }                                                                   // @J3a
 
@@ -613,11 +625,9 @@ trace for debugging purposes.
     buffer.append(m);
     buffer.append(')');
 
-    // The DB2 for IBM i SQL CLI manual says that
-    // we should set the native error code to -99999
-    // when the driver generates the error.
-    //
-    SQLException e2 = createSQLExceptionSubClass(thrower, buffer.toString(), sqlState, -99999); //@PDA jdbc40
+    int sqlCode = getSqlCode(sqlState); 
+    SQLException e2 = createSQLExceptionSubClass(thrower, buffer.toString(), sqlState, sqlCode); //@PDA jdbc40
+    
     if (JDTrace.isTraceOn ())
     {
       String m2 = "Throwing exception. Original exception: ";
@@ -626,7 +636,7 @@ trace for debugging purposes.
       m2 = "Throwing exception.  Actual exception: "
            + buffer.toString()
            + " sqlState: " + sqlState
-           + " vendor code -99999";
+           + " vendor code "+sqlCode;
       JDTrace.logException(thrower, m2, e2);
     }
     if (e != null) {
@@ -649,7 +659,7 @@ retrieved from the IBM i system.
 
 @exception          SQLException    Always.
 **/
-  public static void throwSQLException (AS400JDBCConnection connection,
+  public static void throwSQLException (AS400JDBCConnectionI connection,
                                         int id,
                                         int errorClass,
                                         int returnCode)
@@ -686,7 +696,7 @@ retrieved from the system.
 @exception          SQLException    Always.
 **/
   public static SQLException throwSQLException (Object thrower,
-                                        AS400JDBCConnection connection,
+                                        AS400JDBCConnectionI connection,
                                         int id,
                                         int errorClass,
                                         int returnCode)
@@ -764,12 +774,11 @@ retrieved from the system.
           buffer.append(e.getClass());
       buffer.append(')');
 
-      // The DB2 for IBM i SQL CLI manual says that
-      // we should set the native error code to -99999
-      // when the driver generates the error.
+      int sqlCode = getSqlCode(sqlState); 
 
-      SQLClientInfoException e2 = new SQLClientInfoException (buffer.toString(), sqlState, -99999, m);
-
+      SQLClientInfoException e2 = new SQLClientInfoException (buffer.toString(), sqlState, sqlCode, m);
+    
+      
       if (JDTrace.isTraceOn ())
       {
           String m2 = "Throwing exception. Original exception: ";
@@ -778,7 +787,7 @@ retrieved from the system.
           m2 = "Throwing exception.  Actual exception: "
               + buffer.toString()
               + " sqlState: " + sqlState
-              + " vendor code -99999";
+              + " vendor code "+sqlCode;
           JDTrace.logException(thrower, m2, e2);
       }
 

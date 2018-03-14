@@ -170,10 +170,14 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              NUMERIC_RANGE_ERROR        = 90; 
     static final int              CHARACTER_TRUNCATION       = 91;  
     static final int              PORTNUMBER                 = 92; /*@V1A*/ 
+    static final int              ENABLE_CLIENT_AFFINITIES_LIST = 93; 
+    static final int              CLIENT_REROUTE_ALTERNATE_SERVER_NAME = 94; 
+    static final int              CLIENT_REROUTE_ALTERNATE_PORT_NUMBER = 95; 
+    
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 93;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 96;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -188,6 +192,8 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String BLOCK_SIZE_             = "block size";
     private static final String BLOCK_CRITERIA_         = "block criteria";
     private static final String CHARACTER_TRUNCATION_   = "character truncation"; 
+    private static final String CLIENT_REROUTE_ALTERNATE_PORT_NUMBER_ = "clientRerouteAlternatePortNumber"; 
+    private static final String CLIENT_REROUTE_ALTERNATE_SERVER_NAME_ = "clientRerouteAlternateServerName"; 
     private static final String CURSOR_HOLD_            = "cursor hold";            // @D1
     private static final String CURSORHOLD_             = "CURSORHOLD";             // @D1
     private static final String CURSOR_SENSITIVITY_     = "cursor sensitivity";     // @F6A
@@ -198,6 +204,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String DATE_SEPARATOR_         = "date separator";
     private static final String DECIMAL_SEPARATOR_      = "decimal separator";
     private static final String DRIVER_                 = "driver";                 // @E3A
+    private static final String ENABLE_CLIENT_AFFINITIES_LIST_ = "enableClientAffinitiesList"; 
     private static final String ERRORS_                 = "errors";
     private static final String EXTENDED_DYNAMIC_       = "extended dynamic";
     private static final String EXTENDED_METADATA_      = "extended metadata";      // @F5A
@@ -626,6 +633,19 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[2]  = CHARACTER_TRUNCATION_NONE;
         defaults_[i]        = CHARACTER_TRUNCATION_DEFAULT;
 
+        i = CLIENT_REROUTE_ALTERNATE_PORT_NUMBER; 
+        dpi_[i] = new DriverPropertyInfo (CLIENT_REROUTE_ALTERNATE_PORT_NUMBER_, "");
+        dpi_[i].description = "CLIENT_REROUTE_ALTERNATE_PORT_NUMBER_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0]; /* no choices to validate */ 
+        defaults_[i]        = "";
+        
+        i = CLIENT_REROUTE_ALTERNATE_SERVER_NAME; 
+        dpi_[i] = new DriverPropertyInfo (CLIENT_REROUTE_ALTERNATE_SERVER_NAME_, "");
+        dpi_[i].description = "CLIENT_REROUTE_ALTERNATE_SERVER_NAME_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0]; /* no choices to validate */ 
+        defaults_[i]        = "";
         
         // Cursor Hold.  @D1
         i = CURSOR_HOLD;
@@ -733,6 +753,20 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[1]  = DRIVER_NATIVE;
         defaults_[i]        = DRIVER_TOOLBOX;     //@F4C
 
+        
+        
+        // enable client affinities list
+        i = ENABLE_CLIENT_AFFINITIES_LIST;
+        dpi_[i] = new DriverPropertyInfo(ENABLE_CLIENT_AFFINITIES_LIST_, "");
+        dpi_[i].description = "ENABLE_CLIENT_AFFINITIES_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = "0";
+        dpi_[i].choices[1]  = "1";
+        defaults_[i]        = "0";   
+
+
+        
         // Extended dynamic.
         i = EXTENDED_DYNAMIC;
         dpi_[i] = new DriverPropertyInfo (EXTENDED_DYNAMIC_, "");

@@ -648,24 +648,24 @@ implements Connection
       catch (AS400SecurityException e) {                             //@A0C
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
-          synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogWriter ());
-          }
+          JDTrace.logException(this, "Security Exception caught", e); 
         }
-        throw new SQLException (
+        SQLException sqlex = new SQLException (
                 AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_REJECTED),
                 EXC_CONNECTION_REJECTED, -99999);
+        sqlex.initCause(e); 
+        throw sqlex; 
       }
       catch (java.io.IOException e) {                                //@A0C
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
-          synchronized (DriverManager.class) {
-            e.printStackTrace (DriverManager.getLogWriter ());
-          }
+          JDTrace.logException(this,  "IOException caught", e); 
         }
-        throw new SQLException (
+        SQLException sqlex = new SQLException (
                 AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_UNABLE),
                 EXC_CONNECTION_UNABLE, -99999);
+        sqlex.initCause(e); 
+        throw sqlex; 
       }
     }
         else

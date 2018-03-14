@@ -39,7 +39,7 @@ class JDCursor
 
 
   private boolean             closed_;
-  private AS400JDBCConnection connection_;
+  private AS400JDBCConnectionI connection_;
   private int                 id_;
   private boolean             lazyClose_;                         // @E2A
   private String              name_;
@@ -61,7 +61,7 @@ Constructs a JDCursor object.
 @param  name            Cursor name.
 @param  concurrency     The concurrency
 **/
-  JDCursor (AS400JDBCConnection connection,
+  JDCursor (AS400JDBCConnectionI connection,
             int id,
             String name,
             // @E3D boolean lazyClose,

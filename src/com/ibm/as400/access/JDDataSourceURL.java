@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
 
+
 /**
  * <p>
  * A class representing a URL specifying an IBM i system data source. This is
@@ -91,6 +92,64 @@ public class JDDataSourceURL implements Serializable {
         }
       }
     }
+  }
+
+  public JDDataSourceURL(JDDataSourceURL originalDataSourceUrl_, String server,
+      String port) {
+    extraPathSpecified_ = originalDataSourceUrl_.extraPathSpecified_; 
+    properties_ = (Properties) originalDataSourceUrl_.properties_.clone();
+    schema_  = originalDataSourceUrl_.schema_;
+
+    valid_ = originalDataSourceUrl_.valid_;
+    secondaryUrl_ = originalDataSourceUrl_.secondaryUrl_;
+    
+    serverName_  = server;
+    int portNumber = 0; 
+    if (port != null ) { 
+      try { 
+        portNumber = Integer.parseInt(port);
+      } catch (NumberFormatException nfe) { 
+        portNumber = 0; 
+      }
+    }
+    if (portNumber == 0) { 
+      portSpecified_ = false;
+      portNumber_ = 0;
+    } else {
+      portSpecified_ = true; 
+      portNumber_ = portNumber; 
+    }
+    
+    regenerateUrl(); 
+  }
+
+  /** 
+   * regenerate the URL field base on the current properties. 
+   */
+  void regenerateUrl() {
+    StringBuffer sb = new StringBuffer(); 
+    sb.append("jdbc:as400:");
+    sb.append(serverName_);
+    if (portSpecified_) {
+      sb.append(":");
+      sb.append(portNumber_); 
+    }
+    if (schema_ != null && schema_.length() > 0 ) {
+      sb.append("/");
+      sb.append(schema_);
+    }
+    Enumeration keyEnum = properties_.keys(); 
+    while (keyEnum.hasMoreElements()) {
+      String key = (String) keyEnum.nextElement(); 
+      String value=  properties_.getProperty(key);
+      sb.append(";");
+      sb.append(key);
+      sb.append("="); 
+      sb.append(value); 
+    }
+    
+    url_ = sb.toString(); 
+    
   }
 
   // @B1A

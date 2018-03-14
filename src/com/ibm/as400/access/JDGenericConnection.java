@@ -668,7 +668,7 @@ implements Connection
   throws SQLException
   /* endif */ 
   {
-	  ((AS400JDBCConnection)actualConnection_).setClientInfo(name, value);
+	  ((AS400JDBCConnectionI)actualConnection_).setClientInfo(name, value);
   }
 
   // @PDA jdbc40
@@ -727,7 +727,7 @@ implements Connection
   throws SQLException 
   /* endif */ 
   {
-	  ((AS400JDBCConnection)actualConnection_).setClientInfo(properties);
+	  ((AS400JDBCConnectionI)actualConnection_).setClientInfo(properties);
   }
 
   //@PDA jdbc40
@@ -768,7 +768,7 @@ implements Connection
    */
   public String getClientInfo(String name) throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).getClientInfo(name);
+      return ((AS400JDBCConnectionI)actualConnection_).getClientInfo(name);
   }
 
   //@PDA jdbc40
@@ -802,7 +802,7 @@ implements Connection
    */
   public Properties getClientInfo() throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).getClientInfo();
+      return ((AS400JDBCConnectionI)actualConnection_).getClientInfo();
   }
   
   //@PDA jdbc40
@@ -818,7 +818,7 @@ implements Connection
    */
   public Clob createClob() throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).createClob();
+      return ((AS400JDBCConnectionI)actualConnection_).createClob();
   }
   
   //@PDA jdbc40
@@ -834,7 +834,7 @@ implements Connection
    */
   public Blob createBlob() throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).createBlob();
+      return ((AS400JDBCConnectionI)actualConnection_).createBlob();
   }
 
   //@PDA jdbc40
@@ -885,7 +885,7 @@ implements Connection
    */
   public Array createArrayOf(String typeName, Object[] elements) throws SQLException
   {
-      return ((AS400JDBCConnection)actualConnection_).createArrayOf(typeName, elements);
+      return ((AS400JDBCConnectionI)actualConnection_).createArrayOf(typeName, elements);
   }
 
   //@PDA jdbc40
@@ -902,7 +902,7 @@ implements Connection
    */
   public Struct createStruct(String typeName, Object[] attributes) throws SQLException
   {   
-      return ((AS400JDBCConnection)actualConnection_).createStruct(typeName, attributes);
+      return ((AS400JDBCConnectionI)actualConnection_).createStruct(typeName, attributes);
   }
   
 
@@ -910,31 +910,31 @@ implements Connection
   // JDBC 4.1
   public void abort(Executor executor) throws SQLException {
     
-    ((AS400JDBCConnection)actualConnection_).abort(executor); 
+    ((AS400JDBCConnectionI)actualConnection_).abort(executor); 
   }
 endif */ 
   
 /* ifdef JDBC40 
   public int getNetworkTimeout() throws SQLException {
-    return ((AS400JDBCConnection)actualConnection_).getNetworkTimeout(); 
+    return ((AS400JDBCConnectionI)actualConnection_).getNetworkTimeout(); 
     
   }
 endif */ 
 
   // JDBC 4.1
   public String getSchema() throws SQLException {
-    return ((AS400JDBCConnection)actualConnection_).getSchema(); 
+    return ((AS400JDBCConnectionI)actualConnection_).getSchema(); 
   }
 
   public void setSchema(String schema) throws SQLException {
-    ((AS400JDBCConnection)actualConnection_).setSchema(schema); 
+    ((AS400JDBCConnectionI)actualConnection_).setSchema(schema); 
   }
 
 /* ifdef JDBC40 
   // JDBC 4.1
   public void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException {
-    ((AS400JDBCConnection)actualConnection_).setNetworkTimeout(executor, milliseconds); 
+    ((AS400JDBCConnectionI)actualConnection_).setNetworkTimeout(executor, milliseconds); 
     
   }
 endif */ 
