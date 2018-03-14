@@ -312,6 +312,7 @@ public class Trace implements Runnable
   private static ToolboxLogger logger_ = null;
   private static boolean firstCallToFindLogger_ = true;
   private static boolean JDK14_OR_HIGHER;
+  private static PrintWriter globalPw = null;
 
   // @D0A
   static
@@ -570,12 +571,14 @@ public class Trace implements Runnable
       try
       {
         setFileName (file);
-        destination_.println("Toolbox for Java - JDBC "+
-          AS400JDBCDriver.JDBC_MAJOR_VERSION_+"."+
-          AS400JDBCDriver.JDBC_MINOR_VERSION_+" " + Copyright.version);
-        destination_.println(getJvmInfo()); /* @B1A*/ 
-        destination_.println();
-        logLoadPath(CLASSNAME, activeTraceCategory()); 
+        synchronized (destination_) {
+          destination_.println("Toolbox for Java - JDBC "
+              + AS400JDBCDriver.JDBC_MAJOR_VERSION_ + "."
+              + AS400JDBCDriver.JDBC_MINOR_VERSION_ + " " + Copyright.version);
+          destination_.println(getJvmInfo()); /* @B1A */
+          destination_.println();
+          logLoadPath(CLASSNAME, activeTraceCategory());
+        }
       }
       catch (IOException e)
       {
@@ -778,7 +781,10 @@ public class Trace implements Runnable
           PrintWriter pw = (PrintWriter) printWriterHash_.get(component);
           if (pw == null)
           {
-            pw = new PrintWriter(System.out, true);
+            if (globalPw  == null) { 
+              globalPw = new PrintWriter(System.out, true); 
+            }
+            pw =  globalPw; 
             printWriterHash_.put(component, pw);
           }
           synchronized(pw)
@@ -1259,8 +1265,12 @@ private static final void log(int category, Object source, String message, byte[
         PrintWriter pw = (PrintWriter) printWriterHash_.get(component);
         if (pw == null)
         {
-          pw = new PrintWriter(System.out, true);
+          if (globalPw  == null) { 
+            globalPw = new PrintWriter(System.out, true); 
+          }
+          pw = globalPw; 
           printWriterHash_.put(component, pw);
+
         }
 
         synchronized(pw)
@@ -1664,8 +1674,12 @@ private static final void log(int category, Object source, String message, byte[
     }
     else
     {
-      pw = new PrintWriter(System.out, true);
+      if (globalPw  == null) { 
+        globalPw = new PrintWriter(System.out, true); 
+      }
+      pw = globalPw; 
       printWriterHash_.put(component, pw);
+
     }
   }
 
@@ -1728,11 +1742,14 @@ private static final void log(int category, Object source, String message, byte[
       pw.close();
     }
 
-    if (obj != null)
+    if (obj != null) {
       pw = obj;
-    else
-      pw = new PrintWriter(System.out, true);
-
+    } else { 
+      if (globalPw  == null) { 
+        globalPw = new PrintWriter(System.out, true); 
+      }
+      pw =  globalPw;
+    }
     printWriterHash_.put(component, pw);
   }
 
@@ -1824,11 +1841,14 @@ private static final void log(int category, Object source, String message, byte[
       findLogger();
       if (traceOn_ &&                                    //$D1A
           (logger_ == null || userSpecifiedDestination_)) {
-        destination_.println("Toolbox for Java - JDBC "+
-          AS400JDBCDriver.JDBC_MAJOR_VERSION_+"."+
-          AS400JDBCDriver.JDBC_MINOR_VERSION_+" "+
-          Copyright.version);   // @A1C //@W1A //@D4C
-        destination_.println(getJvmInfo()); /* @B1A*/
+        synchronized (destination_) {
+          destination_.println("Toolbox for Java - JDBC "
+              + AS400JDBCDriver.JDBC_MAJOR_VERSION_ + "."
+              + AS400JDBCDriver.JDBC_MINOR_VERSION_ + " " + Copyright.version); // @A1C
+                                                                                // //@W1A
+                                                                                // //@D4C
+          destination_.println(getJvmInfo()); /* @B1A */
+        }
       }
 
       // If logger exists, set its attributes accordingly.
