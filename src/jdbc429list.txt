@@ -10,6 +10,8 @@ com/ibm/as400/access/AS400JDBCCallableStatement.java
 com/ibm/as400/access/AS400JDBCClob.java
 com/ibm/as400/access/AS400JDBCClobLocator.java
 com/ibm/as400/access/AS400JDBCConnection.java
+com/ibm/as400/access/AS400JDBCConnectionI.java
+com/ibm/as400/access/AS400JDBCConnectionRedirect.java
 com/ibm/as400/access/AS400JDBCConnectionHandle.java
 com/ibm/as400/access/AS400JDBCConnectionPoolDataSource.java
 com/ibm/as400/access/AS400JDBCDatabaseMetaData.java
