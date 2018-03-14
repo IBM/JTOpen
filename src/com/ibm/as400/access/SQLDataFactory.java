@@ -339,7 +339,7 @@ class SQLDataFactory
         //@rnd1 if(pointIndex != 0)
         //@rnd1     maxSize++;  //allow for extra '.' char
         while((toString.charAt(--endIndex) == '0')  &&  (endIndex > maxSize) );
-
+        
         int numberZeros = length - endIndex - 1; //@rnd1
 
         if(endIndex == maxSize)
@@ -514,7 +514,7 @@ class SQLDataFactory
                                 mapped.
     **/
     //@array comment: we are assuming here that all of the metadata parms (except sqlType) is for the array content type
-    static SQLData newData(AS400JDBCConnection connection,
+    static SQLData newData(AS400JDBCConnectionI connection,
                            int id,
                            int nativeType,
                            int length,

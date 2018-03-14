@@ -36,7 +36,7 @@ final class SQLBlobLocator implements SQLLocator
 {
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    private AS400JDBCConnection     connection_;
+    private AS400JDBCConnectionI     connection_;
     private ConvTable               converter_;
     private int                     id_;
     private JDLobLocator            locator_;
@@ -51,7 +51,7 @@ final class SQLBlobLocator implements SQLLocator
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
 
-    SQLBlobLocator(AS400JDBCConnection connection,
+    SQLBlobLocator(AS400JDBCConnectionI connection,
                    int id,
                    int maxLength, 
                    SQLConversionSettings settings,

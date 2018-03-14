@@ -40,7 +40,7 @@ final class SQLXMLLocator implements SQLLocator
 {
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    private AS400JDBCConnection     connection_;
+    private AS400JDBCConnectionI     connection_;
     //writing to host, we let host do all the conversion
     //reading from host, we do all the conversion
     private ConvTable               converter_; //used when reading from host
@@ -60,7 +60,7 @@ final class SQLXMLLocator implements SQLLocator
     private int scale_; // This is actually the length that got set into us.
     private int xmlType_; //@xml3 0=SB 1=DB 2=binary XML
 
-    SQLXMLLocator(AS400JDBCConnection connection,
+    SQLXMLLocator(AS400JDBCConnectionI connection,
                    int id,
                    int maxLength, 
                    SQLConversionSettings settings,
@@ -87,7 +87,7 @@ final class SQLXMLLocator implements SQLLocator
             unicodeConverter_ =  connection.getConverter(1200); 
             unicodeUtf8Converter_ =  connection.getConverter(1208); //@xmlutf8 
         }catch(SQLException e){
-            unicodeConverter_ = connection.converter_;//should never happen
+            unicodeConverter_ = connection.getConverter();//should never happen
         }
     }
 
