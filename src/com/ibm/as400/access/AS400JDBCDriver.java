@@ -125,6 +125,7 @@ endif */
 /* ifndef JDBC40 */ 
     public static final int JDBC_MAJOR_VERSION_ = 3; // JDBC spec version: 3.0
 /* endif */
+    
 /* ifdef JAVA9
     public static final int JDBC_MINOR_VERSION_ = 3; 
 endif JAVA9 */
@@ -1377,72 +1378,24 @@ endif */
             sockProps.setSoTimeout(jdProperties.getInt(JDProperties.SOCKET_TIMEOUT)); //@STIMEOUT already in milliseconds
         }
         
+        String defaultImpl = "com.ibm.as400.access.AS400JDBCConnection"; 
+        if (jdProperties.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
+          defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionRedirect"; 
+        }
         
         if(sockProps != null)
             as400.setSocketProperties(sockProps);
-        
-		// Create the appropriate kind of Connection object.
+
+        // Create the appropriate kind of Connection object.
 		Connection connection = (Connection) as400.loadImpl2 (
-														 "com.ibm.as400.access.AS400JDBCConnection",                 
+														 defaultImpl,                 
 	    												 "com.ibm.as400.access.JDConnectionProxy");
                                        
 		// Set the properties on the Connection object.
 		if (connection != null)
 		{
-
-			// @A2D Class[] argClasses = new Class[] { JDDataSourceURL.class,
-			// @A2D                                    JDProperties.class,
-			// @A2D                                    AS400.class };
-			// @A2D Object[] argValues = new Object[] { dataSourceUrl,
-			// @A2D                                     jdProperties,
-			// @A2D                                     as400 };
-			// @A2D try {
-			// Hand off the public AS400 object to keep it from getting
-			// garbage-collected.
-			Class clazz = connection.getClass ();          
-			// @A2D Method method = clazz.getDeclaredMethod ("setSystem",
-			// @A2D                                   new Class[] { AS400.class });
-			// @A2D method.invoke (connection, new Object[] { as400 });
-
-			// @A2D method = clazz.getDeclaredMethod ("setProperties", argClasses);
-			// @A2D method.invoke (connection, argValues);
-
-			String className = clazz.getName();
-			if (className.equals("com.ibm.as400.access.AS400JDBCConnection"))
-			{
-				((AS400JDBCConnection)connection).setSystem(as400);
-				((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400);
-			}
-			else if (className.equals("com.ibm.as400.access.JDConnectionProxy"))
-			{
-				((JDConnectionProxy)connection).setSystem(as400);
-				((JDConnectionProxy)connection).setProperties(dataSourceUrl, jdProperties, as400);
-			}
-			// @A2D }
-			// @A2D catch (NoSuchMethodException e) {
-			// @A2D   JDTrace.logInformation (this,
-			// @A2D                           "Could not resolve setProperties() method");
-			// @A2D   throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-			// @A2D }
-			// @A2D catch (IllegalAccessException e) {
-			// @A2D   JDTrace.logInformation (this,
-			// @A2D                           "Could not access setProperties() method");
-			// @A2D   throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-			// @A2D }
-			// @A2D catch (InvocationTargetException e) {
-			// @A2D   Throwable e2 = e.getTargetException ();
-			// @A2D   if (e2 instanceof SQLException)
-			// @A2D     throw (SQLException) e2;
-			// @A2D   else if (e2 instanceof RuntimeException)
-			// @A2D     throw (RuntimeException) e2;
-			// @A2D   else if (e2 instanceof Error)
-			// @A2D     throw (Error) e2;
-			// @A2D   else {
-			// @A2D     JDTrace.logInformation (this,
-			// @A2D                             "Could not invoke setProperties() method");
-			// @A2D     throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-			// @A2D   }
-			// @A2D }
+				((AS400JDBCConnectionI)connection).setSystem(as400);
+				((AS400JDBCConnectionI)connection).setProperties(dataSourceUrl, jdProperties, as400, info);
 		}
 		return connection;
 	}

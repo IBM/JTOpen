@@ -704,7 +704,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         connection = new AS400JDBCConnection();    
 
         connection.setSystem(as400);
-        connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
+        connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null); //@C1C
 
         log(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
         return connection;
