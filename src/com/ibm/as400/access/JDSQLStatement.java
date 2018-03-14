@@ -206,7 +206,7 @@ public class JDSQLStatement
                                     scalar function.
     **/
     JDSQLStatement(String sql, String decimalSeparator, boolean convert, String packageCriteria,
-                   Connection connection) // @A1C //@G1C
+                   AS400JDBCConnectionI connection) // @A1C //@G1C
     throws SQLException
     {
         if(sql == null)
@@ -405,7 +405,7 @@ public class JDSQLStatement
         //@PDC 2M for commentStrip in v5r4
         int commentStripLength = 32767;  //@PDA
         if(connection != null)           //@PDC
-            commentStripLength = (((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm540) ? 2097151 : 32767;    //@PDC 2M for commentStrip in v5r4
+            commentStripLength = (connection.getVRM() >= JDUtilities.vrm540) ? 2097151 : 32767;    //@PDC 2M for commentStrip in v5r4
         if(length > commentStripLength)//@PDC 2M for commentStrip
         { // @C3A
             String old = sql;
@@ -443,7 +443,7 @@ public class JDSQLStatement
             //@F6D }
             //@F6D else
             //@F6D {
-            value_ = JDEscapeClause.parse(sql, decimalSeparator, ((AS400JDBCConnection)connection).getVRM()); // @C1M
+            value_ = JDEscapeClause.parse(sql, decimalSeparator, connection.getVRM()); // @C1M
             //@F6D }
         }
         else
@@ -451,7 +451,7 @@ public class JDSQLStatement
             value_ = sql;
         }
         
-        value_ = AS400BidiTransform.convertSQLToHostCCSID(value_, (AS400JDBCConnection)connection);	//Bidi-HCG end
+        value_ = AS400BidiTransform.convertSQLToHostCCSID(value_, connection);	//Bidi-HCG end
 
         tokenizer_ = new JDSQLTokenizer(value_, JDSQLTokenizer.DEFAULT_DELIMITERS, false, false); // @C3A moved this line up from below
         numberOfParameters_ = tokenizer_.getNumberOfParameters(); // @C3A the tokenizer counts the number of parameter markers now
@@ -628,9 +628,9 @@ public class JDSQLStatement
         }
         else if((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
         {
-            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710) {  //@blksql
+            if(connection.getVRM() >= JDUtilities.vrm710) {  //@blksql
             	
-            	if (((AS400JDBCConnection)connection).doUpdateDeleteBlocking()) { 
+            	if (((AS400JDBCConnectionI)connection).doUpdateDeleteBlocking()) { 
                     canBeBatched_ = true;   //@blksql
             	}
 
@@ -639,7 +639,7 @@ public class JDSQLStatement
         }
         else if(firstWord.equals(MERGE_)) //@blksql
         {
-            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710)  { //@blksql
+            if((connection).getVRM() >= JDUtilities.vrm710)  { //@blksql
                 canBeBatched_ = true;   //@blksql
             }
         }
@@ -670,7 +670,7 @@ public class JDSQLStatement
                 token = token.substring(0, index);
 
             String namingSeparator;
-            if(((AS400JDBCConnection)connection).getProperties().
+            if((connection).getProperties().
                getString(JDProperties.NAMING).equalsIgnoreCase("sql"))
             {
                 namingSeparator = ".";
@@ -834,7 +834,7 @@ public class JDSQLStatement
 
                         // @C3A put the code to determine the naming separator down here too
                         String namingSeparator;
-                        if(((AS400JDBCConnection)connection).getProperties().
+                        if((connection).getProperties().
                            getString(JDProperties.NAMING).equalsIgnoreCase("sql"))
                         {
                             namingSeparator = ".";

@@ -150,7 +150,7 @@ for use in implementing various pieces of the JDBC driver.
     @exception  SQLException    If the connection is not open
                                 or an error occurs.
     **/
-    static final ResultSet getLibraries (Object caller, AS400JDBCConnection connection, SQLConversionSettings settings, boolean libraryListOnly)
+    static final ResultSet getLibraries (Object caller, AS400JDBCConnectionI connection, SQLConversionSettings settings, boolean libraryListOnly)
     throws SQLException
     {
         // Schema = library
@@ -182,12 +182,12 @@ for use in implementing various pieces of the JDBC driver.
                 if (!libraryListOnly) // Return list of all libraries on the system
                 {
 
-                  request.setLibraryName("%", connection.converter_);
+                  request.setLibraryName("%", connection.getConverter());
                   request.setLibraryNameSearchPatternIndicator(0xF1);
                 }
                 else
                 {
-                    request.setLibraryName("*LIBL", connection.converter_); //@libl
+                    request.setLibraryName("*LIBL", connection.getConverter()); //@libl
                     request.setLibraryNameSearchPatternIndicator(0xF0);     //@libl
                 }
 
