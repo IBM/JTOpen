@@ -139,10 +139,11 @@ Returns the message text for the last operation on the IBM i system.
 @param  id          Id for the last operation.
 @param  returnCode  The return code from the last operation.
 @return             Reason - error description.
+@throws  SQLException  Throws an exception if the connection dropped and we reconnected
 **/
   private static String getReason (AS400JDBCConnectionI connection,
                                    int id,
-                                   int returnCode)                                    // @E2A
+                                   int returnCode)  throws SQLException           // @E2A
   {
     try
     {
@@ -182,29 +183,32 @@ Returns the message text for the last operation on the IBM i system.
       boolean textAppended = false;                                                                   // @E6A
       int absReturnCode = Math.abs(returnCode);                                                       // @E4A
 
-      if ((absReturnCode == 438) || (absReturnCode == 443) &&                                       // @E2A @E4C @E5C @E6C
-          (connection.getVRM() < JDUtilities.vrm540))    //@25955a
-      {
-        try  //@25955a
+        if ((absReturnCode == 438) || (absReturnCode == 443) && // @E2A @E4C
+                                                                // @E5C @E6C
+            (connection.getVRM() < JDUtilities.vrm540)) // @25955a
         {
-          if (sqlca.getErrd (4) == 0)     //@F1C                                                              // @E6A
+          try // @25955a
           {
-            if (absReturnCode == 438)                                                               // @E2A @E4C @E5C
+            if (sqlca.getErrd(4) == 0) // @F1C // @E6A
             {
-              errorDescription.append(sqlca.getErrmc(connection.getConverter()));                 // @E2A @P0C
-              textAppended = true;                          // @E8A
-            }
-            else if (absReturnCode == 443)                                                          // @E5A
-            {
-              errorDescription.append(sqlca.getErrmc(6, connection.getConverter()));              // @E5A @P0C
-              textAppended = true;                          // @E8A
-            }
-          }                                                                                           // @E6A
+              if (absReturnCode == 438) // @E2A @E4C @E5C
+              {
+                errorDescription.append(sqlca.getErrmc(connection
+                    .getConverter())); // @E2A @P0C
+                textAppended = true; // @E8A
+              } else if (absReturnCode == 443) // @E5A
+              {
+                errorDescription.append(sqlca.getErrmc(6,
+                    connection.getConverter())); // @E5A @P0C
+                textAppended = true; // @E8A
+              }
+            } // @E6A
+          } catch (Exception e) { // In some circumstances the getErrmc() can
+                                  // throw a NegativeArraySizeException or
+                                  // ArrayIndexOutOfBoundsException. @25955a
+            JDTrace.logException(null, e.getMessage(), e); // just trace it
+          }
         }
-        catch(Exception e) {  // In some circumstances the getErrmc() can throw a NegativeArraySizeException or ArrayIndexOutOfBoundsException.    @25955a
-          JDTrace.logException(null, e.getMessage(), e);  // just trace it
-        }
-      }
 
       // Otherwise, get the text directly from the reply.                                             // @E6A
       if (textAppended == false)                                                                      // @E2A @E6C
@@ -239,11 +243,19 @@ Returns the message text for the last operation on the IBM i system.
     }
     catch (SQLException e)
     {
-      // We can get a connection does not exist error.  If that is the case, just bubble it back
-      if (e.getSQLState().equals(EXC_CONNECTION_NONE)) { 
-    	  return getReason (EXC_CONNECTION_NONE);
+      String sqlState = e.getSQLState(); 
+      // If we get an exception that we reconnected -- that superceeds all exceptions so we just 
+      // sned it directly back. 
+      if (sqlState.equals(EXC_CONNECTION_REESTABLISHED)) {
+         throw e; 
       } else { 
-         return getReason (EXC_INTERNAL);
+        // We can get a connection does not exist error. If that is the case,
+        // just bubble it back
+        if (sqlState.equals(EXC_CONNECTION_NONE)) {
+          return getReason(EXC_CONNECTION_NONE);
+        } else {
+          return getReason(EXC_INTERNAL);
+        }
       }
     }
   }
@@ -345,11 +357,13 @@ retrieved from the IBM i system.
 @param  errorClass  error class from the system reply.
 @param  returnCode  return code from the system reply.
  * @return SQLWarning
+ * @throws SQLException  if connection was re-established 
 **/
   public static SQLWarning getSQLWarning (AS400JDBCConnectionI connection,
                                           int id,
                                           int errorClass,
                                           int returnCode)
+  throws SQLException 
   {
     String reason;
     if (returnCode != 0) { 

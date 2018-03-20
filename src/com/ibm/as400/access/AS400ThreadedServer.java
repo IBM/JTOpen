@@ -308,35 +308,37 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server.receive");
         synchronized (receiveLock_)
         {
-            while (true)
-            {
-                DataStream ds = replyList_.remove(correlationId);
-                if (ds != null)
-                {
-                  if (Trace.traceOn_) {
-                    Trace.log(Trace.DIAGNOSTIC, "receive(): Valid reply found:", correlationId);
-                  }
-                  
-                  if (DBDSPool.monitor) {
-                	  if (ds instanceof DBReplyRequestedDS) {
-                		  ((DBReplyRequestedDS) ds).setAllocatedLocation(); 
-                	  }
-                  } /* @B5A*/ 
-                  
-                    return ds;
-                }
-                else if (readDaemonException_ != null)
-                {
-                    Trace.log(Trace.ERROR, "receive(): Read daemon exception:", readDaemonException_);
-                    throw readDaemonException_;
-                }
-                else if (unlikelyException_ != null)
-                {
-                    Trace.log(Trace.ERROR, "receive(): Read daemon exception:", unlikelyException_);
-                    throw unlikelyException_;
-                }
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "receive(): Reply not found. Waiting...");
-                receiveLock_.wait();
+      while (true) {
+        // Changed March 2018 to give priority to exceptions.. 
+        // Otherwise exceptions are being lost. 
+        if (readDaemonException_ != null) {
+          Trace.log(Trace.ERROR, "receive(): Read daemon exception:",
+              readDaemonException_);
+          throw readDaemonException_;
+        } else if (unlikelyException_ != null) {
+          Trace.log(Trace.ERROR, "receive(): Read daemon exception:",
+              unlikelyException_);
+          throw unlikelyException_;
+        } else {
+          DataStream ds = replyList_.remove(correlationId);
+          if (ds != null) {
+            if (Trace.traceOn_) {
+              Trace.log(Trace.DIAGNOSTIC, "receive(): Valid reply found:",
+                  correlationId);
+            }
+
+            if (DBDSPool.monitor) {
+              if (ds instanceof DBReplyRequestedDS) {
+                ((DBReplyRequestedDS) ds).setAllocatedLocation();
+              }
+            } /* @B5A */
+
+            return ds;
+          }
+        }
+        if (Trace.traceOn_)
+          Trace.log(Trace.DIAGNOSTIC, "receive(): Reply not found. Waiting...");
+        receiveLock_.wait();
             }
         }
     }

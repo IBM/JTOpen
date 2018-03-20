@@ -4840,17 +4840,18 @@ Object
   {
     super.checkOpen(); 
       if (connectionReset_) {
-        try {
-          resultRow_ = commonPrepare(sqlStatement_);
-        } catch (SQLException e) {
-          close();
-          throw e;
-        }
+        // Any exception from the prepare will just get thrown 
+        resultRow_ = commonPrepare(sqlStatement_);
 
         connectionReset_ = false; 
       }
 
   }
 
+
+  void setConnectionReset(boolean reset) {
+    descriptorHandle_ = 0; 
+    super.setConnectionReset(reset); 
+  }
 
 }
