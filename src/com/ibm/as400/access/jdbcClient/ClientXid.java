@@ -8,7 +8,7 @@ public class ClientXid implements Xid {
   protected byte           bqual[]                    = new byte[28];
 
   private static Object lock = new Object(); 
-  private static long gtridGenerator = 0x006dbccc5dbccc00L; 
+  private static long gtridGenerator = 0xD1E3F4E7C9C40000L; 
   private static long bqualGenerator = System.currentTimeMillis(); 
   public static void initializeNew(ClientXid xid) {
       long thisGtrid; 
@@ -37,6 +37,8 @@ public class ClientXid implements Xid {
       xid.bqual[5] = (byte)(0xFF & (thisBqual >> 16));
       xid.bqual[6] = (byte)(0xFF & (thisBqual >>  8));
       xid.bqual[7] = (byte)(0xFF & (thisBqual >>  0));
+      
+      
       byte[] b = "JDBCCLIENT".getBytes(); // use default encoding
       System.arraycopy(b, 0, xid.bqual, 8, b.length); 
 
@@ -59,4 +61,24 @@ public class ClientXid implements Xid {
     return bqual;
   }
 
+  public String toString() {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < gtrid.length; i++) {
+      int unsignedInt = 0xFF & gtrid[i];
+      if (unsignedInt < 0x10) {
+        sb.append('0');
+      }
+      sb.append(Integer.toHexString(unsignedInt));
+    }
+    sb.append('-');
+    for (int i = 0; i < bqual.length; i++) {
+      int unsignedInt = 0xFF & bqual[i];
+      if (unsignedInt < 0x10) {
+        sb.append('0');
+      }
+      sb.append(Integer.toHexString(unsignedInt));
+    }
+
+    return sb.toString();
+  }
 }
