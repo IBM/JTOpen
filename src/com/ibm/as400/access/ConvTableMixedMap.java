@@ -77,10 +77,15 @@ public abstract class ConvTableMixedMap extends ConvTable
                 {
                     try
                     {
-                        // Normal character. Perform double-byte lookup.
-                        int unicodeLength = dbTable_.toUnicode(dest, destPos, ((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])); /*@KDC*/
-                        destPos += unicodeLength; 
-                        // dest[destPos++] = dbTable_.toUnicode_[((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])];
+                        if ((srcPos+1) < offset + length) { 
+                           // Normal character. Perform double-byte lookup.
+                           int unicodeLength = dbTable_.toUnicode(dest, destPos, ((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])); /*@KDC*/
+                           destPos += unicodeLength; 
+                           // dest[destPos++] = dbTable_.toUnicode_[((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])];
+                        } else { 
+                           // Only half a character at the end -- add substitution character 
+                           dest[destPos++] = '\ufffd'; 
+                        }
                     }
                     catch (ArrayIndexOutOfBoundsException aioobe)
                     {
