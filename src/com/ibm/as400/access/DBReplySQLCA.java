@@ -109,7 +109,18 @@ class DBReplySQLCA
 
     // @N7A 
     final public String getErrp(ConvTable converter)  {
-      return converter.byteArrayToString(data_, offset_ + 88, 8);
+      int infoLen = 8; 
+      if (length_ <= offset_ + 88) {
+         // Data is too short
+          return ""; 
+      } else {
+        // If there are not 8 character, return as many as there are 
+        if (length_ < offset_ + 88 + infoLen) {
+          infoLen = length_ - offset_ - 88; 
+        }
+        return converter.byteArrayToString(data_, offset_ + 88, infoLen);
+      }
+      
     }
 
     // @E5A
