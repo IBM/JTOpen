@@ -142,7 +142,7 @@ implements XAResource
   private static int              nextResourceManagerID_          = 0xC001;
   private static Object           nextResourceManagerIDLock_      = new Object();
 
-  private AS400JDBCConnectionI     connection_;
+  private AS400JDBCConnection     connection_;
   // @A1D private boolean                 closed_                         = false;
   private int                     resourceManagerID_              = -1;
   private Xid                     started_                        = null;
@@ -159,7 +159,7 @@ Constructs an AS400JDBCXAResource object.
 
 @exception XAException If an error occurs.
 **/
-  AS400JDBCXAResource(AS400JDBCConnectionI connection)
+  AS400JDBCXAResource(AS400JDBCConnection connection)
   throws XAException
   {
     connection_ = connection;

@@ -90,7 +90,7 @@ implements Statement
     private     boolean                 cancelled_;
     private     boolean                 closed_;
     private     boolean                 closeOnCompletion_;  //@D7A
-    protected AS400JDBCConnectionI     connection_;    // private protected
+    protected AS400JDBCConnection     connection_;    // private protected
     protected   boolean                 connectionReset_; // Connection is reset and must be reprepared
     JDCursor                cursor_;    // private protected
     private     String                  cursorDefaultName_;
@@ -177,7 +177,7 @@ implements Statement
 
     @exception  SQLException    If an error occurs.
     **/
-    AS400JDBCStatement (AS400JDBCConnectionI connection,
+    AS400JDBCStatement (AS400JDBCConnection connection,
                         int id,
                         JDTransactionManager transactionManager,
                         JDPackageManager packageManager,

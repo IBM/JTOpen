@@ -68,7 +68,7 @@ implements XAConnection
 
 
     // Private data.
-    private AS400JDBCConnectionI connection_             = null;
+    private AS400JDBCConnection connection_             = null;
     private AS400JDBCXAResource xaResource_             = null;
 
 
@@ -82,7 +82,7 @@ Constructs an AS400JDBCXAConnection object.
     throws SQLException
     {
         super(connection);
-        connection_ = (AS400JDBCConnectionI)connection;
+        connection_ = (AS400JDBCConnection)connection;
     }
 
 

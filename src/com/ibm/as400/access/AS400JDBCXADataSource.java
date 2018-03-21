@@ -126,7 +126,7 @@ Returns an XA connection to IBM i.
     public XAConnection getXAConnection() 
     throws SQLException
     {
-        AS400JDBCConnectionI connection = (AS400JDBCConnectionI)getConnection();
+        AS400JDBCConnection connection = (AS400JDBCConnection)getConnection();
         return new AS400JDBCXAConnection(connection);
     }
 
@@ -143,7 +143,7 @@ Returns an XA connection to IBM i.
    public XAConnection getXAConnection(String user, String password) 
    throws SQLException
    {
-       AS400JDBCConnectionI connection = (AS400JDBCConnectionI)getConnection(user, password);
+       AS400JDBCConnection connection = (AS400JDBCConnection)getConnection(user, password);
        return new AS400JDBCXAConnection(connection);
    }
    
