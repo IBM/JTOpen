@@ -1612,7 +1612,7 @@
 			<and>
 				<available classname="java.nio.Buffer"/>
 				<!-- JDK 1.4 and higher. -->
-				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output8}:${include}:${source-java8}"/>
+				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output}:${output8}:${include}:${source-java8}"/>
 			</and>
 		</condition>
 		<fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
@@ -1629,23 +1629,23 @@
 	</target>
 
 
-	<target name="pcml9" depends="init,compile">
+	<target name="pcml9" depends="init,compile9">
 		<condition property="pcmlRuntimeExists">
 			<and>
 				<available classname="java.nio.Buffer"/>
 				<!-- JDK 1.4 and higher. -->
-				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output}:${include}:${source}"/>
+				<available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output}:${output9}:${include}:${source-java9}"/>
 			</and>
 		</condition>
 		<fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
 		<taskdef name="pcml" classname="PCMLTask" classpath="."/>
 		<pcml srcdir="${source}"
 	          destdir="${output9}"
-	          classpath="${output}:${include}:${source}"
+	          classpath="${output9}:${include}:${source}"
 	          includes="**/*.pcml"/>
 		<pcml srcdir="${source}"
 	          destdir="${output9native}"
-	          classpath="${output}:${include}:${source}"
+	          classpath="${output9}:${include}:${source}"
 	          includes="**/*.pcml"/>
 		<!-- Classpath:
 	           Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
