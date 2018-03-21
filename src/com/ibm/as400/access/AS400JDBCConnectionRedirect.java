@@ -34,18 +34,14 @@ endif */
  * This class is only used if enableSeamlessFailover is set to 1. 
  **/
 public class AS400JDBCConnectionRedirect
-/* ifdef JDBC40 
 
-extends ToolboxWrapper
- 
-endif  */
-implements AS400JDBCConnectionI {
+extends AS400JDBCConnection {
   /* should errors not be handled? */ 
   /* This is set to true when closing result sets associated */
   /* with the old connection */ 
   
   boolean doNotHandleErrors_ = false; 
-  AS400JDBCConnection currentConnection_;
+  AS400JDBCConnectionImpl currentConnection_;
   private AS400 originalAs400;
   private JDDataSourceURL originalDataSourceUrl_;
   private JDProperties originalProperties_;
@@ -63,7 +59,7 @@ implements AS400JDBCConnectionI {
    * Default constructor reserved for use within package
    */
   AS400JDBCConnectionRedirect() { 
-    currentConnection_ = new AS400JDBCConnection(); 
+    currentConnection_ = new AS400JDBCConnectionImpl(); 
   }
   
   /* Setup the array of things to retry when a failure */ 
@@ -159,7 +155,7 @@ implements AS400JDBCConnectionI {
    */
   boolean reconnect(SQLException originalException)  throws SQLException {
     
-    AS400JDBCConnection newConnection = findNewConnection();
+    AS400JDBCConnectionImpl newConnection = findNewConnection();
     if (newConnection != null ) {
         return setupNewConnection(newConnection, originalException); 
     }
@@ -173,7 +169,7 @@ implements AS400JDBCConnectionI {
    * @return true if new connection can seamlessly be used.
    * Otherwise throws the SQL4498 exception. 
    */
-  private boolean setupNewConnection(AS400JDBCConnection newConnection, SQLException e) throws SQLException {
+  private boolean setupNewConnection(AS400JDBCConnectionImpl newConnection, SQLException e) throws SQLException {
     doNotHandleErrors_ = true; 
     // Close all the results sets associated with the old connection
     currentConnection_.closeAllResultSets();
@@ -193,11 +189,11 @@ implements AS400JDBCConnectionI {
    * Find a new connection to the server. 
    * @return the new connection if found, otherwise returns null 
    */
-   AS400JDBCConnection findNewConnection() {
+   AS400JDBCConnectionImpl findNewConnection() {
     // Start at the current server and try to get a new connection.
-     AS400JDBCConnection connection ; 
+     AS400JDBCConnectionImpl connection ; 
     for (int i = 0; i < reconnectUrls_.length; i++ ) {
-      connection = new AS400JDBCConnection(); 
+      connection = new AS400JDBCConnectionImpl(); 
       AS400 as400 = new AS400(reconnectAS400s_[i]); 
       try { 
         
@@ -1763,6 +1759,10 @@ endif */
 
   public boolean getCheckStatementHoldability() {
     return currentConnection_.getCheckStatementHoldability(); 
+  }
+
+  public String toString() {
+   return currentConnection_.toString(); 
   }
 
   

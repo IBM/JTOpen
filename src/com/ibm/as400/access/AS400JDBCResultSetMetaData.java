@@ -70,7 +70,7 @@ implements ResultSetMetaData
     private JDRow               row_;
     private DBExtendedColumnDescriptors extendedColumnDescriptors_;   //@G1A
     private ConvTable           convTable_;                           //@G1A
-    private AS400JDBCConnectionI    con_;                                 //@in1
+    private AS400JDBCConnection    con_;                                 //@in1
     SQLConversionSettings       settings_;  /*@Q8A*/
     
     /**
@@ -89,7 +89,7 @@ implements ResultSetMetaData
                                 JDRow row,
                                 DBExtendedColumnDescriptors extendedColumnDescriptors,   //@G1A
                                 ConvTable convTable,                                     //@G1A
-                                AS400JDBCConnectionI con) throws SQLException                                 //@in1
+                                AS400JDBCConnection con) throws SQLException                                 //@in1
     {
         catalog_        = catalog;
         concurrency_    = concurrency;

@@ -421,7 +421,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @return The connection.
    @throws SQLException If a database error occurs.
    **/
-  final AS400JDBCConnection createPhysicalConnection() throws SQLException
+  final AS400JDBCConnectionImpl createPhysicalConnection() throws SQLException
   {
     // If we have an AS400JDBCManagedConnectionPoolDataSource, delegate the connection creation.
     if (cpds_ != null && cpds_ != this) {
@@ -456,7 +456,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @return The connection
    @throws SQLException If a database error occurs.
    **/
-  final AS400JDBCConnection createPhysicalConnection(String user, String password) throws SQLException
+  final AS400JDBCConnectionImpl createPhysicalConnection(String user, String password) throws SQLException
   {
     // Validate the parameters.
     if (user == null)
@@ -508,9 +508,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @param as400 The AS400 object used to make the connection.
    @throws SQLException If a database error occurs.
    **/
-  private AS400JDBCConnection createPhysicalConnection(AS400 as400) throws SQLException
+  private AS400JDBCConnectionImpl createPhysicalConnection(AS400 as400) throws SQLException
   {
-    AS400JDBCConnection connection = new AS400JDBCConnection();
+    AS400JDBCConnectionImpl connection = new AS400JDBCConnectionImpl();
 
     connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null);  // Note: This also does an AS400.connectService() to the database host server.
 
@@ -730,9 +730,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (DEBUG)
     {
       // Verify that the connection is for the correct user.
-      if (connection instanceof AS400JDBCConnectionI)
+      if (connection instanceof AS400JDBCConnection)
       {
-        AS400JDBCConnectionI conn = (AS400JDBCConnectionI)connection;
+        AS400JDBCConnection conn = (AS400JDBCConnection)connection;
         String userForConn = conn.getUserName();
         if (!userForConn.equalsIgnoreCase(cpds_.getUser())) {
           logError("MDS.getConnection() is returning a connection with incorrect user: [" + userForConn +"]");
@@ -804,8 +804,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (DEBUG)
     {
       // Verify that the connection is for the correct user.
-      if (connection instanceof AS400JDBCConnectionI) {
-        AS400JDBCConnectionI conn = (AS400JDBCConnectionI)connection;
+      if (connection instanceof AS400JDBCConnection) {
+        AS400JDBCConnection conn = (AS400JDBCConnection)connection;
         String userForConn = conn.getUserName();
         if (!userForConn.equalsIgnoreCase(user)) {
           logError("MDS.getConnection("+user+") is returning a connection with incorrect user: [" + userForConn +"]");

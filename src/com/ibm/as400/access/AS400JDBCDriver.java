@@ -1378,7 +1378,7 @@ endif */
             sockProps.setSoTimeout(jdProperties.getInt(JDProperties.SOCKET_TIMEOUT)); //@STIMEOUT already in milliseconds
         }
         
-        String defaultImpl = "com.ibm.as400.access.AS400JDBCConnection"; 
+        String defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionImpl"; 
         if (jdProperties.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
           defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionRedirect"; 
         }
@@ -1394,8 +1394,8 @@ endif */
 		// Set the properties on the Connection object.
 		if (connection != null)
 		{
-				((AS400JDBCConnectionI)connection).setSystem(as400);
-				((AS400JDBCConnectionI)connection).setProperties(dataSourceUrl, jdProperties, as400, info);
+				((AS400JDBCConnection)connection).setSystem(as400);
+				((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400, info);
 		}
 		return connection;
 	}

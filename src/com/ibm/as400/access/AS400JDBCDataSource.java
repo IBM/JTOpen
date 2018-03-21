@@ -699,9 +699,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 JDTrace.logInformation(this, "sockProps_:  null");
         }
 
-        AS400JDBCConnection connection = null;
+        AS400JDBCConnectionImpl connection = null;
 
-        connection = new AS400JDBCConnection();    
+        connection = new AS400JDBCConnectionImpl();    
 
         connection.setSystem(as400);
         connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null); //@C1C

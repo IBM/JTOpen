@@ -298,7 +298,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
    *              If the SQL statement contains a syntax error or an error
    *              occurs.
    **/
-  AS400JDBCPreparedStatement(AS400JDBCConnectionI connection, int id,
+  AS400JDBCPreparedStatement(AS400JDBCConnection connection, int id,
       JDTransactionManager transactionManager, JDPackageManager packageManager,
       String blockCriteria, int blockSize, boolean prefetch,
       JDSQLStatement sqlStatement, boolean outputParametersExpected,

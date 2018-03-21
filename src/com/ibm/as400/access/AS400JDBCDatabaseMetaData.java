@@ -123,7 +123,7 @@ implements DatabaseMetaData
 
 
     // Private data.
-    private AS400JDBCConnection     connection_;
+    private AS400JDBCConnectionImpl     connection_;
     private int                     id_;
     private SQLConversionSettings   settings_;
     private boolean                 useDRDAversion_; 
@@ -185,7 +185,7 @@ implements DatabaseMetaData
     @param   id          The ID the caller has assigned to this
                          AS400JDBCDatabaseMetaData.
     **/
-    AS400JDBCDatabaseMetaData (AS400JDBCConnection connection, int id, boolean useDRDAversion)
+    AS400JDBCDatabaseMetaData (AS400JDBCConnectionImpl connection, int id, boolean useDRDAversion)
     throws SQLException
     {
         connection_ = connection;
@@ -3218,7 +3218,7 @@ endif */
     public int getMaxStatements ()
     throws SQLException
     {
-        return AS400JDBCConnection.MAX_STATEMENTS_; // @D3C
+        return AS400JDBCConnectionImpl.MAX_STATEMENTS_; // @D3C
     }
 
 
