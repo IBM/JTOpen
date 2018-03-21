@@ -6177,4 +6177,10 @@ endif */
   public boolean getCheckStatementHoldability() {
     return checkStatementHoldability_; 
   }
+
+
+
+  int getNewAutoCommitSupport() {
+    return newAutoCommitSupport_; 
+  }
 }

@@ -1765,6 +1765,11 @@ endif */
    return currentConnection_.toString(); 
   }
 
+  int getNewAutoCommitSupport() {
+    return currentConnection_.getNewAutoCommitSupport(); 
+   
+  }
+
   
   /* ifdef JDBC40
   public boolean isValid(int timeout) throws SQLException {

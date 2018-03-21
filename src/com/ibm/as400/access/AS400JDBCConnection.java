@@ -2149,6 +2149,9 @@ endif */
 	abstract boolean getReadOnly();
 
 
-	abstract boolean getCheckStatementHoldability(); 
+	abstract boolean getCheckStatementHoldability();
+
+
+  abstract  int getNewAutoCommitSupport() ;
   
 }

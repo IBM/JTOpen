@@ -53,7 +53,7 @@ implements ResultSet
     private boolean isSQLData_;
  
     private int vrm_;    
-    AS400JDBCConnectionImpl con_; //future use
+    AS400JDBCConnection con_; //future use
     ///////////////////
 
     
@@ -78,7 +78,7 @@ implements ResultSet
     @param  vrm              Version
     @param  con              Connection.
     **/
-    AS400JDBCArrayResultSet (  Object[] contents , SQLData contentTemplate, boolean isSQLData, int dataType, int vrm, AS400JDBCConnectionImpl con)
+    AS400JDBCArrayResultSet (  Object[] contents , SQLData contentTemplate, boolean isSQLData, int dataType, int vrm, AS400JDBCConnection con)
     {
         Object[][] data = new Object[2][];
         // initialize "INDEX" column

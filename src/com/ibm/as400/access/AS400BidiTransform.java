@@ -638,7 +638,7 @@ public class AS400BidiTransform
     	return value_;
     }
 	
-	static String convertSQLToHostCCSID(String value_, AS400JDBCConnectionI connection) throws SQLException{
+	static String convertSQLToHostCCSID(String value_, AS400JDBCConnection connection) throws SQLException{
 	    if(connection == null || value_ == null) //@pdc
             return value_;
     	JDProperties prop = connection.getProperties();        	       	        		
@@ -677,7 +677,7 @@ public class AS400BidiTransform
 //    	return value_;
 //	}
 	
-	static String convertDataFromHostCCSID(String value_, AS400JDBCConnectionI connection, int host_ccsid) throws SQLException{
+	static String convertDataFromHostCCSID(String value_, AS400JDBCConnection connection, int host_ccsid) throws SQLException{
 	
 		if(connection == null || value_ == null) //@pdc
             return value_;
