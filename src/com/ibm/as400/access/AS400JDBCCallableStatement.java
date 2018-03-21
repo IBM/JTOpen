@@ -106,7 +106,7 @@ implements CallableStatement
     @exception  SQLException    If the SQL statement contains a syntax
                                 error or an error occurs.
     **/
-    AS400JDBCCallableStatement(AS400JDBCConnectionI connection,
+    AS400JDBCCallableStatement(AS400JDBCConnection connection,
                                int id,
                                JDTransactionManager transactionManager,
                                JDPackageManager packageManager,

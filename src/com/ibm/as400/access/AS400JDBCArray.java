@@ -45,7 +45,7 @@ public class AS400JDBCArray implements Array {
   int typeCode_; // type from from java.sql.Types
   // protected int type_;
   private int vrm_;
-  private AS400JDBCConnection con_;
+  private AS400JDBCConnectionImpl con_;
 
   // This is just a reference to the SQLData type that this array contains. It
   // is not
@@ -75,7 +75,7 @@ public class AS400JDBCArray implements Array {
    *          Connection.
    **/
   AS400JDBCArray(String typeName, Object[] data, int vrm,
-      AS400JDBCConnection con) throws SQLException {
+      AS400JDBCConnectionImpl con) throws SQLException {
     /*
      * typeName is used to create a dummy SQLData object used for potential data
      * conversion when data[] is not of type SQLData[]. Pass in a connection if
