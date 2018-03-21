@@ -558,11 +558,11 @@ Parses the datastream.
     boolean vlfCompressed = ((get16bit(20) & 0x0001) ==0x0001);          //@K54
     boolean dataCompressed  = ((get32bit(24) & 0x80000000) == 0x80000000);      // @D1A
     boolean oldCompressed = (dataCompressed &&                                  // @E2A
-                             (dataCompression == AS400JDBCConnection.DATA_COMPRESSION_OLD_));        // @E2A
+                             (dataCompression == AS400JDBCConnectionImpl.DATA_COMPRESSION_OLD_));        // @E2A
 
     // Check to see if the data is RLE compressed.  If so, expand it.           // @E2A
     rleCompressed_ = (dataCompressed &&                                         // @E2A
-                      (dataCompression == AS400JDBCConnection.DATA_COMPRESSION_RLE_));        // @E2A
+                      (dataCompression == AS400JDBCConnectionImpl.DATA_COMPRESSION_RLE_));        // @E2A
     if (rleCompressed_)
     {                                                       // @E2A
       // Decompress the bytes not including the 44 bytes header and template.    @E2A
@@ -586,7 +586,7 @@ Parses the datastream.
       // handle RLE.                                                          // @E3A
       int compressionSchemeCP = get16bit(44);                                 // @E3A
 
-      if (compressionSchemeCP != AS400JDBCConnection.DATA_COMPRESSION_RLE_)   // @E3A
+      if (compressionSchemeCP != AS400JDBCConnectionImpl.DATA_COMPRESSION_RLE_)   // @E3A
         throw new IOException();                                            // @E3A
       int lengthOfDecompressedData = get32bit(46);                            // @E2A @E3C
       byte[] newData = new byte[lengthOfDecompressedData + 40];               // @E2A

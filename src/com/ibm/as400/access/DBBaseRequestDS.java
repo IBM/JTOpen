@@ -1062,7 +1062,7 @@ Overrides the superclass to write the datastream.
             BinaryConverter.intToByteArray(compressedSizeWithHeader, compressedBytes, 0); // @E3A
             System.arraycopy(data_, 4, compressedBytes, 4, 36);                         // @E3A
             BinaryConverter.intToByteArray(compressedSize + 10, compressedBytes, 40);   // @E5A
-            BinaryConverter.shortToByteArray((short)AS400JDBCConnection.DATA_COMPRESSION_RLE_, compressedBytes, 44);       // @E5A
+            BinaryConverter.shortToByteArray((short)AS400JDBCConnectionImpl.DATA_COMPRESSION_RLE_, compressedBytes, 44);       // @E5A
             BinaryConverter.intToByteArray(dataLength, compressedBytes, 46);            // @E3A @E5C
 
             // Synchronization is added around the socket                                  @E3A
