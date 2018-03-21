@@ -311,7 +311,7 @@ in the server job's library list.
       try
       {
         request = DBDSPool.getDBNativeDatabaseRequestDS(DBNativeDatabaseRequestDS.FUNCTIONID_ADD_LIBRARY_LIST, id, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0); //@P0C
-        request.setListOfLibraries (indicators_, list_, connection.converter_); //@P0C
+        request.setListOfLibraries (indicators_, list_, connection.getConverter()); //@P0C
 
         reply = connection.sendAndReceive (request); //@P0C
 

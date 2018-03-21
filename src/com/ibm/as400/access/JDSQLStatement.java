@@ -206,7 +206,7 @@ public class JDSQLStatement
                                     scalar function.
     **/
     JDSQLStatement(String sql, String decimalSeparator, boolean convert, String packageCriteria,
-                   AS400JDBCConnectionI connection) // @A1C //@G1C
+                   AS400JDBCConnection connection) // @A1C //@G1C
     throws SQLException
     {
         if(sql == null)
@@ -630,7 +630,7 @@ public class JDSQLStatement
         {
             if(connection.getVRM() >= JDUtilities.vrm710) {  //@blksql
             	
-            	if (((AS400JDBCConnectionI)connection).doUpdateDeleteBlocking()) { 
+            	if (((AS400JDBCConnection)connection).doUpdateDeleteBlocking()) { 
                     canBeBatched_ = true;   //@blksql
             	}
 

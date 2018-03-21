@@ -699,7 +699,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 JDTrace.logInformation(this, "sockProps_:  null");
         }
 
-        AS400JDBCConnectionImpl connection = null;
+        AS400JDBCConnection connection = null;
 
         connection = new AS400JDBCConnectionImpl();    
 

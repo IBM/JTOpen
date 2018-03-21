@@ -131,7 +131,7 @@ system is behaving.
     currentCommitMode_      = mapLevelToCommitMode (currentIsolationLevel_);
     initialCommitMode_    = currentCommitMode_;
     //@AC1 (only set to *NONE if autocommit is on)
-    if((connection_.newAutoCommitSupport_ == 1) && (autoCommit))          //@K64  If running under new auto commit support (V5R3 and higher), by default, auto commit is run under the *NONE isolation level
+    if((connection_.getNewAutoCommitSupport() == 1) && (autoCommit))          //@K64  If running under new auto commit support (V5R3 and higher), by default, auto commit is run under the *NONE isolation level
         serverCommitMode_ = COMMIT_MODE_NONE_;          //@K64
     else                                                //@K64
         serverCommitMode_   = currentCommitMode_;
@@ -395,7 +395,7 @@ reverts back to its initial commit mode.
   private void resetServer ()
   throws SQLException
   {
-      if(connection_.newAutoCommitSupport_ == 0)                        //@KBA  If V5R2 or earlier do what we always have
+      if(connection_.getNewAutoCommitSupport() == 0)                        //@KBA  If V5R2 or earlier do what we always have
       {
         // Model the database automatically reverting back to
         // its initial commit mode.
@@ -520,7 +520,7 @@ Set the auto-commit mode.
       // @C5D }                                                                               // @C5A
       // @C5D else                                                                            // @C5A
 
-      if(connection_.newAutoCommitSupport_ == 0)                                          //@KBA OS/400 V5R2 or earlier do what we always have
+      if(connection_.getNewAutoCommitSupport() == 0)                                          //@KBA OS/400 V5R2 or earlier do what we always have
           setCommitMode (currentCommitMode_);
       else                                                                                //@KBA use new auto commit support
       {                                                                                   //@KBA
@@ -533,7 +533,7 @@ Set the auto-commit mode.
                                                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
               request.setAutoCommit(autoCommit ? 0xE8 : 0xD5);                                //@KBA  Set auto commit to on or off
               request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA  Set isolation level
-              if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
+              if(autoCommit_ && connection_.getNewAutoCommitSupport() == 1)
                 serverCommitMode_ = COMMIT_MODE_NONE_;
               else
                 serverCommitMode_ = currentCommitMode_;
@@ -552,7 +552,7 @@ Set the auto-commit mode.
                           + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
                   request.setAutoCommit(autoCommit ? 0xE8 : 0xD5);                                //@KBA  Set auto commit to on or off
                   request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA  Set isolation level
-                  if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
+                  if(autoCommit_ && connection_.getNewAutoCommitSupport() == 1)
                 	  serverCommitMode_ = COMMIT_MODE_NONE_;
                   else
                 	  serverCommitMode_ = currentCommitMode_;
@@ -665,12 +665,12 @@ Set the commit mode on the system.
           boolean extended = false;         //@540
           if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;   //@540        
           //Bidi-HCG request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_, extended); // @C3C @P0C @540C
-          request.setStatementText (sqlStatement.toString (), connection_.packageCCSID_Converter, extended); //Bidi-HCG
+          request.setStatementText (sqlStatement.toString (), connection_.getPackageCCSID_Converter(), extended); //Bidi-HCG
           request.setStatementType (sqlStatement.getNativeType ());
 
           // This statement certainly does not need a cursor, but some
           // versions of the system choke when none is specified.
-          request.setCursorName ("MURCH", connection_.converter_); //@P0C
+          request.setCursorName ("MURCH", connection_.getConverter()); //@P0C
 
           reply = connection_.sendAndReceive (request); //@P0C
 
@@ -730,7 +730,7 @@ java.sql.Connection.TRANSACTION_* values.
   throws SQLException
   {
     // This is invalid if a transaction is active.
-    if (activeLocal_ && connection_.newAutoCommitSupport_ == 0)                                               // @C4C   //@KBC
+    if (activeLocal_ && connection_.getNewAutoCommitSupport() == 0)                                               // @C4C   //@KBC
        JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);  // @C4C
 
     // @C7D We do not allow TRANSACTION_NONE at this time.
@@ -742,7 +742,7 @@ java.sql.Connection.TRANSACTION_* values.
     currentIsolationLevel_ = level;
 
     // Set the commit mode on the system.
-    if(connection_.newAutoCommitSupport_ == 0)                                  //@KBA OS/400 V5R2 or earlier do what we always have
+    if(connection_.getNewAutoCommitSupport() == 0)                                  //@KBA OS/400 V5R2 or earlier do what we always have
         setCommitMode (currentCommitMode_);
     else                                                                        //@KBA use new auto commit and commit level support
     {                                                                                         //@KBA
@@ -751,7 +751,7 @@ java.sql.Connection.TRANSACTION_* values.
         int commitMode = currentCommitMode_;
           try                                                                                 //@KBA
           {                                                                                   //@KBA
-              if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
+              if(autoCommit_ && connection_.getNewAutoCommitSupport() == 1)
                 commitMode = COMMIT_MODE_NONE_;
               if(serverCommitMode_ != commitMode)                                            //@KBA
               {                                                                               //@KBA
@@ -818,7 +818,7 @@ can not be called directly on this object.
     if (localTransaction_)
     {
       autoCommit_ = localAutoCommit_;  //prior to XA_START autocommit setting
-      if(connection_.newAutoCommitSupport_ == 0)
+      if(connection_.getNewAutoCommitSupport() == 0)
           setCommitMode(currentCommitMode_);              // turn back on auto-commit
       else{
           DBSQLAttributesDS request = null;                                               
@@ -832,7 +832,7 @@ can not be called directly on this object.
               request.setAutoCommit( autoCommit_ ? 0xE8 : 0xD5);  //@PDC change autocommit setting to prior setting before XA_START  
              
               boolean changed = false; 
-              if(connection_.newAutoCommitSupport_ == 1 && autoCommit_ == true)  //@PDC
+              if(connection_.getNewAutoCommitSupport() == 1 && autoCommit_ == true)  //@PDC
               {           
                   request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);     
                   changed = setRequestLocatorPersistence(request, COMMIT_MODE_NONE_); /*@ABA*/
@@ -855,7 +855,7 @@ can not be called directly on this object.
 
                   request.setAutoCommit( autoCommit_ ? 0xE8 : 0xD5);  //@PDC change autocommit setting to prior setting before XA_START  
 
-                  if(connection_.newAutoCommitSupport_ == 1 && autoCommit_ == true)  //@PDC
+                  if(connection_.getNewAutoCommitSupport() == 1 && autoCommit_ == true)  //@PDC
                   {           
                 	  request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);     
                 	  serverCommitMode_ = COMMIT_MODE_NONE_;
@@ -884,7 +884,7 @@ can not be called directly on this object.
     {
       localAutoCommit_ = autoCommit_;
       autoCommit_ = false;
-      if(connection_.newAutoCommitSupport_ == 0)            //@KBA   System is v5r2 or less, do what we always have
+      if(connection_.getNewAutoCommitSupport() == 0)            //@KBA   System is v5r2 or less, do what we always have
           setCommitMode(currentCommitMode_);
       else                                                  //@KBA
       {
@@ -980,7 +980,7 @@ Take note that a statement has been executed.
           isolationLevel = COMMIT_SERVER_MODE_CS_;                                    
       
       //if auto commit is on and user specified false for 'true autocommit property' or by default run under *NONE isolation level
-      if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)                         
+      if(autoCommit_ && connection_.getNewAutoCommitSupport() == 1)                         
           isolationLevel = COMMIT_MODE_NONE_;                                           
 
       return isolationLevel;

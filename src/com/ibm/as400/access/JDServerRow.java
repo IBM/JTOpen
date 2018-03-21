@@ -32,7 +32,7 @@ implements JDRow
 
 
     // Private data.
-    private AS400JDBCConnectionI     connection_;
+    private AS400JDBCConnection     connection_;
     private int[]                   ccsids_;
     // Represents the total length of the data.  For arrays
     // this is arrayLen * arrayDataLen.
@@ -69,7 +69,7 @@ implements JDRow
 
     @exception  SQLException    If an error occurs.
     **/
-    JDServerRow (AS400JDBCConnectionI connection,
+    JDServerRow (AS400JDBCConnection connection,
                  int id,
                  DBDataFormat serverFormat,
                  SQLConversionSettings settings)
@@ -91,7 +91,7 @@ implements JDRow
     @exception  SQLException    If an error occurs.
     **/
     /* @C1D
-    JDServerRow (AS400JDBCConnectionI connection,
+    JDServerRow (AS400JDBCConnection connection,
                  int id,
                  SQLConversionSettings settings)
         throws SQLException
@@ -146,7 +146,7 @@ implements JDRow
 
     @exception  SQLException        If an error occurs.
     **/
-    private void initialize (AS400JDBCConnectionI connection,
+    private void initialize (AS400JDBCConnection connection,
                              int id,
                              DBDataFormat serverFormat,
                              SQLConversionSettings settings)

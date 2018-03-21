@@ -150,7 +150,7 @@ for use in implementing various pieces of the JDBC driver.
     @exception  SQLException    If the connection is not open
                                 or an error occurs.
     **/
-    static final ResultSet getLibraries (Object caller, AS400JDBCConnectionI connection, SQLConversionSettings settings, boolean libraryListOnly)
+    static final ResultSet getLibraries (Object caller, AS400JDBCConnection connection, SQLConversionSettings settings, boolean libraryListOnly)
     throws SQLException
     {
         // Schema = library

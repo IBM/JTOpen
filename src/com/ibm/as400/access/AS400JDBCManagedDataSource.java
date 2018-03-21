@@ -421,7 +421,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @return The connection.
    @throws SQLException If a database error occurs.
    **/
-  final AS400JDBCConnectionImpl createPhysicalConnection() throws SQLException
+  final AS400JDBCConnection createPhysicalConnection() throws SQLException
   {
     // If we have an AS400JDBCManagedConnectionPoolDataSource, delegate the connection creation.
     if (cpds_ != null && cpds_ != this) {
@@ -456,7 +456,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @return The connection
    @throws SQLException If a database error occurs.
    **/
-  final AS400JDBCConnectionImpl createPhysicalConnection(String user, String password) throws SQLException
+  final AS400JDBCConnection createPhysicalConnection(String user, String password) throws SQLException
   {
     // Validate the parameters.
     if (user == null)
@@ -508,9 +508,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @param as400 The AS400 object used to make the connection.
    @throws SQLException If a database error occurs.
    **/
-  private AS400JDBCConnectionImpl createPhysicalConnection(AS400 as400) throws SQLException
+  private AS400JDBCConnection createPhysicalConnection(AS400 as400) throws SQLException
   {
-    AS400JDBCConnectionImpl connection = new AS400JDBCConnectionImpl();
+    AS400JDBCConnection connection = new AS400JDBCConnectionImpl();
 
     connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null);  // Note: This also does an AS400.connectService() to the database host server.
 

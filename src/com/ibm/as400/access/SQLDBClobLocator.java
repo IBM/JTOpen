@@ -35,7 +35,7 @@ final class SQLDBClobLocator implements SQLLocator
 {
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    private AS400JDBCConnectionI    connection_;
+    private AS400JDBCConnection    connection_;
     private ConvTable               converter_;
     private int                     id_;
     private JDLobLocator            locator_;
@@ -51,7 +51,7 @@ final class SQLDBClobLocator implements SQLLocator
 
     private int ccsid_; /*@P3A*/
 
-    SQLDBClobLocator(AS400JDBCConnectionI connection,
+    SQLDBClobLocator(AS400JDBCConnection connection,
                      int id,
                      int maxLength, 
                      SQLConversionSettings settings,

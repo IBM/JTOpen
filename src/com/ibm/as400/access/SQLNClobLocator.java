@@ -36,7 +36,7 @@ import java.util.Calendar;
 final class SQLNClobLocator implements SQLLocator
 {
    
-    private AS400JDBCConnectionI     connection_;
+    private AS400JDBCConnection     connection_;
     private ConvTable               converter_;
     private int                     id_;
     private JDLobLocator            locator_;
@@ -50,7 +50,7 @@ final class SQLNClobLocator implements SQLLocator
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
 
-    SQLNClobLocator(AS400JDBCConnectionI connection,
+    SQLNClobLocator(AS400JDBCConnection connection,
                    int id,
                    int maxLength, 
                    SQLConversionSettings settings,

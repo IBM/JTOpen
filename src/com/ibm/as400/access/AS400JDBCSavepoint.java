@@ -25,7 +25,7 @@ import java.sql.SQLException;
 The AS400JDBCSavepoint class is the Toolbox JDBC driver's
 representation of a savepoint.  A savepoint is a point within the current 
 transaction that can be referenced from the 
-{@link com.ibm.as400.access.AS400JDBCConnectionImpl#rollback(java.sql.Savepoint) Connection.rollback(savepoint)}
+{@link com.ibm.as400.access.AS400JDBCConnection#rollback(java.sql.Savepoint) Connection.rollback(savepoint)}
 method. 
 When a transaction is rolled back to a savepoint, all changes made 
 after the savepoint was created are undone. 

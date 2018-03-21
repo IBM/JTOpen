@@ -141,7 +141,7 @@ Returns the message text for the last operation on the IBM i system.
 @return             Reason - error description.
 @throws  SQLException  Throws an exception if the connection dropped and we reconnected
 **/
-  private static String getReason (AS400JDBCConnectionI connection,
+  private static String getReason (AS400JDBCConnection connection,
                                    int id,
                                    int returnCode)  throws SQLException           // @E2A
   {
@@ -269,7 +269,7 @@ Returns the SQL state for the last operation on the IBM i system.
 @param  id          Id for the last operation.
 @return             The SQL state.
 **/
-  private static String getSQLState (AS400JDBCConnectionI connection,
+  private static String getSQLState (AS400JDBCConnection connection,
                                      int id)
   {
     // If the SQL state was retrieved by a previous call to
@@ -359,7 +359,7 @@ retrieved from the IBM i system.
  * @return SQLWarning
  * @throws SQLException  if connection was re-established 
 **/
-  public static SQLWarning getSQLWarning (AS400JDBCConnectionI connection,
+  public static SQLWarning getSQLWarning (AS400JDBCConnection connection,
                                           int id,
                                           int errorClass,
                                           int returnCode)
@@ -673,7 +673,7 @@ retrieved from the IBM i system.
 
 @exception          SQLException    Always.
 **/
-  public static void throwSQLException (AS400JDBCConnectionI connection,
+  public static void throwSQLException (AS400JDBCConnection connection,
                                         int id,
                                         int errorClass,
                                         int returnCode)
@@ -710,7 +710,7 @@ retrieved from the system.
 @exception          SQLException    Always.
 **/
   public static SQLException throwSQLException (Object thrower,
-                                        AS400JDBCConnectionI connection,
+                                        AS400JDBCConnection connection,
                                         int id,
                                         int errorClass,
                                         int returnCode)

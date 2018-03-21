@@ -138,8 +138,8 @@ class JDPackageManager
                                                  DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
                                                  + DBSQLRequestDS.ORS_BITMAP_PACKAGE_INFO, 0);
 
-          request.setPackageName (name_, connection_.converter_); //@P0C
-          request.setLibraryName (libraryName_, connection_.converter_); //@P0C
+          request.setPackageName (name_, connection_.getConverter()); //@P0C
+          request.setLibraryName (libraryName_, connection_.getConverter()); //@P0C
           request.setReturnSize (0);
 
           reply = connection_.sendAndReceive (request, id_); //@P0C
@@ -203,8 +203,8 @@ class JDPackageManager
                                                  DBSQLRequestDS.FUNCTIONID_CREATE_PACKAGE, id_,
                                                  DBSQLRequestDS.ORS_BITMAP_RETURN_DATA, 0);
 
-          request.setPackageName (name_, connection_.converter_); //@P0C
-          request.setLibraryName (libraryName_, connection_.converter_); //@P0C
+          request.setPackageName (name_, connection_.getConverter()); //@P0C
+          request.setLibraryName (libraryName_, connection_.getConverter()); //@P0C
 
           // $F1 This parameter no longer needs to be passed on a data stream.  Package clearing
           // $F1 and the decision for the threshold where package clearing is needed is now handled

@@ -32,7 +32,7 @@ import java.sql.SQLException;
 //
 class JDLobLocator
 {
-  private AS400JDBCConnectionI     connection_;
+  private AS400JDBCConnection     connection_;
   private boolean                 dataCompression_;        
   private int                     id_;
   private int                     handle_             = -1;
@@ -49,12 +49,12 @@ class JDLobLocator
    * @param  id                      The correlation ID used for any subsequent LOB datastreams (@CRS - why is this here?).
    * @param  maxLength               The max length in bytes on the system.
   **/
-  JDLobLocator(AS400JDBCConnectionI connection, int id, int maxLength, boolean graphic)
+  JDLobLocator(AS400JDBCConnection connection, int id, int maxLength, boolean graphic)
   {
     connection_      = connection;
     id_              = id;
     maxLength_       = maxLength;
-    dataCompression_ = connection_.getDataCompression() == AS400JDBCConnectionI.DATA_COMPRESSION_OLD_;
+    dataCompression_ = connection_.getDataCompression() == AS400JDBCConnection.DATA_COMPRESSION_OLD_;
     graphic_ = graphic;
   }
 

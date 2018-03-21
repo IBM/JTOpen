@@ -82,7 +82,7 @@ class PoolConnectionEventListener implements ConnectionEventListener
         JDTrace.logInformation (this, "Returning active connection to the pool.");  // @B5C
 
       // Add a check to see if the connection is still good
-      AS400JDBCConnectionI jdbcConnection = connection.getInternalConnection();  //@B4A
+      AS400JDBCConnection jdbcConnection = connection.getInternalConnection();  //@B4A
       try
       {                                                                         //@B4A 
         if (!jdbcConnection.isClosed())                                       //@B4A

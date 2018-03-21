@@ -514,7 +514,7 @@ class SQLDataFactory
                                 mapped.
     **/
     //@array comment: we are assuming here that all of the metadata parms (except sqlType) is for the array content type
-    static SQLData newData(AS400JDBCConnectionI connection,
+    static SQLData newData(AS400JDBCConnection connection,
                            int id,
                            int nativeType,
                            int length,

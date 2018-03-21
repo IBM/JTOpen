@@ -123,7 +123,7 @@ implements DatabaseMetaData
 
 
     // Private data.
-    private AS400JDBCConnectionImpl     connection_;
+    private AS400JDBCConnection   connection_;
     private int                     id_;
     private SQLConversionSettings   settings_;
     private boolean                 useDRDAversion_; 
@@ -185,7 +185,7 @@ implements DatabaseMetaData
     @param   id          The ID the caller has assigned to this
                          AS400JDBCDatabaseMetaData.
     **/
-    AS400JDBCDatabaseMetaData (AS400JDBCConnectionImpl connection, int id, boolean useDRDAversion)
+    AS400JDBCDatabaseMetaData (AS400JDBCConnection connection, int id, boolean useDRDAversion)
     throws SQLException
     {
         connection_ = connection;
@@ -534,12 +534,12 @@ implements DatabaseMetaData
                     // Set the library name
                     if (schema == null)
                     {   // use default SQL schema or qgpl
-                        request.setLibraryName(connection_.getDefaultSchema(), connection_.converter_); //@P0C
+                        request.setLibraryName(connection_.getDefaultSchema(), connection_.getConverter()); //@P0C
                     }
-                    else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
+                    else request.setLibraryName(normalize(schema), connection_.getConverter());       // @E4C @P0C
 
                     // Set the table name
-                    request.setFileName(normalize(table), connection_.converter_);      // @E4C @P0C
+                    request.setFileName(normalize(table), connection_.getConverter());      // @E4C @P0C
 
 
                     // Set the Field Information to Return Bitmap
@@ -921,12 +921,12 @@ implements DatabaseMetaData
                 // Set the library name
                 if (schema == null)
                 {   // use default SQL schema or qgpl
-                    request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C @P0C
+                    request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());  // @E4C @P0C
                 }
-                else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
+                else request.setLibraryName(normalize(schema), connection_.getConverter());       // @E4C @P0C
 
                 // Set the table name
-                request.setFileName(normalize(table), connection_.converter_);                  // @E4C @P0C
+                request.setFileName(normalize(table), connection_.getConverter());                  // @E4C @P0C
 
 
                 // Set the column name and search pattern
@@ -935,7 +935,7 @@ implements DatabaseMetaData
                 if (!(columnPattern==null))
                 {
                     JDSearchPattern column = new JDSearchPattern(columnPattern);
-                    request.setFieldName(column.getPatternString(), connection_.converter_); //@P0C
+                    request.setFieldName(column.getPatternString(), connection_.getConverter()); //@P0C
                     request.setFieldNameSearchPatternIndicator(column.getIndicator());
                 }
 
@@ -1331,7 +1331,7 @@ endif */
                     if (schemaPattern != null)
                     {
                         JDSearchPattern schema = new JDSearchPattern(schemaPattern);
-                        request.setLibraryName (normalize(schema.getPatternString()), connection_.converter_);  // @E4C @P0C
+                        request.setLibraryName (normalize(schema.getPatternString()), connection_.getConverter());  // @E4C @P0C
                         request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
                     }
 
@@ -1343,7 +1343,7 @@ endif */
                     if (tablePattern!=null)
                     {
                         JDSearchPattern table = new JDSearchPattern(tablePattern);
-                        request.setFileName (normalize(table.getPatternString()), connection_.converter_);      // @E4C @P0C
+                        request.setFileName (normalize(table.getPatternString()), connection_.getConverter());      // @E4C @P0C
                         request.setFileNameSearchPatternIndicator(table.getIndicator());
                     }
 
@@ -1354,7 +1354,7 @@ endif */
                     if (columnPattern!=null)
                     {
                         JDSearchPattern field = new JDSearchPattern(columnPattern);
-                        request.setFieldName (field.getPatternString(), connection_.converter_); //@P0C
+                        request.setFieldName (field.getPatternString(), connection_.getConverter()); //@P0C
                         request.setFieldNameSearchPatternIndicator(field.getIndicator());
                     }
 
@@ -1734,23 +1734,23 @@ endif */
                     // Set the primary key file library name
                     if (primarySchema == null)
                     {   // use default SQL schema or qgpl
-                        request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_); // @E4C @P0C
+                        request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter()); // @E4C @P0C
                     }
-                    else request.setPrimaryKeyFileLibraryName(normalize(primarySchema), connection_.converter_);              // @E4C @P0C
+                    else request.setPrimaryKeyFileLibraryName(normalize(primarySchema), connection_.getConverter());              // @E4C @P0C
 
                     // Set the foreign key file library name
                     if (foreignSchema == null)
                     {   // use default SQL schema or qgpl
-                        request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C @P0C
+                        request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C @P0C
                     }
-                    else request.setForeignKeyFileLibraryName(normalize(foreignSchema), connection_.converter_);                  // @E4C @P0C
+                    else request.setForeignKeyFileLibraryName(normalize(foreignSchema), connection_.getConverter());                  // @E4C @P0C
 
 
                     // Set the primary key table name
-                    request.setPrimaryKeyFileName(normalize(primaryTable), connection_.converter_);         // @E4C @P0C
+                    request.setPrimaryKeyFileName(normalize(primaryTable), connection_.getConverter());         // @E4C @P0C
 
                     // Set the foreign key table name
-                    request.setForeignKeyFileName(normalize(foreignTable), connection_.converter_);         // @E4C @P0C
+                    request.setForeignKeyFileName(normalize(foreignTable), connection_.getConverter());         // @E4C @P0C
 
                     // Set the Foreign key Information to Return Bitmap
                     request.setForeignKeyReturnInfoBitmap(0xBBE00000);
@@ -2240,14 +2240,14 @@ endif */
                     // Set the primary key file library name
                     if (schema == null)
                     {   // use default SQL schema or qgpl
-                        request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C @P0C
+                        request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C @P0C
                     }
-                    else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.converter_);                         // @E4C @P0C
+                    else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.getConverter());                         // @E4C @P0C
 
 
 
                     // Set the primary key table name
-                    request.setPrimaryKeyFileName(normalize(table), connection_.converter_);                    // @E4C @P0C
+                    request.setPrimaryKeyFileName(normalize(table), connection_.getConverter());                    // @E4C @P0C
 
 
                     // Set the Foreign key Information to Return Bitmap
@@ -2525,13 +2525,13 @@ endif */
                     // Set the foreign key file library name
                     if (schema == null)
                     {   // use default SQL schema or qgpl
-                        request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C
+                        request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C
                     }
-                    else request.setForeignKeyFileLibraryName(normalize(schema), connection_.converter_); // @E4C
+                    else request.setForeignKeyFileLibraryName(normalize(schema), connection_.getConverter()); // @E4C
 
 
                     // Set the foreign key table name
-                    request.setForeignKeyFileName(normalize(table), connection_.converter_);    // @E4C
+                    request.setForeignKeyFileName(normalize(table), connection_.getConverter());    // @E4C
 
                     // Set the Foreign key Information to Return Bitmap
                     //@F4 As of base v4r4, host server can return primary and foreign key names.
@@ -2801,13 +2801,13 @@ endif */
                     // Set the library name
                     if (schema == null)
                     {   // use default SQL schema or qgpl
-                        request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);      // @E4C
+                        request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());      // @E4C
                     }
-                    else request.setLibraryName(normalize(schema), connection_.converter_);                           // @E4C
+                    else request.setLibraryName(normalize(schema), connection_.getConverter());                           // @E4C
 
 
                     // Set the table name
-                    request.setFileName(normalize(table), connection_.converter_);      // @E4C
+                    request.setFileName(normalize(table), connection_.getConverter());      // @E4C
 
                     // Set the long file name indicator
                     request.setFileShortOrLongNameIndicator (0xF0); // Long table names
@@ -3406,13 +3406,13 @@ endif */
                     // Set the primary key file library name
                     if (schema == null)
                     {   // use default SQL schema or qgpl
-                        request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C
+                        request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C
                     }
-                    else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.converter_);                         // @E4C
+                    else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.getConverter());                         // @E4C
 
 
                     // Set the primary key table name
-                    request.setPrimaryKeyFileName(normalize(table), connection_.converter_);        // @E4C
+                    request.setPrimaryKeyFileName(normalize(table), connection_.getConverter());        // @E4C
 
                     // Set the primary key Information to Return Bitmap
                     request.setPrimaryKeyReturnInfoBitmap(0xBC000000);  //@pdc
@@ -4434,7 +4434,7 @@ endif */
                     if (schemaPattern!=null)
                     {
                         JDSearchPattern schema = new JDSearchPattern(schemaPattern);
-                        request.setLibraryName(normalize(schema.getPatternString()), connection_.converter_);       // @E4C
+                        request.setLibraryName(normalize(schema.getPatternString()), connection_.getConverter());       // @E4C
                         request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
                     }
 
@@ -4446,7 +4446,7 @@ endif */
                     if (tablePattern!=null)
                     {
                         JDSearchPattern table = new JDSearchPattern(tablePattern);
-                        request.setFileName(normalize(table.getPatternString()),connection_.converter_);    // @E4C
+                        request.setFileName(normalize(table.getPatternString()),connection_.getConverter());    // @E4C
                         request.setFileNameSearchPatternIndicator(table.getIndicator());
                     }
 
@@ -4923,7 +4923,7 @@ endif */
                         if (schemaPattern != null)
                         { // use default SQL schema or qgpl
                             JDSearchPattern schema = new JDSearchPattern(schemaPattern);
-                            request.setLibraryName (normalize(schema.getPatternString()), connection_.converter_); // @E4C
+                            request.setLibraryName (normalize(schema.getPatternString()), connection_.getConverter()); // @E4C
                             request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
                         }
 
@@ -4935,7 +4935,7 @@ endif */
                         if (tablePattern!=null)
                         {
                             JDSearchPattern table = new JDSearchPattern(tablePattern);
-                            request.setFileName (normalize(table.getPatternString()), connection_.converter_); // @E4C
+                            request.setFileName (normalize(table.getPatternString()), connection_.getConverter()); // @E4C
                             request.setFileNameSearchPatternIndicator(table.getIndicator());
                         }
 
@@ -5940,12 +5940,12 @@ endif */
                     // Set the library name
                     if (schema == null)
                     {   // use default SQL schema or qgpl
-                        request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C
+                        request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());  // @E4C
                     }
-                    else request.setLibraryName(normalize(schema), connection_.converter_);                       // @E4C
+                    else request.setLibraryName(normalize(schema), connection_.getConverter());                       // @E4C
 
                     // Set the table name
-                    request.setFileName(normalize(table), connection_.converter_);  // @E4C
+                    request.setFileName(normalize(table), connection_.getConverter());  // @E4C
 
 
                     // Set the Field Information to Return Bitmap

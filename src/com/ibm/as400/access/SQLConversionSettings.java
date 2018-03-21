@@ -86,7 +86,7 @@ class SQLConversionSettings
      */
     /*@H4A*/
   static SQLConversionSettings getConversionSettings(
-      AS400JDBCConnectionI connection) throws SQLException {
+      AS400JDBCConnection connection) throws SQLException {
     synchronized (cachedConversionSettingsLock_) {
       if (cachedConversionSettings_ != null) {
         if (cachedConversionSettings_.matches(connection)) {
@@ -112,7 +112,7 @@ Constructs a SQLConversionSettings object.
 
 @param  connection  Connection to the system.
 **/
-    private SQLConversionSettings (AS400JDBCConnectionI connection)
+    private SQLConversionSettings (AS400JDBCConnection connection)
         throws SQLException
     {
         JDProperties properties = connection.getProperties ();
@@ -178,7 +178,7 @@ Constructs a SQLConversionSettings object.
      *  
      */ 
     /*@H4A*/
-    private boolean matches (AS400JDBCConnectionI connection) throws SQLException
+    private boolean matches (AS400JDBCConnection connection) throws SQLException
     {
         JDProperties properties = connection.getProperties ();
 

@@ -32,7 +32,7 @@ implements JDRowCache
   // Private data.
   private int                     blockingFactor_;
   private AS400JDBCResultSet      resultSet_;  // @D9A Provide warnings to this result set
-  private AS400JDBCConnectionI     connection_;
+  private AS400JDBCConnection     connection_;
   private boolean                 empty_; //empty_ is not cache empty but resultset returning 0 rows "empty"; thats why it is only set once
   private boolean                 emptyChecked_;
   private boolean                 firstBlock_;
@@ -86,7 +86,7 @@ prefetched.
 @exception  SQLException    If an error occurs.
 **/
   JDServerRowCache (JDServerRow row,
-                    AS400JDBCConnectionI connection,
+                    AS400JDBCConnection connection,
                     int id,
                     int blockingFactor, 
                     boolean lastBlock,  //@PDA perf
@@ -142,7 +142,7 @@ prefetched.
     @exception  SQLException    If an error occurs.
     **/
     JDServerRowCache (JDServerRow row,
-                      AS400JDBCConnectionI connection,
+                      AS400JDBCConnection connection,
                       int id,
                       int blockingFactor, 
                       boolean lastBlock,  
@@ -171,7 +171,7 @@ prefetched.
 @exception  SQLException    If an error occurs.
 **/
   JDServerRowCache (JDServerRow row,
-                    AS400JDBCConnectionI connection,
+                    AS400JDBCConnection connection,
                     int id,
                     int blockingFactor,
                     DBData serverData,
@@ -240,7 +240,7 @@ prefetched.
     @exception  SQLException    If an error occurs.
     **/
     JDServerRowCache (JDServerRow row,
-                      AS400JDBCConnectionI connection,
+                      AS400JDBCConnection connection,
                       int id,
                       int blockingFactor,
                       DBData serverData,
