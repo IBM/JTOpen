@@ -680,7 +680,7 @@ implements Statement
     void closeResultSet (int reuseFlag)    // private protected
     throws SQLException
     {
-        synchronized(this) { 
+        synchronized(internalLock_) { 
         if(resultSet_ != null)
         {
             if(! resultSet_.isClosed ())
@@ -3742,7 +3742,7 @@ implements Statement
             //@F4 Otherwise, we'd make an unnecessary flow to the system to tell it to
             //@F4 close the cursor which it already has.
            // synchronized to prevent race with closeResultSet 
-            synchronized(this) { 
+            synchronized(internalLock_) { 
             if(resultSet_ != null)    //@F4A
             {
                 //@F4A
