@@ -141,6 +141,9 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_TIMESTAMP_FORMAT","timestampFormat"},
       { "PROP_NAME_USE_DRDA_METADATA_VERSION","useDrdaMetadataVersion"},
       { "PROP_NAME_PORTNUMBER","portNumber"},
+      { "PROP_NAME_ENABLECLIENTAFFINITIESLIST","enableClientAffinitiesList"},
+      { "PROP_NAME_CLIENTREROUTEALTERNATESERVERNAME", "clientRerouteAlternateServerName"},
+      { "PROP_NAME_CLIENTREROUTEALTERNATEPORTNUMBER", "clientRerouteAlternatePortNumber"},
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -247,7 +250,9 @@ public class JDMRI extends ListResourceBundle
       {"DECIMAL_DATA_ERRORS_DESC","Specifies how decimal data errors are handled."},
       {"TIMESTAMP_FORMAT_DESC","Specifies the format for timestamps retrieved via getString."},
       {"USE_DRDA_METADATA_VERSION_DESC","Specifies if the DRDA metadata version information should be returned."},
-
+      {"ENABLECLIENTAFFINITIESLIST_DESC", "Specifies if alternate servers should be used."},
+      {"CLIENTREROUTEALTERNATESERVERNAME_DESC", "Specifies the list of alternate servers."},
+      {"CLIENTREROUTEALTERNATEPORTNUMBER_DESC", "Specifies the list of alternate port numbers."}, 
         
       
       // JDBC 2 - Optional Package support - RowSet    @E5

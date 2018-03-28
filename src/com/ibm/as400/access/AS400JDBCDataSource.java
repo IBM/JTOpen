@@ -934,6 +934,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.DRIVER);
     }
 
+
     /**
     *  Returns the amount of detail for error messages originating from
     *  the IBM i system.
@@ -4070,6 +4071,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + driver);  //@A8C
     }
+    
+
+
 
     // @J3 new method
     /**
@@ -5492,4 +5496,83 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 endif */ 
     
     
+    /** Returns the enableClientAffinitiesList setting. */ 
+    public int getEnableClientAffinitiesList() { 
+      return properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST);
+    }
+
+    
+    /**
+    *  Sets the enable client afflinities list  
+    *  @param setting  The setting to use for the connection.
+    **/
+    public void setEnableClientAffinitiesList(int setting)
+    {
+      String property= "enableClientAffinitiesList"; 
+        int old = getEnableClientAffinitiesList();
+        properties_.setString(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST, ""+setting);
+
+        changes_.firePropertyChange(property, old, setting);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + setting);  
+    }
+
+    /**
+    *  Returns the client reroute alternate server name. 
+    **/
+    public String getClientRerouteAlternateServerName()
+    {
+        return properties_.getString(JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
+    }
+
+    /**
+    *  Sets the client reroute alternate server name. 
+    **/
+    public void setClientRerouteAlternateServerName(String alternateServerName)
+    {
+        String property = "clientRerouteAlternateServerName";
+
+        if (alternateServerName == null)
+            throw new NullPointerException(property);
+        validateProperty(property, alternateServerName, JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
+
+        String old = getClientRerouteAlternateServerName();
+        properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME, alternateServerName);
+
+        changes_.firePropertyChange(property, old, alternateServerName);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + alternateServerName); 
+    }
+
+    /**
+    *  Returns the client reroute alternate server name. 
+    **/
+    public String getClientRerouteAlternatePortNumber()
+    {
+        return properties_.getString(JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
+    }
+
+    /**
+    *  Sets the client reroute alternate server name. 
+    **/
+    public void setClientRerouteAlternatePortNumber(String alternatePortNumber)
+    {
+        String property = "clientRerouteAlternatePortNumber";
+
+        if (alternatePortNumber == null)
+            throw new NullPointerException(property);
+        validateProperty(property, alternatePortNumber, JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
+
+        String old = getClientRerouteAlternatePortNumber();
+        properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER, alternatePortNumber);
+
+        changes_.firePropertyChange(property, old, alternatePortNumber);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + alternatePortNumber); 
+    }
+
+
 }

@@ -1654,6 +1654,82 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
    
 
+  
+  /** Returns the enableClientAffinitiesList setting. */ 
+  public int getEnableClientAffinitiesList() { 
+    return properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST);
+  }
+
+  
+  /**
+  *  Sets the enable client afflinities list  
+  *  @param setting  The setting to use for the connection.
+  **/
+  public void setEnableClientAffinitiesList(int setting)
+  {
+    String property= "enableClientAffinitiesList"; 
+      properties_.setString(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST, ""+setting);
+
+
+      if (JDTrace.isTraceOn()) 
+          JDTrace.logInformation (this, property + ": " + setting);  
+  }
+
+  /**
+  *  Returns the client reroute alternate server name. 
+  **/
+  public String getClientRerouteAlternateServerName()
+  {
+      return properties_.getString(JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
+  }
+
+  /**
+  *  Sets the client reroute alternate server name. 
+  **/
+  public void setClientRerouteAlternateServerName(String alternateServerName)
+  {
+      String property = "clientRerouteAlternateServerName";
+
+      if (alternateServerName == null)
+          throw new NullPointerException(property);
+      validateProperty(property, alternateServerName, JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
+
+      properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME, alternateServerName);
+
+
+      if (JDTrace.isTraceOn()) 
+          JDTrace.logInformation (this, property + ": " + alternateServerName); 
+  }
+
+  /**
+  *  Returns the client reroute alternate server name. 
+  **/
+  public String getClientRerouteAlternatePortNumber()
+  {
+      return properties_.getString(JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
+  }
+
+  /**
+  *  Sets the client reroute alternate server name. 
+  **/
+  public void setClientRerouteAlternatePortNumber(String alternatePortNumber)
+  {
+      String property = "clientRerouteAlternatePortNumber";
+
+      if (alternatePortNumber == null)
+          throw new NullPointerException(property);
+      validateProperty(property, alternatePortNumber, JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
+
+      properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER, alternatePortNumber);
+
+
+      if (JDTrace.isTraceOn()) 
+          JDTrace.logInformation (this, property + ": " + alternatePortNumber); 
+  }
+
+
+  
+  
   /**
    Returns the value of the 'user' property.
    @return The user.

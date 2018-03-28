@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//w3c//dtd html 3.2 final//en">
-<HTML lang="en">
+<li><HTML lang="en">
 <HEAD>
 <TITLE>IBM Toolbox for Java: JDBC properties</TITLE>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
@@ -26,6 +26,7 @@ attributes. The tables organize the properties into the following categories:</P
   <LI><A HREF="#format">Format properties</A></LI>
   <LI><A HREF="#performance">Performance properties</A></LI>
   <LI><A HREF="#sort">Sort properties</A></LI>
+  <LI><A HREF="#alternate">Alternate server properties</A></LI> 
   <LI><A HREF="#other">Other properties</A></LI>
 </UL>
 
@@ -136,9 +137,12 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2"><a name="cursorsensitivity">&quot;cursor sensitivity&quot;</a></TD>
-    <TD HEADERS="cat2t2"><p></p>Specifies the cursor sensitivity to request from the database. The behavior depends on the resultSetType:</p>
+    <TD HEADERS="cat2t2"><p></p>Specifies the cursor sensitivity to request from the database. The behavior 
+    depends on the resultSetType:</p>
 	<ul>
-	<li>ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Java program requests from the database.</li>
+	<li>ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that 
+	the value of this property controls what cursor sensitivity the Java program 
+	requests from the database.</li>
 	<li>ResultSet.TYPE_SCROLL_INSENSITIVE causes this property to be ignored.</li>
 	</ul>
     </TD>
@@ -153,19 +157,24 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2"><a name="databasename">&quot;database 
       name&quot;</a></TD>
     <TD HEADERS="cat2t2"> 
-      <p>Specifies the database to use for a connection to an independent auxiliary storage pool (ASP). 
+      <p>Specifies the database to use for a connection to an independent auxiliary 
+      storage pool (ASP). 
         When you specify a database name, the name must exist in the relational 
-        database directory on the system and correspond to either an independent ASP or the system
+        database directory on the system and correspond to either an independent ASP or 
+        the system
         default database. The following criteria determine which 
         database is accessed:</p>
       <ul>
-        <li>When this property is used to specify a database which corresponds to an independent ASP,
-          the connection is made to the independent ASP. When the specified database does not exist,
+        <li>When this property is used to specify a database which corresponds to an 
+        independent ASP,
+          the connection is made to the independent ASP. When the specified database does 
+          not exist,
            the connection fails. 
           </li>
         <li>When this property is used to specify *SYSBAS as the database name, 
           the system default database is used.</li>
-        <li>When this property is omitted, the initial ASP group specified in the job description
+        <li>When this property is omitted, the initial ASP group specified in the job 
+        description
           for the user profile is used.  When the job description 
           does not specify an initial ASP group, the system default database is used. 
         </li>
@@ -181,7 +190,8 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2">&quot;decfloat rounding mode&quot;</TD>
     <TD HEADERS="cat2t2"> 
       <p>Specifies the rounding mode to use when working with decfloat data type. 
-      Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier.
+      Note, this property is ignored when connecting to systems running IBM i V5R4 
+      and earlier.
     </TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat2t4">&quot;half even&quot;<BR>
@@ -264,7 +274,8 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;minimum divide scale&quot;</TD>
-    <TD HEADERS="cat2t2">Specifies the minimum scale value for the result of decimal division.</TD>
+    <TD HEADERS="cat2t2">Specifies the minimum scale value for the result 
+    of decimal division.</TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat2t4">  &quot;0&quot;<BR>
 	&quot;1&quot;<BR>
@@ -281,7 +292,8 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;package ccsid&quot;</TD>
-    <TD HEADERS="cat2t2">Specifies the character encoding to use for the SQL package and any statements sent to the system.</TD>
+    <TD HEADERS="cat2t2">Specifies the character encoding to use for the SQL package 
+    and any statements sent to the system.</TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat2t4"> &quot;1200&quot; (UTF-16)<BR>
       &quot;13488&quot; (UCS-2)<BR>
@@ -303,7 +315,8 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2">&quot;translate hex&quot;</TD>
     <TD HEADERS="cat2t2">Specifies how hexadecimal literals are interpreted.</TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat2t4"> &quot;character&quot; (Interpret hexadecimal literals as character data)<BR>
+    <TD HEADERS="cat2t4"> &quot;character&quot; (Interpret hexadecimal literals as 
+    character data)<BR>
       &quot;binary&quot; (Interpret hexadecimal literals as binary data)<BR>
     </TD>
     <TD HEADERS="cat2t5">&quot;character&quot;</TD>
@@ -322,7 +335,8 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;XA loosely coupled support&quot;</TD>
-    <TD HEADERS="cat2t2">Specifies whether lock sharing is allowed for loosely coupled transaction branches.
+    <TD HEADERS="cat2t2">Specifies whether lock sharing is allowed for loosely 
+    coupled transaction branches.
 	Note, this property is ignored when connecting to systems running to IBM i V5R3 and earlier.  
 	This option can be set to 0 to indicate to not share locks or 1 to share locks.  </TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
@@ -631,9 +645,14 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;query optimize goal&quot;</TD>
-    <TD HEADERS="cat4t2">Specifies the goal the system should use with optimization of queries.  This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  Note, this property is ignored when connecting to systems running to IBM i V5R3 and earlier.</TD>
+    <TD HEADERS="cat4t2">Specifies the goal the system should use with optimization of queries.  
+    This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  
+    Note, this property is ignored when connecting to systems running to IBM i V5R3 and 
+    earlier.</TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;0&quot; = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used<BR>
+    <TD HEADERS="cat4t4">&quot;0&quot; = Optimize query for first block of data (*ALLIO) 
+    when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) 
+    when packages are not used<BR>
     &quot;1&quot; = Optimize query for first block of data (*FIRSTIO)<BR>
 	&quot;2&quot; = Optimize query for entire result set (*ALLIO)<BR></TD>
     <TD HEADERS="cat4t5">&quot;0&quot;</TD>
@@ -643,7 +662,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
     <TD HEADERS="cat4t2">Specifies the mechanism to implement the queryTimeout feature.</TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat4t4">
-    &quot;qqrytimlmt&quot; = The queryTimeout feature uses the &quot;QQRYTIMLMT&quot;feature of the database 
+    &quot;qqrytimlmt&quot; = The queryTimeout feature uses the &quot;QQRYTIMLMT&quot;feature 
+    of the database 
     engine.<BR>
     &quot;cancel&quot; = The queryTimeout feature uses a database CANCEL request to cancel
     a running SQL statement after the specified timeout expires<BR></TD>
@@ -653,7 +673,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;query storage limit&quot;</TD>
     <TD HEADERS="cat4t2">Specifies the query storage limit to be used when statements in a connection are executed.  
-    Valid values are -1 to 2147352578 megabytes.  Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier.<BR>
+    Valid values are -1 to 2147352578 megabytes.  Note, this property is ignored when connecting to systems running 
+    IBM i V5R4 and earlier.<BR>
     You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i.</TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat4t4">&quot;-1 (no limit)&quot; - &quot;2147352578&quot;</TD>
@@ -661,14 +682,18 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;receive buffer size&quot;</TD>
-    <TD HEADERS="cat4t2">Specifies the buffer size used to receive data through the socket connection between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual receive buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="cat4t2">Specifies the buffer size used to receive data through the socket connection 
+    between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual receive buffer size. 
+     It is only used as a hint by the underlying socket code.</TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat4t4">&quot;1&quot; - max size</TD>
     <TD HEADERS="cat4t5">(platform dependent)</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;send buffer size&quot;</TD>
-    <TD HEADERS="cat4t2">Specifies the buffer size used to send data through the socket connection between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="cat4t2">Specifies the buffer size used to send data through the socket connection 
+    between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the 
+    actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat4t4">&quot;1&quot; - max size</TD>
     <TD HEADERS="cat4t5">(platform dependent)</TD>
@@ -755,11 +780,207 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
   </TR>
 </TABLE>
 
+<A NAME="alternate"></A>
+<h3>Alternate server properties</h3>
+<p>These properties are used to enable the JDBC driver to connect to an 
+alternate server if the connection to the current server is lost.</p>
+<p>In the case of a dropped connection, the JDBC Connection object 
+will automatically reconnect to a system.   The systems are tried in order, 
+and the order of the systems are first, the original system specified in 
+the original connection, followed by the servers specified in the 
+clientRouteServerName property.  
+The default behavior is that existing JDBC Statement, PreparedStatement, 
+and CallableStatement objects will throw an SQLException with SQLCode=-4498 
+the first time an object uses a reestablished connection.</p> 
+
+<p>After the JDBC driver connects to the alternate server, existing Statement, 
+PreparedStatement, and CallableStatement objects remain usable. </p>
+<p>When using this support, JDBC applications must be aware a connection
+ may be redirected to another server at any time.   
+ Therefore, applications must be aware that the following items 
+ are scoped to a connection and are not available after the connection is 
+ redirected to a different server.</p>
+<ul> 
+<li>Opened ResultSets.   This includes ResultSets associated with COMMIT HOLD.   
+If a ResultSet operation detects a failed connection and causes the connection 
+to switch to an alternate server, a SQLException with SQLCode=-4498 will be reported.  
+At the point that a connection switches to an alternate server, all ResultSets 
+associated with the connection are closed.  Any subsequent attempt to use existing
+ ResultSets will fail with a "ResultSet closed" exception.</li> 
+<li>Anything defined in QTEMP.</li>
+<li>The value of an SQL global variable.</li>
+</ul> 
+
+<p>When reconnecting to a system, the following special registers, 
+as set by JDBC properties or by SET SQL statements, are preserved 
+in the new connection.</p>
+<ul>
+<li>CURRENT SCHEMA</li>
+<li>CURRENT CLIENT_ACCTNG</li>
+<li>CURRENT CLIENT_APPLNAME</li>
+<li>CURRENT CLIENT_PROGRAMID</li>
+<li>CURRENT CLIENT_USERID   </li>
+<li>CURRENT CLIENT_WRKSTNNAME</li>
+<li>CURRENT DEBUG MODE</li>
+<li>CURRENT DECFLOAT ROUNDING MODE</li>
+<li>CURRENT DEGREE</li>
+<li>CURRENT IMPLICIT XMLPARSE OPTION</li>
+<li>CURRENT PATH</li>
+</ul>
+
+<p>The JDBC driver is only be able to preserve those settings that are 
+specified when establishing the connection or that are changed using 
+SET statements executed by the JDBC driver.   The JDBC driver will not 
+preserve those setting that are changed 
+using other methods, including a stored procedure call.</p>
+
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar"> 
+    <TH ID="cat7">Property</TH>
+    <TH ID="cat7t2">Description</TH>
+    <TH ID="cat7t3">Required</TH>
+    <TH ID="cat7t4">Choices</TH>
+    <TH ID="cat7t5">Default</TH>
+  </TR>
+  <TR VALIGN="TOP"> 
+   <TD HEADERS="cat7">&quot;enableClientAffinitiesList&quot;</TD>
+    <TD HEADERS="cat7t2">Specifies whether the JTOpen JDBC driver enables client affinities for failover support.
+<p>A setting of 1 enables client affinities for failover support. The server specified in the original 
+connection string, and the servers specified in the clientRerouteAlternateServerName 
+and clientRerouteAlternatePortNumber properties are retried, in order, when the 
+current server is unavailable.</p>
+<p>A setting of 0 disables client affinities for failover support.<p> </TD>
+    <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat7t4">1(Yes)<br>
+                         2(No)</TD>
+    <TD HEADERS="cat7t5">0</TD>
+   
+	
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat7">&quot;affinityFailbackInterval&quot;</TD>
+    <TD HEADERS="cat7t2">
+<p>Specifies the length of the interval, in seconds, that the JTOpen JDBC Driver 
+waits between attempts to fail back an existing connection to the primary server. 
+A value that is less than or equal to 0 means that the connection does not fail back.</p>  
+<p>Attempts to fail back connections to the primary server are made at transaction 
+boundaries, after the specified interval elapses.</p>
+<p>This property is used only if the values of properties enableSeamlessFailover 
+and enableClientAffinitiesList are 1.</p>  
+    </TD>
+    <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat7t4">0-2147352578</TD>
+    <TD HEADERS="cat7t5">0</TD>
+  </TR>
+
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat7">&quot;clientRerouteAlternateServerName&quot;</TD>
+    <TD HEADERS="cat7t2">
+<p>Defines a comma separated list of servers to use if the server specified in the 
+connection string is not accessible.   The systems are always retried in the order 
+specified, starting with the server specified in the JDBC connection string.</p> 
+<p>This property is only used if the “enableClientAffinities” property is set to 1.</p>
+    </TD>
+    <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat7t4">-</TD>
+    <TD HEADERS="cat7t5">-</TD>
+  </TR>
+  
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat7">&quot;clientRerouteAlternatePortNumber&quot;</TD>
+    <TD HEADERS="cat7t2">
+<p>Defines a comma separated list of port numbers to be used in conjunction with 
+the servers specified by the clientRerouteAlternateServerName property.   The order 
+of the port numbers must match the order of the servers in the 
+clientRerouteAlternateServername property.</p>  
+<p>When this is specified, the JTOpen JDBC driver will not contact the port map 
+server or the central server when connecting to the system.  If this is not 
+specified, the standard host server ports will be used.</p>
+    </TD>
+    <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat7t4">-</TD>
+    <TD HEADERS="cat7t5">-</TD>
+  </TR>
+
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat7">&quot;maxRetriesForClientReroute&quot;</TD>
+    <TD HEADERS="cat7t2">
+<p>The maximum number of connection retries for automatic client reroute.</p>
+<p>If maxRetriesForClientReroute or retryIntervalForClientReroute is not set, 
+the default behavior is that the connection is retried for 10 minutes, 
+with a wait time between retries that increases as the length of time 
+from the first retry increases.</p>
+<p>If retryIntervalForClientReroute is set, the default for 
+maxRetriesForClientReroute is 3. </p>
+    </TD>
+    <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat7t4">-</TD>
+    <TD HEADERS="cat7t5">-</TD>
+  </TR>
+
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat7">&quot;retryIntervalForClientReroute&quot;</TD>
+    <TD HEADERS="cat7t2">
+<p>The number of seconds between consecutive connection retries.</p> 
+<p>If retryIntervalForClientReroute or maxRetriesForClientReroute is not 
+set, the default behavior is that the connection is retried for 10 minutes, 
+with a wait time between retries that increases as the length of time from 
+the first retry increases.</p> 
+<p>If maxRetriesForClientReroute is set, the default for 
+retryIntervalForClientReroute is 0 (no wait).</p>
+    </TD>
+    <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat7t4"> </TD>
+    <TD HEADERS="cat7t5"> </TD>
+  </TR>
+
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat7">&quot;enableSeamlessFailover&quot;</TD>
+    <TD HEADERS="cat7t2">
+<p>Specifies whether the JTOpen JDBC driver uses seamless failover for 
+client reroute.  This setting is only used if the \quot;enableClientAffinitiesList\quot; 
+property is set to 1.</p> 
+<p>Possible values of enableSeamlessFailover are the following:</p>
+<p>1</p>
+<p>The JTOpen JDBC driver uses seamless failover. This means that the driver does 
+not throw an SQLException with SQL error code -4498 after a failed connection has 
+been successfully re-established if the following conditions are true:</p>
+<ul> 
+<li>The connection was not being used for a transaction at the time the failure occurred.</p>
+<li>There are no outstanding global resources, such as global temporary tables or 
+open, held cursors, or connection states that prevent a seamless failover to another
+server.</p>
+</ul>
+<p>When seamless failover occurs, after the connection to a new server has been 
+established, the driver re-issues the SQL statement that was being processed when 
+the original connection failed.</p>
+<p></p>
+<p>2</p>
+<p>The JTOpen JDBC driver does not use seamless failover.</p> 
+<p>When this setting is in effect, if a server goes down, the driver 
+tries to fail back or fail over to an alternate server. If failover or 
+failback is successful, the driver throws an SQLException with SQL error 
+code -4498, with the next operation on the connection.  
+This indicates that the operation and connection failed, but the connection was 
+successfully reestablished.  An SQLException with SQL error code -4498 
+informs the application that it should retry the transaction during which 
+the connection failure occurred. If the driver cannot reestablish a connection, 
+it throws an SQLException with SQL error code -4499.</p>
+   
+    </TD>
+    <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat7t4">-</TD>
+    <TD HEADERS="cat7t5">2</TD>
+  </TR>
+  </TABLE>
+
+
+
 <A NAME="other"></A>
 <h3>Other properties</h3>
 <p>Other properties are those properties not easily categorized. These properties 
   determine which JDBC driver is used, and specify options related to level of 
   database access, bidirectional string type, data truncation and so on.</p>
+  
 <TABLE BORDER="1">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat6">Other property</TH>
@@ -779,7 +1000,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;autocommit exception&quot;</TD>
-    <TD HEADERS="cat6t2">Specifies whether to throw an SQLException when Connection.commit() or Connection.rollback() is called if autocommit is enabled.</TD>
+    <TD HEADERS="cat6t2">Specifies whether to throw an SQLException when 
+    Connection.commit() or Connection.rollback() is called if autocommit is enabled.</TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat6t4"> 
       <P>"true"<BR>
@@ -908,7 +1130,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
         <li>isWriteable(int)</li>
       </ul>
       <P>Additionally, setting this property to true enables support for the ResultSetMetaData.getSchemaName(int)  
-      and ResultSetMetaData.isAutoIncrement(int) methods. Setting this property to true may slow performance because it requires retrieving more information 
+      and ResultSetMetaData.isAutoIncrement(int) methods. Setting this property to true may slow performance 
+      because it requires retrieving more information 
 	  from the system. Leave the property as the default (false) unless you need more specific information from 
 	  the listed methods. For example, when this property is off (false), ResultSetMetaData.isSearchable(int) 
       always returns "true" because because the driver does not have enough information 
@@ -933,7 +1156,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;hold input locators&quot;</TD>
-    <TD HEADERS="cat6t2">Specifies whether input locators should be allocated as type hold locators or not hold locators.  If the 
+    <TD HEADERS="cat6t2">Specifies whether input locators should be allocated as type hold locators 
+    or not hold locators.  If the 
     locators are of type hold, they will not be released when a commit is done.</TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat6t4">&quot;true&quot; (type hold)<BR>

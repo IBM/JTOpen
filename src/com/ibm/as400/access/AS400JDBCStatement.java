@@ -2853,15 +2853,17 @@ implements Statement
     protected void finalize ()
     throws Throwable
     {
+      if(! isClosed ()) {
+        connection_.setInFinalizer(true); 
         try{
-            if(! isClosed ()) {
             	JDTrace.logInformation (this, "WARNING: Finalizer thread closing statement object.");
                 close ();
-            }
         }
         catch(Exception e){
             //catch any exceptions and don't throw them
         }
+        connection_.setInFinalizer(false); 
+      }
         super.finalize ();
     }
 

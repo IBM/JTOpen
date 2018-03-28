@@ -63,6 +63,7 @@ implements Connection
   static final int            DATA_COMPRESSION_NONE_  = 0;            // @ECA
   static final int            DATA_COMPRESSION_OLD_   = 1;            // @ECA
   static final int            DATA_COMPRESSION_RLE_   = 0x3832;       // @ECA @EIC @EJC
+  protected boolean inFinalizer_;
 
 
     /**
@@ -2153,5 +2154,10 @@ endif */
 
 
   abstract  int getNewAutoCommitSupport() ;
+
+
+  public void setInFinalizer(boolean setting) {
+    inFinalizer_ = setting; 
+  }
   
 }

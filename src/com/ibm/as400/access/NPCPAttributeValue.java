@@ -33,9 +33,9 @@ import java.util.Enumeration;
   *       CPID - code point ID (2 bytes)
   *       data - code point data as follows:
   *
-  *       ----------------------------------------------------------------------------------ÝÝ
-  *       |nn | LEN | ID1 | tt | llll | ofof | ...... | IDnn| tt | llll | ofof |  Ývalues  |ÝÝ
-  *       ----------------------------------------------------------------------------------ÝÝ
+  *       ----------------------------------------------------------------------------------
+  *       |nn | LEN | ID1 | tt | llll | ofof | ...... | IDnn| tt | llll | ofof |   values  |
+  *       ----------------------------------------------------------------------------------
   *
   *         nn   - two byte total # of attributes in code point
   *         LEN  - two byte length of each attribute entry, right

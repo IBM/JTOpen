@@ -226,7 +226,7 @@ extends AS400JDBCConnection {
    */
   boolean handleException(SQLException e) throws SQLException {
 
-    if (doNotHandleErrors_) {
+    if (doNotHandleErrors_ || inFinalizer_ ) {
       throw e; 
     }
     

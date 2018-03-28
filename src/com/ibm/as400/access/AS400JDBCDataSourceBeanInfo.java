@@ -746,6 +746,32 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
     portNumber.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PORTNUMBER"));                
     portNumber.setShortDescription(AS400JDBCDriver.getResource("PORTNUMBER_DESC"));                
 
+    PropertyDescriptor enableClientAffinitiesList = 
+    new PropertyDescriptor("enableClientAffinitiesList", beanClass, "getEnableClientAffinitiesList","setEnableClientAffinitiesList"); 
+enableClientAffinitiesList.setBound(true);                                                                        
+enableClientAffinitiesList.setConstrained(false);                                                                 
+enableClientAffinitiesList.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ENABLECLIENTAFFINITIESLIST"));                
+enableClientAffinitiesList.setShortDescription(AS400JDBCDriver.getResource("ENABLECLIENTAFFINITIESLIST_DESC"));                
+
+
+PropertyDescriptor clientRerouteAlternateServerName  = 
+new PropertyDescriptor("clientRerouteAlternateServerName", beanClass, 
+    "getClientRerouteAlternateServerName","setClientRerouteAlternateServerName"); 
+clientRerouteAlternateServerName .setBound(true);                                                                        
+clientRerouteAlternateServerName .setConstrained(false);                                                                 
+clientRerouteAlternateServerName .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CLIENTREROUTEALTERNATESERVERNAME"));                
+clientRerouteAlternateServerName .setShortDescription(AS400JDBCDriver.getResource("CLIENTREROUTEALTERNATESERVERNAME_DESC"));                
+
+PropertyDescriptor clientRerouteAlternatePortNumber  = 
+new PropertyDescriptor("clientRerouteAlternatePortNumber", beanClass, 
+    "getClientRerouteAlternatePortNumber","setClientRerouteAlternatePortNumber"); 
+clientRerouteAlternatePortNumber .setBound(true);                                                                        
+clientRerouteAlternatePortNumber .setConstrained(false);                                                                 
+clientRerouteAlternatePortNumber .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CLIENTREROUTEALTERNATEPORTNUMBER"));                
+clientRerouteAlternatePortNumber .setShortDescription(AS400JDBCDriver.getResource("CLIENTREROUTEALTERNATEPORTNUMBER_DESC"));                
+
+
+
             
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, extendedMetadata, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
@@ -761,6 +787,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 secondaryURL, serverTrace  ,packageCcsid ,toolboxTrace ,qaqqinilib , 
                 trueAutocommit ,metadataSource ,useBlockUpdate  ,describeOption,decimalDataErrors , 
                 timestampFormat , useDrdaMetadataVersion , portNumber, 
+                enableClientAffinitiesList,clientRerouteAlternateServerName,clientRerouteAlternatePortNumber
             }; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
 
         
