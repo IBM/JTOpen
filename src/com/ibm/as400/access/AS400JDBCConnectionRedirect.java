@@ -85,6 +85,9 @@ extends AS400JDBCConnection {
          String port = null; 
          if (i < alternatePortCount) {
             port = (String) alternatePortNumbers.elementAt(i); 
+         } else {
+            // If port not given, use default host server port
+            port = "8471"; 
          }
          reconnectUrls_[i+1] = fixupDataSourceUrl(server, port);  
          reconnectProperties_[i+1] = fixupProperties(server, port); 
@@ -138,6 +141,7 @@ extends AS400JDBCConnection {
       while (commaIndex >= 0) { 
         propertiesList.add(propertyString.substring(startIndex,commaIndex));
         startIndex = commaIndex + 1; 
+        commaIndex = propertyString.indexOf(',',startIndex); 
       }
       String lastPort = propertyString.substring(startIndex); 
       if (lastPort.length() > 0)  {
@@ -192,6 +196,7 @@ extends AS400JDBCConnection {
    AS400JDBCConnectionImpl findNewConnection() {
     // Start at the current server and try to get a new connection.
      AS400JDBCConnectionImpl connection ; 
+     Exception[] exceptions = new Exception [reconnectUrls_.length]; 
     for (int i = 0; i < reconnectUrls_.length; i++ ) {
       connection = new AS400JDBCConnectionImpl(); 
       AS400 as400 = new AS400(reconnectAS400s_[i]); 
@@ -206,6 +211,7 @@ extends AS400JDBCConnection {
       } catch (Exception e) { 
          // Unable to connect keep trying 
          // Trace the exception anyway
+        exceptions[i] = e; 
         if (JDTrace.isTraceOn ())                                          
           JDTrace.logException(this, "Unable to connect to system i="+i+" as400="+as400, e);                             // @J3a
 
@@ -244,6 +250,8 @@ extends AS400JDBCConnection {
       if (reconnect(e)) {
         return true; 
       }
+    } else {
+      throw e;
     }
     
     throw e;
