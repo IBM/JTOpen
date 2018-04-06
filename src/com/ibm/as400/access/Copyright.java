@@ -222,6 +222,7 @@ package com.ibm.as400.access;
 //@W1    20180309  JDBC:  Add parameter number to DATA_TYPE_MISMATCH exceptions
 //@W2    20180228  JDBC:  enableClientAffinitiesList property
 //@W3    20180320  Conversion:  Return substitution character if mixed ccsid buffer ends with half a character
+//@W4    20180406  JDBC:  Fix SET CONNECTION with prepared Statements 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -229,8 +230,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
-    //                                                                                         built=20180320 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180320 @W3";  
+    //                                                                                         built=20180322 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180322 @W3";  
 
 
     // Constants for reference by AS400JDBCDriver.

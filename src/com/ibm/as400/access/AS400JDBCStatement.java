@@ -735,6 +735,14 @@ implements Statement
           startCancelThread();
         }
 
+        /* If the connect statement has not been executed, then do it now */
+        /* @W4A*/ 
+        if(sqlStatement.getNativeType() == JDSQLStatement.TYPE_CONNECT && (!allowImmediate_))
+        {
+            executeConnectStatement(sqlStatement); 
+        } else
+
+        
         // If the statement is not immediately executable, then
         // we still need to do the execute.  Otherwise, the execute
         // was already done as part of the prepare.
@@ -1458,99 +1466,18 @@ implements Statement
             //
             // CASE 2a: Statement is a DRDA CONNECT.
             //
-            if(sqlStatement.getNativeType() == JDSQLStatement.TYPE_CONNECT)
+            if(sqlStatement.getNativeType() == JDSQLStatement.TYPE_CONNECT )
             {
-
-                // Sync up the RPB.
-                syncRPB();
-
-                DBSQLRequestDS request = null;    //@P0A
-                try
-                {
-
-                    request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_CONNECT, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA, 0);    //@P0C
-
-                    boolean extended = false;                                                         //@540
-                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
-                    //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
-                    request.setStatementText(sqlStatement.toString(), connection_.getPackageCCSID_Converter(), extended);//Bidi-HCG
-                    request.setStatementType (sqlStatement.getNativeType ());
-
-                    ConvTable converter = connection_.getConverter(); 
-                    if(packageManager_.isEnabled())
-                    {
-                        if(sqlStatement.isPackaged())
-                        {
-                            request.setPrepareOption (1);
-                            request.setPackageName (packageManager_.getName (), converter);    //@P0C
-                        }
-                        else
-                        {
-                            request.setPrepareOption (0);
-                            request.setPackageName(null, converter);         //send empty code point per
-                        }
-                    }
-                    else
-                        request.setPrepareOption (0);
-
-                    commonPrepareBefore (sqlStatement, request);
-                    commonExecuteBefore (sqlStatement, request);
-
-                    if (execImmediateReply != null) {
-                    	execImmediateReply.returnToPool(); execImmediateReply = null;
-                    }
-                    if (normalPrepareReply != null) {
-                    	normalPrepareReply.returnToPool();normalPrepareReply = null;
-                    }
-                    if (connectReply != null) { connectReply.returnToPool(); connectReply=null; }
-                    connectReply = connection_.sendAndReceive (request, id_);    //@P0C
-
-                    int errorClass = connectReply.getErrorClass();
-                    int returnCode = connectReply.getReturnCode();
-
-                    if(errorClass != 0)
-                    {
-                        positionOfSyntaxError_ = connectReply.getSQLCA().getErrd(5);    //@F10A
-
-                        if(returnCode < 0)
-                            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
-                        else
-                            postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
-                    }
-
-                    // Compute the update count and number of results.
-                    updateCount_ = 0;
-                    numberOfResults_ = 0;
-
-                    commonPrepareAfter (sqlStatement, connectReply);
-                    commonExecuteAfter (sqlStatement, connectReply);
-
+            	/* Only execute now if allowImmediate_, otherwise delay until */
+            	/* execute time.   @W4A*/ 
+                if (allowImmediate_) {
+                  executeConnectStatement(sqlStatement);
+                  /* Note, the code to execute the connect statement */
+                  /* was moved to its own function. */ 
+                } else {
+                  // Do not do anything in this case. The executeConnectStatement
+                  // will be called at execute time. 
                 }
-                catch(DBDataStreamException e)
-                {
-                    JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-                }
-                finally
-                {    //@P0A
-                    if(request != null)  {
-                    		request.returnToPool();    request=null;
-                    }
-                    if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }      /*@B5A*/
-
-                }
-
-                // Inform the transaction manager that a statement
-                // was executed.
-                transactionManager_.statementExecuted ();
-
-                // Output a summary as a trace message.   The * signifies that the
-                // statement name comes from the RPB.
-                if(JDTrace.isTraceOn())
-                {
-                    JDTrace.logInformation (this,
-                                            "Executed connect " + name_ + "*, SQL Statement -->[" + sqlStatement + "]");
-                }
-
             }
             // @E7A - end
 
@@ -1916,6 +1843,104 @@ implements Statement
         }
       }
         return resultRow;
+    }
+
+
+
+    // executeConnectStatement executes a connect statement
+    // Was put in its own routines for @W4
+    
+    private void executeConnectStatement(JDSQLStatement sqlStatement) throws SQLException {
+      syncRPB();
+
+      DBSQLRequestDS request = null;    //@P0A
+      try
+      {
+
+          request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_CONNECT, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA, 0);    //@P0C
+
+          boolean extended = false;                                                         //@540
+          if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
+          //Bidi-HCG request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
+          request.setStatementText(sqlStatement.toString(), connection_.getPackageCCSID_Converter(), extended);//Bidi-HCG
+          request.setStatementType (sqlStatement.getNativeType ());
+
+          ConvTable converter = connection_.getConverter(); 
+          if(packageManager_.isEnabled())
+          {
+              if(sqlStatement.isPackaged())
+              {
+                  request.setPrepareOption (1);
+                  request.setPackageName (packageManager_.getName (), converter);    //@P0C
+              }
+              else
+              {
+                  request.setPrepareOption (0);
+                  request.setPackageName(null, converter);         //send empty code point per
+              }
+          }
+          else
+              request.setPrepareOption (0);
+
+          commonPrepareBefore (sqlStatement, request);
+          commonExecuteBefore (sqlStatement, request);
+
+          if (execImmediateReply != null) {
+            execImmediateReply.returnToPool(); execImmediateReply = null;
+          }
+          if (normalPrepareReply != null) {
+            normalPrepareReply.returnToPool();normalPrepareReply = null;
+          }
+          if (connectReply != null) { connectReply.returnToPool(); connectReply=null; }
+          connectReply = connection_.sendAndReceive (request, id_);    //@P0C
+
+          int errorClass = connectReply.getErrorClass();
+          int returnCode = connectReply.getReturnCode();
+
+          if(errorClass != 0)
+          {
+              positionOfSyntaxError_ = connectReply.getSQLCA().getErrd(5);    //@F10A
+
+              if(returnCode < 0)
+                  JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
+              else
+                  postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
+          }
+
+          // Compute the update count and number of results.
+          updateCount_ = 0;
+          numberOfResults_ = 0;
+
+          commonPrepareAfter (sqlStatement, connectReply);
+          commonExecuteAfter (sqlStatement, connectReply);
+
+      }
+      catch(DBDataStreamException e)
+      {
+          JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+      }
+      finally
+      {    //@P0A
+          if(request != null)  {
+              request.returnToPool();    request=null;
+          }
+          if (connectReply != null)        { connectReply.returnToPool(); connectReply = null; }      /*@B5A*/
+
+      }
+
+      // Inform the transaction manager that a statement
+      // was executed.
+      transactionManager_.statementExecuted ();
+
+      // Output a summary as a trace message.   The * signifies that the
+      // statement name comes from the RPB.
+      if(JDTrace.isTraceOn())
+      {
+          JDTrace.logInformation (this,
+                                  "Executed connect " + name_ + "*, SQL Statement -->[" + sqlStatement + "]");
+      }
+
+      
     }
 
 
