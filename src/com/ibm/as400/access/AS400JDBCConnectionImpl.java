@@ -206,7 +206,9 @@ extends AS400JDBCConnection
     private int                         serverFunctionalLevel_;         // @E7A
     private String                      serverJobIdentifier_ = null;    // @E8A
     private SQLWarning                  sqlWarning_;
-    private Vector                      statements_;                    // @DAC
+    private Vector                      
+    statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
+
     JDTransactionManager        transactionManager_;            //      @E10c
     static final ConvTable      unicodeConverter_ = new ConvTable13488();              // @E3A @P0C
     ConvTable      packageCCSID_Converter = null; //Bidi-HCG
@@ -3554,7 +3556,6 @@ throws SQLException
         }                                                                                                                   //@mdsp
 
         //@P0D requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
-        statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         if(!TESTING_THREAD_SAFETY && as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
             newAutoCommitSupport_ = 0;                                               //@KBA
         else if(!properties_.getBoolean(JDProperties.TRUE_AUTO_COMMIT))              //@KBA //@true     //run autocommit with *NONE isolation level
@@ -6142,6 +6143,7 @@ endif */
    * statements to another connection. 
    */
   void closeAllResultSets() {
+    if (statements_ != null) { 
     Enumeration statementsEnum = statements_.elements(); 
     while (statementsEnum.hasMoreElements()){
       AS400JDBCStatement statement = (AS400JDBCStatement) statementsEnum.nextElement(); 
@@ -6151,6 +6153,7 @@ endif */
         
       }
     }
+    }
   }
   /** 
    * mark the statements so they know that the connection was reset.
@@ -6158,12 +6161,13 @@ endif */
    * lazily reprepard.  
    */
   void resetStatements() {
+    if (statements_ != null) { 
     Enumeration statementsEnum = statements_.elements(); 
     while (statementsEnum.hasMoreElements()){
       AS400JDBCStatement statement = (AS400JDBCStatement) statementsEnum.nextElement(); 
       statement.setConnectionReset(true);  
     }
-    
+    }
   }
 
 
