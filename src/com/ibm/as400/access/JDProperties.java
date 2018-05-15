@@ -173,11 +173,13 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              ENABLE_CLIENT_AFFINITIES_LIST = 93; 
     static final int              CLIENT_REROUTE_ALTERNATE_SERVER_NAME = 94; 
     static final int              CLIENT_REROUTE_ALTERNATE_PORT_NUMBER = 95; 
+    static final int              MAX_RETRIES_FOR_CLIENT_REROUTE = 96; 
+    static final int              RETRY_INTERVAL_FOR_CLIENT_REROUTE = 97; 
     
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 96;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 98;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -215,6 +217,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String LAZY_CLOSE_             = "lazy close";             // @E2A
     private static final String LIBRARIES_              = "libraries";
     private static final String LOB_THRESHOLD_          = "lob threshold";
+    private static final String MAX_RETRIES_FOR_CLIENT_REROUTE_ = "maxRetriesForClientReroute";
     private static final String MAXIMUM_PRECISION_      = "maximum precision";      // @M0A
     private static final String MAXIMUM_SCALE_          = "maximum scale";          // @M0A
     private static final String MINIMUM_DIVIDE_SCALE_   = "minimum divide scale";   // @M0A
@@ -237,6 +240,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String QUERY_REPLACE_TRUNCATED_PARAMETER_ = "query replace truncated parameter";
     private static final String QUERY_TIMEOUT_MECHANISM_  = "query timeout mechanism";
     private static final String REMARKS_                = "remarks";
+    private static final String RETRY_INTERVAL_FOR_CLIENT_REROUTE_="retryIntervalForClientReroute"; 
     static final String SECONDARY_URL_                  = "secondary URL";          // @A3A
     private static final String SECURE_                 = "secure";
     private static final String SORT_                   = "sort";
@@ -861,6 +865,15 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices          = new String[0];
         defaults_[i]        = "32768";
 
+        // maxRetriesForClientReroute
+        i = MAX_RETRIES_FOR_CLIENT_REROUTE;
+        dpi_[i] = new DriverPropertyInfo (MAX_RETRIES_FOR_CLIENT_REROUTE_, "");
+        dpi_[i].description = "MAX_RETRIES_FOR_CLIENT_REROUTE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = "-1";
+
+        
         // Naming.  The order that the choices are listed
         // is significant - the index matches the system value.
         i = NAMING;
@@ -1028,6 +1041,14 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = REMARKS_SQL;
         dpi_[i].choices[1]  = REMARKS_SYSTEM;
         defaults_[i]        = REMARKS_SYSTEM;
+
+        // retryIntervalForClientReroute
+        i = RETRY_INTERVAL_FOR_CLIENT_REROUTE;
+        dpi_[i] = new DriverPropertyInfo (RETRY_INTERVAL_FOR_CLIENT_REROUTE_, "");
+        dpi_[i].description = "RETRY_INTERVAL_FOR_CLIENT_REROUTE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = "-1";
 
         // Secondary URL.    //@A3A
         i = SECONDARY_URL;
@@ -2065,7 +2086,10 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
 
         //Bidi-HCG start
         //exception for "package ccsid" - it can accept any integer
-        if((index == PACKAGE_CCSID) || (index == PORTNUMBER)){
+        if((index == PACKAGE_CCSID) || 
+            (index == PORTNUMBER) || 
+            (index ==  MAX_RETRIES_FOR_CLIENT_REROUTE) ||
+            (index == RETRY_INTERVAL_FOR_CLIENT_REROUTE)){
         	try{
         	int sendCCSIDInt = Integer.valueOf(value).intValue();
         	if(sendCCSIDInt > 0)

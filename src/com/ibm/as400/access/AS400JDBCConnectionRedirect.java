@@ -29,7 +29,7 @@ endif */
  * <p>
  * The AS400JDBCConnectionRedirect class provide a level of indirection above
  * AS400JDBCConnections. The goal is to be able to switch to use an alternative
- * server is the existing server becomes unavailable.
+ * server if the existing server becomes unavailable.
  * 
  * This class is only used if enableSeamlessFailover is set to 1. 
  **/
@@ -55,6 +55,9 @@ extends AS400JDBCConnection {
   private JDProperties[]     reconnectProperties_;
   private AS400[]            reconnectAS400s_; 
   
+  private int maxRetriesForClientReroute = -1; 
+  private int retryIntervalForClientReroute = -1; 
+  
   /** 
    * Default constructor reserved for use within package
    */
@@ -68,6 +71,24 @@ extends AS400JDBCConnection {
   /* currentConnection_.setProperties(dataSourceUrl, properties, as400); */ 
   
   private void setupRetryInformation() {
+    
+       maxRetriesForClientReroute = getMaxRetriesForClientReroute(); 
+       retryIntervalForClientReroute = getRetryIntervalForClientReroute(); 
+       // If retryIntervalForClientReroute is set, the default for 
+       // maxRetriesForClientReroute is 3. 
+       if (retryIntervalForClientReroute > 0 &&
+           maxRetriesForClientReroute < 0) {
+         maxRetriesForClientReroute = 3; 
+       }
+       // If maxRetriesForClientReroute is set, the default for
+       // retryIntervalForClientReroute is 0
+       if (maxRetriesForClientReroute > 0 && 
+           retryIntervalForClientReroute < 0) {
+           retryIntervalForClientReroute= 0; 
+       }
+         
+       
+       
        Vector alternateServerNames = getAlternateServerNames(); 
        Vector alternatePortNumbers = getAlternatePortNumbers(); 
        int alternateServerCount = alternateServerNames.size(); 
@@ -121,6 +142,19 @@ extends AS400JDBCConnection {
     return url;
   }
 
+  int getMaxRetriesForClientReroute() { 
+    int value = originalProperties_.getInt(JDProperties.MAX_RETRIES_FOR_CLIENT_REROUTE);
+    if (value < 0) value = -1; 
+    return value; 
+  }
+
+  int getRetryIntervalForClientReroute() { 
+    int value = originalProperties_.getInt(JDProperties.RETRY_INTERVAL_FOR_CLIENT_REROUTE);
+    if (value < 0) value = -1; 
+    return value; 
+  }
+
+  
   /* return a vector of the alternate port numbers from the properties */ 
   private Vector getAlternatePortNumbers() {
     return getPropertiesList(JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
@@ -196,27 +230,80 @@ extends AS400JDBCConnection {
    AS400JDBCConnectionImpl findNewConnection() {
     // Start at the current server and try to get a new connection.
      AS400JDBCConnectionImpl connection ; 
-     Exception[] exceptions = new Exception [reconnectUrls_.length]; 
-    for (int i = 0; i < reconnectUrls_.length; i++ ) {
-      connection = new AS400JDBCConnectionImpl(); 
-      AS400 as400 = new AS400(reconnectAS400s_[i]); 
-      try { 
-        
-        
-         connection.setProperties(reconnectUrls_[i],
-             reconnectProperties_[i], 
-             as400,
-             originalInfo_);
-         return connection; 
-      } catch (Exception e) { 
-         // Unable to connect keep trying 
-         // Trace the exception anyway
-        exceptions[i] = e; 
-        if (JDTrace.isTraceOn ())                                          
-          JDTrace.logException(this, "Unable to connect to system i="+i+" as400="+as400, e);                             // @J3a
-
-      }
+     Exception[] exceptions = new Exception [reconnectUrls_.length];
+    int retryCount;  
+    long delayMilliseconds; 
+    long startMilliseconds = System.currentTimeMillis(); 
+    if (maxRetriesForClientReroute >= 0) {
+      retryCount = maxRetriesForClientReroute; 
+    } else {
+      retryCount= Integer.MAX_VALUE; 
     }
+    if (retryIntervalForClientReroute >= 0) {
+      delayMilliseconds = retryIntervalForClientReroute * 1000; 
+    } else {
+      // Start delay at 60 seconds 
+      delayMilliseconds = 30000; 
+    }
+
+    while (retryCount > 0) {
+      long retryStartMilliseonds = System.currentTimeMillis(); 
+      for (int i = 0; i < reconnectUrls_.length; i++) {
+        connection = new AS400JDBCConnectionImpl();
+        AS400 as400 = new AS400(reconnectAS400s_[i]);
+        try {
+
+          connection.setProperties(reconnectUrls_[i], reconnectProperties_[i],
+              as400, originalInfo_);
+          return connection;
+        } catch (Exception e) {
+          // Unable to connect keep trying
+          // Trace the exception anyway
+          exceptions[i] = e;
+          if (JDTrace.isTraceOn())
+            JDTrace.logException(this, "Unable to connect to system i=" + i
+                + " as400=" + as400, e); // @J3a
+
+        }
+      }
+      // At this point we were unable to find a connection. Wait for the specified 
+      // delay time. 
+      retryCount--;
+      long retryDelayMilliseconds = 0; 
+      long retryElaspedMilliseconds = System.currentTimeMillis() - retryStartMilliseonds; 
+      // Handle the default wait behavior 
+      if (maxRetriesForClientReroute < 0 && 
+          retryIntervalForClientReroute < 0 ) {
+        retryDelayMilliseconds = delayMilliseconds - retryElaspedMilliseconds;
+        delayMilliseconds = delayMilliseconds + delayMilliseconds / 2; 
+        long remainingMilliseconds = 600000 + startMilliseconds - System.currentTimeMillis();
+        if (remainingMilliseconds < 0) {
+          retryCount = 0; 
+          retryDelayMilliseconds = 0; 
+        } else {
+          if (remainingMilliseconds < retryDelayMilliseconds + retryElaspedMilliseconds) {
+            retryDelayMilliseconds = remainingMilliseconds - retryElaspedMilliseconds; 
+            if (retryDelayMilliseconds < 0) {
+              // Just try immediately, one last time 
+              retryDelayMilliseconds = 0; 
+            }
+          }
+        }
+        
+      } else {
+        retryDelayMilliseconds = delayMilliseconds - retryElaspedMilliseconds;  
+      }
+  
+      if (retryDelayMilliseconds > 0) {
+        try {
+          Thread.sleep(retryDelayMilliseconds);
+        } catch (InterruptedException e) {
+          // If we are interrupted, just give up
+          return null; 
+        } 
+      }
+      
+    } /* while retrying */ 
     return null;
   }
   /**
