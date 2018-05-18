@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -47,6 +49,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.CRC32;
+
+import javax.transaction.xa.XAException;
 
 import com.ibm.as400.access.AS400JDBCSQLSyntaxErrorException;
 import com.ibm.as400.access.JVMInfo;
@@ -298,6 +302,7 @@ public class Main implements Runnable {
       try {
         Class.forName(loadDriver);
       } catch (Exception e) {
+        System.out.println("Exception "+e); 
         if (debug_ || printStackTrace_ ) {
           e.printStackTrace();
         }
@@ -317,7 +322,9 @@ public class Main implements Runnable {
        addVariable("CON", connection_);
     } catch (SQLException ex ) {
       System.out.println("Warning:  Unable to connect to "+url_+" using "+userid_);
-      ex.printStackTrace(System.out); 
+      if (printStackTrace_) {
+        ex.printStackTrace(System.out); 
+      }
       System.out.println("CON is not defined"); 
       connection_ = null; 
     }
@@ -450,9 +457,11 @@ public class Main implements Runnable {
       variables.remove("CON");
 
     } catch (Exception e) {
-      e.printStackTrace(out1);
+      System.out.println("Exception "+e); 
+      if (printStackTrace_) e.printStackTrace(out1);
     } catch (java.lang.UnknownError jlu) {
-      jlu.printStackTrace(out1);
+      System.out.println("UnknownError "+jlu); 
+      if (printStackTrace_) jlu.printStackTrace(out1);
     }
 
     return rc;
@@ -546,8 +555,8 @@ public class Main implements Runnable {
 		       try {
             wait(1000);
           } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            out_.println("Interrupted Exception : "+e); 
+            if (printStackTrace_)  e.printStackTrace();
           } 
 		   }
 	       }
@@ -1163,7 +1172,8 @@ public class Main implements Runnable {
           }
         } else {
           if (t != null) {
-            t.printStackTrace( out1);
+            out1.println("Throwable: "+t); 
+            if (printStackTrace_) t.printStackTrace( out1);
 
             try {
               // get cause added in JDK 1.4 ignore if not there
@@ -1273,12 +1283,13 @@ public class Main implements Runnable {
       exceptionOccurred_ = true; 
       out1.println("\n*** exception caught *** " + e);
       out1.println("Statement was " + command);
-      e.printStackTrace(out1);
+      
+      if (printStackTrace_) e.printStackTrace(out1);
     } catch (java.lang.UnknownError jlu) {
       exceptionOccurred_ = true; 
       out1.println("\n*** java.lang.UnknownError caught ***" + jlu);
       out1.println("Statement was " + command);
-      jlu.printStackTrace(out1);
+      if (printStackTrace_) jlu.printStackTrace(out1);
 
     } // catch
     finally {
@@ -1292,7 +1303,8 @@ public class Main implements Runnable {
             }
           }
         } catch (Exception e) {
-          e.printStackTrace(out1);
+          out1.println("Exception :"+e); 
+          if (printStackTrace_) e.printStackTrace(out1);
         }
       }
     }
@@ -1559,7 +1571,7 @@ public class Main implements Runnable {
         int userIdIndex = connectUrl.indexOf("USERID=");
         if (userIdIndex > 0) {
           thisConnectUserId = connectUrl.substring(userIdIndex + 7).trim();
-          connectUrl = connectUrl.substring(0, userIdIndex);
+          connectUrl = connectUrl.substring(0, userIdIndex).trim();
           int spaceIndex = thisConnectUserId.indexOf(" ");
           if (spaceIndex >= 0) {
             thisConnectUserId = thisConnectUserId.substring(0, spaceIndex);
@@ -1598,8 +1610,15 @@ public class Main implements Runnable {
                     thisConnectPassword, connectUrl, out1);
 
               } else {
+                if (measureExecute_) {
+                  startTime_ = System.currentTimeMillis();
+                }
                 connection_ = DriverManager.getConnection(connectUrl,
                     thisConnectUserId, thisConnectPassword);
+                if (measureExecute_) {
+                  finishTime_ = System.currentTimeMillis();
+                  out1.println("CONNECT TIME: " + (finishTime_ - startTime_) + " ms");
+                }
                 addVariable("CON", connection_);
                 SQLWarning warning = connection_.getWarnings();
                 if (warning != null) {
@@ -1611,7 +1630,8 @@ public class Main implements Runnable {
               }
 
             } catch (Exception e) {
-              e.printStackTrace(out1);
+              out1.println("Exception "+e);
+              if (printStackTrace_) e.printStackTrace(out1);
               thisConnectPassword = null;
             }
             if (iSeriesDriver != null) {
@@ -1628,11 +1648,11 @@ public class Main implements Runnable {
           out1
               .println("Usage:  CONNECT TO URL [URL] [USERID=XXXX] [PASSWORD=YYYY]");
           out1
-              .println("  i.e.  CONNECT TO URL jdbc:db2:localhost USERID=EBERHARD PASSWORD=XXXXX");
+              .println("  i.e.  CONNECT TO URL jdbc:db2:localhost USERID=MYUSER PASSWORD=XXXXX");
           out1
-              .println("        CONNECT TO URL jdbc:db2://localhost/*LOCAL USERID=EBERHARD PASSWORD=XXXXX");
+              .println("        CONNECT TO URL jdbc:db2://localhost/*LOCAL USERID=MYUSER PASSWORD=XXXXX");
           out1
-              .println("        CONNECT TO URL jdbc:db2:SAMPLE\\;transaction isolation=serializable USERID=EBERHARD PASSWORD=XXXXXXX");
+              .println("        CONNECT TO URL jdbc:db2:SAMPLE\\;transaction isolation=serializable USERID=MYUSER PASSWORD=XXXXXXX");
         }
 
       } else if (upcaseCommand.startsWith("CONNECT TO SCHEMA")) {
@@ -1695,8 +1715,16 @@ public class Main implements Runnable {
           if (useConnectionPool_) {
             connection_ = getPooledConnection(userid_, password_, connectUrl, out1);
           } else {
+            if (measureExecute_) {
+              startTime_ = System.currentTimeMillis();
+            }
             connection_ = DriverManager.getConnection(connectUrl, userid_,
                 password_);
+            if (measureExecute_) {
+              finishTime_ = System.currentTimeMillis();
+              out1.println("CONNECT TIME: " + (finishTime_ - startTime_) + " ms");
+            }
+
             SQLWarning warning = connection_.getWarnings();
             if (warning != null) {
               if (!silent_) {
@@ -2068,7 +2096,8 @@ public class Main implements Runnable {
             out1.println("EXISTFILE " + filename + ": NO");
           }
         } catch (Exception e) {
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
       } else if (upcaseCommand.startsWith("GC")) {
         history.addElement("!"+command1);
@@ -2175,7 +2204,8 @@ public class Main implements Runnable {
 
           } catch (Exception e) {
             out1.println("Exception while setting cli trace");
-            e.printStackTrace(out1);
+            out1.println("Exception "+e);
+            if (printStackTrace_) e.printStackTrace(out1);
           }
 
         } else {
@@ -2207,7 +2237,8 @@ public class Main implements Runnable {
 
         } catch (Exception e) {
           out1.println("Exception while setting cli trace");
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
 
       } else if (upcaseCommand.startsWith("SYSTEMDEBUGGER")) {
@@ -2245,7 +2276,8 @@ public class Main implements Runnable {
           
         } catch (Exception e) {
           out1.println("Exception starting  SYSTEMDEBUGGER");
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
 
 
@@ -2340,7 +2372,8 @@ public class Main implements Runnable {
         } catch (Exception e) {
           out1
               .println("databaseMetaData.getColumns failed with exception " + e);
-          e.printStackTrace(out1);
+          
+          if (printStackTrace_) e.printStackTrace(out1);
         }
       } else if (upcaseCommand.startsWith("DMD.GETTABLES")) {
         history.addElement("!"+command1);
@@ -2409,7 +2442,7 @@ public class Main implements Runnable {
 
         } catch (Exception e) {
           out1.println("databaseMetaData.getTables failed with exception " + e);
-          e.printStackTrace(out1);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
 
       } else if (upcaseCommand.startsWith("DMD.GETINDEXINFO")) {
@@ -2469,7 +2502,7 @@ public class Main implements Runnable {
         } catch (Exception e) {
           out1.println("databaseMetaData.getIndexInfo failed with exception "
               + e);
-          e.printStackTrace(out1);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
 
       } else if (upcaseCommand.startsWith("DMD.GETSCHEMAS")) {
@@ -2489,7 +2522,7 @@ public class Main implements Runnable {
         } catch (Exception e) {
           out1
               .println("databaseMetaData.getSchemas failed with exception " + e);
-          e.printStackTrace(out1);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
       } else if (upcaseCommand.startsWith("HISTORY.CLEAR")) {
         history.clear();
@@ -2620,7 +2653,8 @@ public class Main implements Runnable {
           }
 
         } catch (Exception e) {
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
       } else if (upcaseCommand.startsWith("SETNEWVAR")) {
         history.addElement("!"+command1);
@@ -2643,7 +2677,8 @@ public class Main implements Runnable {
           }
 
         } catch (Exception e) {
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
       } else if (upcaseCommand.startsWith("SHOWVARMETHODS")) {
         history.addElement("!"+command1);
@@ -2820,12 +2855,12 @@ public class Main implements Runnable {
       exceptionOccurred_ = true; 
       out1.println("\n*** exception caught *** " + e);
       out1.println("Statement was " + command1);
-      e.printStackTrace(out1);
+      if (printStackTrace_) e.printStackTrace(out1);
     } catch (java.lang.UnknownError jlu) {
       exceptionOccurred_ = true; 
       out1.println("\n*** java.lang.UnknownError caught ***" + jlu);
       out1.println("Statement was " + command1);
-      jlu.printStackTrace(out1);
+      if (printStackTrace_) jlu.printStackTrace(out1);
 
     } // catch
     finally {
@@ -2839,7 +2874,8 @@ public class Main implements Runnable {
             }
           }
         } catch (Exception e) {
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
       }
     }
@@ -2911,6 +2947,9 @@ public class Main implements Runnable {
 
   private Object callMethod(String left, PrintStream out1) {
     try {
+      boolean methodFound = false;
+      StringBuffer possibleErrors = new StringBuffer(); 
+      
       Object variable = null;
       int paramIndex = left.indexOf("(");
       if (paramIndex > 0) {
@@ -2962,7 +3001,6 @@ public class Main implements Runnable {
                     }
                 }
               }
-              boolean methodFound = false;
               boolean anyMethodFound = false;
               for (int m = 0; !methodFound && (m < methods.length)
                   && (variable == null); m++) {
@@ -2995,8 +3033,8 @@ public class Main implements Runnable {
                             || (argsLeft.charAt(argEndIndex + 1) == ')')) {
                           nextArgIndex = argEndIndex + 2;
                         } else {
-                          out1.println("[,)] does not follow #"
-                              + argsLeft.charAt(0) + "#");
+                          possibleErrors.append("[,)] does not follow #"
+                              + argsLeft.charAt(0) + "#\n");
                           argEndIndex = -1;
                         }
                       }
@@ -3011,10 +3049,10 @@ public class Main implements Runnable {
                     }
                     if (argEndIndex < 0) {
                       methodFound = false;
-                      out1.println("Unable to find arg with remaining args "
-                          + argsLeft);
-                      out1.println("Number of parameters is "
-                          + parameterTypes.length);
+                      possibleErrors.append("Unable to find arg with remaining args "
+                          + argsLeft+"\n");
+                      possibleErrors.append("Number of parameters is "
+                          + parameterTypes.length+"\n");
                       methodFound = false;
                     } else {
                       if (argStartIndex <= argEndIndex) {
@@ -3047,48 +3085,48 @@ public class Main implements Runnable {
                             try {
                               parameters[p] = new Boolean(arg);
                             } catch (Exception e) {
-                              out1.println("Could not parse " + arg
-                                  + " as integer");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as integer\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("short")) {
                             try {
                               parameters[p] = new Short(arg);
                             } catch (Exception e) {
-                              out1.println("Could not parse " + arg
-                                  + " as short");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as short\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("int")) {
                             try {
                               parameters[p] = new Integer(arg);
                             } catch (Exception e) {
-                              out1.println("Could not parse " + arg
-                                  + " as integer");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as integer\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("long")) {
                             try {
                               parameters[p] = new Long(arg);
                             } catch (Exception e) {
-                              out1.println("Could not parse " + arg
-                                  + " as long");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as long\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("float")) {
                             try {
                               parameters[p] = new Float(arg);
                             } catch (Exception e) {
-                              out1.println("Could not parse " + arg
-                                  + " as float");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as float\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("double")) {
                             try {
                               parameters[p] = new Double(arg);
                             } catch (Exception e) {
-                              out1.println("Could not parse " + arg
-                                  + " as double");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as double\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName
@@ -3129,8 +3167,8 @@ public class Main implements Runnable {
                               }
 
                             } else {
-                              out1.println("Could not parse " + arg
-                                  + " as String array .. try [A+B+C]");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as String array .. try [A+B+C]\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("[I")) {
@@ -3173,21 +3211,21 @@ public class Main implements Runnable {
                                   }
                                 }
                               } catch (Exception e) {
-                                out1.println("Exception " + e + " piece = "
-                                    + piece);
-                                out1.println("Could not parse " + arg
-                                    + " as Integer.. try [1+2+3]");
+                                possibleErrors.append("Exception " + e + " piece = "
+                                    + piece+"\n");
+                                possibleErrors.append("Could not parse " + arg
+                                    + " as Integer.. try [1+2+3]\n");
                                 methodFound = false;
                               }
 
                             } else {
-                              out1.println("Could not parse " + arg
-                                  + " as Integer.. try [1+2+3]");
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as Integer.. try [1+2+3]\n");
                               methodFound = false;
                             }
                           } else {
-                            out1.println("Did not handle parameter with class "
-                                + parameterTypeName);
+                            possibleErrors.append("Did not handle parameter with class "
+                                + parameterTypeName+"\n");
                             methodFound = false;
                           }
                         } /* parameter was a variable */
@@ -3202,33 +3240,43 @@ public class Main implements Runnable {
                           methods[m].setAccessible(true);
                           variable = methods[m].invoke(callObject, parameters);
                         } catch (Exception e) {
-                          e.printStackTrace(out1);
-                          out1.println("Calling method " + methodName
-                              + " with " + methodParameters + " failed");
+                          if (e instanceof java.lang.reflect.InvocationTargetException) {
+                            Throwable nextException = e.getCause(); 
+                            if (nextException != null && (nextException instanceof Exception )) { 
+                              e =  (Exception ) nextException; 
+                            }
+                          }
+                          if (e instanceof XAException) {
+                            possibleErrors.append("XAException:"+e.toString()+" code="+getXACodeInfo((XAException)e)+"\n"); 
+                          }
+                          possibleErrors.append("Exception "+e+"\n");
+                          if (printStackTrace_) printStackTraceToStringBuffer(e, possibleErrors);
+                          possibleErrors.append("Calling method " + methodName
+                              + " with " + methodParameters + " failed\n");
                           methodFound = false;
                         }
                       } else {
-                        out1.println("Not calling method " + methodName
+                        possibleErrors.append("Not calling method " + methodName
                             + " with " + methodParameters
-                            + " because argsLeft = " + argsLeft);
+                            + " because argsLeft = " + argsLeft+"\n");
                         methodFound = false;
                       }
                     } else {
-                      out1.println("Not calling method " + methodName
+                      possibleErrors.append("Not calling method " + methodName
                           + " with " + methodParameters
-                          + " because parsed parameter count = " + p);
+                          + " because parsed parameter count = " + p+"\n");
                     }
                   } else {
-                    out1.println("Method not found " + methodName);
+                    possibleErrors.append("Method not found " + methodName+"\n");
                   }
                 }
               }
               if (!anyMethodFound) {
-                out1.println("ERROR:  Method not found " + methodName);
+                possibleErrors.append("ERROR:  Method not found " + methodName+"\n");
               }
 
             } else {
-              out1.println("ERROR:  could find ( in " + left);
+              possibleErrors.append("ERROR:  could find ( in " + left+"\n");
             }
           } else {
             out1.println("ERROR:  could not find variable or class "
@@ -3237,27 +3285,72 @@ public class Main implements Runnable {
 
           }
         } else {
-          out1.println("ERROR:  could find . in " + left);
+          possibleErrors.append("ERROR:  could find . in " + left);
         }
       } else {
-        out1.println("ERROR:  could find ( in " + left);
+        possibleErrors.append("ERROR:  could find ( in " + left);
+      }
+      if (!methodFound) {
+        out1.println("No matching method found, possible errors are the following:\n"+possibleErrors.toString());
       }
       return variable;
     } catch (Exception e) {
       exceptionOccurred_ = true; 
       out1.println("Unexpected exception");
-      e.printStackTrace(out1);
+      out1.println("Exception "+e);
+      if (printStackTrace_) e.printStackTrace(out1);
       return null;
     } catch (NoClassDefFoundError ncdfe) {
       exceptionOccurred_ = true; 
-      out1.println("NoClassDefFoundError");
-      ncdfe.printStackTrace(out1);
+      out1.println("NoClassDefFoundError "+ncdfe);
+      if (printStackTrace_) ncdfe.printStackTrace(out1);
       return null;
     }
   }
 
+  private String getXACodeInfo(XAException e) {
+    int code = e.errorCode; 
+    switch (code) {
+    case XAException.XA_HEURCOM: return "XA_HEURCOM : The transaction branch has been heuristically committed."; 
+    case XAException.XA_HEURHAZ: return "XA_HEURHAZ : The transaction branch may have been heuristically completed."; 
+    case XAException.XA_HEURMIX: return "XA_HEURMIX : The transaction branch has been heuristically committed and rolled back."; 
+    case XAException.XA_HEURRB: return "XA_HEURRB : The transaction branch has been heuristically rolled back.";
+    case XAException.XA_NOMIGRATE: return "XA_NOMIGRATE : Resumption must occur where the suspension occurred.";
+    case XAException.XA_RBCOMMFAIL: return "XA_RBCOMMFAIL : Indicates that the rollback was caused by a communication failure.";
+    case XAException.XA_RBDEADLOCK: return "XA_RBDEADLOCK : A deadlock was detected.";
+    case XAException.XA_RBINTEGRITY: return "XA_RBINTEGRITY : A condition that violates the integrity of the resource was detected.";
+    case XAException.XA_RBOTHER: return "XA_RBOTHER : The resource manager rolled back the transaction branch for a reason not on this list.";
+    case XAException.XA_RBPROTO: return "XA_RBPROTO : A protocol error occurred in the resource manager.";
+    case XAException.XA_RBROLLBACK: return "XA_RBROLLBACK : Indicates that the rollback was caused by an unspecified reason.";
+    case XAException.XA_RBTIMEOUT: return "XA_RBTIMEOUT : A transaction branch took too long.";
+    case XAException.XA_RBTRANSIENT: return "XA_RBTRANSIENT : May retry the transaction branch.";
+    case XAException.XA_RDONLY: return "XA_RDONLY : The transaction branch was read-only and has been committed.";
+    case XAException.XA_RETRY: return "XA_RETRY : Routine returned with no effect and may be reissued.";
+    case XAException.XAER_ASYNC: return "XAER_ASYNC : There is an asynchronous operation already outstanding.";
+    case XAException.XAER_DUPID: return "XAER_DUPID : The XID already exists.";
+    case XAException.XAER_INVAL: return "XAER_INVAL : Invalid arguments were given.";
+    case XAException.XAER_NOTA: return "XAER_NOTA : The XID is not valid.";
+    case XAException.XAER_OUTSIDE: return "XAER_OUTSIDE : The resource manager is doing work outside a global transaction.";
+    case XAException.XAER_PROTO: return "XAER_PROTO : Routine was invoked in an improper context.";
+    case XAException.XAER_RMERR: return "XAER_RMERR : A resource manager error has occurred in the transaction branch.";
+    case XAException.XAER_RMFAIL: return "XAER_RMFAIL : Resource manager is unavailable.";
+    }
+    return ""+code; 
+  }
+
+  public static void printStackTraceToStringBuffer(Throwable e, StringBuffer sb) {
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(stringWriter);
+    e.printStackTrace(printWriter);
+    String exception = stringWriter.toString();
+    sb.append(exception);
+
+  }
+
   private Object callNewMethod(String left, PrintStream out1) {
     try {
+      StringBuffer possibleErrors = new StringBuffer();
+      boolean methodFound = false;
       Object variable = null;
       int paramIndex = left.indexOf("(");
       if (paramIndex > 0) {
@@ -3274,7 +3367,7 @@ public class Main implements Runnable {
           if (paramIndex > 0) {
             Constructor[] constructors;
             constructors = newClass.getConstructors();
-            boolean methodFound = false;
+            
             for (int m = 0; !methodFound && (m < constructors.length)
                 && (variable == null); m++) {
 
@@ -3298,7 +3391,7 @@ public class Main implements Runnable {
                         || (argsLeft.charAt(argEndIndex + 1) == ')')) {
                       nextArgIndex = argEndIndex + 2;
                     } else {
-                      out1.println("[,)] does not follow ");
+                      possibleErrors.append("[,)] does not follow \n");
                       argEndIndex = -1;
                     }
                   }
@@ -3313,8 +3406,7 @@ public class Main implements Runnable {
                 }
                 if (argEndIndex < 0) {
                   methodFound = false;
-                  out1.println("Unable to find arg in " + argsLeft);
-                  methodFound = false;
+                  possibleErrors.append("Unable to find arg in " + argsLeft+"\n");
                 } else {
                   String arg = argsLeft.substring(argStartIndex, argEndIndex)
                       .trim();
@@ -3346,24 +3438,24 @@ public class Main implements Runnable {
                       try {
                         parameters[p] = new Integer(arg);
                       } catch (Exception e) {
-                        out1.println("Could not parse " + arg
-                            + " as integer");
+                        possibleErrors.append("Could not parse " + arg
+                            + " as integer\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("boolean")) {
                       try {
                         parameters[p] = new Boolean(arg);
                       } catch (Exception e) {
-                        out1.println("Could not parse " + arg
-                            + " as integer");
+                        possibleErrors.append("Could not parse " + arg
+                            + " as integer\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("long")) {
                       try {
                         parameters[p] = new Long(arg);
                       } catch (Exception e) {
-                        out1.println("Could not parse " + arg
-                            + " as long");
+                        possibleErrors.append("Could not parse " + arg
+                            + " as long\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("[Ljava.lang.String;")) {
@@ -3401,8 +3493,8 @@ public class Main implements Runnable {
                         }
 
                       } else {
-                        out1.println("Could not parse " + arg
-                            + " as String array .. try [A+B+C]");
+                        possibleErrors.append("Could not parse " + arg
+                            + " as String array .. try [A+B+C]\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("[I")) {
@@ -3441,20 +3533,20 @@ public class Main implements Runnable {
                             }
                           }
                         } catch (Exception e) {
-                          out1.println("Exception " + e + " piece = "
-                              + piece);
-                          out1.println("Could not parse " + arg
-                              + " as Integer.. try [1+2+3]");
+                          possibleErrors.append("Exception " + e + " piece = "
+                              + piece+"\n");
+                          possibleErrors.append("Could not parse " + arg
+                              + " as Integer.. try [1+2+3]\n");
                           methodFound = false;
                         }
 
                       } else {
-                        out1.println("Could not parse " + arg
-                            + " as Integer.. try [1+2+3]");
+                        possibleErrors.append("Could not parse " + arg
+                            + " as Integer.. try [1+2+3\n]");
                         methodFound = false;
                       }
                     } else {
-                      out1.println("Did not handle parameter with class "
+                      possibleErrors.append("Did not handle parameter with class "
                           + parameterTypeName);
                       methodFound = false;
                     }
@@ -3467,44 +3559,53 @@ public class Main implements Runnable {
                     || (argsLeft.trim().length() == 0)) {
                   try {
                     variable = constructors[m].newInstance(parameters);
+                    methodFound = true; 
                   } catch (Exception e) {
-                    e.printStackTrace(out1);
+                    possibleErrors.append("Exception "+e+"\n");
+                    if (printStackTrace_) printStackTraceToStringBuffer(e, possibleErrors); 
+                    
                     Throwable t = e.getCause(); 
                     while ( t != null) {
-                      out1.println("..Caused by\n"); 
-                      t.printStackTrace(out1); 
+                      possibleErrors.append("..Caused by "+t+"\n"); 
+                     
+                      if (printStackTrace_) printStackTraceToStringBuffer(t, possibleErrors); 
                       t = t.getCause(); 
                     }
-                    out1.println("Creating object  with "
-                        + methodParameters + " failed");
+                    possibleErrors.append("Creating object  with "
+                        + methodParameters + " failed\n");
                     methodFound = false;
                   }
                 } else {
-                  out1.println("Not calling constructor " + " with "
-                      + methodParameters + " because argsLeft = " + argsLeft);
+                  possibleErrors.append("Not calling constructor " + " with "
+                      + methodParameters + " because argsLeft = " + argsLeft+"\n");
                   methodFound = false;
                 }
               } /* method not found */
             } /* for loop for constructors */
           } else {
-            out1.println("ERROR:  could find ( in " + left);
+            possibleErrors.append("ERROR:  could find ( in " + left+"\n");
           }
         } else {
-          out1.println("ERROR:  could not find variable or class "
-              + newClassName);
+          possibleErrors.append("ERROR:  could not find variable or class "
+              + newClassName+"\n");
 
         }
       } else {
-        out1.println("ERROR:  could find ( in " + left);
+        possibleErrors.append("ERROR:  could find ( in " + left+"\n");
+      }
+      if (!methodFound) {
+        
+        out1.println("Unable to call method: Possible errors are the following\n"+possibleErrors.toString());
       }
       return variable;
     } catch (Exception e) {
       out1.println("Unexpected exception");
-      e.printStackTrace(out1);
+      out1.println("Exception "+e);
+      if (printStackTrace_) e.printStackTrace(out1);
       return null;
     } catch (NoClassDefFoundError ncdfe) {
-      out1.println("NoClassDefFoundError");
-      ncdfe.printStackTrace(out1);
+      out1.println("NoClassDefFoundError "+ncdfe);
+      if (printStackTrace_) ncdfe.printStackTrace(out1);
       return null;
     }
   }
@@ -4166,7 +4267,8 @@ public class Main implements Runnable {
           stuffString = new String(stuff);
         } catch (Exception e) {
           out1.println("Processing of " + thisParm + " failed");
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
         return stuffString;
       }
@@ -4187,7 +4289,8 @@ public class Main implements Runnable {
           }
         } catch (Exception e) {
           out1.println("Processing of " + thisParm + " failed");
-          e.printStackTrace(out1);
+          out1.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(out1);
         }
         return stuff;
       }
@@ -4210,7 +4313,8 @@ public class Main implements Runnable {
 
       } catch (Exception e) {
         out1.println("Processing of " + thisParm + " failed because of " + e);
-        e.printStackTrace(out1);
+        out1.println("Exception "+e);
+        if (printStackTrace_) e.printStackTrace(out1);
       }
       return blob;
     } else if (thisParm.indexOf("FILECLOB=") == 0) {
@@ -4229,7 +4333,8 @@ public class Main implements Runnable {
 
       } catch (Exception e) {
         out1.println("Processing of " + thisParm + " failed because of " + e);
-        e.printStackTrace(out1);
+        out1.println("Exception "+e);
+        if (printStackTrace_) e.printStackTrace(out1);
       }
       return clob;
     } else if (thisParm.indexOf("SAVEDPARM=") == 0) {
@@ -4336,7 +4441,8 @@ public class Main implements Runnable {
         stuffString = new String(stuff);
       } catch (Exception e) {
         out.println("Processing of " + thisParm + " failed");
-        e.printStackTrace(out);
+        out.println("Exception "+e);
+        if (printStackTrace_) e.printStackTrace(out);
       }
       cstmt.setString(parm, stuffString);
       out.println("CHARARRAY[size=" + specifiedLength + ",CRC32="
@@ -4442,7 +4548,8 @@ public class Main implements Runnable {
       }
     } catch (Exception e) {
       out1.println("Processing of " + thisParm + " failed");
-      e.printStackTrace(out1);
+      out1.println("Exception "+e);
+      if (printStackTrace_) e.printStackTrace(out1);
     }
     return stuff;
   }
@@ -4467,7 +4574,8 @@ public class Main implements Runnable {
       number = Integer.parseInt(parmNumber);
     } catch (Exception e) {
       out1.println("Processing of " + thisParm + " failed");
-      e.printStackTrace(out1);
+      out1.println("Exception "+e);
+      if (printStackTrace_) e.printStackTrace(out1);
     }
     cstmt1.setString(parm, savedStringParm_[number]);
     out1.println("SAVEDPARM set(" + parm + "," + savedStringParm_[number]
@@ -4551,7 +4659,8 @@ public class Main implements Runnable {
 
     } catch (Exception e) {
       out1.println("Processing of " + thisParm + " failed");
-      e.printStackTrace(out1);
+      out1.println("Exception "+e);
+      if (printStackTrace_) e.printStackTrace(out1);
       throw new SQLException("Unable to set HexString parameter");
     }
 
@@ -4997,7 +5106,8 @@ public class Main implements Runnable {
       if (e instanceof SQLException) {
         throw (SQLException) e;
       } else {
-        e.printStackTrace(out);
+        out.println("Exception "+e);
+        if (printStackTrace_) e.printStackTrace(out);
       }
     }
 
