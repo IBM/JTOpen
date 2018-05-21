@@ -101,8 +101,10 @@ public class Main implements Runnable {
       "!SETRESULTSETCONCURRENCY [..]   ..",
       "!SETRESULTSETHOLDABILITY [..]   ..",
       "!REUSE STATEMENT [true|false]   Controls whethe the stmt object is reused",
+      "!PROMPT [string]                Set the string to use for the prompt",
       "!ECHO [string]                  Echos the string",
       "!ECHOCOMMAND [true|false]       Should the input command be echod.",
+      "!ECHOCOMMENTS [true|false]      Should the comments be echod.",
       "!PRINTSTACKTRACE [true|false]   Should the stack trace be printed for SQLExceptions.",
       "-- [string]                     Specifies a comment",
       "!SETQUERYTIMEOUT [number]       Sets the query timeout for subsequent statements",
@@ -336,12 +338,11 @@ public class Main implements Runnable {
   }
 
   /*@Q7A -- added to support unicode escape syntax in SQL Statements */ 
-  public static String readLine(BufferedReader input) throws SQLException { 
-    String result = null; 
-    
-    try {
+  public static String readLine(BufferedReader input) throws Exception {
+    String result = null;
+
       result = input.readLine();
-    if (result != null) { 
+      if (result != null) {
         if (result.indexOf("\\u") >= 0) {
           int resultLen = result.length();
           StringBuffer sb = new StringBuffer();
@@ -353,29 +354,26 @@ public class Main implements Runnable {
               try {
                 sb.append(getUnicodeCharacter(result, escapeIndex + 2));
               } catch (SQLException ioEx) {
+
                 throw new SQLException("Escape sequence '"
-                    + result.substring(escapeIndex, 6) + "' invalid");
+                    + result.substring(escapeIndex, escapeIndex + 6)
+                    + "' invalid in "+result);
               }
             } else {
               throw new SQLException("Escape sequence '"
-                  + result.substring(escapeIndex) + "' invalid");
+                  + result.substring(escapeIndex) + "' invalid in "+result);
             }
             startIndex = escapeIndex + 6;
             if (startIndex > resultLen) {
               escapeIndex = -1;
             } else {
-              escapeIndex = result.indexOf(result, startIndex);
+              escapeIndex = result.indexOf("\\u", startIndex);
             }
           }
           sb.append(result.substring(startIndex));
           result = sb.toString();
         }
       }
-    } catch (IOException e) {
-      SQLException sqlex = new SQLException("IO Exception");
-      sqlex.initCause(e);
-      throw sqlex;
-    }
     return result;
   }
   
@@ -429,21 +427,38 @@ public class Main implements Runnable {
       BufferedReader input = new BufferedReader(new InputStreamReader(in));
       if (prompt_)
         out1.print(promptString);
-      query = readLine(input);
-      /* if we happen to get no input */ 
-      if (query == null) running = false; 
+      try {
+        query = readLine(input);
+        /* if we happen to get no input */
+        if (query == null)
+          running = false;
+      } catch (SQLException sqlex) {
+        out1.println("Exception reading: " + sqlex.toString());
+        if (printStackTrace_) sqlex.printStackTrace(out1);
+
+        query = null;
+      }
       while (running) {
-        running = executeTopLevelCommand(query, out1);
+        if (query != null) {
+          running = executeTopLevelCommand(query, out1);
+        }
         if (running) {
           if (prompt_)
             out1.print(promptString);
-          query = readLine(input);
-          if (query != null) {
-            query = query.trim();
-          } else {
-            // EOF found
-            running = false;
+          try {
+            query = readLine(input);
+            if (query != null) {
+              query = query.trim();
+            } else {
+              // EOF found
+              running = false;
+            }
+          } catch (SQLException sqlex) {
+            out1.println("Exception reading: " + sqlex.toString());
+            if (printStackTrace_) sqlex.printStackTrace(out1);
+            query = null;
           }
+
         }
       }
       if (connection_ != null) {
@@ -457,10 +472,10 @@ public class Main implements Runnable {
       variables.remove("CON");
 
     } catch (Exception e) {
-      System.out.println("Exception "+e); 
+      out1.println("Outermost Exception "+e); 
       if (printStackTrace_) e.printStackTrace(out1);
     } catch (java.lang.UnknownError jlu) {
-      System.out.println("UnknownError "+jlu); 
+      out1.println("Outermost UnknownError "+jlu); 
       if (printStackTrace_) jlu.printStackTrace(out1);
     }
 
@@ -1245,8 +1260,17 @@ public class Main implements Runnable {
       } else if (upcaseCommand.startsWith("CL:")) {
         String clCommand = command.substring(3).trim();
         executeCLCommand(clCommand, out1);
+      } else if (upcaseCommand.startsWith("!PROMPT")) { 
+        if (command.length() > 7) {
+          prompt_ = true; 
+          promptString =  command.substring(7).trim(); 
+        } else {
+          prompt_ = false; 
+        }
+      		
       } else if ((upcaseCommand.startsWith("!ECHO") &&
-                  !upcaseCommand.startsWith("!ECHOCOMMAND"))
+                  !upcaseCommand.startsWith("!ECHOCOMMAND")  &&
+                  !upcaseCommand.startsWith("!ECHOCOMMENTS"))
           || upcaseCommand.startsWith("--") || upcaseCommand.startsWith("//")
           || upcaseCommand.startsWith("/*")) {
 
@@ -1326,26 +1350,6 @@ public class Main implements Runnable {
 
     command1 = command1.trim();
 
-    //
-    // Strip the invisible if it exists
-
-    if (command1.toUpperCase().startsWith("INVISIBLE:")) {
-      silent_ = true;
-      command1 = command1.substring(10).trim();
-    }
-
-    //
-    // Strip the silent if it exists
-    //
-    if (command1.toUpperCase().startsWith("SILENT:")) {
-      silent_ = true;
-      command1 = command1.substring(7).trim();
-    }
-
-    if (command1.toUpperCase().startsWith("SILENTRS:")) {
-      silentrs_ = true;
-      command1 = command1.substring(9).trim();
-    }
 
     try {
       //
@@ -1391,7 +1395,7 @@ public class Main implements Runnable {
           resultSetConcurrency_ = ResultSet.CONCUR_UPDATABLE;
         } else {
           out1.println("Value of '" + command1 + " not valid. Use");
-          out1.println(" CONCUR_READ_ONLY or CONCUR_UPDATABLE ");
+          out1.println(" READ_ONLY or UPDATABLE ");
         }
       } else if (upcaseCommand.startsWith("SETRESULTSETHOLDABILITY")) {
         history.addElement("!"+command1);
@@ -1517,7 +1521,8 @@ public class Main implements Runnable {
               .println("UNABLE to SETPARM because prepared statement does not exist");
         }
       } else if ((upcaseCommand.startsWith("ECHO") &&
-                  !upcaseCommand.startsWith("ECHOCOMMAND"))
+                  !upcaseCommand.startsWith("ECHOCOMMAND")&&
+                  !upcaseCommand.startsWith("ECHOCOMMENTS"))
           || upcaseCommand.startsWith("--") || upcaseCommand.startsWith("//")
           || upcaseCommand.startsWith("/*")) {
 
@@ -1824,6 +1829,20 @@ public class Main implements Runnable {
         } else {
           out1.println("Invalid arg '" + arg + "' for ECHOCOMMAND");
         }
+      } else if (upcaseCommand.startsWith("ECHOCOMMENTS")) {
+        history.addElement("!"+command1);
+        String arg = command1.substring(12).trim().toUpperCase();
+        if (arg.equals("TRUE")) {
+          echoComments_ = true;
+        } else if (arg.equals("ON")) {
+          echoComments_ = true;
+        } else if (arg.equals("FALSE")) {
+          echoComments_ = false;
+        } else if (arg.equals("OFF")) {
+          echoComments_ = false;
+        } else {
+          out1.println("Invalid arg '" + arg + "' for ECHOCOMMENTS");
+        }
       } else if (upcaseCommand.startsWith("EXIT_REPEAT_ON_EXCEPTION") ||
                  upcaseCommand.startsWith("EXIT REPEAT ON EXCEPTION") ) {
         history.addElement("!"+command1);
@@ -1837,7 +1856,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           exitRepeatOnException_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for ECHOCOMMAND");
+          out1.println("Invalid arg '" + arg + "' for EXIT REPEAT ON EXCEPTION");
         }
       } else if (upcaseCommand.startsWith("PRINTSTACKTRACE")) {
         history.addElement("!"+command1);
@@ -1851,7 +1870,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           printStackTrace_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for ECHOCOMMAND");
+          out1.println("Invalid arg '" + arg + "' for PRINTSTACKTRACE");
         }
       } else if (upcaseCommand.startsWith("CLOSESTATEMENTRS")) {
         history.addElement("!"+command1);
@@ -1880,210 +1899,6 @@ public class Main implements Runnable {
           measureExecute_ = false;
         } else {
           out1.println("Invalid arg '" + arg + "' for measureExecute");
-        }
-      } else if (upcaseCommand.startsWith("CALL ")) {
-        history.addElement(command1);
-        if (connection_ != null) {
-          //
-          // See if input parameters are passed.
-          // If so, they are comma separated
-          // A unicode string may be specified using UX'dddd'
-          // A byte array may be specified using X'dddd'
-          // or GEN_BYTE_ARRAY+'nnnn'
-          //
-          int parmIndex = command1.indexOf("-- INPARM");
-          String parms = null;
-          if (parmIndex > 0) {
-            parms = command1.substring(parmIndex + 9).trim();
-            command1 = command1.substring(0, parmIndex);
-          }
-
-          if (jdk14_) {
-            cstmt_ = connection_.prepareCall(command1, resultSetType_,
-                resultSetConcurrency_, resultSetHoldability_);
-          } else {
-            cstmt_ = connection_.prepareCall(command1);
-          }
-          addVariable("CSTMT", cstmt_);
-
-          if (jdk14_) {
-            //
-            // If JDK 1.4 is available then use metadata
-            // to set parameters
-            //
-            ParameterMetaData pmd = cstmt_.getParameterMetaData();
-            int parmCount = pmd.getParameterCount();
-            for (int parm = 1; parm <= parmCount; parm++) {
-              int mode = pmd.getParameterMode(parm);
-              if (mode == ParameterMetaData.parameterModeOut
-                  || mode == ParameterMetaData.parameterModeInOut) {
-
-                // Register the output parameter as the correct type
-                // For most of the types, we will register as VARCHAR
-                // since we will be used getString() to get the
-                // output.
-
-                int type = pmd.getParameterType(parm);
-                switch (type) {
-                case Types.BLOB:
-                case Types.BINARY:
-                case Types.VARBINARY:
-                case Types.LONGVARBINARY:
-                case -8: /* ROWID */
-                case Types.ARRAY:
-                  cstmt_.registerOutParameter(parm, type);
-                  break;
-                default:
-                  cstmt_.registerOutParameter(parm, Types.VARCHAR);
-
-                }
-              }
-
-              if (mode == ParameterMetaData.parameterModeIn
-                  || mode == ParameterMetaData.parameterModeInOut) {
-                String thisParm = parms;
-                if (parms != null) {
-                  parmIndex = parms.indexOf(",");
-                  if (parmIndex >= 0) {
-                    thisParm = parms.substring(0, parmIndex).trim();
-                    parms = parms.substring(parmIndex + 1).trim();
-                  }
-                }
-                if (thisParm != null) {
-                  setParameter(cstmt_, thisParm, parm, out1);
-                } else {
-                  out1.println("Warning:  thisParm is null");
-                  out1.println("--INPARM not found but num param > 0 ");
-                }
-
-              }
-            }
-          } else {
-            //
-            // If there is a question mark, assume that parameter markers were
-            // used and
-            // throw an exception
-            //
-            if (command1.indexOf("?") >= 0) {
-              throw new SQLException(
-                  "Use of parameter markers in call statement only supported in JDK 1.4 -- statement was "
-                      + command1);
-            }
-          }
-
-          boolean resultSetAvailable = cstmt_.execute();
-          // Display any warnings
-          SQLWarning warning = cstmt_.getWarnings();
-          if (warning != null) {
-            if (!silent_) {
-              dispWarning(out1, warning, hideWarnings_, html_);
-            }
-            if (html_) {
-              out1.println("Statement was " + command1);
-            }
-          }
-
-          if (jdk14_) {
-            //
-            // If JDK 1.4 is available then use metadata
-            // to get parameters
-            //
-            ParameterMetaData pmd = cstmt_.getParameterMetaData();
-            int parmCount = pmd.getParameterCount();
-            for (int parm = 1; parm <= parmCount; parm++) {
-              int mode = pmd.getParameterMode(parm);
-              if (mode == ParameterMetaData.parameterModeOut
-                  || mode == ParameterMetaData.parameterModeInOut) {
-
-                int type = pmd.getParameterType(parm);
-
-                switch (type) {
-                case Types.BLOB:
-                case Types.BINARY:
-                case Types.VARBINARY:
-                case Types.LONGVARBINARY:
-                case -8: /* ROWID */
-
-                {
-                  out1.print("Parameter " + parm + " returned ");
-                  byte[] bytes = cstmt_.getBytes(parm);
-                  if (bytes == null) {
-                    out1.println("null");
-                  } else {
-                    if (bytes.length < showLobThreshold_) {
-                      out1.print("X'");
-                      for (int i = 0; i < bytes.length; i++) {
-                        int unsignedInt = 0xFF & bytes[i];
-                        if (unsignedInt < 0x10) {
-                          out1.print("0" + Integer.toHexString(unsignedInt));
-                        } else {
-                          out1.print(Integer.toHexString(unsignedInt));
-                        }
-                      }
-                      out1.println("'");
-                    } else {
-                      CRC32 checksum = new CRC32();
-                      checksum.update(bytes);
-                      out1.println("ARRAY[size=" + bytes.length + ",CRC32="
-                          + checksum.getValue() + "]");
-                    }
-                  }
-                }
-                  break;
-                case Types.ARRAY:
-                  out1.print("Parameter " + parm + " returned ARRAY ");
-                  printArray(out1, cstmt_.getArray(parm));
-                  out1.println();
-
-                  break;
-                default:
-                  out1.print("Parameter " + parm + " returned ");
-                  savedStringParm_[parm] = cstmt_.getString(parm);
-                  printUnicodeString(out1, savedStringParm_[parm]);
-                  out1.println();
-                }
-              }
-            }
-          }
-
-          if (resultSetAvailable) {
-            ResultSet rs = cstmt_.getResultSet();
-            if (rs != null) {
-              if (manualFetch_) {
-                ResultSetMetaData rsmd = rs.getMetaData();
-                manualResultSetNumCols_ = rsmd.getColumnCount();
-                setManualResultSetColType(rsmd);
-                manualResultSet_ = rs;
-                addVariable("RS", manualResultSet_);
-                manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs,
-                    rsmd, false, manualResultSetNumCols_, html_, xml_,showMixedUX_, silentrs_);   //@Q9C
-              } else {
-
-                dispResultSet(out1, rs, false);
-                if (closeStatementRS_) {
-                  rs.close();
-                  rs = null;
-                }
-              }
-              // Look for more result tests
-              if (!manualFetch_) {
-                while (cstmt_.getMoreResults()) {
-                  out1.println("<<<< NEXT RESULT SET >>>>>>>");
-                  rs = cstmt_.getResultSet();
-                  dispResultSet(out1, rs, false);
-                  if (closeStatementRS_) {
-                    rs.close();
-                    rs = null;
-                  }
-                }
-              }
-            }
-          }
-          if (!manualFetch_ && closeStatementRS_) {
-            cstmt_.close();
-          }
-        } else {
-          out1.println("UNABLE to EXECUTE CALL because not connected");
         }
       } else if (upcaseCommand.startsWith("EXISTFILE")) {
         history.addElement("!"+command1);
