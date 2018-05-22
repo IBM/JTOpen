@@ -154,7 +154,7 @@ public class Main implements Runnable {
       "GEN_CHAR_ARRAY+<count>C<ccsid> A generated character string",
       "SQLARRAY[TYPE:e1:e2:...]       A JAVA.SQL.ARRAY type",
       "                               Types are String:BigDecimal:Date:Time:Timestamp:Blob:Clob:int:short:long:float:double:byteArray",
-      "SQLARRAY[Date:e1 e2 ...]       A JAVA.SQL.ARRAY with data blank sep",
+      "SQLARRAY[Time:e1 e2 ...]       A JAVA.SQL.ARRAY with time blank sep",
       "SQLARRAY[Timestamp:e1|e2 ...]  A JAVA.SQL.ARRAY with timestamp | sep",
 
       "",
@@ -198,7 +198,6 @@ public class Main implements Runnable {
   int resultSetType_ = ResultSet.TYPE_FORWARD_ONLY;
   int resultSetConcurrency_ = ResultSet.CONCUR_READ_ONLY;
   int resultSetHoldability_ = ResultSet.HOLD_CURSORS_OVER_COMMIT;
-  boolean jdk14_ = false;
   boolean jdk16_ = false;
   private boolean hideWarnings_ = false;
   private boolean toolboxDriver_ = false;
@@ -247,26 +246,6 @@ public class Main implements Runnable {
   void initializeDefaults() {
 
     //
-    // Load drivers
-    //
-    for (int i = 0; i < knownDrivers.length; i++) {
-      try {
-        Class.forName(knownDrivers[i]);
-      } catch (Exception e) {
-        if (debug_ | printStackTrace_) {
-          e.printStackTrace();
-        }
-      }
-    }
-    //
-    // look for jdk1.4
-    //
-    jdk14_ = JVMInfo.isJDK14(); 
-    jdk16_ = JVMInfo.isJDK16(); 
-    
-    addVariable("MAIN", this);
-
-    //
     // Look for debug setting
     //
     try {
@@ -281,6 +260,26 @@ public class Main implements Runnable {
     } catch (java.security.AccessControlException ace) {
       // Just ignore error reading property
     }
+
+    //
+    // Load drivers
+    //
+    for (int i = 0; i < knownDrivers.length; i++) {
+      try {
+        Class.forName(knownDrivers[i]);
+      } catch (Exception e) {
+        if (debug_ | printStackTrace_) {
+          e.printStackTrace();
+        }
+      }
+    }
+    //
+    // check jdk level 
+    //
+    jdk16_ = JVMInfo.isJDK16(); 
+    
+    addVariable("MAIN", this);
+
 
     String moreDrivers = null;
     try {
@@ -364,11 +363,7 @@ public class Main implements Runnable {
                   + result.substring(escapeIndex) + "' invalid in "+result);
             }
             startIndex = escapeIndex + 6;
-            if (startIndex > resultLen) {
-              escapeIndex = -1;
-            } else {
-              escapeIndex = result.indexOf("\\u", startIndex);
-            }
+            escapeIndex = result.indexOf("\\u", startIndex);
           }
           sb.append(result.substring(startIndex));
           result = sb.toString();
@@ -418,7 +413,7 @@ public class Main implements Runnable {
       throw new SQLException("invalid escape digit '"+digit+"'"); 
   }
 
-  public int go(InputStream in, PrintStream out1) {
+  public int go(InputStream in, PrintStream printStreamForGo) {
     int rc = 0;
     boolean running = true;
     String query;
@@ -426,25 +421,25 @@ public class Main implements Runnable {
     try {
       BufferedReader input = new BufferedReader(new InputStreamReader(in));
       if (prompt_)
-        out1.print(promptString);
+        printStreamForGo.print(promptString);
       try {
         query = readLine(input);
         /* if we happen to get no input */
         if (query == null)
           running = false;
       } catch (SQLException sqlex) {
-        out1.println("Exception reading: " + sqlex.toString());
-        if (printStackTrace_) sqlex.printStackTrace(out1);
+        printStreamForGo.println("Exception reading: " + sqlex.toString());
+        if (printStackTrace_) sqlex.printStackTrace(printStreamForGo);
 
         query = null;
       }
       while (running) {
         if (query != null) {
-          running = executeTopLevelCommand(query, out1);
+          running = executeTopLevelCommand(query, printStreamForGo);
         }
         if (running) {
           if (prompt_)
-            out1.print(promptString);
+            printStreamForGo.print(promptString);
           try {
             query = readLine(input);
             if (query != null) {
@@ -454,8 +449,8 @@ public class Main implements Runnable {
               running = false;
             }
           } catch (SQLException sqlex) {
-            out1.println("Exception reading: " + sqlex.toString());
-            if (printStackTrace_) sqlex.printStackTrace(out1);
+            printStreamForGo.println("Exception reading: " + sqlex.toString());
+            if (printStackTrace_) sqlex.printStackTrace(printStreamForGo);
             query = null;
           }
 
@@ -472,11 +467,11 @@ public class Main implements Runnable {
       variables.remove("CON");
 
     } catch (Exception e) {
-      out1.println("Outermost Exception "+e); 
-      if (printStackTrace_) e.printStackTrace(out1);
+      printStreamForGo.println("Outermost Exception "+e); 
+      if (printStackTrace_) e.printStackTrace(printStreamForGo);
     } catch (java.lang.UnknownError jlu) {
-      out1.println("Outermost UnknownError "+jlu); 
-      if (printStackTrace_) jlu.printStackTrace(out1);
+      printStreamForGo.println("Outermost UnknownError "+jlu); 
+      if (printStackTrace_) jlu.printStackTrace(printStreamForGo);
     }
 
     return rc;
@@ -513,7 +508,6 @@ public class Main implements Runnable {
        resultSetType_ =  originalMain.resultSetType_  ;
        resultSetConcurrency_ =  originalMain.resultSetConcurrency_  ;
        resultSetHoldability_ =  originalMain.resultSetHoldability_  ;
-       jdk14_ = originalMain.jdk14_  ;
        jdk16_ = originalMain.jdk16_  ;
        hideWarnings_ = originalMain.hideWarnings_  ;
        toolboxDriver_ = originalMain.toolboxDriver_  ;
@@ -571,7 +565,7 @@ public class Main implements Runnable {
             wait(1000);
           } catch (InterruptedException e) {
             out_.println("Interrupted Exception : "+e); 
-            if (printStackTrace_)  e.printStackTrace();
+            if (printStackTrace_)  e.printStackTrace(out_);
           } 
 		   }
 	       }
@@ -614,9 +608,9 @@ public class Main implements Runnable {
     }
   }
 
-  public void setUserId(String newUserId, PrintStream out1) {
+  public void setUserId(String newUserId) {
     if (debug_)
-      out1.println("User ID set to " + newUserId);
+      out_.println("User ID set to " + newUserId);
     userid_ = newUserId;
   }
 
@@ -744,12 +738,8 @@ public class Main implements Runnable {
           }
         }
         
-        if (jdk14_) {
-          stmt_ = connection_.createStatement(resultSetType_,
+        stmt_ = connection_.createStatement(resultSetType_,
               resultSetConcurrency_, resultSetHoldability_);
-        } else {
-          stmt_ = connection_.createStatement();
-        }
         addVariable("STMT", stmt_);
       }
 
@@ -826,12 +816,8 @@ public class Main implements Runnable {
           stmt_.close();
           stmt_ = null; 
         }
-        if (jdk14_) {
           stmt_ = connection_.createStatement(resultSetType_,
               resultSetConcurrency_, resultSetHoldability_);
-        } else {
-          stmt_ = connection_.createStatement();
-        }
         addVariable("STMT", stmt_);
       }
 
@@ -881,16 +867,11 @@ public class Main implements Runnable {
         // Already prepared.. Keep existing
       } else {
 
-        if (jdk14_) {
           cstmt_ = connection_.prepareCall(command, resultSetType_,
               resultSetConcurrency_, resultSetHoldability_);
-        } else {
-          cstmt_ = connection_.prepareCall(command);
-        }
         cstmtSql_ = command; 
         addVariable("CSTMT", cstmt_);
       }
-      if (jdk14_) {
         //
         // If JDK 1.4 is available then use metadata
         // to set parameters
@@ -942,18 +923,6 @@ public class Main implements Runnable {
 
           }
         }
-      } else {
-        //
-        // If there is a question mark, assume that parameter markers were
-        // used and
-        // throw an exception
-        //
-        if (command.indexOf("?") >= 0) {
-          throw new SQLException(
-              "Use of parameter markers in call statement only supported in JDK 1.4 -- statement was "
-                  + command);
-        }
-      }
 
       boolean resultSetAvailable = cstmt_.execute();
       // Display any warnings
@@ -966,14 +935,9 @@ public class Main implements Runnable {
           out1.println("Statement was " + command);
         }
       }
+      
+      // Use pmd to get variables 
 
-      if (jdk14_) {
-        //
-        // If JDK 1.4 is available then use metadata
-        // to get parameters
-        //
-        ParameterMetaData pmd = cstmt_.getParameterMetaData();
-        int parmCount = pmd.getParameterCount();
         for (int parm = 1; parm <= parmCount; parm++) {
           int mode = pmd.getParameterMode(parm);
           if (mode == ParameterMetaData.parameterModeOut
@@ -1028,7 +992,6 @@ public class Main implements Runnable {
             }
           }
         }
-      }
 
       if (resultSetAvailable) {
         ResultSet rs = cstmt_.getResultSet();
@@ -1100,12 +1063,8 @@ public class Main implements Runnable {
               
             }
           }
-          if (jdk14_) {
             stmt_ = connection_.createStatement(resultSetType_,
                 resultSetConcurrency_, resultSetHoldability_);
-          } else {
-            stmt_ = connection_.createStatement();
-          }
           addVariable("STMT", stmt_);
         }
       }
@@ -1213,10 +1172,10 @@ public class Main implements Runnable {
    * Execute a top level command. This may be an SQL statement or a command !
    *
    * @param command
-   * @param out1
+   * @param printStreamForTopLevelCommand
    * @return  false if the top level command is exit or quit
    */
-  public boolean executeTopLevelCommand(String command, PrintStream out1) {
+  public boolean executeTopLevelCommand(String command, PrintStream printStreamForTopLevelCommand) {
     boolean returnCode = true;
     silent_ = false;
     silentrs_ = false;
@@ -1231,9 +1190,9 @@ public class Main implements Runnable {
       command = command.substring(11).trim();
     } else {
       if (echoCommand_) {
-        out1.println(command);
+        printStreamForTopLevelCommand.println(command);
         if (html_)
-          out1.println("<BR>");
+          printStreamForTopLevelCommand.println("<BR>");
       }
     }
 
@@ -1256,10 +1215,10 @@ public class Main implements Runnable {
       String upcaseCommand = command.toUpperCase();
       if (upcaseCommand.startsWith("SELECT")
           || upcaseCommand.startsWith("VALUES")) {
-        executeSqlQuery(command,out1);
+        executeSqlQuery(command,printStreamForTopLevelCommand);
       } else if (upcaseCommand.startsWith("CL:")) {
         String clCommand = command.substring(3).trim();
-        executeCLCommand(clCommand, out1);
+        executeCLCommand(clCommand, printStreamForTopLevelCommand);
       } else if (upcaseCommand.startsWith("!PROMPT")) { 
         if (command.length() > 7) {
           prompt_ = true; 
@@ -1277,9 +1236,9 @@ public class Main implements Runnable {
         history.addElement(command);
 
         if (echoComments_) {
-          out1.println(command);
+          printStreamForTopLevelCommand.println(command);
           if (html_)
-            out1.println("<BR>");
+            printStreamForTopLevelCommand.println("<BR>");
         }
       } else if (upcaseCommand.equals("!QUIT")
           || upcaseCommand.equals("!EXIT")
@@ -1288,32 +1247,32 @@ public class Main implements Runnable {
         returnCode = false;
       } else if (command.length() > 0 && command.startsWith("!")) {
         command = command.substring(1);
-        executeCommand(command, out1);
+        executeCommand(command, printStreamForTopLevelCommand);
       } else if (upcaseCommand.startsWith("CALL ")) {
-        executeCallCommand(command, out1);
+        executeCallCommand(command, printStreamForTopLevelCommand);
       } else {
         //
         // If not a blank line
         //
         if (upcaseCommand.length() != 0) {
-          executeSqlCommand(command, out1);
+          executeSqlCommand(command, printStreamForTopLevelCommand);
         }
       }
 
     } catch (SQLException ex) {
       exceptionOccurred_  = true; 
-      processException(ex, command, out1);
+      processException(ex, command, printStreamForTopLevelCommand);
     } catch (Exception e) {
       exceptionOccurred_ = true; 
-      out1.println("\n*** exception caught *** " + e);
-      out1.println("Statement was " + command);
+      printStreamForTopLevelCommand.println("\n*** exception caught *** " + e);
+      printStreamForTopLevelCommand.println("Statement was " + command);
       
-      if (printStackTrace_) e.printStackTrace(out1);
+      if (printStackTrace_) e.printStackTrace(printStreamForTopLevelCommand);
     } catch (java.lang.UnknownError jlu) {
       exceptionOccurred_ = true; 
-      out1.println("\n*** java.lang.UnknownError caught ***" + jlu);
-      out1.println("Statement was " + command);
-      if (printStackTrace_) jlu.printStackTrace(out1);
+      printStreamForTopLevelCommand.println("\n*** java.lang.UnknownError caught ***" + jlu);
+      printStreamForTopLevelCommand.println("Statement was " + command);
+      if (printStackTrace_) jlu.printStackTrace(printStreamForTopLevelCommand);
 
     } // catch
     finally {
@@ -1327,8 +1286,8 @@ public class Main implements Runnable {
             }
           }
         } catch (Exception e) {
-          out1.println("Exception :"+e); 
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForTopLevelCommand.println("Exception :"+e); 
+          if (printStackTrace_) e.printStackTrace(printStreamForTopLevelCommand);
         }
       }
     }
@@ -1341,10 +1300,10 @@ public class Main implements Runnable {
    * The ! has already been stripped from the command.
    *
    * @param command1
-   * @param out1
+   * @param printStreamForExecuteCommand
    * @return false if the command is exit or quit
    */
-  public boolean executeCommand(String command1, PrintStream out1) {
+  public boolean executeCommand(String command1, PrintStream printStreamForExecuteCommand) {
     boolean returnCode = true;
     silentrs_ = false;
 
@@ -1364,12 +1323,8 @@ public class Main implements Runnable {
             pstmt_.close();
           }
         }
-        if (jdk14_) {
           pstmt_ = connection_.prepareStatement(command1, resultSetType_,
               resultSetConcurrency_, resultSetHoldability_);
-        } else {
-          pstmt_ = connection_.prepareStatement(command1);
-        }
         addVariable("PSTMT", pstmt_);
 
       } else if (upcaseCommand.startsWith("SETRESULTSETTYPE")) {
@@ -1382,8 +1337,8 @@ public class Main implements Runnable {
         } else if (command1.indexOf("SCROLL_SENSITIVE") >= 0) {
           resultSetType_ = ResultSet.TYPE_SCROLL_SENSITIVE;
         } else {
-          out1.println("Value of '" + command1 + " not valid use");
-          out1
+          printStreamForExecuteCommand.println("Value of '" + command1 + " not valid use");
+          printStreamForExecuteCommand
               .println("     FORWARD_ONLY, SCROLL_INSENSITIVE, or SCROLL_SENSITIVE");
         }
       } else if (upcaseCommand.startsWith("SETRESULTSETCONCURRENCY")) {
@@ -1394,8 +1349,8 @@ public class Main implements Runnable {
         } else if (command1.indexOf("UPDATABLE") >= 0) {
           resultSetConcurrency_ = ResultSet.CONCUR_UPDATABLE;
         } else {
-          out1.println("Value of '" + command1 + " not valid. Use");
-          out1.println(" READ_ONLY or UPDATABLE ");
+          printStreamForExecuteCommand.println("Value of '" + command1 + " not valid. Use");
+          printStreamForExecuteCommand.println(" READ_ONLY or UPDATABLE ");
         }
       } else if (upcaseCommand.startsWith("SETRESULTSETHOLDABILITY")) {
         history.addElement("!"+command1);
@@ -1405,8 +1360,8 @@ public class Main implements Runnable {
         } else if (command1.indexOf("CLOSE") >= 0) {
           resultSetHoldability_ = ResultSet.CLOSE_CURSORS_AT_COMMIT;
         } else {
-          out1.println("Value of '" + command1 + " not valid. Use");
-          out1.println(" HOLD_CURSORS_OVER_COMMIT or CLOSE_CURSORS_AT_COMMIT");
+          printStreamForExecuteCommand.println("Value of '" + command1 + " not valid. Use");
+          printStreamForExecuteCommand.println(" HOLD_CURSORS_OVER_COMMIT or CLOSE_CURSORS_AT_COMMIT");
         }
       } else if (upcaseCommand.startsWith("EXECUTEQUERY")) {
         history.addElement("!"+command1);
@@ -1418,7 +1373,7 @@ public class Main implements Runnable {
           ResultSet rs = pstmt_.executeQuery();
           if (measureExecute_) {
             finishTime_ = System.currentTimeMillis();
-            out1.println("TIME: " + (finishTime_ - startTime_) + " ms");
+            printStreamForExecuteCommand.println("TIME: " + (finishTime_ - startTime_) + " ms");
           }
           if (manualFetch_) {
             ResultSetMetaData rsmd = rs.getMetaData();
@@ -1426,17 +1381,17 @@ public class Main implements Runnable {
             setManualResultSetColType(rsmd);
             manualResultSet_ = rs;
             addVariable("RS", manualResultSet_);
-            manualResultSetColumnLabel_ = dispColumnHeadings(out1, rs, rsmd,
+            manualResultSetColumnLabel_ = dispColumnHeadings(printStreamForExecuteCommand, rs, rsmd,
                 false, manualResultSetNumCols_, html_, xml_,showMixedUX_, silentrs_);  //@Q9C
           } else {
 
             // Display all columns and rows from the result set
-            dispResultSet(out1, rs, false);
+            dispResultSet(printStreamForExecuteCommand, rs, false);
             // Display any warnings
             SQLWarning warning = pstmt_.getWarnings();
             if (warning != null) {
               if (!silent_) {
-                dispWarning(out1, warning, hideWarnings_, html_);
+                dispWarning(printStreamForExecuteCommand, warning, hideWarnings_, html_);
               }
             }
             // Close the result set
@@ -1445,7 +1400,7 @@ public class Main implements Runnable {
             }
           }
         } else {
-          out1
+          printStreamForExecuteCommand
               .println("UNABLE to EXECUTE QUERY because prepared statement does not exist");
         }
       } else if (upcaseCommand.startsWith("EXECUTEUPDATE")) {
@@ -1457,18 +1412,18 @@ public class Main implements Runnable {
           pstmt_.executeUpdate();
           if (measureExecute_) {
             finishTime_ = System.currentTimeMillis();
-            out1.println("TIME: " + (finishTime_ - startTime_) + " ms");
+            printStreamForExecuteCommand.println("TIME: " + (finishTime_ - startTime_) + " ms");
           }
 
           // Display any warnings
           SQLWarning warning = pstmt_.getWarnings();
           if (warning != null) {
             if (!silent_) {
-              dispWarning(out1, warning, hideWarnings_, html_);
+              dispWarning(printStreamForExecuteCommand, warning, hideWarnings_, html_);
             }
           }
         } else {
-          out1
+          printStreamForExecuteCommand
               .println("UNABLE to EXECUTE UPDATE because prepared statement does not exist");
         }
       } else if (upcaseCommand.startsWith("SETPARMFROMVAR")) {
@@ -1486,20 +1441,20 @@ public class Main implements Runnable {
               SQLWarning warning = pstmt_.getWarnings();
               if (warning != null) {
                 if (!silent_) {
-                  dispWarning(out1, warning, hideWarnings_, html_);
+                  dispWarning(printStreamForExecuteCommand, warning, hideWarnings_, html_);
                 }
               }
 
             } else {
-              out1.println("Unable to find object for variable " + parmString);
-              showValidVariables(out1);
+              printStreamForExecuteCommand.println("Unable to find object for variable " + parmString);
+              showValidVariables(printStreamForExecuteCommand);
             }
           } else {
-            out1
+            printStreamForExecuteCommand
                 .println("UNABLE to find comma for SETPARM  --> SETPARM [index],[value]");
           }
         } else {
-          out1
+          printStreamForExecuteCommand
               .println("UNABLE to SETPARM because prepared statement does not exist");
         }
       } else if (upcaseCommand.startsWith("SETPARM")) {
@@ -1511,13 +1466,13 @@ public class Main implements Runnable {
             String indexString = command1.substring(0, commaIndex).trim();
             int index = Integer.parseInt(indexString);
             String parmString = command1.substring(commaIndex + 1).trim();
-            setParameter(pstmt_, parmString, index, out1);
+            setParameter(pstmt_, parmString, index, printStreamForExecuteCommand);
           } else {
-            out1
+            printStreamForExecuteCommand
                 .println("UNABLE to find comma for SETPARM  --> SETPARM [index],[value]");
           }
         } else {
-          out1
+          printStreamForExecuteCommand
               .println("UNABLE to SETPARM because prepared statement does not exist");
         }
       } else if ((upcaseCommand.startsWith("ECHO") &&
@@ -1529,9 +1484,9 @@ public class Main implements Runnable {
         history.addElement("!"+command1);
 
         if (echoComments_) {
-          out1.println(command1);
+          printStreamForExecuteCommand.println(command1);
           if (html_)
-            out1.println("<BR>");
+            printStreamForExecuteCommand.println("<BR>");
         }
 
         // Already echoed, don't do anything
@@ -1540,9 +1495,9 @@ public class Main implements Runnable {
         String arg = command1.substring(16).trim();
         try {
           queryTimeout_ = Integer.parseInt(arg);
-          out1.println("-->Query timeout set to " + queryTimeout_);
+          printStreamForExecuteCommand.println("-->Query timeout set to " + queryTimeout_);
         } catch (Exception e) {
-          out1.println("Unable to parse (" + arg + ")");
+          printStreamForExecuteCommand.println("Unable to parse (" + arg + ")");
         }
 
         // Already echoed, don't do anything
@@ -1590,20 +1545,20 @@ public class Main implements Runnable {
                   .substring(0, spaceIndex);
             }
             if (debug_)
-              out1.println("Connecting using " + userid_ + ", "
+              printStreamForExecuteCommand.println("Connecting using " + userid_ + ", "
                   + password_ + " to " + connectUrl);
             Driver iSeriesDriver = null;
             try {
 
               if (connectUrl.indexOf("jdbc:db2://") >= 0) {
                 if (debug_)
-                  out1.println("Loading jcc driver");
+                  printStreamForExecuteCommand.println("Loading jcc driver");
                 Class.forName("com.ibm.db2.jcc.DB2Driver").newInstance();
                 Driver currentDriver = DriverManager.getDriver(url_);
                 if (currentDriver.getClass().getName().equals(
                     "com.ibm.db2.jdbc.app.DB2Driver")) {
                   if (debug_)
-                    out1.println("removing native driver");
+                    printStreamForExecuteCommand.println("removing native driver");
                   iSeriesDriver = currentDriver;
                   DriverManager.deregisterDriver(iSeriesDriver);
                 }
@@ -1612,7 +1567,7 @@ public class Main implements Runnable {
 
               if (useConnectionPool_) {
                 connection_ = getPooledConnection(thisConnectUserId,
-                    thisConnectPassword, connectUrl, out1);
+                    thisConnectPassword, connectUrl, printStreamForExecuteCommand);
 
               } else {
                 if (measureExecute_) {
@@ -1622,21 +1577,21 @@ public class Main implements Runnable {
                     thisConnectUserId, thisConnectPassword);
                 if (measureExecute_) {
                   finishTime_ = System.currentTimeMillis();
-                  out1.println("CONNECT TIME: " + (finishTime_ - startTime_) + " ms");
+                  printStreamForExecuteCommand.println("CONNECT TIME: " + (finishTime_ - startTime_) + " ms");
                 }
                 addVariable("CON", connection_);
                 SQLWarning warning = connection_.getWarnings();
                 if (warning != null) {
                   if (!silent_) {
-                    dispWarning(out1, warning, hideWarnings_, html_);
+                    dispWarning(printStreamForExecuteCommand, warning, hideWarnings_, html_);
                   }
                 }
 
               }
 
             } catch (Exception e) {
-              out1.println("Exception "+e);
-              if (printStackTrace_) e.printStackTrace(out1);
+              printStreamForExecuteCommand.println("Exception "+e);
+              if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
               thisConnectPassword = null;
             }
             if (iSeriesDriver != null) {
@@ -1650,13 +1605,13 @@ public class Main implements Runnable {
           } /* password Index */
         } /* userIdIndex */
         if (thisConnectPassword == null) {
-          out1
+          printStreamForExecuteCommand
               .println("Usage:  CONNECT TO URL [URL] [USERID=XXXX] [PASSWORD=YYYY]");
-          out1
+          printStreamForExecuteCommand
               .println("  i.e.  CONNECT TO URL jdbc:db2:localhost USERID=MYUSER PASSWORD=XXXXX");
-          out1
+          printStreamForExecuteCommand
               .println("        CONNECT TO URL jdbc:db2://localhost/*LOCAL USERID=MYUSER PASSWORD=XXXXX");
-          out1
+          printStreamForExecuteCommand
               .println("        CONNECT TO URL jdbc:db2:SAMPLE\\;transaction isolation=serializable USERID=MYUSER PASSWORD=XXXXXXX");
         }
 
@@ -1715,10 +1670,10 @@ public class Main implements Runnable {
         }
         if (userid_ != null) {
           if (debug_)
-            out1.println("Connecting using " + userid_ + ", " + password_
+            printStreamForExecuteCommand.println("Connecting using " + userid_ + ", " + password_
                 + " to " + connectUrl);
           if (useConnectionPool_) {
-            connection_ = getPooledConnection(userid_, password_, connectUrl, out1);
+            connection_ = getPooledConnection(userid_, password_, connectUrl, printStreamForExecuteCommand);
           } else {
             if (measureExecute_) {
               startTime_ = System.currentTimeMillis();
@@ -1727,13 +1682,13 @@ public class Main implements Runnable {
                 password_);
             if (measureExecute_) {
               finishTime_ = System.currentTimeMillis();
-              out1.println("CONNECT TIME: " + (finishTime_ - startTime_) + " ms");
+              printStreamForExecuteCommand.println("CONNECT TIME: " + (finishTime_ - startTime_) + " ms");
             }
 
             SQLWarning warning = connection_.getWarnings();
             if (warning != null) {
               if (!silent_) {
-                dispWarning(out1, warning, hideWarnings_, html_);
+                dispWarning(printStreamForExecuteCommand, warning, hideWarnings_, html_);
               }
             }
 
@@ -1742,16 +1697,16 @@ public class Main implements Runnable {
 
         } else {
           if (debug_)
-            out1.println("Connecting using default id and password to "
+            printStreamForExecuteCommand.println("Connecting using default id and password to "
                 + connectUrl);
           if (useConnectionPool_) {
-            connection_ = getPooledConnection("null", "null", connectUrl, out1);
+            connection_ = getPooledConnection("null", "null", connectUrl, printStreamForExecuteCommand);
           } else {
             connection_ = DriverManager.getConnection(connectUrl);
             SQLWarning warning = connection_.getWarnings();
             if (warning != null) {
               if (!silent_) {
-                dispWarning(out1, warning, hideWarnings_, html_);
+                dispWarning(printStreamForExecuteCommand, warning, hideWarnings_, html_);
               }
             }
 
@@ -1813,7 +1768,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           characterDetails_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for CHARACTERDETAILS");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for CHARACTERDETAILS");
         }
       } else if (upcaseCommand.startsWith("ECHOCOMMAND")) {
         history.addElement("!"+command1);
@@ -1827,7 +1782,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           echoCommand_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for ECHOCOMMAND");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for ECHOCOMMAND");
         }
       } else if (upcaseCommand.startsWith("ECHOCOMMENTS")) {
         history.addElement("!"+command1);
@@ -1841,7 +1796,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           echoComments_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for ECHOCOMMENTS");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for ECHOCOMMENTS");
         }
       } else if (upcaseCommand.startsWith("EXIT_REPEAT_ON_EXCEPTION") ||
                  upcaseCommand.startsWith("EXIT REPEAT ON EXCEPTION") ) {
@@ -1856,7 +1811,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           exitRepeatOnException_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for EXIT REPEAT ON EXCEPTION");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for EXIT REPEAT ON EXCEPTION");
         }
       } else if (upcaseCommand.startsWith("PRINTSTACKTRACE")) {
         history.addElement("!"+command1);
@@ -1870,7 +1825,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           printStackTrace_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for PRINTSTACKTRACE");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for PRINTSTACKTRACE");
         }
       } else if (upcaseCommand.startsWith("CLOSESTATEMENTRS")) {
         history.addElement("!"+command1);
@@ -1884,7 +1839,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           closeStatementRS_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for closeStatementRS");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for closeStatementRS");
         }
       } else if (upcaseCommand.startsWith("MEASUREEXECUTE")) {
         history.addElement("!"+command1);
@@ -1898,7 +1853,7 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           measureExecute_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for measureExecute");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for measureExecute");
         }
       } else if (upcaseCommand.startsWith("EXISTFILE")) {
         history.addElement("!"+command1);
@@ -1906,13 +1861,13 @@ public class Main implements Runnable {
         try {
           File testFile = new File(filename);
           if (testFile.exists()) {
-            out1.println("EXISTFILE " + filename + ": YES");
+            printStreamForExecuteCommand.println("EXISTFILE " + filename + ": YES");
           } else {
-            out1.println("EXISTFILE " + filename + ": NO");
+            printStreamForExecuteCommand.println("EXISTFILE " + filename + ": NO");
           }
         } catch (Exception e) {
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForExecuteCommand.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
       } else if (upcaseCommand.startsWith("GC")) {
         history.addElement("!"+command1);
@@ -1920,7 +1875,7 @@ public class Main implements Runnable {
         System.gc();
         finishTime_ = System.currentTimeMillis();
 
-        out1.println("GC ran in " + (finishTime_ - startTime_) + " milliseconds");
+        printStreamForExecuteCommand.println("GC ran in " + (finishTime_ - startTime_) + " milliseconds");
 
       } else if (upcaseCommand.startsWith("OUTPUT FORMAT ")) {
         history.addElement("!"+command1);
@@ -1932,7 +1887,7 @@ public class Main implements Runnable {
           html_ = true;
           xml_ = false;
         } else {
-          out1.println("Error.  Did not recognize output format '"
+          printStreamForExecuteCommand.println("Error.  Did not recognize output format '"
               + format + "'");
         }
       } else if (upcaseCommand.startsWith("SHOWMIXEDUX ")) {
@@ -1943,7 +1898,7 @@ public class Main implements Runnable {
         } else if (format.equals("FALSE")) {
           showMixedUX_ = false;
         } else {
-          out1.println("Error.  Did not recognize SHOWMIXEDUX value  '"
+          printStreamForExecuteCommand.println("Error.  Did not recognize SHOWMIXEDUX value  '"
               + format + "'");
         }
       } else if (upcaseCommand.startsWith("QUIT")
@@ -1958,10 +1913,10 @@ public class Main implements Runnable {
         } else if (setting.startsWith("false")) {
           connection_.setAutoCommit(false);
         } else {
-          out1
+          printStreamForExecuteCommand
               .println("SET AUTOCOMMIT:  Didn't understand \"" + setting + "\"");
-          out1.println("  Usage:  SET AUTOCOMMIT true");
-          out1.println("          SET AUTOCOMMIT false");
+          printStreamForExecuteCommand.println("  Usage:  SET AUTOCOMMIT true");
+          printStreamForExecuteCommand.println("          SET AUTOCOMMIT false");
 
         }
 
@@ -1973,10 +1928,10 @@ public class Main implements Runnable {
         } else if (setting.startsWith("false")) {
           useConnectionPool_ = false;
         } else {
-          out1.println("REUSE CONNECTION:  Didn't understand \"" + setting
+          printStreamForExecuteCommand.println("REUSE CONNECTION:  Didn't understand \"" + setting
               + "\"");
-          out1.println("  Usage:  REUSE CONNECTION true");
-          out1.println("          REUSE CONNECTION false");
+          printStreamForExecuteCommand.println("  Usage:  REUSE CONNECTION true");
+          printStreamForExecuteCommand.println("          REUSE CONNECTION false");
         }
 
       } else if (upcaseCommand.startsWith("REUSE STATEMENT")) {
@@ -1987,10 +1942,10 @@ public class Main implements Runnable {
         } else if (setting.startsWith("false")) {
           reuseStatement_ = false;
         } else {
-          out1.println("REUSE STATEMENT:  Didn't understand \"" + setting
+          printStreamForExecuteCommand.println("REUSE STATEMENT:  Didn't understand \"" + setting
               + "\"");
-          out1.println("  Usage:  REUSE STATEMENT true");
-          out1.println("          REUSE STATEMENT false");
+          printStreamForExecuteCommand.println("  Usage:  REUSE STATEMENT true");
+          printStreamForExecuteCommand.println("          REUSE STATEMENT false");
         }
 
       } else if (upcaseCommand.startsWith("SETCLITRACE")) {
@@ -2018,15 +1973,15 @@ public class Main implements Runnable {
             method.invoke(null, args);
 
           } catch (Exception e) {
-            out1.println("Exception while setting cli trace");
-            out1.println("Exception "+e);
-            if (printStackTrace_) e.printStackTrace(out1);
+            printStreamForExecuteCommand.println("Exception while setting cli trace");
+            printStreamForExecuteCommand.println("Exception "+e);
+            if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
           }
 
         } else {
-          out1.println("SETCLITRACE:  Didn't understand \"" + setting + "\"");
-          out1.println("  Usage:  SETCLITRACE true");
-          out1.println("          SETCLITRACE false");
+          printStreamForExecuteCommand.println("SETCLITRACE:  Didn't understand \"" + setting + "\"");
+          printStreamForExecuteCommand.println("  Usage:  SETCLITRACE true");
+          printStreamForExecuteCommand.println("          SETCLITRACE false");
         }
 
       } else if (upcaseCommand.startsWith("SETDB2TRACE")) {
@@ -2051,9 +2006,9 @@ public class Main implements Runnable {
           method.invoke(null, args);
 
         } catch (Exception e) {
-          out1.println("Exception while setting cli trace");
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForExecuteCommand.println("Exception while setting cli trace");
+          printStreamForExecuteCommand.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
 
       } else if (upcaseCommand.startsWith("SYSTEMDEBUGGER")) {
@@ -2090,9 +2045,9 @@ public class Main implements Runnable {
 
           
         } catch (Exception e) {
-          out1.println("Exception starting  SYSTEMDEBUGGER");
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForExecuteCommand.println("Exception starting  SYSTEMDEBUGGER");
+          printStreamForExecuteCommand.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
 
 
@@ -2115,15 +2070,15 @@ public class Main implements Runnable {
           connection_
               .setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
         } else {
-          out1.println("SET TRANSACTIONISOLATION:  Didn't understand \""
+          printStreamForExecuteCommand.println("SET TRANSACTIONISOLATION:  Didn't understand \""
               + setting + "\"");
-          out1
+          printStreamForExecuteCommand
               .println("  Usage:  SET TRANSACTIONISOLATION TRANSACTION_READ_UNCOMMITTED");
-          out1
+          printStreamForExecuteCommand
               .println("          SET TRANSACTIONISOLATION TRANSACTION_READ_COMMITTED");
-          out1
+          printStreamForExecuteCommand
               .println("          SET TRANSACTIONISOLATION TRANSACTION_REPEATABLE_READ");
-          out1
+          printStreamForExecuteCommand
               .println("          SET TRANSACTIONISOLATION TRANSACTION_SERIALIZABLE");
 
         }
@@ -2131,13 +2086,13 @@ public class Main implements Runnable {
       } else if (upcaseCommand.startsWith("USAGE")
           || upcaseCommand.startsWith("HELP")) {
         for (int u = 0; u < commandHelp.length; u++) {
-          out1.println(commandHelp[u]);
+          printStreamForExecuteCommand.println(commandHelp[u]);
         }
 
       } else if (upcaseCommand.startsWith("GETSERVERJOBNAME")) {
         history.addElement("!"+command1);
         String jobName = getServerJobName(); 
-        out1.println("getServerJobName returned " + jobName);
+        printStreamForExecuteCommand.println("getServerJobName returned " + jobName);
       } else if (upcaseCommand.startsWith("DMD.GETCOLUMNS")) {
         history.addElement("!"+command1);
         try {
@@ -2173,22 +2128,22 @@ public class Main implements Runnable {
               }
             }
           }
-          out1.println("Calling dmd.getColumns(" + catalog + ", "
+          printStreamForExecuteCommand.println("Calling dmd.getColumns(" + catalog + ", "
               + schemaPattern + ", " + tableNamePattern + ", "
               + columnNamePattern + ")");
           ResultSet rs = dmd.getColumns(catalog, schemaPattern,
               tableNamePattern, columnNamePattern);
 
           if (rs != null) {
-            dispResultSet(out1, rs, false);
+            dispResultSet(printStreamForExecuteCommand, rs, false);
             rs.close();
           }
 
         } catch (Exception e) {
-          out1
+          printStreamForExecuteCommand
               .println("databaseMetaData.getColumns failed with exception " + e);
           
-          if (printStackTrace_) e.printStackTrace(out1);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
       } else if (upcaseCommand.startsWith("DMD.GETTABLES")) {
         history.addElement("!"+command1);
@@ -2244,20 +2199,20 @@ public class Main implements Runnable {
               }
             }
           }
-          out1.println("Calling dmd.getTables(" + catalog + ", "
+          printStreamForExecuteCommand.println("Calling dmd.getTables(" + catalog + ", "
               + schemaPattern + ", " + tableNamePattern + ", " + typePattern
               + "=" + StringFormatUtil.stringArrayContents(types) + ")");
           ResultSet rs = dmd.getTables(catalog, schemaPattern,
               tableNamePattern, types);
 
           if (rs != null) {
-            dispResultSet(out1, rs, false);
+            dispResultSet(printStreamForExecuteCommand, rs, false);
             rs.close();
           }
 
         } catch (Exception e) {
-          out1.println("databaseMetaData.getTables failed with exception " + e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForExecuteCommand.println("databaseMetaData.getTables failed with exception " + e);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
 
       } else if (upcaseCommand.startsWith("DMD.GETINDEXINFO")) {
@@ -2303,21 +2258,21 @@ public class Main implements Runnable {
               }
             }
           }
-          out1.println("Calling dmd.getIndexInfo(" + catalog + ", " + schema
+          printStreamForExecuteCommand.println("Calling dmd.getIndexInfo(" + catalog + ", " + schema
               + ", " + table + ", " + booleanUnique + "," + booleanApproximate
               + ")");
           ResultSet rs = dmd.getIndexInfo(catalog, schema, table,
               booleanUnique, booleanApproximate);
 
           if (rs != null) {
-            dispResultSet(out1, rs, false);
+            dispResultSet(printStreamForExecuteCommand, rs, false);
             rs.close();
           }
 
         } catch (Exception e) {
-          out1.println("databaseMetaData.getIndexInfo failed with exception "
+          printStreamForExecuteCommand.println("databaseMetaData.getIndexInfo failed with exception "
               + e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
 
       } else if (upcaseCommand.startsWith("DMD.GETSCHEMAS")) {
@@ -2326,18 +2281,18 @@ public class Main implements Runnable {
 
           DatabaseMetaData dmd = connection_.getMetaData();
 
-          out1.println("Calling dmd.getSchemas()");
+          printStreamForExecuteCommand.println("Calling dmd.getSchemas()");
           ResultSet rs = dmd.getSchemas();
 
           if (rs != null) {
-            dispResultSet(out1, rs, false);
+            dispResultSet(printStreamForExecuteCommand, rs, false);
             rs.close();
           }
 
         } catch (Exception e) {
-          out1
+          printStreamForExecuteCommand
               .println("databaseMetaData.getSchemas failed with exception " + e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
       } else if (upcaseCommand.startsWith("HISTORY.CLEAR")) {
         history.clear();
@@ -2345,7 +2300,7 @@ public class Main implements Runnable {
         Enumeration enumeration = history.elements();
         while (enumeration.hasMoreElements()) {
           String info = (String) enumeration.nextElement();
-          out1.println(info);
+          printStreamForExecuteCommand.println(info);
         }
       } else if (upcaseCommand.startsWith("MANUALFETCH")) {
         history.addElement("!"+command1);
@@ -2359,51 +2314,51 @@ public class Main implements Runnable {
         } else if (arg.equals("OFF")) {
           manualFetch_ = false;
         } else {
-          out1.println("Invalid arg '" + arg + "' for MANUALFETCH");
+          printStreamForExecuteCommand.println("Invalid arg '" + arg + "' for MANUALFETCH");
         }
       } else if (upcaseCommand.startsWith("RS.NEXT")) {
         history.addElement("!"+command1);
         boolean ok = manualResultSet_.next();
         if (ok) {
-          dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
+          dispRow(printStreamForExecuteCommand, manualResultSet_, false, manualResultSetNumCols_,
               manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_, silentrs_);
         } else {
-          out1.println("rs.next returned false");
+          printStreamForExecuteCommand.println("rs.next returned false");
         }
       } else if (upcaseCommand.startsWith("RS.FIRST")) {
         history.addElement("!"+command1);
         boolean ok = manualResultSet_.first();
         if (ok) {
-          dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
+          dispRow(printStreamForExecuteCommand, manualResultSet_, false, manualResultSetNumCols_,
               manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_, silentrs_);
         } else {
-          out1.println("rs.first returned false");
+          printStreamForExecuteCommand.println("rs.first returned false");
         }
       } else if (upcaseCommand.startsWith("RS.BEFOREFIRST")) {
         history.addElement("!"+command1);
         manualResultSet_.beforeFirst();
-        out1.println("rs.beforeFirst called");
+        printStreamForExecuteCommand.println("rs.beforeFirst called");
       } else if (upcaseCommand.startsWith("RS.AFTERLAST")) {
         history.addElement("!"+command1);
         manualResultSet_.afterLast();
-        out1.println("rs.afterLast called");
+        printStreamForExecuteCommand.println("rs.afterLast called");
       } else if (upcaseCommand.startsWith("RS.LAST")) {
         history.addElement("!"+command1);
         boolean ok = manualResultSet_.last();
         if (ok) {
-          dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
+          dispRow(printStreamForExecuteCommand, manualResultSet_, false, manualResultSetNumCols_,
               manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_, silentrs_);
         } else {
-          out1.println("rs.last returned false");
+          printStreamForExecuteCommand.println("rs.last returned false");
         }
       } else if (upcaseCommand.startsWith("RS.PREVIOUS")) {
         history.addElement("!"+command1);
         boolean ok = manualResultSet_.previous();
         if (ok) {
-          dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
+          dispRow(printStreamForExecuteCommand, manualResultSet_, false, manualResultSetNumCols_,
               manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_, silentrs_);
         } else {
-          out1.println("rs.previous returned false");
+          printStreamForExecuteCommand.println("rs.previous returned false");
         }
       } else if (upcaseCommand.startsWith("RS.ABSOLUTE")) {
         history.addElement("!"+command1);
@@ -2411,10 +2366,10 @@ public class Main implements Runnable {
         int pos = Integer.parseInt(arg);
         boolean ok = manualResultSet_.absolute(pos);
         if (ok) {
-          dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
+          dispRow(printStreamForExecuteCommand, manualResultSet_, false, manualResultSetNumCols_,
               manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_, silentrs_);
         } else {
-          out1.println("rs.absolute returned false");
+          printStreamForExecuteCommand.println("rs.absolute returned false");
         }
       } else if (upcaseCommand.startsWith("RS.RELATIVE")) {
         history.addElement("!"+command1);
@@ -2422,10 +2377,10 @@ public class Main implements Runnable {
         int pos = Integer.parseInt(arg);
         boolean ok = manualResultSet_.relative(pos);
         if (ok) {
-          dispRow(out1, manualResultSet_, false, manualResultSetNumCols_,
+          dispRow(printStreamForExecuteCommand, manualResultSet_, false, manualResultSetNumCols_,
               manualResultSetColType_, manualResultSetColumnLabel_, null, xml_, html_, showLobThreshold_, stringSampleSize_, characterDetails_, showMixedUX_, silentrs_);
         } else {
-          out1.println("rs.relative returned false");
+          printStreamForExecuteCommand.println("rs.relative returned false");
         }
       } else if (upcaseCommand.startsWith("SETVAR")) {
         history.addElement("!"+command1);
@@ -2435,41 +2390,41 @@ public class Main implements Runnable {
           if (equalsIndex > 0) {
             String variableName = left.substring(0, equalsIndex).trim();
             left = left.substring(equalsIndex + 1);
-            Object variable = callMethod(left, out1);
+            Object variable = callMethod(left, printStreamForExecuteCommand);
 
             if (variable != null) {
               addVariable(variableName, variable);
-              out1.println(variableName + "=" + variable.toString());
+              printStreamForExecuteCommand.println(variableName + "=" + variable.toString());
             } else {
-              out1.println("ERROR:  Method not found or output is null");
+              printStreamForExecuteCommand.println("ERROR:  Method not found or output is null");
             }
           } else {
             /* Check to see if we can set like a parameter */
-            /* JWE */
+            
             int spaceIndex = left.indexOf(" ");
             if (spaceIndex > 0) {
               String variableName = left.substring(0, spaceIndex).trim();
               left = left.substring(spaceIndex + 1);
 
-              Object variable = getParameterObject(left, out1);
+              Object variable = getParameterObject(left, printStreamForExecuteCommand);
 
               if (variable != null) {
                 addVariable(variableName, variable);
-                out1.println(variableName + "=" + variable.toString());
+                printStreamForExecuteCommand.println(variableName + "=" + variable.toString());
               } else {
-                out1.println("ERROR:  Unable to get parameter ");
+                printStreamForExecuteCommand.println("ERROR:  Unable to get parameter ");
               }
 
             } else {
-              out1
+              printStreamForExecuteCommand
                   .println("ERROR:  '=' or ' ' not found after SETVAR [VAR]");
             }
 
           }
 
         } catch (Exception e) {
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForExecuteCommand.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
       } else if (upcaseCommand.startsWith("SETNEWVAR")) {
         history.addElement("!"+command1);
@@ -2479,46 +2434,46 @@ public class Main implements Runnable {
           if (equalsIndex > 0) {
             String variableName = left.substring(0, equalsIndex).trim();
             left = left.substring(equalsIndex + 1);
-            Object variable = callNewMethod(left, out1);
+            Object variable = callNewMethod(left, printStreamForExecuteCommand);
 
             if (variable != null) {
               addVariable(variableName, variable);
-              out1.println(variableName + "=" + variable.toString());
+              printStreamForExecuteCommand.println(variableName + "=" + variable.toString());
             } else {
-              out1.println("ERROR:  Method not found or output is null");
+              printStreamForExecuteCommand.println("ERROR:  Method not found or output is null");
             }
           } else {
-            out1.println("line missing =");
+            printStreamForExecuteCommand.println("line missing =");
           }
 
         } catch (Exception e) {
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForExecuteCommand.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
       } else if (upcaseCommand.startsWith("SHOWVARMETHODS")) {
         history.addElement("!"+command1);
         String left = command1.substring(14).trim();
-        showMethods(left, out1);
+        showMethods(left, printStreamForExecuteCommand);
       } else if (upcaseCommand.startsWith("THREAD ")) {
         history.addElement("!"+command1);
         String newcommand = command1.substring(7).trim();
-        out1.println("Starting thread for " + newcommand);
-        Main runnable = new Main(this, newcommand, out1);
+        printStreamForExecuteCommand.println("Starting thread for " + newcommand);
+        Main runnable = new Main(this, newcommand, printStreamForExecuteCommand);
         Thread t = new Thread(runnable);
         t.start();
         threads_.add(t);
       } else if (upcaseCommand.startsWith("THREADPERSIST ")) {
         history.addElement("!" + command1);
         String threadName = command1.substring(14).trim();
-        out1.println("Starting runnable " + threadName);
+        printStreamForExecuteCommand.println("Starting runnable " + threadName);
         String newcommand = "PERSIST";
-        Main runnable = new Main(this, newcommand, out1);
+        Main runnable = new Main(this, newcommand, printStreamForExecuteCommand);
         variables.put(threadName, runnable);
         Thread t = new Thread(runnable);
         t.setName(threadName);
         t.setDaemon(true);
         t.start();
-        out1.println("Started thread " + threadName+"-T");
+        printStreamForExecuteCommand.println("Started thread " + threadName+"-T");
         variables.put(threadName+"-T", t); 
       } else if (upcaseCommand.startsWith("THREADEXEC ")) {
         history.addElement("!" + command1);
@@ -2531,10 +2486,10 @@ public class Main implements Runnable {
           if (runnable != null) {
             runnable.setCommand(threadCommand);
           } else {
-            out1.println("ERROR: Unable to find thread " + threadName);
+            printStreamForExecuteCommand.println("ERROR: Unable to find thread " + threadName);
           }
         } else {
-          out1.println("ERROR:  THREADEXEC: no space after thread name");
+          printStreamForExecuteCommand.println("ERROR:  THREADEXEC: no space after thread name");
         }
       } else if (upcaseCommand.startsWith("REPEAT ")) {
         history.addElement("!"+command1);
@@ -2547,55 +2502,55 @@ public class Main implements Runnable {
             int beginCount = repeatCount;
             int iteration = 1;
             while (repeatCount > 0) {
-              out1.println("Iteration " + iteration + " of " + beginCount);
+              printStreamForExecuteCommand.println("Iteration " + iteration + " of " + beginCount);
               iteration++;
               exceptionOccurred_ = false; 
-              executeTopLevelCommand(newCommand, out1);
+              executeTopLevelCommand(newCommand, printStreamForExecuteCommand);
               repeatCount--;
               if (exitRepeatOnException_ && exceptionOccurred_) {
                 repeatCount = 0; 
               }
             }
           } else {
-            out1.println("Error.. invalid repeat count "
+            printStreamForExecuteCommand.println("Error.. invalid repeat count "
                 + left.substring(0, spaceIndex));
           }
         } else {
-          out1.println("Error.  No count for repeat");
+          printStreamForExecuteCommand.println("Error.  No count for repeat");
         }
 
       } else if (upcaseCommand.startsWith("CALLMETHOD")) {
         history.addElement("!"+command1);
         String left = command1.substring(10).trim();
 
-        Object obj = callMethod(left, out1);
-        out1.println("Call returned " + obj);
+        Object obj = callMethod(left, printStreamForExecuteCommand);
+        printStreamForExecuteCommand.println("Call returned " + obj);
         if ((obj != null) && (obj instanceof InputStream)) {
-          out1.println("InputStream[ ");
+          printStreamForExecuteCommand.println("InputStream[ ");
           InputStream is = (InputStream) obj;
           int val = is.read();
           while (val > 0) {
-            out1.print(" " + Integer.toHexString(val));
+            printStreamForExecuteCommand.print(" " + Integer.toHexString(val));
             val = is.read();
           }
-          out1.println("]");
+          printStreamForExecuteCommand.println("]");
         }
         if ((obj != null) && (obj.getClass().isArray())) {
           int arrayLength = java.lang.reflect.Array.getLength(obj);
-          out1.println("  .. Array of size " + arrayLength);
+          printStreamForExecuteCommand.println("  .. Array of size " + arrayLength);
           for (int i = 0; i < arrayLength; i++) {
             Object obj2 = java.lang.reflect.Array.get(obj, i);
             if (obj2 instanceof DriverPropertyInfo) {
               DriverPropertyInfo info = (DriverPropertyInfo) obj2;
-              out1.println("[" + i + "]=" + info.name + " " + info.value
+              printStreamForExecuteCommand.println("[" + i + "]=" + info.name + " " + info.value
                   + " " + info.description);
             } else if (obj2 instanceof java.lang.Byte) {
               int value = 0xff & ((java.lang.Byte) obj2).intValue();
-              out1.println("[" + i + "]=0x" + Integer.toHexString(value)
+              printStreamForExecuteCommand.println("[" + i + "]=0x" + Integer.toHexString(value)
                   + " a[" + StringFormatUtil.asciiChar(value) + "]" + " e["
                   + StringFormatUtil.ebcdicChar(value) + "]");
             } else {
-              out1.println("[" + i + "][" + obj2.getClass().getName()
+              printStreamForExecuteCommand.println("[" + i + "][" + obj2.getClass().getName()
                   + "]=" + obj2);
             }
           }
@@ -2617,12 +2572,8 @@ public class Main implements Runnable {
                   stmt_.close(); 
                   stmt_ = null;  
                 }
-                if (jdk14_) {
                   stmt_ = connection_.createStatement(resultSetType_,
                       resultSetConcurrency_, resultSetHoldability_);
-                } else {
-                  stmt_ = connection_.createStatement();
-                }
                 addVariable("STMT", stmt_);
               }
             }
@@ -2636,7 +2587,7 @@ public class Main implements Runnable {
             history.addElement(command1);
             if (measureExecute_) {
               finishTime_ = System.currentTimeMillis();
-              out1.println("TIME: " + (finishTime_ - startTime_) + " ms");
+              printStreamForExecuteCommand.println("TIME: " + (finishTime_ - startTime_) + " ms");
             }
 
             //
@@ -2645,12 +2596,12 @@ public class Main implements Runnable {
             SQLWarning warning = stmt_.getWarnings();
             if (warning != null) {
               if (!silent_) {
-                dispWarning(out1, warning, hideWarnings_, html_);
+                dispWarning(printStreamForExecuteCommand, warning, hideWarnings_, html_);
               }
             }
 
           } else {
-            out1.println("UNABLE to EXECUTE because not connected");
+            printStreamForExecuteCommand.println("UNABLE to EXECUTE because not connected");
           }
 
         }
@@ -2664,18 +2615,18 @@ public class Main implements Runnable {
       // together
       exceptionOccurred_ = true; 
       if (!silent_) {
-        processException(ex, command1, out1);
+        processException(ex, command1, printStreamForExecuteCommand);
       }
     } catch (Exception e) {
       exceptionOccurred_ = true; 
-      out1.println("\n*** exception caught *** " + e);
-      out1.println("Statement was " + command1);
-      if (printStackTrace_) e.printStackTrace(out1);
+      printStreamForExecuteCommand.println("\n*** exception caught *** " + e);
+      printStreamForExecuteCommand.println("Statement was " + command1);
+      if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
     } catch (java.lang.UnknownError jlu) {
       exceptionOccurred_ = true; 
-      out1.println("\n*** java.lang.UnknownError caught ***" + jlu);
-      out1.println("Statement was " + command1);
-      if (printStackTrace_) jlu.printStackTrace(out1);
+      printStreamForExecuteCommand.println("\n*** java.lang.UnknownError caught ***" + jlu);
+      printStreamForExecuteCommand.println("Statement was " + command1);
+      if (printStackTrace_) jlu.printStackTrace(printStreamForExecuteCommand);
 
     } // catch
     finally {
@@ -2689,8 +2640,8 @@ public class Main implements Runnable {
             }
           }
         } catch (Exception e) {
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForExecuteCommand.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForExecuteCommand);
         }
       }
     }
@@ -2760,7 +2711,7 @@ public class Main implements Runnable {
     return jobName;
   }
 
-  private Object callMethod(String left, PrintStream out1) {
+  private Object callMethod(String left, PrintStream printStreamForCallMethod) {
     try {
       boolean methodFound = false;
       StringBuffer possibleErrors = new StringBuffer(); 
@@ -2792,19 +2743,6 @@ public class Main implements Runnable {
               // getMethods does not work on connection object for
               // pre JDK 1.4
 
-              if ((callObject instanceof Connection) && (!jdk14_)) {
-                if (methodName.equals("commit")) {
-
-                  methods = new Method[1];
-                  methods[0] = callObject.getClass().getMethod(methodName,
-                      new Class[0]);
-                } else {
-                  // Try calling zero argument method
-                  methods = new Method[1];
-                  methods[0] = callObject.getClass().getMethod(methodName,
-                      new Class[0]);
-                }
-              } else {
                 if (callObject != null) {
                   methods = callObject.getClass().getMethods();
                 } else {
@@ -2815,7 +2753,7 @@ public class Main implements Runnable {
                       methods = new Method[0]; 
                     }
                 }
-              }
+              
               boolean anyMethodFound = false;
               for (int m = 0; !methodFound && (m < methods.length)
                   && (variable == null); m++) {
@@ -3094,9 +3032,9 @@ public class Main implements Runnable {
               possibleErrors.append("ERROR:  could find ( in " + left+"\n");
             }
           } else {
-            out1.println("ERROR:  could not find variable or class "
+            printStreamForCallMethod.println("ERROR:  could not find variable or class "
                 + callVariable);
-            showValidVariables(out1);
+            showValidVariables(printStreamForCallMethod);
 
           }
         } else {
@@ -3106,19 +3044,19 @@ public class Main implements Runnable {
         possibleErrors.append("ERROR:  could find ( in " + left);
       }
       if (!methodFound) {
-        out1.println("No matching method found, possible errors are the following:\n"+possibleErrors.toString());
+        printStreamForCallMethod.println("No matching method found, possible errors are the following:\n"+possibleErrors.toString());
       }
       return variable;
     } catch (Exception e) {
       exceptionOccurred_ = true; 
-      out1.println("Unexpected exception");
-      out1.println("Exception "+e);
-      if (printStackTrace_) e.printStackTrace(out1);
+      printStreamForCallMethod.println("Unexpected exception");
+      printStreamForCallMethod.println("Exception "+e);
+      if (printStackTrace_) e.printStackTrace(printStreamForCallMethod);
       return null;
     } catch (NoClassDefFoundError ncdfe) {
       exceptionOccurred_ = true; 
-      out1.println("NoClassDefFoundError "+ncdfe);
-      if (printStackTrace_) ncdfe.printStackTrace(out1);
+      printStreamForCallMethod.println("NoClassDefFoundError "+ncdfe);
+      if (printStackTrace_) ncdfe.printStackTrace(printStreamForCallMethod);
       return null;
     }
   }
@@ -3162,7 +3100,7 @@ public class Main implements Runnable {
 
   }
 
-  private Object callNewMethod(String left, PrintStream out1) {
+  private Object callNewMethod(String left, PrintStream printStreamForCallNewMethod) {
     try {
       StringBuffer possibleErrors = new StringBuffer();
       boolean methodFound = false;
@@ -3410,17 +3348,17 @@ public class Main implements Runnable {
       }
       if (!methodFound) {
         
-        out1.println("Unable to call method: Possible errors are the following\n"+possibleErrors.toString());
+        printStreamForCallNewMethod.println("Unable to call method: Possible errors are the following\n"+possibleErrors.toString());
       }
       return variable;
     } catch (Exception e) {
-      out1.println("Unexpected exception");
-      out1.println("Exception "+e);
-      if (printStackTrace_) e.printStackTrace(out1);
+      printStreamForCallNewMethod.println("Unexpected exception");
+      printStreamForCallNewMethod.println("Exception "+e);
+      if (printStackTrace_) e.printStackTrace(printStreamForCallNewMethod);
       return null;
     } catch (NoClassDefFoundError ncdfe) {
-      out1.println("NoClassDefFoundError "+ncdfe);
-      if (printStackTrace_) ncdfe.printStackTrace(out1);
+      printStreamForCallNewMethod.println("NoClassDefFoundError "+ncdfe);
+      if (printStackTrace_) ncdfe.printStackTrace(printStreamForCallNewMethod);
       return null;
     }
   }
@@ -4062,7 +4000,7 @@ public class Main implements Runnable {
   }
 
   /* Get the parameter object from the parameter string */
-  public Object getParameterObject(String thisParm, PrintStream out1) {
+  public Object getParameterObject(String thisParm, PrintStream printStreamForParameterObject) {
 
     if (thisParm.indexOf("UX'") == 0) {
       int len = thisParm.length();
@@ -4081,9 +4019,9 @@ public class Main implements Runnable {
           }
           stuffString = new String(stuff);
         } catch (Exception e) {
-          out1.println("Processing of " + thisParm + " failed");
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForParameterObject.println("Processing of " + thisParm + " failed");
+          printStreamForParameterObject.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForParameterObject);
         }
         return stuffString;
       }
@@ -4103,9 +4041,9 @@ public class Main implements Runnable {
             stuff[i] = (byte) Integer.parseInt(piece, 16);
           }
         } catch (Exception e) {
-          out1.println("Processing of " + thisParm + " failed");
-          out1.println("Exception "+e);
-          if (printStackTrace_) e.printStackTrace(out1);
+          printStreamForParameterObject.println("Processing of " + thisParm + " failed");
+          printStreamForParameterObject.println("Exception "+e);
+          if (printStackTrace_) e.printStackTrace(printStreamForParameterObject);
         }
         return stuff;
       }
@@ -4127,9 +4065,9 @@ public class Main implements Runnable {
         blob = new ClientBlob(stuff);
 
       } catch (Exception e) {
-        out1.println("Processing of " + thisParm + " failed because of " + e);
-        out1.println("Exception "+e);
-        if (printStackTrace_) e.printStackTrace(out1);
+        printStreamForParameterObject.println("Processing of " + thisParm + " failed because of " + e);
+        printStreamForParameterObject.println("Exception "+e);
+        if (printStackTrace_) e.printStackTrace(printStreamForParameterObject);
       }
       return blob;
     } else if (thisParm.indexOf("FILECLOB=") == 0) {
@@ -4147,47 +4085,47 @@ public class Main implements Runnable {
         clob = new ClientClob(new String(stuff));
 
       } catch (Exception e) {
-        out1.println("Processing of " + thisParm + " failed because of " + e);
-        out1.println("Exception "+e);
-        if (printStackTrace_) e.printStackTrace(out1);
+        printStreamForParameterObject.println("Processing of " + thisParm + " failed because of " + e);
+        printStreamForParameterObject.println("Exception "+e);
+        if (printStackTrace_) e.printStackTrace(printStreamForParameterObject);
       }
       return clob;
     } else if (thisParm.indexOf("SAVEDPARM=") == 0) {
-      out1.println("ERROR:  SAVEDPARM not supported yet");
+      printStreamForParameterObject.println("ERROR:  SAVEDPARM not supported yet");
     } else if (thisParm.indexOf("SQLARRAY[") == 0) {
-      out1.println("ERROR:  SQLARRAY not supported yet");
+      printStreamForParameterObject.println("ERROR:  SQLARRAY not supported yet");
       /* handleSqlarrayParm(cstmt, thisParm, parm, out); */
     } else if (thisParm.indexOf("GEN_BYTE_ARRAY+") == 0) {
-      return getGenByteArrayParm(thisParm, out1);
+      return getGenByteArrayParm(thisParm, printStreamForParameterObject);
     } else if (thisParm.indexOf("GEN_HEX_STRING+") == 0) {
-      out1.println("ERROR:  GEN_HEX_STRING+ not supported yet");
+      printStreamForParameterObject.println("ERROR:  GEN_HEX_STRING+ not supported yet");
       /* handleGenHexStringParm(cstmt, thisParm, parm, out); */
     } else if (thisParm.indexOf("GEN_CHAR_ARRAY+") == 0) {
-      out1.println("ERROR:  GEN_CHAR_ARRAY+ not supported yet");
+      printStreamForParameterObject.println("ERROR:  GEN_CHAR_ARRAY+ not supported yet");
     }
     /* Otherwise, just return the string */
     return thisParm;
   }
 
   public void setParameter(PreparedStatement cstmt, String thisParm, int parm,
-      PrintStream out) throws SQLException {
+      PrintStream printStreamForSetParameter) throws SQLException {
 
     if (thisParm.indexOf("UX'") == 0) {
-      handleUnicodeStringParm(cstmt, thisParm, parm, out);
+      handleUnicodeStringParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("X'") == 0) {
-      handleByteArrayParm(cstmt, thisParm, parm, out);
+      handleByteArrayParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("FILEBLOB=") == 0) {
-      handleFileBlobParm(cstmt, thisParm, parm, out);
+      handleFileBlobParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("FILECLOB=") == 0) {
-      handleFileClobParm(cstmt, thisParm, parm, out);
+      handleFileClobParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("SAVEDPARM=") == 0) {
-      handleSavedParm(cstmt, thisParm, parm, out);
+      handleSavedParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("SQLARRAY[") == 0) {
-      handleSqlarrayParm(cstmt, thisParm, parm, out);
+      handleSqlarrayParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("GEN_BYTE_ARRAY+") == 0) {
-      handleGenByteArrayParm(cstmt, thisParm, parm, out);
+      handleGenByteArrayParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("GEN_HEX_STRING+") == 0) {
-      handleGenHexStringParm(cstmt, thisParm, parm, out);
+      handleGenHexStringParm(cstmt, thisParm, parm, printStreamForSetParameter);
     } else if (thisParm.indexOf("GEN_CHAR_ARRAY+") == 0) {
       String stuffString = null;
 
@@ -4255,18 +4193,18 @@ public class Main implements Runnable {
         // System.out.println("after the switch for loop");
         stuffString = new String(stuff);
       } catch (Exception e) {
-        out.println("Processing of " + thisParm + " failed");
-        out.println("Exception "+e);
-        if (printStackTrace_) e.printStackTrace(out);
+        printStreamForSetParameter.println("Processing of " + thisParm + " failed");
+        printStreamForSetParameter.println("Exception "+e);
+        if (printStackTrace_) e.printStackTrace(printStreamForSetParameter);
       }
       cstmt.setString(parm, stuffString);
-      out.println("CHARARRAY[size=" + specifiedLength + ",CRC32="
+      printStreamForSetParameter.println("CHARARRAY[size=" + specifiedLength + ",CRC32="
           + getCRC32(stuffString) + ",CRC32xor1=" + getCRC32xor1(stuffString)
           + "]");
       SQLWarning warning = cstmt.getWarnings();
       if (warning != null) {
         if (!silent_) {
-          dispWarning(out, warning, hideWarnings_, html_);
+          dispWarning(printStreamForSetParameter, warning, hideWarnings_, html_);
         }
       }
 
@@ -4286,7 +4224,7 @@ public class Main implements Runnable {
       SQLWarning warning = cstmt.getWarnings();
       if (warning != null) {
         if (!silent_) {
-          dispWarning(out, warning, hideWarnings_, html_);
+          dispWarning(printStreamForSetParameter, warning, hideWarnings_, html_);
         }
       }
 
