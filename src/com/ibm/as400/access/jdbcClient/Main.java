@@ -45,6 +45,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -3393,13 +3394,16 @@ public class Main implements Runnable {
           methods = new Method[0]; 
         }
       }
+      Vector methodVector = new Vector(); 
       for (int m = 0; (m < methods.length); m++) {
         String methodInfo;
+        String returnClause;
         Class returnType = methods[m].getReturnType();
+        methodInfo = methods[m].getName();
         if (returnType != null) {
-          methodInfo = returnType.getName() + " " + methods[m].getName();
+           returnClause =  " @RETURNS "+returnType.getName() ;
         } else {
-          methodInfo = "void " + methods[m].getName();
+           returnClause =  " @RETURNS void";
         }
         Class[] parameterTypes = methods[m].getParameterTypes();
         methodInfo += "(";
@@ -3409,8 +3413,19 @@ public class Main implements Runnable {
             methodInfo += ",";
           methodInfo += parameterTypeName;
         }
-        methodInfo += ")";
-        out1.println(methodInfo);
+        methodInfo += ")"+returnClause;
+        methodVector.addElement(methodInfo);
+      }
+      Collections.sort(methodVector); 
+      Enumeration vectorEnum = methodVector.elements(); 
+      while (vectorEnum.hasMoreElements()) {
+        String methodInfo = (String) vectorEnum.nextElement();
+        int returnsIndex = methodInfo.indexOf(" @RETURNS ");
+        if (returnsIndex > 0) {
+           out1.println(methodInfo.substring(returnsIndex+10)+" "+methodInfo.substring(0,returnsIndex)); 
+        } else {
+           out1.println(methodInfo); 
+        }
       }
     } else {
       out1.println("Could not find variable " + callVariable);
