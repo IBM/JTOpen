@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.beans.PropertyVetoException;
 import java.sql.*;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -48,15 +49,22 @@ extends AS400JDBCConnection {
   private AS400Impl originalAs400Impl_;
   private boolean originalNewServer_;
   private boolean originalSkipSignonServer_;
-  private Properties info;
+  private Properties info_;
   private Properties originalInfo_; 
   
   private JDDataSourceURL [] reconnectUrls_;
   private JDProperties[]     reconnectProperties_;
   private AS400[]            reconnectAS400s_; 
   
-  private int maxRetriesForClientReroute = -1; 
-  private int retryIntervalForClientReroute = -1; 
+  private int maxRetriesForClientReroute_ = -1; 
+  private int retryIntervalForClientReroute_ = -1; 
+  
+  private Vector setCommands_ = null; 
+  private boolean throwException_; /* should exception be thrown from findNewConnecton */
+  private boolean autoCommitSet_ = false;
+  private boolean autoCommitSetting_ = false;
+  private boolean transactionIsolationSet_ = false;
+  private int transactionIsolationSetting_ = 0;  
   
   /** 
    * Default constructor reserved for use within package
@@ -72,19 +80,19 @@ extends AS400JDBCConnection {
   
   private void setupRetryInformation() {
     
-       maxRetriesForClientReroute = getMaxRetriesForClientReroute(); 
-       retryIntervalForClientReroute = getRetryIntervalForClientReroute(); 
+       maxRetriesForClientReroute_ = getMaxRetriesForClientReroute(); 
+       retryIntervalForClientReroute_ = getRetryIntervalForClientReroute(); 
        // If retryIntervalForClientReroute is set, the default for 
        // maxRetriesForClientReroute is 3. 
-       if (retryIntervalForClientReroute > 0 &&
-           maxRetriesForClientReroute < 0) {
-         maxRetriesForClientReroute = 3; 
+       if (retryIntervalForClientReroute_ > 0 &&
+           maxRetriesForClientReroute_ < 0) {
+         maxRetriesForClientReroute_ = 3; 
        }
        // If maxRetriesForClientReroute is set, the default for
        // retryIntervalForClientReroute is 0
-       if (maxRetriesForClientReroute > 0 && 
-           retryIntervalForClientReroute < 0) {
-           retryIntervalForClientReroute= 0; 
+       if (maxRetriesForClientReroute_ > 0 && 
+           retryIntervalForClientReroute_ < 0) {
+           retryIntervalForClientReroute_= 0; 
        }
          
        
@@ -193,12 +201,29 @@ extends AS400JDBCConnection {
    */
   boolean reconnect(SQLException originalException)  throws SQLException {
     
-    AS400JDBCConnectionImpl newConnection = findNewConnection();
-    if (newConnection != null ) {
-        return setupNewConnection(newConnection, originalException); 
-    }
-    throw originalException;  
+    return  findNewConnection(originalException);
+    
   }
+  
+  private void replaySettings(AS400JDBCConnectionImpl newConnection) throws SQLException {
+     if (setCommands_ != null) {
+       Statement stmt = newConnection.createStatement(); 
+       Enumeration elements = setCommands_.elements(); 
+       while (elements.hasMoreElements()) {
+         String setCommand = (String) elements.nextElement(); 
+         stmt.executeUpdate(setCommand); 
+       }
+       stmt.close(); 
+     }
+     if (autoCommitSet_) {
+       newConnection.setAutoCommit(autoCommitSetting_); 
+     }
+     if (transactionIsolationSet_) {
+       newConnection.setTransactionIsolation(transactionIsolationSetting_); 
+     }
+     
+  }
+  
   
   /**
    * Set up a new connection for use.  If the new connection can be
@@ -208,6 +233,13 @@ extends AS400JDBCConnection {
    * Otherwise throws the SQL4498 exception. 
    */
   private boolean setupNewConnection(AS400JDBCConnectionImpl newConnection, SQLException e) throws SQLException {
+    // Now replay the settings on the new connection.
+    // If this has a failure then the exception is thrown and we are unable to use the connection. 
+    
+    replaySettings(newConnection); 
+
+    
+    
     doNotHandleErrors_ = true; 
     // Close all the results sets associated with the old connection
     currentConnection_.closeAllResultSets();
@@ -219,28 +251,33 @@ extends AS400JDBCConnection {
     // the new connection.   As part of this, all existing result sets will be closed. 
     currentConnection_.transferObjects(newConnection); 
     currentConnection_ = newConnection; 
+    
+    throwException_ = true; 
     JDError.throwSQLException (this, JDError.EXC_CONNECTION_REESTABLISHED, e);
 
     return false; 
   }
   /** 
-   * Find a new connection to the server. 
-   * @return the new connection if found, otherwise returns null 
+   * Find and enable a new connection to the server. 
+   * @return true if the new connection can be seamlessly used.
+   * otherwise throw the SQL4498 exception saying that the connection was reused, 
+   * otherwise throw the original exception.  
+   * @throws SQLException 
    */
-   AS400JDBCConnectionImpl findNewConnection() {
+   boolean findNewConnection(SQLException originalException) throws SQLException {
     // Start at the current server and try to get a new connection.
      AS400JDBCConnectionImpl connection ; 
      Exception[] exceptions = new Exception [reconnectUrls_.length];
     int retryCount;  
     long delayMilliseconds; 
     long startMilliseconds = System.currentTimeMillis(); 
-    if (maxRetriesForClientReroute >= 0) {
-      retryCount = maxRetriesForClientReroute; 
+    if (maxRetriesForClientReroute_ >= 0) {
+      retryCount = maxRetriesForClientReroute_; 
     } else {
       retryCount= Integer.MAX_VALUE; 
     }
-    if (retryIntervalForClientReroute >= 0) {
-      delayMilliseconds = retryIntervalForClientReroute * 1000; 
+    if (retryIntervalForClientReroute_ >= 0) {
+      delayMilliseconds = retryIntervalForClientReroute_ * 1000; 
     } else {
       // Start delay at 60 seconds 
       delayMilliseconds = 30000; 
@@ -255,8 +292,13 @@ extends AS400JDBCConnection {
 
           connection.setProperties(reconnectUrls_[i], reconnectProperties_[i],
               as400, originalInfo_);
-          return connection;
-        } catch (Exception e) {
+          return  setupNewConnection(connection, originalException); 
+          
+        } catch (SQLException e) {
+          if (throwException_) {
+            throwException_ = false; 
+            throw e; 
+          }
           // Unable to connect keep trying
           // Trace the exception anyway
           exceptions[i] = e;
@@ -272,8 +314,8 @@ extends AS400JDBCConnection {
       long retryDelayMilliseconds = 0; 
       long retryElaspedMilliseconds = System.currentTimeMillis() - retryStartMilliseonds; 
       // Handle the default wait behavior 
-      if (maxRetriesForClientReroute < 0 && 
-          retryIntervalForClientReroute < 0 ) {
+      if (maxRetriesForClientReroute_ < 0 && 
+          retryIntervalForClientReroute_ < 0 ) {
         retryDelayMilliseconds = delayMilliseconds - retryElaspedMilliseconds;
         delayMilliseconds = delayMilliseconds + delayMilliseconds / 2; 
         long remainingMilliseconds = 600000 + startMilliseconds - System.currentTimeMillis();
@@ -298,13 +340,13 @@ extends AS400JDBCConnection {
         try {
           Thread.sleep(retryDelayMilliseconds);
         } catch (InterruptedException e) {
-          // If we are interrupted, just give up
-          return null; 
+          // If we are interrupted, just give up and throw original exception 
+          throw (originalException);
         } 
       }
       
     } /* while retrying */ 
-    return null;
+    throw (originalException);
   }
   /**
    * Determine if an SQL exception should cause the connection to switch to
@@ -1285,6 +1327,8 @@ endif */
         retryOperation = handleException(e);
       }
     }
+    autoCommitSet_ = true; 
+    autoCommitSetting_ = autoCommit; 
 
   }
 
@@ -1532,7 +1576,9 @@ endif */
         retryOperation = handleException(e);
       }
     }
-
+    transactionIsolationSet_ = true; 
+    transactionIsolationSetting_ = level; 
+    
   }
 
   public void setTypeMap(Map typeMap) throws SQLException {
@@ -1865,6 +1911,12 @@ endif */
    
   }
 
+  void addSetCommand(String command) {
+    if (setCommands_ == null) {
+      setCommands_ = new Vector(); 
+    }
+   setCommands_.addElement(command); 
+  }
   
   /* ifdef JDBC40
   public boolean isValid(int timeout) throws SQLException {

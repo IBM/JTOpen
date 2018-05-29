@@ -108,6 +108,7 @@ public class JDSQLStatement
     boolean         isInsert_                   = false;    // @H2C Made not private.
     private boolean         isSelect_                   = false;
     private boolean         isSet_                      = false;    // @F4A
+    private boolean         isSetSpecialRegister_       = false; 
     private boolean         isSubSelect_                = false;
     private boolean         isPackaged_                 = false;
     private boolean         isUpdateOrDelete_           = false;
@@ -521,6 +522,9 @@ public class JDSQLStatement
             if (value_.indexOf(METADATA_CALL) == 0) {
               isMetaDataCall_ = true; 
             }
+            if (value_.indexOf("WLM_SET_CLIENT_INFO") > 0) {
+              isSetSpecialRegister_ = true; 
+            }
         }
         else if((firstWord.equals(CALL0_)) || (firstWord.equals(CALL1_)) || (firstWord.equals(CALL2_))) //@E1A
         {
@@ -652,6 +656,7 @@ public class JDSQLStatement
             isSet_ = true;
             nativeType_ = TYPE_UNDETERMINED;
             // Note: See loop below for SET CONNECTION.
+            
         }
 
         //@G4A New code starts
@@ -889,6 +894,15 @@ public class JDSQLStatement
             else if(isSet_ && isSecondToken && token.equals(CONNECTION_))  // @F4A - This entire block.
             {
                 nativeType_ = TYPE_CONNECT;
+            } else if (isSet_ && isSecondToken) {
+              if (token.equals(CURRENT_) ||
+                  (token.equals("PATH")) ||
+                  (token.equals("SESSION")) ||
+                  (token.equals("SCHEMA")) ||
+                  (token.equals("CURRENT_SCHEMA")) ||
+                  (token.equals("COLLECTION"))) {
+                isSetSpecialRegister_ = true; 
+              }
             }
 
             isSecondToken = false;      // @F4A
@@ -1270,5 +1284,9 @@ public class JDSQLStatement
     boolean getIsMetaDataCall() { 
       return isMetaDataCall_; 
     } /*@K5A*/
+
+    public boolean isSetSpecialRegister() {
+      return isSetSpecialRegister_; 
+    }
 
 }

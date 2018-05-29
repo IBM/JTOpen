@@ -1280,7 +1280,13 @@ implements Statement
             // Check to see if the statement was cancelled.
             if(cancelled_)
                 JDError.throwSQLException (JDError.EXC_OPERATION_CANCELLED);
-
+ 
+        if (sqlStatement.isSetSpecialRegister()) {
+          if (connection_ instanceof AS400JDBCConnectionRedirect) {
+            ((AS400JDBCConnectionRedirect) connection_)
+                .addSetCommand(sqlStatement.toString());
+          }
+        }
             // Output a summary as a trace message.   The * signifies that the
             // statement name comes from the RPB.
             if(JDTrace.isTraceOn())
@@ -1672,6 +1678,13 @@ implements Statement
                 // was executed.
                 transactionManager_.statementExecuted ();
 
+                if (sqlStatement.isSetSpecialRegister()) {
+                  if (connection_ instanceof AS400JDBCConnectionRedirect) {
+                    ((AS400JDBCConnectionRedirect) connection_)
+                        .addSetCommand(sqlStatement.toString());
+                  }
+                }
+
                 // Output a summary as a trace message.   The * signifies that the
                 // statement name comes from the RPB.
                 if(JDTrace.isTraceOn())
@@ -1931,6 +1944,12 @@ implements Statement
       // Inform the transaction manager that a statement
       // was executed.
       transactionManager_.statementExecuted ();
+
+      // Save the connect statement 
+      if (connection_ instanceof AS400JDBCConnectionRedirect) {
+          ((AS400JDBCConnectionRedirect) connection_)
+              .addSetCommand(sqlStatement.toString());
+      }
 
       // Output a summary as a trace message.   The * signifies that the
       // statement name comes from the RPB.
