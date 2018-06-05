@@ -1060,7 +1060,7 @@ implements DatabaseMetaData
         connection_.checkOpen ();
 
 
-        boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
+        boolean isJDBC3 = true; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
         SQLData[] sqlData = null;                 //@F2C
@@ -4672,7 +4672,7 @@ endif */
         // Set up the result set in the format required by JDBC
         //-----------------------------------------------------
 
-        boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
+        boolean isJDBC3 = true; 
 
         String[] fieldNames = null;               //@F2C
         SQLData[] sqlData = null;                 //@F2C
@@ -5559,41 +5559,12 @@ endif */
         }
 
         int vrm = connection_.getVRM();  //@trunc3
-        boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
+        boolean isJDBC3 = true; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
         SQLData[] sqlData = null;                 //@F2C
         int[] fieldNullables = null;              //@F2C
-        if (!isJDBC3)                 //@F2A
-        {
-            // Set up the result set in the format required by JDBC
-            fieldNames = new String[] { "TYPE_CAT",
-                "TYPE_SCHEM",
-                "TYPE_NAME",
-                "CLASS_NAME",
-                "DATA_TYPE",
-                "REMARKS",
-            };
-
-            sqlData = new SQLData[] { new SQLVarchar (128, settings_),  // type catalog
-                new SQLVarchar (128, settings_),  // type schema
-                new SQLVarchar (128, settings_),  // type name
-                new SQLVarchar (128, settings_),  // class name
-                new SQLSmallint (vrm,settings_),               // data type //@trunc3
-                new SQLVarchar (2000, settings_), // remarks
-            };
-
-            fieldNullables = new int[] {  columnNullable,  // type catalog
-                columnNullable,  // type schema
-                columnNoNulls,   // type name
-                columnNoNulls,   // class name
-                columnNoNulls,   // data type
-                columnNoNulls,   // remarks
-            };
-        }
-        else
-        {
-            // Set up the result set in the format required by JDBC 3.0
+             // Set up the result set in the format required by JDBC 3.0
             fieldNames = new String[] { "TYPE_CAT",
                 "TYPE_SCHEM",
                 "TYPE_NAME",
@@ -5621,8 +5592,7 @@ endif */
                 columnNullable,  // base type  //@G4A
             };
 
-        }
-
+ 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
         JDRowCache rowCache = null;
 
