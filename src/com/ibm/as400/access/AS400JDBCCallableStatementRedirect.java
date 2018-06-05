@@ -534,6 +534,17 @@ public class AS400JDBCCallableStatementRedirect extends
     ((AS400JDBCCallableStatement) cstmt_).setNString(parameterName, x); 
     
   }
+  
+  public Object getObject(String parameterName, Class type)
+      throws SQLException {
+    return ((AS400JDBCCallableStatement) cstmt_).getObject(parameterName, type); 
+  }
+
+  
+  public Object getObject(int parameter, Class type)
+      throws SQLException {
+    return ((AS400JDBCCallableStatement) cstmt_).getObject(parameter, type); 
+  }
 
 /* ifdef JDBC40
       

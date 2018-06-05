@@ -360,7 +360,14 @@ implements Statement {
     return stmt_.getResultSetHoldability(); 
   }
 
+  
+  public boolean isCloseOnCompletion() throws SQLException {
+    return ((AS400JDBCStatement)stmt_).isCloseOnCompletion(); 
+  }
 
+  public void closeOnCompletion() throws SQLException {
+    ((AS400JDBCStatement)stmt_).closeOnCompletion(); 
+  }
 
 
   /* ifdef JDBC40
