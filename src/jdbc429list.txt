@@ -7,6 +7,7 @@ com/ibm/as400/access/AS400JDBCArrayResultSet.java
 com/ibm/as400/access/AS400JDBCBlob.java
 com/ibm/as400/access/AS400JDBCBlobLocator.java
 com/ibm/as400/access/AS400JDBCCallableStatement.java
+com/ibm/as400/access/AS400JDBCCallableStatementRedirect.java
 com/ibm/as400/access/AS400JDBCClob.java
 com/ibm/as400/access/AS400JDBCClobLocator.java
 com/ibm/as400/access/AS400JDBCConnection.java
@@ -24,6 +25,7 @@ com/ibm/as400/access/AS400JDBCNClobLocator.java
 com/ibm/as400/access/AS400JDBCParameterMetaData.java
 com/ibm/as400/access/AS400JDBCPooledConnection.java
 com/ibm/as400/access/AS400JDBCPreparedStatement.java
+com/ibm/as400/access/AS400JDBCPreparedStatementRedirect.java
 com/ibm/as400/access/AS400JDBCResultSet.java
 com/ibm/as400/access/AS400JDBCResultSetMetaData.java
 com/ibm/as400/access/AS400JDBCRowId.java
@@ -32,6 +34,7 @@ com/ibm/as400/access/AS400JDBCSQLSyntaxErrorException.java
 com/ibm/as400/access/AS400JDBCSQLXML.java
 com/ibm/as400/access/AS400JDBCSQLXMLLocator.java
 com/ibm/as400/access/AS400JDBCStatement.java
+com/ibm/as400/access/AS400JDBCStatementRedirect.java
 com/ibm/as400/access/AS400JDBCWriter.java
 com/ibm/as400/access/AS400JDBCXADataSource.java
 com/ibm/as400/access/JDBlobProxy.java
