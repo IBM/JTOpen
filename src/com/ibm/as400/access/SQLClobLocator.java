@@ -869,7 +869,7 @@ endif*/
           // Since this is a mixed CCSID, the locator APIs with length, etc.. do not work correctly
           // @J5A We read the whole thing and convert to a local clob.
           savedObject_ = locatorReturn.getSubString((long)1, (int) locatorReturn.length());
-          objectWrittenToServer_ = false; 
+          savedObjectWrittenToServer_ = false; 
      
           return new AS400JDBCNClob((String) savedObject_, maxLength_); //@loch
         }
