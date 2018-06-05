@@ -15,7 +15,9 @@ package com.ibm.as400.access;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Hashtable;
+
 
 
 
@@ -1013,6 +1015,47 @@ implements JDRow
      }
      }
    }
+
+
+  /* Method to restore saved parameters */ 
+  
+  public void restoreSavedParameters(JDServerRow parameterRow_) {
+    SQLData[] oldSqlData = parameterRow_.sqlData_; 
+    for (int i = 0; i < sqlData_.length; i++) {
+      if (i < oldSqlData.length) { 
+        try { 
+           SQLData oldOne = oldSqlData[i];
+           Calendar calendar = AS400Calendar.getGregorianInstance();
+           int scale = oldOne.getScale(); 
+           Object object; 
+           if (oldOne instanceof  SQLLocator) {
+             // Must set handle before setting data 
+             ((SQLLocator) sqlData_[i]).setHandle(getFieldLOBLocatorHandle(i+1)); 
+             if ((oldOne instanceof SQLClobLocator) ||
+                 (oldOne instanceof SQLNClobLocator) ||
+                 (oldOne instanceof SQLDBClobLocator) || 
+                 (oldOne instanceof SQLXMLLocator )) { 
+               object = oldOne.getString();
+             } else {
+               object = oldOne.getBytes(); 
+             }
+             sqlData_[i].set(object, calendar, scale);
+           }else { 
+             object = oldOne.getObject();
+             sqlData_[i].set(object, calendar, scale); 
+           }
+        
+        } catch (SQLException e) { 
+          if (JDTrace.isTraceOn()) {
+            JDTrace.logException(this, "Restoring parameters", e); 
+          }
+        }
+      }
+    }
+    
+    
+    
+  }
      
 
 }

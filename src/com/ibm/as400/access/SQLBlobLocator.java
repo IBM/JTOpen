@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2017 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,7 @@ final class SQLBlobLocator implements SQLLocator
 
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
+    private boolean savedObjectWrittenToServer_ = false; 
 
     SQLBlobLocator(AS400JDBCConnection connection,
                    int id,
@@ -85,6 +86,7 @@ final class SQLBlobLocator implements SQLLocator
         locator_.setHandle(handle);
         // @T1A Reset saved object
         savedObject_ = null; 
+        savedObjectWrittenToServer_ = false;    
     }                     
     
     //@loch
@@ -112,7 +114,8 @@ final class SQLBlobLocator implements SQLLocator
         locator_.setColumnIndex(columnIndex_);
         // @T1A Reset saved object
         savedObject_ = null; 
-    }
+        savedObjectWrittenToServer_ = false;    
+   }
 
     //@CRS - This is only called from AS400JDBCPreparedStatement in one place.
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -124,7 +127,8 @@ final class SQLBlobLocator implements SQLLocator
         // We used to write the data to the system on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
-        if(savedObject_ != null) writeToServer();
+        if((! savedObjectWrittenToServer_ ) && (savedObject_ != null)) writeToServer();
+
     }
 
     //---------------------------------------------------------//
@@ -132,127 +136,6 @@ final class SQLBlobLocator implements SQLLocator
     // SET METHODS                                             //
     //                                                         //
     //---------------------------------------------------------//
-
-    // This method actually writes the data to the system.
-    private void writeToServer()
-    throws SQLException
-    {
-        if(savedObject_ instanceof byte[])
-        {
-            byte[] bytes = (byte[])savedObject_;        
-            locator_.writeData(0, bytes, true);         //@K1A
-        }
-        else if(savedObject_ instanceof InputStream)
-        {
-            int length = scale_; // hack to get the length into the set method
-            
-            // Need to write even if there are 0 bytes in case we are batching and
-            // the host server reuses the same handle for the previous locator; otherwise,
-            // we'll have data in the current row from the previous row.
-            if (length == 0) 
-            {
-              locator_.writeData(0, new byte[0], 0, 0, true);       //@K1A
-            }
-            else if(length > 0)
-            {
-                InputStream stream = (InputStream)savedObject_;
-                int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                byte[] byteBuffer = new byte[blockSize];
-                try
-                {
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 && totalBytesRead < length)
-                    {
-                        locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1A
-                        totalBytesRead += bytesRead;
-                        int bytesRemaining = length - totalBytesRead;
-                        if(bytesRemaining < blockSize)
-                        {
-                            blockSize = bytesRemaining;
-                        }
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-
-                    if(totalBytesRead < length)
-                    {
-                        // a length longer than the stream was specified
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                    }
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-            }
-            else if(length == -2 ) //@readerlen new else-if block (read all data)
-            {
-                InputStream stream = (InputStream)savedObject_;
-                int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                byte[] byteBuffer = new byte[blockSize];
-                try
-                {
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 )
-                    {
-                        locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1A
-                        totalBytesRead += bytesRead;
-                      
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-            }
-            else
-            {
-                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-            }
-        }
-        else if(JDUtilities.JDBCLevel_ >= 20 && savedObject_ instanceof Blob) //@H0A check for jdbc level to know if lobs exist
-        {
-            // @A1C
-            //@G5A Start new code for updateable locator case to go through the Vectors 
-            //@G5A and update the blob copy when ResultSet.updateBlob() is called.
-            boolean set = false;
-            if(savedObject_ instanceof AS400JDBCBlobLocator)
-            {
-                AS400JDBCBlobLocator blob = (AS400JDBCBlobLocator)savedObject_;
-
-                //Synchronize on a lock so that the user can't keep making updates
-                //to the blob while we are taking updates off the vectors.
-                synchronized(blob)
-                {
-                    // See if we saved off our real object from earlier.
-                    if(blob.savedObject_ != null)
-                    {
-                        savedObject_ = blob.savedObject_;
-                        scale_ = blob.savedScale_;
-                        blob.savedObject_ = null;
-                        writeToServer();
-                        return;
-                    }
-                }
-            }
-
-            //@G5A If the code for updateable lob locators did not run, then run old code.
-            if(!set)
-            {
-                Blob blob = (Blob)savedObject_;                                      // @A1C
-                int length = (int)blob.length();
-                byte[] data = blob.getBytes(1, length);
-                locator_.writeData(0, data, 0, length, true);                   //@K1A
-            }
-        }
-        else
-        {
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        }
-    }
 
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
@@ -380,14 +263,15 @@ final class SQLBlobLocator implements SQLLocator
             }
         }
         else if(!(object instanceof String) &&
-                (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Blob)) &&
+                ( !(object instanceof Blob)) &&
                 !(object instanceof Reader) &&
                 !(object instanceof InputStream))
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
         savedObject_ = object;
-        if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
+        savedObjectWrittenToServer_ = false;    
+      if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
     }
 
     //@loch method to temporary convert from object input to output before even going to host (writeToServer() does the conversion needed before writting to host)
@@ -411,7 +295,7 @@ final class SQLBlobLocator implements SQLLocator
                 }
                 truncated_ = objectLength - value_.length;
             }
-            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
+            else if( object instanceof Blob)
             {
                 Blob blob = (Blob) object;
                 int blobLength = (int)blob.length();
@@ -517,6 +401,130 @@ final class SQLBlobLocator implements SQLLocator
         }
     }
     
+
+    
+    // This method actually writes the data to the system.
+    private void writeToServer()
+    throws SQLException
+    {
+        if(savedObject_ instanceof byte[])
+        {
+            byte[] bytes = (byte[])savedObject_;        
+            locator_.writeData(0, bytes, true);         //@K1A
+        }
+        else if(savedObject_ instanceof InputStream)
+        {
+            int length = scale_; // hack to get the length into the set method
+            
+            // Need to write even if there are 0 bytes in case we are batching and
+            // the host server reuses the same handle for the previous locator; otherwise,
+            // we'll have data in the current row from the previous row.
+            if (length == 0) 
+            {
+              locator_.writeData(0, new byte[0], 0, 0, true);       //@K1A
+            }
+            else if(length > 0)
+            {
+                InputStream stream = (InputStream)savedObject_;
+                int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                byte[] byteBuffer = new byte[blockSize];
+                try
+                {
+                    int totalBytesRead = 0;
+                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    while(bytesRead > -1 && totalBytesRead < length)
+                    {
+                        locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1A
+                        totalBytesRead += bytesRead;
+                        int bytesRemaining = length - totalBytesRead;
+                        if(bytesRemaining < blockSize)
+                        {
+                            blockSize = bytesRemaining;
+                        }
+                        bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    }
+
+                    if(totalBytesRead < length)
+                    {
+                        // a length longer than the stream was specified
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    }
+                }
+                catch(IOException ie)
+                {
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                }
+            }
+            else if(length == -2 ) //@readerlen new else-if block (read all data)
+            {
+                InputStream stream = (InputStream)savedObject_;
+                int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                byte[] byteBuffer = new byte[blockSize];
+                try
+                {
+                    int totalBytesRead = 0;
+                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    while(bytesRead > -1 )
+                    {
+                        locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1A
+                        totalBytesRead += bytesRead;
+                      
+                        bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    }
+
+                }
+                catch(IOException ie)
+                {
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                }
+            }
+            else
+            {
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+        }
+        else if( savedObject_ instanceof Blob) //@H0A check for jdbc level to know if lobs exist
+        {
+            // @A1C
+            //@G5A Start new code for updateable locator case to go through the Vectors 
+            //@G5A and update the blob copy when ResultSet.updateBlob() is called.
+            boolean set = false;
+            if(savedObject_ instanceof AS400JDBCBlobLocator)
+            {
+                AS400JDBCBlobLocator blob = (AS400JDBCBlobLocator)savedObject_;
+
+                //Synchronize on a lock so that the user can't keep making updates
+                //to the blob while we are taking updates off the vectors.
+                synchronized(blob)
+                {
+                    // See if we saved off our real object from earlier.
+                    if(blob.savedObject_ != null)
+                    {
+                        savedObject_ = blob.savedObject_;
+                        savedObjectWrittenToServer_ = false;    
+               scale_ = blob.savedScale_;
+                        blob.savedObject_ = null;
+                        writeToServer();
+                        return;
+                    }
+                }
+            }
+
+            //@G5A If the code for updateable lob locators did not run, then run old code.
+            if(!set)
+            {
+                Blob blob = (Blob)savedObject_;                                      // @A1C
+                int length = (int)blob.length();
+                byte[] data = blob.getBytes(1, length);
+                locator_.writeData(0, data, 0, length, true);                   //@K1A
+            }
+        }
+        else
+        {
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
+    }
+
     //---------------------------------------------------------//
     //                                                         //
     // DESCRIPTION OF SQL TYPE                                 //

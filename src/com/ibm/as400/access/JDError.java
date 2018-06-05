@@ -849,7 +849,9 @@ endif */
 endif */
 /* ifndef JDBC40 */            
                 return new SQLException(message, sqlState, vendorCode);
-/* endif */             
+/* endif */     
+              } else if (vendorCode == -4498) {
+                 return new AS400JDBCTransientException(message, sqlState, vendorCode); 
               } else {
                   // All connection exceptions on IBM i are NonTransient
 /* ifdef JDBC40

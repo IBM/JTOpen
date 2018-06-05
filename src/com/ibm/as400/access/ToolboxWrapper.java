@@ -13,10 +13,7 @@
 
 package com.ibm.as400.access;
 
-import java.sql.SQLException;
-/* ifdef JDBC40 
-import java.sql.Wrapper;
-endif */ 
+import java.sql.*; 
 
 
 /* 
@@ -31,9 +28,9 @@ endif */
  * wrapper code in one class, we decided to keep it. 
  */
 class ToolboxWrapper 
-/* ifdef JDBC40 
+/* ifdef JDBC40  
 implements Wrapper 
-endif */ 
+ endif */ 
 {
 
   
@@ -70,7 +67,7 @@ endif */
   //JDBC40DOC      *             if an error occurs while determining whether this is a
   //JDBC40DOC      *             wrapper for an object with the given interface.
   //JDBC40DOC      */
-    /* ifdef JDBC40 
+    /* ifdef JDBC40   
     public boolean isWrapperFor(Class<?> iface) throws SQLException 
     {
         if (iface == null)
@@ -85,7 +82,7 @@ endif */
 
         return false;
     }
-    endif */ 
+     endif */ 
   //JDBC40DOC     /**
   //JDBC40DOC      * Returns an object that implements the given interface to allow access to
   //JDBC40DOC      * non-standard methods, or standard methods not exposed by the proxy.
@@ -118,5 +115,5 @@ endif */
         }
         
     }
-    endif */
+     endif */
 }

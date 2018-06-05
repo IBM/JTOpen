@@ -138,7 +138,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
   private int maxToLog_ = 10000; // Log value of parameter markers up to this
                                  // length // @H1A
   private boolean containsArrayParameter_ = false; /* @G7A */
-
+  private boolean preserveParameters_ = false; 
 
   private int containsLocator_ = LOCATOR_UNKNOWN;
   private static final int LOCATOR_UNKNOWN = -1;
@@ -1332,8 +1332,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements
     super.commonPrepareAfter(sqlStatement, reply);
 
     if (prepared_) {
-      parameterRow_ = new JDServerRow(connection_, id_,
-          reply.getParameterMarkerFormat(), settings_);
+      JDServerRow newParameterRow = new JDServerRow(connection_, id_,
+          reply.getParameterMarkerFormat(), settings_); 
+      if (preserveParameters_ && (parameterRow_ != null)) { 
+        newParameterRow.restoreSavedParameters(parameterRow_);
+      }
+      parameterRow_ = newParameterRow;
 
     }
   }
@@ -4840,7 +4844,8 @@ Object
   {
     super.checkOpen(); 
       if (connectionReset_) {
-        // Any exception from the prepare will just get thrown 
+        // Any exception from the prepare will just get thrown
+        preserveParameters_ = true; 
         resultRow_ = commonPrepare(sqlStatement_);
 
         connectionReset_ = false; 

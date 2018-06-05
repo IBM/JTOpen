@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2010 International Business Machines Corporation and
+// Copyright (C) 1997-2018 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ extends ToolboxWrapper
 endif */
 implements Statement
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2018 International Business Machines Corporation and others.";
 
 
     // Constants.
@@ -79,7 +79,6 @@ implements Statement
     static final int            RETURN_GENERATED_KEYS = 1;    //@G4A
     static final int            NO_GENERATED_KEYS = 2;    //@G4A
     static final int            GENERATED_KEYS_NOT_SPECIFIED = -9999;    //@G4A
-
 
     // Private data.
     boolean                 allowImmediate_;    // private protected
@@ -2054,40 +2053,40 @@ implements Statement
                                     error, the query timeout limit is
                                     exceeded, or an error occurs.
     **/
-    public boolean execute (String sql)
-    throws SQLException
-    {
-        synchronized(internalLock_)
-        {    // @E6A
-            checkOpen ();
-            JDSQLStatement sqlStatement = new JDSQLStatement (sql,
-                                                              settings_.getDecimalSeparator (), escapeProcessing_,
-                                                              packageCriteria_, connection_);    // @A1A @G4C
-            currentJDSQLStatement_ = sqlStatement; 
+  public boolean execute(String sql) throws SQLException {
+    synchronized (internalLock_) { // @E6A
 
-            if(JDTrace.isTraceOn())    // @D0A
-                JDTrace.logInformation (this, "Executing SQL Statement -->[" + sqlStatement + "]");    // @D0A
+          checkOpen();
+          JDSQLStatement sqlStatement = new JDSQLStatement(sql,
+              settings_.getDecimalSeparator(), escapeProcessing_,
+              packageCriteria_, connection_); // @A1A @G4C
+          currentJDSQLStatement_ = sqlStatement;
 
-            // Validate that no parameters are set, since parameters
-            // imply the need for a PreparedStatement.
-            //
-            // Note:  This code causes problems with some statements with a syntax error.
-            // For example
-            // select * from sysibm.sysdummy1 where 'a = '?'
-            //
-            // Removing this code to allow database engine errors to be returned.
-            //
-            // if(sqlStatement.countParameters () > 0)
-            //     JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-            // @AAD
+          if (JDTrace.isTraceOn()) // @D0A
+            JDTrace.logInformation(this, "Executing SQL Statement -->["
+                + sqlStatement + "]"); // @D0A
 
-            // Prepare and execute.
-            JDServerRow resultRow = commonPrepare (sqlStatement);
-            commonExecute (sqlStatement, resultRow);
+          // Validate that no parameters are set, since parameters
+          // imply the need for a PreparedStatement.
+          //
+          // Note: This code causes problems with some statements with a syntax
+          // error.
+          // For example
+          // select * from sysibm.sysdummy1 where 'a = '?'
+          //
+          // Removing this code to allow database engine errors to be returned.
+          //
+          // if(sqlStatement.countParameters () > 0)
+          // JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+          // @AAD
 
-            return(resultSet_ != null);
-        }
+          // Prepare and execute.
+          JDServerRow resultRow = commonPrepare(sqlStatement);
+          commonExecute(sqlStatement, resultRow);
+
+          return (resultSet_ != null);
     }
+  }
 
 
 
@@ -4276,6 +4275,7 @@ implements Statement
 
             rpbCreated_ = true;
             rpbSyncNeeded_ = false;
+            connectionReset_ = false; 
         }
     }
 

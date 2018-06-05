@@ -5691,28 +5691,36 @@ endif */
   }
 
    /**
-    * Sets the maximum period a Connection or objects created from the Connection will wait for the database to
-    * reply to any one request. If any request remains unanswered, the waiting method will return with a
-    * SQLException, and the Connection or objects created from the Connection will be marked as closed.
-    * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods,
+    * Sets the maximum period a Connection or objects created from the 
+    * Connection will wait for the database to reply to any one request. If 
+    * any request remains unanswered, the waiting method will return with a
+    * SQLException, and the Connection or objects created from the 
+    * Connection will be marked as closed. Any subsequent use of the objects, 
+    * with the exception of the close, isClosed or Connection.isValid methods,
     * will result in a SQLException.
     *
-    *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket.
-    *<p>Currently, setting the network timeout is only supported when the "thread used" property is false.
-    *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks
-    * the connection closed and releases any resources held by the connection.
-    *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed.
-    * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method
-    * throws a java.lang.SecurityException.
-    *@param timeout - The time in milliseconds to wait for the database operation to complete. If the
-    * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second.
-    * If the timeout period expires before the operation completes, a SQLException will be thrown. A value of
-    * 0 indicates that there is not timeout for database operations.
-   * @throws SQLException
-    * @throws  SQLException - if a database access error occurs, this method is called on a closed connection,
-    *  or the value specified for seconds is less than 0.
-    * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
-    *  setNetworkTimeout.
+    *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout
+    *   of the underlying socket.
+    *<p>Currently, setting the network timeout is only supported when the 
+    *   "thread used" property is false.
+    *<p>When the driver determines that the setNetworkTimeout timeout value 
+    *   has expired, the JDBC driver marks the connection closed and releases 
+    *   any resources held by the connection.
+    *<p>This method checks to see that there is an SQLPermission object before 
+    * allowing the method to proceed.
+    * If a SecurityManager exists and its checkPermission method denies calling 
+    * setNetworkTimeout, this method throws a java.lang.SecurityException.
+    *@param timeout - The time in milliseconds to wait for the database 
+    * operation to complete. If the JDBC driver does not support milliseconds, 
+    * the JDBC driver will round the value up to the nearest second.
+    * If the timeout period expires before the operation completes, a 
+    * SQLException will be thrown. A value of 0 indicates that there is no 
+    * timeout for database operations.
+    * @throws  SQLException - if a database access error occurs, this method is
+    *  called on a closed connection,or the value specified for seconds is less 
+    *  than 0.
+    * @throws  SecurityException - if a security manager exists and its 
+    *  checkPermission method denies calling setNetworkTimeout.
     * @see SecurityManager#checkPermission(java.security.Permission)
     * @see Statement#setQueryTimeout(int)
     * @see #getNetworkTimeout()
@@ -6121,7 +6129,7 @@ endif */
 
 
   /** 
-   * transferr objects associated with this connection to a new connection. 
+   * transfer objects associated with this connection to a new connection. 
    * @param newConnection
    */
   void transferObjects(AS400JDBCConnectionImpl newConnection) {
@@ -6131,8 +6139,6 @@ endif */
     newConnection.statements_ = statements_; 
     statements_ = new Vector(); 
     
-
-    // Todo:  Restore any special registers that were set. 
     
     
   }
@@ -6186,5 +6192,30 @@ endif */
 
   int getNewAutoCommitSupport() {
     return newAutoCommitSupport_; 
+  }
+
+
+
+  /**
+   * Can the operation be retried after EXC_CONNECTION_REESTABLISHED. 
+   * 
+   * The rules for being able to retry are the following.
+   * <ul>
+   *  <li>The connection was not being used for a transaction at the time the failure occurred.
+   *  <li>There are no outstanding global resources, such as global temporary tables or 
+      open, held cursors, or connection states that prevent a seamless failover to another server.
+   * </ul>  
+   */
+  boolean canSeamlessFailover() {
+    if (transactionManager_ != null) {
+      if (transactionManager_.isLocalActive()) {
+        return false;
+      }
+      if (transactionManager_.isGlobalActive()) {
+        return false;
+      }
+
+    }
+    return true;
   }
 }

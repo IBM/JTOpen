@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2018 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,11 +36,11 @@ final class SQLDBClobLocator implements SQLLocator
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
     private AS400JDBCConnection    connection_;
+    private SQLConversionSettings   settings_;
     private ConvTable               converter_;
     private int                     id_;
     private JDLobLocator            locator_;
     private int                     maxLength_; //note length in chars
-    private SQLConversionSettings   settings_;
     private int                     truncated_;
     private boolean                 outOfBounds_; 
     private int                     columnIndex_;
@@ -48,6 +48,7 @@ final class SQLDBClobLocator implements SQLLocator
 
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
+    private boolean savedObjectWrittenToServer_ = false; 
 
     private int ccsid_; /*@P3A*/
 
@@ -62,9 +63,9 @@ final class SQLDBClobLocator implements SQLLocator
         id_             = id;
         locator_        = new JDLobLocator(connection, id, maxLength, true);
         maxLength_      = maxLength;
-        settings_       = settings;
         truncated_ = 0; outOfBounds_ = false; 
-        converter_      = converter;
+        settings_       = settings;
+       converter_      = converter;
         columnIndex_    = columnIndex;
     }
 
@@ -78,7 +79,7 @@ final class SQLDBClobLocator implements SQLLocator
         locator_.setHandle(handle);
         // @T1A reset saved handle after setting new value
        savedObject_ = null;
-
+       savedObjectWrittenToServer_ = false;    
     }
     
     //@loch
@@ -106,6 +107,7 @@ final class SQLDBClobLocator implements SQLLocator
         locator_.setColumnIndex(columnIndex_);
          //  @T1A reset saved handle after setting new value
         savedObject_ = null;
+        savedObjectWrittenToServer_ = false; 
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -117,7 +119,7 @@ final class SQLDBClobLocator implements SQLLocator
         // We used to write the data to the system on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
-        if(savedObject_ != null) writeToServer();
+        if((! savedObjectWrittenToServer_ ) && (savedObject_ != null)) writeToServer();
     }
 
     //---------------------------------------------------------//
@@ -139,23 +141,24 @@ final class SQLDBClobLocator implements SQLLocator
         }
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
-           (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob))
+           ( !(object instanceof Clob))
   /* ifdef JDBC40          
            &&   !(object instanceof SQLXML)
     endif*/        
            )
         {
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
 
      
         
         savedObject_ = object;
+        savedObjectWrittenToServer_ = false;       
         if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
     }
 
     
-    //@loch method to temporary convert from object input to output before even going to host (writeToServer() does the conversion needed before writting to host)
+    //@loch method to temporary convert from object input to output before even going to host (writeToServer() does the conversion needed before writing to host)
     //This will only be used when resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
     //Purpose is to do a local type conversion from obj1 to obj2 like other non-locator lob types
     private void doConversion()
@@ -210,7 +213,7 @@ final class SQLDBClobLocator implements SQLLocator
         }
         finally
         {
-           
+           //nothing
         }
     }
     
@@ -390,7 +393,7 @@ final class SQLDBClobLocator implements SQLLocator
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
-        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+        else if( object instanceof Clob)
         {
             boolean set = false;
             if(object instanceof AS400JDBCClobLocator)
@@ -405,9 +408,12 @@ final class SQLDBClobLocator implements SQLLocator
                     if(clob.savedObject_ != null)
                     {
                         savedObject_ = clob.savedObject_;
+                        savedObjectWrittenToServer_ = false; 
                         scale_ = clob.savedScale_;
                         clob.savedObject_ = null;
                         writeToServer();
+                        savedObjectWrittenToServer_ = true; 
+                        
                         return;
                     }
                 }
@@ -453,7 +459,11 @@ final class SQLDBClobLocator implements SQLLocator
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
       } finally { 
-        savedObject_ = null; 
+          // Do not delete the saved object after writing it to 
+          // the server.  We may still need it if we need to 
+          // re-execute the statement. 
+          // savedObject_ = null;
+          savedObjectWrittenToServer_ = true; 
       }
     }
 
@@ -773,11 +783,11 @@ final class SQLDBClobLocator implements SQLLocator
     public Object getObject()
     throws SQLException
     {
+        truncated_ = 0; outOfBounds_ = false; 
         // getObject is used by AS400JDBCPreparedStatement for batching, so we save off our InputStream
         // inside the AS400JDBCClobLocator. Then, when convertToRawBytes() is called, the writeToServer()
         // code checks the AS400JDBCClobLocator's saved InputStream... if it exists, then it writes the
         // data out of the InputStream to the system by calling writeToServer() again.
-        truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
     }
 

@@ -2159,5 +2159,9 @@ endif */
   public void setInFinalizer(boolean setting) {
     inFinalizer_ = setting; 
   }
+
+  /* Can the operation be retried after receiving EXC_CONNECTION_REESTABLISHED */ 
+  abstract boolean canSeamlessFailover() ;
+ 
   
 }

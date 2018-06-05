@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2006-2006 International Business Machines Corporation and     
+// Copyright (C) 2006-2018 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,11 +37,11 @@ final class SQLNClobLocator implements SQLLocator
 {
    
     private AS400JDBCConnection     connection_;
+    private SQLConversionSettings   settings_;
     private ConvTable               converter_;
     private int                     id_;
     private JDLobLocator            locator_;
     private int                     maxLength_; //note length in chars
-    private SQLConversionSettings   settings_;
     private int                     truncated_;
     private boolean                 outOfBounds_; 
     private int                     columnIndex_;
@@ -49,6 +49,7 @@ final class SQLNClobLocator implements SQLLocator
 
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
+    private boolean savedObjectWrittenToServer_ = false; 
 
     SQLNClobLocator(AS400JDBCConnection connection,
                    int id,
@@ -77,7 +78,7 @@ final class SQLNClobLocator implements SQLLocator
         locator_.setHandle(handle);
         //  @T1A reset saved handle after setting new value
        savedObject_ = null;
-
+       savedObjectWrittenToServer_ = false;    
     }
     
     //@loch
@@ -105,7 +106,7 @@ final class SQLNClobLocator implements SQLLocator
         locator_.setColumnIndex(columnIndex_);
         //  @T1A reset saved handle after setting new value
        savedObject_ = null;
-
+        savedObjectWrittenToServer_ = false; 
     }
 
     // This is only called from AS400JDBCPreparedStatement in one place.
@@ -118,7 +119,7 @@ final class SQLNClobLocator implements SQLLocator
         // We used to write the data to the system on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
-        if(savedObject_ != null) writeToServer();
+        if((! savedObjectWrittenToServer_ ) && (savedObject_ != null)) writeToServer();
     }
 
     //---------------------------------------------------------//
@@ -139,7 +140,6 @@ final class SQLNClobLocator implements SQLLocator
             truncated_ = (length > maxLength_ ? length-maxLength_ : 0);  
             outOfBounds_ = false;
         } 
-        //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
            !(object instanceof Clob) 
@@ -154,6 +154,7 @@ final class SQLNClobLocator implements SQLLocator
         }
 
         savedObject_ = object;
+        savedObjectWrittenToServer_ = false; 
         if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
     }
 
@@ -424,9 +425,11 @@ final class SQLNClobLocator implements SQLLocator
                         if(clob.savedObject_ != null)
                         {
                             savedObject_ = clob.savedObject_;
+                            savedObjectWrittenToServer_ = false; 
                             scale_ = clob.savedScale_;
                             clob.savedObject_ = null;
                             writeToServer();
+                            savedObjectWrittenToServer_ = false; 
                             return;
                         }
                     }
@@ -476,7 +479,11 @@ endif */
         }
         finally
         {
-            savedObject_ = null;
+            // Do not delete the saved object after writing it to 
+            // the server.  We may still need it if we need to 
+            // re-execute the statement. 
+            // savedObject_ = null;
+            savedObjectWrittenToServer_ = true; 
         }
         scale_ = (int)locator_.getLength();
     }

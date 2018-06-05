@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 import java.sql.*;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -32,7 +33,7 @@ endif */
  * AS400JDBCConnections. The goal is to be able to switch to use an alternative
  * server if the existing server becomes unavailable.
  * 
- * This class is only used if enableSeamlessFailover is set to 1. 
+ * This class is only used if enableClientAffinitiesList is set to 1. 
  **/
 public class AS400JDBCConnectionRedirect
 
@@ -41,6 +42,13 @@ extends AS400JDBCConnection {
   /* This is set to true when closing result sets associated */
   /* with the old connection */ 
   
+  /* How many times to seamlessly reconnect */ 
+  /* This is need to prevent an infinite loop if executing a statement */ 
+  /* always causes the connection to die */
+  
+  public static final int SEAMLESS_RETRY_COUNT = 15;
+  
+  boolean enableSeamlessFailover_ = false; 
   boolean doNotHandleErrors_ = false; 
   AS400JDBCConnectionImpl currentConnection_;
   private AS400 originalAs400;
@@ -64,7 +72,16 @@ extends AS400JDBCConnection {
   private boolean autoCommitSet_ = false;
   private boolean autoCommitSetting_ = false;
   private boolean transactionIsolationSet_ = false;
-  private int transactionIsolationSetting_ = 0;  
+  private int transactionIsolationSetting_ = 0;
+  private Hashtable clientInfoHashtable_ = null;
+  private boolean holdabilitySet_ = false;   
+  private int holdability_ = 0;
+  private boolean readOnlySet_ = false; 
+  private boolean readOnly_;
+  private boolean networkTimeoutSet_ = false;
+  private int     networkTimeout_; 
+  
+  private boolean lastConnectionCanSeamlessFailover_ = false; 
   
   /** 
    * Default constructor reserved for use within package
@@ -80,6 +97,9 @@ extends AS400JDBCConnection {
   
   private void setupRetryInformation() {
     
+    
+       
+       enableSeamlessFailover_ = getEnableSeamlessFailover(); 
        maxRetriesForClientReroute_ = getMaxRetriesForClientReroute(); 
        retryIntervalForClientReroute_ = getRetryIntervalForClientReroute(); 
        // If retryIntervalForClientReroute is set, the default for 
@@ -150,6 +170,13 @@ extends AS400JDBCConnection {
     return url;
   }
 
+  boolean getEnableSeamlessFailover() {
+    int value = originalProperties_.getInt(JDProperties.ENABLE_SEAMLESS_FAILOVER); 
+    if (value == 1) {
+      return true; 
+    }
+    return false; 
+  }
   int getMaxRetriesForClientReroute() { 
     int value = originalProperties_.getInt(JDProperties.MAX_RETRIES_FOR_CLIENT_REROUTE);
     if (value < 0) value = -1; 
@@ -222,6 +249,26 @@ extends AS400JDBCConnection {
        newConnection.setTransactionIsolation(transactionIsolationSetting_); 
      }
      
+     if (holdabilitySet_) {
+       newConnection.setHoldability(holdability_); 
+     }
+
+     if (readOnlySet_) { 
+       newConnection.setReadOnly(readOnly_); 
+     }
+     if (networkTimeoutSet_) {
+       newConnection.setNetworkTimeout( networkTimeout_); 
+     }
+
+     /* Restore the client information */ 
+     if (clientInfoHashtable_ != null) {
+        Enumeration keysEnum = clientInfoHashtable_.keys(); 
+        while (keysEnum.hasMoreElements()) {
+          String key = (String) keysEnum.nextElement(); 
+          String value = (String) clientInfoHashtable_.get(key); 
+          newConnection.setClientInfo(key, value); 
+        }
+     }
   }
   
   
@@ -237,14 +284,27 @@ extends AS400JDBCConnection {
     // If this has a failure then the exception is thrown and we are unable to use the connection. 
     
     replaySettings(newConnection); 
-
-    
+    if (enableSeamlessFailover_) {
+      lastConnectionCanSeamlessFailover_ = currentConnection_.canSeamlessFailover();    
+    }
     
     doNotHandleErrors_ = true; 
     // Close all the results sets associated with the old connection
-    currentConnection_.closeAllResultSets();
-    doNotHandleErrors_ = false; 
-
+    // If there is an error, we do not try to handle it and create a new connection. 
+    try { 
+      currentConnection_.closeAllResultSets();
+    } catch (Exception closeException) {
+      // Log this exception, but continue on
+      if (JDTrace.isTraceOn())
+        JDTrace.logException(this, "Exception from closeAllResultSets", e); // @J3a
+    } catch (Throwable t) {
+      // Log this exception, but continue on
+      if (JDTrace.isTraceOn())
+        JDTrace.logException(this, "Throwable from closeAllResultSets", e); // @J3a
+      
+    } finally { 
+      doNotHandleErrors_ = false; 
+    }
     currentConnection_.resetStatements(); 
 
     // Need to fix up all the objects associated with the old connection and transfer them to 
@@ -550,7 +610,12 @@ endif */
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        return currentConnection_.createStatement(this);
+        Statement newStatement = currentConnection_.createStatement(this);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -564,8 +629,13 @@ endif */
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        return currentConnection_.createStatement(this, resultSetType,
+        Statement newStatement =  currentConnection_.createStatement(this, resultSetType,
             resultSetConcurrency);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
 
       } catch (SQLException e) {
         retryOperation = handleException(e);
@@ -580,8 +650,14 @@ endif */
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        return currentConnection_.createStatement(this, resultSetType,
+        Statement newStatement = currentConnection_.createStatement(this, resultSetType,
             resultSetConcurrency, resultSetHoldability);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1006,7 +1082,13 @@ endif */
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        return currentConnection_.prepareCall(this, sql);
+        CallableStatement newStatement = currentConnection_.prepareCall(this, sql);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCCallableStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1050,11 +1132,31 @@ endif */
 
   public PreparedStatement prepareStatement(String sql) throws SQLException {
     boolean retryOperation = true;
+    int retryCount = SEAMLESS_RETRY_COUNT; 
     while (retryOperation) {
       try {
-        return currentConnection_.prepareStatement(this, sql);
+        PreparedStatement newStatement = currentConnection_.prepareStatement(this, sql);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCPreparedStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
-        retryOperation = handleException(e);
+          try { 
+            retryOperation = handleException(e);
+          } catch (AS400JDBCTransientException e2) {
+            if (currentConnection_.canSeamlessFailover()) {
+              retryCount--; 
+              if (retryCount >= 0 ) {
+                retryOperation = true;
+              } else {
+                throw e2; 
+              }
+            } else {
+              throw e2; 
+            }
+          }
       }
     }
     JDError.throwSQLException(JDError.EXC_INTERNAL); /* should not be reached */
@@ -1065,11 +1167,32 @@ endif */
   public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
       throws SQLException {
     boolean retryOperation = true;
+    int retryCount = SEAMLESS_RETRY_COUNT; 
+
     while (retryOperation) {
       try {
-        return currentConnection_.prepareStatement(this, sql, autoGeneratedKeys);
+        PreparedStatement newStatement = currentConnection_.prepareStatement(this, sql, autoGeneratedKeys);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCPreparedStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
-        retryOperation = handleException(e);
+        try { 
+          retryOperation = handleException(e);
+        } catch (AS400JDBCTransientException e2) {
+          if (currentConnection_.canSeamlessFailover()) {
+            retryCount--; 
+            if (retryCount >= 0 ) {
+              retryOperation = true;
+            } else {
+              throw e2; 
+            }
+          } else {
+            throw e2; 
+          }
+        }
       }
     }
     JDError.throwSQLException(JDError.EXC_INTERNAL); /* should not be reached */
@@ -1080,12 +1203,32 @@ endif */
   public PreparedStatement prepareStatement(String sql, int resultSetType,
       int resultSetConcurrency) throws SQLException {
     boolean retryOperation = true;
+    int retryCount = SEAMLESS_RETRY_COUNT; 
     while (retryOperation) {
       try {
-        return currentConnection_.prepareStatement(this, sql, resultSetType,
+        PreparedStatement newStatement =  currentConnection_.prepareStatement(this, sql, resultSetType,
             resultSetConcurrency);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCPreparedStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
-        retryOperation = handleException(e);
+        try { 
+          retryOperation = handleException(e);
+        } catch (AS400JDBCTransientException e2) {
+          if (currentConnection_.canSeamlessFailover()) {
+            retryCount--; 
+            if (retryCount >= 0 ) {
+              retryOperation = true;
+            } else {
+              throw e2; 
+            }
+          } else {
+            throw e2; 
+          }
+        }
       }
     }
     JDError.throwSQLException(JDError.EXC_INTERNAL); /* should not be reached */
@@ -1096,12 +1239,32 @@ endif */
   public PreparedStatement prepareStatement(String sql, int resultSetType,
       int resultSetConcurrency, int resultSetHoldability) throws SQLException {
     boolean retryOperation = true;
+    int retryCount = SEAMLESS_RETRY_COUNT; 
     while (retryOperation) {
       try {
-        return currentConnection_.prepareStatement(this, sql, resultSetType,
+        PreparedStatement newStatement =  currentConnection_.prepareStatement(this, sql, resultSetType,
             resultSetConcurrency, resultSetHoldability);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCPreparedStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
-        retryOperation = handleException(e);
+        try { 
+          retryOperation = handleException(e);
+        } catch (AS400JDBCTransientException e2) {
+          if (currentConnection_.canSeamlessFailover()) {
+            retryCount--; 
+            if (retryCount >= 0 ) {
+              retryOperation = true;
+            } else {
+              throw e2; 
+            }
+          } else {
+            throw e2; 
+          }
+        }
       }
     }
     JDError.throwSQLException(JDError.EXC_INTERNAL); /* should not be reached */
@@ -1112,11 +1275,31 @@ endif */
   public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
       throws SQLException {
     boolean retryOperation = true;
+    int retryCount = SEAMLESS_RETRY_COUNT; 
     while (retryOperation) {
       try {
-        return currentConnection_.prepareStatement(this, sql, columnIndexes);
+        PreparedStatement newStatement = currentConnection_.prepareStatement(this, sql, columnIndexes);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCPreparedStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
-        retryOperation = handleException(e);
+        try { 
+          retryOperation = handleException(e);
+        } catch (AS400JDBCTransientException e2) {
+          if (currentConnection_.canSeamlessFailover()) {
+            retryCount--; 
+            if (retryCount >= 0 ) {
+              retryOperation = true;
+            } else {
+              throw e2; 
+            }
+          } else {
+            throw e2; 
+          }
+        }
       }
     }
     JDError.throwSQLException(JDError.EXC_INTERNAL); /* should not be reached */
@@ -1127,11 +1310,31 @@ endif */
   public PreparedStatement prepareStatement(String sql, String[] columnNames)
       throws SQLException {
     boolean retryOperation = true;
+    int retryCount = SEAMLESS_RETRY_COUNT; 
     while (retryOperation) {
       try {
-        return currentConnection_.prepareStatement(this, sql, columnNames);
+        PreparedStatement newStatement = currentConnection_.prepareStatement(this, sql, columnNames);
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCPreparedStatementRedirect(newStatement);
+        } else {
+          return newStatement; 
+        }
+
       } catch (SQLException e) {
-        retryOperation = handleException(e);
+        try { 
+          retryOperation = handleException(e);
+        } catch (AS400JDBCTransientException e2) {
+          if (currentConnection_.canSeamlessFailover()) {
+            retryCount--; 
+            if (retryCount >= 0 ) {
+              retryOperation = true;
+            } else {
+              throw e2; 
+            }
+          } else {
+            throw e2; 
+          }
+        }
       }
     }
     JDError.throwSQLException(JDError.EXC_INTERNAL); /* should not be reached */
@@ -1392,6 +1595,9 @@ endif */
       try {
         currentConnection_.setHoldability(holdability);
         retryOperation = false;
+        holdability_ = holdability; 
+        holdabilitySet_ = true; 
+        
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1490,6 +1696,8 @@ endif */
       try {
         currentConnection_.setReadOnly(readOnly);
         retryOperation = false;
+        readOnlySet_ = true; 
+        readOnly_ = readOnly; 
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1572,15 +1780,16 @@ endif */
       try {
         currentConnection_.setTransactionIsolation(level);
         retryOperation = false;
+        transactionIsolationSet_ = true; 
+        transactionIsolationSetting_ = level; 
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
     }
-    transactionIsolationSet_ = true; 
-    transactionIsolationSetting_ = level; 
     
   }
 
+ 
   public void setTypeMap(Map typeMap) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1625,6 +1834,10 @@ endif */
     while (retryOperation) {
       try {
         currentConnection_.setClientInfo(name, value);
+        if (clientInfoHashtable_ == null) { 
+          clientInfoHashtable_ = new Hashtable(); 
+        }
+        clientInfoHashtable_.put(name, value); 
         retryOperation = false;
       } catch (
           
@@ -1655,7 +1868,29 @@ endif */
     while (retryOperation) {
       try {
         currentConnection_.setClientInfo(properties);
+        if (clientInfoHashtable_ == null) { 
+          clientInfoHashtable_ = new Hashtable(); 
+        }
+        String[] possibleNames = {
+            "ApplicationName",
+            "ClientUser",
+            "ClientAccounting",
+            "ClientHostname", 
+            "ClientProgramID"
+        };
+        
+        for (int i = 0; i < possibleNames.length; i++) { 
+          String name = possibleNames[i]; 
+          String value = properties.getProperty(name); 
+          if (value == null) { 
+            value = ""; 
+          }
+          clientInfoHashtable_.put(name, value); 
+        }
+
+        
         retryOperation = false;
+        
       } catch (
           /* ifdef JDBC40
           SQLClientInfoException
@@ -1792,6 +2027,8 @@ endif */
       try {
         currentConnection_.setNetworkTimeout(timeout);
         retryOperation = false;
+        networkTimeoutSet_ = true; 
+        networkTimeout_ = timeout; 
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1819,6 +2056,10 @@ endif */
       try {
         currentConnection_.setSchema(schema);
         retryOperation = false;
+        if (setCommands_ == null) { 
+          setCommands_ = new Vector(); 
+        }
+        setCommands_.add("SET SCHEMA "+schema); 
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1918,6 +2159,18 @@ endif */
    setCommands_.addElement(command); 
   }
   
+  /**
+   * Can the operation be retried after EXC_CONNECTION_REESTABLISHED. 
+   */
+  boolean canSeamlessFailover() {
+    return lastConnectionCanSeamlessFailover_; 
+  }
+  
+  
+  
+  
+  
+  
   /* ifdef JDBC40
   public boolean isValid(int timeout) throws SQLException {
     boolean retryOperation = true;
@@ -1950,7 +2203,7 @@ endif */
   }
 endif */
 
-   /*ifdef JDBC40
+/*ifdef JDBC40
   public SQLXML createSQLXML() throws SQLException {
         boolean retryOperation = true;
       while (retryOperation) {
@@ -1981,7 +2234,7 @@ endif */
     
 endif */
 
-  /* ifdef JDBC40
+/* ifdef JDBC40
   public void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException  {
                 boolean retryOperation = true;
@@ -1989,6 +2242,8 @@ endif */
         try {
           currentConnection_.setNetworkTimeout(executor, milliseconds);
           retryOperation=false;  
+          networkTimeoutSet_ = true; 
+          networkTimeout_ = milliseconds; 
         } catch (SQLException e) {
         retryOperation = handleException(e);
       }

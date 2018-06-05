@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 1997-2017 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,8 +48,10 @@ final class SQLClobLocator implements SQLLocator
     private String                  value_; //@loch //Note that value_ is not used as the output for a ResultSet.getX() call.  We Get the value from a call to the JDLocator (not from value_) and not from the savedObject_, unless resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
 
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
+                                 // After the object is written to the server, this will be a string
     private int scale_; // This is actually the length that got set into us.
-
+    private boolean savedObjectWrittenToServer_ = false; 
+    
     SQLClobLocator(AS400JDBCConnection connection,
                    int id,
                    int maxLength, 
@@ -77,6 +79,7 @@ final class SQLClobLocator implements SQLLocator
         locator_.setHandle(handle);
         // @J5A reset savedObject after setting handle
         savedObject_ = null; 
+        savedObjectWrittenToServer_ = false;    
     }
     
     //@loch
@@ -104,6 +107,7 @@ final class SQLClobLocator implements SQLLocator
         locator_.setColumnIndex(columnIndex_);
         // @J5A reset saved handle after setting new value
         savedObject_ = null; 
+        savedObjectWrittenToServer_ = false; 
     }
 
     //@CRS - This is only called from AS400JDBCPreparedStatement in one place.
@@ -116,7 +120,7 @@ final class SQLClobLocator implements SQLLocator
         // We used to write the data to the system on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
-        if(savedObject_ != null) writeToServer();
+        if((! savedObjectWrittenToServer_ ) && (savedObject_ != null)) writeToServer();
     }
 
     //---------------------------------------------------------//
@@ -139,7 +143,7 @@ final class SQLClobLocator implements SQLLocator
         }
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
-           (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob))
+           ( !(object instanceof Clob))
 /*ifdef JDBC40 
             && !(object instanceof SQLXML)  
 endif*/        
@@ -149,6 +153,7 @@ endif*/
         }
 
         savedObject_ = object;
+        savedObjectWrittenToServer_ = false; 
         if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
     }
 
@@ -245,25 +250,20 @@ endif*/
                         int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
                         int bidiStringType = settings_.getBidiStringType();
                         if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
-
                         BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
                         bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
                         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
-
                         ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); //@KBC changed to use bidiConversionProperties instead of bidiStringType
                         byte[] byteBuffer = new byte[blockSize];
                         int totalBytesRead = 0;
                         int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1 && totalBytesRead < length)
-                        {
+                        while(bytesRead > -1 && totalBytesRead < length) {
                             locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1C
                             totalBytesRead += bytesRead;
                             int bytesRemaining = length - totalBytesRead;
-                            if(bytesRemaining < blockSize)
-                            {
+                            if(bytesRemaining < blockSize)   {
                                 blockSize = bytesRemaining;
-                                if(stream.available() == 0 && blockSize != 0)
-                                {
+                                if(stream.available() == 0 && blockSize != 0)     {
                                     stream.close(); //@scan1
                                     stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); // do this so we don't read more chars out of the Reader than we have to. //@KBC changed to use bidiConversionProperties instead of bidiStringType
                                 }
@@ -271,51 +271,28 @@ endif*/
                             bytesRead = stream.read(byteBuffer, 0, blockSize);
                         }
                         stream.close(); //@scan1
-                        
-                        if(totalBytesRead < length)
-                        {
+                        if(totalBytesRead < length)  {
                             // a length longer than the stream was specified
                             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                         }
-
-                    }
-                    catch(IOException ie)
-                    {
+                    } catch(IOException ie) {
                         JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                     }
                 }
-                else if(length == -2)//@readerlen new else-if block (read all data)
-                {
-                    try
-                    {
-                        //String readerStr = JDUtilities.readerToString((Reader)savedObject_);
-                        int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                else if(length == -2) { //@readerlen new else-if block (read all data)
+                
+                        String string = JDUtilities.readerToString((Reader)savedObject_);
                         int bidiStringType = settings_.getBidiStringType();
                         if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
 
-                        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
-                        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
-                        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
+                        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType); 
+                        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());        
+                        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());     
 
-                        ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); //@KBC changed to use bidiConversionProperties instead of bidiStringType
-                        byte[] byteBuffer = new byte[blockSize];
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1 )
-                        {
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1C
-                            totalBytesRead += bytesRead;
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        }
-                        stream.close(); //@scan1
-                        
-                        
+                        byte[] bytes = converter_.stringToByteArray(string, bidiConversionProperties);  
+                        locator_.writeData(0L, bytes, true);      
+                        savedObject_ = string; 
 
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                    }
                 }
                 else
                 {
@@ -392,7 +369,7 @@ endif*/
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob) //@H0A check for jdbc level to know if lobs exist
+            else if( object instanceof Clob) //@H0A check for jdbc level to know if lobs exist
             {
                 //@G5A Start new code for updateable locator case
                 boolean set = false;
@@ -408,6 +385,7 @@ endif*/
                         if(clob.savedObject_ != null)
                         {
                             savedObject_ = clob.savedObject_;
+                            savedObjectWrittenToServer_ = false; 
                             scale_ = clob.savedScale_;
                             clob.savedObject_ = null;
                             writeToServer();
@@ -422,6 +400,7 @@ endif*/
                     Clob clob = (Clob)object;
                     int length = (int)clob.length();
                     String substring = clob.getSubString(1, length);
+                    savedObject_ = substring; 
                     // This code used to assume that the input length was the same as the output length
                     // locator_.writeData(0L, converter_.stringToByteArray(substring), 0, length, true);           //@K1C
                     // @J5C
@@ -440,6 +419,7 @@ endif*/
                 SQLXML xml = (SQLXML)object;
                
                 String stringVal = xml.getString();
+                savedObject_ = stringVal; 
                 // @J5C
                 byte[] outByteArray = converter_.stringToByteArray(stringVal);
                 locator_.writeData(0L, outByteArray, 0, outByteArray.length, true);           
@@ -452,7 +432,11 @@ endif*/
         }
         finally
         {
-            savedObject_ = null;
+            // Do not delete the saved object after writing it to 
+            // the server.  We may still need it if we need to 
+            // re-execute the statement. 
+            // savedObject_ = null;
+            savedObjectWrittenToServer_ = true; 
         }
         scale_ = (int)locator_.getLength();
     }
@@ -719,6 +703,7 @@ endif*/
           // Since this is a mixed CCSID, the locator APIs with length, etc.. do not work correctly
           // @J5A We read the whole thing and convert to a local clob.
           savedObject_ = locatorReturn.getSubString((long)1, (int) locatorReturn.length());
+          savedObjectWrittenToServer_ = false; 
           return new AS400JDBCClob((String) savedObject_, maxLength_); //@loch
         }
         
@@ -884,6 +869,8 @@ endif*/
           // Since this is a mixed CCSID, the locator APIs with length, etc.. do not work correctly
           // @J5A We read the whole thing and convert to a local clob.
           savedObject_ = locatorReturn.getSubString((long)1, (int) locatorReturn.length());
+          objectWrittenToServer_ = false; 
+     
           return new AS400JDBCNClob((String) savedObject_, maxLength_); //@loch
         }
         

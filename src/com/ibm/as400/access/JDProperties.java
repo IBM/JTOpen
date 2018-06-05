@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2018 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ package.
 //
 public class JDProperties implements Serializable, Cloneable //@PDC 550
 {
-    static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2018 International Business Machines Corporation and others.";
 
 
 
@@ -175,11 +175,11 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              CLIENT_REROUTE_ALTERNATE_PORT_NUMBER = 95; 
     static final int              MAX_RETRIES_FOR_CLIENT_REROUTE = 96; 
     static final int              RETRY_INTERVAL_FOR_CLIENT_REROUTE = 97; 
-    
+    static final int              ENABLE_SEAMLESS_FAILOVER   = 98; 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 98;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 99;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -207,6 +207,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String DECIMAL_SEPARATOR_      = "decimal separator";
     private static final String DRIVER_                 = "driver";                 // @E3A
     private static final String ENABLE_CLIENT_AFFINITIES_LIST_ = "enableClientAffinitiesList"; 
+    private static final String ENABLE_SEAMLESS_FAILOVER_ = "enableSeamlessFailover"; 
     private static final String ERRORS_                 = "errors";
     private static final String EXTENDED_DYNAMIC_       = "extended dynamic";
     private static final String EXTENDED_METADATA_      = "extended metadata";      // @F5A
@@ -769,6 +770,16 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[1]  = "1";
         defaults_[i]        = "0";   
 
+        // enable seamless failover
+        i = ENABLE_SEAMLESS_FAILOVER; 
+        dpi_[i] = new DriverPropertyInfo(ENABLE_SEAMLESS_FAILOVER_, "");
+        dpi_[i].description = "ENABLE_SEAMLESS_FAILOVER_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[3];
+        dpi_[i].choices[0]  = "0";
+        dpi_[i].choices[1]  = "1";
+        dpi_[i].choices[2]  = "2";
+        defaults_[i]        = "0";   
 
         
         // Extended dynamic.

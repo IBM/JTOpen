@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 2009-2009 International Business Machines Corporation and     
+// Copyright (C) 2009-2017 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,7 @@ final class SQLXMLLocator implements SQLLocator
     
     private Object savedObject_; // This is the AS400JDBCXMLLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
+    private boolean savedObjectWrittenToServer_ = false; 
     private int xmlType_; //@xml3 0=SB 1=DB 2=binary XML
 
     SQLXMLLocator(AS400JDBCConnection connection,
@@ -101,6 +102,7 @@ final class SQLXMLLocator implements SQLLocator
         locator_.setHandle(handle);   
         //  @T1A reset saved handle after setting new value
        savedObject_ = null;
+       savedObjectWrittenToServer_ = false;    
       
     }                     
     
@@ -128,7 +130,7 @@ final class SQLXMLLocator implements SQLLocator
         locator_.setColumnIndex(columnIndex_);
         //  @T1A reset saved handle after setting new value
        savedObject_ = null;
-
+       savedObjectWrittenToServer_ = false;
     }
 
     //This is only called from AS400JDBCPreparedStatement in one place.
@@ -141,7 +143,7 @@ final class SQLXMLLocator implements SQLLocator
         // We used to write the data to the system on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
-        if(savedObject_ != null) writeToServer();
+        if((! savedObjectWrittenToServer_ ) && (savedObject_ != null)) writeToServer();
     }
 
     //---------------------------------------------------------//
@@ -150,6 +152,184 @@ final class SQLXMLLocator implements SQLLocator
     //                                                         //
     //---------------------------------------------------------//
 
+
+    public void set(Object object, Calendar calendar, int scale)
+    throws SQLException
+    {
+        //no need to check truncation since xml does not have size
+        savedObject_ = object;
+        if(object instanceof ConvTableReader) //@ascii
+        {
+            //set xml flag so ConvTableReader will trim off xml declaration since we will be transmitting in utf-8
+            ((ConvTableReader)savedObject_).isXML_ = true; //@ascii
+            scale_ = ALL_READER_BYTES;//@ascii flag -2 to read to end of stream (xml transmits in utf8 which may have 2-byte chars, which does not match length)
+        }
+        else if(scale != -1) 
+            scale_ = scale; // Skip resetting it if we don't know the real length
+    }
+
+    //Method to temporary convert from object input to output before even going to host (writeToServer() does the conversion needed before writing to host)
+    //This will only be used when resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
+    //Purpose is to do a local type conversion from obj1 to obj2 like other non-locator lob types
+    private void doConversion()
+    throws SQLException
+    {
+        valueClob_ = null;
+        valueBlob_ = null;
+        int length_ = scale_;
+
+        if( length_ == -1)
+        {
+            try{
+                //try to get length from locator
+                length_ = (int)locator_.getLength();        
+            }catch(Exception e){ }
+        }
+        
+        try
+        {
+           
+            if(savedObject_ instanceof String)
+            {
+                valueClob_ = (String)savedObject_;
+                
+            }
+            else if(savedObject_ instanceof Reader)
+            {
+              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length_, this); 
+            }
+            else if( savedObject_ instanceof Clob)  
+            {
+                Clob clob = (Clob)savedObject_;
+                valueClob_ = clob.getSubString(1, (int)clob.length());
+            }
+            else if(savedObject_ instanceof byte[])
+            {
+                valueBlob_ = (byte[]) savedObject_;
+                int objectLength = valueBlob_.length;
+                if(objectLength > maxLength_)
+                {
+                    byte[] newValue = new byte[maxLength_];
+                    System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
+                    valueBlob_ = newValue;
+                }
+                //xml has no max size truncated_ = objectLength - valueBlob_.length;
+            }
+            else if(savedObject_ instanceof Blob)
+            {
+                Blob blob = (Blob) savedObject_;
+                int blobLength = (int)blob.length();
+                int lengthToUse = blobLength < 0 ? 0x7FFFFFFF : blobLength;
+                if(lengthToUse > maxLength_) lengthToUse = maxLength_;
+                valueBlob_ = blob.getBytes(1, lengthToUse);
+              //xml has no max sizetruncated_ = blobLength - lengthToUse;
+            }
+            else if(savedObject_ instanceof InputStream)
+            {
+                int length = scale_; 
+                if(length >= 0)
+                {
+                    InputStream stream = (InputStream)savedObject_;
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                    byte[] byteBuffer = new byte[blockSize];
+                    try
+                    {
+                        int totalBytesRead = 0;
+                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                        while(bytesRead > -1 && totalBytesRead < length)
+                        {
+                            baos.write(byteBuffer, 0, bytesRead);
+                            totalBytesRead += bytesRead;
+                            int bytesRemaining = length - totalBytesRead;
+                            if(bytesRemaining < blockSize)
+                            {
+                                blockSize = bytesRemaining;
+                            }
+                            bytesRead = stream.read(byteBuffer, 0, blockSize);
+                        }
+                    }
+                    catch(IOException ie)
+                    {
+                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
+                    }
+                    
+                    valueBlob_ = baos.toByteArray();
+
+                    if(valueBlob_.length < length)
+                    {
+                        // a length longer than the stream was specified
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    }
+
+                    int objectLength = valueBlob_.length;
+                    if(objectLength > maxLength_)
+                    {
+                        byte[] newValue = new byte[maxLength_];
+                        System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
+                        valueBlob_ = newValue;
+                    }
+                  //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
+                }
+                else if(length == ALL_READER_BYTES )//@readerlen new else-if block (read all data)
+                {
+                    InputStream stream = (InputStream)savedObject_;
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                    byte[] byteBuffer = new byte[blockSize];
+                    try
+                    {
+                        int totalBytesRead = 0;
+                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                        while(bytesRead > -1)
+                        {
+                            baos.write(byteBuffer, 0, bytesRead);
+                            totalBytesRead += bytesRead;
+                          
+                            bytesRead = stream.read(byteBuffer, 0, blockSize);
+                        }
+                    }
+                    catch(IOException ie)
+                    {
+                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
+                    }
+                    
+                    valueBlob_ = baos.toByteArray();
+
+                    int objectLength = valueBlob_.length;
+                    if(objectLength > maxLength_)
+                    {
+                        byte[] newValue = new byte[maxLength_];
+                        System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
+                        valueBlob_ = newValue;
+                    }
+                  //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
+                }
+                /* ifdef JDBC40 
+                else if( savedObject_ instanceof SQLXML ) 
+                {
+                    SQLXML xml = (SQLXML)savedObject_;
+                    valueClob_ = xml.getString();
+                }
+                endif */
+                else
+                {
+                    JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+                }
+            }
+            else
+            {
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+        }
+        finally
+        {
+            //nothing
+        }
+    }
+
+    
+    
     // This method actually writes the data to the system.
     private void writeToServer()
     throws SQLException
@@ -499,182 +679,9 @@ endif */
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
+        savedObjectWrittenToServer_ = true; 
     }
 
-    public void set(Object object, Calendar calendar, int scale)
-    throws SQLException
-    {
-        //no need to check truncation since xml does not have size
-        savedObject_ = object;
-        if(object instanceof ConvTableReader) //@ascii
-        {
-            //set xml flag so ConvTableReader will trim off xml declaration since we will be transmitting in utf-8
-            ((ConvTableReader)savedObject_).isXML_ = true; //@ascii
-            scale_ = ALL_READER_BYTES;//@ascii flag -2 to read to end of stream (xml transmits in utf8 which may have 2-byte chars, which does not match length)
-        }
-        else if(scale != -1) 
-            scale_ = scale; // Skip resetting it if we don't know the real length
-    }
-
-    //Method to temporary convert from object input to output before even going to host (writeToServer() does the conversion needed before writing to host)
-    //This will only be used when resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
-    //Purpose is to do a local type conversion from obj1 to obj2 like other non-locator lob types
-    private void doConversion()
-    throws SQLException
-    {
-        valueClob_ = null;
-        valueBlob_ = null;
-        int length_ = scale_;
-
-        if( length_ == -1)
-        {
-            try{
-                //try to get length from locator
-                length_ = (int)locator_.getLength();        
-            }catch(Exception e){ }
-        }
-        
-        try
-        {
-           
-            if(savedObject_ instanceof String)
-            {
-                valueClob_ = (String)savedObject_;
-                
-            }
-            else if(savedObject_ instanceof Reader)
-            {
-              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length_, this); 
-            }
-            else if( savedObject_ instanceof Clob)  
-            {
-                Clob clob = (Clob)savedObject_;
-                valueClob_ = clob.getSubString(1, (int)clob.length());
-            }
-            else if(savedObject_ instanceof byte[])
-            {
-                valueBlob_ = (byte[]) savedObject_;
-                int objectLength = valueBlob_.length;
-                if(objectLength > maxLength_)
-                {
-                    byte[] newValue = new byte[maxLength_];
-                    System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
-                    valueBlob_ = newValue;
-                }
-                //xml has no max size truncated_ = objectLength - valueBlob_.length;
-            }
-            else if(savedObject_ instanceof Blob)
-            {
-                Blob blob = (Blob) savedObject_;
-                int blobLength = (int)blob.length();
-                int lengthToUse = blobLength < 0 ? 0x7FFFFFFF : blobLength;
-                if(lengthToUse > maxLength_) lengthToUse = maxLength_;
-                valueBlob_ = blob.getBytes(1, lengthToUse);
-              //xml has no max sizetruncated_ = blobLength - lengthToUse;
-            }
-            else if(savedObject_ instanceof InputStream)
-            {
-                int length = scale_; 
-                if(length >= 0)
-                {
-                    InputStream stream = (InputStream)savedObject_;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    byte[] byteBuffer = new byte[blockSize];
-                    try
-                    {
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1 && totalBytesRead < length)
-                        {
-                            baos.write(byteBuffer, 0, bytesRead);
-                            totalBytesRead += bytesRead;
-                            int bytesRemaining = length - totalBytesRead;
-                            if(bytesRemaining < blockSize)
-                            {
-                                blockSize = bytesRemaining;
-                            }
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        }
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
-                    }
-                    
-                    valueBlob_ = baos.toByteArray();
-
-                    if(valueBlob_.length < length)
-                    {
-                        // a length longer than the stream was specified
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                    }
-
-                    int objectLength = valueBlob_.length;
-                    if(objectLength > maxLength_)
-                    {
-                        byte[] newValue = new byte[maxLength_];
-                        System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
-                        valueBlob_ = newValue;
-                    }
-                  //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
-                }
-                else if(length == ALL_READER_BYTES )//@readerlen new else-if block (read all data)
-                {
-                    InputStream stream = (InputStream)savedObject_;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    byte[] byteBuffer = new byte[blockSize];
-                    try
-                    {
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1)
-                        {
-                            baos.write(byteBuffer, 0, bytesRead);
-                            totalBytesRead += bytesRead;
-                          
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        }
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
-                    }
-                    
-                    valueBlob_ = baos.toByteArray();
-
-                    int objectLength = valueBlob_.length;
-                    if(objectLength > maxLength_)
-                    {
-                        byte[] newValue = new byte[maxLength_];
-                        System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
-                        valueBlob_ = newValue;
-                    }
-                  //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
-                }
-                /* ifdef JDBC40 
-                else if( savedObject_ instanceof SQLXML ) 
-                {
-                    SQLXML xml = (SQLXML)savedObject_;
-                    valueClob_ = xml.getString();
-                }
-                endif */
-                else
-                {
-                    JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
-                }
-            }
-            else
-            {
-                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
-            }
-        }
-        finally
-        {
-            //nothing
-        }
-    }
     
     //---------------------------------------------------------//
     //                                                         //
