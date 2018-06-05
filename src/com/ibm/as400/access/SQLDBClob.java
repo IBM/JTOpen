@@ -131,7 +131,7 @@ final class SQLDBClob extends SQLDataBase
             outOfBounds_ = false;
         } else if( !(object instanceof Reader) &&
                 !(object instanceof InputStream) &&
-                (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob))
+                ( !(object instanceof Clob))
 /*ifdef JDBC40
                   && !(object instanceof SQLXML)
 endif */
@@ -164,7 +164,7 @@ endif */
             {
                 value_ = getStringFromReader((Reader)object, length_, this); 
             }
-            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+            else if( object instanceof Clob)
             {
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());

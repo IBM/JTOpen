@@ -118,10 +118,10 @@ extends SQLDataBase
             value_ = getBytesFromReader((Reader) object, scale, this); 
         }
 
-        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
+        else if( object instanceof Blob)
             value_ = ((Blob)object).getBytes(1, (int)((Blob)object).length());
 
-        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+        else if( object instanceof Clob)
         {
             try
             {

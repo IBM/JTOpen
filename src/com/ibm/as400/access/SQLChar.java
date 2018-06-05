@@ -150,7 +150,7 @@ extends SQLDataBase
           value = getStringFromReader((Reader) object, ALL_READER_BYTES, this);
         }
 
-        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+        else if( object instanceof Clob)
         {
             Clob clob = (Clob)object;
             value = clob.getSubString(1, (int)clob.length());

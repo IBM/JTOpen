@@ -166,7 +166,7 @@ extends SQLDataBase
         else if(object instanceof URL)
             value = object.toString();
 
-        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+        else if( object instanceof Clob)
         {
             Clob clob = (Clob)object;
             value = clob.getSubString(1, (int)clob.length());

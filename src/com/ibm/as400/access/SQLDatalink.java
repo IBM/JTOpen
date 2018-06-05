@@ -127,10 +127,7 @@ extends SQLDataBase
     //@j4c - rewritten now that JDUtilites knows the JDBC level
     public String getJavaClassName()
     {
-        if(JDUtilities.JDBCLevel_ >= 30)
             return "java.net.URL";
-        else
-            return "java.lang.Datalink";
     }
 
     public String getLiteralPrefix()
@@ -185,10 +182,9 @@ extends SQLDataBase
 
     public int getType()
     {
-        if(JDUtilities.JDBCLevel_ >= 30)                                //@J5A
+       
             return 70;  //java.sql.Types.DATALINK without requiring 1.4    //@J5A
-        else                                                             //@J5A
-            return java.sql.Types.VARCHAR;
+       
     }
 
     public String getTypeName()
@@ -331,8 +327,6 @@ extends SQLDataBase
         // the string (that is why there is no "else".  That shouldn't
         // happen because the database makes sure the cell contains
         // a valid URL for this data type.
-        if(JDUtilities.JDBCLevel_ >= 30)
-        {
             try
             {
                 return new java.net.URL(value_);
@@ -342,11 +336,6 @@ extends SQLDataBase
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
                 return null;
             }
-        }
-        else
-        {
-            return value_;
-        }
     }
 
     public short getShort()

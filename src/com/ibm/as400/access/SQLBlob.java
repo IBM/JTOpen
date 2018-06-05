@@ -218,7 +218,7 @@ final class SQLBlob extends SQLDataBase
                 JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
-        else if((JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Blob)) &&
+        else if(( !(object instanceof Blob)) &&
                 !(object instanceof InputStream))
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -246,7 +246,7 @@ final class SQLBlob extends SQLDataBase
                 }
                 truncated_ = objectLength - value_.length;
             }
-            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
+            else if(object instanceof Blob)
             {
                 Blob blob = (Blob) object;
                 int blobLength = (int)blob.length();

@@ -130,7 +130,6 @@ final class SQLNClob extends SQLDataBase
             truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
             outOfBounds_ = false; 
         } 
-        //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if(!(object instanceof Clob) && //@PDC NClob extends Clob
                 !(object instanceof InputStream) && 
                 !(object instanceof Reader)  //@PDC jdbc40

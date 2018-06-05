@@ -133,7 +133,6 @@ final class SQLClob extends SQLDataBase
             truncated_ = (byteLength > maxLength_ ? byteLength-maxLength_ : 0);  
             outOfBounds_ = false; 
         }
-        //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if(!(object instanceof Clob) && //@PDC NClob extends Clob
                 !(object instanceof Reader) && //@PDC jdbc40
                 !(object instanceof InputStream) 
@@ -168,7 +167,7 @@ endif */
             {
               value_ = getStringFromReader((Reader) object, length_, this);
             }
-            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+            else if( object instanceof Clob)
             {
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());

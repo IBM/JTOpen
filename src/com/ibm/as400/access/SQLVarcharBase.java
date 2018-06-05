@@ -243,7 +243,7 @@ extends SQLDataBase  implements SQLVariableCompressible
         else if(object instanceof URL)
             value = object.toString();
 
-        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+        else if( object instanceof Clob)
         {                                                                          // @C1C
             Clob clob = (Clob)object;                                              // @C1C
             value = clob.getSubString(1, (int)clob.length());                      // @C1C  @D1
