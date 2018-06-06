@@ -141,10 +141,13 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_TIMESTAMP_FORMAT","timestampFormat"},
       { "PROP_NAME_USE_DRDA_METADATA_VERSION","useDrdaMetadataVersion"},
       { "PROP_NAME_PORTNUMBER","portNumber"},
-      { "PROP_NAME_ENABLECLIENTAFFINITIESLIST","enableClientAffinitiesList"},
-      { "PROP_NAME_CLIENTREROUTEALTERNATESERVERNAME", "clientRerouteAlternateServerName"},
-      { "PROP_NAME_CLIENTREROUTEALTERNATEPORTNUMBER", "clientRerouteAlternatePortNumber"},
-
+      { "PROP_NAME_ENABLE_CLIENT_AFFINITIES_LIST","enableClientAffinitiesList"},
+      { "PROP_NAME_AFFINITY_FAILBACK_INTERVAL", "affinityFailbackInterval"},
+      { "PROP_NAME_CLIENT_REROUTE_ALTERNATE_SERVER_NAME", "clientRerouteAlternateServerName"},
+      { "PROP_NAME_CLIENT_REROUTE_ALTERNATE_PORT_NUMBER", "clientRerouteAlternatePortNumber"},
+      { "PROP_NAME_MAX_RETRIES_FOR_CLIENT_REROUTE", "maxRetriesForClientReroute" },
+      { "PROP_NAME_RETRY_INTERVAL_FOR_CLIENT_REROUTE", "retryIntervalForClientReroute"},
+      { "PROP_NAME_ENABLE_SEAMLESS_FAILOVER",  "enableSeamlessFailover"}, 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
       { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
@@ -250,10 +253,13 @@ public class JDMRI extends ListResourceBundle
       {"DECIMAL_DATA_ERRORS_DESC","Specifies how decimal data errors are handled."},
       {"TIMESTAMP_FORMAT_DESC","Specifies the format for timestamps retrieved via getString."},
       {"USE_DRDA_METADATA_VERSION_DESC","Specifies if the DRDA metadata version information should be returned."},
-      {"ENABLECLIENTAFFINITIESLIST_DESC", "Specifies if alternate servers should be used."},
-      {"CLIENTREROUTEALTERNATESERVERNAME_DESC", "Specifies the list of alternate servers."},
-      {"CLIENTREROUTEALTERNATEPORTNUMBER_DESC", "Specifies the list of alternate port numbers."}, 
-        
+      {"ENABLE_CLIENT_AFFINITIES_LIST_DESC", "Specifies if alternate servers should be used."},
+      {"AFFINITY_FAILBACK_INTERVAL_DESC", "Specifies the length, in seconds, of the interval after which the primary connection will be re-established."},
+      {"CLIENT_REROUTE_ALTERNATE_SERVER_NAME_DESC", "Specifies the list of alternate servers."},
+      {"CLIENT_REROUTE_ALTERNATE_PORT_NUMBER_DESC", "Specifies the list of alternate port numbers."}, 
+      {"MAX_RETRIES_FOR_CLIENT_REROUTE_DESC", "The maximum number of connection retries for automatic client reroute."},
+      {"RETRY_INTERVAL_FOR_CLIENT_REROUTE_DESC","The number of seconds between consecutive connection retries."},
+      {"ENABLE_SEAMLESS_FAILOVER_DESC","Specifies whether the JTOpen JDBC driver uses seamless failover for client reroute."}, 
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

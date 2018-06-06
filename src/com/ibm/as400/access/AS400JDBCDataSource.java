@@ -5518,6 +5518,34 @@ endif */
             JDTrace.logInformation (this, property + ": " + setting);  
     }
 
+    
+    /** Returns the affinityFailbackInterval setting. */ 
+    public int getAffinityFailbackInterval() { 
+      return properties_.getInt(JDProperties.AFFINITY_FAILBACK_INTERVAL);
+    }
+
+    
+    /**
+    *  Sets the enable client afflinities list  
+    *  @param setting  The setting to use for the connection.
+    **/
+    public void setAffinityFailbackInterval(int setting)
+    {
+      String property= "affinityFailbackInterval"; 
+        int old = getAffinityFailbackInterval();
+        properties_.setString(JDProperties.AFFINITY_FAILBACK_INTERVAL, ""+setting);
+
+        changes_.firePropertyChange(property, old, setting);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + setting);  
+    }
+
+
+    
+    
+    
+    
     /**
     *  Returns the client reroute alternate server name. 
     **/
@@ -5575,4 +5603,73 @@ endif */
     }
 
 
+    /** Returns the maxRetriesForClientReroute setting. */ 
+    public int getMaxRetriesForClientReroute() { 
+      return properties_.getInt(JDProperties.MAX_RETRIES_FOR_CLIENT_REROUTE);
+    }
+
+    
+    /**
+    *  Sets the enable client afflinities list  
+    *  @param setting  The setting to use for the connection.
+    **/
+    public void setMaxRetriesForClientReroute(int setting)
+    {
+      String property= "maxRetriesForClientReroute"; 
+        int old = getMaxRetriesForClientReroute();
+        properties_.setString(JDProperties.MAX_RETRIES_FOR_CLIENT_REROUTE, ""+setting);
+
+        changes_.firePropertyChange(property, old, setting);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + setting);  
+    }
+
+    /** Returns the retryIntervalForClientReroute setting. */ 
+    public int getRetryIntervalForClientReroute() { 
+      return properties_.getInt(JDProperties.RETRY_INTERVAL_FOR_CLIENT_REROUTE);
+    }
+
+    
+    /**
+    *  Sets the enable client afflinities list  
+    *  @param setting  The setting to use for the connection.
+    **/
+    public void setRetryIntervalForClientReroute(int setting)
+    {
+      String property= "retryIntervalForClientReroute"; 
+        int old = getRetryIntervalForClientReroute();
+        properties_.setString(JDProperties.RETRY_INTERVAL_FOR_CLIENT_REROUTE, ""+setting);
+
+        changes_.firePropertyChange(property, old, setting);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + setting);  
+    }
+
+    /** Returns the enableSeamlessFailover setting. */ 
+    public int getEnableSeamlessFailover() { 
+      return properties_.getInt(JDProperties.ENABLE_SEAMLESS_FAILOVER);
+    }
+
+    
+    /**
+    *  Sets the enable client afflinities list  
+    *  @param setting  The setting to use for the connection.
+    **/
+    public void setEnableSeamlessFailover(int setting)
+    {
+      String property= "enableSeamlessFailover"; 
+        int old = getEnableSeamlessFailover();
+        properties_.setString(JDProperties.ENABLE_SEAMLESS_FAILOVER, ""+setting);
+
+        changes_.firePropertyChange(property, old, setting);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + setting);  
+    }
+
+
+    
+    
 }

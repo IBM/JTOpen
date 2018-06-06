@@ -176,10 +176,11 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              MAX_RETRIES_FOR_CLIENT_REROUTE = 96; 
     static final int              RETRY_INTERVAL_FOR_CLIENT_REROUTE = 97; 
     static final int              ENABLE_SEAMLESS_FAILOVER   = 98; 
+    static final int              AFFINITY_FAILBACK_INTERVAL = 99; 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 99;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 100;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -188,6 +189,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
 
     // Property names.
     private static final String ACCESS_                 = "access";
+    private static final String AFFINITY_FAILBACK_INTERVAL_ = "affinityFailbackInterval"; 
     private static final String BEHAVIOR_OVERRIDE_      = "behavior override";      // @F7A
     private static final String BIDI_STRING_TYPE_       = "bidi string type";       // @E9A
     private static final String BIG_DECIMAL_            = "big decimal";            // @E0A
@@ -556,6 +558,14 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[2]  = ACCESS_READ_ONLY;
         defaults_[i]        = ACCESS_ALL;
 
+        // affinity failback interval
+        i = AFFINITY_FAILBACK_INTERVAL; 
+        dpi_[i] = new DriverPropertyInfo (AFFINITY_FAILBACK_INTERVAL_, "");
+        dpi_[i].description = "AFFINITYFAILBACKINTERVAL_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = "0";               
+        
         // @f7a
         // Behavior Override.  This property is a bit mask.  The following have
         // been defined:
@@ -763,7 +773,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         // enable client affinities list
         i = ENABLE_CLIENT_AFFINITIES_LIST;
         dpi_[i] = new DriverPropertyInfo(ENABLE_CLIENT_AFFINITIES_LIST_, "");
-        dpi_[i].description = "ENABLE_CLIENT_AFFINITIES_DESC";
+        dpi_[i].description = "ENABLE_CLIENT_AFFINITIES_LIST_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = "0";
@@ -2100,7 +2110,8 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         if((index == PACKAGE_CCSID) || 
             (index == PORTNUMBER) || 
             (index ==  MAX_RETRIES_FOR_CLIENT_REROUTE) ||
-            (index == RETRY_INTERVAL_FOR_CLIENT_REROUTE)){
+            (index ==  RETRY_INTERVAL_FOR_CLIENT_REROUTE) ||
+            (index == AFFINITY_FAILBACK_INTERVAL) ){
         	try{
         	int sendCCSIDInt = Integer.valueOf(value).intValue();
         	if(sendCCSIDInt > 0)

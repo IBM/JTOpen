@@ -750,8 +750,8 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
     new PropertyDescriptor("enableClientAffinitiesList", beanClass, "getEnableClientAffinitiesList","setEnableClientAffinitiesList"); 
 enableClientAffinitiesList.setBound(true);                                                                        
 enableClientAffinitiesList.setConstrained(false);                                                                 
-enableClientAffinitiesList.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ENABLECLIENTAFFINITIESLIST"));                
-enableClientAffinitiesList.setShortDescription(AS400JDBCDriver.getResource("ENABLECLIENTAFFINITIESLIST_DESC"));                
+enableClientAffinitiesList.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ENABLE_CLIENT_AFFINITIES_LIST"));                
+enableClientAffinitiesList.setShortDescription(AS400JDBCDriver.getResource("ENABLE_CLIENT_AFFINITIES_LIST_DESC"));                
 
 
 PropertyDescriptor clientRerouteAlternateServerName  = 
@@ -759,16 +759,50 @@ new PropertyDescriptor("clientRerouteAlternateServerName", beanClass,
     "getClientRerouteAlternateServerName","setClientRerouteAlternateServerName"); 
 clientRerouteAlternateServerName .setBound(true);                                                                        
 clientRerouteAlternateServerName .setConstrained(false);                                                                 
-clientRerouteAlternateServerName .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CLIENTREROUTEALTERNATESERVERNAME"));                
-clientRerouteAlternateServerName .setShortDescription(AS400JDBCDriver.getResource("CLIENTREROUTEALTERNATESERVERNAME_DESC"));                
+clientRerouteAlternateServerName .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CLIENT_REROUTE_ALTERNATE_SERVER_NAME"));                
+clientRerouteAlternateServerName .setShortDescription(AS400JDBCDriver.getResource("CLIENT_REROUTE_ALTERNATE_SERVER_NAME_DESC"));                
 
 PropertyDescriptor clientRerouteAlternatePortNumber  = 
 new PropertyDescriptor("clientRerouteAlternatePortNumber", beanClass, 
     "getClientRerouteAlternatePortNumber","setClientRerouteAlternatePortNumber"); 
 clientRerouteAlternatePortNumber .setBound(true);                                                                        
 clientRerouteAlternatePortNumber .setConstrained(false);                                                                 
-clientRerouteAlternatePortNumber .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CLIENTREROUTEALTERNATEPORTNUMBER"));                
-clientRerouteAlternatePortNumber .setShortDescription(AS400JDBCDriver.getResource("CLIENTREROUTEALTERNATEPORTNUMBER_DESC"));                
+clientRerouteAlternatePortNumber .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CLIENT_REROUTE_ALTERNATE_PORT_NUMBER"));                
+clientRerouteAlternatePortNumber .setShortDescription(AS400JDBCDriver.getResource("CLIENT_REROUTE_ALTERNATE_PORT_NUMBER_DESC"));                
+
+
+
+PropertyDescriptor affinityFailbackInterval  = 
+new PropertyDescriptor("affinityFailbackInterval", beanClass, 
+    "getAffinityFailbackInterval","setAffinityFailbackInterval"); 
+affinityFailbackInterval.setBound(true);                                                                        
+affinityFailbackInterval .setConstrained(false);                                                                 
+affinityFailbackInterval .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AFFINITY_FAILBACK_INTERVAL"));                
+affinityFailbackInterval .setShortDescription(AS400JDBCDriver.getResource("AFFINITY_FAILBACK_INTERVAL_DESC"));                
+
+PropertyDescriptor maxRetriesForClientReroute  = 
+new PropertyDescriptor("maxRetriesForClientReroute", beanClass, 
+    "getMaxRetriesForClientReroute","setMaxRetriesForClientReroute"); 
+maxRetriesForClientReroute.setBound(true);                                                                        
+maxRetriesForClientReroute .setConstrained(false);                                                                 
+maxRetriesForClientReroute .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_MAX_RETRIES_FOR_CLIENT_REROUTE"));                
+maxRetriesForClientReroute .setShortDescription(AS400JDBCDriver.getResource("MAX_RETRIES_FOR_CLIENT_REROUTE_DESC"));                
+
+PropertyDescriptor retryIntervalForClientReroute  = 
+new PropertyDescriptor("retryIntervalForClientReroute", beanClass, 
+    "getRetryIntervalForClientReroute","setRetryIntervalForClientReroute"); 
+retryIntervalForClientReroute.setBound(true);                                                                        
+retryIntervalForClientReroute .setConstrained(false);                                                                 
+retryIntervalForClientReroute .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RETRY_INTERVAL_FOR_CLIENT_REROUTE"));                
+retryIntervalForClientReroute .setShortDescription(AS400JDBCDriver.getResource("RETRY_INTERVAL_FOR_CLIENT_REROUTE_DESC"));                
+
+PropertyDescriptor enableSeamlessFailover  = 
+new PropertyDescriptor("enableSeamlessFailover", beanClass, 
+    "getEnableSeamlessFailover","setEnableSeamlessFailover"); 
+enableSeamlessFailover.setBound(true);                                                                        
+enableSeamlessFailover .setConstrained(false);                                                                 
+enableSeamlessFailover .setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ENABLE_SEAMLESS_FAILOVER"));                
+enableSeamlessFailover .setShortDescription(AS400JDBCDriver.getResource("ENABLE_SEAMLESS_FAILOVER_DESC"));                
 
 
 
@@ -787,7 +821,9 @@ clientRerouteAlternatePortNumber .setShortDescription(AS400JDBCDriver.getResourc
                 secondaryURL, serverTrace  ,packageCcsid ,toolboxTrace ,qaqqinilib , 
                 trueAutocommit ,metadataSource ,useBlockUpdate  ,describeOption,decimalDataErrors , 
                 timestampFormat , useDrdaMetadataVersion , portNumber, 
-                enableClientAffinitiesList,clientRerouteAlternateServerName,clientRerouteAlternatePortNumber
+                enableClientAffinitiesList,clientRerouteAlternateServerName,
+                clientRerouteAlternatePortNumber, affinityFailbackInterval, 
+                maxRetriesForClientReroute, retryIntervalForClientReroute, enableSeamlessFailover
             }; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1 //@dmy //@STIMEOUT
 
         
