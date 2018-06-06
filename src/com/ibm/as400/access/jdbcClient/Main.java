@@ -75,6 +75,8 @@ public class Main implements Runnable {
                                           };
 
   public static String promptString = ">";
+  private static PrintStream defaultOutput = System.out;
+  
   public static String usage = 
       "Usage:  java -cp jt400.jar  com.ibm.as400.access.jdbcClient.Main <jdbcUrl> <userid> <password>\n"+
       "        java -jar jt400.jar <jdbcUrl> <userid> <password>" ;
@@ -175,8 +177,8 @@ public class Main implements Runnable {
       "!SHOWVARMETHODS [VARNAME]         Shows the methods for a variable",
 
       "!CALLMETHOD [METHODCALL]          Calls a method on a variable",
-      "  Hint:  To see a result set use CALLMETHOD com.ibm.as400.access.jdbcClient.Main.dispResultSet(RS)",
-      "  Hint:  To access an array use  SETVAR LIST=java.util.Arrays.asList(ARRAYVARIABLE)",
+      "  Hint:  To see a result set use !CALLMETHOD com.ibm.as400.access.jdbcClient.Main.dispResultSet(RS)",
+      "  Hint:  To access an array use  !SETVAR LIST=java.util.Arrays.asList(ARRAYVARIABLE)",
       "",
       "!THREAD [COMMAND]                      Runs a command in its own thread.",
       "!THREADPERSIST [THREADNAME]            Create a thread that persist.",
@@ -184,6 +186,8 @@ public class Main implements Runnable {
       "!REPEAT [NUMBER] [COMMAND]             Repeat a command a number of times.",
       "!EXIT_REPEAT_ON_EXCEPTION [false|true] Exit the repeat if an exception occurs. ",
       "" };
+
+  
 
   String url_; /* URL for the current connection */
   String userid_; /* userid for the current connection */
@@ -418,7 +422,8 @@ public class Main implements Runnable {
     int rc = 0;
     boolean running = true;
     String query;
-
+    PrintStream savedPrintStream = defaultOutput; 
+    defaultOutput = printStreamForGo;     
     try {
       BufferedReader input = new BufferedReader(new InputStreamReader(in));
       if (prompt_)
@@ -473,6 +478,8 @@ public class Main implements Runnable {
     } catch (java.lang.UnknownError jlu) {
       printStreamForGo.println("Outermost UnknownError "+jlu); 
       if (printStackTrace_) jlu.printStackTrace(printStreamForGo);
+    } finally { 
+      defaultOutput = savedPrintStream; 
     }
 
     return rc;
@@ -3659,7 +3666,7 @@ public class Main implements Runnable {
   // Convenience method to display result set
   //
   public static void dispResultSet(ResultSet rs) throws SQLException {
-    dispResultSet(System.out, rs, false, null, false, false, 16384, 16384, true, true, false, false );
+    dispResultSet(defaultOutput , rs, false, null, false, false, 16384, 16384, true, true, false, false );
   }
 
   void dispResultSet(PrintStream out1, ResultSet rs, boolean trim)
