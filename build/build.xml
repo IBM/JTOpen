@@ -487,7 +487,7 @@
 	           memoryMaximumSize="256m"
 	           failonerror="true"
 	           debug="on"
-	           debuglevel="lines,source"
+	           debuglevel="lines,source,vars"
 	           fork="true"
 		   source="5"
 		   target="5"
@@ -1821,68 +1821,68 @@
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
 		    <arg value="${build}/build" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="co" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/src" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/src" />
 		    <arg value="${build}/src" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/jdbc40" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/jdbc40" />
 		    <arg value="${build}/jdbc40" />
 		</exec>
 		<exec executable="svn"  failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/contrib" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/contrib" />
 		    <arg value="${build}/contrib" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/include" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/include" />
 		    <arg value="${build}/include" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
 		    <arg value="${build}/build" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="co" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/jtopenlite" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/jtopenlite" />
 		    <arg value="${build}/jtopenlite" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/androidStubs" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/androidStubs" />
 		    <arg value="${build}/androidStubs" />
 		</exec>
 
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/license.html" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/license.html" />
 		    <arg value="${build}" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/readme.html" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/readme.html" />
 		    <arg value="${build}" />
 		</exec>
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 			   <arg value="export" />
-			    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/changes.html" />
+			    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/changes.html" />
 			    <arg value="${build}" />
 		</exec>
 
@@ -1897,12 +1897,12 @@
 		<exec executable="svn" failonerror="true">
 				    <arg value="--force" />
 				    <arg value="export" />
-				    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
+				    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
 				    <arg value="${build}/build" />
 				</exec><exec executable="svn" failonerror="true">
 	    <arg value="--force" />
 	    <arg value="export" />
-	    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
+	    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
 	    <arg value="${build}/build" />
 	</exec>
 	</target>
@@ -1914,7 +1914,7 @@
 		<exec executable="svn" failonerror="true">
 		    <arg value="--force" />
 		    <arg value="export" />
-		    <arg value="https://svn.code.sf.net/p/jt400/svn/trunk/build" />
+		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
 		    <arg value="${build}/build" />
 		</exec>
 	</target>
