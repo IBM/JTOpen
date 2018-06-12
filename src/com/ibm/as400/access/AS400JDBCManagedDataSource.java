@@ -1675,8 +1675,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
           JDTrace.logInformation (this, property + ": " + setting);  
   }
 
-  /** Returns the affinityFailbackInteval setting. */ 
-  public int getAffinityFailbackInteval() { 
+  /** Returns the affinityFailbackInterval setting. */ 
+  public int getAffinityFailbackInterval() { 
     return properties_.getInt(JDProperties.AFFINITY_FAILBACK_INTERVAL);
   }
 
@@ -1685,9 +1685,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   *  Sets the affinity failback interval   
   *  @param setting  The setting to use for the connection.
   **/
-  public void setAffinityFailbackInteval(int setting)
+  public void setAffinityFailbackInterval(int setting)
   {
-    String property= "affinityFailbackInteval"; 
+    String property= "affinityFailbackInterval"; 
       properties_.setString(JDProperties.AFFINITY_FAILBACK_INTERVAL, ""+setting);
 
 
@@ -1771,7 +1771,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
 
   /** Returns the retryIntervalForClientReroute setting. */ 
-  public int getRetryIntervalClientReroute() { 
+  public int getRetryIntervalForClientReroute() { 
     return properties_.getInt(JDProperties.RETRY_INTERVAL_FOR_CLIENT_REROUTE);
   }
 
