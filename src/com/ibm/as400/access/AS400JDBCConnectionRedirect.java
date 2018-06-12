@@ -428,9 +428,11 @@ extends AS400JDBCConnection {
     int sqlCode = e.getErrorCode(); 
     String sqlState = e.getSQLState(); 
     if ((sqlCode == -99999) &&
-        ("08S01".equals(sqlState)) ||
-        ("08003".equals(sqlState)) ||
-        ("08001".equals(sqlState))) {
+        (JDError.EXC_COMMUNICATION_LINK_FAILURE.equals(sqlState)) ||
+        (JDError.EXC_CONNECTION_UNABLE.equals(sqlState))) {
+      // We do not use EXC_CONNECTION_NONE, since that is what is returned
+      // after the connection has been closed or aborted.
+      // 
       // We have been disconnected attempt to reconnect
       // Reconnect will return false if unable to reconnect. 
       // It will return true if it was able to seamlessly reconnect.
@@ -800,7 +802,12 @@ endif */
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        return currentConnection_.getMetaData();
+        AS400JDBCDatabaseMetaData metadata = (AS400JDBCDatabaseMetaData) currentConnection_.getMetaData();
+        
+        // Make sure the metadata references this connection
+        metadata.connection_ = this; 
+        
+        return metadata; 
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1837,6 +1844,9 @@ endif */
         if (clientInfoHashtable_ == null) { 
           clientInfoHashtable_ = new Hashtable(); 
         }
+        // Null means to reset to empty
+        if (value == null) value = ""; 
+        
         clientInfoHashtable_.put(name, value); 
         retryOperation = false;
       } catch (

@@ -1325,6 +1325,28 @@ public class AS400 implements Serializable
     }
 
     /**
+    Connects to a service.  Security is validated and a connection is established.
+    <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
+    @param  service  The name of the service.  Valid services are:
+    <ul>
+    <li>{@link #FILE FILE} - IFS file classes.
+    <li>{@link #PRINT PRINT} - print classes.
+    <li>{@link #COMMAND COMMAND} - command and program call classes.
+    <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+    <li>{@link #DATABASE DATABASE} - JDBC classes.
+    <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+    <li>{@link #CENTRAL CENTRAL} - license management classes.
+    <li>{@link #SIGNON SIGNON} - sign-on classes.
+    </ul>
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  IOException  If an error occurs while communicating with the system.
+    **/
+   public void connectService(int service) throws AS400SecurityException, IOException
+   {
+     connectService(service, -1); 
+   }
+    
+    /**
      Connects to a service.  Security is validated and a connection is established.
      <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
      @param  service  The name of the service.  Valid services are:
@@ -1338,10 +1360,12 @@ public class AS400 implements Serializable
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
+     @param  overridePort  If non-negative, used to override the port to be 
+             used for the connection.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
-    public void connectService(int service) throws AS400SecurityException, IOException
+    public void connectService(int service, int overridePort) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting service:", service);
         // Validate parameter.
@@ -1365,7 +1389,7 @@ public class AS400 implements Serializable
           signon(service == AS400.SIGNON);
          
 
-          impl_.connect(service, skipSignonServer);
+          impl_.connect(service, overridePort, skipSignonServer);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
         } finally {
           // After the thread to connect server, notify the thread to refresh profile token credential.

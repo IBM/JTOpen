@@ -29,7 +29,7 @@ interface AS400Impl
     // Change password.
     SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
     // Connect to service.
-    void connect(int service, boolean skipSignonServer) throws AS400SecurityException, IOException;  /*@V1C*/
+    void connect(int service, int overridePort, boolean skipSignonServer) throws AS400SecurityException, IOException;  /*@V1C*/
     // Connect to service.
     void connect(int service) throws AS400SecurityException, IOException;  
     // Establish a DHCP connection to the specified port.

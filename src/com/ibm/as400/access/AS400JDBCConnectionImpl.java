@@ -3477,10 +3477,10 @@ throws SQLException
             }
             if (portNumber > 0) { 
               as400.skipSignonServer = true;
-             
-              PortMapper.setServicePort(as400.getSystemName(), AS400.DATABASE, portNumber, null); 
+              as400.connectService (AS400.DATABASE, portNumber);
+            } else { 
+              as400.connectService (AS400.DATABASE);
             }
-            as400.connectService (AS400.DATABASE);
           }
           catch (AS400SecurityException e)
           {                            //@D5C
@@ -3701,7 +3701,7 @@ throws SQLException
         {
           try
           {
-            server_ = as400_.getConnection (AS400.DATABASE, newServer, skipSignonServer);
+            server_ = as400_.getConnection (AS400.DATABASE, -1, newServer, skipSignonServer);
           }
           catch (AS400SecurityException e)
           {

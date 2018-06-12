@@ -123,7 +123,14 @@ class PortMapper
         return false;
     }
 
-    static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL, SocketProperties socketProperties, boolean mustUseNetSockets) throws IOException
+    static SocketContainer getServerSocket(String systemName, int service,
+        SSLOptions useSSL, SocketProperties socketProperties,
+        boolean mustUseNetSockets) throws IOException {
+      return getServerSocket(systemName, service, -1, useSSL, socketProperties, mustUseNetSockets );
+    }
+
+    static SocketContainer getServerSocket(String systemName, 
+        int service, int overridePort, SSLOptions useSSL, SocketProperties socketProperties, boolean mustUseNetSockets) throws IOException
     {
         SocketContainer sc = null;
         String serviceName = AS400.getServerName(service);
@@ -149,7 +156,11 @@ class PortMapper
             unixSocketAvailable = false;
         }
 
-        int srvPort = PortMapper.getServicePort(systemName, service, useSSL);
+        int srvPort;
+        if (overridePort > 0) {
+          srvPort = overridePort; 
+        } else { 
+        srvPort = PortMapper.getServicePort(systemName, service, useSSL);
         if (srvPort == AS400.USE_PORT_MAPPER)
         {
             // Establish a socket connection to the "port mapper" through port 449...
@@ -189,7 +200,8 @@ class PortMapper
             PortMapper.setServicePort(systemName, service, srvPort, useSSL);
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to system...");
+        }
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket for service "+service+" to system..."+systemName+" port:"+srvPort);
         Socket socket = getSocketConnection(systemName, srvPort, socketProperties);  //@timeout2
         PortMapper.setSocketProperties(socket, socketProperties);
 
@@ -385,4 +397,5 @@ class PortMapper
           try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay()); } catch (Throwable t) {}
         }
       }
+
     }

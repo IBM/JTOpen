@@ -123,7 +123,7 @@ implements DatabaseMetaData
 
 
     // Private data.
-    private AS400JDBCConnection   connection_;
+    AS400JDBCConnection   connection_;
     private int                     id_;
     private SQLConversionSettings   settings_;
     private boolean                 useDRDAversion_; 
