@@ -68,7 +68,7 @@ Be aware you will see better performance accessing columns by their
 index rather than accessing them by their name.
 **/
 public class AS400JDBCCallableStatement
-extends AS400JDBCPreparedStatement
+extends AS400JDBCPreparedStatementImpl
 implements CallableStatement
 {
     static final String copyright2 = "Copyright (C) 1997-2014 International Business Machines Corporation and others.";

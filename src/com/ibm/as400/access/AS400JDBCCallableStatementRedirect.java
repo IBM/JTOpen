@@ -11,9 +11,9 @@ import java.util.Map;
 public class AS400JDBCCallableStatementRedirect extends
     AS400JDBCPreparedStatementRedirect implements CallableStatement {
 
-  CallableStatement cstmt_;
+  AS400JDBCCallableStatement cstmt_;
 
-  AS400JDBCCallableStatementRedirect(CallableStatement stmt)
+  AS400JDBCCallableStatementRedirect(AS400JDBCCallableStatement stmt)
       throws SQLException {
     super(stmt);
     cstmt_ = stmt;

@@ -2130,7 +2130,7 @@ throws SQLException
             wrappedInsert_ = false;
         }
 
-        AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (con,
+        AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatementImpl (con,
                                                                                statementId, transactionManager_, packageManager_,
                                                                                properties_.getString (JDProperties.BLOCK_CRITERIA),
                                                                                properties_.getInt (JDProperties.BLOCK_SIZE),
@@ -2273,7 +2273,7 @@ throws SQLException
                                                           properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
                                                           properties_.getString (JDProperties.PACKAGE_CRITERIA), con);  // @A2A @G4A
         int statementId = getUnusedId (resultSetType); // @B1C
-        AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (con,
+        AS400JDBCPreparedStatementImpl statement = new AS400JDBCPreparedStatementImpl (con,
                                                                                statementId, transactionManager_, packageManager_,
                                                                                properties_.getString (JDProperties.BLOCK_CRITERIA),
                                                                                properties_.getInt (JDProperties.BLOCK_SIZE),

@@ -137,7 +137,7 @@ implements Statement
     private DBReplyRequestedDS commonExecuteReply = null; // reply from commonExecute.  Note:  This cannot be returned to the pool until it is
                                                           // no longer being used.  The data_ pointer from this reply is shared with
                                                           // all kinds of objects.
-    	                                                  // Note:  Because of the current structure, this can be returned after it is used.  The data_
+                                                        // Note:  Because of the current structure, this can be returned after it is used.  The data_
                                                           // pointer from the reply was created by ClientAccessDataStream.construct.  The returnToPool
                                                           // method for the reply has been corrected to set the data_ pointer back to DBStorage_.data.
                                                           // @B5A
@@ -285,6 +285,12 @@ implements Statement
             JDTrace.logInformation(this, "Data to correlate statement with cursor " + cursorAsString);    // @J33a
             creationLocation_ = new Exception("creationLocation_"); 
         }
+    }
+
+
+    // Constructor for wrapper
+    protected AS400JDBCStatement() {
+      
     }
 
 
@@ -510,10 +516,10 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request3 != null) {
-                    		request3.returnToPool();  request3=null;
+                        request3.returnToPool();  request3=null;
                     }
                     if(closeReply != null) {
-                    	closeReply.returnToPool();closeReply=null;
+                      closeReply.returnToPool();closeReply=null;
                     }
                 }
             }    // @EDA
@@ -546,7 +552,7 @@ implements Statement
             finally
             {    //@P0A
                 if(request2 != null) {
-                	request2.returnToPool();  request2=null;
+                  request2.returnToPool();  request2=null;
                 }
             }
 
@@ -646,7 +652,7 @@ implements Statement
             finally
             {
                 if(request2 != null) {
-                		request2.returnToPool();   request2 = null;
+                    request2.returnToPool();   request2 = null;
                 }
             }
 
@@ -689,13 +695,13 @@ implements Statement
         }
 
         if (threadInterrupted) {
-        	// Force a close to be flowed
-        	try {
-        		cursor_.setState(false);
-        		cursor_.close (reuseFlag);
-        	} catch (Exception e) {
+          // Force a close to be flowed
+          try {
+            cursor_.setState(false);
+            cursor_.close (reuseFlag);
+          } catch (Exception e) {
 
-        	}
+          }
         } else {
            if(! cursor_.isClosed ())
               cursor_.close (reuseFlag);
@@ -877,11 +883,11 @@ implements Statement
                         }
                         else {                                                    //@K54
                           
-                        	if (resultRow != null) {  // @B5A -- check for null pointer
+                          if (resultRow != null) {  // @B5A -- check for null pointer
                                request.setBlockingFactor(getBlockingFactor (cursorSensitivity, sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
-                        	} else {
+                          } else {
                                 request.setBlockingFactor(getBlockingFactor (cursorSensitivity, sqlStatement, 0));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0
-                        	}
+                          }
                         }
                     }
 
@@ -935,7 +941,7 @@ implements Statement
                         request.setScrollableCursorFlag(DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);                      //@GKA
                     }                                                                                                       //@GKA
                     else {
-                      /* @H1A Use common routine to determine scrollability */ 	
+                      /* @H1A Use common routine to determine scrollability */  
                       request.setScrollableCursorFlag(
                           AS400JDBCResultSet.getDBSQLRequestDSCursorType(cursorSensitivity, resultSetType_, resultSetConcurrency_));
                     }
@@ -1027,7 +1033,7 @@ implements Statement
                         returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
                         String sqlState = sqlca.getSQLState (converter);              //@issue 34500
                         if(sqlState.startsWith("00") || sqlState.startsWith("02"))                    //@pda (issue 32120)  //@issue 34500 //@35199
-                        	bypassExceptionWarning = true;  //@pda (issue 32120)
+                          bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
                     else if((errorClass == 2) && (returnCode == 700)
                             && (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)) //@pda perf2 - fetch/close
@@ -1037,7 +1043,7 @@ implements Statement
                         returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
                         String sqlState = sqlca.getSQLState (converter);              //@issue 34500
                         if(sqlState.startsWith("00") || sqlState.startsWith("02"))                 //@pda (issue 32120)  //@issue 34500 //@35199
-                        	bypassExceptionWarning = true;  //@pda (issue 32120)
+                          bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
 
 
@@ -1102,10 +1108,10 @@ implements Statement
                     if(openNeeded)
                     {
                       // @B5A Check for null pointer.
-                    	int rowLength = 0;
-                    	if (resultRow != null) {
-                    		rowLength = resultRow.getRowLength();
-                    	}
+                      int rowLength = 0;
+                      if (resultRow != null) {
+                        rowLength = resultRow.getRowLength();
+                      }
                         JDServerRowCache rowCache;
                         if((fetchFirstBlock) && (resultData != null))
                             rowCache = new JDServerRowCache (resultRow,
@@ -1189,9 +1195,9 @@ implements Statement
                             // @C4A
                             int callResultSetType ;
                             if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY) {
-                            	// The user requested FORWARD_ONLY, so the result set will
-                            	// only be usable as forward only.
-                            	callResultSetType = ResultSet.TYPE_FORWARD_ONLY;
+                              // The user requested FORWARD_ONLY, so the result set will
+                              // only be usable as forward only.
+                              callResultSetType = ResultSet.TYPE_FORWARD_ONLY;
                             } else if(cursor_.getCursorAttributeScrollable() == 0)
                                 callResultSetType =  ResultSet.TYPE_FORWARD_ONLY;
                             else if(cursor_.getCursorAttributeSensitive() == 0)
@@ -1199,7 +1205,7 @@ implements Statement
                             else if(cursor_.getCursorAttributeSensitive() == 1)
                                 callResultSetType = ResultSet.TYPE_SCROLL_SENSITIVE;
                             else
-                            	callResultSetType = resultSetType_;
+                              callResultSetType = resultSetType_;
 
                             JDServerRow row = new JDServerRow (
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
@@ -1247,20 +1253,20 @@ implements Statement
                     commonExecuteAfter (sqlStatement, commonExecuteReply);
                 } catch (SQLException sqlex) {
 
-                	// Handle interrupted exception
-                	String messageText = sqlex.getMessage();
-                	messageText = messageText.toLowerCase();
-                	if (messageText.indexOf("internal driver error") >= 0) {
-						if (messageText.indexOf("interrupted") > 0) {
-							threadInterrupted = true;
-						}
-					}
-                	throw sqlex;
+                  // Handle interrupted exception
+                  String messageText = sqlex.getMessage();
+                  messageText = messageText.toLowerCase();
+                  if (messageText.indexOf("internal driver error") >= 0) {
+            if (messageText.indexOf("interrupted") > 0) {
+              threadInterrupted = true;
+            }
+          }
+                  throw sqlex;
                 }
                 finally
                 {    //@P0A
                     if(request != null)  {
-                    	request.returnToPool();    request = null;
+                      request.returnToPool();    request = null;
                     }
                     // This can be returned.  See comment at declaration.  @B5A
                     if (commonExecuteReply != null)  { commonExecuteReply.returnToPool(); commonExecuteReply = null; }
@@ -1473,8 +1479,8 @@ implements Statement
             //
             if(sqlStatement.getNativeType() == JDSQLStatement.TYPE_CONNECT )
             {
-            	/* Only execute now if allowImmediate_, otherwise delay until */
-            	/* execute time.   @W4A*/ 
+              /* Only execute now if allowImmediate_, otherwise delay until */
+              /* execute time.   @W4A*/ 
                 if (allowImmediate_) {
                   executeConnectStatement(sqlStatement);
                   /* Note, the code to execute the connect statement */
@@ -1559,10 +1565,10 @@ implements Statement
                     commonExecuteBefore (sqlStatement, request);
 
                     if (connectReply != null) {
-                    	connectReply.returnToPool();connectReply = null;
+                      connectReply.returnToPool();connectReply = null;
                     }
                     if (normalPrepareReply != null) {
-                    	normalPrepareReply.returnToPool();normalPrepareReply = null;
+                      normalPrepareReply.returnToPool();normalPrepareReply = null;
                     }
 
                     if (execImmediateReply != null) { execImmediateReply.returnToPool(); execImmediateReply=null;}
@@ -1668,7 +1674,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) {
-                    		request.returnToPool();  request = null;
+                        request.returnToPool();  request = null;
                     }
                     if (execImmediateReply != null)  { execImmediateReply.returnToPool(); execImmediateReply = null; }   /*@B5A*/
                 }
@@ -1710,7 +1716,7 @@ implements Statement
 
                 DBSQLRequestDS request = null;    //@P0A
                 if (normalPrepareReply != null) {
-                	normalPrepareReply.returnToPool(); normalPrepareReply = null;
+                  normalPrepareReply.returnToPool(); normalPrepareReply = null;
                 } /* B5A */
                 try
                 {
@@ -1764,10 +1770,10 @@ implements Statement
 
                     commonPrepareBefore (sqlStatement, request);
                     if (execImmediateReply != null) {
-                    	execImmediateReply.returnToPool();execImmediateReply = null;
+                      execImmediateReply.returnToPool();execImmediateReply = null;
                     }
                     if (connectReply != null) {
-                    	connectReply.returnToPool();connectReply = null;
+                      connectReply.returnToPool();connectReply = null;
                     }
 
                     if (normalPrepareReply != null) { normalPrepareReply.returnToPool(); normalPrepareReply=null; }
@@ -1811,7 +1817,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null) {
-                    		request.returnToPool();  request=null;
+                        request.returnToPool();  request=null;
                     }
                     if (normalPrepareReply != null)  { normalPrepareReply.returnToPool(); normalPrepareReply = null; }   //@B5A
                 }
@@ -2899,7 +2905,7 @@ implements Statement
       if(! isClosed ()) {
         connection_.setInFinalizer(true); 
         try{
-            	JDTrace.logInformation (this, "WARNING: Finalizer thread closing statement object.");
+              JDTrace.logInformation (this, "WARNING: Finalizer thread closing statement object.");
                 close ();
         }
         catch(Exception e){
@@ -3274,7 +3280,7 @@ implements Statement
                 try
                 {
                     if((connection_.getVRM() >= JDUtilities.vrm610)) {
-                    	/*@K3A*/
+                      /*@K3A*/
                       int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES;
                            extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); 
                            if (extendedMetaData)                                                                      
@@ -3396,7 +3402,7 @@ implements Statement
                 finally
                 {    //@P0A
                     if(request != null)  {
-                    	request.returnToPool();    request = null;
+                      request.returnToPool();    request = null;
                     }
                     if (getMoreResultsReply != null) { getMoreResultsReply.returnToPool(); getMoreResultsReply = null; }
                 }
@@ -3562,7 +3568,7 @@ implements Statement
 
             //if we can get info from resultSet (post 540), that will be more accurate, since it can be from stored-proc cursor
             if((resultSet_ != null) && (!resultSet_.isClosed()))  //@cur //@cur2
-            	return resultSet_.getHoldability();   //@cur
+              return resultSet_.getHoldability();   //@cur
 
             //@F4 If resultSetHoldability_ was set by the user, then return it.  Otherwise,
             //@F4 return the connection's holdability.
@@ -4179,7 +4185,7 @@ implements Statement
 
             if((queryTimeout_ != queryTimeout) || !queryTimeoutSet_)  /*@B2C*/
             {
-            	queryTimeoutSet_ = true;                              /*@B2A*/
+              queryTimeoutSet_ = true;                              /*@B2A*/
                 queryTimeout_ = queryTimeout;
 
                 // Since we store the query timeout in the RPB, we need
@@ -4269,7 +4275,7 @@ implements Statement
             finally
             {    //@P0A
                 if(request != null) {
-                	request.returnToPool();   request = null;
+                  request.returnToPool();   request = null;
                 }
             }
 
