@@ -22,6 +22,7 @@ com/ibm/as400/access/AS400JDBCNClobLocator.java
 com/ibm/as400/access/AS400JDBCParameterMetaData.java
 com/ibm/as400/access/AS400JDBCPooledConnection.java
 com/ibm/as400/access/AS400JDBCPreparedStatement.java
+com/ibm/as400/access/AS400JDBCPreparedStatementImpl.java
 com/ibm/as400/access/AS400JDBCPreparedStatementRedirect.java
 com/ibm/as400/access/AS400JDBCResultSet.java
 com/ibm/as400/access/AS400JDBCResultSetMetaData.java
