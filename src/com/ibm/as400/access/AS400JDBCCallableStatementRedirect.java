@@ -598,6 +598,121 @@ public class AS400JDBCCallableStatementRedirect extends
 
 
 endif */ 
+  public void setObject(String parameterName,
+                         Object x,
+                         /* ifdef JDBC42        
+                         SQLType  
+                   endif*/ 
+                   /* ifndef JDBC42 */
+                   Object
+                   /* endif */
+                         targetSqlType,
+                         int scaleOrLength)                    throws SQLException
+         {
+    cstmt_.setObject(parameterName,  x, targetSqlType, scaleOrLength); 
+                  }
+
+
+ public void setObject(String parameterName,
+                         Object x,
+/* ifdef JDBC42        
+                         SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+                   Object
+/* endif */
+                         targetSqlType)
+                  throws SQLException
+                  {
+   
+cstmt_.setObject(parameterName,  x, targetSqlType);                  
+                  }
+
+
+  public void registerOutParameter(int parameterIndex,
+/* ifdef JDBC42        
+      SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+      Object
+/* endif */
+                                    sqlType)
+                             throws SQLException{
+    cstmt_.registerOutParameter(parameterIndex, sqlType); 
+  }
+
+  
+  public void registerOutParameter(int parameterIndex,
+      /* ifdef JDBC42        
+      SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+      Object
+/* endif */
+                                    sqlType,
+                                    int scale)
+                             throws SQLException {
+    cstmt_.registerOutParameter(parameterIndex, sqlType, scale); 
+  }
+
+  public void registerOutParameter(int parameterIndex,
+/* ifdef JDBC42        
+      SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+      Object
+/* endif */
+                                    sqlType,
+                                    String typeName)
+                             throws SQLException {
+    cstmt_.registerOutParameter(parameterIndex, sqlType, typeName); 
+    
+  }
+
+ public void registerOutParameter(String parameterName,
+     /* ifdef JDBC42        
+     SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+     Object
+/* endif */
+                                    sqlType)
+                             throws SQLException {
+   cstmt_.registerOutParameter(parameterName, sqlType); 
+   
+ }
+
+public void registerOutParameter(String parameterName,
+    /* ifdef JDBC42        
+    SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+    Object
+/* endif */
+                                    sqlType,
+                                    int scale)
+                             throws SQLException {
+  cstmt_.registerOutParameter(parameterName, sqlType, scale); 
+  
+}
+
+
+public void registerOutParameter(String parameterName,
+    /* ifdef JDBC42        
+    SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+    Object
+/* endif */
+                                    sqlType,
+                                    String typeName)
+                             throws SQLException
+      {
+  cstmt_.registerOutParameter(parameterName, sqlType, typeName); 
+  
+       }
+
+  
   
   
   
