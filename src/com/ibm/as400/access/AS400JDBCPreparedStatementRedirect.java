@@ -33,7 +33,9 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-        return pstmt_.executeQuery(sql); 
+        AS400JDBCResultSet rs = (AS400JDBCResultSet) pstmt_.executeQuery(sql);
+        rs.setStatement(this); 
+        return rs; 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -164,7 +166,9 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
   }
 
   public ResultSet getResultSet() throws SQLException {
-    return pstmt_.getResultSet(); 
+    AS400JDBCResultSet rs = (AS400JDBCResultSet) pstmt_.getResultSet();
+    rs.setStatement(this); 
+    return  rs; 
   }
 
   public int getUpdateCount() throws SQLException {
@@ -537,7 +541,9 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-        return pstmt_.executeQuery();
+        AS400JDBCResultSet rs = (AS400JDBCResultSet) pstmt_.executeQuery();
+        rs.setStatement(this); 
+        return rs; 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--;

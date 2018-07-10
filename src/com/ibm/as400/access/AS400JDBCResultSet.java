@@ -731,6 +731,10 @@ implements ResultSet
             return statement_;
     }
 
+    void setStatement(AS400JDBCStatement statement) {
+       statement_ = statement; 
+    }
+
 
 
     // JDBC 2.0
@@ -7631,6 +7635,9 @@ Object
                      {
                        updateObject(columnLabel, x); 
                      }
+
+
+
   
   
   

@@ -354,7 +354,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
     try {
       resultRow_ = commonPrepare(sqlStatement_);
     } catch (SQLException e) {
-      close();
+      try {
+        close();
+      } catch (Exception e2) {
+        // ignore any nested exceptions 
+      }
       throw e;
     }
     executed_ = false;

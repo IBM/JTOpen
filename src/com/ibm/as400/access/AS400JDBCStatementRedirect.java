@@ -23,7 +23,9 @@ extends AS400JDBCStatement {
     while (retry) {
       retry = false;
       try {
-        return stmt_.executeQuery(sql); 
+        AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.executeQuery(sql);
+        rs.setStatement(this); 
+        return  rs; 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -154,7 +156,9 @@ extends AS400JDBCStatement {
   }
 
   public ResultSet getResultSet() throws SQLException {
-    return stmt_.getResultSet(); 
+    AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.getResultSet();
+    rs.setStatement(this); 
+    return rs; 
   }
 
   public int getUpdateCount() throws SQLException {
