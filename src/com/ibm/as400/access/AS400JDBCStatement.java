@@ -89,8 +89,8 @@ implements Statement
     private     boolean                 cancelled_;
     private     boolean                 closed_;
     private     boolean                 closeOnCompletion_;  //@D7A
-    protected AS400JDBCConnection     connection_;    // private protected
-    protected   boolean                 connectionReset_; // Connection is reset and must be reprepared
+    AS400JDBCConnection     connection_;    // private protected
+    boolean                 connectionReset_; // Connection is reset and must be reprepared
     JDCursor                cursor_;    // private protected
     private     String                  cursorDefaultName_;
     private     boolean                 escapeProcessing_;
@@ -104,12 +104,12 @@ implements Statement
     private     int                     maxFieldSize_;
     private     int                     maxRows_;
     private     long                    longMaxRows_;
-    int                                 rowsInserted_;    // for block insert @G5A
+    int                       rowsInserted_;    // for block insert @G5A
     private     String                  name_;
     private     String                  nameOverride_;
-    int                     numberOfResults_;    // private protected
-    int                     positionOfSyntaxError_;    //@F10A
-    boolean                 prefetch_;    // private protected
+    private int                     numberOfResults_;    // private protected
+    private int                     positionOfSyntaxError_;    //@F10A
+    private boolean                 prefetch_;    // private protected
     int                     queryTimeout_;                /*@D4A*/
     private     boolean                 queryTimeoutSet_ = false;  /*@B2A*/
     AS400JDBCResultSet      resultSet_;    // private protected
@@ -119,18 +119,18 @@ implements Statement
     private     boolean                 rpbSyncNeeded_;
     JDPackageManager        packageManager_;    // private protected
     int                     resultSetConcurrency_;    // private protected
-    int                     resultSetHoldability_;    //@G4A
+    private int                     resultSetHoldability_;    //@G4A
     private     int                     resultSetType_;
     SQLConversionSettings   settings_;    // private protected
     private     SQLWarning              sqlWarning_;
-    JDTransactionManager    transactionManager_;    // private protected
+     JDTransactionManager    transactionManager_;    // private protected
     int                     updateCount_;    // private protected
     private     String      packageCriteria_;    // @A1A
     int                     behaviorOverride_ = 0;    // @F9a
     private boolean     associatedWithLocators_ = false;        //@KBL set to true, if this statement was used to access a locator
     private boolean     holdStatement_ = false;                //@KBL set to true, if rpb and ors for this statement should be left open until a transaction boundary
-    protected boolean     useVariableFieldCompression_ = false;    //@K54  does connection allow compression
-    protected boolean     useVariableFieldInsertCompression_ = false;    //@K54 does connection allow compressions
+    boolean     useVariableFieldCompression_ = false;    //@K54  does connection allow compression
+    boolean     useVariableFieldInsertCompression_ = false;    //@K54 does connection allow compressions
     private boolean     isPoolable_ = false;         //@PDA  jdbc40
     JDServerRow         parameterRow_;          // private protected //@re-prep moved from preparedStatement so that it has visibility here
     private boolean     threadInterrupted = false;
@@ -146,17 +146,17 @@ implements Statement
     private DBReplyRequestedDS normalPrepareReply = null;
     private DBReplyRequestedDS getMoreResultsReply = null;
 
-    protected boolean queryRunning_;    // Used to determine whether or not we need to track}
+    private boolean queryRunning_;    // Used to determine whether or not we need to track}
                                         // a QueryCancelThread.  @D4A
-    protected AS400JDBCQueryCancelThread cancelThread_;    /*@D4A*/
+    private AS400JDBCQueryCancelThread cancelThread_;    /*@D4A*/
 
 
-    protected boolean disableRllCompression_ = false; //@L9A 
+    boolean disableRllCompression_ = false; //@L9A 
 
     JDSQLStatement currentJDSQLStatement_ = null;
 
 
-     Exception creationLocation_;
+    Exception creationLocation_;
     
     /**
     Constructs an AS400JDBCStatement object.
@@ -4661,6 +4661,26 @@ implements Statement
     rpbSyncNeeded_ = true; 
     rpbCreated_ = false; 
     connectionReset_ = reset; 
+  }
+
+
+  JDCursor getCursor() {
+    return cursor_; 
+  }
+
+
+  AS400JDBCStatementLock getInternalLock() {
+    return internalLock_; 
+  }
+
+
+  int getInternalResultSetHoldability() {
+    return resultSetHoldability_; 
+  }
+
+
+  boolean isQueryRunning() {
+    return queryRunning_; 
   }
 
 

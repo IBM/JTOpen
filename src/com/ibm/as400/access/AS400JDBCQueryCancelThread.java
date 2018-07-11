@@ -37,10 +37,11 @@ class AS400JDBCQueryCancelThread  extends Thread {
                   // exception when Statement.endCancelThread sets statement_ to null
                   // This exception should be caught below
                   // 
-      sleep(statement_.queryTimeout_ * 1000);
+      int queryTimeout = statement_.getQueryTimeout();     
+      sleep(queryTimeout * 1000);
       traceOn = JDTrace.isTraceOn(); 
       
-      if ((statement_ != null) && (statement_.queryRunning_)) {
+      if ((statement_ != null) && (statement_.isQueryRunning())) {
           if (traceOn)
             JDTrace.logInformation(this, "NOTE:  AS400JDBCQueryCancelThread is cancelling a statement by user request.");
           statement_.cancel();

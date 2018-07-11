@@ -494,9 +494,6 @@ extends AS400JDBCStatement {
       
     }
 
-    void checkOpen() throws SQLException {
-      stmt_.checkOpen(); 
-    }
 
     public int getPositionOfSyntaxError() throws SQLException {
       return stmt_.getPositionOfSyntaxError(); 
@@ -519,4 +516,31 @@ extends AS400JDBCStatement {
     }
                
 
+    void checkOpen() throws SQLException {
+      stmt_.checkOpen(); 
+    }
+
+    void notifyClose () throws SQLException   {
+       stmt_.notifyClose(); 
+    }
+    
+    JDCursor getCursor() {
+      return stmt_.getCursor(); 
+    }
+    
+    AS400JDBCStatementLock getInternalLock() {
+      return stmt_.getInternalLock(); 
+    }
+
+    
+    int getInternalResultSetHoldability() {
+      return stmt_.getInternalResultSetHoldability(); 
+    }
+
+    boolean isQueryRunning() {
+      return stmt_.isQueryRunning();  
+    }
+
+    
+    
 }

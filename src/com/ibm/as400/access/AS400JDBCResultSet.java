@@ -291,7 +291,11 @@ implements ResultSet
         deleteStatement_        = null;
         fetchDirection_         = fetchDirection;
         fetchSize_              = fetchSize;
-        internalLock_           = (statement != null) ? statement.internalLock_ : new AS400JDBCStatementLock();  // @D1A
+        if (statement != null) { 
+          internalLock_ = statement.getInternalLock(); 
+        } else { 
+          internalLock_  = new AS400JDBCStatementLock();  // @D1A
+        }
         maxRows_                = maxRows;
         openInputStream_        = null;
         openReader_             = null;
@@ -601,9 +605,10 @@ implements ResultSet
             //@cur return value from cursor attribues if exists else return value as done in pre 550
             if ( statement_ != null )                                            //@cur
             {                                                                    //@cur
-                if( statement_.cursor_.getCursorAttributeUpdatable() == 0)       //@cur
+                JDCursor cursor = statement_.getCursor(); 
+                if( cursor.getCursorAttributeUpdatable() == 0)       //@cur
                     return ResultSet.CONCUR_READ_ONLY;                           //@cur
-                else if( statement_.cursor_.getCursorAttributeUpdatable() == 1)  //@cur
+                else if( cursor.getCursorAttributeUpdatable() == 1)  //@cur
                     return ResultSet.CONCUR_UPDATABLE;                           //@cur
                 else                                                             //@cur
                     return concurrency_;                                         //@cur
@@ -771,11 +776,12 @@ implements ResultSet
             //@cur return value from cursor attributes if exists else return value as done in pre 550                                                               
             if( statement_ != null )                                                     //@cur
             {                                                                            //@cur
-                if(statement_.cursor_.getCursorAttributeScrollable() == 0)               //@cur
+                JDCursor cursor = statement_.getCursor(); 
+                if(cursor.getCursorAttributeScrollable() == 0)               //@cur
                     return ResultSet.TYPE_FORWARD_ONLY;                                  //@cur
-                else if(statement_.cursor_.getCursorAttributeSensitive() == 0)           //@cur
+                else if(cursor.getCursorAttributeSensitive() == 0)           //@cur
                     return ResultSet.TYPE_SCROLL_INSENSITIVE;                            //@cur
-                else if(statement_.cursor_.getCursorAttributeSensitive() == 1)           //@cur
+                else if(cursor.getCursorAttributeSensitive() == 1)           //@cur
                     return ResultSet.TYPE_SCROLL_SENSITIVE;                              //@cur
                 else                                                                     //@cur
                     return type_;                                                        //@cur
@@ -884,21 +890,25 @@ implements ResultSet
     
     @param   sqlWarning  The warning.
     **/
-    void postWarning (SQLWarning sqlWarning)
-    {
-    	/*Check to see if the warning should be ignored @Q1A*/
-        if ((statement_ != null) && 
-            (statement_.connection_!= null) && 
-            (statement_.connection_.ignoreWarning(sqlWarning))) {
-           return; 
-        } else { 
-        if(sqlWarning_ == null)
-            sqlWarning_ = sqlWarning;
-        else
-            sqlWarning_.setNextWarning (sqlWarning);
-        } 
-    }
+  void postWarning(SQLWarning sqlWarning) {
+    /* Check to see if the warning should be ignored @Q1A */
+    try {
+      if ((statement_ != null)
+          && (statement_.getConnection() != null)
+          && (((AS400JDBCConnection) statement_.getConnection())
+              .ignoreWarning(sqlWarning))) {
+        return;
+      }
 
+    } catch (SQLException e) {
+      // Ignore errors from getting connection.
+    }
+    if (sqlWarning_ == null)
+      sqlWarning_ = sqlWarning;
+    else
+      sqlWarning_.setNextWarning(sqlWarning);
+
+  }
 
 
     // JDBC 2.0
@@ -5947,20 +5957,22 @@ endif */
                 int vrm = 0;                                                             //@cur3
                 if(connection_ != null)                                                  //@cur3
                     vrm = ((AS400JDBCConnection)connection_).getVRM();                   //@cur3
-                if(statement_.cursor_.getCursorAttributeHoldable() == 0 
+                JDCursor cursor = statement_.getCursor(); 
+                if(cursor.getCursorAttributeHoldable() == 0 
                         &&  (vrm <= JDUtilities.vrm610 
-                             || (vrm >= JDUtilities.vrm710 && statement_.cursor_.getCursorIsolationLevel() != 0)))                  //@cur //@cur3 *none is always hold
+                             || (vrm >= JDUtilities.vrm710 && cursor.getCursorIsolationLevel() != 0)))                  //@cur //@cur3 *none is always hold
                     return ResultSet.CLOSE_CURSORS_AT_COMMIT;                            //@cur
-                else if(statement_.cursor_.getCursorAttributeHoldable() == 1 
-                        || (vrm >= JDUtilities.vrm710 && statement_.cursor_.getCursorIsolationLevel() == 0))            //@cur //@cur3
+                else if(cursor.getCursorAttributeHoldable() == 1 
+                        || (vrm >= JDUtilities.vrm710 && cursor.getCursorIsolationLevel() == 0))            //@cur //@cur3
                     return ResultSet.HOLD_CURSORS_OVER_COMMIT;                           //@cur
                 else                                                                     //@cur
                 {                                                                        //@cur
+                    int resultSetHoldability = statement_.getInternalResultSetHoldability(); 
                     //not able to get from cursor attrs from hostserver
-                    if((statement_.resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
-                            (statement_.resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT))
+                    if((resultSetHoldability == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
+                            (resultSetHoldability == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT))
                     {
-                        return statement_.resultSetHoldability_;    
+                        return resultSetHoldability;    
                     } 
                 }
             }                                                                            //@cur
