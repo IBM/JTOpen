@@ -1018,20 +1018,20 @@ Object
 
 
     public void setNClob(int parameterIndex, NClob clob) throws SQLException {
-      pstmt_.setNClob(parameterIndex,  clob);
+      stmt_.setNClob(parameterIndex,  clob);
     }
 
     
     
     public void setSQLXML(int parameterIndex, SQLXML xml) throws SQLException {
-      pstmt_.setSQLXML(parameterIndex, xml); 
+      stmt_.setSQLXML(parameterIndex, xml); 
     }
 
     
     
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
-      pstmt_.setRowId(parameterIndex, x); 
+      stmt_.setRowId(parameterIndex, x); 
      } 
 
  
