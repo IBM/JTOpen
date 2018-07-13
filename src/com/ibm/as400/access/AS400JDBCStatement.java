@@ -4683,6 +4683,13 @@ implements Statement
     return queryRunning_; 
   }
 
+  int getInternalQueryTimeout ()
+  {
+     
+     return queryTimeout_;
+      
+  }
+
 
 
 }

@@ -46,7 +46,11 @@ final class SQLBlobLocator implements SQLLocator
     private boolean outOfBounds_ = false; 
 
     private int                     columnIndex_;
-    private byte[]                  value_; //@loch //Note that value_ is not used as the output for a ResultSet.getX() call.  We Get the value from a call to the JDLocator (not from value_) and not from the savedObject_, unless resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
+    private byte[]                  value_; 
+    //@loch //Note that value_ is not used as the output for a ResultSet.getX() call.
+    // We Get the value from a call to the JDLocator (not from value_) and not 
+    // from the savedObject_, unless resultSet.updateX(obj1) is called followed by 
+    // a obj2 = resultSet.getX()
 
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.

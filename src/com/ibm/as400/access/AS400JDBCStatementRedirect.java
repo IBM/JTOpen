@@ -541,6 +541,16 @@ extends AS400JDBCStatement {
       return stmt_.isQueryRunning();  
     }
 
+  int getInternalQueryTimeout() {
+
+    return stmt_.getInternalQueryTimeout();
+
+  }
     
-    
+  // 
+  // Note:  If you add methods here, they also need to be added to 
+  // AS400JDBCPreparedStatementRedirect.
+  // 
+  
+  
 }

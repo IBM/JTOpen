@@ -13,13 +13,13 @@ import java.util.Calendar;
 // 
 public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatement {
 
-  AS400JDBCPreparedStatement pstmt_ = null;
+  AS400JDBCPreparedStatement stmt_ = null;
   AS400JDBCConnection connection_; 
 
   AS400JDBCPreparedStatementRedirect(AS400JDBCPreparedStatement stmt)
       throws SQLException {
 
-    pstmt_ = stmt;
+    stmt_ = stmt;
     connection_ = (AS400JDBCConnection) stmt.getConnection(); 
   }
 
@@ -33,7 +33,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-        AS400JDBCResultSet rs = (AS400JDBCResultSet) pstmt_.executeQuery(sql);
+        AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.executeQuery(sql);
         rs.setStatement(this); 
         return rs; 
       } catch (AS400JDBCTransientException e) {
@@ -58,7 +58,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-        return pstmt_.executeUpdate(sql); 
+        return stmt_.executeUpdate(sql); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -81,7 +81,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         pstmt_.close(); 
+         stmt_.close(); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -99,47 +99,47 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
   }
 
   public int getMaxFieldSize() throws SQLException {
-    return pstmt_.getMaxFieldSize();
+    return stmt_.getMaxFieldSize();
   }
 
   public void setMaxFieldSize(int max) throws SQLException {
-    pstmt_.setMaxFieldSize(max); 
+    stmt_.setMaxFieldSize(max); 
   }
 
   public int getMaxRows() throws SQLException {
-    return pstmt_.getMaxRows(); 
+    return stmt_.getMaxRows(); 
   }
 
   public void setMaxRows(int max) throws SQLException {
-    pstmt_.setMaxRows(max); 
+    stmt_.setMaxRows(max); 
   }
 
   public void setEscapeProcessing(boolean enable) throws SQLException {
-    pstmt_.setEscapeProcessing(enable);
+    stmt_.setEscapeProcessing(enable);
   }
 
   public int getQueryTimeout() throws SQLException {
-    return pstmt_.getQueryTimeout(); 
+    return stmt_.getQueryTimeout(); 
   }
 
   public void setQueryTimeout(int seconds) throws SQLException {
-    pstmt_.setQueryTimeout(seconds); 
+    stmt_.setQueryTimeout(seconds); 
   }
 
   public void cancel() throws SQLException {
-    pstmt_.cancel(); 
+    stmt_.cancel(); 
   }
 
   public SQLWarning getWarnings() throws SQLException {
-    return pstmt_.getWarnings(); 
+    return stmt_.getWarnings(); 
   }
 
   public void clearWarnings() throws SQLException {
-    pstmt_.clearWarnings(); 
+    stmt_.clearWarnings(); 
   }
 
   public void setCursorName(String name) throws SQLException {
-    pstmt_.setCursorName(name); 
+    stmt_.setCursorName(name); 
   }
 
   public boolean execute(String sql) throws SQLException {
@@ -148,7 +148,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         return pstmt_.execute(sql);  
+         return stmt_.execute(sql);  
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -166,66 +166,66 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
   }
 
   public ResultSet getResultSet() throws SQLException {
-    AS400JDBCResultSet rs = (AS400JDBCResultSet) pstmt_.getResultSet();
+    AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.getResultSet();
     rs.setStatement(this); 
     return  rs; 
   }
 
   public int getUpdateCount() throws SQLException {
-    return pstmt_.getUpdateCount(); 
+    return stmt_.getUpdateCount(); 
   }
 
   public boolean getMoreResults() throws SQLException {
-    return pstmt_.getMoreResults(); 
+    return stmt_.getMoreResults(); 
   }
 
   public void setFetchDirection(int direction) throws SQLException {
-    pstmt_.setFetchDirection(direction); 
+    stmt_.setFetchDirection(direction); 
   }
 
   public int getFetchDirection() throws SQLException {
-    return pstmt_.getFetchDirection(); 
+    return stmt_.getFetchDirection(); 
   }
 
   public void setFetchSize(int rows) throws SQLException {
-    pstmt_.setFetchSize(rows);
+    stmt_.setFetchSize(rows);
 
   }
 
   public int getFetchSize() throws SQLException {
-    return pstmt_.getFetchSize(); 
+    return stmt_.getFetchSize(); 
   }
 
   public int getResultSetConcurrency() throws SQLException {
-    return pstmt_.getResultSetConcurrency(); 
+    return stmt_.getResultSetConcurrency(); 
   }
 
   public int getResultSetType() throws SQLException {
-    return pstmt_.getResultSetType(); 
+    return stmt_.getResultSetType(); 
   }
 
   public void addBatch(String sql) throws SQLException {
-    pstmt_.addBatch(sql); 
+    stmt_.addBatch(sql); 
   }
 
   public void clearBatch() throws SQLException {
-    pstmt_.clearBatch(); 
+    stmt_.clearBatch(); 
   }
 
   public int[] executeBatch() throws SQLException {
-    return pstmt_.executeBatch(); 
+    return stmt_.executeBatch(); 
   }
 
   public Connection getConnection() throws SQLException {
-    return pstmt_.getConnection(); 
+    return stmt_.getConnection(); 
   }
 
   public boolean getMoreResults(int current) throws SQLException {
-    return pstmt_.getMoreResults(current); 
+    return stmt_.getMoreResults(current); 
   }
 
   public ResultSet getGeneratedKeys() throws SQLException {
-    return pstmt_.getGeneratedKeys(); 
+    return stmt_.getGeneratedKeys(); 
   }
 
   public int executeUpdate(String sql, int autoGeneratedKeys)
@@ -235,7 +235,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         return pstmt_.executeUpdate(sql,autoGeneratedKeys); 
+         return stmt_.executeUpdate(sql,autoGeneratedKeys); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -258,7 +258,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         return pstmt_.executeUpdate(sql, columnIndexes); 
+         return stmt_.executeUpdate(sql, columnIndexes); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -282,7 +282,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         return pstmt_.executeUpdate(sql, columnNames); 
+         return stmt_.executeUpdate(sql, columnNames); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -305,7 +305,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         return pstmt_.execute(sql, autoGeneratedKeys); 
+         return stmt_.execute(sql, autoGeneratedKeys); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -328,7 +328,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         return pstmt_.execute(sql, columnIndexes); 
+         return stmt_.execute(sql, columnIndexes); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -351,7 +351,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-         return pstmt_.execute(sql, columnNames); 
+         return stmt_.execute(sql, columnNames); 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--; 
@@ -369,34 +369,34 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
   }
 
   public int getResultSetHoldability() throws SQLException {
-    return pstmt_.getResultSetHoldability(); 
+    return stmt_.getResultSetHoldability(); 
   }
 
   
   public boolean isCloseOnCompletion() throws SQLException {
-    return ((AS400JDBCStatement)pstmt_).isCloseOnCompletion(); 
+    return ((AS400JDBCStatement)stmt_).isCloseOnCompletion(); 
   }
 
   public void closeOnCompletion() throws SQLException {
-    ((AS400JDBCStatement)pstmt_).closeOnCompletion(); 
+    ((AS400JDBCStatement)stmt_).closeOnCompletion(); 
   }
 
 
   
   
       public   long getLargeUpdateCount() throws SQLException {
-        return pstmt_.getLargeUpdateCount();  
+        return stmt_.getLargeUpdateCount();  
       }
       
       public void setLargeMaxRows(long max) throws SQLException {
-        pstmt_.setLargeMaxRows(max); 
+        stmt_.setLargeMaxRows(max); 
       }
       public long getLargeMaxRows() throws SQLException {
-        return pstmt_.getLargeMaxRows(); 
+        return stmt_.getLargeMaxRows(); 
       }
     
     public long[] executeLargeBatch()    throws SQLException  {
-      return pstmt_.executeLargeBatch(); 
+      return stmt_.executeLargeBatch(); 
     }
 
    public long executeLargeUpdate(String sql)   throws SQLException {
@@ -405,7 +405,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
      while (retry) {
        retry = false;
        try {
-         return pstmt_.executeLargeUpdate(sql); 
+         return stmt_.executeLargeUpdate(sql); 
        } catch (AS400JDBCTransientException e) {
          if (connection_.canSeamlessFailover()) {
            retryCount--; 
@@ -432,7 +432,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
       while (retry) {
         retry = false;
         try {
-          return pstmt_.executeLargeUpdate(sql, autoGeneratedKeys); 
+          return stmt_.executeLargeUpdate(sql, autoGeneratedKeys); 
         } catch (AS400JDBCTransientException e) {
           if (connection_.canSeamlessFailover()) {
             retryCount--; 
@@ -459,7 +459,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
       while (retry) {
         retry = false;
         try {
-          return pstmt_.executeLargeUpdate(sql, columnIndexes); 
+          return stmt_.executeLargeUpdate(sql, columnIndexes); 
         } catch (AS400JDBCTransientException e) {
           if (connection_.canSeamlessFailover()) {
             retryCount--; 
@@ -485,7 +485,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
       while (retry) {
         retry = false;
         try {
-          return pstmt_.executeLargeUpdate(sql, columnNames); 
+          return stmt_.executeLargeUpdate(sql, columnNames); 
         } catch (AS400JDBCTransientException e) {
           if (connection_.canSeamlessFailover()) {
             retryCount--; 
@@ -503,30 +503,57 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
       
     }
 
-    void checkOpen() throws SQLException {
-      pstmt_.checkOpen(); 
-    }
 
     public int getPositionOfSyntaxError() throws SQLException {
-      return pstmt_.getPositionOfSyntaxError(); 
+      return stmt_.getPositionOfSyntaxError(); 
     }
 
     public boolean isClosed() throws SQLException {
-      return pstmt_.isClosed(); 
+      return stmt_.isClosed(); 
     }
 
     public String toString() {
-      return pstmt_.toString(); 
+      return stmt_.toString(); 
     }
 
     public void setPoolable(boolean poolable) throws SQLException {
-      pstmt_.setPoolable(poolable); 
+      stmt_.setPoolable(poolable); 
     }
 
     public boolean isPoolable() throws SQLException {
-      return pstmt_.isPoolable(); 
+      return stmt_.isPoolable(); 
     }
                
+    void checkOpen() throws SQLException {
+        stmt_.checkOpen(); 
+      }
+
+      void notifyClose () throws SQLException   {
+         stmt_.notifyClose(); 
+      }
+      
+      JDCursor getCursor() {
+        return stmt_.getCursor(); 
+      }
+      
+      AS400JDBCStatementLock getInternalLock() {
+        return stmt_.getInternalLock(); 
+      }
+
+      
+      int getInternalResultSetHoldability() {
+        return stmt_.getInternalResultSetHoldability(); 
+      }
+
+      boolean isQueryRunning() {
+        return stmt_.isQueryRunning();  
+      }
+
+    int getInternalQueryTimeout() {
+
+      return stmt_.getInternalQueryTimeout();
+
+    }
 
   
   
@@ -541,7 +568,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-        AS400JDBCResultSet rs = (AS400JDBCResultSet) pstmt_.executeQuery();
+        AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.executeQuery();
         rs.setStatement(this); 
         return rs; 
       } catch (AS400JDBCTransientException e) {
@@ -567,7 +594,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-        return pstmt_.executeUpdate();
+        return stmt_.executeUpdate();
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--;
@@ -585,112 +612,112 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
   }
 
   public void setNull(int parameterIndex, int sqlType) throws SQLException {
-    pstmt_.setNull(parameterIndex, sqlType);
+    stmt_.setNull(parameterIndex, sqlType);
   }
 
   public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-    pstmt_.setBoolean(parameterIndex, x);
+    stmt_.setBoolean(parameterIndex, x);
 
   }
 
   public void setByte(int parameterIndex, byte x) throws SQLException {
-    pstmt_.setByte(parameterIndex, x);
+    stmt_.setByte(parameterIndex, x);
 
   }
 
   public void setShort(int parameterIndex, short x) throws SQLException {
-    pstmt_.setShort(parameterIndex, x);
+    stmt_.setShort(parameterIndex, x);
 
   }
 
   public void setInt(int parameterIndex, int x) throws SQLException {
-    pstmt_.setInt(parameterIndex, x);
+    stmt_.setInt(parameterIndex, x);
 
   }
 
   public void setLong(int parameterIndex, long x) throws SQLException {
-    pstmt_.setLong(parameterIndex, x);
+    stmt_.setLong(parameterIndex, x);
 
   }
 
   public void setFloat(int parameterIndex, float x) throws SQLException {
-    pstmt_.setFloat(parameterIndex, x);
+    stmt_.setFloat(parameterIndex, x);
 
   }
 
   public void setDouble(int parameterIndex, double x) throws SQLException {
-    pstmt_.setDouble(parameterIndex, x);
+    stmt_.setDouble(parameterIndex, x);
 
   }
 
   public void setBigDecimal(int parameterIndex, BigDecimal x)
       throws SQLException {
-    pstmt_.setBigDecimal(parameterIndex, x);
+    stmt_.setBigDecimal(parameterIndex, x);
 
   }
 
   public void setString(int parameterIndex, String x) throws SQLException {
-    pstmt_.setString(parameterIndex, x);
+    stmt_.setString(parameterIndex, x);
 
   }
 
   public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-    pstmt_.setBytes(parameterIndex, x);
+    stmt_.setBytes(parameterIndex, x);
 
   }
 
   public void setDate(int parameterIndex, Date x) throws SQLException {
-    pstmt_.setDate(parameterIndex, x);
+    stmt_.setDate(parameterIndex, x);
 
   }
 
   public void setTime(int parameterIndex, Time x) throws SQLException {
-    pstmt_.setTime(parameterIndex, x);
+    stmt_.setTime(parameterIndex, x);
 
   }
 
   public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-    pstmt_.setTimestamp(parameterIndex, x);
+    stmt_.setTimestamp(parameterIndex, x);
 
   }
 
   public void setAsciiStream(int parameterIndex, InputStream x, int length)
       throws SQLException {
-    pstmt_.setAsciiStream(parameterIndex, x, length);
+    stmt_.setAsciiStream(parameterIndex, x, length);
 
   }
 
   public void setUnicodeStream(int parameterIndex, InputStream x, int length)
       throws SQLException {
-    pstmt_.setUnicodeStream(parameterIndex, x, length);
+    stmt_.setUnicodeStream(parameterIndex, x, length);
 
   }
 
   public void setBinaryStream(int parameterIndex, InputStream x, int length)
       throws SQLException {
-    pstmt_.setBinaryStream(parameterIndex, x, length);
+    stmt_.setBinaryStream(parameterIndex, x, length);
 
   }
 
   public void clearParameters() throws SQLException {
-    pstmt_.clearParameters();
+    stmt_.clearParameters();
 
   }
 
   public void setObject(int parameterIndex, Object x, int targetSqlType,
       int scale) throws SQLException {
-    pstmt_.setObject(parameterIndex, x);
+    stmt_.setObject(parameterIndex, x);
 
   }
 
   public void setObject(int parameterIndex, Object x, int targetSqlType)
       throws SQLException {
-    pstmt_.setObject(parameterIndex, x, targetSqlType);
+    stmt_.setObject(parameterIndex, x, targetSqlType);
 
   }
 
   public void setObject(int parameterIndex, Object x) throws SQLException {
-    pstmt_.setObject(parameterIndex, x);
+    stmt_.setObject(parameterIndex, x);
 
   }
 
@@ -700,7 +727,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     while (retry) {
       retry = false;
       try {
-        return pstmt_.execute();
+        return stmt_.execute();
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
           retryCount--;
@@ -718,180 +745,180 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
   }
 
   public void addBatch() throws SQLException {
-    pstmt_.addBatch();
+    stmt_.addBatch();
 
   }
 
   public void setCharacterStream(int parameterIndex, Reader reader, int length)
       throws SQLException {
-    pstmt_.setCharacterStream(parameterIndex, reader, length);
+    stmt_.setCharacterStream(parameterIndex, reader, length);
 
   }
 
   public void setRef(int parameterIndex, Ref x) throws SQLException {
-    pstmt_.setRef(parameterIndex, x);
+    stmt_.setRef(parameterIndex, x);
 
   }
 
   public void setBlob(int parameterIndex, Blob x) throws SQLException {
-    pstmt_.setBlob(parameterIndex, x);
+    stmt_.setBlob(parameterIndex, x);
 
   }
 
   public void setClob(int parameterIndex, Clob x) throws SQLException {
-    pstmt_.setClob(parameterIndex, x);
+    stmt_.setClob(parameterIndex, x);
 
   }
 
   public void setArray(int parameterIndex, Array x) throws SQLException {
-    pstmt_.setArray(parameterIndex, x);
+    stmt_.setArray(parameterIndex, x);
 
   }
 
   public ResultSetMetaData getMetaData() throws SQLException {
-    return pstmt_.getMetaData(); 
+    return stmt_.getMetaData(); 
   }
 
   public void setDate(int parameterIndex, Date x, Calendar cal)
       throws SQLException {
-    pstmt_.setDate(parameterIndex, x, cal);
+    stmt_.setDate(parameterIndex, x, cal);
 
   }
 
   public void setTime(int parameterIndex, Time x, Calendar cal)
       throws SQLException {
-    pstmt_.setTime(parameterIndex, x, cal);
+    stmt_.setTime(parameterIndex, x, cal);
 
   }
 
   public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal)
       throws SQLException {
-    pstmt_.setTimestamp(parameterIndex, x, cal);
+    stmt_.setTimestamp(parameterIndex, x, cal);
 
   }
 
   public void setNull(int parameterIndex, int sqlType, String typeName)
       throws SQLException {
-    pstmt_.setNull(parameterIndex, sqlType, typeName);
+    stmt_.setNull(parameterIndex, sqlType, typeName);
 
   }
 
   public void setURL(int parameterIndex, URL x) throws SQLException {
-    pstmt_.setURL(parameterIndex, x);
+    stmt_.setURL(parameterIndex, x);
 
   }
 
   public ParameterMetaData getParameterMetaData() throws SQLException {
-    return pstmt_.getParameterMetaData();
+    return stmt_.getParameterMetaData();
   }
 
      
      public void setNClob(int parameterIndex, Reader reader) throws SQLException 
      {
-       pstmt_.setNClob(parameterIndex, reader); 
+       stmt_.setNClob(parameterIndex, reader); 
      }
 
     public void setAsciiStream(int parameterIndex, InputStream stream) throws SQLException {
-      pstmt_.setAsciiStream(parameterIndex, stream); 
+      stmt_.setAsciiStream(parameterIndex, stream); 
     }
 
     public void setAsciiStream(int parameterIndex, InputStream stream, long length)
         throws SQLException {
-      pstmt_.setAsciiStream(parameterIndex,  stream, length); 
+      stmt_.setAsciiStream(parameterIndex,  stream, length); 
       
     }
 
     
     public void setBinaryStream(int parameterIndex, InputStream stream) throws SQLException {
-      pstmt_.setBinaryStream(parameterIndex,  stream); 
+      stmt_.setBinaryStream(parameterIndex,  stream); 
     }
 
     
     public void setBinaryStream(int parameterIndex, InputStream stream, long length)
         throws SQLException {
-      pstmt_.setBinaryStream(parameterIndex,  stream, length); 
+      stmt_.setBinaryStream(parameterIndex,  stream, length); 
     }
 
     
     public void setBlob(int parameterIndex, InputStream stream) throws SQLException {
-      pstmt_.setBlob(parameterIndex,  stream); 
+      stmt_.setBlob(parameterIndex,  stream); 
     }
 
     
     public void setBlob(int parameterIndex, InputStream stream, long length)
         throws SQLException {
-      pstmt_.setBlob(parameterIndex,  stream, length); 
+      stmt_.setBlob(parameterIndex,  stream, length); 
       
       
     }
 
     
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-      pstmt_.setCharacterStream(parameterIndex, reader); 
+      stmt_.setCharacterStream(parameterIndex, reader); 
     }
 
     
     public void setCharacterStream(int parameterIndex, Reader reader, long length)
         throws SQLException {
-    pstmt_.setCharacterStream(parameterIndex,  reader, length);   
+    stmt_.setCharacterStream(parameterIndex,  reader, length);   
     }
 
     
     public void setClob(int parameterIndex, Reader reader) throws SQLException {
-      pstmt_.setClob(parameterIndex, reader); 
+      stmt_.setClob(parameterIndex, reader); 
       
     }
 
     
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-      pstmt_.setClob(parameterIndex, reader, length); 
+      stmt_.setClob(parameterIndex, reader, length); 
     }
 
     
     public void setNCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-      pstmt_.setNCharacterStream(parameterIndex,  reader); 
+      stmt_.setNCharacterStream(parameterIndex,  reader); 
     }
 
     
     public void setNCharacterStream(int parameterIndex, Reader reader, long length)
         throws SQLException {
-pstmt_.setNCharacterStream(parameterIndex,  reader, length); 
+stmt_.setNCharacterStream(parameterIndex,  reader, length); 
     }
 
     
 
     
     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
-      pstmt_.setNClob(parameterIndex,  reader, length); 
+      stmt_.setNClob(parameterIndex,  reader, length); 
     }
 
     
     public void setNString(int parameterIndex, String x) throws SQLException {
-      pstmt_.setNString(parameterIndex, x); 
+      stmt_.setNString(parameterIndex, x); 
     }
 
     public void setDB2Default(int parameterIndex) throws SQLException {
-      pstmt_.setDB2Default(parameterIndex); 
+      stmt_.setDB2Default(parameterIndex); 
     }
 
     public void setDBDefault(int parameterIndex) throws SQLException {
-      pstmt_.setDBDefault(parameterIndex); 
+      stmt_.setDBDefault(parameterIndex); 
       
     }
 
     public void setDB2Unassigned(int parameterIndex) throws SQLException {
-      pstmt_.setDB2Unassigned(parameterIndex);
+      stmt_.setDB2Unassigned(parameterIndex);
       
       
     }
 
     public void setDBUnassigned(int parameterIndex) throws SQLException {
-      pstmt_.setDBUnassigned(parameterIndex);
+      stmt_.setDBUnassigned(parameterIndex);
       
     }
 
     public String getDB2ParameterName(int parm) throws SQLException {
-      return pstmt_.getDB2ParameterName(parm);
+      return stmt_.getDB2ParameterName(parm);
       
     }
 
@@ -909,7 +936,7 @@ Object
         targetSqlType,
         int scaleOrLength)
  throws SQLException  {
-      pstmt_.setObject(parameterIndex,x,targetSqlType,scaleOrLength); 
+      stmt_.setObject(parameterIndex,x,targetSqlType,scaleOrLength); 
     }
   
 
@@ -923,65 +950,65 @@ Object
   /* endif */
         targetSqlType)
  throws SQLException {
-      pstmt_.setObject(parameterIndex,  x, targetSqlType); 
+      stmt_.setObject(parameterIndex,  x, targetSqlType); 
     }
   
     
     
 
     public long executeLargeUpdate() throws SQLException {
-      return pstmt_.executeLargeUpdate(); 
+      return stmt_.executeLargeUpdate(); 
     }
 
     int findParameterIndex(String s) throws SQLException {
-      return pstmt_.findParameterIndex(s); 
+      return stmt_.findParameterIndex(s); 
       
     }
 
     int getParameterCcsid(int p) throws SQLException {
-      return pstmt_.getParameterCcsid(p); 
+      return stmt_.getParameterCcsid(p); 
       
     }
 
     String getParameterClassName(int p) throws SQLException {
-      return pstmt_.getParameterClassName(p); 
+      return stmt_.getParameterClassName(p); 
       
     }
 
     int getParameterCount() throws SQLException {
-      return pstmt_.getParameterCount();
+      return stmt_.getParameterCount();
     }
 
     int getParameterMode(int param) throws SQLException {
-      return pstmt_.getParameterMode(param); 
+      return stmt_.getParameterMode(param); 
     }
 
     int getParameterType(int param) throws SQLException {
-      return pstmt_.getParameterType(param); 
+      return stmt_.getParameterType(param); 
     }
 
     String getParameterTypeName(int param) throws SQLException {
-      return pstmt_.getParameterTypeName(param); 
+      return stmt_.getParameterTypeName(param); 
     }
 
     int getPrecision(int param) throws SQLException {
-      return pstmt_.getPrecision(param); 
+      return stmt_.getPrecision(param); 
     }
 
     JDServerRow getResultRow() {
-      return pstmt_.getResultRow(); 
+      return stmt_.getResultRow(); 
     }
 
     int getScale(int param) throws SQLException {
-      return pstmt_.getScale(param); 
+      return stmt_.getScale(param); 
     }
 
     int isNullable(int param) throws SQLException {
-      return pstmt_.isNullable(param); 
+      return stmt_.isNullable(param); 
     }
 
     boolean isSigned(int param) throws SQLException {
-      return pstmt_.isSigned(param); 
+      return stmt_.isSigned(param); 
     }
 
     
