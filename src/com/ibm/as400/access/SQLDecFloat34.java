@@ -669,4 +669,7 @@ final class SQLDecFloat34 extends SQLDataBase {
     endif */ 
     
     
+    public void saveValue() {
+      savedValue_ = value_; 
+   }
 }

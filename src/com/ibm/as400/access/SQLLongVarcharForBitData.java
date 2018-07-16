@@ -531,5 +531,14 @@ endif */
     }
     endif */ 
     
+    
+    public void saveValue() throws SQLException {
+      
+      
+      savedValue_ = value_; 
+   }
+
+   
+    
 }
 

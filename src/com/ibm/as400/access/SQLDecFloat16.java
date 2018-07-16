@@ -652,4 +652,8 @@ final class SQLDecFloat16 extends SQLDataBase {
     }
     endif */ 
     // @array
+    
+    public void saveValue() {
+      savedValue_ = value_; 
+   }
 }

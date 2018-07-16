@@ -507,5 +507,8 @@ final class SQLNClob extends SQLDataBase
 
     endif */ 
     
+    public void saveValue() {
+      savedValue_ = value_; 
+   }
 }
 

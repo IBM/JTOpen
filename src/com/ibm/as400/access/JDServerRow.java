@@ -1031,17 +1031,10 @@ implements JDRow
            if (oldOne instanceof  SQLLocator) {
              // Must set handle before setting data 
              ((SQLLocator) sqlData_[i]).setHandle(getFieldLOBLocatorHandle(i+1)); 
-             if ((oldOne instanceof SQLClobLocator) ||
-                 (oldOne instanceof SQLNClobLocator) ||
-                 (oldOne instanceof SQLDBClobLocator) || 
-                 (oldOne instanceof SQLXMLLocator )) { 
-               object = oldOne.getString();
-             } else {
-               object = oldOne.getBytes(); 
-             }
+             object = oldOne.getSavedValue(); 
              sqlData_[i].set(object, calendar, scale);
            }else { 
-             object = oldOne.getObject();
+             object = oldOne.getSavedValue();
              sqlData_[i].set(object, calendar, scale); 
            }
         
@@ -1055,6 +1048,14 @@ implements JDRow
     
     
     
+  }
+
+
+
+  public void saveValues() throws SQLException {
+    for (int i = 0; i < sqlData_.length; i++) { 
+       sqlData_[i].saveValue(); 
+    }
   }
      
 

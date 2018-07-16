@@ -532,5 +532,8 @@ endif */
     }
 endif */ 
 
+    public void saveValue() {
+      savedValue_ = value_; 
+   }
 }
 

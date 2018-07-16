@@ -54,7 +54,8 @@ public abstract class SQLDataBase implements SQLData
    protected int                     truncated_;
    protected boolean                 outOfBounds_; 
    protected SQLConversionSettings   settings_;
-
+   Object    savedValue_ = null;  
+    
    /**
     * Create a new SQLDataBase object with the specified settings
    * @param settings
@@ -1047,5 +1048,9 @@ public abstract class SQLDataBase implements SQLData
         return false; 
     }
     
+  }
+  
+  public Object getSavedValue() {
+    return savedValue_; 
   }
 }

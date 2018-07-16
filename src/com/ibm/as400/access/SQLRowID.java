@@ -607,6 +607,14 @@ final class SQLRowID extends SQLDataBase
     }
    endif */ 
     
+    
+    public void saveValue() throws SQLException {
+   
+      savedValue_ = value_; 
+   }
+
+   
+    
 
 }
 

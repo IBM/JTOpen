@@ -582,4 +582,16 @@ endif */
     }
     endif */
     // @array
+    
+    
+    public void saveValue() throws SQLException {
+      if (value_ == null  && savedObject_ != null ) {
+        doConversion(); 
+      }
+      
+      savedValue_ = value_; 
+   }
+
+   
+    
 }

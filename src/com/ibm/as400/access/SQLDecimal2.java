@@ -438,4 +438,8 @@ extends SQLDataBase
         return null;
     }
     endif */ 
+    
+    public void saveValue() {
+      savedValue_ = new Double(value_); 
+   }
 }

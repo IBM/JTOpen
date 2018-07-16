@@ -528,5 +528,10 @@ extends SQLDataBase
     endif */ 
     
     // @array
+    
+    public void saveValue() {
+      savedValue_ = new Integer(value_); 
+   }
+
 }
 

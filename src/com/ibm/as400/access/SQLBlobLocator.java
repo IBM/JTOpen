@@ -55,7 +55,8 @@ final class SQLBlobLocator implements SQLLocator
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
     private boolean savedObjectWrittenToServer_ = false; 
-
+    private Object savedValue_; 
+    
     SQLBlobLocator(AS400JDBCConnection connection,
                    int id,
                    int maxLength, 
@@ -923,5 +924,19 @@ endif */
       settings_ = settings; 
     }
 
+    public void saveValue() throws SQLException {
+      if (value_ == null  && savedObject_ != null ) {
+        doConversion(); 
+      }
+      
+      savedValue_ = value_; 
+   }
+
+    public Object getSavedValue() {
+      
+      return savedValue_; 
+    }
+    
+   
 }
 

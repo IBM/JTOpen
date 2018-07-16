@@ -1011,6 +1011,11 @@ Object
       return stmt_.isSigned(param); 
     }
 
+    void setSaveParameterValues(boolean saveParameterValues) {
+      stmt_.setSaveParameterValues(saveParameterValues); 
+      
+    }
+
     
 
     

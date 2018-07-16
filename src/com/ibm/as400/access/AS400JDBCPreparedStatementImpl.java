@@ -138,7 +138,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
                                  // length // @H1A
   private boolean containsArrayParameter_ = false; /* @G7A */
   private boolean preserveParameters_ = false; 
-
+  private boolean saveParameterValues_ = false;   // save the parameters so that can be
+                                             // reset in a Client Affinities environment
+  
   private int containsLocator_ = LOCATOR_UNKNOWN;
   private static final int LOCATOR_UNKNOWN = -1;
   private static final int LOCATOR_NOT_FOUND = 0;
@@ -1274,6 +1276,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           request.setParameterMarkerBlockIndicator(0);
         }
 
+        // Save the values so that can be restored later
+        if (saveParameterValues_) { 
+           parameterRow_.saveValues(); 
+        } 
+        
         // If we are expecting output parameters
         // to be returned, then ask for them as result data.
         if (outputParametersExpected_)
@@ -4854,6 +4861,10 @@ Object
   void setConnectionReset(boolean reset) {
     descriptorHandle_ = 0; 
     super.setConnectionReset(reset); 
+  }
+  
+  void setSaveParameterValues(boolean saveParameterValues) {
+    saveParameterValues_ = saveParameterValues; 
   }
 
 }

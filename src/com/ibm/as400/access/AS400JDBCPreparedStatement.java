@@ -1501,6 +1501,6 @@ Object
   abstract int isNullable(int param) throws SQLException;
   abstract boolean isSigned(int param) throws SQLException; 
   
-  
+  abstract void setSaveParameterValues(boolean saveParameterValues); 
   
 }

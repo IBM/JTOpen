@@ -55,7 +55,7 @@ final class SQLXMLLocator implements SQLLocator
     private int                     columnIndex_;
     private byte[]                  valueBlob_; //@loch //Note that value_ is not used as the output for a ResultSet.getX() call.  We Get the value from a call to the JDLocator (not from value_) and not from the savedObject_, unless resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
     private String                  valueClob_; 
-    
+    private Object                  savedValue_; 
     private Object savedObject_; // This is the AS400JDBCXMLLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
     private boolean savedObjectWrittenToServer_ = false; 
@@ -1184,4 +1184,22 @@ endif */
       settings_ = settings; 
     }
 
+    
+    public void saveValue() throws SQLException {
+      if (valueClob_ == null && valueBlob_ == null   && savedObject_ != null ) {
+        doConversion(); 
+      }
+      if (valueClob_ != null ) {
+        savedValue_ = valueClob_; 
+      } else {
+        savedValue_ = valueBlob_; 
+      }
+      
+   }
+
+    public Object getSavedValue() {
+      
+      return savedValue_; 
+    }
+    
 }

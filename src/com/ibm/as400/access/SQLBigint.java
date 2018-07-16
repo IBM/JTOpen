@@ -474,5 +474,10 @@ endif */
     }
 endif */     
     // @array
+    
+    
+    public void saveValue() {
+      savedValue_ = new Long(value_); 
+   }
 }
 

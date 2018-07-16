@@ -509,4 +509,8 @@ extends SQLDataBase
     endif */ 
     
     // @array
+    
+    public void saveValue() {
+      savedValue_ = new Double(value_); 
+   }
 }

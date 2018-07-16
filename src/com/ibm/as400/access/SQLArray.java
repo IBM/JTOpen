@@ -47,6 +47,7 @@ class SQLArray implements SQLData
                                       //It will reflect the prepare/describe metadata both for DB input and output
     private int elemDataTypeLen_ = 0; //needed for to/fromRawBytes
     private int vrm_;
+    private Object savedValue_ = null; 
     
     SQLArray()
     {
@@ -507,6 +508,12 @@ endif */
     
     }
 
-    
+    public void saveValue() {
+      savedValue_ = values_; 
+   }
+
+    public Object getSavedValue() {
+     return savedValue_; 
+    }
 
 }

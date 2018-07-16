@@ -505,5 +505,9 @@ extends  SQLDataBase
     }
     endif */ 
     
+    
+    public void saveValue() {
+      savedValue_ = new Double(value_); 
+   }
 }
 

@@ -429,5 +429,9 @@ extends SQLDataBase
     }
     endif */ 
     // @array
+    
+    public void saveValue() {
+      savedValue_ = value_; 
+   }
 }
 

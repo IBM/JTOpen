@@ -388,5 +388,17 @@ extends SQLDataBase
     }
     endif */
     // @array
+    
+ 
+    public void saveValue() throws SQLException {
+  
+      
+      savedValue_ = value_; 
+   }
+
+   
+    
+  
+    
 }
 

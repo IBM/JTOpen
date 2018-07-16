@@ -907,5 +907,9 @@ extends SQLDataBase
      
 */
 
+    
+    public void saveValue() throws SQLException {
+      savedValue_ = getObject();  
+    }
 }
 

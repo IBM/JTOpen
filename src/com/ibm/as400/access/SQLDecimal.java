@@ -524,4 +524,9 @@ extends SQLDataBase
         return null;
     }
     endif */ 
+    
+    
+    public void saveValue() {
+      savedValue_ = value_; 
+   }
 }

@@ -504,4 +504,9 @@ extends SQLDataBase
     }
     endif */ 
     
+    
+    public void saveValue() {
+      savedValue_ = new Float(value_); 
+   }
+
 }

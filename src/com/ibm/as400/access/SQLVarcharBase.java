@@ -509,5 +509,9 @@ extends SQLDataBase  implements SQLVariableCompressible
     }
     endif */ 
     
+    public void saveValue() {
+       savedValue_ = value_; 
+    }
+    
 }
 

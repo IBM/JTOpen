@@ -487,5 +487,10 @@ extends SQLDataBase
         return null;
     }
     endif */ 
+    
+    public void saveValue() {
+      savedValue_ = new Short(value_); 
+   }
+
 }
 

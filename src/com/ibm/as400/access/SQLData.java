@@ -609,5 +609,17 @@ extends Cloneable
     throws SQLException;
 
     public abstract void updateSettings(SQLConversionSettings settings);
+    
+    /**
+     * Save the current value.  Called before the statement is executed so that
+     * the previous value can be restored if the statement needs to be 
+     * seamlessly re-executed 
+     */
+    public abstract void saveValue() throws SQLException; 
 
+    /**
+     * Obtain the save value.  All values are "wrapped" to the corresponding Java type
+     */
+    public abstract Object getSavedValue(); 
+    
 }

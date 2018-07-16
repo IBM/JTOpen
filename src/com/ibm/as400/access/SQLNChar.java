@@ -456,5 +456,8 @@ extends SQLDataBase
     }
 endif */ 
 
+    public void saveValue() {
+      savedValue_ = originalValue_; 
+   }
 }
 

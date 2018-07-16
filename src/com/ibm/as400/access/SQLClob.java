@@ -547,5 +547,11 @@ endif */
     endif */ 
 
     // @array
+    public void saveValue() throws SQLException {
+      if(savedObject_ != null && value_ == null )  { 
+        doConversion();
+      }
+      savedValue_ = value_; 
+   }
 }
 

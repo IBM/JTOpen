@@ -607,5 +607,10 @@ final class SQLBlob extends SQLDataBase
     }
    endif */ 
     // @array
+    
+    public void saveValue() throws SQLException {
+      if(savedObject_ != null) doConversion();
+      savedValue_ = value_; 
+   }
 }
 
