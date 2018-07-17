@@ -34,7 +34,9 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
       retry = false;
       try {
         AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.executeQuery(sql);
-        rs.setStatement(this); 
+        if (rs != null) { 
+           rs.setStatement(this);
+        }
         return rs; 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
@@ -167,7 +169,9 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
 
   public ResultSet getResultSet() throws SQLException {
     AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.getResultSet();
-    rs.setStatement(this); 
+    if (rs != null) { 
+       rs.setStatement(this);
+    }
     return  rs; 
   }
 
@@ -569,7 +573,9 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
       retry = false;
       try {
         AS400JDBCResultSet rs = (AS400JDBCResultSet) stmt_.executeQuery();
-        rs.setStatement(this); 
+        if (rs != null) { 
+           rs.setStatement(this);
+        }
         return rs; 
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
