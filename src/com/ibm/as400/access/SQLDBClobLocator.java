@@ -46,7 +46,9 @@ final class SQLDBClobLocator implements SQLLocator
     private int                     columnIndex_;
     private String                  value_; //@loch //Note that value_ is not used as the output for a ResultSet.getX() call.  We Get the value from a call to the JDLocator (not from value_) and not from the savedObject_, unless resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
     private String                  savedValue_; 
-    private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
+    private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or 
+                                 // whatever got set into us.
+                                 // After the object is written to the server, this will be a string
     private int scale_; // This is actually the length that got set into us.
     private boolean savedObjectWrittenToServer_ = false; 
 
@@ -243,9 +245,15 @@ final class SQLDBClobLocator implements SQLLocator
             }
             else if(length > 0)
             {
-                try
-                {
+               
                     int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+
+                    String string = JDUtilities.readerToString((Reader)savedObject_);
+                    savedObject_ = string; 
+
+                   
+                    
+                    
                     int bidiStringType = settings_.getBidiStringType();
                     if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
                              
@@ -253,45 +261,41 @@ final class SQLDBClobLocator implements SQLLocator
                     bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
                     bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
-                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); //@KBC changed to use bidiConversionProperties instead of bidiStringType
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 && totalBytesRead < length)
-                    {
-                        locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.      //@K1C  //@K2C totalBytesRead is our offset (offset should be in number of characters, not bytes)
-                        totalBytesRead += bytesRead;
-                        int bytesRemaining = length - totalBytesRead;
-                        if(bytesRemaining < blockSize)
-                        {
-                            blockSize = bytesRemaining;
-                            if(stream.available() == 0 && blockSize != 0)
-                            {
-                                stream.close(); //@scan1
-                                stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); // do this so we don't read more chars out of the Reader than we have to. //@KBC changed to use bidiConversionProperties instead of bidiStringType
-                            }
-                        }
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    byte[] bytes = converter_.stringToByteArray(string, bidiConversionProperties);  
+
+                    
+                    
+                    int totalBytesWritten = 0;
+                    int bytesToWrite =  blockSize;
+                    int totalLengthToWrite = length; 
+                    if (bytes.length < totalLengthToWrite) {
+                      totalLengthToWrite = bytes.length; 
                     }
-                    
-                    stream.close(); //@scan1
-                    
-                    if(totalBytesRead < length)
+                    while((bytesToWrite > 0) && 
+                          (totalBytesWritten < totalLengthToWrite)) {
+                        
+                        locator_.writeData((long)(totalBytesWritten / 2), bytes, totalBytesWritten, bytesToWrite, true); // totalBytesRead is our offset.  @K1C
+                        totalBytesWritten += bytesToWrite;
+                        int bytesRemaining = totalLengthToWrite - totalBytesWritten;
+                        if(bytesRemaining < bytesToWrite)   {
+                            bytesToWrite = bytesRemaining;
+                        }
+                    }
+
+                    if(totalBytesWritten < length)
                     {
                         // a length longer than the stream was specified
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
+                
+               
             }
             else if(length == -4) //@readerlen new else-if block (read all data) (-2 * 2)
             {
-                try
-                {
                     int blockSize =  AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                    String string = JDUtilities.readerToString((Reader)savedObject_);
+                    savedObject_ = string; 
+
                     int bidiStringType = settings_.getBidiStringType();
                     if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
                              
@@ -299,25 +303,29 @@ final class SQLDBClobLocator implements SQLLocator
                     bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
                     bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
-                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); //@KBC changed to use bidiConversionProperties instead of bidiStringType
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1)
-                    {
-                        locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.      //@K1C  //@K2C totalBytesRead is our offset (offset should be in number of characters, not bytes)
-                        totalBytesRead += bytesRead;
-  
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
+                    byte[] bytes = converter_.stringToByteArray(string, bidiConversionProperties);  
+
                     
-                    stream.close(); //@scan1
+                    
+                    int totalBytesWritten = 0;
+                    int bytesToWrite =  blockSize;
+                    int totalLengthToWrite = bytes.length; 
+                    
+                    while((bytesToWrite > 0) && 
+                          (totalBytesWritten < totalLengthToWrite)) {
+                        
+                        locator_.writeData((long)(totalBytesWritten / 2), bytes, totalBytesWritten, bytesToWrite, true); // totalBytesRead is our offset.  @K1C
+                        totalBytesWritten += bytesToWrite;
+                        int bytesRemaining = totalLengthToWrite - totalBytesWritten;
+                        if(bytesRemaining < bytesToWrite)   {
+                            bytesToWrite = bytesRemaining;
+                        }
+                    }
+
+                    
+                    
                    
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
+                
             }
             else
             {

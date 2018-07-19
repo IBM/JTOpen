@@ -36,7 +36,7 @@ import java.util.Calendar;
 //@xml3 new class
 //sending xml to host, this class acts like BlobLocator
 //reading xml from host, this class acts like ClobLocator
-final class SQLXMLLocator implements SQLLocator
+final class SQLXMLLocator extends SQLLocatorBase
 {
     static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
@@ -60,6 +60,8 @@ final class SQLXMLLocator implements SQLLocator
     private int scale_; // This is actually the length that got set into us.
     private boolean savedObjectWrittenToServer_ = false; 
     private int xmlType_; //@xml3 0=SB 1=DB 2=binary XML
+
+    private boolean inputStreamRead_ = false;
 
     SQLXMLLocator(AS400JDBCConnection connection,
                    int id,
@@ -174,15 +176,16 @@ final class SQLXMLLocator implements SQLLocator
     private void doConversion()
     throws SQLException
     {
+      
         valueClob_ = null;
         valueBlob_ = null;
-        int length_ = scale_;
+        int length = scale_;
 
-        if( length_ == -1)
+        if( length == -1)
         {
             try{
                 //try to get length from locator
-                length_ = (int)locator_.getLength();        
+                length = (int)locator_.getLength();        
             }catch(Exception e){ }
         }
         
@@ -196,7 +199,7 @@ final class SQLXMLLocator implements SQLLocator
             }
             else if(savedObject_ instanceof Reader)
             {
-              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length_, this); 
+              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length, this); 
             }
             else if( savedObject_ instanceof Clob)  
             {
@@ -226,36 +229,13 @@ final class SQLXMLLocator implements SQLLocator
             }
             else if(savedObject_ instanceof InputStream)
             {
-                int length = scale_; 
+                length = scale_; 
                 if(length >= 0)
                 {
                     InputStream stream = (InputStream)savedObject_;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    byte[] byteBuffer = new byte[blockSize];
-                    try
-                    {
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1 && totalBytesRead < length)
-                        {
-                            baos.write(byteBuffer, 0, bytesRead);
-                            totalBytesRead += bytesRead;
-                            int bytesRemaining = length - totalBytesRead;
-                            if(bytesRemaining < blockSize)
-                            {
-                                blockSize = bytesRemaining;
-                            }
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        }
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
-                    }
                     
-                    valueBlob_ = baos.toByteArray();
-
+                    valueBlob_ = readInputStream(stream, length, null, false);
+                    inputStreamRead_ = true; 
                     if(valueBlob_.length < length)
                     {
                         // a length longer than the stream was specified
@@ -274,28 +254,9 @@ final class SQLXMLLocator implements SQLLocator
                 else if(length == ALL_READER_BYTES )//@readerlen new else-if block (read all data)
                 {
                     InputStream stream = (InputStream)savedObject_;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    byte[] byteBuffer = new byte[blockSize];
-                    try
-                    {
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1)
-                        {
-                            baos.write(byteBuffer, 0, bytesRead);
-                            totalBytesRead += bytesRead;
-                          
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        }
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
-                    }
+                    valueBlob_ = readInputStream(stream, length, null, false);
+                    inputStreamRead_ = true; 
                     
-                    valueBlob_ = baos.toByteArray();
-
                     int objectLength = valueBlob_.length;
                     if(objectLength > maxLength_)
                     {
@@ -334,8 +295,9 @@ final class SQLXMLLocator implements SQLLocator
     private void writeToServer()
     throws SQLException
     {
-        if(savedObject_ instanceof byte[])
-        {
+        if (inputStreamRead_) {
+          locator_.writeData(0, valueBlob_, true);   
+        } else  if(savedObject_ instanceof byte[]) {
             byte[] bytes = (byte[])savedObject_;        
             locator_.writeData(0, bytes, true);   
         }
@@ -348,71 +310,33 @@ final class SQLXMLLocator implements SQLLocator
             // Need to write even if there are 0 bytes in case we are batching and
             // the host server reuses the same handle for the previous locator; otherwise,
             // we'll have data in the current row from the previous row.
-            if (length == 0) 
-            {
+            if (length == 0)      {
               locator_.writeData(0, new byte[0], 0, 0, true);  
             }
             else if(length > 0)
             {
                 InputStream stream = (InputStream)savedObject_;
-                int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                byte[] byteBuffer = new byte[blockSize];
-                try
-                {
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 && totalBytesRead < length)
-                    {
-                        if(xmlType_ == 1)
-                            locator_.writeData(totalBytesRead/2, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.
-                        else
-                            locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead, true); 
-                        totalBytesRead += bytesRead;
-                        int bytesRemaining = length - totalBytesRead;
-                        if(bytesRemaining < blockSize)
-                        {
-                            blockSize = bytesRemaining;
-                        }
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-
-                    if(totalBytesRead < length)
+                valueBlob_ = readInputStream(stream, length, locator_, false);
+               inputStreamRead_ = true; 
+                    if(valueBlob_.length < length)
                     {
                         // a length longer than the stream was specified
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
+                
+                
             }
             else if(length == ALL_READER_BYTES) //@readerlen new else-if block (read all data)
             {
-                InputStream stream = (InputStream)savedObject_;
-                int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                byte[] byteBuffer = new byte[blockSize];
-                try
-                {
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 )
-                    {
-                        if(xmlType_ == 1)
-                            locator_.writeData(totalBytesRead/2, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.
-                        else
-                            locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead, true); 
-                        totalBytesRead += bytesRead;
-                       
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
-            }
+              InputStream stream = (InputStream)savedObject_;
+              boolean doubleByteOffset = false; 
+              if (xmlType_ == 1) { 
+                doubleByteOffset = true; 
+              }
+              valueBlob_ = readInputStream(stream, length, locator_, doubleByteOffset);
+              inputStreamRead_ = true; 
+              
+                         }
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -452,8 +376,7 @@ final class SQLXMLLocator implements SQLLocator
                 locator_.writeData(0, data, 0, length, true); 
             }
         }
-        else if(savedObject_ instanceof String)
-        {
+        else if(savedObject_ instanceof String)    {
                 String string = (String)savedObject_;
                 byte[] bytes;
                 if(JDUtilities.hasXMLDeclaration(string))                                 //@xmlutf8
@@ -464,120 +387,47 @@ final class SQLXMLLocator implements SQLLocator
                 else                                                          //@xmlutf8
                     bytes = unicodeUtf8Converter_.stringToByteArray(string);  //@xmlutf8
                 locator_.writeData(0L, bytes, true); 
-        }
-        else if(savedObject_ instanceof Reader)
-        {
+        } else if(savedObject_ instanceof Reader) {
             int length = scale_; // hack to get the length into the set method
             // Need to write even if there are 0 bytes in case we are batching and
             // the host server reuses the same handle for the previous locator; otherwise,
             // we'll have data in the current row from the previous row.
-            if (length == 0) 
-            {
+            if (length == 0)        {
               locator_.writeData(0, new byte[0], 0, 0, true);  
+            }  else if(length > 0)      {
+                           
+              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length, this);
+              String string = valueClob_; 
+              savedObject_ = valueClob_; 
+              byte[] bytes;
+              if(JDUtilities.hasXMLDeclaration(valueClob_))   {                               //@xmlutf8              
+                  string = JDUtilities.handleXMLDeclarationEncoding(string); //if encoding is non utf-16 then remove to match Java Strings  //@xmlutf16
+                  bytes = unicodeConverter_.stringToByteArray(string); //just get bytes
+              } else {                                                          //@xmlutf8
+                  bytes = unicodeUtf8Converter_.stringToByteArray(string);  //@xmlutf8
+              }
+              locator_.writeData(0L, bytes, true); 
+
+              if(bytes.length < length)        {
+                  // a length longer than the stream was specified
+                  JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+              }
+              
             }
-            else if(length > 0)
-            {
-                //@xmlutf8 (for reader and stream, don't do any conversion)
-                //@xmlutf8 added code here similar to SQLBlob.set() for Reader input.
-                byte[] bytes = null;
+            else if(length == ALL_READER_BYTES) { //@readerlen new else-if block (read all data)
+              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length, this);
+              String string = valueClob_; 
+              savedObject_ = valueClob_; 
+              byte[] bytes;
+              if(JDUtilities.hasXMLDeclaration(valueClob_))                                 //@xmlutf8
+              {
+                  string = JDUtilities.handleXMLDeclarationEncoding(string); //if encoding is non utf-16 then remove to match Java Strings  //@xmlutf16
+                  bytes = unicodeConverter_.stringToByteArray(string); //just get bytes
+              }
+              else                                                          //@xmlutf8
+                  bytes = unicodeUtf8Converter_.stringToByteArray(string);  //@xmlutf8
+              locator_.writeData(0L, bytes, true); 
 
-                try
-                {
-                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    //assume reader is utf-8 since setAsciiStream() 
-                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, unicodeUtf8Converter_.getCcsid(), null, blockSize); //@xmlreader
-                    
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 && totalBytesRead < length)
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                        int bytesRemaining = length - totalBytesRead;
-                        if(bytesRemaining < blockSize)
-                        {
-                            blockSize = bytesRemaining;
-                        }
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-
-                    bytes = baos.toByteArray();
-
-                    if(bytes.length < length)
-                    {
-                        // a length longer than the stream was specified
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                    }
-
-                    int objectLength = bytes.length;
-                    if(objectLength > maxLength_)
-                    {
-                        byte[] newValue = new byte[maxLength_];
-                        System.arraycopy(bytes, 0, newValue, 0, maxLength_);
-                        bytes = newValue;
-                    }
-                    stream.close(); //@scan1
-                    locator_.writeData(0, bytes, true);   
-                }
-                catch(ExtendedIOException eie)
-                {
-                    // the Reader contains bad chars that can't convert
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
-                }  
-            }
-            else if(length == ALL_READER_BYTES) //@readerlen new else-if block (read all data)
-            {
-                byte[] bytes = null;
-
-                try
-                {
-                    int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    //assume reader is utf-8 since setAsciiStream()
-                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, unicodeUtf8Converter_.getCcsid(), null,  blockSize); //@xmlreader
-                   
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1)
-                    {
-                        baos.write(byteBuffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                        
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-
-                    bytes = baos.toByteArray();
-                    
-                    int objectLength = bytes.length;
-                    if(objectLength > maxLength_)
-                    {
-                        byte[] newValue = new byte[maxLength_];
-                        System.arraycopy(bytes, 0, newValue, 0, maxLength_);
-                        bytes = newValue;
-                    }
-                    stream.close(); //@scan1
-                    locator_.writeData(0, bytes, true);   
-                }
-                catch(ExtendedIOException eie)
-                {
-                    // the Reader contains bad chars that can't convert
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
-                }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
-                }  
-            }
-            else
-            {
-                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
         else if( savedObject_ instanceof Clob) //jdbc40 NClob isa Clob
@@ -625,7 +475,7 @@ final class SQLXMLLocator implements SQLLocator
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
-        /* ifdef JDBC40  
+/* ifdef JDBC40  
         else if( savedObject_ instanceof SQLXML ) //@olddesc
         {
            SQLXML xml = (SQLXML)savedObject_;

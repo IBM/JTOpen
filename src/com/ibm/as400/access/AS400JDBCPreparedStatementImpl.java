@@ -1278,7 +1278,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
         // Save the values so that can be restored later
         if (saveParameterValues_) { 
-           parameterRow_.saveValues(); 
+           if (parameterRow_ != null) { 
+              parameterRow_.saveValues(); 
+           }  
         } 
         
         // If we are expecting output parameters

@@ -909,7 +909,9 @@ extends SQLDataBase
 
     
     public void saveValue() throws SQLException {
-      savedValue_ = getObject();  
+      savedValue_ = buildString(year_ , month_, day_, hour_,
+          minute_, second_, picos_, length_, 
+          settings_);
     }
 }
 
