@@ -250,26 +250,22 @@ final class SQLDBClobLocator implements SQLLocator
 
                     String string = JDUtilities.readerToString((Reader)savedObject_);
                     savedObject_ = string; 
-
-                   
-                    
                     
                     int bidiStringType = settings_.getBidiStringType();
                     if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
-                             
                     BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
                     bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
                     bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
                     byte[] bytes = converter_.stringToByteArray(string, bidiConversionProperties);  
-
-                    
-                    
                     int totalBytesWritten = 0;
                     int bytesToWrite =  blockSize;
                     int totalLengthToWrite = length; 
                     if (bytes.length < totalLengthToWrite) {
                       totalLengthToWrite = bytes.length; 
+                    }
+                    if(totalLengthToWrite < bytesToWrite)   {
+                      bytesToWrite = totalLengthToWrite;
                     }
                     while((bytesToWrite > 0) && 
                           (totalBytesWritten < totalLengthToWrite)) {
@@ -281,14 +277,11 @@ final class SQLDBClobLocator implements SQLLocator
                             bytesToWrite = bytesRemaining;
                         }
                     }
-
                     if(totalBytesWritten < length)
                     {
                         // a length longer than the stream was specified
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
-                
-               
             }
             else if(length == -4) //@readerlen new else-if block (read all data) (-2 * 2)
             {
@@ -304,12 +297,12 @@ final class SQLDBClobLocator implements SQLLocator
                     bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
                     byte[] bytes = converter_.stringToByteArray(string, bidiConversionProperties);  
-
-                    
-                    
                     int totalBytesWritten = 0;
                     int bytesToWrite =  blockSize;
                     int totalLengthToWrite = bytes.length; 
+                    if(totalLengthToWrite < bytesToWrite)   {
+                      bytesToWrite = totalLengthToWrite;
+                    }
                     
                     while((bytesToWrite > 0) && 
                           (totalBytesWritten < totalLengthToWrite)) {

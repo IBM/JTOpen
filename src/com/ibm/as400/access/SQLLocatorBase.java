@@ -30,7 +30,15 @@ abstract class SQLLocatorBase implements SQLLocator
 
   static  byte[] readInputStream(InputStream stream, int length,
       JDLobLocator locator, boolean doubleByteOffset ) throws SQLException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ByteArrayOutputStream baos;
+    if (length > 256 && length < 1048576) {
+      baos = new ByteArrayOutputStream(length);
+    } else if (length >= 1048576) {
+      baos = new ByteArrayOutputStream(1048576);
+    } else { 
+      baos = new ByteArrayOutputStream();
+    }
+    
     int blockSize;
     if ((length <= 0) || (length >= AS400JDBCPreparedStatement.LOB_BLOCK_SIZE)) {
       blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
@@ -65,7 +73,9 @@ abstract class SQLLocatorBase implements SQLLocator
       JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
     }
 
-    return baos.toByteArray();
+    byte[] returnArray = baos.toByteArray();
+    baos.reset(); 
+    return returnArray; 
 
   }
 

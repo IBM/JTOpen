@@ -266,18 +266,18 @@ final class SQLXMLLocator extends SQLLocatorBase
                     }
                   //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
                 }
-                /* ifdef JDBC40 
-                else if( savedObject_ instanceof SQLXML ) 
-                {
-                    SQLXML xml = (SQLXML)savedObject_;
-                    valueClob_ = xml.getString();
-                }
-                endif */
                 else
                 {
                     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
+            /* ifdef JDBC40 
+            else if( savedObject_ instanceof SQLXML ) 
+            {
+                SQLXML xml = (SQLXML)savedObject_;
+                valueClob_ = xml.getString();
+            }
+            endif */
             else
             {
                 JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
