@@ -1115,8 +1115,13 @@ endif */
         (AS400JDBCCallableStatement) currentConnection_.prepareCall(this, sql, resultSetType,
             resultSetConcurrency);
         stmt.setSaveParameterValues(true); 
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCCallableStatementRedirect(stmt);
+        } else {
+          return stmt; 
+        }
 
-        return stmt; 
+        
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
@@ -1131,8 +1136,17 @@ endif */
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        return currentConnection_.prepareCall(this, sql, resultSetType,
+        AS400JDBCCallableStatement stmt=
+            (AS400JDBCCallableStatement) currentConnection_.prepareCall(this, sql, resultSetType,
             resultSetConcurrency, resultSetHoldability);
+        stmt.setSaveParameterValues(true); 
+       
+        if (enableSeamlessFailover_) { 
+          return new AS400JDBCCallableStatementRedirect(stmt);
+        } else {
+          return stmt; 
+        }
+        
       } catch (SQLException e) {
         retryOperation = handleException(e);
       }
