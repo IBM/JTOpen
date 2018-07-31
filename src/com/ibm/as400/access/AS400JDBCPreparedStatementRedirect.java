@@ -1781,6 +1781,7 @@ Object
     
     
     public void setSQLXML(int parameterIndex, SQLXML xml) throws SQLException {
+    int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
     while (true) {
       try {
       stmt_.setSQLXML(parameterIndex, xml); 
@@ -1804,6 +1805,7 @@ Object
     
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
+    int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
     while (true) {
       try {
       stmt_.setRowId(parameterIndex, x); 
