@@ -6164,14 +6164,16 @@ endif */
   /** 
    * mark the statements so they know that the connection was reset.
    * If the connection is reset, any prepared statements will be
-   * lazily reprepard.  
+   * lazily reprepared.
+   * Also see the transaction manager for the statement.
    */
-  void resetStatements() {
+  void resetStatements(JDTransactionManager tm) {
     if (statements_ != null) { 
     Enumeration statementsEnum = statements_.elements(); 
     while (statementsEnum.hasMoreElements()){
       AS400JDBCStatement statement = (AS400JDBCStatement) statementsEnum.nextElement(); 
       statement.setConnectionReset(true);  
+      statement.transactionManager_ = tm; 
     }
     }
   }

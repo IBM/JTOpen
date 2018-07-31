@@ -82,6 +82,7 @@ extends AS400JDBCConnection {
   private int     networkTimeout_; 
   
   private boolean lastConnectionCanSeamlessFailover_ = false; 
+  private boolean topLevelApi_ = false; 
   
   /** 
    * Default constructor reserved for use within package
@@ -269,6 +270,8 @@ extends AS400JDBCConnection {
           newConnection.setClientInfo(key, value); 
         }
      }
+     /* Make sure the work is committed */ 
+     newConnection.commit(); 
   }
   
   
@@ -305,17 +308,24 @@ extends AS400JDBCConnection {
     } finally { 
       doNotHandleErrors_ = false; 
     }
-    currentConnection_.resetStatements(); 
+    // Reset the statements and point them to the new transaction manager
+    currentConnection_.resetStatements(newConnection.transactionManager_); 
 
     // Need to fix up all the objects associated with the old connection and transfer them to 
     // the new connection.   As part of this, all existing result sets will be closed. 
     currentConnection_.transferObjects(newConnection); 
     currentConnection_ = newConnection; 
     
+    if ( lastConnectionCanSeamlessFailover_ && topLevelApi_) {
+      // For a topLevelApi_ we can return true and have the connection
+      // object retry. 
+      return true; 
+    } else { 
     throwException_ = true; 
     JDError.throwSQLException (this, JDError.EXC_CONNECTION_REESTABLISHED, e);
 
     return false; 
+    }
   }
   /** 
    * Find and enable a new connection to the server. 
@@ -577,12 +587,19 @@ endif */
 
   public void commit() throws SQLException {
     boolean retryOperation = true;
+    int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
     while (retryOperation) {
       try {
         currentConnection_.commit();
         retryOperation = false;
       } catch (SQLException e) {
+        if (retryCount > 0) { 
+           topLevelApi_ = true; 
+        }
         retryOperation = handleException(e);
+        retryCount--; 
+      } finally {
+        topLevelApi_ = false; 
       }
     }
 
