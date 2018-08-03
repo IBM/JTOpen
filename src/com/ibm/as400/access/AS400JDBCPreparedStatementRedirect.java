@@ -746,6 +746,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
   public void setAsciiStream(int parameterIndex, InputStream x, int length)
       throws SQLException {
     int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+
     while (true) {
       try {
         stmt_.setAsciiStream(parameterIndex, x, length);
@@ -789,12 +790,14 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
 
   }
 
-  public void setBinaryStream(int parameterIndex, InputStream x, int length)
+  public void setBinaryStream(int parameterIndex, InputStream stream, int length)
       throws SQLException {
     int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+    byte[] value = SQLLocatorBase.readInputStream(stream, length,null, false);
+
     while (true) {
       try {
-        stmt_.setBinaryStream(parameterIndex, x, length);
+        stmt_.setBytes(parameterIndex, value);
         return;
       } catch (AS400JDBCTransientException e) {
         if (connection_.canSeamlessFailover()) {
@@ -1244,9 +1247,11 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     
     public void setBinaryStream(int parameterIndex, InputStream stream) throws SQLException {
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+      byte[] value = SQLLocatorBase.readInputStream(stream, Integer.MAX_VALUE,null, false);
+
       while (true) {
         try {
-          stmt_.setBinaryStream(parameterIndex,  stream); 
+          stmt_.setBytes(parameterIndex,  value); 
           return;
         } catch (AS400JDBCTransientException e) {
           if (connection_.canSeamlessFailover()) {
@@ -1267,9 +1272,11 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     public void setBinaryStream(int parameterIndex, InputStream stream, long length)
         throws SQLException {
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+      byte[] value = SQLLocatorBase.readInputStream(stream, (int) length,null, false);
+
       while (true) {
         try {
-          stmt_.setBinaryStream(parameterIndex,  stream, length); 
+          stmt_.setBytes(parameterIndex,value); 
           return;
         } catch (AS400JDBCTransientException e) {
           if (connection_.canSeamlessFailover()) {
@@ -1289,9 +1296,11 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     
     public void setBlob(int parameterIndex, InputStream stream) throws SQLException {
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+      byte[] value = SQLLocatorBase.readInputStream(stream, Integer.MAX_VALUE,null, false);
+
       while (true) {
         try {
-          stmt_.setBlob(parameterIndex,  stream); 
+          stmt_.setBytes(parameterIndex,  value); 
           return;
         } catch (AS400JDBCTransientException e) {
           if (connection_.canSeamlessFailover()) {
@@ -1312,9 +1321,12 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     public void setBlob(int parameterIndex, InputStream stream, long length)
         throws SQLException {
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+      // In the case of an input stream, we need to save the data for the retry,  
+      byte[] value = SQLLocatorBase.readInputStream(stream, (int) length,null, false);
+
       while (true) {
         try {
-          stmt_.setBlob(parameterIndex,  stream, length); 
+          stmt_.setBytes(parameterIndex,  value); 
           return;
         } catch (AS400JDBCTransientException e) {
           if (connection_.canSeamlessFailover()) {

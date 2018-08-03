@@ -183,12 +183,21 @@ endif*/
             }
             else if(object instanceof Reader)
             {
-              value_ = SQLDataBase.getStringFromReader((Reader)object, length_, this); 
+              value_ = SQLDataBase.getStringFromReader((Reader)object, length_, this);
+              savedObject_ = value_; 
             }
             else if( object instanceof Clob)  
             {
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
+            }
+            else if (object instanceof InputStream) { 
+              if (length_ > 0) { 
+                  value_ = JDUtilities.streamToString((InputStream) object, length_, "UTF-8");
+              } else {
+                  value_ = JDUtilities.streamToString((InputStream) object, "UTF-8");
+              }
+              savedObject_ = value_; 
             }
             /* ifdef JDBC40 
             else if( object instanceof SQLXML ) 

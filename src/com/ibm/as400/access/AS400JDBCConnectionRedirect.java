@@ -570,14 +570,23 @@ endif */
 
   public void close() throws SQLException {
     boolean retryOperation = true;
+    int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
     while (retryOperation) {
       try {
         currentConnection_.close();
         retryOperation = false;
       } catch (SQLException e) {
+        if (retryCount > 0) { 
+           topLevelApi_ = true; 
+        }
         retryOperation = handleException(e);
+        retryCount--; 
+      } finally {
+        topLevelApi_ = false; 
       }
     }
+
+    
   }
 
   public void handleAbort() {
@@ -607,7 +616,6 @@ endif */
 
   public void setCheckStatementHoldability(boolean check) {
     currentConnection_.setCheckStatementHoldability(check);
-
   }
 
   public int correctResultSetType(int resultSetType, int resultSetConcurrency)
@@ -626,7 +634,9 @@ endif */
   }
 
   public Statement createStatement() throws SQLException {
+    
     boolean retryOperation = true;
+    int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
     while (retryOperation) {
       try {
         AS400JDBCStatement newStatement = (AS400JDBCStatement) currentConnection_.createStatement(this);
@@ -636,11 +646,21 @@ endif */
           return newStatement; 
         }
       } catch (SQLException e) {
+        if (retryCount > 0) { 
+           topLevelApi_ = true; 
+        }
         retryOperation = handleException(e);
+        retryCount--; 
+      } finally {
+        topLevelApi_ = false; 
       }
     }
-    JDError.throwSQLException(JDError.EXC_INTERNAL); /* should not be reached */
-    return null;
+    // This code will never be reached
+    // When retry count = 0 then topLevelApi_ is false and
+    // handleException will throw an exception. 
+    return null; 
+    
+    
   }
 
   public Statement createStatement(int resultSetType, int resultSetConcurrency)
