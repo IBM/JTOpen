@@ -1708,8 +1708,24 @@ Object
     }
 
     int findParameterIndex(String s) throws SQLException {
-      return stmt_.findParameterIndex(s); 
-      
+      int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+      while (true) {
+        try {
+          return stmt_.findParameterIndex(s); 
+        } catch (AS400JDBCTransientException e) {
+          if (connection_.canSeamlessFailover()) {
+            retryCount--;
+            if (retryCount >= 0) {
+              // keep trying in loop
+            } else {
+              throw e;
+            }
+          } else {
+            throw e;
+          }
+        }
+      } /* retry */
+
     }
 
     int getParameterCcsid(int p) throws SQLException {

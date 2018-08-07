@@ -784,6 +784,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
 
 <A NAME="alternate"></A>
 <h3>Alternate server properties</h3>
+
+<p>The properties were added in JTOpen 9.6</p>
 <p>These properties are used to enable the JDBC driver to connect to an 
 alternate server if the connection to the current server is lost.</p>
 <p>In the case of a dropped connection, the JDBC Connection object 
@@ -861,6 +863,7 @@ current server is unavailable.</p>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat7">&quot;affinityFailbackInterval&quot;</TD>
     <TD HEADERS="cat7t2">
+<p>This property is not supported until JTOpen 9.7
 <p>Specifies the length of the interval, in seconds, that the JTOpen JDBC Driver 
 waits between attempts to fail back an existing connection to the primary server. 
 A value that is less than or equal to 0 means that the connection does not fail back.</p>  
@@ -938,6 +941,8 @@ retryIntervalForClientReroute is 0 (no wait).</p>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat7">&quot;enableSeamlessFailover&quot;</TD>
     <TD HEADERS="cat7t2">
+<p>This feature is not yet fully implemented in JTOpen 9.6.   If you choose to try this feature, please 
+post problems you encounter using the bugs page for JTOpen at https://sourceforge.net/p/jt400/bugs/.
 <p>Specifies whether the JTOpen JDBC driver uses seamless failover for 
 client reroute.  This setting is only used if the &quot;enableClientAffinitiesList&quot; 
 property is set to 1.</p> 

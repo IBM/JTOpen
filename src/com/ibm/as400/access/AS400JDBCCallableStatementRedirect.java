@@ -19,6 +19,7 @@ public class AS400JDBCCallableStatementRedirect extends
     cstmt_ = stmt;
   }
 
+  
   public void registerOutParameter(int parameterIndex, int sqlType)
       throws SQLException {
     cstmt_.registerOutParameter(parameterIndex, sqlType);
@@ -137,19 +138,19 @@ public class AS400JDBCCallableStatementRedirect extends
 
   public void registerOutParameter(String parameterName, int sqlType)
       throws SQLException {
-    cstmt_.registerOutParameter(parameterName, sqlType);
+    registerOutParameter(findParameterIndex(parameterName), sqlType);
 
   }
 
   public void registerOutParameter(String parameterName, int sqlType, int scale)
       throws SQLException {
-    cstmt_.registerOutParameter(parameterName, sqlType, scale);
+    registerOutParameter(findParameterIndex(parameterName), sqlType, scale);
 
   }
 
   public void registerOutParameter(String parameterName, int sqlType,
       String typeName) throws SQLException {
-    cstmt_.registerOutParameter(parameterName, sqlType, typeName);
+    registerOutParameter(findParameterIndex(parameterName), sqlType, typeName);
 
   }
 
@@ -158,232 +159,208 @@ public class AS400JDBCCallableStatementRedirect extends
   }
 
   public void setURL(String parameterName, URL val) throws SQLException {
-    cstmt_.setURL(parameterName, val);
-
+    setURL(findParameterIndex(parameterName), val);
   }
 
   public void setNull(String parameterName, int sqlType) throws SQLException {
-    cstmt_.setNull(parameterName, sqlType);
-
+    setNull(findParameterIndex(parameterName), sqlType);
   }
 
   public void setBoolean(String parameterName, boolean x) throws SQLException {
-    cstmt_.setBoolean(parameterName, x);
-
+    setBoolean(findParameterIndex(parameterName), x);
   }
 
   public void setByte(String parameterName, byte x) throws SQLException {
-    cstmt_.setByte(parameterName, x);
-
+    setByte(findParameterIndex(parameterName), x);
   }
 
   public void setShort(String parameterName, short x) throws SQLException {
-    cstmt_.setShort(parameterName, x);
-
+    setShort(findParameterIndex(parameterName), x);
   }
 
   public void setInt(String parameterName, int x) throws SQLException {
-    cstmt_.setInt(parameterName, x);
-
+    setInt(findParameterIndex(parameterName), x);
   }
 
   public void setLong(String parameterName, long x) throws SQLException {
-    cstmt_.setLong(parameterName, x);
+    setLong(findParameterIndex(parameterName), x);
 
   }
 
   public void setFloat(String parameterName, float x) throws SQLException {
-    cstmt_.setFloat(parameterName, x);
-
+    setFloat(findParameterIndex(parameterName), x);
   }
 
   public void setDouble(String parameterName, double x) throws SQLException {
-    cstmt_.setDouble(parameterName, x);
-
+    setDouble(findParameterIndex(parameterName), x);
   }
 
   public void setBigDecimal(String parameterName, BigDecimal x)
       throws SQLException {
-    cstmt_.setBigDecimal(parameterName, x);
-
+    setBigDecimal(findParameterIndex(parameterName), x);
   }
 
   public void setString(String parameterName, String x) throws SQLException {
-    cstmt_.setString(parameterName, x);
-
+    setString(findParameterIndex(parameterName), x);
   }
 
   public void setBytes(String parameterName, byte[] x) throws SQLException {
-    cstmt_.setBytes(parameterName, x);
-
+    setBytes(findParameterIndex(parameterName), x);
   }
 
   public void setDate(String parameterName, Date x) throws SQLException {
-    cstmt_.setDate(parameterName, x);
-
+    setDate(findParameterIndex(parameterName), x);
   }
 
   public void setTime(String parameterName, Time x) throws SQLException {
-    cstmt_.setTime(parameterName, x);
-
+    setTime(findParameterIndex(parameterName), x);
   }
 
   public void setTimestamp(String parameterName, Timestamp x)
       throws SQLException {
-    cstmt_.setTimestamp(parameterName, x);
-
+    setTimestamp(findParameterIndex(parameterName), x);
   }
 
   public void setAsciiStream(String parameterName, InputStream x, int length)
       throws SQLException {
-    cstmt_.setAsciiStream(parameterName, x, length);
-
+    setAsciiStream(findParameterIndex(parameterName), x, length);
   }
 
   public void setBinaryStream(String parameterName, InputStream x, int length)
       throws SQLException {
-    cstmt_.setBinaryStream(parameterName, x, length);
-
+    setBinaryStream(findParameterIndex(parameterName), x, length);
   }
 
   public void setObject(String parameterName, Object x, int targetSqlType,
       int scale) throws SQLException {
-    cstmt_.setObject(parameterName, x, targetSqlType);
-
+    setObject(findParameterIndex(parameterName), x, targetSqlType);
   }
 
   public void setObject(String parameterName, Object x, int targetSqlType)
       throws SQLException {
-    cstmt_.setObject(parameterName, x, targetSqlType);
-
+   setObject(findParameterIndex(parameterName), x, targetSqlType);
   }
 
   public void setObject(String parameterName, Object x) throws SQLException {
-    cstmt_.setObject(parameterName, x);
-
+    setObject(findParameterIndex(parameterName), x);
   }
 
   public void setCharacterStream(String parameterName, Reader reader, int length)
       throws SQLException {
-    cstmt_.setCharacterStream(parameterName, reader, length);
-
+    setCharacterStream(findParameterIndex(parameterName), reader, length);
   }
 
   public void setDate(String parameterName, Date x, Calendar cal)
       throws SQLException {
-    cstmt_.setDate(parameterName, x, cal);
-
+    setDate(findParameterIndex(parameterName), x, cal);
   }
 
   public void setTime(String parameterName, Time x, Calendar cal)
       throws SQLException {
-    cstmt_.setTime(parameterName, x, cal);
-
+    setTime(findParameterIndex(parameterName), x, cal);
   }
 
   public void setTimestamp(String parameterName, Timestamp x, Calendar cal)
       throws SQLException {
-    cstmt_.setTimestamp(parameterName, x, cal);
-
+    setTimestamp(findParameterIndex(parameterName), x, cal);
   }
 
   public void setNull(String parameterName, int sqlType, String typeName)
       throws SQLException {
-    cstmt_.setNull(parameterName, sqlType, typeName);
-
+    setNull(findParameterIndex(parameterName), sqlType, typeName);
   }
 
   public String getString(String parameterName) throws SQLException {
-    return cstmt_.getString(parameterName);
+    return getString(findParameterIndex(parameterName));
   }
 
   public boolean getBoolean(String parameterName) throws SQLException {
-    return cstmt_.getBoolean(parameterName);
+    return getBoolean(findParameterIndex(parameterName));
   }
 
   public byte getByte(String parameterName) throws SQLException {
-    return cstmt_.getByte(parameterName);
+    return getByte(findParameterIndex(parameterName));
   }
 
   public short getShort(String parameterName) throws SQLException {
-    return cstmt_.getShort(parameterName);
+    return getShort(findParameterIndex(parameterName));
   }
 
   public int getInt(String parameterName) throws SQLException {
-    return cstmt_.getInt(parameterName);
+    return getInt(findParameterIndex(parameterName));
   }
 
   public long getLong(String parameterName) throws SQLException {
-    return cstmt_.getLong(parameterName);
+    return getLong(findParameterIndex(parameterName));
   }
 
   public float getFloat(String parameterName) throws SQLException {
-    return cstmt_.getFloat(parameterName);
+    return getFloat(findParameterIndex(parameterName));
   }
 
   public double getDouble(String parameterName) throws SQLException {
-    return cstmt_.getDouble(parameterName);
+    return getDouble(findParameterIndex(parameterName));
   }
 
   public byte[] getBytes(String parameterName) throws SQLException {
-    return cstmt_.getBytes(parameterName);
+    return getBytes(findParameterIndex(parameterName));
   }
 
   public Date getDate(String parameterName) throws SQLException {
-    return cstmt_.getDate(parameterName);
+    return getDate(findParameterIndex(parameterName));
   }
 
   public Time getTime(String parameterName) throws SQLException {
-    return cstmt_.getTime(parameterName);
+    return getTime(findParameterIndex(parameterName));
   }
 
   public Timestamp getTimestamp(String parameterName) throws SQLException {
-    return cstmt_.getTimestamp(parameterName);
+    return getTimestamp(findParameterIndex(parameterName));
   }
 
   public Object getObject(String parameterName) throws SQLException {
-    return cstmt_.getObject(parameterName);
+    return getObject(findParameterIndex(parameterName));
   }
 
   public BigDecimal getBigDecimal(String parameterName) throws SQLException {
-    return cstmt_.getBigDecimal(parameterName);
+    return getBigDecimal(findParameterIndex(parameterName));
   }
 
   public Object getObject(String parameterName, Map map) throws SQLException {
-    return cstmt_.getObject(parameterName, map);
+    return getObject(findParameterIndex(parameterName), map);
   }
 
   public Ref getRef(String parameterName) throws SQLException {
-    return cstmt_.getRef(parameterName);
+    return getRef(findParameterIndex(parameterName));
   }
 
   public Blob getBlob(String parameterName) throws SQLException {
-    return cstmt_.getBlob(parameterName);
+    return getBlob(findParameterIndex(parameterName));
   }
 
   public Clob getClob(String parameterName) throws SQLException {
-    return cstmt_.getClob(parameterName);
+    return getClob(findParameterIndex(parameterName));
   }
 
   public Array getArray(String parameterName) throws SQLException {
-    return cstmt_.getArray(parameterName);
+    return getArray(findParameterIndex(parameterName));
   }
 
   public Date getDate(String parameterName, Calendar cal) throws SQLException {
-    return cstmt_.getDate(parameterName, cal);
+    return getDate(findParameterIndex(parameterName), cal);
   }
 
   public Time getTime(String parameterName, Calendar cal) throws SQLException {
-    return cstmt_.getTime(parameterName, cal);
+    return getTime(findParameterIndex(parameterName), cal);
   }
 
   public Timestamp getTimestamp(String parameterName, Calendar cal)
       throws SQLException {
-    return cstmt_.getTimestamp(parameterName, cal);
+    return getTimestamp(findParameterIndex(parameterName), cal);
   }
 
   public URL getURL(String parameterName) throws SQLException {
-    return cstmt_.getURL(parameterName);
+    return getURL(findParameterIndex(parameterName));
   }
 
 
@@ -394,7 +371,7 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public Reader getCharacterStream(String parameterName) throws SQLException {
-    return ((AS400JDBCCallableStatement) cstmt_).getCharacterStream(parameterName); 
+    return getCharacterStream(findParameterIndex(parameterName)); 
   }
 
   
@@ -404,7 +381,7 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public Reader getNCharacterStream(String parameterName) throws SQLException {
-    return ((AS400JDBCCallableStatement) cstmt_).getNCharacterStream(parameterName); 
+    return getNCharacterStream(findParameterIndex(parameterName)); 
   }
 
   
@@ -416,7 +393,7 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public String getNString(String parameterName) throws SQLException {
-    return ((AS400JDBCCallableStatement) cstmt_).getNString(parameterName); 
+    return getNString(findParameterIndex(parameterName)); 
   }
 
   
@@ -427,91 +404,90 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public void setAsciiStream(String parameterName, InputStream stream) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setAsciiStream(parameterName, stream); 
-    
+    setAsciiStream(findParameterIndex(parameterName), stream); 
   }
 
   
   public void setAsciiStream(String parameterName, InputStream stream, long length)
       throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setAsciiStream(parameterName, stream, length); 
+    setAsciiStream(findParameterIndex(parameterName), stream, length); 
     
   }
 
   
   public void setBinaryStream(String parameterName, InputStream stream)
       throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setBinaryStream(parameterName, stream); 
+    setBinaryStream(findParameterIndex(parameterName), stream); 
     
   }
 
   
   public void setBinaryStream(String parameterName, InputStream stream, long length)
       throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setBinaryStream(parameterName, stream, length); 
+    setBinaryStream(findParameterIndex(parameterName), stream, length); 
     
   }
 
   
   public void setBlob(String parameterName, Blob blob) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setBlob(parameterName, blob); 
+    setBlob(findParameterIndex(parameterName), blob); 
     
   }
 
   
   public void setBlob(String parameterName, InputStream stream) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setBlob(parameterName, stream); 
+    setBlob(findParameterIndex(parameterName), stream); 
     
   }
 
   
   public void setBlob(String parameterName, InputStream stream, long length)
       throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setBlob(parameterName, stream, length); 
+    setBlob(findParameterIndex(parameterName), stream, length); 
     
   }
 
   
   public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setCharacterStream(parameterName, reader); 
+    setCharacterStream(findParameterIndex(parameterName), reader); 
     
   }
 
   
   public void setCharacterStream(String parameterName, Reader reader, long length)
       throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setCharacterStream(parameterName, reader, length); 
+    ((AS400JDBCCallableStatement) cstmt_).setCharacterStream(findParameterIndex(parameterName), reader, length); 
     
   }
 
   
   public void setClob(String parameterName, Clob clob) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setClob(parameterName, clob); 
+    setClob(findParameterIndex(parameterName), clob); 
     
   }
 
   
   public void setClob(String parameterName, Reader reader) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setClob(parameterName, reader); 
+    setClob(findParameterIndex(parameterName), reader); 
     
   }
 
   
   public void setClob(String parameterName, Reader reader, long length) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setClob(parameterName, reader, length); 
+    setClob(findParameterIndex(parameterName), reader, length); 
     
   }
 
   
   public void setNCharacterStream(String parameterName, Reader reader) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setNCharacterStream(parameterName, reader); 
+    setNCharacterStream(findParameterIndex(parameterName), reader); 
     
   }
 
   
   public void setNCharacterStream(String parameterName, Reader reader, long length)
       throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setNCharacterStream(parameterName, reader, length); 
+    setNCharacterStream(findParameterIndex(parameterName), reader, length); 
     
   }
 
@@ -519,25 +495,25 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public void setNClob(String parameterName, Reader reader) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setNClob(parameterName, reader); 
+    setNClob(findParameterIndex(parameterName), reader); 
     
   }
 
   
   public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setNClob(parameterName, reader, length); 
+    setNClob(findParameterIndex(parameterName), reader, length); 
     
   }
 
   
   public void setNString(String parameterName, String x) throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setNString(parameterName, x); 
+    setNString(findParameterIndex(parameterName), x); 
     
   }
   
   public Object getObject(String parameterName, Class type)
       throws SQLException {
-    return ((AS400JDBCCallableStatement) cstmt_).getObject(parameterName, type); 
+    return getObject(findParameterIndex(parameterName), type); 
   }
 
   
@@ -549,18 +525,18 @@ public class AS400JDBCCallableStatementRedirect extends
 /* ifdef JDBC40
       
   public void setNClob(String parameterName, NClob clob) throws SQLException {
-    cstmt_.setNClob(parameterName, clob); 
+    setNClob(findParameterIndex(parameterName), clob); 
     
   }
 
   public void setRowId(String parameterName, RowId x) throws SQLException {
-    cstmt_.setRowId(parameterName, x); 
+    setRowId(findParameterIndex(parameterName), x); 
     
   }
 
   
   public void setSQLXML(String parameterName, SQLXML xml) throws SQLException {
-    cstmt_.setSQLXML(parameterName, xml); 
+    setSQLXML(findParameterIndex(parameterName), xml); 
     
   }
   
@@ -572,7 +548,7 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public NClob getNClob(String parameterName) throws SQLException {
-        return cstmt_.getNClob(parameterName); 
+        return getNClob(findParameterIndex(parameterName)); 
   }
 
 
@@ -582,7 +558,7 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public RowId getRowId(String parameterName) throws SQLException {
-    return cstmt_.getRowId(parameterName); 
+    return getRowId(findParameterIndex(parameterName)); 
   }
 
   
@@ -592,7 +568,7 @@ public class AS400JDBCCallableStatementRedirect extends
 
   
   public SQLXML getSQLXML(String parameterName) throws SQLException {
-    return cstmt_.getSQLXML(parameterName); 
+    return getSQLXML(findParameterIndex(parameterName)); 
   }
 
 
@@ -609,7 +585,7 @@ endif */
                          targetSqlType,
                          int scaleOrLength)                    throws SQLException
          {
-    cstmt_.setObject(parameterName,  x, targetSqlType, scaleOrLength); 
+    setObject(findParameterIndex(parameterName),  x, targetSqlType, scaleOrLength); 
                   }
 
 
@@ -625,7 +601,7 @@ endif*/
                   throws SQLException
                   {
    
-cstmt_.setObject(parameterName,  x, targetSqlType);                  
+setObject(findParameterIndex(parameterName),  x, targetSqlType);                  
                   }
 
 
@@ -666,7 +642,6 @@ endif*/
                                     String typeName)
                              throws SQLException {
     cstmt_.registerOutParameter(parameterIndex, sqlType, typeName); 
-    
   }
 
  public void registerOutParameter(String parameterName,
@@ -678,8 +653,7 @@ endif*/
 /* endif */
                                     sqlType)
                              throws SQLException {
-   cstmt_.registerOutParameter(parameterName, sqlType); 
-   
+   registerOutParameter(findParameterIndex(parameterName), sqlType); 
  }
 
 public void registerOutParameter(String parameterName,
@@ -692,8 +666,7 @@ endif*/
                                     sqlType,
                                     int scale)
                              throws SQLException {
-  cstmt_.registerOutParameter(parameterName, sqlType, scale); 
-  
+  registerOutParameter(findParameterIndex(parameterName), sqlType, scale); 
 }
 
 
@@ -708,8 +681,7 @@ endif*/
                                     String typeName)
                              throws SQLException
       {
-  cstmt_.registerOutParameter(parameterName, sqlType, typeName); 
-  
+  registerOutParameter(findParameterIndex(parameterName), sqlType, typeName); 
        }
 
   
