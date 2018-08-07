@@ -1351,6 +1351,7 @@
              link="${doclink}"
              failonerror="true"
              additionalparam="-breakiterator"
+			 header="JTOpen 9.6"
     	     executable="${javadocExec}">
 			<classpath>
 				<!-- Removed maxmemory="256m" from above -->
@@ -1434,6 +1435,7 @@
 	             destdir="${javadoc6}"
 	             use="false"
 	             link="${doclink}"
+			     header="JTOpen 9.6"
 	             failonerror="true"
 	             additionalparam="-breakiterator"
 	    	     executable="${javadoc6Exec}">
@@ -1467,6 +1469,7 @@
 	             destdir="${javadoc8}"
 	             use="false"
 	             link="${doclink}"
+  		         header="JTOpen 9.6"
 	             failonerror="true"
 	             additionalparam="-breakiterator"
 	    	     executable="${javadoc8Exec}">
@@ -1500,6 +1503,7 @@
 	             destdir="${javadoc9}"
 	             use="false"
 	             link="${doclink}"
+   		         header="JTOpen 9.6"
 	             failonerror="true"
 	             additionalparam="-breakiterator"
 	    	     executable="${javadoc9Exec}">
