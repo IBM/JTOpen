@@ -456,32 +456,27 @@ public class AS400JDBCCallableStatementRedirect extends
   
   public void setCharacterStream(String parameterName, Reader reader, long length)
       throws SQLException {
-    ((AS400JDBCCallableStatement) cstmt_).setCharacterStream(findParameterIndex(parameterName), reader, length); 
-    
+    setCharacterStream(findParameterIndex(parameterName), reader, length); 
   }
 
   
   public void setClob(String parameterName, Clob clob) throws SQLException {
     setClob(findParameterIndex(parameterName), clob); 
-    
   }
 
   
   public void setClob(String parameterName, Reader reader) throws SQLException {
     setClob(findParameterIndex(parameterName), reader); 
-    
   }
 
   
   public void setClob(String parameterName, Reader reader, long length) throws SQLException {
     setClob(findParameterIndex(parameterName), reader, length); 
-    
   }
 
   
   public void setNCharacterStream(String parameterName, Reader reader) throws SQLException {
     setNCharacterStream(findParameterIndex(parameterName), reader); 
-    
   }
 
   

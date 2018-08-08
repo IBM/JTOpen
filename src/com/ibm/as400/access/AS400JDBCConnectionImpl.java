@@ -6220,4 +6220,13 @@ endif */
     }
     return true;
   }
+
+
+  String[] emptyStringArray = null; 
+  public String[] getReconnectURLs() {
+    if (emptyStringArray == null) {
+      emptyStringArray = new String[0]; 
+    }
+    return emptyStringArray; 
+  }
 }

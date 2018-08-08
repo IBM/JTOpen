@@ -2239,8 +2239,18 @@ endif */
   boolean canSeamlessFailover() {
     return lastConnectionCanSeamlessFailover_; 
   }
-  
-  
+
+  String[] reconnectUrlStrings_ = null; 
+  public String[] getReconnectURLs() {
+    if (reconnectUrlStrings_ == null) { 
+       reconnectUrlStrings_ = new String[reconnectUrls_.length];
+       for (int i = 0; i < reconnectUrls_.length; i++ ) { 
+         reconnectUrlStrings_[i] = reconnectUrls_[i].toString();
+       }
+    } 
+    return reconnectUrlStrings_;
+  }
+   
   
   
   

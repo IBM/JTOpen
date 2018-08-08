@@ -2163,5 +2163,15 @@ endif */
   /* Can the operation be retried after receiving EXC_CONNECTION_REESTABLISHED */ 
   abstract boolean canSeamlessFailover() ;
  
+  /**
+   * Returns a String array containing the URLs that are used when to
+   * reconnect to a system when the "enableClientAffinities" property
+   * is set.  If the property is not set, then an empty array will be returned. 
+   * @return  A String array containing the URLS used by "enableClientAffinities".
+   */
+  abstract public String[] getReconnectURLs();
+
+
+  
   
 }

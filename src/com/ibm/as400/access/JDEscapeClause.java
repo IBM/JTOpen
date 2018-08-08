@@ -95,6 +95,9 @@ class JDEscapeClause
         // instead of USER
         scalarFunctionTable_.put("user", "USER", JDScalarTable.NOT_SUPPORTED);
 
+        // return information about JTOpen
+        scalarFunctionTable_.put("jtopeninfo", "'"+Copyright.version+"'", JDScalarTable.NOT_SUPPORTED); 
+        
         // Time and date functions.
         //
         // Supported by system:
