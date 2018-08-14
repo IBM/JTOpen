@@ -199,10 +199,36 @@ final class SQLXMLLocator extends SQLLocatorBase
             }
             else if(savedObject_ instanceof Reader)
             {
-              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length, this); 
+              
+              valueClob_ = SQLDataBase.getStringFromReader((Reader)savedObject_, length, this);
+              // The Reader has been read, so adjust the savedObject to be the read string
+              savedObject_ = valueClob_; 
             }
             else if( savedObject_ instanceof Clob)  
             {
+              // Updateable locator path 
+            	if(savedObject_ instanceof AS400JDBCClobLocator) 
+              {
+                  AS400JDBCClobLocator clob = (AS400JDBCClobLocator)savedObject_;
+
+                  //Synchronize on a lock so that the user can't keep making updates
+                  //to the clob while we are taking updates off the vectors.
+                  synchronized(clob)
+                  {
+                      // See if we saved off our real object from earlier.
+                      if(clob.savedObject_ != null)
+                      {
+                          savedObject_ = clob.savedObject_;
+                          scale_ = clob.savedScale_;
+                          clob.savedObject_ = null;
+                          if ((savedObject_ != null) && (! ( savedObject_ instanceof AS400JDBCClobLocator))) {
+                            doConversion(); 
+                            return;
+                          }
+                      }
+                  }
+              }
+
                 Clob clob = (Clob)savedObject_;
                 valueClob_ = clob.getSubString(1, (int)clob.length());
             }
@@ -249,6 +275,8 @@ final class SQLXMLLocator extends SQLLocatorBase
                         System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
                         valueBlob_ = newValue;
                     }
+                    // Input stream is no longer usable 
+                    savedObject_ = valueBlob_; 
                   //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
                 }
                 else if(length == ALL_READER_BYTES )//@readerlen new else-if block (read all data)
@@ -264,6 +292,9 @@ final class SQLXMLLocator extends SQLLocatorBase
                         System.arraycopy(valueBlob_, 0, newValue, 0, maxLength_);
                         valueBlob_ = newValue;
                     }
+                    // Input stream is no longer usable 
+                    savedObject_ = valueBlob_; 
+                    
                   //xml has no max sizetruncated_ = objectLength - valueBlob_.length;
                 }
                 else

@@ -186,8 +186,32 @@ endif*/
               value_ = SQLDataBase.getStringFromReader((Reader)object, length_, this);
               savedObject_ = value_; 
             }
+            
             else if( object instanceof Clob)  
             {
+               // Handle updateable locator 
+              if(object instanceof AS400JDBCClobLocator)
+              {
+                  AS400JDBCClobLocator clob = (AS400JDBCClobLocator)object;
+
+                  //Synchronize on a lock so that the user can't keep making updates
+                  //to the clob while we are taking updates off the vectors.
+                  synchronized(clob)
+                  {
+                      // See if we saved off our real object from earlier.
+                      if(clob.savedObject_ != null)
+                      {
+                          savedObject_ = clob.savedObject_;
+                          savedObjectWrittenToServer_ = false; 
+                          scale_ = clob.savedScale_;
+                          if  (! ( savedObject_ instanceof AS400JDBCClobLocator)) {
+                              doConversion(); 
+                              return;
+                          }
+                      }
+                  }
+              }
+
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }

@@ -220,6 +220,26 @@ final class SQLBlobLocator extends SQLLocatorBase
             }
             else if( object instanceof Blob)
             {
+              // Handle the update path 
+            	if (savedObject_ instanceof AS400JDBCBlobLocator) {
+                AS400JDBCBlobLocator blob = (AS400JDBCBlobLocator) savedObject_;
+
+                // Synchronize on a lock so that the user can't keep making updates
+                // to the blob while we are taking updates off the vectors.
+                synchronized (blob) {
+                  // See if we saved off our real object from earlier.
+                  if (blob.savedObject_ != null) {
+                    savedObject_ = blob.savedObject_;
+                    savedObjectWrittenToServer_ = false;
+                    scale_ = blob.savedScale_;
+                    blob.savedObject_ = null;
+                    if  (!( savedObject_ instanceof AS400JDBCBlobLocator)) {
+                        doConversion(); 
+                        return;
+                    }
+                  }
+                }
+              }
                 Blob blob = (Blob) object;
                 int blobLength = (int)blob.length();
                 int lengthToUse = blobLength < 0 ? 0x7FFFFFFF : blobLength;

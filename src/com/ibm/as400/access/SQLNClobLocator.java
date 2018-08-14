@@ -183,10 +183,37 @@ final class SQLNClobLocator implements SQLLocator
             }
             else if(object instanceof Reader)
             {
-              value_ = SQLDataBase.getStringFromReader((Reader)object, length_, this); 
+              value_ = SQLDataBase.getStringFromReader((Reader)object, length_, this);
+              // update the saved object since the reader has been read
+              savedObject_=value_; 
             }
             else if( object instanceof Clob)  
             {
+              // Updateable locator path 
+              if(object instanceof AS400JDBCClobLocator) //@PDA jdbc40 comment: AS400JDBCNClobLocator isa AS400JDBCClobLocator
+              {
+                  AS400JDBCClobLocator clob = (AS400JDBCClobLocator)object;
+
+                  //Synchronize on a lock so that the user can't keep making updates
+                  //to the clob while we are taking updates off the vectors.
+                  synchronized(clob)
+                  {
+                      // See if we saved off our real object from earlier.
+                      if(clob.savedObject_ != null)
+                      {
+                          savedObject_ = clob.savedObject_;
+                          savedObjectWrittenToServer_ = false; 
+                          scale_ = clob.savedScale_;
+                          clob.savedObject_ = null;
+                          if (!(savedObject_ instanceof AS400JDBCClobLocator)) {
+                             doConversion(); 
+                             return;
+                          }
+                      }
+                          
+                  }
+              }
+
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
