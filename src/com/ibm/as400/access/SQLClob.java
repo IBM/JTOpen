@@ -548,7 +548,7 @@ endif */
 
     // @array
     public void saveValue() throws SQLException {
-      if(savedObject_ != null && value_ == null )  { 
+      if(savedObject_ != null && (value_ == null || value_.length() == 0) )  { 
         doConversion();
       }
       savedValue_ = value_; 

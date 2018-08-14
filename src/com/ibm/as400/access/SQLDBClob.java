@@ -585,7 +585,7 @@ endif */
     
     
     public void saveValue() throws SQLException {
-      if (value_ == null  && savedObject_ != null ) {
+      if (savedObject_ != null  && (value_ == null || value_.length() == 0)   ) {
         doConversion(); 
       }
       
