@@ -169,6 +169,12 @@ public class AS400JPing
         if (service < AS400.FILE || service > AS400.SIGNON)
           throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
+        // Make sure timeout is set on socket properties, for the case where a read or write hangs
+        int timeout = (int) time_; 
+        if (timeout > 0) { 
+            socketProperties_.setSoTimeout(timeout); 
+        }
+        
         InputStream inStream = null;
         OutputStream outStream = null;
         try
@@ -400,12 +406,17 @@ public class AS400JPing
                 }*/
 
                 os = socketContainer_.getOutputStream();//@Q1C
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Ping DDM: Writing data"); 
                 os.write(excsatReq);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Ping DDM: flushing write"); 
                 os.flush();
 
                 is = socketContainer_.getInputStream();//@Q1C
                 byte[] excsatRep = new byte[113];
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Ping DDM: Reading data"); 
                 int numBytesRead = is.read(excsatRep);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Ping DDM: "+numBytesRead+" bytes read"); 
+                
                 if (numBytesRead < excsatRep.length)
                 {
                   Trace.log(Trace.ERROR, "Unexpected DDM server response.", excsatRep);
@@ -427,8 +438,12 @@ public class AS400JPing
         {
             if (e.getMessage().equals("Ping Timeout occurred."))
                 throw e;
-            else
-                throw new Exception("Unexpected exception.");
+            else if (e.getMessage().equals("Read timed out"))
+              throw e;
+            else {
+              Exception newException =  new Exception("Unexpected exception.",e);
+                throw newException; 
+            }
         }
         finally
         {
@@ -510,7 +525,8 @@ public class AS400JPing
                 {
                     // Create a socket to the DDM Server.
                     //ddmSocket_ = new Socket(systemName_, 446); // DRDA is on port 446
-                    socketContainer_ = PortMapper.getServerSocket(systemName_, service_, useSSL_, socketProperties_, true);//@Q1A
+
+                  socketContainer_ = PortMapper.getServerSocket(systemName_, service_, useSSL_, socketProperties_, true);//@Q1A
                 }
                 else
                 {
