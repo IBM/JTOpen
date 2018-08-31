@@ -508,6 +508,12 @@
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output6}/utilities/UTMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output6}/com/ibm/as400/util/INMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output6}/com/ibm/as400/util/UTMRI.properties"/>
 	</target>
 
 
@@ -542,6 +548,12 @@
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output8}/utilities/UTMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output8}/com/ibm/as400/util/INMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output8}/com/ibm/as400/util/UTMRI.properties"/>
 	</target>
 
 
@@ -580,6 +592,12 @@
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output9}/utilities/UTMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output9}/com/ibm/as400/util/INMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output9}/com/ibm/as400/util/UTMRI.properties"/>
 	</target>
 
 	<target name="compile9jt400native" depends="source9">
@@ -612,6 +630,12 @@
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output9native}/utilities/UTMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output9native}/com/ibm/as400/util/INMRI.properties"/>
+		<copy file="${source}/utilities/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output9native}/com/ibm/as400/util/UTMRI.properties"/>
 	</target>
 
 	<target name="compile9jt400servlet" depends="source9">
@@ -680,6 +704,12 @@
 		<copy file="${source}/utilities/UTMRI.pro"
           preservelastmodified="yes"
           tofile="${output}/utilities/UTMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/INMRI.pro"
+          preservelastmodified="yes"
+          tofile="${output}/com/ibm/as400/util/INMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/UTMRI.pro"
+          preservelastmodified="yes"
+          tofile="${output}/com/ibm/as400/util/UTMRI.properties"/>
 	</target>
 
 	<!--///////////////////////////////////////////////////////////////////////////
@@ -706,12 +736,19 @@
 	    	   executable="${jdk14}/bin/javac"
 	>
 		</javac>
+		
 		<copy file="${source}/utilities/INMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output}/utilities/INMRI.properties"/>
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output}/utilities/UTMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/com/ibm/as400/util/INMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/com/ibm/as400/util/UTMRI.properties"/>
 	</target>
 
 
@@ -745,6 +782,15 @@
 		<copy file="${source}/utilities/UTMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output}/utilities/UTMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/INMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/com/ibm/as400/util/INMRI.properties"/>
+		<copy file="${source}/com/ibm/as400/util/UTMRI.pro"
+	          preservelastmodified="yes"
+	          tofile="${output}/com/ibm/as400/util/UTMRI.properties"/>
+		
+		
+		
 	</target>
 
 
