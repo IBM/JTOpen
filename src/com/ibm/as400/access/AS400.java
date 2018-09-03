@@ -485,6 +485,12 @@ public class AS400 implements Serializable
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         userId_ = userId.toUpperCase();
         proxyServer_ = resolveProxyServer(proxyServer_);
 
@@ -610,6 +616,12 @@ public class AS400 implements Serializable
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer_);
@@ -807,6 +819,12 @@ public class AS400 implements Serializable
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         userId_ = userId.toUpperCase();
 
         // Create a copy of the supplied credential vault.  This allows the AS400
@@ -861,6 +879,12 @@ public class AS400 implements Serializable
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer);
@@ -2189,6 +2213,12 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("password.length (" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         userId = resolveUserId(userId.toUpperCase());
 
         ProfileTokenCredential profileToken = new ProfileTokenCredential();
@@ -3206,6 +3236,12 @@ public class AS400 implements Serializable
             systemName = systemName.substring(0,dotIndex);
         }
 
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         userId = resolveUserId(userId.toUpperCase());
 
         synchronized (AS400.systemList)
@@ -3580,6 +3616,12 @@ public class AS400 implements Serializable
         }
 
         systemName = resolveSystem(systemName);
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         userId = resolveUserId(userId.toUpperCase());
 
         synchronized (AS400.defaultUsers)
@@ -4224,6 +4266,13 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Cannot set user ID after connection has been made.");
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
+        
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
         {
@@ -4477,6 +4526,12 @@ public class AS400 implements Serializable
         }
 
         PasswordVault tempVault = new PasswordVault(password);
+        //@W9 Start
+        if (isTurkish()) {
+        	userId = userId.toUpperCase(Locale.ENGLISH);
+        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
         return validateSignon(userId.toUpperCase(), tempVault);
     }
 
@@ -4569,4 +4624,16 @@ public class AS400 implements Serializable
       ccsid_ = signonInfo_.serverCCSID; 
       
     }
+    
+    //@W9 Start
+    //For Turkish
+    public static boolean isTurkish() {
+    	Locale defaultLocale = Locale.getDefault();
+    	Locale Turkishlocale = new Locale("tr", "TR", "");
+    	if (defaultLocale.equals(Turkishlocale) ) {return true;
+    	} else {
+    		return false;
+    	}
+    }
+    //@W9 End
 }
