@@ -229,6 +229,7 @@ package com.ibm.as400.access;
 //@W8    20180823  JDBC:  Added com.ibm.as400.util.UpdateACSJar utility
 //@W9    20180830  To Uppercase user id for Turkish specific characters 
 //@WA    20180906  JDBC:  Fix common table expressions and updatable result sets. 
+//@WB    20180906  jdbcClient:  Handle common table expressions as query
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

@@ -1222,7 +1222,8 @@ public class Main implements Runnable {
       //
       String upcaseCommand = command.toUpperCase();
       if (upcaseCommand.startsWith("SELECT")
-          || upcaseCommand.startsWith("VALUES")) {
+          || upcaseCommand.startsWith("VALUES")
+          || upcaseCommand.startsWith("WITH ")) {  /*@WBA*/ 
         executeSqlQuery(command,printStreamForTopLevelCommand);
       } else if (upcaseCommand.startsWith("CL:")) {
         String clCommand = command.substring(3).trim();
