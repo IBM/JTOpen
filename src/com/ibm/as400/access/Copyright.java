@@ -228,6 +228,7 @@ package com.ibm.as400.access;
 //@W7    20180808  JDBC:  add jtopeninfo() JDBC escaped function
 //@W8    20180823  JDBC:  Added com.ibm.as400.util.UpdateACSJar utility
 //@W9    20180830  To Uppercase user id for Turkish specific characters 
+//@WA    20180906  JDBC:  Fix common table expressions and updatable result sets. 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -236,7 +237,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                         built=20180823 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180830 @W9";  
+    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180830 @WA";  
 
 
     // Constants for reference by AS400JDBCDriver.

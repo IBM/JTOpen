@@ -875,6 +875,13 @@ public class JDSQLStatement
                         }
                         // @C3A end case sensitive table and collection name block
 
+                        // If common table expressions are used, then sometimes the selectTable_ will end with a ). 
+                        // Go ahead and remove it. @WAA
+                        int stLen = selectTable_.length(); 
+                        if (selectTable_.charAt(stLen-1) == ')') {
+                          selectTable_ = selectTable_.substring(0, stLen-1); 
+                        }
+                        
                         if(tokenizer_.hasMoreTokens())
                         {
                             token = tokenizer_.nextToken().toUpperCase();
