@@ -237,8 +237,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
-    //                                                                                         built=20180823 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180830 @WA";  
+    //                                                                                         built=20180906 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.5, codebase 5770-SS1 V7R3M0.00 built=20180906 @WB";  
 
 
     // Constants for reference by AS400JDBCDriver.

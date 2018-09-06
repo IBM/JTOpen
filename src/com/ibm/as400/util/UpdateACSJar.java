@@ -35,19 +35,31 @@ public class UpdateACSJar    {
   
     public static void main(String args[]) {
       try {
-        System.out.println("This program updates acsbundle.jar with the current jt400.jar file");
-        System.out.println(" It uses the default locations of acsbundle.jar. ");
+        System.out.println("Usage: java -cp jt400.jar com.ibm.as400.util.UpdateACSJar <acsbundle.jar>"); 
+        System.out.println(" This program updates acsbundle.jar with the current jt400.jar file.");
+        System.out.println(" If acsbundle.jar is not specified, the default locations of acsbundle.jar are used. ");
         System.out.println(" This is provided so that ACS Run SQL Scripts can utilize the latest features of JTOpen.");
-        System.out.println(" Please report problems on the JTOpen bug forum: https://sourceforge.net/p/jt400/bugs/ "); 
+        System.out.println(" ");
+        System.out.println(" Note:  Official support for ACS is not available if this tool is used since ");
+        System.out.println("   official testing has not been done on the resultant combination.");
+        System.out.println("   If you find ACS does not work after the update, delete acsbundle.jar and replace it "); 
+        System.out.println("   with the backup file that was created by this program. ");
+        System.out.println(""); 
+        System.out.println(" Please report problems with jt400.jar on the JTOpen bug forum: https://sourceforge.net/p/jt400/bugs/ ");
+        System.out.println(""); 
         System.out.println(" This version creates an enableClientAffinitiesList jdbc configuration to use the new "); 
         System.out.println(" ClientAffinities property."); 
         System.out.println(""); 
         
-         String version = Copyright.version; 
         
+         String version = Copyright.version; 
+         String acsJar = null; 
+         if (args.length > 0) {
+           acsJar = args[0]; 
+         }
          File newJt400JarFile = locateCurrentJt400JarFile(); 
          System.out.println("Updating acsbundle.jar"); 
-         updateAcsBundle(newJt400JarFile); 
+         updateAcsBundle(newJt400JarFile, acsJar); 
          System.out.println("Checking jdbc configuration"); 
          createEnableClientAffinitiesList();     
          
@@ -150,9 +162,22 @@ public class UpdateACSJar    {
       return new File(checkLocation+File.separator+"enableClientAffinitiesList.jdbc"); 
     }
 
-  private static void updateAcsBundle(File newJT400JarFile) throws Exception {
+  private static void updateAcsBundle(File newJT400JarFile, String acsJar) throws Exception {
     //
-    File[] acsBundles = findAcsBundles();
+    
+    File[] acsBundles;
+    if (acsJar == null) { 
+      acsBundles = findAcsBundles();
+    } else {
+      File acsBundle = new File(acsJar); 
+      if (! acsBundle.exists()) {
+        throw new Exception("Error "+acsJar+" does not exist"); 
+      } else {
+        acsBundles = new File[1]; 
+        acsBundles[0]  = acsBundle; 
+      }
+    }
+    
     for (int i = 0; i < acsBundles.length; i++) {
       File acsBundle = acsBundles[i];
       if (acsBundle != null) {
