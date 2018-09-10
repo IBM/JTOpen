@@ -48,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#96">Fixes and enhancements in JTOpen 9.6</A><br>
 <A HREF="#95">Fixes and enhancements in JTOpen 9.5</A><br>
 <A HREF="#94">Fixes and enhancements in JTOpen 9.4</A><br>
 <A HREF="#93">Fixes and enhancements in JTOpen 9.3</A><br>
@@ -102,6 +103,44 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="96">Fixes and enhancements in JTOpen 9.6</A> <i>(released 2018-10-05)</i></H3>
+<Pre>
+- AS400JPing:  Set socket timeout to prevent hang on read
+- Conversion:  Return substitution character if mixed ccsid buffer ends with half a character
+- JAVADOC improvements
+- JAVADOC: Fix JDBC property "query optimize goal" default value
+- JDBC:  Add parameter number to DATA_TYPE_MISMATCH exceptions
+- JDBC:  Added com.ibm.as400.util.UpdateACSJar utility
+- JDBC:  Correct JDBCProperties javadoc
+- JDBC:  Fix AS400JDBCXAResource tracing
+- JDBC:  Fix SET CONNECTION with prepared Statements
+- JDBC:  Fix common table expressions and updatable result sets.
+- JDBC:  Fix problem with small SQLCA
+- JDBC:  Fix tracing
+- JDBC:  Preserve parameters for Client Affinities
+- JDBC:  Updated com.ibm.as400.util.UpdateACSJar utility
+- JDBC:  add {fn jtopeninfo()} support
+- JDBC:  enableSeamlessFailover property
+- JDBC:  jdbcClient XID support
+- JDBC:  jdbcClient fixes
+- JDBC:  maxRetriesForClientReroute and retryIntervalForClientReroute properties
+- JDBC: Fix JDBC properties documentation
+- JDBC: Preserve special registers for enableClientAffinitiesList
+- JDBC: Remove obsolete JDBC 2.0 references
+- JDBC: enableClientAffinitiesList fixes
+- JDBC: enableClientAffinitiesList property
+- JDBC: seamless failover changes
+- JDBC: seamlessFailover fixes
+- JDBCClient:  Handle common table expressions as query
+- JDBCClient:  fix PRINTSTACKTRACE and reflection error messages
+- JDBCClient:  fix dispResultSet output
+- JDBCClient:  various fixes
+- JDBCClient:  Update ClientXid
+- JDMRI2 changes
+- To toUpperCase(Locale.ENGLISH) user id for some Turkish specific characters
+</Pre>
 
 <HR>
 <H3><A NAME="95">Fixes and enhancements in JTOpen 9.5</A> <i>(released 2018-02-09)</i></H3>
