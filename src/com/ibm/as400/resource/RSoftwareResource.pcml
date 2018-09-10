@@ -1,0 +1,68 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RSoftwareResource.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+<!-- ======================================================== -->
+<!-- Output Buffer Header                                     -->
+<!-- ======================================================== -->
+<struct name="prdr0100" usage="output">
+  <data name="bytesReturned"  type="int"  length="4" precision="32"/>
+  <data name="bytesAvailable" type="int"  length="4" precision="32"/>
+  <data name="reserved1"      type="int"  length="4" precision="32"/>
+  
+  <data name="productID"              type="char" length="7"/>
+  <data name="releaseLevel"           type="char" length="6"/>
+  <data name="productOption"          type="char" length="4"/>
+  <data name="loadID"                 type="char" length="4"/>
+  <data name="loadType"               type="char" length="10"/>
+  <data name="symbolicLoadState"      type="char" length="10" />
+  <data name="loadErrorIndicator"     type="char" length="10" />
+  <data name="loadState"              type="char" length="2" />
+  <data name="supportedFlag"          type="char" length="1" />
+  <data name="registrationType"       type="char" length="2" />
+  <data name="registrationValue"      type="char" length="14" />
+  <data name="reserved2"              type="char"  length="2" />
+  
+  <data name="OFFSETOFAdditionalInfo" type="int"   length="4"  precision="32"/>
+  <data name="primaryLanguageLoadID"  type="char"  length="4" />
+  <data name="minimumTargetRelease"   type="char"  length="6" />
+  
+  <data name="minimumVRMofBaseRequiredOption" type="char"   length="6"  />
+  <data name="requirementsMetBetweenBaseAndOptionValue"  type="char"  length="1" />
+  <data name="level"   type="char"  length="3" />
+</struct>
+
+<!-- ======================================================== -->
+<!-- PRDR0100                                                 -->
+<!-- ======================================================== -->
+<struct name="prdi0100" usage="inputoutput">
+  <data name="productID"              type="char" length="7"  init="       "/>
+  <data name="releaseLevel"           type="char" length="6"  init="      "/>
+  <data name="productOption"          type="char" length="4"  init="    "/>
+  <data name="loadID"                 type="char" length="10" init="*CODE     "/>
+</struct>
+
+<!-- ======================================================== -->
+<!-- Interface                                                -->
+<!-- ======================================================== -->
+<program name="qszrtvpr" path="/QSYS.LIB/QSZRTVPR.PGM">
+  <data name="receiver"           type="struct"   usage="output" struct="prdr0100" outputsize="receiverLength"/>
+  <data name="receiverLength"     type="int"  length="4"  precision="32" usage="input" init="8192"/>
+  <data name="format"             type="char" length="8"  usage="input"  init="PRDR0100"/>
+  <data name="productInformation" type="struct" usage="input"  struct="prdi0100" />
+  <data name="errorCode"          type="int"  length="4"  usage="inputoutput"  init="0"/>
+</program>
+
+</pcml>
+
