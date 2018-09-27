@@ -344,6 +344,19 @@ extends DBBaseRequestDS
     }
 
 
+    // @X1A
+    /**
+    Set the request for alternate server information. 
+    @param value the type of request of alternate server information
+    @exception DBDataStreamException If there is not enough space left in the data byte array.
+    **/
+    void setRequestAlternateServer(int value)                                  
+    throws DBDataStreamException                                           
+    {                                                                      
+        addParameter(0x3845, (byte)value);                               
+    }                                                                     
+
+    
     //@PDA 550 client info methods
     /**
        Sets the client info for the application name for this connection. 
@@ -551,6 +564,22 @@ extends DBBaseRequestDS
         addParameter(0x3831, value);
     }
     
+    
+   //@X1A
+    /**
+    Turns on alternate server. .
+    By default, this is turned off.
+    @parm value 
+        '00'x -- Do not return alternate server information
+        '01'x -- Return alternate server information.  
+    @exception DBDataStreamException If there is not enough space left in the data byte array.
+    **/
+    void setAlternateServer(int value)                                         
+    throws DBDataStreamException                                  
+    {                                                              
+        addParameter(0x3845, (byte)value);                               
+    }     
+
     
     //@eof Close on EOF support for 550
     /**

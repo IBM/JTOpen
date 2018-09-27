@@ -287,6 +287,8 @@ extends AS400JDBCConnection
    
    String lastServerSQLState_;   // Remember the state associated with the connection @Q4A
 
+   private String alternateServer_ = null ;  // Alternate server returned from the host
+
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -4388,6 +4390,16 @@ throws SQLException
                             JDTrace.logInformation(this, "query optimize goal = " + queryOptimizeGoal);
                 }
 
+                //@X1A 
+                int enableClientAffinitiesList = properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST);
+                if (enableClientAffinitiesList > 0) { 
+                  String alternateServers = properties_.getString(JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
+                  if (alternateServers == null || alternateServers.length() == 0 ) { 
+                    // Request the list from the server 
+                    request.setRequestAlternateServer(1); 
+                  }
+                }
+                
                 //@550  Query Storage Limit Support
                 if(vrm_ >= JDUtilities.vrm610){
                     //Set the query storage limit
@@ -4502,6 +4514,8 @@ throws SQLException
                     }                                                                               //@cc1
                 }
 
+                
+                
                 // Send the request and process the reply.
                 reply = sendAndReceive (request);
 
@@ -4548,6 +4562,13 @@ throws SQLException
                 // if (reply != null) reply.returnToPool();
             }
 
+            // Check to see if we got back alternate server @X1A
+            String alternateServer = reply.getAlternateServer(); 
+            if (alternateServer != null && alternateServer.length() > 0) {
+              alternateServer_  = alternateServer;   
+            } else {
+              alternateServer_ = null; 
+            }
            
             // The CCSID that comes back is a mixed CCSID (i.e. mixed
             // SBCS and DBCS).  This will be the CCSID that all
@@ -6228,5 +6249,11 @@ endif */
       emptyStringArray = new String[0]; 
     }
     return emptyStringArray; 
+  }
+
+
+  // @X1A
+  public String getAlternateServer() {
+    return alternateServer_; 
   }
 }

@@ -219,6 +219,7 @@ extends ClientAccessDataStream
   private DBReplyServerAttributes serverAttributes_       = null;
   private DBReplySQLCA        sqlca_                  = null;
   private DBReplyXids             xids_                   = null;             // @E0A
+  private String                  alternateServer_ = null;  // @X1A
 
 
   // Don't pool this objects, but rely on the pooling of DBReplayRequestedDS objects 
@@ -260,6 +261,7 @@ extends ClientAccessDataStream
     sensitive = -1;     //@cur 
     extendedColumnDescriptors_ = null; //@79jqev
     isolationLevel = -1; //@isol
+    alternateServer_ = null;  // @X1A
     
   }
 
@@ -497,6 +499,19 @@ Returns the second level message text.
   {
     return secondLevelMessageText_;
   }
+
+
+//@X1A
+  /**
+  Returns the alternate server information .
+
+  @return The alternate server information , or null if not
+          included or empty.
+  **/
+    public String getAlternateServer()
+    {
+      return alternateServer_;
+    }
 
 
 
@@ -912,6 +927,19 @@ Parses the datastream.
                   Trace.log(Trace.DIAGNOSTIC, "Received empty extended result data.");  //@79jqev
           }
           break;
+       
+        case 0x3846: // Alternate server @X1A
+          if (parmLength > 10) { 
+            // 10 = length (4) + codePoint (2) + ccsid (2) + streamlength (2)
+            {     //  data was sent
+              ConverterImplRemote converter = ConverterImplRemote.getConverter (get16bit (offset + 6), system_); // @D0C
+              alternateServer_ = converter.byteArrayToString (data_, offset + 10, parmLength - 10);
+            }
+          } else { 
+            if (Trace.traceOn_)                
+              Trace.log(Trace.DIAGNOSTIC, "Received empty alternate server."); 
+          }
+          break; 
           
           //README:  When adding a new codepoint, please add any needed initializations 
           //of references to the initialize() method since this object gets reused.

@@ -51,12 +51,10 @@ extends AS400JDBCConnection {
   boolean enableSeamlessFailover_ = false; 
   boolean doNotHandleErrors_ = false; 
   AS400JDBCConnectionImpl currentConnection_;
+  JDDataSourceURL currentUrl_ = null ;
   private AS400 originalAs400;
   private JDDataSourceURL originalDataSourceUrl_;
   private JDProperties originalProperties_;
-  private AS400Impl originalAs400Impl_;
-  private boolean originalNewServer_;
-  private boolean originalSkipSignonServer_;
   private Properties info_;
   private Properties originalInfo_; 
   
@@ -91,6 +89,7 @@ extends AS400JDBCConnection {
     currentConnection_ = new AS400JDBCConnectionImpl(); 
   }
   
+  
   /* Setup the array of things to retry when a failure */ 
   /* This is the information that is passed to the */ 
   /* connection.setProperty method */ 
@@ -120,31 +119,53 @@ extends AS400JDBCConnection {
        
        Vector alternateServerNames = getAlternateServerNames(); 
        Vector alternatePortNumbers = getAlternatePortNumbers(); 
-       int alternateServerCount = alternateServerNames.size(); 
-       int alternatePortCount = alternatePortNumbers.size(); 
-       reconnectUrls_ = new JDDataSourceURL[1+alternateServerCount]; 
-       reconnectProperties_ = new JDProperties [ 1+alternateServerCount]; 
-       reconnectAS400s_ = new AS400[ 1+alternateServerCount]; 
-        
-       reconnectUrls_[0] = originalDataSourceUrl_; 
-       reconnectProperties_[0] = originalProperties_; 
-       reconnectAS400s_[0] = new AS400(originalAs400); 
-       
-       for (int i = 0; i < alternateServerCount; i++) { 
-         String server = (String) alternateServerNames.elementAt(i); 
-         String port = null; 
-         if (i < alternatePortCount) {
-            port = (String) alternatePortNumbers.elementAt(i); 
-         } else {
-            // If port not given, use default host server port
-            port = "8471"; 
-         }
-         reconnectUrls_[i+1] = fixupDataSourceUrl(server, port);  
-         reconnectProperties_[i+1] = fixupProperties(server, port); 
-         reconnectAS400s_[i+1] = fixupAS400(server, port); 
-       }
+       setupAlternateServers(alternateServerNames, alternatePortNumbers); /*@X1A*/ 
       
   }
+  
+  
+  private void setupAlternateServers(String alternateServers) {
+    
+    Vector alternateServerNames = getCommaSeparatedList(alternateServers); 
+    Vector alternatePortNumbers = getAlternatePortNumbers(); 
+    setupAlternateServers(alternateServerNames, alternatePortNumbers); 
+  }
+  
+  // Setup the re-connect information based the alternateServerNames and alternatePortNumbers
+  
+  private void setupAlternateServers(Vector alternateServerNames,   Vector alternatePortNumbers) {
+    int alternateServerCount = alternateServerNames.size(); 
+    int alternatePortCount = alternatePortNumbers.size(); 
+    reconnectUrls_ = new JDDataSourceURL[1+alternateServerCount]; 
+    reconnectProperties_ = new JDProperties [ 1+alternateServerCount]; 
+    reconnectAS400s_ = new AS400[ 1+alternateServerCount]; 
+     
+    reconnectUrls_[0] = originalDataSourceUrl_; 
+    reconnectProperties_[0] = originalProperties_; 
+    reconnectAS400s_[0] = new AS400(originalAs400); 
+    
+    boolean secure = originalProperties_.getBoolean(JDProperties.SECURE); /*@X1A*/
+    for (int i = 0; i < alternateServerCount; i++) { 
+      String server = (String) alternateServerNames.elementAt(i); 
+      String port = null; 
+      if (i < alternatePortCount) {
+         port = (String) alternatePortNumbers.elementAt(i); 
+      } else {
+         // If port not given, use default host server port
+        if (secure) {
+           port = "9471"; 
+        } else {
+           port = "8471"; 
+        }
+      }
+      reconnectUrls_[i+1] = fixupDataSourceUrl(server, port);  
+      reconnectProperties_[i+1] = fixupProperties(server, port); 
+      reconnectAS400s_[i+1] = fixupAS400(server, port); 
+    }
+    
+  }
+
+  
   private AS400 fixupAS400( String server, String port) {
     AS400 as400 = new AS400(originalAs400); 
     try {
@@ -202,18 +223,23 @@ extends AS400JDBCConnection {
 
   /* retrieve the properties that are separated by commas */ 
   private Vector getPropertiesList(int property) { 
-    Vector propertiesList = new Vector(); 
     String propertyString = originalProperties_.getString(property);
-    if (propertyString != null) {
+    return getCommaSeparatedList(propertyString); 
+  }
+  
+  // @X1A
+  private Vector getCommaSeparatedList(String list) { 
+    Vector propertiesList = new Vector(); 
+    if (list != null) {
       int startIndex = 0; 
       int commaIndex; 
-      commaIndex = propertyString.indexOf(',',startIndex); 
+      commaIndex = list.indexOf(',',startIndex); 
       while (commaIndex >= 0) { 
-        propertiesList.add(propertyString.substring(startIndex,commaIndex));
+        propertiesList.add(list.substring(startIndex,commaIndex));
         startIndex = commaIndex + 1; 
-        commaIndex = propertyString.indexOf(',',startIndex); 
+        commaIndex = list.indexOf(',',startIndex); 
       }
-      String lastPort = propertyString.substring(startIndex); 
+      String lastPort = list.substring(startIndex); 
       if (lastPort.length() > 0)  {
          propertiesList.add(lastPort );
       }
@@ -282,7 +308,7 @@ extends AS400JDBCConnection {
    * @return true if new connection can seamlessly be used.
    * Otherwise throws the SQL4498 exception. 
    */
-  private boolean setupNewConnection(AS400JDBCConnectionImpl newConnection, SQLException e) throws SQLException {
+  private boolean setupNewConnection(AS400JDBCConnectionImpl newConnection, JDDataSourceURL newUrl, SQLException e) throws SQLException {
     // Now replay the settings on the new connection.
     // If this has a failure then the exception is thrown and we are unable to use the connection. 
     
@@ -315,7 +341,7 @@ extends AS400JDBCConnection {
     // the new connection.   As part of this, all existing result sets will be closed. 
     currentConnection_.transferObjects(newConnection); 
     currentConnection_ = newConnection; 
-    
+    currentUrl_ = newUrl; 
     if ( lastConnectionCanSeamlessFailover_ && topLevelApi_) {
       // For a topLevelApi_ we can return true and have the connection
       // object retry. 
@@ -335,6 +361,28 @@ extends AS400JDBCConnection {
    * @throws SQLException 
    */
    boolean findNewConnection(SQLException originalException) throws SQLException {
+     
+     int searchStart = 0; 
+     // If the original exception is an SQL7061 do not attempt to reconnect to
+     // the existing system, but connect to the next system in the list.
+     // Note: To get here, it has already been checked that reconnect is 
+     // allowed for this SQL7061. 
+     int sqlcode = originalException.getErrorCode(); 
+     if (sqlcode == -7061) {
+       if (currentUrl_ != null) { 
+         for (int i = 0; i < reconnectUrls_.length; i++) {
+           if (reconnectUrls_[i] == currentUrl_) {
+             searchStart = i + 1; 
+             if (searchStart == reconnectUrls_.length) {
+               searchStart = 0; 
+             }
+             i = reconnectUrls_.length; 
+           }
+         }
+                   
+       }
+     }
+     
     // Start at the current server and try to get a new connection.
      AS400JDBCConnectionImpl connection ; 
      Exception[] exceptions = new Exception [reconnectUrls_.length];
@@ -349,20 +397,20 @@ extends AS400JDBCConnection {
     if (retryIntervalForClientReroute_ >= 0) {
       delayMilliseconds = retryIntervalForClientReroute_ * 1000; 
     } else {
-      // Start delay at 60 seconds 
+      // Start delay at 30 seconds 
       delayMilliseconds = 30000; 
     }
 
     while (retryCount > 0) {
       long retryStartMilliseonds = System.currentTimeMillis(); 
-      for (int i = 0; i < reconnectUrls_.length; i++) {
+      for (int i = searchStart; i < reconnectUrls_.length; i++) {
         connection = new AS400JDBCConnectionImpl();
         AS400 as400 = new AS400(reconnectAS400s_[i]);
         try {
 
           connection.setProperties(reconnectUrls_[i], reconnectProperties_[i],
               as400, originalInfo_);
-          return  setupNewConnection(connection, originalException); 
+          return  setupNewConnection(connection, reconnectUrls_[i], originalException); 
           
         } catch (SQLException e) {
           if (throwException_) {
@@ -381,40 +429,49 @@ extends AS400JDBCConnection {
       // At this point we were unable to find a connection. Wait for the specified 
       // delay time. 
       retryCount--;
-      long retryDelayMilliseconds = 0; 
-      long retryElaspedMilliseconds = System.currentTimeMillis() - retryStartMilliseonds; 
-      // Handle the default wait behavior 
-      if (maxRetriesForClientReroute_ < 0 && 
-          retryIntervalForClientReroute_ < 0 ) {
-        retryDelayMilliseconds = delayMilliseconds - retryElaspedMilliseconds;
-        delayMilliseconds = delayMilliseconds + delayMilliseconds / 2; 
-        long remainingMilliseconds = 600000 + startMilliseconds - System.currentTimeMillis();
-        if (remainingMilliseconds < 0) {
-          retryCount = 0; 
-          retryDelayMilliseconds = 0; 
-        } else {
-          if (remainingMilliseconds < retryDelayMilliseconds + retryElaspedMilliseconds) {
-            retryDelayMilliseconds = remainingMilliseconds - retryElaspedMilliseconds; 
-            if (retryDelayMilliseconds < 0) {
-              // Just try immediately, one last time 
-              retryDelayMilliseconds = 0; 
+      // If we started above 0 then try again before going into the retry path
+      if (searchStart > 0) {
+        retryCount++;
+        searchStart = 0;
+      } else {
+        long retryDelayMilliseconds = 0;
+        long retryElaspedMilliseconds = System.currentTimeMillis()
+            - retryStartMilliseonds;
+        // Handle the default wait behavior
+        if (maxRetriesForClientReroute_ < 0
+            && retryIntervalForClientReroute_ < 0) {
+          retryDelayMilliseconds = delayMilliseconds - retryElaspedMilliseconds;
+          delayMilliseconds = delayMilliseconds + delayMilliseconds / 2;
+          long remainingMilliseconds = 600000 + startMilliseconds
+              - System.currentTimeMillis();
+          if (remainingMilliseconds < 0) {
+            retryCount = 0;
+            retryDelayMilliseconds = 0;
+          } else {
+            if (remainingMilliseconds < retryDelayMilliseconds
+                + retryElaspedMilliseconds) {
+              retryDelayMilliseconds = remainingMilliseconds
+                  - retryElaspedMilliseconds;
+              if (retryDelayMilliseconds < 0) {
+                // Just try immediately, one last time
+                retryDelayMilliseconds = 0;
+              }
             }
           }
+
+        } else {
+          retryDelayMilliseconds = delayMilliseconds - retryElaspedMilliseconds;
         }
-        
-      } else {
-        retryDelayMilliseconds = delayMilliseconds - retryElaspedMilliseconds;  
+
+        if (retryDelayMilliseconds > 0) {
+          try {
+            Thread.sleep(retryDelayMilliseconds);
+          } catch (InterruptedException e) {
+            // If we are interrupted, just give up and throw original exception
+            throw (originalException);
+          }
+        }
       }
-  
-      if (retryDelayMilliseconds > 0) {
-        try {
-          Thread.sleep(retryDelayMilliseconds);
-        } catch (InterruptedException e) {
-          // If we are interrupted, just give up and throw original exception 
-          throw (originalException);
-        } 
-      }
-      
     } /* while retrying */ 
     throw (originalException);
   }
@@ -437,9 +494,11 @@ extends AS400JDBCConnection {
     
     int sqlCode = e.getErrorCode(); 
     String sqlState = e.getSQLState(); 
-    if ((sqlCode == -99999) &&
-        (JDError.EXC_COMMUNICATION_LINK_FAILURE.equals(sqlState)) ||
-        (JDError.EXC_CONNECTION_UNABLE.equals(sqlState))) {
+    if (((sqlCode == -99999) &&
+        ((JDError.EXC_COMMUNICATION_LINK_FAILURE.equals(sqlState)) ||
+        (JDError.EXC_CONNECTION_UNABLE.equals(sqlState))))
+        || ( sqlCode == -7061  && should7061Reconnect(e))
+        ) {
       // We do not use EXC_CONNECTION_NONE, since that is what is returned
       // after the connection has been closed or aborted.
       // 
@@ -459,7 +518,19 @@ extends AS400JDBCConnection {
 
   }
   
-  
+  /* Should the connection reconnect for the SQL7061 exception */
+  /* Error code 71 means a new connection should be obtained */
+  /* @X1A */ 
+  private boolean should7061Reconnect(SQLException e) {
+    String message = e.getMessage();
+    if (message.indexOf(" 71.") > 0) {
+      return true; 
+    } else {
+      return false; 
+    }
+  }
+
+
   /**
    * Like handleException but only returns an SQLClientInfoException in 
    * JDBC 4.0. 
@@ -1678,7 +1749,6 @@ endif */
 
   public void setProperties(JDDataSourceURL dataSourceUrl,
       JDProperties properties, AS400 as400, Properties info) throws SQLException {
-    boolean retryOperation = true;
     // We cannot retry this operation since this establishes the connection
 
 
@@ -1693,10 +1763,15 @@ endif */
         }
         setupRetryInformation(); 
         currentConnection_.setProperties(dataSourceUrl, properties, as400, info);
-        retryOperation = false;
+        // Check for alternative server information @X1A
+        String alternateServer = currentConnection_.getAlternateServer();
+        if (alternateServer != null) {  // @X1A
+           setupAlternateServers(alternateServer);  
+        }
+        
       } catch (SQLException e) {
         try { 
-            retryOperation = handleException(e);
+            handleException(e);
         } catch (SQLException e2) { 
           if (e2.getErrorCode() == -4498) {
             // Connection was successfully established.
@@ -1712,8 +1787,9 @@ endif */
   public void setProperties(JDDataSourceURL dataSourceUrl,
       JDProperties properties, AS400Impl as400) throws SQLException {
     originalDataSourceUrl_ = dataSourceUrl; 
+    currentUrl_ = dataSourceUrl; 
     originalProperties_ = properties; 
-    originalAs400Impl_ = as400; 
+ 
 
     setupRetryInformation(); 
     
@@ -1748,9 +1824,6 @@ endif */
       try {
         originalDataSourceUrl_ = dataSourceUrl; 
         originalProperties_ = properties; 
-        originalAs400Impl_ = as400; 
-        originalNewServer_ = newServer;
-        originalSkipSignonServer_ = newServer;     
         currentConnection_.setProperties(dataSourceUrl, properties, as400,
             newServer, skipSignonServer);
         retryOperation = false;

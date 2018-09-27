@@ -230,6 +230,9 @@ package com.ibm.as400.access;
 //@W9    20180830  To Uppercase user id for Turkish specific characters 
 //@WA    20180906  JDBC:  Fix common table expressions and updatable result sets. 
 //@WB    20180906  jdbcClient:  Handle common table expressions as query
+//@X0    20180915  JTOpen 9.6
+//@X1    20180927  JDBC:  request alternate server from host
+//@X2    20180927  Translation: correct fault tolerant conversion
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -238,7 +241,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                         built=20180906 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20180909 @X0";  
+    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20180927 @X2";  
 
 
     // Constants for reference by AS400JDBCDriver.
