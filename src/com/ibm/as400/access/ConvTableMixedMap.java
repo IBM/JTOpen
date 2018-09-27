@@ -83,8 +83,13 @@ public abstract class ConvTableMixedMap extends ConvTable
                            destPos += unicodeLength; 
                            // dest[destPos++] = dbTable_.toUnicode_[((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])];
                         } else { 
-                           // Only half a character at the end -- add substitution character 
-                           dest[destPos++] = '\ufffd'; 
+                          
+                           if (CharConverter.isFaultTolerantConversion()) {
+                             // Do not add the replacement character to behave as before (when ArrayIndexOutOfBoundsException used to be caught). 
+                           } else { 
+                             // Only half a character at the end -- add substitution character 
+                             dest[destPos++] = '\ufffd';
+                           }
                         }
                     }
                     catch (ArrayIndexOutOfBoundsException aioobe)
