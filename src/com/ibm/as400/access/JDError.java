@@ -730,6 +730,9 @@ retrieved from the system.
       JDTrace.logException(thrower, connection, message, e);    // @J3a
     }                                                                   // @J3a
 
+    if (connection instanceof AS400JDBCConnectionRedirect ) {
+      ((AS400JDBCConnectionRedirect ) connection ).handleException(e); 
+    }
     throw e;
   }
 

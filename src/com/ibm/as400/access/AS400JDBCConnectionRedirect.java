@@ -1763,6 +1763,7 @@ endif */
         }
         setupRetryInformation(); 
         currentConnection_.setProperties(dataSourceUrl, properties, as400, info);
+        currentUrl_ = dataSourceUrl; 
         // Check for alternative server information @X1A
         String alternateServer = currentConnection_.getAlternateServer();
         if (alternateServer != null) {  // @X1A
