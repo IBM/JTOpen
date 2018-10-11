@@ -59,113 +59,113 @@ public class AS400JDBCRowSetBeanInfo extends SimpleBeanInfo
                                        "getCommand", "setCommand");
        command.setBound(true);
        command.setConstrained(false);
-       command.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_COMMAND"));
-       command.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_COMMAND"));
+       command.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_COMMAND",null));
+       command.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_COMMAND",null));
 
        PropertyDescriptor concurrency = new PropertyDescriptor("concurrency", beanClass,
                                        "getConcurrency", "setConcurrency");
        concurrency.setBound(true);
        concurrency.setConstrained(false);
-       concurrency.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_CONCURRENCY"));
-       concurrency.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_CONCURRENCY"));
+       concurrency.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_CONCURRENCY",null));
+       concurrency.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_CONCURRENCY",null));
 
        PropertyDescriptor dataSourceName = new PropertyDescriptor("dataSourceName", beanClass,
                                        "getDataSourceName", "setDataSourceName");
        dataSourceName.setBound(true);
        dataSourceName.setConstrained(false);
-       dataSourceName.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_DATASOURCE_NAME"));
-       dataSourceName.setShortDescription(AS400JDBCDriver.getResource("DATASOURCE_NAME_DESC"));
+       dataSourceName.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_DATASOURCE_NAME",null));
+       dataSourceName.setShortDescription(AS400JDBCDriver.getResource("DATASOURCE_NAME_DESC",null));
 
        PropertyDescriptor escapeProcessing = new PropertyDescriptor("escapeProcessing", beanClass,
                                        "getEscapeProcessing", "setEscapeProcessing");
        escapeProcessing.setBound(true);
        escapeProcessing.setConstrained(false);
-       escapeProcessing.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_ESCAPE_PROCESSING"));
-       escapeProcessing.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_ESCAPE_PROCESSING"));
+       escapeProcessing.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_ESCAPE_PROCESSING",null));
+       escapeProcessing.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_ESCAPE_PROCESSING",null));
 
        PropertyDescriptor fetchDirection = new PropertyDescriptor("fetchDirection", beanClass,
                                        "getFetchDirection", "setFetchDirection");
        fetchDirection.setBound(true);
        fetchDirection.setConstrained(false);
-       fetchDirection.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_FETCH_DIRECTION"));
-       fetchDirection.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_FETCH_DIRECTION"));
+       fetchDirection.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_FETCH_DIRECTION",null));
+       fetchDirection.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_FETCH_DIRECTION",null));
 
        PropertyDescriptor fetchSize = new PropertyDescriptor("fetchSize", beanClass,
                                        "getFetchSize", "setFetchSize");
        fetchSize.setBound(true);
        fetchSize.setConstrained(false);
-       fetchSize.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_FETCH_SIZE"));
-       fetchSize.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_FETCH_SIZE"));
+       fetchSize.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_FETCH_SIZE",null));
+       fetchSize.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_FETCH_SIZE",null));
 
        PropertyDescriptor maxFieldSize = new PropertyDescriptor("maxFieldSize", beanClass,
                                        "getMaxFieldSize", "setMaxFieldSize");
        maxFieldSize.setBound(true);
        maxFieldSize.setConstrained(false);
-       maxFieldSize.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_MAX_FIELD_SIZE"));
-       maxFieldSize.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_MAX_FIELD_SIZE"));
+       maxFieldSize.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_MAX_FIELD_SIZE",null));
+       maxFieldSize.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_MAX_FIELD_SIZE",null));
 
        PropertyDescriptor maxRows = new PropertyDescriptor("maxRows", beanClass,
                                        "getMaxRows", "setMaxRows");
        maxRows.setBound(true);
        maxRows.setConstrained(false);
-       maxRows.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_MAX_ROWS"));
-       maxRows.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_MAX_ROWS"));
+       maxRows.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_MAX_ROWS",null));
+       maxRows.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_MAX_ROWS",null));
 
        PropertyDescriptor password = new PropertyDescriptor("password", beanClass,
                                        "getPassword", "setPassword");
        password.setBound(true);
        password.setConstrained(false);
-       password.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PASSWORD"));
-       password.setShortDescription(AS400JDBCDriver.getResource("PASSWORD_DESC"));
+       password.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PASSWORD",null));
+       password.setShortDescription(AS400JDBCDriver.getResource("PASSWORD_DESC",null));
 
        PropertyDescriptor queryTimeout = new PropertyDescriptor("queryTimeout", beanClass,
                                        "getQueryTimeout", "setQueryTimeout");
        queryTimeout.setBound(true);
        queryTimeout.setConstrained(false);
-       queryTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_QUERY_TIMEOUT"));
-       queryTimeout.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_QUERY_TIMEOUT"));
+       queryTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_QUERY_TIMEOUT",null));
+       queryTimeout.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_QUERY_TIMEOUT",null));
 
        PropertyDescriptor readOnly = new PropertyDescriptor("readOnly", beanClass,
                                        "isReadOnly", "setReadOnly");
        readOnly.setBound(true);
        readOnly.setConstrained(false);
-       readOnly.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_READ_ONLY"));
-       readOnly.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_READ_ONLY"));
+       readOnly.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_READ_ONLY",null));
+       readOnly.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_READ_ONLY",null));
 
        PropertyDescriptor transactionIsolation = new PropertyDescriptor("transactionIsolation", beanClass,
                                        "getTransactionIsolation", "setTransactionIsolation");
        transactionIsolation.setBound(true);
        transactionIsolation.setConstrained(false);
-       transactionIsolation.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSACTION_ISOLATION"));
-       transactionIsolation.setShortDescription(AS400JDBCDriver.getResource("TRANSACTION_ISOLATION_DESC"));
+       transactionIsolation.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSACTION_ISOLATION",null));
+       transactionIsolation.setShortDescription(AS400JDBCDriver.getResource("TRANSACTION_ISOLATION_DESC",null));
 
        PropertyDescriptor type = new PropertyDescriptor("type", beanClass,
                                        "getType", "setType");
        type.setBound(true);
        type.setConstrained(false);
-       type.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_TYPE"));
-       type.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_TYPE"));
+       type.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_TYPE",null));
+       type.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_TYPE",null));
 
        PropertyDescriptor url = new PropertyDescriptor("url", beanClass,
                                        "getUrl", "setUrl");
        url.setBound(true);
        url.setConstrained(false);
-       url.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_URL"));
-       url.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_URL"));
+       url.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_URL",null));
+       url.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_URL",null));
 
        PropertyDescriptor useDataSource = new PropertyDescriptor("useDataSource", beanClass,
                                        "isUseDataSource", "setUseDataSource");
        useDataSource.setBound(true);
        useDataSource.setConstrained(false);
-       useDataSource.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_USE_DATA_SOURCE"));
-       useDataSource.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_USE_DATA_SOURCE"));
+       useDataSource.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_USE_DATA_SOURCE",null));
+       useDataSource.setShortDescription(AS400JDBCDriver.getResource("PROP_DESC_RS_USE_DATA_SOURCE",null));
 
        PropertyDescriptor username = new PropertyDescriptor("username", beanClass,
                                        "getUsername", "setUsername");
        username.setBound(true);
        username.setConstrained(false);
-       username.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_USERNAME"));
-       username.setShortDescription(AS400JDBCDriver.getResource("USER_DESC"));
+       username.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RS_USERNAME",null));
+       username.setShortDescription(AS400JDBCDriver.getResource("USER_DESC",null));
 
        properties_ = new PropertyDescriptor[] { command, concurrency, dataSourceName, escapeProcessing, fetchDirection, 
           fetchSize, maxFieldSize, maxRows, password, queryTimeout, readOnly, transactionIsolation, type, 

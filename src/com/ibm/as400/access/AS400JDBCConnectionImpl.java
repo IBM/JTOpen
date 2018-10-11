@@ -289,6 +289,11 @@ extends AS400JDBCConnection
 
    private String alternateServer_ = null ;  // Alternate server returned from the host
 
+   
+   String portNumberString = "*N";
+
+  private String systemName_; 
+
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -3464,13 +3469,12 @@ throws SQLException
         {
           try
           {
-            
+            int portNumber = 0; 
             // Check to see if the port property is set.  If so, 
             // Then we must set the port in the PortMapper and 
             // tell the as400 object not to use the signon server. 
             // The port in the URL has precedence over the property.
         	/*@V1A*/
-            int portNumber = 0; 
             if (dataSourceUrl.isPortSpecified()) {
               portNumber = dataSourceUrl.getPortNumber(); 
             }
@@ -3480,9 +3484,11 @@ throws SQLException
             if (portNumber > 0) { 
               as400.skipSignonServer = true;
               as400.connectService (AS400.DATABASE, portNumber);
+              portNumberString = ""+portNumber; 
             } else { 
               as400.connectService (AS400.DATABASE);
             }
+            systemName_ = as400.getSystemName();
           }
           catch (AS400SecurityException e)
           {                            //@D5C
@@ -6255,5 +6261,15 @@ endif */
   // @X1A
   public String getAlternateServer() {
     return alternateServer_; 
+  }
+
+
+
+  public String getHostName() {
+    return systemName_; 
+  }
+  
+  public String getPort() {
+     return portNumberString; 
   }
 }

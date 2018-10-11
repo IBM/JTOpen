@@ -91,4 +91,7 @@ interface AS400Impl
     /*@V1A*/
     SignonInfo skipSignon(String systemName, boolean systemNameLocal,
         String userId_, CredentialVault tempVault, String gssName) throws AS400SecurityException, IOException;
+    
+    String getSystemName(); 
+    
 }

@@ -450,7 +450,7 @@ implements Connection
     {
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED, null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -462,7 +462,7 @@ implements Connection
     {
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED, null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -514,7 +514,7 @@ implements Connection
     {
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -546,7 +546,7 @@ implements Connection
     {
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -651,7 +651,7 @@ implements Connection
           JDTrace.logException(this, "Security Exception caught", e); 
         }
         SQLException sqlex = new SQLException (
-                AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_REJECTED),
+                AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_REJECTED,null),
                 EXC_CONNECTION_REJECTED, -99999);
         sqlex.initCause(e); 
         throw sqlex; 
@@ -662,7 +662,7 @@ implements Connection
           JDTrace.logException(this,  "IOException caught", e); 
         }
         SQLException sqlex = new SQLException (
-                AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_UNABLE),
+                AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_UNABLE,null),
                 EXC_CONNECTION_UNABLE, -99999);
         sqlex.initCause(e); 
         throw sqlex; 
@@ -701,7 +701,7 @@ implements Connection
     {
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -713,7 +713,7 @@ implements Connection
     {
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     } 
 

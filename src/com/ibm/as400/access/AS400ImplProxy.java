@@ -366,5 +366,9 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     	return bidiStringType;
     }
     //@Bidi-HCG3 end
+
+    public String getSystemName() {
+      return connection_.getSystemName(); 
+    }
     
 }

@@ -340,6 +340,16 @@ extends AS400JDBCConnection {
     // Need to fix up all the objects associated with the old connection and transfer them to 
     // the new connection.   As part of this, all existing result sets will be closed. 
     currentConnection_.transferObjects(newConnection); 
+    
+    // Make sure the current connection is closed.  Ignore any failures that could occur here
+    try { 
+      currentConnection_.close(); 
+    } catch (Exception e2) { 
+      
+    }
+    
+    
+    
     currentConnection_ = newConnection; 
     currentUrl_ = newUrl; 
     if ( lastConnectionCanSeamlessFailover_ && topLevelApi_) {
@@ -348,7 +358,11 @@ extends AS400JDBCConnection {
       return true; 
     } else { 
     throwException_ = true; 
-    JDError.throwSQLException (this, JDError.EXC_CONNECTION_REESTABLISHED, e);
+    String[] replacementVariables = new String[2]; 
+    replacementVariables[0] = currentConnection_.getHostName(); 
+    replacementVariables[1] = currentConnection_.getPort(); 
+    
+    JDError.throwSQLException (this, JDError.EXC_CONNECTION_REESTABLISHED, replacementVariables, e);
 
     return false; 
     }

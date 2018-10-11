@@ -906,9 +906,10 @@ endif */
 	Returns a resource from the resource bundle.
 	
 	@param  key     The resource key.
+	@param replacementVariables -- replacement variables for the message
 	@return         The resource String.
 	**/
-	static String getResource (String key)
+	static String getResource (String key, String[]  replacementVariables)
 	{
 		// If the resource bundle or resource is not found,
 		// do not thrown an exception.  Instead, return a
@@ -925,7 +926,10 @@ endif */
 		{
 			try
 			{
+			  
 				resource = resources_.getString (key);
+				
+				
 			}
 			catch (MissingResourceException e)
 			{
@@ -946,10 +950,34 @@ endif */
 				}
 			}
 		}
-
+		if (replacementVariables != null) { 
+		  resource = substitute(resource, replacementVariables); 
+		}
 		return resource;
 	}
 
+  // Replaces substitution variables in a string.
+  // @param  text  The text string, with substitution variables (e.g. "Error &0 in table &1.")
+  // @param  values  The replacement values.
+  // @return  The text string with all substitution variables replaced.
+  static String substitute (String text, Object[] values)
+  {
+      String result = text;
+      if (values != null) { 
+      for (int i = 0; i < values.length; ++i) {
+          String variable = "&" + i;
+          int j = result.indexOf (variable);
+          if (j >= 0) {
+              StringBuffer buffer = new StringBuffer();
+              buffer.append(result.substring(0, j));
+              buffer.append(values[i].toString ());
+              buffer.append(result.substring(j + variable.length ()));
+              result = buffer.toString ();
+          }
+      }
+      }
+      return result;
+  }
 
 
 	//@B3A  - This logic was formerly in the initializeConnection() method.

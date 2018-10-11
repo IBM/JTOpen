@@ -130,9 +130,9 @@ extends SQLDataBase
     public String getCreateParameters()
     {
         StringBuffer buffer = new StringBuffer();
-        buffer.append(AS400JDBCDriver.getResource("PRECISION"));
+        buffer.append(AS400JDBCDriver.getResource("PRECISION",null));
         buffer.append(",");
-        buffer.append(AS400JDBCDriver.getResource("SCALE"));
+        buffer.append(AS400JDBCDriver.getResource("SCALE",null));
         return buffer.toString();
     }
 

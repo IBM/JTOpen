@@ -763,7 +763,7 @@ implements DatabaseMetaData
     public String getCatalogTerm ()
     throws SQLException
     {
-        return AS400JDBCDriver.getResource ("CATALOG_TERM");
+        return AS400JDBCDriver.getResource ("CATALOG_TERM",null);
     }
 
 
@@ -3979,7 +3979,7 @@ endif */
     public String getProcedureTerm ()
     throws SQLException
     {
-        return AS400JDBCDriver.getResource ("PROCEDURE_TERM");
+        return AS400JDBCDriver.getResource ("PROCEDURE_TERM",null);
     }
 
 
@@ -4051,7 +4051,7 @@ endif */
     public String getSchemaTerm ()
     throws SQLException
     {
-        return AS400JDBCDriver.getResource ("SCHEMA_TERM");
+        return AS400JDBCDriver.getResource ("SCHEMA_TERM",null);
     }
 
 
@@ -7778,11 +7778,11 @@ endif */
         SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(vrm,settings_), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) }; //trunc3
         int[] fieldNullables = {columnNoNulls, columnNoNulls, columnNoNulls, columnNoNulls}; // table types can not be null
 
-        Object[][] data =  { { "ApplicationName", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME") },
-                { "ClientUser", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTUSER")},
-                { "ClientHostname", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTHOSTNAME")},
-                { "ClientAccounting", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING")},
-                { "ClientProgramID", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTPROGRAMID")}};  //@pdc programID
+        Object[][] data =  { { "ApplicationName", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME",null) },
+                { "ClientUser", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTUSER",null)},
+                { "ClientHostname", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTHOSTNAME",null)},
+                { "ClientAccounting", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING",null)},
+                { "ClientProgramID", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTPROGRAMID",null)}};  //@pdc programID
 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);

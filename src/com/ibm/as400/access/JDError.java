@@ -122,11 +122,13 @@ this class are static.
 Returns the reason text based on a SQL state.
 
 @param  sqlState    the SQL State.
+@param  replacementText Strings to use for the replacement text
 @return             Reason - error description.
 **/
-  static final String getReason (String sqlState)
+  
+  static final String getReason (String sqlState, String[] replacementVariables)
   {
-    return AS400JDBCDriver.getResource ("JD" + sqlState);
+    return AS400JDBCDriver.getResource ("JD" + sqlState, replacementVariables);
   }
 
 
@@ -239,7 +241,7 @@ Returns the message text for the last operation on the IBM i system.
     }
     catch (DBDataStreamException e)
     {
-      return getReason (EXC_INTERNAL);
+      return getReason (EXC_INTERNAL, null);
     }
     catch (SQLException e)
     {
@@ -252,9 +254,9 @@ Returns the message text for the last operation on the IBM i system.
         // We can get a connection does not exist error. If that is the case,
         // just bubble it back
         if (sqlState.equals(EXC_CONNECTION_NONE)) {
-          return getReason(EXC_CONNECTION_NONE);
+          return getReason(EXC_CONNECTION_NONE, null);
         } else {
-          return getReason(EXC_INTERNAL);
+          return getReason(EXC_INTERNAL, null);
         }
       }
     }
@@ -330,7 +332,7 @@ error table.
 **/
   public static SQLWarning getSQLWarning (String sqlState)
   {
-    String reason = getReason(sqlState);
+    String reason = getReason(sqlState, null);
     int sqlCode = getSqlCode(sqlState); 
     SQLWarning warning = new SQLWarning (reason, sqlState, sqlCode);
 
@@ -426,7 +428,7 @@ error table.
   public static SQLException throwSQLException (Object thrower, String sqlState)
   throws SQLException
   {
-    String reason  = getReason(sqlState);
+    String reason  = getReason(sqlState, null);
     SQLException e ;
     int sqlCode = getSqlCode(sqlState); 
     
@@ -519,7 +521,7 @@ trace for debugging purposes.
   public static void throwSQLException (Object thrower, String sqlState, String message)
   throws SQLException
   {
-    String reason = getReason(sqlState);
+    String reason = getReason(sqlState, null);
     StringBuffer buffer = new StringBuffer(reason);
     if (message != null)
     {
@@ -554,7 +556,6 @@ Throws an SQL exception based on an error in the
 error table and dumps an internal exception stack
 trace for debugging purposes.
  * @param thrower  The thrower of the error
-
 @param  sqlState    The SQL State.
 @param  e           The internal exception.
 
@@ -563,6 +564,25 @@ trace for debugging purposes.
   public static void throwSQLException (Object thrower, String sqlState, Exception e)
   throws SQLException
   {
+    throwSQLException(thrower, sqlState, null, e); 
+     
+  }
+  
+  /**
+  Throws an SQL exception based on an error in the
+  error table and dumps an internal exception stack
+  trace for debugging purposes.
+   * @param thrower  The thrower of the error
+  @param  sqlState    The SQL State.
+  @param  replacement variables -- Replacement variables 
+  @param  e           The internal exception.
+
+  @exception          SQLException    Always.
+  **/
+    public static void throwSQLException (Object thrower, String sqlState, String[] replacementVariables, Exception e)
+    throws SQLException
+    {
+  
     // Dump the internal exception stack trace if
     // trace is on.
     // @J3d if (JDTrace.isTraceOn ()) {                                     // @D0A
@@ -571,7 +591,7 @@ trace for debugging purposes.
     // @J3d    }                                                           // @D0A
     // @J3d }                                                               // @D0A
 
-    String reason = getReason(sqlState);
+    String reason = getReason(sqlState, replacementVariables);
     StringBuffer buffer = new StringBuffer(reason); // @E3A
     if (e != null) {
       buffer.append(" ("); // @E3A
@@ -627,7 +647,7 @@ trace for debugging purposes.
   throws SQLException
   {
 
-    String reason = getReason(sqlState);
+    String reason = getReason(sqlState, null);
     StringBuffer buffer = new StringBuffer(reason);
     buffer.append(" (");
     String message = e.getMessage();

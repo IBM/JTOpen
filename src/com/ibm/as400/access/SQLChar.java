@@ -204,7 +204,7 @@ endif */
 
     public String getCreateParameters()
     {
-        return AS400JDBCDriver.getResource("MAXLENGTH");
+        return AS400JDBCDriver.getResource("MAXLENGTH",null);
     }
 
     public int getDisplaySize()

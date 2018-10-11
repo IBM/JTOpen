@@ -1814,7 +1814,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
                 dpi[i].choices[j] = dpi_[i].choices[j];
 
             // Load the actual description from the resource bundle.
-            dpi[i].description = AS400JDBCDriver.getResource (dpi_[i].description);
+            dpi[i].description = AS400JDBCDriver.getResource (dpi_[i].description,null);
         }
 
         return dpi;

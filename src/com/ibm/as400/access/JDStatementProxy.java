@@ -200,7 +200,7 @@ implements java.sql.Statement
         cachedResultSet_ = null;
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -213,7 +213,7 @@ implements java.sql.Statement
         cachedResultSet_ = null;
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -282,7 +282,7 @@ implements java.sql.Statement
         cachedResultSet_ = null;
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -295,7 +295,7 @@ implements java.sql.Statement
         cachedResultSet_ = null;
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 
@@ -378,7 +378,7 @@ implements java.sql.Statement
         cachedResultSet_ = null;
         // Avoid dragging in JDError
         throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED,null),
                                EXC_FUNCTION_NOT_SUPPORTED, -99999);
     }
 

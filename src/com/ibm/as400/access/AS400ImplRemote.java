@@ -2039,7 +2039,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Get system name.
-  String getSystemName() {
+  public String getSystemName() {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Getting implementation system name: "
           + systemName_ + " is local:", systemNameLocal_);

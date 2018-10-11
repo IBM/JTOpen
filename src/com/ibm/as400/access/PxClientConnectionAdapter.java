@@ -57,7 +57,7 @@ public abstract class PxClientConnectionAdapter
             boolean                     tunnel_             = false;           // @D1a
     private long                        clientId_           = -1;              // @D1a @D2C
     private URL                         tunnelURL_          = null;            // @D1a
-
+    private String localName = null; 
 
     protected PxClientConnectionAdapter (String proxyServer, SSLOptions secure)
     {
@@ -65,7 +65,6 @@ public abstract class PxClientConnectionAdapter
         sslOptions_ = secure;
         open (proxyServer);
     }
-
 
 
 /**
@@ -146,7 +145,7 @@ Closes the connection to the proxy server.
 
 
         // Parse the proxy server name, port number (and protocol if tunneling)
-        String localName    = proxyServer;
+        localName    = proxyServer;
         String protocolName = null;
 
         int port = -1;
@@ -439,6 +438,10 @@ Sends a request to the proxy server and receives and processes a reply.
         }                                                                  // @D1a
     }
 
+
+    public String getSystemName() { 
+      return localName; 
+    }
 
 }
 
