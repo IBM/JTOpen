@@ -801,7 +801,7 @@ retrieved from the system.
   public static SQLException throwSQLClientInfoException (Object thrower, String sqlState, Exception e, Map m)
   throws SQLClientInfoException
   {
-      String reason = getReason(sqlState);
+      String reason = getReason(sqlState, null);
       StringBuffer buffer = new StringBuffer(reason);
       buffer.append(" (");
       String message = e.getMessage();

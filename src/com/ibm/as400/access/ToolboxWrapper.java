@@ -109,7 +109,7 @@ implements Wrapper
         else
         {
             throw new SQLException (
-                    AS400JDBCDriver.getResource("JD" + EXC_PARAMETER_TYPE_INVALID),
+                    AS400JDBCDriver.getResource("JD" + EXC_PARAMETER_TYPE_INVALID, null),
                     EXC_PARAMETER_TYPE_INVALID, -99999);
             //JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
         }
