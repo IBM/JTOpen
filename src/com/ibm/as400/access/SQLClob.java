@@ -84,8 +84,13 @@ final class SQLClob extends SQLDataBase
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException
     {
-        truncated_ = 0; outOfBounds_ = false; 
-        if(savedObject_ != null) doConversion();
+        
+        if(savedObject_ != null) {
+          truncated_ = 0; outOfBounds_ = false; 
+          doConversion();
+        } else {
+          // If we do not do conversion, save the previous truncated and outOfBounds values
+        }
 
         //@PDC change to do same as SQLVarchar to get true length of byte array instead of number of chars
         //BinaryConverter.intToByteArray(length_, rawBytes, offset);
