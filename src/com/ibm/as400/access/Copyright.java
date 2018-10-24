@@ -234,6 +234,7 @@ package com.ibm.as400.access;
 //@X1    20180927  JDBC:  request alternate server from host
 //@X2    20180927  Translation: correct fault tolerant conversion
 //@X3    20181011  JDBC:  alternate server fixes 
+//@X4    20181024  JDBC:  For character truncation=none, do not insert invalid mixed CCSID strings
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -241,8 +242,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
-    //                                                                                         built=20180906 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20180927 @X3";  
+    //                                                                                         built=20181012 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20181012 @X4";  
 
 
     // Constants for reference by AS400JDBCDriver.

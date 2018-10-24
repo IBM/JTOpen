@@ -29,7 +29,8 @@ public abstract class ConvTableMixedMap extends ConvTable
 
     static final byte shiftOut_ = 0x0E; // Byte used to shift-out of single byte mode.
     static final byte shiftIn_ = 0x0F;  // Byte used to shift-in to single byte mode.
-
+    static final byte ebcdicSpace_ = 0x40;  
+    
     // Constructor.
     ConvTableMixedMap(int ccsid, int sbCcsid, int dbCcsid) throws UnsupportedEncodingException
     {
@@ -237,4 +238,69 @@ public abstract class ConvTableMixedMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
         return ret;
     }
+    
+    // Scan the data.  If valid return length, otherwise fixup and return the changed length, 
+    // padding with spaces as needed. 
+    // @X4A
+    public int validateData( byte[] buf, int offset, int length) {
+      int endOffset = offset+length; 
+      int doubleByteStart = -1; 
+      boolean doubleByte = false; 
+      for (int i = offset; i < endOffset;  i++) { 
+        // Not in double byte 
+        if (doubleByteStart == -1 ) {
+          if (buf[i] == shiftOut_) {
+            doubleByteStart = i+1; 
+          }
+        } else {
+          if (buf[i] == shiftIn_) {
+            doubleByteStart = -1; 
+          } else {
+            i++;    // Skip over an extra byte 
+          }
+        }
+      }
+
+      // If there are double bytes then we need to fix up. 
+      if (doubleByteStart >= 0)  {
+        // Easy case, there is just a half left, replace it with shiftIn
+        if (((endOffset - doubleByteStart) % 2) == 1) {
+          //  Check to see if we would put a ShiftIn by a shiftOut_
+          if (buf[endOffset-2 ] == shiftOut_) {
+            length = length - 2;
+            buf[endOffset-2] = ebcdicSpace_; 
+            buf[endOffset-1] = ebcdicSpace_; 
+          } else { 
+            buf[endOffset -1 ] = shiftIn_;
+          }
+        } else {
+          // Check to see if ended with shiftOut
+          if (doubleByteStart == endOffset) {
+             // Just get rid of the shiftOut and reduce the size
+             buf[endOffset -1 ] = ebcdicSpace_; 
+             length --; 
+          } else {
+            // Check to see if we would put a ShiftIn by a shiftOut_
+            if (buf[endOffset-3] == shiftOut_) {
+              length = length - 3;
+              buf[endOffset-3] = ebcdicSpace_; 
+              buf[endOffset-2] = ebcdicSpace_; 
+              buf[endOffset-1] = ebcdicSpace_; 
+            } else { 
+              // This case there is a two byte character at the end. 
+              // Add the shiftin. 
+              buf[endOffset-2]= shiftIn_; 
+              buf[endOffset-1]= ebcdicSpace_; 
+              length --;
+            }
+            
+          }
+        }
+        
+      }
+      
+      
+      return length; 
+    }
+
 }

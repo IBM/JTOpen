@@ -6052,11 +6052,12 @@ endif */
    * @param data
    *          The data that was written or null for SQL NULL.
    **/
-  public void testDataTruncation(AS400JDBCStatement statementWarningObject, 
+  public boolean testDataTruncation(AS400JDBCStatement statementWarningObject, 
         AS400JDBCResultSet resultSetWarningObject, 
         int parameterIndex, boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
-      throws SQLException // @trunc
+      throws SQLException // @trunc @X4C
   {
+    boolean checkRawBytes = false; 
     if (data != null) {
       if (data.getOutOfBounds()) {
         // Clear the error so it is not reported twice
@@ -6136,7 +6137,17 @@ endif */
           }
         }
       }
+    /* @X4A */ 
+    } else if (data != null && (characterTruncation_ == CHARACTER_TRUNCATION_NONE ) && data.isText()) {
+      int truncated = data.getTruncated();
+      if (truncated > 0) {
+         // Clear the truncation so it is not reported twice
+         data.clearTruncated(); 
+         checkRawBytes = true;
+      }
     }
+
+    return checkRawBytes;  /*@X4A*/
   }
 
   public ConvTable  getConverter() {

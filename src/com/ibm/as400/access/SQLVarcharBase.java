@@ -40,6 +40,8 @@ extends SQLDataBase  implements SQLVariableCompressible
     protected int                     length_;
     protected int                     maxLength_;
     protected String                  value_;
+    // We need the untruncated value for UTF-8 conversions @X4A
+    protected String                  untruncatedValue_; 
     protected int                     bytesPerCharacter_; 
     protected int                     sizeAfterTruncation_ = 0; 
 
@@ -51,6 +53,7 @@ extends SQLDataBase  implements SQLVariableCompressible
         length_         = length;
         maxLength_      = maxLength;
         value_          = value;
+        untruncatedValue_ = value; 
         bytesPerCharacter_ = 1; 
     }
 
@@ -60,6 +63,7 @@ extends SQLDataBase  implements SQLVariableCompressible
         length_         = length;
         maxLength_      = maxLength;
         value_          = value;
+        untruncatedValue_ = value; 
         bytesPerCharacter_ = bytesPerCharacter;  
     }
 
@@ -96,6 +100,7 @@ extends SQLDataBase  implements SQLVariableCompressible
             // the number of bytes. Thus, we need to multiply length_ by bytesPerCharacter.
             sizeAfterTruncation_ = length_*bytesPerCharacter_; 
             value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_*bytesPerCharacter_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
+            untruncatedValue_ = value_; 
         }catch(Exception e){
             JDError.throwSQLException(JDError.EXC_CHAR_CONVERSION_INVALID, e);
         }
@@ -116,8 +121,13 @@ extends SQLDataBase  implements SQLVariableCompressible
             bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
             truncated_ = 0; outOfBounds_ = false ; 
             
+            String value = value_; 
+            // For CCSID 1208 we must use the untruncated value to avoid having half a UTF-16 character
+            if (ccsidConverter.getCcsid() == 1208) {
+              value = untruncatedValue_; 
+            }
             // The length in the first 2 bytes is actually the length in characters.
-            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
+            byte[] temp = ccsidConverter.stringToByteArray(value, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
             
             BinaryConverter.unsignedShortToByteArray(temp.length/bytesPerCharacter_, rawBytes, offset);
             sizeAfterTruncation_ = temp.length; 
@@ -165,6 +175,16 @@ extends SQLDataBase  implements SQLVariableCompressible
     }
 
     
+    public void validateRawTruncatedData(byte[] rawBytes, int offset, ConvTable ccsidConverter) {
+      if (ccsidConverter instanceof ConvTableMixedMap || ccsidConverter instanceof ConvTable1208) { 
+         int newLength = ccsidConverter.validateData(rawBytes, offset+2, maxLength_ );
+         if (newLength < maxLength_) { 
+           BinaryConverter.unsignedShortToByteArray(newLength, rawBytes, offset);
+           sizeAfterTruncation_ = newLength; 
+         }
+      }
+    }
+
     public int convertToCompressedBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException
     {
@@ -181,7 +201,11 @@ extends SQLDataBase  implements SQLVariableCompressible
             bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
             // The length in the first 2 bytes is actually the length in characters.
-            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
+            String value = value_; 
+            if (ccsidConverter.getCcsid() == 1208) {
+              value = untruncatedValue_; 
+            }
+            byte[] temp = ccsidConverter.stringToByteArray(value, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
             BinaryConverter.unsignedShortToByteArray(temp.length / bytesPerCharacter_, rawBytes, offset);
             bytesWritten += 2; 
             if(temp.length > maxLength_)
@@ -264,6 +288,8 @@ extends SQLDataBase  implements SQLVariableCompressible
         if(value == null)                                                          // @C1C
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         value_ = value;                                                            // @C1A
+        untruncatedValue_ = value_; 
+
 
         // Truncate if necessary.
         int valueLength = value_.length();
@@ -510,7 +536,7 @@ extends SQLDataBase  implements SQLVariableCompressible
     endif */ 
     
     public void saveValue() {
-       savedValue_ = value_; 
+       savedValue_ = untruncatedValue_; 
     }
     
 }

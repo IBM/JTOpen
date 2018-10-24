@@ -2259,14 +2259,15 @@ endif */
 
   }
 
-  public void testDataTruncation(AS400JDBCStatement statementWarningObject,
+  public boolean testDataTruncation(AS400JDBCStatement statementWarningObject,
       AS400JDBCResultSet resultSetWarningObject, int parameterIndex,
       boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
       throws SQLException {
+    boolean checkRawBytes = false; 
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        currentConnection_.testDataTruncation(statementWarningObject,
+        checkRawBytes = currentConnection_.testDataTruncation(statementWarningObject,
             resultSetWarningObject, parameterIndex, isParameter, data,
             sqlStatement);
         retryOperation = false; 
@@ -2274,6 +2275,7 @@ endif */
         retryOperation = handleException(e);
       }
     }
+    return checkRawBytes; 
 
   }
 

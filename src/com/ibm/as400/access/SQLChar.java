@@ -105,6 +105,12 @@ extends SQLDataBase
         }
     }
 
+    // @X4A
+    public void validateRawTruncatedData(byte[] rawBytes, int offset, ConvTable ccsidConverter) {
+      if (ccsidConverter instanceof ConvTableMixedMap) { 
+         ccsidConverter.validateData(rawBytes, offset, maxLength_ );
+      }
+    }
     //---------------------------------------------------------//
     //                                                         //
     // SET METHODS                                             //

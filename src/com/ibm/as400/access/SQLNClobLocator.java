@@ -122,6 +122,17 @@ final class SQLNClobLocator implements SQLLocator
         if((! savedObjectWrittenToServer_ ) && (savedObject_ != null)) writeToServer();
     }
 
+    /**
+    validates that raw truncated data is correct.  The data is corrected if is not correct. 
+    This is only used when converting to MIXED CCSID and UTF-8. 
+    @param  rawBytes         the raw bytes for the system.
+    @param  offset           the offset into the byte array.
+    @param  ccsidConverter   the converter.
+     * @throws SQLException 
+    **/ 
+    public void validateRawTruncatedData(byte[] rawBytes, int offset, ConvTable ccsidConverter) {
+      // Most data type do not need to validate truncated data.  Just return. 
+    }
     //---------------------------------------------------------//
     //                                                         //
     // SET METHODS                                             //

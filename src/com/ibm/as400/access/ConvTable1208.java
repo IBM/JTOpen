@@ -123,6 +123,7 @@ class ConvTable1208 extends ConvTable
                 {
                     c = (c - 0xD800) * 0x400 + ((source.charAt(i) & 0x00FFFF) - 0xDC00) + 0x10000;
                 }
+                
                 else if (!CharConverter.isFaultTolerantConversion())
                 {
                     throw new ArrayIndexOutOfBoundsException();
@@ -407,4 +408,40 @@ class ConvTable1208 extends ConvTable
         // Don't have a Bidi string type for UTF-8.
         return stringToByteArrayTruncation(source, buf, offset, length); /*@H2C*/
     }
+    
+    
+    
+    
+    // Scan the data.  If valid return length, otherwise fixup and return the changed length, 
+    // padding with spaces as needed. 
+    // @X4A
+    public int validateData( byte[] buf, int offset, int length) {
+      int endOffset = offset+length;
+      int previousCharOffset = offset; 
+      int nextCharOffset = offset; 
+      while (nextCharOffset < endOffset) { 
+          previousCharOffset = nextCharOffset; 
+          int b = 0xFF & buf[nextCharOffset]; 
+          if (b < 0x80) { 
+            nextCharOffset++;
+            
+          } else if( b >= 0xC0 && b < 0xE0) {  // For two bytes, the first byte is 110xxxxx 
+            nextCharOffset += 2; 
+          } else if (b >= 0xE0  && b < 0xF0 ) { // For three bytes, the first byte is1110xxxx
+            nextCharOffset += 3; 
+          } else {
+            nextCharOffset += 4; 
+          }
+      } 
+      if (nextCharOffset > endOffset) {
+        // The previous character is incomplete 
+        length = previousCharOffset - offset; 
+        for (int i = previousCharOffset; i < endOffset; i++) {
+          buf[i] = ' '; 
+        }
+      }
+        
+      return length; 
+    }
+
 }

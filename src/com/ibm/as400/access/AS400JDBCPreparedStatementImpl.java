@@ -1161,27 +1161,30 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
                       // @CRS - This is the only place convertToRawBytes is ever
                       // called.
                       // @K3A compress the data if needed using variable field compression
+                      int thisParameterOffset = 0;   /*@X4A*/ 
                       if (useVariableFieldInsertCompression) {
                         if (sqlData instanceof SQLVariableCompressible) {
-                          // @K3A  write the compressed bytes for the field. 
+                          // @K3A  write the compressed bytes for the field.
+                          thisParameterOffset = rowDataOffset + parameterOffset;
                           int written = ((SQLVariableCompressible) sqlData)
                               .convertToCompressedBytes(
                                   parameterMarkerData.getRawBytes(),
-                                  rowDataOffset + parameterOffset,
+                                  thisParameterOffset,
                                   ccsidConverter);
                           variableDataLength += written;        //@L9A
                           parameterOffset += written;
                         } else {
+                          thisParameterOffset = rowDataOffset + parameterOffset;
                           sqlData.convertToRawBytes(
-                              parameterMarkerData.getRawBytes(), rowDataOffset
-                                  + parameterOffset, ccsidConverter);
+                              parameterMarkerData.getRawBytes(), thisParameterOffset, ccsidConverter);
                           // Increment by the length of the parameter
                           parameterOffset += parameterLengths_[i];
                         }
                       } else {
+                        thisParameterOffset = rowDataOffset
+                            + parameterOffsets_[i];
                         sqlData.convertToRawBytes(
-                            parameterMarkerData.getRawBytes(), rowDataOffset
-                                + parameterOffsets_[i], ccsidConverter);
+                            parameterMarkerData.getRawBytes(), thisParameterOffset, ccsidConverter);
                       }
                       
                       // Need to check for truncation from convert
@@ -1195,7 +1198,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
                         // not caught at
                         // setX() time
                         // @H2C
-                        testDataTruncation(i + 1, sqlData); // @trnc
+                        boolean checkRawBytes = testDataTruncation(i + 1, sqlData); // @trnc
+                        if (checkRawBytes) { 
+                          sqlData.validateRawTruncatedData(parameterMarkerData.getRawBytes(), thisParameterOffset, ccsidConverter); 
+                        }
                     }
 
                     // @array If the row contains an array, then we must also
@@ -3713,12 +3719,14 @@ endif */
    *          The index (1-based).
    * @param data
    *          The data that was written or null for SQL NULL.
+   * @return  True, if the caller should validate that the raw bytes are valid.
    **/
-  private void testDataTruncation(int parameterIndex, SQLData data)
+  /*@X4C*/ 
+  private boolean testDataTruncation(int parameterIndex, SQLData data)
       throws SQLException // @trunc
   {
   // Moved logic to connection to be shared with AS400JdbcResultSet
-    connection_.testDataTruncation(this, null, parameterIndex, true, data, sqlStatement_); 
+    return connection_.testDataTruncation(this, null, parameterIndex, true, data, sqlStatement_); 
   }
 
   // @BBA

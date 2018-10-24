@@ -2129,8 +2129,10 @@ endif */
    *          The index (1-based).
    * @param data
    *          The data that was written or null for SQL NULL.
+   * @return true if the caller should validate that the raw bytes are correct
    **/
-	abstract void testDataTruncation(AS400JDBCStatement statementWarningObject, 
+	/*@X4C*/ 
+	abstract boolean testDataTruncation(AS400JDBCStatement statementWarningObject, 
         AS400JDBCResultSet resultSetWarningObject, 
         int parameterIndex, boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
       throws SQLException;

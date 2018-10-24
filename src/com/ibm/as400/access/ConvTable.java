@@ -403,6 +403,10 @@ public abstract class ConvTable
         }
     }
 
+    // By default validation is not needed, so existing data should be valid @X4A
+    public int validateData( byte[] buf, int offset, int length) {
+      return length; 
+    }
     // @H2A 
     /**
      * Determine if a CCSID is a mixed CCSID. 
