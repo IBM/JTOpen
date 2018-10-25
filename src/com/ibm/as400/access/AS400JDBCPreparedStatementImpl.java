@@ -1092,6 +1092,8 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
                       arrayLen = ((SQLArray) sqlData).getArrayCount(); // @array
                       elementType = ((SQLArray) sqlData).getElementNativeType(); // @array
                       size = parameterRow_.getArrayDataLength(i + 1); // @array@G2C
+                    } else {
+                      size = parameterRow_.getLength(i + 1);   /* @X5A */ 
                     } // @array
                     ((DBVariableData) parameterMarkerData).setHeaderColumnInfo(
                         i, (short) sqlData.getNativeType(),
