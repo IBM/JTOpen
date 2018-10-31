@@ -196,6 +196,7 @@ endif*/
             else if(object instanceof Reader)
             {
               value_ = SQLDataBase.getStringFromReader((Reader)object, length_, this);
+              // Once we read the object, it cannot be read again.  Save the new value
               savedObject_ = value_; 
             }
             

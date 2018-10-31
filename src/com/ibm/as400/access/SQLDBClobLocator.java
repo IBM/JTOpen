@@ -112,6 +112,7 @@ final class SQLDBClobLocator implements SQLLocator
         savedObjectWrittenToServer_ = false; 
     }
 
+    //@CRS - This is only called from AS400JDBCPreparedStatement in one place.
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException
     {
@@ -196,6 +197,8 @@ final class SQLDBClobLocator implements SQLLocator
             else if(object instanceof Reader)
             {
              value_ = SQLDataBase.getStringFromReader((Reader) object, length_, this); 
+             // Once we read the object, it cannot be read again.  Save the new value
+              savedObject_ = value_; 
             }
             else if( object instanceof Clob)  
             {
