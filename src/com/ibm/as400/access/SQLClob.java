@@ -81,6 +81,17 @@ final class SQLClob extends SQLDataBase
         savedObject_ = null;
     }
 
+    
+    public void validateRawTruncatedData(byte[] rawBytes, int offset, ConvTable ccsidConverter) {
+      if (ccsidConverter instanceof ConvTableMixedMap || ccsidConverter instanceof ConvTable1208) { 
+         int newLength = ccsidConverter.validateData(rawBytes, offset+4, maxLength_ );
+         if (newLength < maxLength_) { 
+           BinaryConverter.intToByteArray(newLength, rawBytes, offset);
+         }
+      }
+    }
+
+    
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException
     {
@@ -106,13 +117,22 @@ final class SQLClob extends SQLDataBase
             //@PDC  ccsidConverter.stringToByteArray(value_, rawBytes, offset + 4, maxLength_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
             byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);  
             // The length in the first 4 bytes is actually the length in characters.
-            BinaryConverter.intToByteArray(temp.length, rawBytes, offset);
             if(temp.length > maxLength_)
             {
-                maxLength_ = temp.length;
-                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
+                // Handle truncation like VARCHAR @X6C
+                // maxLength_ = temp.length;
+                // JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
+              truncated_ = temp.length - maxLength_; 
+              System.arraycopy(temp, 0, rawBytes, offset+4, maxLength_);
+              BinaryConverter.intToByteArray(maxLength_, rawBytes, offset);
+            } else { 
+              System.arraycopy(temp, 0, rawBytes, offset+4, temp.length);
+              BinaryConverter.intToByteArray(temp.length, rawBytes, offset);
             }
-            System.arraycopy(temp, 0, rawBytes, offset+4, temp.length);
+
+            
+            
+            
         }
         catch(Exception e)
         {

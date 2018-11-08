@@ -189,38 +189,47 @@ extends SQLDataBase  implements SQLVariableCompressible
     throws SQLException
     {
       int bytesWritten = 0; 
-        try
-        {
-            int bidiStringType = settings_.getBidiStringType();
-            // if bidiStringType is not set by user, use ccsid to get value
-            if(bidiStringType == -1)
-                bidiStringType = ccsidConverter.bidiStringType_;
-                
-            BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
-            bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
-            bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
+    try {
+      int bidiStringType = settings_.getBidiStringType();
+      // if bidiStringType is not set by user, use ccsid to get value
+      if (bidiStringType == -1)
+        bidiStringType = ccsidConverter.bidiStringType_;
 
-            // The length in the first 2 bytes is actually the length in characters.
-            String value = value_; 
-            if (ccsidConverter.getCcsid() == 1208) {
-              value = untruncatedValue_; 
-            }
-            byte[] temp = ccsidConverter.stringToByteArray(value, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
-            BinaryConverter.unsignedShortToByteArray(temp.length / bytesPerCharacter_, rawBytes, offset);
-            bytesWritten += 2; 
-            if(temp.length > maxLength_)
-            {
-                truncated_ = temp.length - maxLength_;  /*@H2C*/
-                // maxLength_ = temp.length;
-                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
-            }
-            if (temp.length > 0)  {
-            System.arraycopy(temp, 0, rawBytes, offset+2, temp.length);
-               bytesWritten+= temp.length;
-            }
+      BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(
+          bidiStringType); // @KBA
+      bidiConversionProperties.setBidiImplicitReordering(settings_
+          .getBidiImplicitReordering()); // @KBA
+      bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_
+          .getBidiNumericOrdering()); // @KBA
+
+      // The length in the first 2 bytes is actually the length in characters.
+      String value = value_;
+      if (ccsidConverter.getCcsid() == 1208) {
+        value = untruncatedValue_;
+      }
+      byte[] temp = ccsidConverter.stringToByteArray(value,
+          bidiConversionProperties); // @KBC changed to used
+                                     // bidiConversionProperties instead of
+                                     // bidiStringType
+      BinaryConverter.unsignedShortToByteArray(
+          temp.length / bytesPerCharacter_, rawBytes, offset);
+      bytesWritten += 2;
+      if (temp.length > maxLength_) {
+        truncated_ = temp.length - maxLength_; /* @H2C */
+        // maxLength_ = temp.length;
+        // JDError.throwSQLException(this, JDError.EXC_INTERNAL,
+        // "Change Descriptor");
+        // @X6D.
+        // Complete @H2 fix and report truncation
+        System.arraycopy(temp, 0, rawBytes, offset + 2, maxLength_);
+        bytesWritten += maxLength_;
+      } else {
+        if (temp.length > 0) {
+          System.arraycopy(temp, 0, rawBytes, offset + 2, temp.length);
+          bytesWritten += temp.length;
         }
-        catch(Exception e)
-        {
+      }
+    } catch (Exception e)        {
             JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
         }
         return bytesWritten; 

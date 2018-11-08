@@ -236,6 +236,7 @@ package com.ibm.as400.access;
 //@X3    20181011  JDBC:  alternate server fixes 
 //@X4    20181024  JDBC:  For character truncation=none, do not insert invalid mixed CCSID strings
 //@X5    20181024  JDBC:  Fix stored procedure call with null and array parameters
+//@X6    20181108  JDBC:  Fix looping when mixed character truncation occurs during batch insert
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -243,8 +244,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
-    //                                                                                         built=20181024 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20181024 @X5";  
+    //                                                                                         built=20181031 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20181108 @X6";  
 
 
     // Constants for reference by AS400JDBCDriver.
