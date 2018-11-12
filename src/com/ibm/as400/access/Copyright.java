@@ -237,6 +237,7 @@ package com.ibm.as400.access;
 //@X4    20181024  JDBC:  For character truncation=none, do not insert invalid mixed CCSID strings
 //@X5    20181024  JDBC:  Fix stored procedure call with null and array parameters
 //@X6    20181108  JDBC:  Fix looping when mixed character truncation occurs during batch insert
+//@X7    20181112  Fix incorrect time zone returned because a space at end of string.
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
