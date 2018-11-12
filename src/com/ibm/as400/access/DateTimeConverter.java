@@ -707,7 +707,7 @@ public class DateTimeConverter
 	//   
     try {
       SystemValue sv = new SystemValue(system, "QTIMZON");
-      String iTimeZone = (String)sv.getValue();  // returns a value such as "-0500"
+      String iTimeZone = ((String)sv.getValue()).trim();  // returns a value such as "-0500"  @7XC
       String javaTimeZoneName = iTimeZoneToJavaTimeZone(iTimeZone); 
       if (javaTimeZoneName != null) { 
           return TimeZone.getTimeZone(javaTimeZoneName);
