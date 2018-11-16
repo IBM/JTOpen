@@ -385,7 +385,9 @@ public abstract class ConvTable
     {
         int truncated = 0; //@trnc
         byte[] b = stringToByteArray(source, properties);
-        if (length > b.length) 
+        // This detects if truncation did not occur.  If equal
+        // we should go down this path.
+        if (length >= b.length) 
             length = b.length;
         else if (length < stringToByteArray(source.trim(), properties).length){ //@trnc
             truncated = b.length - length; //@trnc

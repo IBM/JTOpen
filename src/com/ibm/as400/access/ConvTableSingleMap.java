@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.CharConversionException;
+import java.util.Arrays;
 
 /**  This is the parent class for all ConvTableXXX classes that represent single-byte ccsids.
  * 
@@ -26,7 +27,7 @@ public abstract class ConvTableSingleMap extends ConvTable
     public byte[] fromUnicode_ = null;
 
     // Constructor.
-    ConvTableSingleMap(int ccsid, char[] toUnicode, char[] fromUnicode)
+    public ConvTableSingleMap(int ccsid, char[] toUnicode, char[] fromUnicode)
     {
         super(ccsid);
         ccsid_ = ccsid;
@@ -96,4 +97,15 @@ public abstract class ConvTableSingleMap extends ConvTable
         }
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, src.length);
     }
+    
+    public void updateToUnicode(int ebcdic, char unicode) {
+      char[] oldToUnicode = toUnicode_; 
+      
+      toUnicode_ = new char[oldToUnicode.length];
+      for (int i = 0; i < oldToUnicode.length; i++) { 
+        toUnicode_[i] = oldToUnicode[i]; 
+      }
+      toUnicode_[ebcdic] = unicode; 
+    }
+    
 }

@@ -239,6 +239,7 @@ package com.ibm.as400.access;
 //@X6    20181108  JDBC:  Fix looping when mixed character truncation occurs during batch insert
 //@X7    20181112  Fix incorrect time zone returned because a space at end of string.
 //@X8    20181114  Support ASP API 
+//@X9    20181116  Translation: Truncation fixes, CCSID 930 fixes, and CCSID 1175 support
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -247,7 +248,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                         built=20181031 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20181108 @X8";  
+    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20181116 @X9";  
 
 
     // Constants for reference by AS400JDBCDriver.
