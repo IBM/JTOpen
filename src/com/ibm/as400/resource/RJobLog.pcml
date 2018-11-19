@@ -1,0 +1,161 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RJobLog.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="3.0">
+
+
+
+<struct name="qualifiedName">
+        <data name="objectName"         type="char" length="10"/>
+        <data name="libraryName"        type="char" length="10"/>
+</struct>
+
+
+
+<struct name="qualifiedJobName">
+        <data name="jobName"                                    type="char" length="10" init=" "/>
+        <data name="userName"                                   type="char" length="10" init=" "/>
+        <data name="jobNumber"                                  type="char" length="6" init=" "/>
+</struct>
+
+
+
+<program name="qgyoljbl" path="/QSYS.LIB/QGY.LIB/QGYOLJBL.PGM" parseorder="listInformation receiverVariable" threadsafe="false">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="oljl0100"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="receiverVariableLength"/>
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="5120"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4" init="13"/> 
+        <data name="messageSelectionInformation"        usage="input"           type="struct" struct="messageSelectionInformationFormat"/>
+        <data name="sizeOfMessageSelectionInformation"  usage="input"           type="int" length="4" init="105"/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="messageSelectionInformationFormat">
+        <data name="listDirection"                              type="char" length="10"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16" init=" "/>
+        <data name="startingMessageKey"                         type="byte" length="4"/>
+        <data name="maximumMessageLength"                       type="int" length="4" init="511"/>
+        <data name="maximumMessageHelpLength"                   type="int" length="4" init="3000"/>
+        <data name="offsetOfIdentifiersOfFieldsToReturn"        type="int" length="4" init="80"/>
+        <data name="numberOfFieldsToReturn"                     type="int" length="4" init="6"/>
+        <data name="offsetOfCallMessageQueueName"               type="int" length="4" init="104"/>
+        <data name="sizeOfCallMessageQueueName"                 type="int" length="4" init="1"/>
+        <data name="identifiersOfFieldsToReturn0"               type="int" length="4" init="302"/>                                                                        
+        <data name="identifiersOfFieldsToReturn1"               type="int" length="4" init="601"/>
+        <data name="identifiersOfFieldsToReturn2"               type="int" length="4" init="603"/>                                                                        
+        <data name="identifiersOfFieldsToReturn3"               type="int" length="4" init="1001"/>                                                                        
+        <data name="identifiersOfFieldsToReturn4"               type="int" length="4" init="501"/>                                                                        
+        <data name="identifiersOfFieldsToReturn5"               type="int" length="4" init="404"/>                                                                        
+        <data name="callMessageQueueName"                       type="char" length="sizeOfCallMessageQueueName" init="*"/>  
+</struct>        
+
+
+
+<program name="qgygtle" path="/QSYS.LIB/QGY.LIB/QGYGTLE.PGM" parseorder="listInformation receiverVariable">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="oljl0100"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="receiverVariableLength" />
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="32768"/>
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4"/> 
+        <data name="startingRecord"                     usage="input"           type="int" length="4"/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<program name="qgyclst" path="/QSYS.LIB/QGY.LIB/QGYCLST.PGM">
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="oljl0100">
+        <data name="offsetToTheNextEntry"               type="int" length="4"/>
+        <data name="offsetToFieldsReturned"             type="int" length="4"/>
+        <data name="numberOfFieldsReturned"             type="int" length="4"/>
+        <data name="messageSeverity"                    type="int" length="4"/>
+        <data name="messageIdentifier"                  type="char" length="7"/>
+        <data name="messageType"                        type="char" length="2"/>
+        <data name="messageKey"                         type="byte" length="4"/>
+        <data name="messageFile"                        type="char" length="20"/>
+        <data name="dateAndTimeSent"                    type="char" length="13"/>
+        <data                                           type="byte" length="0" offset="offsetToFieldsReturned" offsetfrom="0"/>
+        <data name="messageWithReplacementData"         type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="messageWithReplacementData.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="qualifiedSenderJobName"             type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="qualifiedSenderJobName.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="sendingProgramName"                 type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="sendingProgramName.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="replyStatus"                        type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="replyStatus.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="defaultReply"                       type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="defaultReply.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="messageHelpWithRDAndFC"             type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="offsetToTheNextEntry" offsetfrom="0"/>
+</struct>
+
+
+
+<struct name="fieldInformation">
+        <data name="offsetToTheNextFieldInformation"    type="int" length="4"/>
+        <data name="lengthOfFieldInformation"           type="int" length="4"/>
+        <data name="identifierField"                    type="int" length="4"/>
+        <data name="typeOfData"                         type="char" length="1"/>
+        <data name="statusOfData"                       type="char" length="1"/>
+        <data                                           type="char" length="14"/>
+        <data name="lengthOfData"                       type="int" length="4"/>
+        <data name="data"                               type="char" length="lengthOfData"/>
+</struct>
+
+
+
+<struct name="listInformation">
+        <data name="totalRecords"                       type="int" length="4"/>
+        <data name="recordsReturned"                    type="int" length="4"/>
+        <data name="requestHandle"                      type="byte" length="4"/>
+        <data name="recordLength"                       type="int" length="4"/>
+        <data name="informationCompleteIndicator"       type="char" length="1"/>
+        <data name="dateAndTimeCreated"                 type="char" length="13"/>
+        <data name="listStatusIndicator"                type="char" length="1"/>
+        <data                                           type="byte" length="1"/>
+        <data name="lengthOfInformationReturned"        type="int" length="4"/>
+        <data name="firstRecordInReceiverVariable"      type="int" length="4"/>
+        <data                                           type="byte" length="40"/>
+</struct>
+
+
+
+<program name="qmhsndpm" path="/QSYS.LIB/QMHSNDPM.PGM" threadsafe="true">        
+        <data name="messageID"                          usage="input"           type="char" length="7"/>
+        <data name="qualifiedMessageFileName"           usage="input"           type="struct" struct="qualifiedName"/> 
+        <data name="messageDataOrImmediateText"         usage="input"           type="byte" length="lengthOfMessageDataOrImmediateText"/>
+        <data name="lengthOfMessageDataOrImmediateText" usage="input"           type="int"  length="4"/>
+        <data name="messageType"                        usage="input"           type="char" length="10"/>
+        <data name="callStackEntry"                     usage="input"           type="char" length="21" init="*"/>
+        <data name="callStackCounter"                   usage="input"           type="int"  length="4" init="0"/> 
+        <data name="messageKey"                         usage="output"          type="byte" length="4"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+      
+
+</pcml>        
+
