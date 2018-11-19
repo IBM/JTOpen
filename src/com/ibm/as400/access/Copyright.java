@@ -240,6 +240,7 @@ package com.ibm.as400.access;
 //@X7    20181112  Fix incorrect time zone returned because a space at end of string.
 //@X8    20181114  Support ASP API 
 //@X9    20181116  Translation: Truncation fixes, CCSID 930 fixes, and CCSID 1175 support
+//@Y0    20181119  JTOPen 9.7
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -248,13 +249,13 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                         built=20181031 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.6, codebase 5770-SS1 V7R3M0.00 built=20181116 @X9";  
+    public static String version   = "Open Source Software, JTOpen 9.7, codebase 5770-SS1 V7R3M0.00 built=20181118 @Y0";  
 
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 11; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
-    static final int    MINOR_VERSION = 6; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
+    static final int    MINOR_VERSION = 7; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
                                            //Note: JTOpen 9.1 is synching with ptf 11.1
-    static final String DRIVER_LEVEL  = "07030006"; //(ex: 07030007 -> V7R3M0 PTF#7) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final String DRIVER_LEVEL  = "07030007"; //(ex: 07030008 -> V7R3M0 PTF#8) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
