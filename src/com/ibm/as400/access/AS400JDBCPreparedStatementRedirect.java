@@ -747,6 +747,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
       throws SQLException {
     int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
 
+    
     while (true) {
       try {
         stmt_.setAsciiStream(parameterIndex, x, length);
@@ -792,9 +793,18 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
 
   public void setBinaryStream(int parameterIndex, InputStream stream, int length)
       throws SQLException {
-    int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
-    byte[] value = SQLLocatorBase.readInputStream(stream, length,null, false);
+    
+    // Validate the length parameter
+    if (length < 0)
+      JDError.throwSQLException(this, JDError.EXC_BUFFER_LENGTH_INVALID);
 
+    
+    int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+    byte[] value = null; 
+    if (stream != null) { 
+     value = JDUtilities.streamToBytes(stream, length);
+    }
+    
     while (true) {
       try {
         stmt_.setBytes(parameterIndex, value);
@@ -1247,8 +1257,11 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     
     public void setBinaryStream(int parameterIndex, InputStream stream) throws SQLException {
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
-      byte[] value = SQLLocatorBase.readInputStream(stream, Integer.MAX_VALUE,null, false);
-
+      byte[] value = null; 
+      
+      if (stream != null) {
+        value = JDUtilities.streamToBytes(stream);
+      }
       while (true) {
         try {
           stmt_.setBytes(parameterIndex,  value); 
@@ -1271,9 +1284,15 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     
     public void setBinaryStream(int parameterIndex, InputStream stream, long length)
         throws SQLException {
-      int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
-      byte[] value = SQLLocatorBase.readInputStream(stream, (int) length,null, false);
+      // Validate the length parameter
+      if (length < 0)
+        JDError.throwSQLException(this, JDError.EXC_BUFFER_LENGTH_INVALID);
 
+      int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
+      byte[] value = null; 
+      if (stream != null) { 
+        value = JDUtilities.streamToBytes(stream, (int) length);
+      }
       while (true) {
         try {
           stmt_.setBytes(parameterIndex,value); 
@@ -1296,7 +1315,11 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     
     public void setBlob(int parameterIndex, InputStream stream) throws SQLException {
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
-      byte[] value = SQLLocatorBase.readInputStream(stream, Integer.MAX_VALUE,null, false);
+      byte[] value = null; 
+      if (stream != null) { 
+        value = JDUtilities.streamToBytes(stream);
+        
+      }
 
       while (true) {
         try {
@@ -1320,9 +1343,18 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
     
     public void setBlob(int parameterIndex, InputStream stream, long length)
         throws SQLException {
+      
+      // Validate the length parameter
+      if (length < 0)
+        JDError.throwSQLException(this, JDError.EXC_BUFFER_LENGTH_INVALID);
+
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
       // In the case of an input stream, we need to save the data for the retry,  
-      byte[] value = SQLLocatorBase.readInputStream(stream, (int) length,null, false);
+      byte[] value = null; 
+      if (stream != null) { 
+        
+        value = JDUtilities.streamToBytes(stream, (int) length); 
+      }
 
       while (true) {
         try {
