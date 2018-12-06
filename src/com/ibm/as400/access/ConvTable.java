@@ -42,6 +42,8 @@ public abstract class ConvTable
     // The highest number of all our supported CCSIDs.  There's no point in making the pool larger than it needs to be.  We only have a handful of CCSIDs in the 62000 range, so we could use a smaller number to save space and those CCSIDs outside the range just wouldn't get cached.  However, 61952 is used extensively, so we might as well max it out.
     private static final int LARGEST_CCSID = 62251;
     private static final ConvTable[] ccsidPool_ = new ConvTable[LARGEST_CCSID + 1];
+    private static final ConvTable[] ccsidPool1_ = new ConvTable[LARGEST_CCSID + 1];
+    private static final ConvTable[] ccsidPool2_ = new ConvTable[LARGEST_CCSID + 1];
     private static final Hashtable converterPool_ = new Hashtable();
     private static final String prefix_ = "com.ibm.as400.access.ConvTable";
 
@@ -106,7 +108,7 @@ public abstract class ConvTable
                         buf[c++] = (byte)(ch / 256);
                         buf[c++] = (byte)(ch % 256);
                     }
-                    i = i + 2;
+                   i = i + 2;
                 }
             }
             else if (arr[i] == ric_)
@@ -254,14 +256,22 @@ public abstract class ConvTable
     // Factory method for finding appropriate table based on ccsid number.  System may be null if no system was provided.
     public static final ConvTable getTable(int ccsid, AS400ImplRemote system) throws UnsupportedEncodingException
     {
-        ccsid = ccsid & 0x00FFFF; // Remove sign-extended shorts that JDBC gives us.
-
-        if (ccsid <= LARGEST_CCSID)  //If it's negative, too bad...
-        {
+        
+        if (ccsid > 2000000) {
+          ConvTable cachedTable = ccsidPool2_[ccsid-2000000];
+          if (cachedTable != null) return cachedTable;
+        } else if (ccsid > 1000000) {
+          ConvTable cachedTable = ccsidPool1_[ccsid-1000000];
+          if (cachedTable != null) return cachedTable;
+        
+        } else { 
+          ccsid = ccsid & 0x00FFFF; // Remove sign-extended shorts that JDBC gives us.
+          if (ccsid <= LARGEST_CCSID)  //If it's negative, too bad...
+          {
             ConvTable cachedTable = ccsidPool_[ccsid];
             if (cachedTable != null) return cachedTable;
+          }
         }
-
         String className = null;
         if (NLS.forceJavaTables_)
         {
@@ -278,7 +288,13 @@ public abstract class ConvTable
         if (newTable != null)
         {
             if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Reusing previously loaded conversion table for ccsid: " + ccsid);
-            if (ccsid <= LARGEST_CCSID) ccsidPool_[ccsid] = newTable;
+            if (ccsid > 2000000) { 
+              ccsidPool2_[ccsid] = newTable;
+            } else if (ccsid > 1000000) { 
+              ccsidPool1_[ccsid] = newTable;
+            } else if (ccsid <= LARGEST_CCSID) {
+              ccsidPool_[ccsid] = newTable;
+            }
             return newTable;
         }
 

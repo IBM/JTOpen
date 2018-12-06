@@ -21,9 +21,7 @@ class ConvTable1371 extends ConvTableMixedMap
 
     ConvTable1371() throws UnsupportedEncodingException
     {
-        super(1371, 1140, 835);
-        // @V5A
-        dbTable_ = ConvTable835.makeAlternateMap(dbTable_, 1371); 
+        super(1371, 1001371, 2001371);
 
     }
 }
