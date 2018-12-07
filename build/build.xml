@@ -1376,7 +1376,7 @@
 
 	<target name="setJavadoc8ExecOverride" if="ibmjavadocExists">
 		<echo file="${ibmjavadocExec}" append="false">ECHO Running ibmjavadoc8 %*
-			${jdk18windows}\jre\bin\java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
+			${jdk18windows}\jre\bin\java -Xmx500m -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
 		</echo>
 		<property name="javadoc8Exec" value="${ibmjavadocExec}"/>
 		<echo> Using ibmjavadoc ${javadoc8Exec}   </echo>
