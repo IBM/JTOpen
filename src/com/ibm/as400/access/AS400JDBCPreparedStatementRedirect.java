@@ -1345,7 +1345,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
         throws SQLException {
       
       // Validate the length parameter
-      if (length < 0)
+      if (length < 0 || length > Integer.MAX_VALUE)
         JDError.throwSQLException(this, JDError.EXC_BUFFER_LENGTH_INVALID);
 
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
