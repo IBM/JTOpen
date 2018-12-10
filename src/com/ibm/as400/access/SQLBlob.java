@@ -224,8 +224,14 @@ final class SQLBlob extends SQLDataBase
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
 
+
         savedObject_ = object;
         if(scale != -1) scale_ = scale;
+
+        // If we truncated, do the conversion so that the truncated value is set
+        if (truncated_ > 0) {
+          doConversion(); 
+        }
     }
 
     private void doConversion()
