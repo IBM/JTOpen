@@ -7,7 +7,7 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 
 public class Java9Task extends MatchingTask
 {
-  static final String copyright = "Copyright (C) 2009-2010 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 2009-2019 International Business Machines Corporation and others.";
 
   private boolean verbose_;
 

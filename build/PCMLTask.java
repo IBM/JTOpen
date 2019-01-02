@@ -20,7 +20,7 @@ import java.io.*;
 **/
 public class PCMLTask extends MatchingTask
 {
-  static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  static final String copyright = "Copyright (C) 1997-2019 International Business Machines Corporation and others.";
 
   private File srcDir_;
   private File destDir_;
