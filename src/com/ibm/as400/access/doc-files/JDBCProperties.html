@@ -863,11 +863,10 @@ current server is unavailable.</p>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat7">&quot;affinityFailbackInterval&quot;</TD>
     <TD HEADERS="cat7t2">
-<p>This property is not supported until JTOpen 9.7
 <p>Specifies the length of the interval, in seconds, that the JTOpen JDBC Driver 
 waits between attempts to fail back an existing connection to the primary server. 
 A value that is less than or equal to 0 means that the connection does not fail back.</p>  
-<p>Attempts to fail back connections to the primary server are made at transaction 
+<p>Attempts to fail back connections to the primary server are made at commit 
 boundaries, after the specified interval elapses.</p>
 <p>This property is used only if the values of properties enableSeamlessFailover 
 and enableClientAffinitiesList are 1.</p>  
@@ -941,7 +940,7 @@ retryIntervalForClientReroute is 0 (no wait).</p>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat7">&quot;enableSeamlessFailover&quot;</TD>
     <TD HEADERS="cat7t2">
-<p>This feature is not yet fully implemented in JTOpen 9.6.   If you choose to try this feature, please 
+<p>This feature is not yet fully implemented in the current JTOpen release.   If you choose to try this feature, please 
 post problems you encounter using the bugs page for JTOpen at https://sourceforge.net/p/jt400/bugs/.
 <p>Specifies whether the JTOpen JDBC driver uses seamless failover for 
 client reroute.  This setting is only used if the &quot;enableClientAffinitiesList&quot; 

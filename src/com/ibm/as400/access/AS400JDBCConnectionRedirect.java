@@ -64,6 +64,9 @@ extends AS400JDBCConnection {
   
   private int maxRetriesForClientReroute_ = -1; 
   private int retryIntervalForClientReroute_ = -1; 
+  private int affinityFailbackInterval_ = 0 ; 
+  private long affinityFailbackTime_ = 0;
+  private boolean affinityOnAlternate_ = false; 
   
   private Vector setCommands_ = null; 
   private boolean throwException_; /* should exception be thrown from findNewConnecton */
@@ -80,7 +83,10 @@ extends AS400JDBCConnection {
   private int     networkTimeout_; 
   
   private boolean lastConnectionCanSeamlessFailover_ = false; 
-  private boolean topLevelApi_ = false; 
+  private boolean topLevelApi_ = false;
+
+
+
   
   /** 
    * Default constructor reserved for use within package
@@ -98,7 +104,7 @@ extends AS400JDBCConnection {
   private void setupRetryInformation() {
     
     
-       
+       affinityFailbackInterval_ = getAffinityFailbackInterval(); 
        enableSeamlessFailover_ = getEnableSeamlessFailover(); 
        maxRetriesForClientReroute_ = getMaxRetriesForClientReroute(); 
        retryIntervalForClientReroute_ = getRetryIntervalForClientReroute(); 
@@ -192,6 +198,10 @@ extends AS400JDBCConnection {
     return url;
   }
 
+  int getAffinityFailbackInterval() {
+    return  originalProperties_.getInt(JDProperties.ENABLE_SEAMLESS_FAILOVER); 
+  }
+  
   boolean getEnableSeamlessFailover() {
     int value = originalProperties_.getInt(JDProperties.ENABLE_SEAMLESS_FAILOVER); 
     if (value == 1) {
@@ -199,6 +209,7 @@ extends AS400JDBCConnection {
     }
     return false; 
   }
+  
   int getMaxRetriesForClientReroute() { 
     int value = originalProperties_.getInt(JDProperties.MAX_RETRIES_FOR_CLIENT_REROUTE);
     if (value < 0) value = -1; 
@@ -253,8 +264,8 @@ extends AS400JDBCConnection {
    * Otherwise it will throw the exception SQL4498 indicating that
    * the connection was re-established. 
    */
-  boolean reconnect(SQLException originalException)  throws SQLException {
     
+  boolean reconnect(SQLException originalException)  throws SQLException {
     return  findNewConnection(originalException);
     
   }
@@ -308,7 +319,7 @@ extends AS400JDBCConnection {
    * @return true if new connection can seamlessly be used.
    * Otherwise throws the SQL4498 exception. 
    */
-  private boolean setupNewConnection(AS400JDBCConnectionImpl newConnection, JDDataSourceURL newUrl, SQLException e) throws SQLException {
+  private boolean setupNewConnection(AS400JDBCConnectionImpl newConnection, JDDataSourceURL newUrl, SQLException e, boolean primaryServer) throws SQLException {
     // Now replay the settings on the new connection.
     // If this has a failure then the exception is thrown and we are unable to use the connection. 
     
@@ -349,54 +360,66 @@ extends AS400JDBCConnection {
     }
     
     
-    
+    if (affinityFailbackInterval_ > 0) {
+      if (primaryServer) {
+        affinityOnAlternate_ = false; 
+      } else {
+        affinityOnAlternate_ = true; 
+        affinityFailbackTime_ = System.currentTimeMillis() + 1000 * affinityFailbackInterval_; 
+      }
+    }
     currentConnection_ = newConnection; 
     currentUrl_ = newUrl; 
-    if ( lastConnectionCanSeamlessFailover_ && topLevelApi_) {
+    if (lastConnectionCanSeamlessFailover_ && topLevelApi_) {
       // For a topLevelApi_ we can return true and have the connection
-      // object retry. 
-      return true; 
-    } else { 
-    throwException_ = true; 
-    String[] replacementVariables = new String[2]; 
-    replacementVariables[0] = currentConnection_.getHostName(); 
-    replacementVariables[1] = currentConnection_.getPort(); 
-    
-    JDError.throwSQLException (this, JDError.EXC_CONNECTION_REESTABLISHED, replacementVariables, e);
+      // object retry.
+      return true;
+    } else {
+      throwException_ = true;
+      String[] replacementVariables = new String[2];
+      replacementVariables[0] = currentConnection_.getHostName();
+      replacementVariables[1] = currentConnection_.getPort();
 
-    return false; 
+      JDError.throwSQLException(this, JDError.EXC_CONNECTION_REESTABLISHED,
+          replacementVariables, e);
+
+      return false;
     }
   }
   /** 
    * Find and enable a new connection to the server. 
    * @return true if the new connection can be seamlessly used.
    * otherwise throw the SQL4498 exception saying that the connection was reused, 
-   * otherwise throw the original exception.  
+   * otherwise throw the original exception. 
+   * @param originalException -- the exception that trigger the switch. 
+   *                             Will be null for affinityFailback.  
    * @throws SQLException 
    */
    boolean findNewConnection(SQLException originalException) throws SQLException {
-     
+     SQLException savedException = null; 
      int searchStart = 0; 
+     
      // If the original exception is an SQL7061 do not attempt to reconnect to
      // the existing system, but connect to the next system in the list.
      // Note: To get here, it has already been checked that reconnect is 
      // allowed for this SQL7061. 
-     int sqlcode = originalException.getErrorCode(); 
-     if (sqlcode == -7061) {
-       if (currentUrl_ != null) { 
-         for (int i = 0; i < reconnectUrls_.length; i++) {
-           if (reconnectUrls_[i] == currentUrl_) {
-             searchStart = i + 1; 
-             if (searchStart == reconnectUrls_.length) {
-               searchStart = 0; 
-             }
-             i = reconnectUrls_.length; 
-           }
-         }
-                   
-       }
-     }
-     
+    if (originalException != null) {
+      int sqlcode = originalException.getErrorCode();
+      if (sqlcode == -7061) {
+        if (currentUrl_ != null) {
+          for (int i = 0; i < reconnectUrls_.length; i++) {
+            if (reconnectUrls_[i] == currentUrl_) {
+              searchStart = i + 1;
+              if (searchStart == reconnectUrls_.length) {
+                searchStart = 0;
+              }
+              i = reconnectUrls_.length;
+            }
+          }
+
+        }
+      }
+    }
     // Start at the current server and try to get a new connection.
      AS400JDBCConnectionImpl connection ; 
      Exception[] exceptions = new Exception [reconnectUrls_.length];
@@ -424,7 +447,7 @@ extends AS400JDBCConnection {
 
           connection.setProperties(reconnectUrls_[i], reconnectProperties_[i],
               as400, originalInfo_);
-          return  setupNewConnection(connection, reconnectUrls_[i], originalException); 
+          return  setupNewConnection(connection, reconnectUrls_[i], originalException, (i == 0)); 
           
         } catch (SQLException e) {
           if (throwException_) {
@@ -433,6 +456,7 @@ extends AS400JDBCConnection {
           }
           // Unable to connect keep trying
           // Trace the exception anyway
+          savedException = e; 
           exceptions[i] = e;
           if (JDTrace.isTraceOn())
             JDTrace.logException(this, "Unable to connect to system i=" + i
@@ -482,12 +506,31 @@ extends AS400JDBCConnection {
             Thread.sleep(retryDelayMilliseconds);
           } catch (InterruptedException e) {
             // If we are interrupted, just give up and throw original exception
-            throw (originalException);
+            if (originalException != null) { 
+              throw (originalException);
+            } else {
+              if (savedException != null) { 
+                throw savedException; 
+              } else {
+                JDError.throwSQLException(this, JDError.EXC_CONNECTION_NONE, "INTERNAL_ERROR"); 
+              }
+            }
           }
         }
       }
     } /* while retrying */ 
-    throw (originalException);
+    
+    if (originalException != null) { 
+      throw (originalException);
+    } else {
+      if (savedException != null) { 
+        throw savedException; 
+      } else {
+        JDError.throwSQLException(this, JDError.EXC_CONNECTION_NONE, "INTERNAL_ERROR"); 
+        throw new SQLException("DEAD_CODE_NOT_REACHABLE"); 
+      }
+    }
+    
   }
   /**
    * Determine if an SQL exception should cause the connection to switch to
@@ -694,6 +737,23 @@ endif */
         retryCount--; 
       } finally {
         topLevelApi_ = false; 
+      }
+    }
+    
+    if (affinityFailbackInterval_ > 0) {
+      if (affinityOnAlternate_) {
+        if (System.currentTimeMillis() > affinityFailbackTime_) {
+           try { 
+              reconnect(null); 
+           } catch (SQLException e) { 
+              // We do not want to fail the commit since we know it already worked
+              // Just log the exception and continue on.  There will be an error 
+              // when we try to use the connection. 
+             if (JDTrace.isTraceOn())
+               JDTrace.logException(this, "Exception from commit.reconnect", e); 
+           
+           }
+        }
       }
     }
 

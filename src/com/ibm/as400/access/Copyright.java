@@ -242,6 +242,7 @@ package com.ibm.as400.access;
 //@X9    20181116  Translation: Truncation fixes, CCSID 930 fixes, and CCSID 1175 support
 //@Y0    20181119  JTOPen 9.7
 //@Y1    20181206  Translation:  fixes for CCSID 918, 1097, 1371
+//@Y2    20190102  JDBC:  affinity failback interval
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -249,8 +250,8 @@ public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
-    //                                                                                         built=20181206 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.7, codebase 5770-SS1 V7R3M0.00 built=20181206 @Y1";  
+    //                                                                                         built=20190102 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, JTOpen 9.7, codebase 5770-SS1 V7R3M0.00 built=20190102 @Y2";  
 
 
     // Constants for reference by AS400JDBCDriver.
