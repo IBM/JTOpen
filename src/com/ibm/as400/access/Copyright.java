@@ -244,6 +244,7 @@ package com.ibm.as400.access;
 //@Y1    20181206  Translation:  fixes for CCSID 918, 1097, 1371
 //@Y2    20190102  JDBC:  affinity failback interval
 //@Y3    20190123  Support for Japanese new era
+//@Y4    20190128  Check the connection before close the list.
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

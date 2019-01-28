@@ -154,7 +154,7 @@ class ListUtilities
    **/
   static void closeList(AS400 system, byte[] listHandle) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
-    if (listHandle == null) return;
+    if (listHandle == null || system.isConnected() == false) return;   //@Y4C
 
     ProgramParameter[] parameters = new ProgramParameter[]
     {
