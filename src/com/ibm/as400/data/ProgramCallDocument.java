@@ -105,6 +105,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     private AS400 m_as400;
     private PcmlDocument m_pcmlDoc;
     static boolean exceptionIfParseError_;
+    private int m_timeOut = 0; //@Y6A
     static
     {
       String property = null;
@@ -445,6 +446,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     {
         try
         {
+        	m_pcmlDoc.setTimeOut(m_timeOut);  //@Y6A
             return m_pcmlDoc.callProgram(name);
         }
         catch (AS400SecurityException e)
@@ -1979,5 +1981,14 @@ public class ProgramCallDocument implements Serializable, Cloneable
       if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Null value specified for '" + parmName + "' parameter on ProgramCallDocument constructor.");
     }
 
+    //@Y6A Start
+    public void setTimeOut(int timeOut) {
+    	m_timeOut = timeOut;
+    }
+    
+    public int getTimeout() {
+        return m_timeOut;
+    }
+    //@Y6A End
 
 }

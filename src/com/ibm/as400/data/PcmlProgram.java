@@ -669,6 +669,7 @@ class PcmlProgram extends PcmlDocNode
         }                                                           // @B1A
         else                                                        // @B1A
         {                                                           // @B1A
+        	m_pgmCall.setTimeOut(getTimeOut());                     // @Y6A 
             m_pgmCall = new ProgramCall(as400,
                                         getPath(),
                                         supportedParms);            // @A1C @B1C

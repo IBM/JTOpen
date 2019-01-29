@@ -55,6 +55,7 @@ abstract class PcmlDocNode extends PcmlNode
 
     // @E0A - Add counter for use in xpcml output processing
     private   int       m_CountReps;                    //@E0A
+    private int m_timeOut = 0;    //@Y6A
 
 
     // Constructor
@@ -494,4 +495,14 @@ abstract class PcmlDocNode extends PcmlNode
     {
         return m_CountReps;
     }
+    
+    //@Y6A Start
+    int getTimeOut() {
+		return m_timeOut;
+    }
+    
+    void setTimeOut(int timeOut) {
+    	m_timeOut = timeOut;
+    }
+    //@Y6A End
 }
