@@ -393,12 +393,24 @@ public class PTFGroup
         ProgramParameter[] parms = new ProgramParameter[5];
         parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));        //qualified user space name
         parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+        int groupInfoLength = 69; //@Y5A
         byte[] groupInfo = new byte[69];
+        //@Y5A Start
+        if (PTFGroupLevel_ != 0) {
+        	groupInfo = new byte[76];    
+        	groupInfoLength = 76;
+        }
+        //@Y5A End
         AS400Text text60 = new AS400Text(60, ccsid, system_);
-        BinaryConverter.intToByteArray(69, groupInfo, 0);
+        BinaryConverter.intToByteArray(groupInfoLength, groupInfo, 0);  //@Y5C group information length can be 69 or 76.
         text60.toBytes(PTFGroupName_, groupInfo, 4);
         BinaryConverter.intToByteArray(ccsid, groupInfo, 64);
         groupInfo[68] = includeRelatedPTFGroups_ ? (byte)0xF1 : (byte)0xF0; // '1' or '0'
+        //@Y5A Start
+        if (PTFGroupLevel_ != 0) {
+        	BinaryConverter.intToByteArray(PTFGroupLevel_, groupInfo, 72);
+        }
+        //@Y5A End
         parms[1] = new ProgramParameter(groupInfo);       // PTF group information
         parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         parms[2] = new ProgramParameter(conv.stringToByteArray("GRPR0300"));            //FORMAT
