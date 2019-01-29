@@ -1570,7 +1570,8 @@ public class AS400 implements Serializable
 
     /**
      Generates a profile token on behalf of the provided user identity.  This user identity must be associated with a user profile via EIM.
-     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.  The profile associated with this system object must have enough authority to generate an authentication token for another user.
+     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.  
+     The profile associated with this system object must have enough authority to generate an authentication token for another user.
      <p>This function is only supported on i5/OS V5R3M0 or greater.
      @param  userIdentity  The LDAP distinguished name.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
