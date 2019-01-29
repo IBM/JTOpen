@@ -59,7 +59,7 @@ public class ConvTable1399 extends ConvTableMixedMap
           newToUnicode[0x43A1] = '\u301c';
           newToUnicode[0x444A] = '\u2014';
           newToUnicode[0x447C] = '\u2016';
-          newToUnicode[0xE861] = '\u32FF';  //@Y3A
+          newToUnicode[0xE860] = '\u32FF';  //@Y3A
           alternateToUnicodeMap.put(toUnicode, newToUnicode); 
       }
       newMap.setToUnicode(newToUnicode);
