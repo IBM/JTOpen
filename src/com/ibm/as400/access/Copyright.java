@@ -247,6 +247,7 @@ package com.ibm.as400.access;
 //@Y4    20190128  Check the connection before close the list
 //@Y5    20190129  Fix same ptfs are returned for different PTF groups
 //@Y6    20190129  Support to delivery timeout from ProgramCallDocument to ProgramCall
+//@Y7    20190130  Check *PUBLIC when check user profile object authority
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

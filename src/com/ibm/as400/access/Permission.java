@@ -857,7 +857,15 @@ public class Permission
           if (index != -1)
           {
             return (UserPermission)userPermissions_.elementAt(index);
+            //@Y7A Start
+          } else {
+        	  index = getUserIndex("*PUBLIC", userPermissions_);
+              if (index != -1)
+              {
+                return (UserPermission)userPermissions_.elementAt(index);
+              }
           }
+          //@Y7A End
           return null;
         }
     }
