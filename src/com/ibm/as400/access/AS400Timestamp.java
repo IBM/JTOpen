@@ -453,10 +453,19 @@ public class AS400Timestamp extends AS400AbstractTime
   public java.sql.Timestamp parse(String source)
   {
     if (source == null) throw new NullPointerException("source");
-    if (source.length() < 26) {
-      Trace.log(Trace.ERROR, "Timestamp string is expected to be in format: " + patternFor(getFormat(), getSeparator()) + ".ssssss");
-      throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
+    //@Y8D Start
+    //if (source.length() < 26) {
+    //  Trace.log(Trace.ERROR, "Timestamp string is expected to be in format: " + patternFor(getFormat(), getSeparator()) + ".ssssss");
+    //  throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    //}
+    //@Y8D End
+    //@Y8A Start
+    if (source.length() < 19) {
+        Trace.log(Trace.ERROR, "Timestamp string is expected to be in format: " + patternFor(getFormat(), getSeparator()) + ".ssssss");
+        throw new ExtendedIllegalArgumentException("source ("+source+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+    //@Y8A End
+    
     try
     {
       // Our SimpleDateFormat formatter doesn't handle microseconds.
@@ -467,9 +476,18 @@ public class AS400Timestamp extends AS400AbstractTime
       java.util.Date dateObjWithoutMicros = getDateFormatter().parse(source.substring(0,19));
 
       // Now add the fractional seconds back in.
-      int microsIntoSecond = Integer.parseInt(source.substring(20)); // skip the period
+      //int microsIntoSecond = Integer.parseInt(source.substring(20)); // skip the period @Y8D
       java.sql.Timestamp timestampObj = new java.sql.Timestamp(dateObjWithoutMicros.getTime());
-      timestampObj.setNanos(1000*microsIntoSecond); // 1 microsec == 1000 nanosecs
+      //@Y8A Start
+      if (source.length() > 19) {
+    	  while(source.length() < 26) {
+    		  source += "0";
+    	  }
+    	  int microsIntoSecond = Integer.parseInt(source.substring(20));
+    	  timestampObj.setNanos(1000*microsIntoSecond); // 1 microsec == 1000 nanosecs
+      }
+      //@Y8A End
+      //timestampObj.setNanos(1000*microsIntoSecond); // 1 microsec == 1000 nanosecs  @Y8D
       return timestampObj;
     }
     catch (Exception e) {

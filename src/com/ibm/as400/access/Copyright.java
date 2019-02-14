@@ -248,6 +248,7 @@ package com.ibm.as400.access;
 //@Y5    20190129  Fix same ptfs are returned for different PTF groups
 //@Y6    20190129  Support to delivery timeout from ProgramCallDocument to ProgramCall
 //@Y7    20190130  Check *PUBLIC when check user profile object authority
+//@Y8    20190214  Fix AS400Timestamp exception when timestamp length < 26
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
