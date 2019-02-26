@@ -143,7 +143,6 @@ public class AS400Timestamp extends AS400AbstractTime
  }
 
 
-  
   /**
    Constructs an AS400Timestamp object.
    * @param timeZone 
@@ -152,6 +151,17 @@ public class AS400Timestamp extends AS400AbstractTime
   {
     super(timeZone); 
     setFormat(0, HYPHEN);  // this data type has only one format
+  }
+  
+  /**
+   Constructs an AS400Timestamp object when datalength < 26.
+   * @param timeZone
+   * @param dataLength
+   */
+  public AS400Timestamp(TimeZone timeZone, int dataLength) {
+	  super(timeZone);
+	  setFormat(0, HYPHEN);
+	  setDataLength(dataLength);
   }
 
 

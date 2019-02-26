@@ -298,6 +298,12 @@ public abstract class AS400AbstractTime implements AS400DataType
   public int toBytes(Object javaValue, byte[] as400Value, int offset)
   {
     String dateString = toString(javaValue); // call the subclass-specific formatter
+    
+    //@Y8A
+    if (length_ < 26) {
+    	dateString = dateString.substring(0, length_);	
+    }
+    //@Y8A
 
     try {
       getCharConverter().stringToByteArray(dateString, as400Value, offset);
@@ -495,5 +501,11 @@ public abstract class AS400AbstractTime implements AS400DataType
   abstract Character defaultSeparatorFor(int format);
   abstract boolean isValidFormat(int format);
   abstract int lengthFor(int format);
+  
+  //Set data length of timestamp, @Y8A Start
+  synchronized void setDataLength(int length) {
+	  length_ = length;
+  }
+  //@Y8A End
 
 }
