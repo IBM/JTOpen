@@ -1,0 +1,22 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: quslfld.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+<program name="quslfld" path="/qsys.lib/quslfld.pgm">
+  <data name="qualifiedUserSpaceName" type="char" length="20" usage="input"/>
+  <data name="formatName" type="char" length="8" usage="input" init="FLDL0100"/>
+  <data name="qualifiedFileName" type="char" length="20" usage="input"/>
+  <data name="recordFormatName" type="char" length="10" usage="input"/>
+  <data name="overrideProcessing" type="char" length="1" usage="input" init="0"/>
+</program>
+</pcml>

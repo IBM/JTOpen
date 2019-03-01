@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: pcml.dtd
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<!DOCTYPE pcml [
+
+<!ELEMENT pcml (struct | program)+>
+<!ATTLIST pcml
+          version  (1.0 | 2.0 | 3.0 | 4.0 | 6.0) #REQUIRED
+>
+
+<!ELEMENT struct (data | struct)+>
+<!ATTLIST struct
+          name   CDATA    #REQUIRED
+
+  usage  (inherit | input | output | inputoutput) "inherit"
+  count  CDATA #IMPLIED
+  minvrm CDATA #IMPLIED
+  maxvrm CDATA #IMPLIED
+  offset CDATA #IMPLIED
+  offsetfrom CDATA #IMPLIED
+  outputsize  CDATA #IMPLIED
+>
+
+<!ELEMENT program (data | struct)*>
+<!ATTLIST program
+          name   CDATA #REQUIRED
+          path   CDATA #IMPLIED
+          parseorder   CDATA #IMPLIED
+
+          entrypoint   CDATA #IMPLIED
+          returnvalue  (void | integer) #IMPLIED
+          threadsafe   (false | true) #IMPLIED
+          
+          epccsid CDATA #IMPLIED
+>
+
+<!ELEMENT data EMPTY>
+<!ATTLIST data
+          name   CDATA    #IMPLIED
+
+          usage  (inherit | input | output | inputoutput) "inherit"
+          count  CDATA #IMPLIED
+          minvrm CDATA #IMPLIED
+          maxvrm CDATA #IMPLIED
+          offset CDATA #IMPLIED
+          offsetfrom CDATA #IMPLIED
+          outputsize  CDATA #IMPLIED
+
+	  type   (char | int | packed | zoned | float | byte | struct | date | time | timestamp) #REQUIRED
+          length CDATA #IMPLIED
+          precision CDATA #IMPLIED
+          ccsid  CDATA #IMPLIED
+          init   CDATA #IMPLIED
+          struct CDATA #IMPLIED
+
+          passby (reference | value) #IMPLIED
+          bidistringtype (ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT | NONE) #IMPLIED
+
+          trim (none | right | left | both) #IMPLIED
+          chartype (onebyte | twobyte) #IMPLIED
+
+          dateformat (CDMY | CMDY | CYMD | DMY | EUR | ISO | JIS | JUL | LONGJUL | MDY | USA | YMD) #IMPLIED
+          timeformat (EUR | HMS | ISO | JIS | USA) #IMPLIED
+
+          dateseparator (ampersand | blank | comma | hyphen | period | slash | none) #IMPLIED
+          timeseparator (ampersand | blank | colon | comma | period | none) #IMPLIED
+>
+
+<!-- Note: The required format for the 'init' attribute is: -->
+<!--       ... for 'date' fields:      yyyy-mm-dd -->
+<!--       ... for 'time' fields:      hh:mm:ss -->
+<!--       ... for 'timestamp' fields: yyyy-mm-ddThh:mm:ss.sssssssss -->
+<!--                  ... for example: 2010-01-01T23:59:59.999999999 -->
+
+]>

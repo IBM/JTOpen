@@ -1,0 +1,306 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RUser.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+
+
+<program name="qsyrusri_usri0100" path="/QSYS.LIB/QSYRUSRI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="usri0100"
+                                                                                outputsize="receiverVariableLength"/>
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="83"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="USRI0100"/>
+        <data name="userProfileName"                    usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="usri0100">
+        <data name="bytesReturned"                              type="int" length="4"/>
+        <data name="bytesAvailable"                             type="int" length="4"/>
+        <data name="userProfileName"                            type="char" length="10"/>
+        <data name="previousSignOnDateAndTime"                  type="char" length="13"/>  
+        <data                                                   type="byte" length="1"/>  
+        <data name="signOnAttemptsNotValid"                     type="int" length="4"/>
+        <data name="status"                                     type="char" length="10"/>  
+        <data name="passwordChangeDate"                         type="byte" length="8"/>  
+        <data name="noPasswordIndicator"                        type="char" length="1"/>  
+        <data                                                   type="byte" length="1"/>  
+        <data name="passwordExpirationInterval"                 type="int" length="4"/>
+        <data name="datePasswordExpires"                        type="byte" length="8"/>  
+        <data name="daysUntilPasswordExpires"                   type="int" length="4"/>
+        <data name="setPasswordToExpire"                        type="char" length="1"/>  
+        <data name="displaySignOnInformation"                   type="char" length="10"/>  
+</struct>        
+
+
+
+<program name="qsyrusri_usri0200" path="/QSYS.LIB/QSYRUSRI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="usri0200"
+                                                                                outputsize="receiverVariableLength"/>
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="254"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="USRI0200"/>
+        <data name="userProfileName"                    usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="usri0200">
+        <data name="bytesReturned"                              type="int" length="4"/>
+        <data name="bytesAvailable"                             type="int" length="4"/>
+        <data name="userProfileName"                            type="char" length="10"/>
+        <data name="userClassName"                              type="char" length="10"/>  
+        <data name="specialAuthorities"                         type="char" length="15"/>  
+        <data name="groupProfileName"                           type="char" length="10"/>
+        <data name="owner"                                      type="char" length="10"/>
+        <data name="groupAuthority"                             type="char" length="10"/>
+        <data name="limitCapabilities"                          type="char" length="10"/>
+        <data name="groupAuthorityType"                         type="char" length="10"/>
+        <data                                                   type="byte" length="3"/>  
+        <data name="offsetToArrayOfSupplementalGroups"          type="int" length="4"/>
+        <data name="numberOfSupplementalGroups"                 type="int" length="4"/>
+        <data name="supplementalGroups"                         type="char" length="10" 
+                                                                count="numberOfSupplementalGroups"/>  
+</struct>        
+
+
+
+<program name="qsyrusri_usri0300" path="/QSYS.LIB/QSYRUSRI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="usri0300"
+                                                                                outputsize="receiverVariableLength"/>
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="1526"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="USRI0300"/>
+        <data name="userProfileName"                    usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="usri0300">
+        <data name="bytesReturned"                              type="int" length="4"/>
+        <data name="bytesAvailable"                             type="int" length="4"/>
+        <data name="userProfileName"                            type="char" length="10"/>
+        <data name="previousSignOnDateAndTime"                  type="char" length="13"/>  
+        <data                                                   type="byte" length="1"/>  
+        <data name="signOnAttemptsNotValid"                     type="int" length="4"/>
+        <data name="status"                                     type="char" length="10"/>  
+        <data name="passwordChangeDate"                         type="byte" length="8"/>  
+        <data name="noPasswordIndicator"                        type="char" length="1"/>  
+        <data                                                   type="byte" length="1"/>  
+        <data name="passwordExpirationInterval"                 type="int" length="4"/>
+        <data name="datePasswordExpires"                        type="byte" length="8"/>  
+        <data name="daysUntilPasswordExpires"                   type="int" length="4"/>
+        <data name="setPasswordToExpire"                        type="char" length="1"/>  
+        <data name="userClassName"                              type="char" length="10"/>  
+        <data name="specialAuthorities"                         type="char" length="15"/>  
+        <data name="groupProfileName"                           type="char" length="10"/>  
+        <data name="owner"                                      type="char" length="10"/>  
+        <data name="groupAuthority"                             type="char" length="10"/>  
+        <data name="assistanceLevel"                            type="char" length="10"/>  
+        <data name="currentLibraryName"                         type="char" length="10"/>  
+        <data name="initialMenu"                                type="char" length="20"/>  
+        <data name="initialProgram"                             type="char" length="20"/>  
+        <data name="limitCapabilities"                          type="char" length="10"/>  
+        <data name="textDescription"                            type="char" length="50"/>  
+        <data name="displaySignOnInformation"                   type="char" length="10"/>  
+        <data name="limitDeviceSessions"                        type="char" length="10"/>  
+        <data name="keyboardBuffering"                          type="char" length="10"/>  
+        <data                                                   type="byte" length="2"/>  
+        <data name="maximumAllowedStorage"                      type="int" length="4"/>  
+        <data name="storageUsed"                                type="int" length="4"/>  
+        <data name="highestSchedulingPriority"                  type="char" length="1"/>  
+        <data name="jobDescription"                             type="char" length="20"/>  
+        <data name="accountingCode"                             type="char" length="15"/>  
+        <data name="messageQueue"                               type="char" length="20"/>  
+        <data name="messageQueueDeliveryMethod"                 type="char" length="10"/>  
+        <data                                                   type="byte" length="2"/>  
+        <data name="messageQueueSeverity"                       type="int" length="4"/>  
+        <data name="outputQueue"                                type="char" length="20"/>  
+        <data name="printDevice"                                type="char" length="10"/>  
+        <data name="specialEnvironment"                         type="char" length="10"/>  
+        <data name="attentionKeyHandlingProgram"                type="char" length="20"/>  
+        <data name="languageID"                                 type="char" length="10"/>  
+        <data name="countryID"                                  type="char" length="10"/>  
+        <data name="characterCodeSetID"                         type="int" length="4"/>  
+        <data name="userOptions"                                type="char" length="36"/>  
+        <data name="sortSequenceTable"                          type="char" length="20"/>  
+        <data name="objectAuditingValue"                        type="char" length="10"/>  
+        <data name="userActionAuditLevel"                       type="char" length="64"/>  
+        <data name="groupAuthorityType"                         type="char" length="10"/>  
+        <data name="offsetToArrayOfSupplementalGroups"          type="int" length="4"/>
+        <data name="numberOfSupplementalGroups"                 type="int" length="4"/>
+        <data name="userIDNumber"                               type="int" length="4"/>  
+        <data name="groupIDNumber"                              type="int" length="4"/>  
+        <data name="offsetToHomeDirectory"                      type="int" length="4"/>
+        <data name="lengthOfHomeDirectory"                      type="int" length="4"/>
+        <data name="localeJobAttributes"                        type="char" length="16"/>  
+        <data name="offsetToLocalePathName"                     type="int" length="4"/>
+        <data name="lengthOfLocalePathName"                     type="int" length="4"/>
+        <data name="groupMemberIndicator"                       type="char" length="1"/>  
+        <data name="digitalCertificateIndicator"                type="char" length="1"/>  
+        <data name="characterIdentifierControl"                 type="char" length="10"/>  
+        <data                                                   type="byte" length="0" 
+                                                                offset="offsetToArrayOfSupplementalGroups"
+                                                                offsetfrom="0"/>
+        <data name="supplementalGroups"                         type="char" length="10" 
+                                                                count="numberOfSupplementalGroups"/>  
+        <data                                                   type="byte" length="0" 
+                                                                offset="offsetToHomeDirectory"
+                                                                offsetfrom="0"/>
+        <data name="homeDirectory"                              type="struct" struct="homeDirectory"/>  
+        <data                                                   type="byte" length="0" 
+                                                                offset="offsetToLocalePathName"
+                                                                offsetfrom="0"/>
+        <data name="localePathName"                             type="char" length="lengthOfLocalePathName"/>          
+</struct>        
+
+<struct name="homeDirectory">
+        <data name="ccsidOfTheReturnedHomeDirectoryName"        type="int" length="4"/>
+        <data name="countryID"                                  type="char" length="2"/>  
+        <data name="languageID"                                 type="char" length="3"/>  
+        <data                                                   type="char" length="3"/>  
+        <data name="flags"                                      type="int" length="4"/>
+        <data name="numberOfBytesInTheHomeDirectoryName"        type="int" length="4"/>
+        <data name="homeDirectoryDelimiter"                     type="char" length="2"/>  
+        <data                                                   type="char" length="10"/>  
+        <data name="homeDirectoryNameValue"                     type="char" length="numberOfBytesInTheHomeDirectoryName"
+                                                                ccsid="ccsidOfTheReturnedHomeDirectoryName"/>  
+</struct>
+
+
+
+<program name="qokschd" path="/QSYS.LIB/QOKSCHD.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="srcv0100"
+                                                                                outputsize="receiverVariableLength"/>
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="16000"/>
+        <data name="receiverVariableFormatName"         usage="input"           type="char" length="8" init="SRCV0100"/>
+        <data name="function"                           usage="input"           type="char" length="10" init="*SEARCH"/>
+        <data name="keepTemporaryResourceIndicator"     usage="input"           type="char" length="1" init="0"/>
+        <data name="requestVariable"                    usage="input"           type="struct" struct="sreq0100"/>
+        <data name="requestVariableLength"              usage="input"           type="int" length="4"/>
+        <data name="requestVariableFormatName"          usage="input"           type="char" length="8" init="SREQ0100"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="srcv0100">
+        <data name="bytesReturned"                              type="int" length="4"/>
+        <data name="offsetToOrderOfFieldsReturnedArray"         type="int" length="4"/>
+        <data name="offsetToTheFirstArrayOfUsersArray"          type="int" length="4"/>
+        <data name="numberOfDirectoryEntriesReturned"           type="int" length="4"/>
+        <data name="continuationHandleOutput"                   type="char" length="1"/>
+        <data name="resourceHandle"                             type="char" length="16"/>  
+        <data name="directoryEntries"                           type="struct" struct="srcv0101"
+                                                                count="numberOfDirectoryEntriesReturned"/>
+</struct>        
+
+<struct name="srcv0101">
+        <data name="lengthOfDataForThisUser"                    type="int" length="4"/>
+        <data name="numberOfFieldsReturned"                     type="int" length="4"/>
+        <data name="userProfile"                                type="struct" struct="srcv0112"/>
+        <data name="indirectUser"                               type="struct" struct="srcv0112"/>
+        <data name="printCoverPage"                             type="struct" struct="srcv0112"/>
+        <data name="mailNotification"                           type="struct" struct="srcv0112AsBytes"/>
+        <data name="userID"                                     type="struct" struct="srcv0112"/>
+        <data name="localDataIndicator"                         type="struct" struct="srcv0112"/>
+        <data name="userAddress"                                type="struct" struct="srcv0112"/>
+        <data name="systemName"                                 type="struct" struct="srcv0112"/>
+        <data name="systemGroup"                                type="struct" struct="srcv0112"/>
+        <data name="userDescription"                            type="struct" struct="srcv0112"/>
+        <data name="firstName"                                  type="struct" struct="srcv0112"/>
+        <data name="preferredName"                              type="struct" struct="srcv0112"/>
+        <data name="middleName"                                 type="struct" struct="srcv0112"/>
+        <data name="lastName"                                   type="struct" struct="srcv0112"/>
+        <data name="fullName"                                   type="struct" struct="srcv0112"/>
+        <data name="jobTitle"                                   type="struct" struct="srcv0112"/>
+        <data name="company"                                    type="struct" struct="srcv0112"/>
+        <data name="department"                                 type="struct" struct="srcv0112"/>
+        <data name="networkUserID"                              type="struct" struct="srcv0112"/>
+        <data name="telephoneNumber1"                           type="struct" struct="srcv0112"/>
+        <data name="telephoneNumber2"                           type="struct" struct="srcv0112"/>
+        <data name="faxTelephoneNumber"                         type="struct" struct="srcv0112"/>
+        <data name="location"                                   type="struct" struct="srcv0112"/>
+        <data name="building"                                   type="struct" struct="srcv0112"/>
+        <data name="office"                                     type="struct" struct="srcv0112"/>
+        <data name="mailingAddressLine1"                        type="struct" struct="srcv0112"/>
+        <data name="mailingAddressLine2"                        type="struct" struct="srcv0112"/>
+        <data name="mailingAddressLine3"                        type="struct" struct="srcv0112"/>
+        <data name="mailingAddressLine4"                        type="struct" struct="srcv0112"/>
+        <data name="ccMailAddress"                              type="struct" struct="srcv0112"/>
+        <data name="ccMailComment"                              type="struct" struct="srcv0112"/>
+        <data name="text"                                       type="struct" struct="srcv0112"/>
+        <data name="mailServerFrameworkServiceLevel"            type="struct" struct="srcv0112AsBytes"/>
+        <data name="preferredAddress"                           type="struct" struct="srcv0112AsBytes"/>
+        <data name="allowSynchronization"                       type="struct" struct="srcv0112"/>
+        <data name="dloOwner"                                   type="struct" struct="srcv0112"/>
+        <data name="managerCode"                                type="struct" struct="srcv0112"/>
+        <data name="orName"                                     type="struct" struct="srcv0112"/>
+        <data name="smtpUserID"                                 type="struct" struct="srcv0112"/>
+        <data name="smtpDomain"                                 type="struct" struct="srcv0112"/>
+        <data name="smtpRoute"                                  type="struct" struct="srcv0112"/>
+</struct>        
+
+<struct name="srcv0112">
+        <data name="characterSetOrCcsid"                        type="int" length="4"/>
+        <data name="codePage"                                   type="int" length="4"/>
+        <data name="fieldLength"                                type="int" length="4"/>
+        <data name="fieldValue"                                 type="char" length="fieldLength"/>
+</struct>        
+
+<struct name="srcv0112AsBytes">
+        <data name="characterSetOrCcsid"                        type="int" length="4"/>
+        <data name="codePage"                                   type="int" length="4"/>
+        <data name="fieldLength"                                type="int" length="4"/>
+        <data name="fieldValue"                                 type="byte" length="fieldLength" outputsize="32"/>
+</struct>        
+
+<struct name="sreq0100">
+        <data name="ccsidOfDataInput"                           type="int" length="4" init="0"/>
+        <data name="characterSetOfDataInput"                    type="int" length="4" init="0"/>
+        <data name="codePageOfDataInput"                        type="int" length="4" init="0"/>
+        <data name="wildcardCharacter"                          type="char" length="4" init=" "/>
+        <data name="convertReceiverDataIndicator"               type="char" length="1" init="1"/>
+        <data name="dataToSearch"                               type="char" length="1" init="0"/>
+        <data name="runVerifyIndicator"                         type="char" length="1" init="1"/>
+        <data name="continuationHandleInput"                    type="char" length="1" init="0"/>
+        <data name="resourceHandle"                             type="char" length="16" init=" "/>
+        <data name="formatNameOfTheSearchRequestArray"          type="char" length="8" init="SREQ0101"/>
+        <data name="offsetToTheSearchRequestArray"              type="int" length="4" init="110"/>
+        <data name="numberOfElementsInTheSearchRequestArray"    type="int" length="4" init="1"/>
+        <data name="formatNameOfArrayOfFieldsToReturn"          type="char" length="8" init="SREQ0103"/>
+        <data name="offsetToTheArrayOfFieldsToReturn"           type="int" length="4" init="100"/>
+        <data name="numberOfElementsInTheArrayOfFieldsToReturn" type="int" length="4" init="1"/>
+        <data name="formatNameOfArrayOfUsersToReturn"           type="char" length="8" init="SRCV0101"/>
+        <data name="numberOfElementsInTheArrayOfUsersToReturn"  type="int" length="4" init="1"/>
+        <data name="formatNameOfArrayOfFieldsPerUserToReturn"   type="char" length="8" init="SRCV0112"/>
+        <data name="formatNameOfOrderOfFieldsToReturn"          type="char" length="8" init=" "/>
+        <data name="returnFieldsInOrderSpecifiedOption"         type="char" length="1" init="0"/>
+        <data                                                   type="char" length="3" init=" "/>
+        <data name="arrayOfFieldsToReturn"                      type="struct" struct="sreq0103"
+                                                                count="numberOfElementsInTheArrayOfFieldsToReturn"/>
+        <data name="searchRequestArray"                         type="struct" struct="sreq0101"
+                                                                count="numberOfElementsInTheSearchRequestArray"/>
+</struct>        
+
+<struct name="sreq0101">
+        <data name="lengthOfEntry"                              type="int" length="4" init="38"/>
+        <data name="compareValue"                               type="char" length="1" init="1"/>
+        <data name="fieldName"                                  type="char" length="10" init="USER"/>
+        <data name="productID"                                  type="char" length="7" init="*IBM"/>
+        <data name="caseOfDataInput"                            type="char" length="1" init=" "/>
+        <data                                                   type="char" length="1" init=" "/>
+        <data name="lengthOfValue"                              type="int" length="4" init="10"/>
+        <data name="valueToMatch"                               type="char" length="10"/>
+</struct>        
+
+<struct name="sreq0103">
+        <data name="specialValueOfFieldsToBeReturned"           type="char" length="10" init="*SYSDIR"/>
+</struct>        
+
+</pcml>        
+
