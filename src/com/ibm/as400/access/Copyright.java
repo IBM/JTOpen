@@ -250,6 +250,7 @@ package com.ibm.as400.access;
 //@Y7    20190130  Check *PUBLIC when check user profile object authority
 //@Y8    20190214  Fix AS400Timestamp exception when timestamp length < 26
 //@Z0    20190301  JTOpen 9.8
+//@Z1    20190328  JDBC:  Support accepting errors from commit
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -258,7 +259,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                         built=20190102 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.8, codebase 5770-SS1 V7R3M0.00 built=20190102 @Z0";  
+    public static String version   = "Open Source Software, JTOpen 9.8, codebase 5770-SS1 V7R3M0.00 built=20190102 @Z1";  
 
 
     // Constants for reference by AS400JDBCDriver.
