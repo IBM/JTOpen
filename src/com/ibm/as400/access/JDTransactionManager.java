@@ -155,8 +155,7 @@ Commit the current transaction.
       {
         request = DBDSPool.getDBSQLRequestDS ( //@P0C
                                                DBSQLRequestDS.FUNCTIONID_COMMIT, id_,
-                                               DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-
+                                               DBBaseRequestDS.ORS_BITMAP_RETURN_DATA +DBSQLRequestDS.ORS_BITMAP_SQLCA, 0);
         // Set cursor hold.
         //request.setHoldIndicator (1);                     // @C1
         request.setHoldIndicator(getHoldIndicator());       // @C1
@@ -167,7 +166,7 @@ Commit the current transaction.
 
         if (errorClass != 0) { 
             int returnCode = reply.getReturnCode();
-          JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
+            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
         }
       }
       finally
