@@ -650,7 +650,7 @@ endif */
     }
   }
 
-  public void checkAccess(JDSQLStatement sqlStatement) throws SQLException {
+  public synchronized void checkAccess(JDSQLStatement sqlStatement) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -666,11 +666,11 @@ endif */
     currentConnection_.checkCancel();
   }
 
-  public boolean checkHoldabilityConstants(int holdability) {
+  public synchronized boolean checkHoldabilityConstants(int holdability) {
     return currentConnection_.checkHoldabilityConstants(holdability);
   }
 
-  public void checkOpen() throws SQLException {
+  public synchronized void checkOpen() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -683,7 +683,7 @@ endif */
 
   }
 
-  public void clearWarnings() throws SQLException {
+  public synchronized void clearWarnings() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -696,7 +696,7 @@ endif */
 
   }
 
-  public void close() throws SQLException {
+  public synchronized void close() throws SQLException {
     boolean retryOperation = true;
     int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
     while (retryOperation) {
@@ -717,12 +717,12 @@ endif */
     
   }
 
-  public void handleAbort() {
+  public synchronized void handleAbort() {
     currentConnection_.handleAbort();
 
   }
 
-  public void commit() throws SQLException {
+  public synchronized void commit() throws SQLException {
     boolean retryOperation = true;
     int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
     while (retryOperation) {
@@ -759,11 +759,11 @@ endif */
 
   }
 
-  public void setCheckStatementHoldability(boolean check) {
+  public synchronized void setCheckStatementHoldability(boolean check) {
     currentConnection_.setCheckStatementHoldability(check);
   }
 
-  public int correctResultSetType(int resultSetType, int resultSetConcurrency)
+  public synchronized int correctResultSetType(int resultSetType, int resultSetConcurrency)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -778,7 +778,7 @@ endif */
     return 0;
   }
 
-  public Statement createStatement() throws SQLException {
+  public synchronized Statement createStatement() throws SQLException {
     
     boolean retryOperation = true;
     int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
@@ -808,7 +808,7 @@ endif */
     
   }
 
-  public Statement createStatement(int resultSetType, int resultSetConcurrency)
+  public synchronized Statement createStatement(int resultSetType, int resultSetConcurrency)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -829,7 +829,7 @@ endif */
     return null;
   }
 
-  public Statement createStatement(int resultSetType, int resultSetConcurrency,
+  public synchronized Statement createStatement(int resultSetType, int resultSetConcurrency,
       int resultSetHoldability) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -861,7 +861,7 @@ endif */
 
   }
 
-  public AS400Impl getAS400() throws SQLException {
+  public synchronized AS400Impl getAS400() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -876,7 +876,7 @@ endif */
 
   }
 
-  public boolean getAutoCommit() throws SQLException {
+  public synchronized boolean getAutoCommit() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -889,7 +889,7 @@ endif */
     return false;
   }
 
-  public String getCatalog() throws SQLException {
+  public synchronized String getCatalog() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -904,12 +904,12 @@ endif */
 
   }
 
-  public int getConcurrentAccessResolution() {
+  public synchronized int getConcurrentAccessResolution() {
     return currentConnection_.getConcurrentAccessResolution();
 
   }
 
-  public ConvTable getConverter(int ccsid) throws SQLException {
+  public synchronized ConvTable getConverter(int ccsid) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -923,12 +923,12 @@ endif */
 
   }
 
-  public int getDataCompression() {
+  public synchronized int getDataCompression() {
     return currentConnection_.getDataCompression();
 
   }
 
-  public String getDefaultSchema() throws SQLException {
+  public synchronized String getDefaultSchema() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -942,7 +942,7 @@ endif */
 
   }
 
-  public String getDefaultSchema(boolean returnRawValue) throws SQLException {
+  public synchronized String getDefaultSchema(boolean returnRawValue) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -956,7 +956,7 @@ endif */
 
   }
 
-  public int getHoldability() throws SQLException {
+  public synchronized int getHoldability() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -970,17 +970,17 @@ endif */
 
   }
 
-  public int getID() {
+  public synchronized int getID() {
     return currentConnection_.getID();
 
   }
 
-  public int getInternalHoldability() {
+  public synchronized int getInternalHoldability() {
     return currentConnection_.getInternalHoldability();
 
   }
 
-  public DatabaseMetaData getMetaData() throws SQLException {
+  public synchronized DatabaseMetaData getMetaData() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -999,7 +999,7 @@ endif */
 
   }
 
-  public JDProperties getProperties() throws SQLException {
+  public synchronized JDProperties getProperties() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1013,22 +1013,22 @@ endif */
 
   }
 
-  public String getServerJobIdentifier() {
+  public synchronized String getServerJobIdentifier() {
     return currentConnection_.getServerJobIdentifier();
 
   }
 
-  public int getServerFunctionalLevel() {
+  public synchronized int getServerFunctionalLevel() {
     return currentConnection_.getServerFunctionalLevel();
 
   }
 
-  public AS400 getSystem() {
+  public synchronized AS400 getSystem() {
     return currentConnection_.getSystem();
 
   }
 
-  public int getTransactionIsolation() throws SQLException {
+  public synchronized int getTransactionIsolation() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1042,17 +1042,17 @@ endif */
     return 0;
   }
 
-  public JDTransactionManager getTransactionManager() {
+  public synchronized JDTransactionManager getTransactionManager() {
     return currentConnection_.getTransactionManager();
 
   }
 
-  public Map getTypeMap() throws SQLException {
+  public synchronized Map getTypeMap() throws SQLException {
     return currentConnection_.getTypeMap();
 
   }
 
-  public int getUnusedId(int resultSetType) throws SQLException {
+  public synchronized int getUnusedId(int resultSetType) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1065,11 +1065,11 @@ endif */
     return 0;
   }
 
-  public boolean getMustSpecifyForUpdate() {
+  public synchronized boolean getMustSpecifyForUpdate() {
     return currentConnection_.getMustSpecifyForUpdate();
   }
 
-  public String getURL() throws SQLException {
+  public synchronized String getURL() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1082,7 +1082,7 @@ endif */
     return null;
   }
 
-  public String getUserName() throws SQLException {
+  public synchronized String getUserName() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1096,7 +1096,7 @@ endif */
 
   }
 
-  public int getVRM() throws SQLException {
+  public synchronized int getVRM() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1110,7 +1110,7 @@ endif */
 
   }
 
-  public SQLWarning getWarnings() throws SQLException {
+  public synchronized SQLWarning getWarnings() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1124,7 +1124,7 @@ endif */
 
   }
 
-  public boolean isCursorNameUsed(String cursorName) throws SQLException {
+  public synchronized boolean isCursorNameUsed(String cursorName) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1137,7 +1137,7 @@ endif */
     return false;
   }
 
-  public boolean isClosed() throws SQLException {
+  public synchronized boolean isClosed() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1150,7 +1150,7 @@ endif */
     return false;
   }
 
-  public boolean isReadOnly() throws SQLException {
+  public synchronized boolean isReadOnly() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1164,7 +1164,7 @@ endif */
 
   }
 
-  public boolean isReadOnlyAccordingToProperties() throws SQLException {
+  public synchronized boolean isReadOnlyAccordingToProperties() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1178,7 +1178,7 @@ endif */
 
   }
 
-  public void markCursorsClosed(boolean isRollback) throws SQLException {
+  public synchronized void markCursorsClosed(boolean isRollback) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1191,12 +1191,12 @@ endif */
 
   }
 
-  public void markStatementsClosed() {
+  public synchronized void markStatementsClosed() {
     currentConnection_.markStatementsClosed();
 
   }
 
-  public String makeGeneratedKeySelectStatement(String sql,
+  public synchronized String makeGeneratedKeySelectStatement(String sql,
       int[] columnIndexes, String[] columnNames) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1212,7 +1212,7 @@ endif */
 
   }
 
-  public String makeGeneratedKeySelectStatement(String sql) throws SQLException {
+  public synchronized String makeGeneratedKeySelectStatement(String sql) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1226,7 +1226,7 @@ endif */
 
   }
 
-  public String nativeSQL(String sql) throws SQLException {
+  public synchronized String nativeSQL(String sql) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1240,7 +1240,7 @@ endif */
 
   }
 
-  public void notifyClose(AS400JDBCStatement statement, int id)
+  public synchronized void notifyClose(AS400JDBCStatement statement, int id)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1254,7 +1254,7 @@ endif */
 
   }
 
-  public void postWarning(SQLWarning sqlWarning) throws SQLException {
+  public synchronized void postWarning(SQLWarning sqlWarning) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1267,7 +1267,7 @@ endif */
 
   }
 
-  public CallableStatement prepareCall(String sql) throws SQLException {
+  public synchronized CallableStatement prepareCall(String sql) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1288,7 +1288,7 @@ endif */
 
   }
 
-  public CallableStatement prepareCall(String sql, int resultSetType,
+  public synchronized CallableStatement prepareCall(String sql, int resultSetType,
       int resultSetConcurrency) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1313,7 +1313,7 @@ endif */
 
   }
 
-  public CallableStatement prepareCall(String sql, int resultSetType,
+  public synchronized CallableStatement prepareCall(String sql, int resultSetType,
       int resultSetConcurrency, int resultSetHoldability) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1338,7 +1338,7 @@ endif */
 
   }
 
-  public PreparedStatement prepareStatement(String sql) throws SQLException {
+  public synchronized PreparedStatement prepareStatement(String sql) throws SQLException {
     boolean retryOperation = true;
     int retryCount = SEAMLESS_RETRY_COUNT; 
     while (retryOperation) {
@@ -1373,7 +1373,7 @@ endif */
 
   }
 
-  public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
+  public synchronized PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
       throws SQLException {
     boolean retryOperation = true;
     int retryCount = SEAMLESS_RETRY_COUNT; 
@@ -1410,7 +1410,7 @@ endif */
 
   }
 
-  public PreparedStatement prepareStatement(String sql, int resultSetType,
+  public synchronized PreparedStatement prepareStatement(String sql, int resultSetType,
       int resultSetConcurrency) throws SQLException {
     boolean retryOperation = true;
     int retryCount = SEAMLESS_RETRY_COUNT; 
@@ -1448,7 +1448,7 @@ endif */
 
   }
 
-  public PreparedStatement prepareStatement(String sql, int resultSetType,
+  public synchronized PreparedStatement prepareStatement(String sql, int resultSetType,
       int resultSetConcurrency, int resultSetHoldability) throws SQLException {
     boolean retryOperation = true;
     int retryCount = SEAMLESS_RETRY_COUNT; 
@@ -1486,7 +1486,7 @@ endif */
 
   }
 
-  public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
+  public synchronized PreparedStatement prepareStatement(String sql, int[] columnIndexes)
       throws SQLException {
     boolean retryOperation = true;
     int retryCount = SEAMLESS_RETRY_COUNT; 
@@ -1522,7 +1522,7 @@ endif */
 
   }
 
-  public PreparedStatement prepareStatement(String sql, String[] columnNames)
+  public synchronized PreparedStatement prepareStatement(String sql, String[] columnNames)
       throws SQLException {
     boolean retryOperation = true;
     int retryCount = SEAMLESS_RETRY_COUNT; 
@@ -1558,7 +1558,7 @@ endif */
 
   }
 
-  public void processSavepointRequest(String savepointStatement)
+  public synchronized void processSavepointRequest(String savepointStatement)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1572,7 +1572,7 @@ endif */
 
   }
 
-  public void pseudoClose() throws SQLException {
+  public synchronized void pseudoClose() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1585,7 +1585,7 @@ endif */
 
   }
 
-  public void releaseSavepoint(Savepoint savepoint) throws SQLException {
+  public synchronized void releaseSavepoint(Savepoint savepoint) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1598,7 +1598,7 @@ endif */
 
   }
 
-  public void rollback() throws SQLException {
+  public synchronized void rollback() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1611,7 +1611,7 @@ endif */
 
   }
 
-  public void rollback(Savepoint savepoint) throws SQLException {
+  public synchronized void rollback(Savepoint savepoint) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1624,7 +1624,7 @@ endif */
 
   }
 
-  public void send(DBBaseRequestDS request) throws SQLException {
+  public synchronized void send(DBBaseRequestDS request) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1637,7 +1637,7 @@ endif */
 
   }
 
-  public void send(DBBaseRequestDS request, int id) throws SQLException {
+  public synchronized void send(DBBaseRequestDS request, int id) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1650,7 +1650,7 @@ endif */
 
   }
 
-  public void send(DBBaseRequestDS request, int id, boolean leavePending)
+  public synchronized void send(DBBaseRequestDS request, int id, boolean leavePending)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1664,7 +1664,7 @@ endif */
 
   }
 
-  public void sendAndHold(DBBaseRequestDS request, int id) throws SQLException {
+  public synchronized void sendAndHold(DBBaseRequestDS request, int id) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1677,7 +1677,7 @@ endif */
 
   }
 
-  public DBReplyRequestedDS sendAndReceive(DBBaseRequestDS request)
+  public synchronized DBReplyRequestedDS sendAndReceive(DBBaseRequestDS request)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1692,7 +1692,7 @@ endif */
 
   }
 
-  public DBReplyRequestedDS sendAndReceive(DBBaseRequestDS request, int id)
+  public synchronized DBReplyRequestedDS sendAndReceive(DBBaseRequestDS request, int id)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1707,7 +1707,7 @@ endif */
 
   }
 
-  public DBReplyRequestedDS sendAndMultiReceive(DBBaseRequestDS request)
+  public synchronized DBReplyRequestedDS sendAndMultiReceive(DBBaseRequestDS request)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1722,7 +1722,7 @@ endif */
 
   }
 
-  public DBReplyRequestedDS receiveMoreData() throws SQLException {
+  public synchronized DBReplyRequestedDS receiveMoreData() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1736,7 +1736,7 @@ endif */
 
   }
 
-  public void setAutoCommit(boolean autoCommit) throws SQLException {
+  public synchronized void setAutoCommit(boolean autoCommit) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1751,7 +1751,7 @@ endif */
 
   }
 
-  public void setCatalog(String catalog) throws SQLException {
+  public synchronized void setCatalog(String catalog) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1764,7 +1764,7 @@ endif */
 
   }
 
-  public void setConcurrentAccessResolution(int concurrentAccessResolution)
+  public synchronized void setConcurrentAccessResolution(int concurrentAccessResolution)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -1779,7 +1779,7 @@ endif */
 
   }
 
-  public void setDB2eWLMCorrelator(byte[] bytes) throws SQLException {
+  public synchronized void setDB2eWLMCorrelator(byte[] bytes) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1792,7 +1792,7 @@ endif */
 
   }
 
-  public void setDRDA(boolean drda) throws SQLException {
+  public synchronized void setDRDA(boolean drda) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1805,7 +1805,7 @@ endif */
 
   }
 
-  public void setHoldability(int holdability) throws SQLException {
+  public synchronized void setHoldability(int holdability) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1821,7 +1821,7 @@ endif */
 
   }
 
-  public void setProperties(JDDataSourceURL dataSourceUrl,
+  public synchronized void setProperties(JDDataSourceURL dataSourceUrl,
       JDProperties properties, AS400 as400, Properties info) throws SQLException {
     // We cannot retry this operation since this establishes the connection
 
@@ -1859,7 +1859,7 @@ endif */
 
   }
 
-  public void setProperties(JDDataSourceURL dataSourceUrl,
+  public synchronized void setProperties(JDDataSourceURL dataSourceUrl,
       JDProperties properties, AS400Impl as400) throws SQLException {
     originalDataSourceUrl_ = dataSourceUrl; 
     currentUrl_ = dataSourceUrl; 
@@ -1881,17 +1881,17 @@ endif */
 
   }
 
-  public boolean ignoreWarning(String sqlState) {
+  public synchronized boolean ignoreWarning(String sqlState) {
     return currentConnection_.ignoreWarning(sqlState);
 
   }
 
-  public boolean ignoreWarning(SQLWarning warning) {
+  public synchronized boolean ignoreWarning(SQLWarning warning) {
     return currentConnection_.ignoreWarning(warning);
 
   }
 
-  public void setProperties(JDDataSourceURL dataSourceUrl,
+  public synchronized void setProperties(JDDataSourceURL dataSourceUrl,
       JDProperties properties, AS400Impl as400, boolean newServer,
       boolean skipSignonServer) throws SQLException {
     boolean retryOperation = true;
@@ -1909,7 +1909,7 @@ endif */
 
   }
 
-  public void setReadOnly(boolean readOnly) throws SQLException {
+  public synchronized void setReadOnly(boolean readOnly) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1924,7 +1924,7 @@ endif */
 
   }
 
-  public Savepoint setSavepoint() throws SQLException {
+  public synchronized Savepoint setSavepoint() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1938,7 +1938,7 @@ endif */
 
   }
 
-  public Savepoint setSavepoint(String name) throws SQLException {
+  public synchronized Savepoint setSavepoint(String name) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1952,7 +1952,7 @@ endif */
 
   }
 
-  public Savepoint setSavepoint(String name, int id) throws SQLException {
+  public synchronized Savepoint setSavepoint(String name, int id) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1966,7 +1966,7 @@ endif */
 
   }
 
-  public void setServerAttributes() throws SQLException {
+  public synchronized void setServerAttributes() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1979,7 +1979,7 @@ endif */
 
   }
 
-  public void setSystem(AS400 as400) throws SQLException {
+  public synchronized void setSystem(AS400 as400) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -1993,7 +1993,7 @@ endif */
 
   }
 
-  public void setTransactionIsolation(int level) throws SQLException {
+  public synchronized void setTransactionIsolation(int level) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2009,7 +2009,7 @@ endif */
   }
 
  
-  public void setTypeMap(Map typeMap) throws SQLException {
+  public synchronized void setTypeMap(Map typeMap) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2022,7 +2022,7 @@ endif */
 
   }
 
-  public boolean useExtendedFormats() throws SQLException {
+  public synchronized boolean useExtendedFormats() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2036,12 +2036,12 @@ endif */
 
   }
 
-  public String[] getValidWrappedList() {
+  public synchronized String[] getValidWrappedList() {
     return currentConnection_.getValidWrappedList();
 
   }
 
-  public void setClientInfo(String name, String value) 
+  public synchronized void setClientInfo(String name, String value) 
   /* ifdef JDBC40
   throws SQLClientInfoException
 endif */
@@ -2077,7 +2077,7 @@ endif */
 
   }
 
-  public void setClientInfo(Properties properties) 
+  public synchronized void setClientInfo(Properties properties) 
   /* ifdef JDBC40
   throws SQLClientInfoException
 endif */
@@ -2128,7 +2128,7 @@ endif */
 
   }
 
-  public String getClientInfo(String name) throws SQLException {
+  public synchronized String getClientInfo(String name) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2142,7 +2142,7 @@ endif */
 
   }
 
-  public Properties getClientInfo() throws SQLException {
+  public synchronized Properties getClientInfo() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2156,7 +2156,7 @@ endif */
     return null;
   }
 
-  public Clob createClob() throws SQLException {
+  public synchronized Clob createClob() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2170,7 +2170,7 @@ endif */
     return null;
   }
 
-  public Blob createBlob() throws SQLException {
+  public synchronized Blob createBlob() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2184,7 +2184,7 @@ endif */
     return null;
   }
 
-  public Array createArrayOf(String typeName, Object[] elements)
+  public synchronized Array createArrayOf(String typeName, Object[] elements)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -2199,7 +2199,7 @@ endif */
     return null;
   }
 
-  public Struct createStruct(String typeName, Object[] attributes)
+  public synchronized Struct createStruct(String typeName, Object[] attributes)
       throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -2214,22 +2214,22 @@ endif */
     return null;
   }
 
-  public void setDBHostServerTrace(boolean trace) {
+  public synchronized void setDBHostServerTrace(boolean trace) {
     currentConnection_.setDBHostServerTrace(trace);
 
   }
 
-  public boolean doUpdateDeleteBlocking() {
+  public synchronized boolean doUpdateDeleteBlocking() {
     return currentConnection_.doUpdateDeleteBlocking();
 
   }
 
-  public int getMaximumBlockedInputRows() {
+  public synchronized int getMaximumBlockedInputRows() {
     return currentConnection_.getMaximumBlockedInputRows();
 
   }
 
-  public String getSchema() throws SQLException {
+  public synchronized String getSchema() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2243,7 +2243,7 @@ endif */
     return null;
   }
 
-  public void setNetworkTimeout(int timeout) throws SQLException {
+  public synchronized void setNetworkTimeout(int timeout) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2258,7 +2258,7 @@ endif */
 
   }
 
-  public int getNetworkTimeout() throws SQLException {
+  public synchronized int getNetworkTimeout() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2272,7 +2272,7 @@ endif */
 
   }
 
-  public void setSchema(String schema) throws SQLException {
+  public synchronized void setSchema(String schema) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2289,37 +2289,37 @@ endif */
 
   }
 
-  public boolean isQueryTimeoutMechanismCancel() {
+  public synchronized boolean isQueryTimeoutMechanismCancel() {
     return currentConnection_.isQueryTimeoutMechanismCancel();
 
   }
 
-  public void setupVariableFieldCompression() {
+  public synchronized void setupVariableFieldCompression() {
     currentConnection_.setupVariableFieldCompression();
 
   }
 
-  public boolean useVariableFieldCompression() {
+  public synchronized boolean useVariableFieldCompression() {
     return currentConnection_.useVariableFieldCompression();
 
   }
 
-  public boolean useVariableFieldInsertCompression() {
+  public synchronized boolean useVariableFieldInsertCompression() {
     return currentConnection_.useVariableFieldInsertCompression();
 
   }
 
-  public void setDisableCompression(boolean disableCompression_) {
+  public synchronized void setDisableCompression(boolean disableCompression_) {
     currentConnection_.setDisableCompression(disableCompression_);
 
   }
 
-  public void dumpStatementCreationLocation() {
+  public synchronized void dumpStatementCreationLocation() {
     currentConnection_.dumpStatementCreationLocation();
 
   }
 
-  public boolean testDataTruncation(AS400JDBCStatement statementWarningObject,
+  public synchronized boolean testDataTruncation(AS400JDBCStatement statementWarningObject,
       AS400JDBCResultSet resultSetWarningObject, int parameterIndex,
       boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
       throws SQLException {
@@ -2339,35 +2339,35 @@ endif */
 
   }
 
-  public ConvTable getConverter() {
+  public synchronized ConvTable getConverter() {
     return currentConnection_.getConverter();
   }
 
-  public void setLastServerSQLState(String lastSqlState) {
+  public synchronized void setLastServerSQLState(String lastSqlState) {
     currentConnection_.setLastServerSQLState(lastSqlState);
 
   }
 
-  public String getLastServerSQLState() {
+  public synchronized String getLastServerSQLState() {
     return currentConnection_.getLastServerSQLState();
   }
 
-  public ConvTable getPackageCCSID_Converter() {
+  public synchronized ConvTable getPackageCCSID_Converter() {
     return currentConnection_.getPackageCCSID_Converter();
   }
 
-  public void finalize() {
+  public synchronized void finalize() {
   }
 
-  public boolean getReadOnly() {
+  public synchronized boolean getReadOnly() {
     return currentConnection_.getReadOnly(); 
   }
 
-  public boolean getCheckStatementHoldability() {
+  public synchronized boolean getCheckStatementHoldability() {
     return currentConnection_.getCheckStatementHoldability(); 
   }
 
-  public String toString() {
+  public synchronized String toString() {
    return currentConnection_.toString(); 
   }
 
@@ -2391,7 +2391,7 @@ endif */
   }
 
   String[] reconnectUrlStrings_ = null; 
-  public String[] getReconnectURLs() {
+  public synchronized String[] getReconnectURLs() {
     if (reconnectUrlStrings_ == null) { 
        reconnectUrlStrings_ = new String[reconnectUrls_.length];
        for (int i = 0; i < reconnectUrls_.length; i++ ) { 
@@ -2406,7 +2406,7 @@ endif */
   
   
   /* ifdef JDBC40
-  public boolean isValid(int timeout) throws SQLException {
+  public synchronized boolean isValid(int timeout) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
@@ -2422,7 +2422,7 @@ endif */
   endif */
 
    /*ifdef JDBC40
-  public NClob createNClob() throws SQLException {
+  public synchronized NClob createNClob() throws SQLException {
       boolean retryOperation = true;
       while (retryOperation) {
         try {
@@ -2438,7 +2438,7 @@ endif */
 endif */
 
 /*ifdef JDBC40
-  public SQLXML createSQLXML() throws SQLException {
+  public synchronized SQLXML createSQLXML() throws SQLException {
         boolean retryOperation = true;
       while (retryOperation) {
         try {
@@ -2454,7 +2454,7 @@ endif */
 
   
   /* ifdef JDBC40
-  public void abort(Executor executor) throws SQLException  {
+  public synchronized void abort(Executor executor) throws SQLException  {
           boolean retryOperation = true;
       while (retryOperation) {
         try {
@@ -2469,7 +2469,7 @@ endif */
 endif */
 
 /* ifdef JDBC40
-  public void setNetworkTimeout(Executor executor, int milliseconds)
+  public synchronized void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException  {
                 boolean retryOperation = true;
       while (retryOperation) {
