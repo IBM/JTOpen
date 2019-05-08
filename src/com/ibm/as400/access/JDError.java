@@ -673,11 +673,9 @@ trace for debugging purposes.
            + " vendor code "+sqlCode;
       JDTrace.logException(thrower, m2, e2);
     }
-    if (e != null) {
       try {
       e2.initCause(e);
       } catch (Throwable t) {} 
-    }
     throw e2;
   }
 

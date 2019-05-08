@@ -81,87 +81,79 @@ public class AS400DateTimeConverter
      * @return The converted date and time value.
     **/
 
-    public static byte[] convert(AS400 system, byte[] in, String inFormat, String outFormat)
-    {
-        byte[] out = null;
-        if (Trace.isTraceInformationOn()) { 
-          Trace.log(Trace.INFORMATION,"convert");
-          StringBuffer inStringBuffer = new StringBuffer(); 
-          StringBuffer outStringBuffer = new StringBuffer(); 
-          Trace.printByteArray(inStringBuffer, in);
-          Trace.printByteArray(outStringBuffer, out);
-          Trace.log(Trace.INFORMATION,"parameters : "+inStringBuffer.toString()+" | "+outStringBuffer.toString()+" | "
-                                                   +inFormat+" | "+outFormat);
-        }
-        if(system == null)
-        {
-            throw new NullPointerException("system");
-        }
-
-
-        ProgramCall pgm = new ProgramCall( system );
-        try
-        {
-            // Initialize the name of the program to run
-            String progName = "/QSYS.LIB/QWCCVTDT.PGM";
-            AS400Text text10 = new AS400Text(10);
-
-            // Setup the 5 parameters
-            ProgramParameter[] parmlist = new ProgramParameter[5];
-
-            // First parameter is the input format.
-            parmlist[0] = new ProgramParameter( text10.toBytes(inFormat) );
-
-
-            // Second parameter is the input variable.
-            parmlist[1] = new ProgramParameter( in );
-
-            // Third parameter is the output format.
-            parmlist[2] = new ProgramParameter( text10.toBytes(outFormat) );
-
-
-            // Fourth parameter is the output variable.
-            parmlist[3] = new ProgramParameter(17);
-
-
-            // Fifth parameter is the error format.
-            byte[] errorCode = new byte[70];
-            parmlist[4] = new ProgramParameter( errorCode );
-
-            // Set the program name and parameter list
-            pgm.setProgram( progName, parmlist );
-            pgm.suggestThreadsafe();  // QWCCVTDT is thread-safe.  @B1A
-
-            // Run the program
-            if (pgm.run()!=true)
-            {
-                // Note that there was an error
-                Trace.log(Trace.ERROR, "program failed!" );
-
-                // Show the messages
-                AS400Message[] messagelist = pgm.getMessageList();
-                for (int i=0; i < messagelist.length; i++)
-                {
-                   // Trace.log(Trace.INFORMATION, messagelist[i] );
-                }
-                throw new AS400Exception(messagelist);
-            }
-            else
-            {
-                out=parmlist[3].getOutputData();
-            }
-        }
-        catch (Exception e)
-        {
-            Trace.log(Trace.ERROR,"convert failed : "+e);
-        }
-
-        return out;
-
+  public static byte[] convert(AS400 system, byte[] in, String inFormat,
+      String outFormat) {
+    byte[] out = null;
+    if (Trace.isTraceInformationOn()) {
+      Trace.log(Trace.INFORMATION, "convert");
+      StringBuffer inStringBuffer = new StringBuffer();
+      Trace.printByteArray(inStringBuffer, in);
+      Trace.log(Trace.INFORMATION,
+          "input parameters : " + inStringBuffer.toString() + " | " + inFormat
+              + " | " + outFormat);
+    }
+    if (system == null) {
+      throw new NullPointerException("system");
     }
 
+    ProgramCall pgm = new ProgramCall(system);
+    try {
+      // Initialize the name of the program to run
+      String progName = "/QSYS.LIB/QWCCVTDT.PGM";
+      AS400Text text10 = new AS400Text(10);
 
+      // Setup the 5 parameters
+      ProgramParameter[] parmlist = new ProgramParameter[5];
 
+      // First parameter is the input format.
+      parmlist[0] = new ProgramParameter(text10.toBytes(inFormat));
+
+      // Second parameter is the input variable.
+      parmlist[1] = new ProgramParameter(in);
+
+      // Third parameter is the output format.
+      parmlist[2] = new ProgramParameter(text10.toBytes(outFormat));
+
+      // Fourth parameter is the output variable.
+      parmlist[3] = new ProgramParameter(17);
+
+      // Fifth parameter is the error format.
+      byte[] errorCode = new byte[70];
+      parmlist[4] = new ProgramParameter(errorCode);
+
+      // Set the program name and parameter list
+      pgm.setProgram(progName, parmlist);
+      pgm.suggestThreadsafe(); // QWCCVTDT is thread-safe. @B1A
+
+      // Run the program
+      if (pgm.run() != true) {
+        // Note that there was an error
+        Trace.log(Trace.ERROR, "program failed!");
+
+        // Show the messages
+        AS400Message[] messagelist = pgm.getMessageList();
+        for (int i = 0; i < messagelist.length; i++) {
+          // Trace.log(Trace.INFORMATION, messagelist[i] );
+        }
+        throw new AS400Exception(messagelist);
+      } else {
+        out = parmlist[3].getOutputData();
+      }
+    } catch (Exception e) {
+      Trace.log(Trace.ERROR, "convert failed : " + e);
+    }
+
+    if (Trace.isTraceInformationOn()) {
+      Trace.log(Trace.INFORMATION, "convert");
+      StringBuffer outStringBuffer = new StringBuffer();
+      Trace.printByteArray(outStringBuffer, out);
+      Trace.log(Trace.INFORMATION,
+          "output value : " + outStringBuffer.toString());
+    }
+
+    return out;
+
+  }
 
     /**
      * Returns the Date object in the YYMD format.

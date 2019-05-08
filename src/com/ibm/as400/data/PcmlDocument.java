@@ -804,7 +804,7 @@ class PcmlDocument extends PcmlDocRoot
         xmlFile.print("<xpcml version=" + "\"" + "6.0" +  "\"" );
         xmlFile.print(XMLNS_STRING);
         // Add .xsd file to end of <xpcml tag
-        if (getXsdName() != "")
+        if (! "".equals(getXsdName()))
         {
            // Xsd file specified so use that
            xmlFile.println("'" + getXsdName() + "' >");

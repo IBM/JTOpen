@@ -506,7 +506,7 @@ public class AS400FTP
     *   @exception IOException If an error occurs while communicating with the system.
    **/
 
-    public String getCurrentDirectory()
+    synchronized public String getCurrentDirectory()
                   throws IOException
     {
        if (connect())

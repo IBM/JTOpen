@@ -1771,7 +1771,8 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
+                        // reply cannot be null at this point
+                    	  reply.returnToPool(); reply = null; 
                         throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2276,7 +2277,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
+                    	  reply.returnToPool(); reply = null;
                         throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2558,7 +2559,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
+                    	 reply.returnToPool(); reply = null; 
                         throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -2840,7 +2841,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool();  reply = null; }
+                    	 reply.returnToPool();  reply = null; 
                         throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -3433,7 +3434,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
+                    	 reply.returnToPool(); reply = null; 
                         throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -4472,7 +4473,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
+                    	  reply.returnToPool(); reply = null; 
                         throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
@@ -4984,7 +4985,7 @@ endif */
                         if (errorClass != 0)
                         {
                             int returnCode = reply.getReturnCode();
-                        	if (reply != null) { reply.returnToPool(); reply = null; }
+                        	 reply.returnToPool(); reply = null; 
                             throw JDError.throwSQLException (this, connection_, id_,
                                                        errorClass, returnCode);
                         }
@@ -5943,7 +5944,7 @@ endif */
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                    	if (reply != null) { reply.returnToPool(); reply = null; }
+                    	 reply.returnToPool(); reply = null; 
                         throw JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
