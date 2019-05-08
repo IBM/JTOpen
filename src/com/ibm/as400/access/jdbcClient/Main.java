@@ -3126,7 +3126,6 @@ public class Main implements Runnable {
         }
 
         if (newClass != null) {
-          if (paramIndex > 0) {
             Constructor[] constructors;
             constructors = newClass.getConstructors();
             
@@ -3344,9 +3343,6 @@ public class Main implements Runnable {
                 }
               } /* method not found */
             } /* for loop for constructors */
-          } else {
-            possibleErrors.append("ERROR:  could find ( in " + left+"\n");
-          }
         } else {
           possibleErrors.append("ERROR:  could not find variable or class "
               + newClassName+"\n");

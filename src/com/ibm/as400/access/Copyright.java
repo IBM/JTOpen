@@ -253,6 +253,7 @@ package com.ibm.as400.access;
 //@Z1    20190328  JDBC:  Support accepting errors from commit
 //@Z2    20190419  JDBC:  Add thread safety for alternate server connections
 //@Z3    20190508  Listener fixes
+//@Z4    20190508  JDBC:  Connect using port to system with password level 2
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -261,7 +262,7 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     //                                                                                         built=20190508 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, JTOpen 9.8, codebase 5770-SS1 V7R3M0.00 built=20190508 @Z3";  
+    public static String version   = "Open Source Software, JTOpen 9.8, codebase 5770-SS1 V7R3M0.00 built=20190508 @Z4";  
 
 
     // Constants for reference by AS400JDBCDriver.

@@ -440,6 +440,7 @@ public class IFSFile
 **/
   public IFSFile(IFSFile directory, String name)
   {
+    
     this((directory == null ? null : directory.getSystem()),
          (directory == null ? null : directory.getPath()),
          name);

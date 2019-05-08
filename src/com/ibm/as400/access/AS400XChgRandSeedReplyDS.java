@@ -21,6 +21,7 @@ class AS400XChgRandSeedReplyDS extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
+  
     /**
      Generate a new instance of this type.
      @return a reference to the new instance
@@ -70,5 +71,21 @@ class AS400XChgRandSeedReplyDS extends ClientAccessDataStream
     {
       return 0xF001;
     }
+ 
+    /**
+     * Returns Important server attributes.  This field will be set to the same value that was in the request 
+     * if using a pre-V5R1 system - this value must be 0.  If running V5R1 or later, this field will be set 
+     * to the password level value that the system is currently using.  The values and their meaning are:
+     *<ul>
+     *<li>   0 or 1- The DES (pre-V5R1) password encryption algorithm will be used.
+     *<li>   2 or 3- The SHA-1 (V5R1 and later) password encryption algorithm will be used.
+     * 
+     * @return serverAttributes
+     */
+    public byte getServerAttributes() {
+      // TODO Auto-generated method stub
+      return get8bit(5); 
+    }
 
+    
 }

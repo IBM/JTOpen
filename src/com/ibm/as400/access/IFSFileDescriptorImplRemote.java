@@ -216,7 +216,7 @@ implements IFSFileDescriptorImpl
       }
 
       try {
-        server_ = system_.getConnection(AS400.FILE, false, false);
+        server_ = system_.getConnection(AS400.FILE, false /*forceNewConnection*/, false /*skip signon server */ );
       }
       catch(AS400SecurityException e)
       {

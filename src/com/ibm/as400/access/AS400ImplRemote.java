@@ -26,15 +26,20 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
@@ -114,8 +119,8 @@ public class AS400ImplRemote implements AS400Impl {
   // System level of the sign-on server. Retrieved from sign-on connect and
   // stored until placed in sign-on information.
   private int serverLevel_;
-  // Type of password encryption.
-  private boolean passwordType_ = false; // false == DES, true == SHA-1.
+  // Password level 
+  private int passwordLevel_ = 0; // 0-1  == DES, 2-3 == SHA-1.
   // Flag indicating if we have determined the password type yet.
   private boolean isPasswordTypeSet_ = false;
   // Sign-on information retrieved on sign-on information request.
@@ -312,7 +317,7 @@ public class AS400ImplRemote implements AS400Impl {
       byte[] oldProtected;
       byte[] newProtected;
 
-      if (passwordType_ == false) {
+      if (passwordLevel_ < 2) {
         // @U1A START
         if (oldPassword.length > 0 && Character.isDigit(oldPassword[0])) {
           if (Trace.traceOn_)
@@ -496,7 +501,7 @@ public class AS400ImplRemote implements AS400Impl {
 
   public Socket connectToPort(int port) throws AS400SecurityException,
       IOException {
-    return getConnection(0, port);
+    return getConnection(0, port, false);
   }
 
   // @N5A Establish a DHCP connection to the specified port. Add this interface
@@ -722,7 +727,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Flow the generate profile token datastream.
-  public void generateProfileToken(ProfileTokenCredential profileToken,
+   public void generateProfileToken(ProfileTokenCredential profileToken,
       String userIdentity) throws AS400SecurityException, IOException {
     signonConnect();
     try {
@@ -825,7 +830,7 @@ public class AS400ImplRemote implements AS400Impl {
 
         // Generate the correct password based on the password encryption level
         // of the system.
-        if (passwordType_ == false) {
+        if (passwordLevel_ < 2) {
           // Prepend Q to numeric password. A "numeric password" is
           // a password that starts with a numeric digit.
           if (password.length > 0 && Character.isDigit(password[0])) {
@@ -1282,7 +1287,7 @@ public class AS400ImplRemote implements AS400Impl {
 
   public AS400Server getConnection(int service, boolean forceNewConnection)
       throws AS400SecurityException, IOException {
-    return getConnection(service, forceNewConnection, false);
+    return getConnection(service, forceNewConnection, false /*Skip signon server */ );
   }
 
   // Get AS400Server object connected to indicated service. You can get either
@@ -1295,7 +1300,7 @@ public class AS400ImplRemote implements AS400Impl {
   // Get AS400Server object connected to indicated service. You can get either
   // an existing connection or ask for a new connection.
   synchronized AS400Server getConnection(int service, int overridePort,
-      boolean forceNewConnection, boolean skipSignonServer)
+      boolean forceNewConnection, boolean skipSignonServer )
       throws AS400SecurityException, IOException {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
@@ -1338,7 +1343,7 @@ public class AS400ImplRemote implements AS400Impl {
       int byteType = credVault_.getType();
       if (service == AS400.RECORDACCESS) {
         Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream,
-            inStream, passwordType_, byteType, connectionID);
+            inStream, (passwordLevel_ < 2), byteType, connectionID);
         byte[] clientSeed = (byte[]) returnVals[0];
         byte[] serverSeed = (byte[]) returnVals[1];
         jobBytes = (byte[]) returnVals[2];
@@ -1417,6 +1422,11 @@ public class AS400ImplRemote implements AS400Impl {
         // Next we send the "start server job" request...
         byte[] clientSeed = xChgReq.getClientSeed();
         byte[] serverSeed = xChgReply.getServerSeed();
+        if (skipSignonServer) {
+          // If the signon server was skipped, get the password level
+          // from the current response. 
+          passwordLevel_ = xChgReply.getServerAttributes(); 
+        }
         byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
         byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
         if (PASSWORD_TRACE) {
@@ -1427,6 +1437,8 @@ public class AS400ImplRemote implements AS400Impl {
           Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
           Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:",
               encryptedPassword);
+          Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_); 
+           
         }
 
         AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes,
@@ -1583,7 +1595,7 @@ public class AS400ImplRemote implements AS400Impl {
         Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
       }
 
-      if ((passwordType_ == false)) {
+      if ((passwordLevel_< 2 )) {
         // Do DES encryption.
 
         // Prepend Q to numeric password. A "numeric password" is
@@ -1614,7 +1626,8 @@ public class AS400ImplRemote implements AS400Impl {
           throw new AS400SecurityException(
               AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
         }
-        byte[] passwordEbcdic = SignonConverter.stringToByteArray(new String(
+        byte[] passwordEbcdic; 
+          passwordEbcdic = SignonConverter.stringToByteArray(new String(
             password).toUpperCase());
         if (PASSWORD_TRACE) {
           Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
@@ -1667,7 +1680,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   /* @U4A */
-  private byte[] getAESEncryptionKey(byte[] sharedPrivateKey)
+  public static byte[] getAESEncryptionKey(byte[] sharedPrivateKey)
       throws NoSuchAlgorithmException, AS400SecurityException {
 
     // Verify that the JVM can support this.
@@ -1834,27 +1847,8 @@ public class AS400ImplRemote implements AS400Impl {
           // AES/CBC/PKCS5Padding (128)
           // AES/ECB/NoPadding (128)
 
-          Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-          byte[] encryptionKey = getAESEncryptionKey(sharedPrivateKey);
-
-          SecretKey key;
-          SecretKeySpec keySpec = new SecretKeySpec(encryptionKey, "AES");
-          try {
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("AES");
-            key = keyFactory.generateSecret(keySpec);
-          } catch (java.security.NoSuchAlgorithmException nsae) {
-            // Some JVMs do not have AES as a SecretKeyFactory.
-            // Just use the keySpec as the secret key
-            key = keySpec;
-          }
-
-          // For AES, the initialization vector is middle 16 bytes of 64 byte
-          // server seen
-          byte[] iv = new byte[16];
-          System.arraycopy(serverSeed, 24, iv, 0, 16);
-          c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-          encryptedUserid = c.doFinal(userIdEbcdic);
+          encryptedUserid = encryptAES(sharedPrivateKey, serverSeed,
+              userIdEbcdic);
 
         }
 
@@ -1871,6 +1865,36 @@ public class AS400ImplRemote implements AS400Impl {
     }
 
     return encryptedUserid;
+  }
+
+  public static byte[] encryptAES(byte[] sharedPrivateKey, byte[] serverSeed,
+      byte[] value) throws NoSuchAlgorithmException,
+      NoSuchPaddingException, AS400SecurityException, InvalidKeySpecException,
+      InvalidKeyException, InvalidAlgorithmParameterException,
+      IllegalBlockSizeException, BadPaddingException {
+    byte[] encryptedValue;
+    Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+    byte[] encryptionKey = getAESEncryptionKey(sharedPrivateKey);
+
+    SecretKey key;
+    SecretKeySpec keySpec = new SecretKeySpec(encryptionKey, "AES");
+    try {
+      SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("AES");
+      key = keyFactory.generateSecret(keySpec);
+    } catch (java.security.NoSuchAlgorithmException nsae) {
+      // Some JVMs do not have AES as a SecretKeyFactory.
+      // Just use the keySpec as the secret key
+      key = keySpec;
+    }
+
+    // For AES, the initialization vector is middle 16 bytes of 64 byte
+    // server seen
+    byte[] iv = new byte[16];
+    System.arraycopy(serverSeed, 24, iv, 0, 16);
+    c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+    encryptedValue = c.doFinal(value);
+    return encryptedValue;
   }
 
   /*
@@ -1991,28 +2015,8 @@ public class AS400ImplRemote implements AS400Impl {
 
           // Do AES encryption.
 
-          Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-          byte[] encryptionKey = getAESEncryptionKey(sharedPrivateKey);
-
-          SecretKeySpec keySpec = new SecretKeySpec(encryptionKey, "AES");
-          SecretKey key;
-          try {
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("AES");
-            key = keyFactory.generateSecret(keySpec);
-          } catch (java.security.NoSuchAlgorithmException nsae) {
-            // Some JVMs do not have AES as a SecretKeyFactory.
-            // Just use the keySpec as the secret key
-            key = keySpec;
-          }
-
-          // For AES, the initialization vector is middle 16 bytes of 64 byte
-          // server seen
-          byte[] iv = new byte[16];
-          System.arraycopy(serverSeed, 24, iv, 0, 16);
-          c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-          encryptedPassword = c.doFinal(passwordEbcdic);
-
+          encryptedPassword =  encryptAES(sharedPrivateKey, serverSeed, passwordEbcdic); 
+         
         }
       } catch (Exception e) {
         throw new AS400SecurityException(
@@ -2074,7 +2078,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   public boolean getPasswordType() {
-    return passwordType_;
+    return (passwordLevel_ < 2);
   }
 
   // Check if service is connected.
@@ -3419,7 +3423,7 @@ public class AS400ImplRemote implements AS400Impl {
 
         version_ = new ServerVersion(attrRep.getServerVersion());
         serverLevel_ = attrRep.getServerLevel();
-        passwordType_ = attrRep.getPasswordLevel();
+        passwordLevel_ = attrRep.getPasswordLevel();
         isPasswordTypeSet_ = true;
         serverSeed_ = attrRep.getServerSeed();
         signonJobBytes_ = attrRep.getJobNameBytes();

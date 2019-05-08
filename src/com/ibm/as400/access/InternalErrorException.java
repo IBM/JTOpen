@@ -168,11 +168,9 @@ implements ReturnCodeException {
       //
       // Set the cause, catching the error if not JDK 1.4
       //
-      if (exception != null) { 
       try {
         initCause(exception); 
       } catch (Throwable t) { 
-      }
       }
       rc_ = returnCode;
   }

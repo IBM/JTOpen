@@ -65,7 +65,7 @@ public class ClassDecoupler
     }
   }
 
-  static Object[] connectDDMPhase1(OutputStream outStream, InputStream inStream, boolean passwordType_, int byteType_, int connectionID) throws ServerStartupException, IOException
+  static Object[] connectDDMPhase1(OutputStream outStream, InputStream inStream, boolean aesEncryption, int byteType_, int connectionID) throws ServerStartupException, IOException
   {
     KeyPair keyPair = null; 
     String encryptUserId = null; 
@@ -114,7 +114,7 @@ public class ClassDecoupler
     } else {
       requestByteType = byteType_; 
     }
-    DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+    DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(aesEncryption, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
     if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
     ACCSECReq.write(outStream);
 
@@ -151,7 +151,7 @@ public class ClassDecoupler
           throw serverStartupException; 
         }
 
-        ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+        ACCSECReq = new DDMACCSECRequestDataStream(aesEncryption, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
         if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
         ACCSECReq.write(outStream);
 
@@ -173,7 +173,7 @@ public class ClassDecoupler
             throw serverStartupException; 
           }
           
-          ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+          ACCSECReq = new DDMACCSECRequestDataStream(aesEncryption, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
           if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
           ACCSECReq.write(outStream);
 

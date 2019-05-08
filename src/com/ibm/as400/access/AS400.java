@@ -1412,7 +1412,6 @@ public class AS400 implements Serializable
         try {
           signon(service == AS400.SIGNON);
          
-
           impl_.connect(service, overridePort, skipSignonServer);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
         } finally {

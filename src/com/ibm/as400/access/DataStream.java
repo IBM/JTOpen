@@ -205,6 +205,15 @@ public abstract class DataStream
         return system_;
     }
 
+    // Retrieve data from the data stream as a 8-bit number from the specified offset.
+    // @param  offset  Offset in the data stream from which to retrieve.
+    protected final byte get8bit(final int offset) //@P0C
+    {
+        //@P0D return BinaryConverter.byteArrayToUnsignedShort(data_, offset);
+        return (data_[offset]);
+    }
+
+    
     // Retrieve data from the data stream as a 16-bit number from the specified offset.
     // @param  offset  Offset in the data stream from which to retrieve.
     protected final int get16bit(final int offset) //@P0C

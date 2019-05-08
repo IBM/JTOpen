@@ -52,12 +52,15 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
         return seed;
     }
 
-    boolean getPasswordLevel()
+    /* Get the password level.  Levels 0-1 use DES encryption, Levels 2-3 use AES encryption.  See 
+     *  https://www.ibm.com/support/knowledgecenter/en/ssw_ibm_i_73/rzarl/rzarlnewpwdlevels.htm 
+     *  for more information. */ 
+    int getPasswordLevel()
     {
         int offset = findCP(0x1119);
-        if (offset == -1) return false;
+        if (offset == -1) return 0;
 
-        return data_[offset + 6] >= 2;
+        return data_[offset + 6] ;
     }
 
     byte[] getJobNameBytes()
