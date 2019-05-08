@@ -57,18 +57,16 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-    public void addTreeModelListener (TreeModelListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void addTreeModelListener(TreeModelListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new TreeModelListener[listenersV_.size()];
-            listenersV_.copyInto (listeners_);
-        }
+      listenersV_.addElement(listener);
+      listeners_ = new TreeModelListener[listenersV_.size()];
+      listenersV_.copyInto(listeners_);
     }
-
+  }
 
 
 /**
@@ -194,9 +192,9 @@ Removes a listener.
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        synchronized(this) { 
 
         if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
                 listeners_ = new TreeModelListener[listenersV_.size()];
                 listenersV_.copyInto (listeners_);
             }

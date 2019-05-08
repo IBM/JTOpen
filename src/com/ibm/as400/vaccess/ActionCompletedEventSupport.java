@@ -73,23 +73,18 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-public void addActionCompletedListener (ActionCompletedListener listener)
-{
-    if (listener == null)
-    {
-        throw new NullPointerException("listener");
+  public void addActionCompletedListener(ActionCompletedListener listener) {
+    if (listener == null) {
+      throw new NullPointerException("listener");
     }
 
-    // Add new listener.
-    actionListenersV_.addElement(listener);
-    // copyInto is synchronized, so we don't have to synchronize V.
-    synchronized(actionListeners_)
-    {
-        actionListeners_ = new ActionCompletedListener[actionListenersV_.size()];
-        actionListenersV_.copyInto(actionListeners_);
+    synchronized (this) {
+      // Add new listener.
+      actionListenersV_.addElement(listener);
+      actionListeners_ = new ActionCompletedListener[actionListenersV_.size()];
+      actionListenersV_.copyInto(actionListeners_);
     }
-}
-
+  }
 
 /**
 Fires an ActionCompletedEvent to listeners.
@@ -112,26 +107,19 @@ Removes a listener.
 
 @param  listener    The listener.
 **/
-public void removeActionCompletedListener (ActionCompletedListener listener)
-{
-    if (listener == null)
-    {
-        throw new NullPointerException("listener");
+  public void removeActionCompletedListener(ActionCompletedListener listener) {
+    if (listener == null) {
+      throw new NullPointerException("listener");
     }
+    synchronized (this) {
 
-    // Copy all the action listeners into the array used for throwing.
-    if (actionListenersV_.removeElement(listener))
-    {
-        // copyInto is synchronized, so we don't have to synchronize V
-        synchronized(actionListeners_)
-        {
-            actionListeners_ = new ActionCompletedListener[actionListenersV_.size()];
-            actionListenersV_.copyInto(actionListeners_);
-        }
+      // Copy all the action listeners into the array used for throwing.
+      if (actionListenersV_.removeElement(listener)) {
+        actionListeners_ = new ActionCompletedListener[actionListenersV_.size()];
+        actionListenersV_.copyInto(actionListeners_);
+      }
     }
-}
-
+  }
 
 }
-
 

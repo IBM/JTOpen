@@ -56,18 +56,16 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-    public void addListDataListener (ListDataListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void addListDataListener(ListDataListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new ListDataListener[listenersV_.size()];
-            listenersV_.copyInto (listeners_);
-        }
+      listenersV_.addElement(listener);
+      listeners_ = new ListDataListener[listenersV_.size()];
+      listenersV_.copyInto(listeners_);
     }
-
+  }
 
 
 /**
@@ -167,16 +165,15 @@ Removes a listener.
     public void removeListDataListener (ListDataListener listener)
     {
         if (listener == null)
-            throw new NullPointerException ("listener");
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
-                listeners_ = new ListDataListener[listenersV_.size()];
-                listenersV_.copyInto (listeners_);
-            }
-        }
+      if (listenersV_.removeElement(listener)) {
+        listeners_ = new ListDataListener[listenersV_.size()];
+        listenersV_.copyInto(listeners_);
+      }
     }
-
+  }
 
 }
 

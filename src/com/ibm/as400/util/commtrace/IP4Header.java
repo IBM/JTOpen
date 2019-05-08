@@ -124,7 +124,7 @@ public class IP4Header extends Header {
 				if (src.toString().equals(IPaddr2) || dst.toString().equals(IPaddr2)) {
 					print= true;
 				}
-			} else if (IPaddr.indexOf(':') != -1 || IPaddr.indexOf(':') != -1) {
+			} else if (IPaddr.indexOf(':') != -1 ) {
 				print= true; // IPv6 Address so don't bother to try and filter ia
 				// If only one address is specified.
 			} else if (IPaddr2 == null) {

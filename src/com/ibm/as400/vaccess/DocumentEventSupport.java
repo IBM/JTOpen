@@ -56,18 +56,16 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-    public void addDocumentListener (DocumentListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void addDocumentListener(DocumentListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new DocumentListener[listenersV_.size()];
-            listenersV_.copyInto (listeners_);
-        }
+      listenersV_.addElement(listener);
+      listeners_ = new DocumentListener[listenersV_.size()];
+      listenersV_.copyInto(listeners_);
     }
-
+  }
 
 
 /**
@@ -144,19 +142,17 @@ Removes a listener.
 
 @param  listener    The listener.
 **/
-    public void removeDocumentListener (DocumentListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void removeDocumentListener(DocumentListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
+      if (listenersV_.removeElement(listener)) {
 
-        if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
-                listeners_ = new DocumentListener[listenersV_.size()];
-                listenersV_.copyInto (listeners_);
-            }
-        }
+        listeners_ = new DocumentListener[listenersV_.size()];
+        listenersV_.copyInto(listeners_);
+      }
     }
-
+  }
 
 /**
 Processes a remove update event.

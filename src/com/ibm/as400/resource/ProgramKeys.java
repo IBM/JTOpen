@@ -106,7 +106,7 @@ Adds a key.
         // Validate the parameters.
         if (id == null)
             throw new NullPointerException("id");
-        if ((type < BINARY) && (type > CHAR))
+        if ((type != BINARY) && (type != CHAR))
             throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         if (length <= 0)
             throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);

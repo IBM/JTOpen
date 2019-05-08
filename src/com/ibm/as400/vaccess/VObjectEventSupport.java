@@ -150,23 +150,22 @@ Constructs a VObjectEventSupport object.
 
 
 
-/**
-Adds a listener.
+  /**
+   * Adds a listener.
+   * 
+   * @param listener
+   *          The listener.
+   **/
+  public void addVObjectListener(VObjectListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-@param  listener    The listener.
-**/
-    public void addVObjectListener (VObjectListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
-
-        listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new VObjectListener[listenersV_.size()];
-            listenersV_.copyInto (listeners_);
-        }
+      listenersV_.addElement(listener);
+      listeners_ = new VObjectListener[listenersV_.size()];
+      listenersV_.copyInto(listeners_);
     }
-
+  }
 
 
 /**
@@ -312,19 +311,17 @@ Removes a listener.
 
 @param  listener    The listener.
 **/
-    public void removeVObjectListener (VObjectListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void removeVObjectListener(VObjectListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
-                listeners_ = new VObjectListener[listenersV_.size()];
-                listenersV_.copyInto (listeners_);
-            }
-        }
+      if (listenersV_.removeElement(listener)) {
+        listeners_ = new VObjectListener[listenersV_.size()];
+        listenersV_.copyInto(listeners_);
+      }
     }
-
+  }
 
 }
 

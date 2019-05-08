@@ -411,7 +411,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
         // If align is not one of the valid HTMLConstants, throw an exception.
         if ( !(align.equals(HTMLConstants.LEFT))  && !(align.equals(HTMLConstants.RIGHT)) && !(align.equals(HTMLConstants.TOP)) && 
              !(align.equals(HTMLConstants.TEXTTOP)) && !(align.equals(HTMLConstants.MIDDLE)) && !(align.equals(HTMLConstants.ABSMIDDLE)) && 
-             !(align.equals(HTMLConstants.BASELINE)) && !(align.equals(HTMLConstants.BOTTOM)) && !(align.equals(HTMLConstants.BOTTOM)) && 
+             !(align.equals(HTMLConstants.BASELINE)) && !(align.equals(HTMLConstants.BOTTOM))  && 
              !(align.equals(HTMLConstants.ABSBOTTOM)) )
         {
             throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);

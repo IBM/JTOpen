@@ -60,10 +60,10 @@ Adds a listener.
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        synchronized(this) { 
 
         listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new UndoableEditListener[listenersV_.size()];
+           listeners_ = new UndoableEditListener[listenersV_.size()];
             listenersV_.copyInto (listeners_);
         }
     }
@@ -94,10 +94,10 @@ Removes a listener.
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        synchronized(this) { 
 
         if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
-                listeners_ = new UndoableEditListener[listenersV_.size()];
+                 listeners_ = new UndoableEditListener[listenersV_.size()];
                 listenersV_.copyInto (listeners_);
             }
         }

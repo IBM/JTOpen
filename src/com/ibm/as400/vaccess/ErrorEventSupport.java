@@ -157,23 +157,19 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-public void addErrorListener (ErrorListener listener)
-{
-    if (listener == null)
-    {
-        throw new NullPointerException("listener");
+  public void addErrorListener(ErrorListener listener) {
+    if (listener == null) {
+      throw new NullPointerException("listener");
     }
 
-    // Add new listener.
-    errorListenersV_.addElement(listener);
-    // copyInto is synchronized, so we don't have to synchronize V.
-    synchronized(errorListeners_)
-    {
-        errorListeners_ = new ErrorListener[errorListenersV_.size()];
-        errorListenersV_.copyInto(errorListeners_);
+    synchronized (this) {
+      // Add new listener.
+      errorListenersV_.addElement(listener);
+      // copyInto is synchronized, so we don't have to synchronize V.
+      errorListeners_ = new ErrorListener[errorListenersV_.size()];
+      errorListenersV_.copyInto(errorListeners_);
     }
-}
-
+  }
 
 /**
 Processes a error event.
@@ -221,25 +217,23 @@ Removes a listener.
 
 @param  listener    The listener.
 **/
-public void removeErrorListener (ErrorListener listener)
-{
-    if (listener == null)
-    {
-        throw new NullPointerException("listener");
+  public void removeErrorListener(ErrorListener listener) {
+    if (listener == null) {
+      throw new NullPointerException("listener");
     }
+    synchronized (this) {
 
-    // Copy all the action listeners into the array used for throwing.
-    if (errorListenersV_.removeElement(listener))
-    {
+      // Copy all the action listeners into the array used for throwing.
+      if (errorListenersV_.removeElement(listener)) {
         // copyInto is synchronized, so we don't have to synchronize V
-        synchronized(errorListeners_)
-        {
-            errorListeners_ = new ErrorListener[errorListenersV_.size()];
-            errorListenersV_.copyInto(errorListeners_);
-        }
-    }
-}
 
+        {
+          errorListeners_ = new ErrorListener[errorListenersV_.size()];
+          errorListenersV_.copyInto(errorListeners_);
+        }
+      }
+    }
+  }
 
 }
 

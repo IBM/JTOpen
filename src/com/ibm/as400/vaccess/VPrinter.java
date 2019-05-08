@@ -107,7 +107,7 @@ Property identifier for the status.
     transient private boolean                 systemNotSupported_ = false; // @A15A
 
     // Event support.
-    transient private ErrorEventSupport      errorEventSupport_;
+    transient private ErrorEventSupport      errorEventSupport_ = null ;
     transient private VObjectEventSupport    objectEventSupport_;
     transient private PropertyChangeSupport  propertyChangeSupport_;
     transient private VetoableChangeSupport  vetoableChangeSupport_;
@@ -277,28 +277,26 @@ Constructs a VPrinter object.
 
 @param printer The printer.
 **/
-    public VPrinter( Printer printer )               //@A2C
-    {
-        if (printer == null)
-            throw new NullPointerException ("printer");
+  public VPrinter(Printer printer) // @A2C
+  {
+    errorEventSupport_ = null;
+    if (printer == null)
+      throw new NullPointerException("printer");
 
-        printer_ = printer;
+    printer_ = printer;
 
-        // @A15A
-        try
-        {
-            AS400 system = printer_.getSystem();
-            int systemVRM = system.getVRM();
-            if (systemVRM < supportedVRM_)
-            {
-                systemNotSupported_ = true;
-            }
-        }
-        catch (Exception e) {
-        	if (errorEventSupport_ != null) { 
-               errorEventSupport_.fireError (e);
-        	}
-        }
+    // @A15A
+    try {
+      AS400 system = printer_.getSystem();
+      int systemVRM = system.getVRM();
+      if (systemVRM < supportedVRM_) {
+        systemNotSupported_ = true;
+      }
+    } catch (Exception e) {
+      if (errorEventSupport_ != null) {
+        errorEventSupport_.fireError(e);
+      }
+    }
 
         // initialize transient data
         parent_ = null;
@@ -313,36 +311,34 @@ Constructs a VPrinter object.
 @param parent The parent.
 @param printer The printer.
 **/
-    public VPrinter( VNode parent, Printer printer )               //@A2C
-    {
-        if (parent == null)
-            throw new NullPointerException ("parent");
-        if (printer == null)
-            throw new NullPointerException ("printer");
+  public VPrinter(VNode parent, Printer printer) // @A2C
+  {
+    errorEventSupport_ = null;
+    if (parent == null)
+      throw new NullPointerException("parent");
+    if (printer == null)
+      throw new NullPointerException("printer");
 
-        printer_ = printer;
+    printer_ = printer;
 
-        // @A15A
-        try
-        {
-            AS400 system = printer_.getSystem();
-            int systemVRM = system.getVRM();
-            if (systemVRM < supportedVRM_)
-            {
-                systemNotSupported_ = true;
-            }
-        }
-        catch (Exception e) {
-        	if (errorEventSupport_ != null) { 
-                errorEventSupport_.fireError (e);
-        	}
-        }
-
-        // initialize transient data
-        parent_ = parent;
-        printerOutput_ = new VPrinterOutput(printer.getSystem(),true); // @A7C
-        initializeTransient(); // @A9A
+    // @A15A
+    try {
+      AS400 system = printer_.getSystem();
+      int systemVRM = system.getVRM();
+      if (systemVRM < supportedVRM_) {
+        systemNotSupported_ = true;
+      }
+    } catch (Exception e) {
+      if (errorEventSupport_ != null) {
+        errorEventSupport_.fireError(e);
+      }
     }
+
+    // initialize transient data
+    parent_ = parent;
+    printerOutput_ = new VPrinterOutput(printer.getSystem(), true); // @A7C
+    initializeTransient(); // @A9A
+  }
 
 /**
 Adds a listener to be notified when an error occurs.

@@ -152,18 +152,16 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-    public void addWorkingListener (WorkingListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void addWorkingListener(WorkingListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new WorkingListener[listenersV_.size()];
-            listenersV_.copyInto (listeners_);
-        }
+      listenersV_.addElement(listener);
+      listeners_ = new WorkingListener[listenersV_.size()];
+      listenersV_.copyInto(listeners_);
     }
-
+  }
 
 
     public void busy(ActiveStatusEvent event)               // @C1A
@@ -212,20 +210,17 @@ Removes a listener.
 
 @param  listener    The listener.
 **/
-    public void removeWorkingListener (WorkingListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void removeWorkingListener(WorkingListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
-                listeners_ = new WorkingListener[listenersV_.size()];
-                listenersV_.copyInto (listeners_);
-            }
-        }
+      if (listenersV_.removeElement(listener)) {
+        listeners_ = new WorkingListener[listenersV_.size()];
+        listenersV_.copyInto(listeners_);
+      }
     }
-
-
+  }
 
 /**
 Processes a start working event.

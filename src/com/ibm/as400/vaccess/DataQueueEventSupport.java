@@ -56,18 +56,16 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-    public void addDataQueueListener (DataQueueListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void addDataQueueListener(DataQueueListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
+      listenersV_.addElement(listener);
 
-        listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new DataQueueListener[listenersV_.size()];
-            listenersV_.copyInto (listeners_);
-        }
+      listeners_ = new DataQueueListener[listenersV_.size()];
+      listenersV_.copyInto(listeners_);
     }
-
+  }
 
 
 /**
@@ -183,19 +181,17 @@ Removes a listener.
 
 @param  listener    The listener.
 **/
-    public void removeDataQueueListener (DataQueueListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void removeDataQueueListener(DataQueueListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
+      if (listenersV_.removeElement(listener)) {
 
-        if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
-                listeners_ = new DataQueueListener[listenersV_.size()];
-                listenersV_.copyInto (listeners_);
-            }
-        }
+        listeners_ = new DataQueueListener[listenersV_.size()];
+        listenersV_.copyInto(listeners_);
+      }
     }
-
+  }
 
 }
 

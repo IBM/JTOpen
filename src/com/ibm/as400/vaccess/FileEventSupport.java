@@ -55,19 +55,16 @@ Adds a listener.
 
 @param  listener    The listener.
 **/
-    public void addFileListener (FileListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void addFileListener(FileListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        listenersV_.addElement (listener);
-        synchronized (listeners_) {
-            listeners_ = new FileListener[listenersV_.size()];
-            listenersV_.copyInto (listeners_);
-        }
+      listenersV_.addElement(listener);
+      listeners_ = new FileListener[listenersV_.size()];
+      listenersV_.copyInto(listeners_);
     }
-
-
+  }
 
 /**
 Processes a file closed event.
@@ -199,20 +196,16 @@ Removes a listener.
 
 @param  listener    The listener.
 **/
-    public void removeFileListener (FileListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException ("listener");
+  public void removeFileListener(FileListener listener) {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    synchronized (this) {
 
-        if (listenersV_.removeElement (listener)) {
-            synchronized (listeners_) {
-                listeners_ = new FileListener[listenersV_.size()];
-                listenersV_.copyInto (listeners_);
-            }
-        }
+      if (listenersV_.removeElement(listener)) {
+        listeners_ = new FileListener[listenersV_.size()];
+        listenersV_.copyInto(listeners_);
+      }
     }
-
+  }
 
 }
-
-

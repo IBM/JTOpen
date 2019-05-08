@@ -993,34 +993,33 @@ Loads the children from the system.
                   }
                 }
 
-                // Create the children array for directories only.
-                if (directories != null) {
-                  synchronized (children_) {  // @C3A
-                    children_ = new VNode[directories.size ()];
-                    directories.copyInto (children_);
-                  }
-                }
-
-                // Stop listening to children that are no more, if any.
-                Enumeration list = cache.elements ();
-                while (list.hasMoreElements ()) {
-                    VObject child = (VObject) list.nextElement ();
-                    child.removeErrorListener (errorEventSupport_);
-                    child.removeVObjectListener (objectEventSupport_);
-                    child.removeVObjectListener (objectListener_);
-                    child.removeWorkingListener (workingEventSupport_);
-                }
-
-                childrenLoaded_ = true;
-            // @A2D }
+      // Create the children array for directories only.
+      if (directories != null) {
+        synchronized (this) { // @C3A
+          children_ = new VNode[directories.size()];
+          directories.copyInto(children_);
         }
-        catch (Exception e) {
+      }
 
-            // @A2D synchronized (this) {
-                children_ = new VNode[0];
-                detailsChildren_ = new VObject[0];
-                childrenLoaded_ = true;
-            // @A2D }
+      // Stop listening to children that are no more, if any.
+      Enumeration list = cache.elements();
+      while (list.hasMoreElements()) {
+        VObject child = (VObject) list.nextElement();
+        child.removeErrorListener(errorEventSupport_);
+        child.removeVObjectListener(objectEventSupport_);
+        child.removeVObjectListener(objectListener_);
+        child.removeWorkingListener(workingEventSupport_);
+      }
+
+      childrenLoaded_ = true;
+      // @A2D }
+    } catch (Exception e) {
+
+      // @A2D synchronized (this) {
+      children_ = new VNode[0];
+      detailsChildren_ = new VObject[0];
+      childrenLoaded_ = true;
+          // @A2D }
 
             if (! deleted_) // @A1A
                 errorEventSupport_.fireError (e);
