@@ -787,7 +787,8 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
 
 <p>The properties were added in JTOpen 9.6</p>
 <p>These properties are used to enable the JDBC driver to connect to an 
-alternate server if the connection to the current server is lost.</p>
+alternate server if the connection to the current server is lost or 
+if the current DB2 Mirror for i system is blocked.</p>
 <p>In the case of a dropped connection, the JDBC Connection object 
 will automatically reconnect to a system.   The systems are tried in order, 
 and the order of the systems are first, the original system specified in 
@@ -882,11 +883,14 @@ and enableClientAffinitiesList are 1.</p>
 <p>Defines a comma separated list of servers to use if the server specified in the 
 connection string is not accessible.   The systems are always retried in the order 
 specified, starting with the server specified in the JDBC connection string.</p> 
-<p>This property is only used if the “enableClientAffinities” property is set to 1.</p>
+<p>If the JDBC driver connects to system with Db2 Mirror for i (5770-DBM) and this property is not set, 
+the value of this property will be set by the server to contain the server names 
+that could be used by the mirrored systems.  
+<p>This property is only used if the "enableClientAffinitiesList" property is set to 1.</p>
     </TD>
     <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat7t4">-</TD>
-    <TD HEADERS="cat7t5">-</TD>
+    <TD HEADERS="cat7t5">See description</TD>
   </TR>
   
   <TR VALIGN="TOP"> 
