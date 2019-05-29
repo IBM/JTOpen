@@ -1343,7 +1343,7 @@ public class AS400ImplRemote implements AS400Impl {
       int byteType = credVault_.getType();
       if (service == AS400.RECORDACCESS) {
         Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream,
-            inStream, (passwordLevel_ < 2), byteType, connectionID);
+            inStream, (passwordLevel_ >= 2), byteType, connectionID);
         byte[] clientSeed = (byte[]) returnVals[0];
         byte[] serverSeed = (byte[]) returnVals[1];
         jobBytes = (byte[]) returnVals[2];
@@ -2077,8 +2077,9 @@ public class AS400ImplRemote implements AS400Impl {
     return vrm;
   }
 
+  // Returns true of password type is SHA
   public boolean getPasswordType() {
-    return (passwordLevel_ < 2);
+    return (passwordLevel_ >= 2);
   }
 
   // Check if service is connected.
