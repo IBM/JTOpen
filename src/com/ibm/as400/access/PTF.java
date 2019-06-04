@@ -103,7 +103,7 @@ public class PTF
 //  private PTFPrecondition[] preconditions_;
 
   private String messageData_; // This is loaded from CPX3501 and contains the translated text.
-
+  private int techRefreshPTF_;  //TODO @ZZA
 
   
   /**
@@ -1808,6 +1808,7 @@ public class PTF
         //currentServerIPLSource_ = conv.byteArrayToString(output, 115, 1).trim();
         serverIPLRequired_ = (int)(output[116] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.
         creationDateAndTime_ = conv.byteArrayToString(output, 117, 13).trim();
+        techRefreshPTF_ = (int)(output[130] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.  //@Z5A
       }
     }
     loaded_ = true;
@@ -2039,4 +2040,36 @@ public class PTF
     buf.append(productID_);
     return buf.toString();
   }
+  
+  // @Z5A Start
+  /**
+   * Whether the PTF is a technology refresh PTF. A technology refresh PTF is used to deliver a significant amount of new function between major releases.
+   * @return Whether the PTF is a technology refresh PTF, true or false
+   * The possible values are:
+   *<ul>
+   *<li>false The PTF is not a technology refresh PTF. 
+   *<li>true The PTF is a technology refresh PTF.
+   *</ul>
+   * @throws AS400Exception
+   * @throws AS400SecurityException
+   * @throws ErrorCompletingRequestException
+   * @throws InterruptedException
+   * @throws IOException
+   * @throws ObjectDoesNotExistException
+   */
+  public boolean getTechRefreshPTF()
+		  throws AS400Exception,
+		         AS400SecurityException,
+		         ErrorCompletingRequestException,
+		         InterruptedException,
+		         IOException,
+		         ObjectDoesNotExistException
+		  {
+	        if (techRefreshPTF_ == 0) {
+	        	return false;
+	        } else {
+	        	return true;
+	        }
+		  }
+  // @Z5A End
 }
