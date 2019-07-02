@@ -26,9 +26,13 @@ attributes. The tables organize the properties into the following categories:</P
   <LI><A HREF="#format">Format properties</A></LI>
   <LI><A HREF="#performance">Performance properties</A></LI>
   <LI><A HREF="#sort">Sort properties</A></LI>
-  <LI><A HREF="#alternate">Alternate server properties</A></LI> 
+  <LI><A HREF="#alternate">Alternate server properties</A></LI>
+  <LI><A HREF="#network">Network properties</a></LI> 
   <LI><A HREF="#other">Other properties</A></LI>
 </UL>
+
+
+
 
 <A NAME="general"></A>
 <h3>General properties</h3>
@@ -69,7 +73,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP">
     <TD HEADERS="cat1">&quot;prompt&quot;</TD>
     <TD HEADERS="cat1t2">Specifies whether the user should be prompted if a user name or password 
-      is needed to connect to the system. If a connection can not be made without 
+      is needed to connect to the system. If a connection cannot be made without 
       prompting the user, and this property is set to &quot;false&quot;, then 
       an attempt to connect will fail.</TD>
     <TD HEADERS="cat1t3" ALIGN="CENTER">no</TD>
@@ -324,7 +328,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;true autocommit&quot;</TD>
     <TD HEADERS="cat2t2">Specifies whether the connection should use true auto commit support.  
-	True autocommit means that autocommit is on and is running under a isolation level other 
+	True autocommit means that autocommit is on and is running under an isolation level other 
 	than *NONE. By default, the driver handles autocommit by running under the system isolation 
 	level of *NONE. </TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
@@ -682,24 +686,6 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
     <TD HEADERS="cat4t4">&quot;-1 (no limit)&quot; - &quot;2147352578&quot;</TD>
     <TD HEADERS="cat4t5">&quot;-1&quot;</TD>
   </TR>
-  <TR VALIGN="TOP"> 
-    <TD HEADERS="cat4">&quot;receive buffer size&quot;</TD>
-    <TD HEADERS="cat4t2">Specifies the buffer size used to receive data through the socket connection 
-    between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual receive buffer size. 
-     It is only used as a hint by the underlying socket code.</TD>
-    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;1&quot; - max size</TD>
-    <TD HEADERS="cat4t5">(platform dependent)</TD>
-  </TR>
-  <TR VALIGN="TOP"> 
-    <TD HEADERS="cat4">&quot;send buffer size&quot;</TD>
-    <TD HEADERS="cat4t2">Specifies the buffer size used to send data through the socket connection 
-    between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the 
-    actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
-    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;1&quot; - max size</TD>
-    <TD HEADERS="cat4t5">(platform dependent)</TD>
-  </TR>
   
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;use block update&quot;</TD>
@@ -983,6 +969,71 @@ it throws an SQLException with SQL error code -4499.</p>
   </TR>
   </TABLE>
 
+<A NAME="network"></A>
+<h3>Network properties</h3>
+<p>Network properties control the behavior of the TCP/IP connection to the server</p>
+
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar"> 
+    <TH ID="cat6">Other property</TH>
+    <TH ID="cat6t2">Description</TH>
+    <TH ID="cat6t3">Required</TH>
+    <TH ID="cat6t4">Choices</TH>
+    <TH ID="cat6t5">Default</TH>
+  </TR>
+
+
+
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;login timeout&quot;</TD>
+    <TD HEADERS="cat4t2">The login timeout specifies the number of milliseconds that the JDBC driver 
+    will wait for a new socket to the database host server to be established.  A value of zero indicates that JDBC
+    driver will wait indefinitely for the socket to be established.</TD>
+    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat4t4">&quot;0&quot; (no timeout)</TD>
+    <TD HEADERS="cat4t5">&quot;0&quot;</TD>
+  </TR>
+
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;receive buffer size&quot;</TD>
+    <TD HEADERS="cat4t2">Specifies the buffer size used to receive data through the socket connection 
+    between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual receive buffer size. 
+     It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat4t4">&quot;1&quot; (max size)</TD>
+    <TD HEADERS="cat4t5">(platform dependent)</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;send buffer size&quot;</TD>
+    <TD HEADERS="cat4t2">Specifies the buffer size used to send data through the socket connection 
+    between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the 
+    actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat4t4">&quot;1&quot; (max size)</TD>
+    <TD HEADERS="cat4t5">(platform dependent)</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;socket timeout&quot;</TD>
+    <TD HEADERS="cat4t2">Sets the millisecond timeout used by the network socket. 
+    This determines the maximum number of milliseconds a JDBC connection will block on a read operation 
+    while waiting for a server response.
+    <br>NOTE1: If the timeout occurs, then the connection becomes unusable. 
+    <br>NOTE2: If this property is used, it must be set to be shorter than the time used by a database request.  
+    If not, a long running database operation will cause the timeout to occur. 
+    <br>NOTE3: The socket timeout should only be used if the &quot;thread used&quot; property is set to false. 
+    By default, the JDBC driver will create a thread that is always blocked on a socket read waiting for a 
+    server response, and a connection idle longer than the receive timeout will drop the connection.
+     
+    </TD>
+    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat4t4">&quot;0&quot; (no timeout)</TD>
+    <TD HEADERS="cat4t5">&quot;0&quot;</TD>
+  </TR>
+
+
+
+</TABLE>
+
 
 
 <A NAME="other"></A>
@@ -1144,7 +1195,7 @@ it throws an SQLException with SQL error code -4499.</p>
       because it requires retrieving more information 
 	  from the system. Leave the property as the default (false) unless you need more specific information from 
 	  the listed methods. For example, when this property is off (false), ResultSetMetaData.isSearchable(int) 
-      always returns "true" because because the driver does not have enough information 
+      always returns "true" because the driver does not have enough information 
       from the system to make a judgment. Turning on this property (true) forces 
       the driver to get the correct data from the system.</P>
     </TD>
@@ -1282,14 +1333,14 @@ it throws an SQLException with SQL error code -4499.</p>
     <ul> 
     <li>Table T1 has a CHAR(3) column with the name of C1, and a row where C1='ABC'.</li>
     <li>An application prepares a statement using SELECT * FROM TABLE_X where C1=?</li>
-    <li>If the parameter is set to 'ABCD', it wil be silently truncated to 'ABC' and a
+    <li>If the parameter is set to 'ABCD', it will be silently truncated to 'ABC' and a
     row will be returned by the query.</li>
     </ul>   
     This property avoid this problem by allowing the application to set the string to 
     something that doesn't exist in the application - i.e. @@@@@@@.  A blank value means 
     that the property will be ignored</TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat6t4"> Value to use for truncated prameters</TD>
+    <TD HEADERS="cat6t4"> Value to use for truncated parameters</TD>
     <TD HEADERS="cat6t5"> &quot;&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
