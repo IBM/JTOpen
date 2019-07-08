@@ -620,7 +620,7 @@ implements Serializable
    @throws  InterruptedException  If this thread is interrupted.
    @throws  IOException  If an error occurs while communicating with the system.
    @throws  ObjectDoesNotExistException  If the object does not exist on the system.
-   * @throws UnsupportedEncodingException 
+   * @throws UnsupportedEncodingException If the Character Encoding is not supported. 
    **/
   public SaveFileEntry[] listEntries()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, UnsupportedEncodingException

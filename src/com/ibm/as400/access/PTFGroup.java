@@ -138,12 +138,12 @@ public class PTFGroup
     /**
      * Returns a list of related PTF groups.
      * @return array of PTFGroups
-     * @throws AS400Exception 
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws InterruptedException 
-     * @throws IOException 
-     * @throws ObjectDoesNotExistException 
+     * @throws AS400Exception If an error occurs.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws ObjectDoesNotExistException  If the object does not exist.
     **/
     public PTFGroup[] getRelatedPTFGroups()
     throws AS400Exception,
@@ -257,12 +257,12 @@ public class PTFGroup
     /**
     * Returns the description for the PTF group.
     * @return the description
-     * @throws AS400Exception 
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws InterruptedException 
-     * @throws IOException 
-     * @throws ObjectDoesNotExistException 
+     * @throws AS400Exception If an error occurs.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws ObjectDoesNotExistException  If the object does not exist.
     **/
     public String getPTFGroupDescription()
     throws AS400Exception,
@@ -278,12 +278,12 @@ public class PTFGroup
     /**
     * Returns the PTF group name.
     * @return the name.
-     * @throws AS400Exception 
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws InterruptedException 
-     * @throws IOException 
-     * @throws ObjectDoesNotExistException 
+     * @throws AS400Exception If an error occurs.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws ObjectDoesNotExistException  If the object does not exist.
     **/
     public String getPTFGroupName()
     throws AS400Exception,
@@ -299,12 +299,12 @@ public class PTFGroup
     /**
     * Returns the PTF group level.  
     * @return the PTF group level, or 0 if the group level cannot be determined.
-     * @throws AS400Exception 
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws InterruptedException 
-     * @throws IOException 
-     * @throws ObjectDoesNotExistException 
+     * @throws AS400Exception If an error occurs.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws ObjectDoesNotExistException  If the object does not exist.
     **/
     public int getPTFGroupLevel()
     throws AS400Exception,
@@ -332,12 +332,12 @@ public class PTFGroup
      * <LI>{@link #PTF_GROUP_STATUS_RELATED_GROUP PTF_GROUP_STATUS_RELATED_GROUP}
      * <LI>{@link #PTF_GROUP_STATUS_ON_ORDER PTF_GROUP_STATUS_ON_ORDER}
      * </UL>
-     * @throws AS400Exception 
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws InterruptedException 
-     * @throws IOException 
-     * @throws ObjectDoesNotExistException 
+     * @throws AS400Exception If an error occurs.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws ObjectDoesNotExistException  If the object does not exist.
     **/
     public int getPTFGroupStatus()
     throws AS400Exception,

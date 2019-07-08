@@ -41,7 +41,7 @@ Returns the next datastream object from the input stream.
 
 @param input    The input stream.
 @return         The next datastream object.
- * @throws IOException 
+ * @throws  IOException  If an error occurs while communicating with the system.
 
 **/    
     public PxDSRV getNextDS (InputStream input)

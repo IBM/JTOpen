@@ -97,7 +97,7 @@ Dumps the datastream for debugging and tracing.
 Processes the reply.
 
 @return The returned object, or null if none.
- * @throws InvocationTargetException 
+ * @throws InvocationTargetException  If the target could not be found.
 **/
     public abstract Object process ()
         throws InvocationTargetException;

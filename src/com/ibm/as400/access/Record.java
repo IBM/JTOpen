@@ -1732,7 +1732,7 @@ public class Record implements Serializable
   /**
    * Sets the record number with long type of this record.
    * @param recordNumber
-   * @throws PropertyVetoException
+   * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
    */
   public void setRecordNumberLong(long recordNumber)
       throws PropertyVetoException
