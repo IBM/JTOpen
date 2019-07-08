@@ -90,12 +90,12 @@ public class PanelGroup implements Serializable
    * @param keywords An array of keywords for which to retrieve help. The panel group to which
    * the keywords belong is assumed to be the path of this PanelGroup object.
    * @return The help identifiers.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws IOException 
-   * @throws InterruptedException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public synchronized PanelGroupHelpIdentifier[] getHelpIdentifiers(String[] keywords) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -228,12 +228,12 @@ public class PanelGroup implements Serializable
    * @param keywords An array of keywords for which to retrieve help. The panel group to which
    * the keywords belong is assumed to be the path of this PanelGroup object.
    * @return The help text.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws IOException 
-   * @throws InterruptedException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public synchronized String getHelpText(String[] keywords) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,

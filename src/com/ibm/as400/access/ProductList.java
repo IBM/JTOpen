@@ -189,12 +189,12 @@ public class ProductList
    * specific product to retrieve and specify {@link #PRODUCT_FILTER_LIST PRODUCT_FILTER_LIST}
    * for the product filter.
    * @return The array of Product objects.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public Product[] getProducts()
        throws AS400Exception,

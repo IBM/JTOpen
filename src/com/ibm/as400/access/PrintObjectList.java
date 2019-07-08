@@ -71,17 +71,17 @@ implements java.io.Serializable
      * Calling this method with a value of true will save memory in these cases, but the getObjectList()
      * method will return an empty Enumeration, so this method only becomes useful if code has
      * registered a PrintObjectListListener with this PrintObjectList.
-     * @param f 
+     * @param setting true to enable caching; false to disable caching 
      * @see #addPrintObjectListListener
      * @see #getObjects
      * @see com.ibm.as400.access.PrintObjectListEvent#getObject
      * @see com.ibm.as400.access.PrintObjectListListener#listObjectAdded
     **/
-    public void setCache(boolean f)
+    public void setCache(boolean setting)
     {
       if (impl_ == null) chooseImpl();
-      useCache_ = f;
-      impl_.setCache(f);
+      useCache_ = setting;
+      impl_.setCache(setting);
     }
     
     /**

@@ -104,7 +104,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception ObjectDoesNotExistException If the server object does not exist.
-     * @throws UnsupportedEncodingException 
+     * @throws UnsupportedEncodingException If the Character Encoding is not supported. 
      * @exception PropertyVetoException If the change is vetoed.
      * @exception UnknownHostException If the server cannot be located.
      *

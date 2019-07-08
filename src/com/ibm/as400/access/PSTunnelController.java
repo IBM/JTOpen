@@ -200,7 +200,7 @@ class PSTunnelController
 	Runs the controller with an InputStream and an OutputStream.
 	 * @param inputStream 
 	 * @param outputStream 
-	 * @throws IOException 
+	 * @throws  IOException  If an error occurs while communicating with the system.
 	**/
 	public void runInputStream (InputStream inputStream, OutputStream outputStream)
 	throws IOException

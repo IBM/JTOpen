@@ -106,7 +106,7 @@ Constructs a PSConfig object.
 Applies the command line arguments to the configuration.
 
 @param cla  The command line arguments.
- * @throws IOException 
+ * @throws  IOException  If an error occurs while communicating with the system.
 **/
     public void apply (CommandLineArguments cla)
         throws IOException
@@ -273,7 +273,7 @@ configuation.
 
 /**
 Loads the configuration from a file.
- * @throws IOException 
+ * @throws  IOException  If an error occurs while communicating with the system.
 **/
     public void load ()
         throws IOException

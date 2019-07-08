@@ -559,12 +559,12 @@ public class Product
    * for this product option can be dynamically changed without
    * causing a product error.
    * @return true if the product can by dynamically named, false if it cannot.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean allowsDynamicNaming()
   throws AS400Exception,
@@ -585,12 +585,12 @@ public class Product
    * @return true if the *BASE option and other options of this product
    * can be at different release levels, false if they must all be at
    * the same release level.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean allowsMixedReleases()
   throws AS400Exception,
@@ -611,12 +611,12 @@ public class Product
    * @return true if the product can be installed at a different release level,
    * false if it cannot be installed at a different release level without
    * installing over the current release.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean allowsMultipleReleases()
   throws AS400Exception,
@@ -661,12 +661,12 @@ public class Product
    * the product definition for this product load was created. If no
    * copyright year was specified, then this method returns "".
    * @return The copyright current year.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getFirstCopyright
   **/
   public String getCurrentCopyright()
@@ -686,12 +686,12 @@ public class Product
    * Returns the message ID associated with this product option. The
    * message ID was specified when the product definition was created.
    * @return The message ID representing the product option description.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getDescriptionMessageFile
    * @see #getDescriptionText
   **/
@@ -712,12 +712,12 @@ public class Product
    * Returns the full pathname of the message file that contains the
    * messages describing the product and its options.
    * @return The message file.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getDescriptionID
    * @see #getDescriptionText
   **/
@@ -739,12 +739,12 @@ public class Product
    * this product's message file.
    * @return The description text, or null if an underlying error occurred while
    * trying to load the description text from the message file.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getDescriptionID
    * @see #getDescriptionMessageFile
   **/
@@ -780,12 +780,12 @@ public class Product
   /**
    * Returns the list of product directories for this product.
    * @return The array of product directories and associated information.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public ProductDirectoryInformation[] getDirectoryInformation()
   throws AS400Exception,
@@ -803,12 +803,12 @@ public class Product
   /**
    * Returns the feature ID for this product.
    * @return The feature ID.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getFeatureID()
   throws AS400Exception,
@@ -828,12 +828,12 @@ public class Product
    * the product definition for this product load was created. If no
    * copyright year was specified, then this method returns "".
    * @return The copyright first year.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getCurrentCopyright
   **/
   public String getFirstCopyright()
@@ -852,12 +852,12 @@ public class Product
   /**
    * Returns the release level of this product.
    * @return The release level.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getLevel()
   throws AS400Exception,
@@ -876,12 +876,12 @@ public class Product
    * Returns a ProductLicense object representing license information
    * for this product.
    * @return The ProductLicense object.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public ProductLicense getLicense()
   throws AS400Exception,
@@ -926,12 +926,12 @@ public class Product
    * <LI>{@link #LOAD_STATE_INSTALLED LOAD_STATE_INSTALLED}
    * </UL>
    * @return The load state.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getSymbolicLoadState
   **/
   public String getLoadState()
@@ -955,12 +955,12 @@ public class Product
    * <LI>{@link #LOAD_TYPE_LANGUAGE LOAD_TYPE_LANGUAGE}
    * </UL>
    * @return The load type.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getLoadType()
   throws AS400Exception,
@@ -982,12 +982,12 @@ public class Product
    * Possible values are a release level (e.g. "V5R1M0") or "*MATCH"
    * which indicates the release of the option matches that of *BASE.
    * @return The minimum required release level of this product option.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #allowsMixedReleases
    * @see #getMinimumRequiredReleaseForBase
   **/
@@ -1012,12 +1012,12 @@ public class Product
    * or "*MATCH" which indicates the release of the option matches that
    * of *BASE.
    * @return The minimum required release level of the base product option.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #allowsMixedReleases
    * @see #getMinimumRequiredRelease
   **/
@@ -1038,12 +1038,12 @@ public class Product
    * Returns the minimum operating system release to which the Save Licensed Program
    * (SAVLICPGM) command will allow the product to be saved.
    * @return The minimum target release (e.g. "V5R1M0").
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getMinimumTargetRelease()
   throws AS400Exception,
@@ -1069,12 +1069,12 @@ public class Product
    * For language loads (e.g. "2938"), it is "".
    * @return The primary language feature ID, or "" if no language is
    * installed or this product is a language load.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getLoadType
   **/
   public String getPrimaryLanguageFeatureID()
@@ -1113,12 +1113,12 @@ public class Product
   /**
    * Returns the list of product options for this product ID.
    * @return The array of products.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public Product[] getProductOptions()
   throws AS400Exception,
@@ -1140,12 +1140,12 @@ public class Product
    * superseded PTFs in the list; false otherwise.
    * @return The array of PTFs. If there are no PTFs for the
    * product, this method returns an array of size 0.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public PTF[] getPTFs(boolean includeSupersededPTFs)
   throws AS400Exception,
@@ -1311,12 +1311,12 @@ public class Product
    * <LI>{@link #REGISTRATION_TYPE_CUSTOMER REGISTRATION_TYPE_CUSTOMER}
    * </UL>
    * @return The registration type.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getRegistrationValue
   **/
   public String getRegistrationType()
@@ -1337,12 +1337,12 @@ public class Product
    * registration type and registration value together make up the
    * registration ID for the product.
    * @return The registration value.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getRegistrationType
   **/
   public String getRegistrationValue()
@@ -1363,12 +1363,12 @@ public class Product
    * definition for this product load was created. If no release date
    * was specified for the product, then null is returned.
    * @return The release date, or null if there is no release date.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public Date getReleaseDate()
   throws AS400Exception,
@@ -1388,12 +1388,12 @@ public class Product
    * If any of the special values were specified when this object was constructed,
    * the real release level will be retrieved from the system.
    * @return The release level.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getReleaseLevel()
   throws AS400Exception,
@@ -1425,12 +1425,12 @@ public class Product
    * <LI>{@link #REQUIREMENTS_BASE_TOO_OLD REQUIREMENTS_BASE_TOO_OLD}
    * </UL>
    * @return The reason why requirements are met or not.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getLoadType
   **/
   public int getRequirementsMet()
@@ -1459,12 +1459,12 @@ public class Product
    * <LI>{@link #SYMBOLIC_LOAD_STATE_INSTALLED SYMBOLIC_LOAD_STATE_INSTALLED}
    * </UL>
    * @return The symbolic load state.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getLoadState
    * @see #isLoadInError
   **/
@@ -1511,12 +1511,12 @@ public class Product
   /**
    * Indicates whether or not this product is installed on the system.
    * @return true if the product is installed, false if it is not.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean isInstalled()
   throws AS400Exception,
@@ -1550,12 +1550,12 @@ public class Product
    * state to determine if the product load is installed or not.
    * @return true if an error was found the last time that the state of
    * this load was checked or updated, false if no error was found.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getSymbolicLoadState
   **/
   public boolean isLoadInError()
@@ -1576,12 +1576,12 @@ public class Product
    * can be supported by using the Work with Supported Products (WRKSPTPRD)
    * command in the System Manager.
    * @return true if the feature is supported, false if it is not.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean isSupported()
   throws AS400Exception,
@@ -1601,12 +1601,12 @@ public class Product
    * The getter methods implicitly refresh the necessary value if the value being sought has not been retrieved yet.
    * @return true if some or all of the values were successfully refreshed; false if the system found no information
    * for this product.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean refresh()
        throws AS400Exception,

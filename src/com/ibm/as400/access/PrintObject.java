@@ -76,7 +76,7 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_PAGELVLIDXTAG= 0x0127;  // AT_PAGE_LVL_IDX_TAG
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0129">Record format name present in data stream</A>. **/
     public static final int ATTR_RCDFMT_DATA  = 0x0129;  // AT_RCD_FMT_IN_DATA
-    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html##HDRKEY2.5">Align forms</A>. **/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY2.5">Align forms</A>. **/
     public static final int ATTR_ALIGNFORMS   = 0x00BE;  // Align forms
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY2">Align page</A>. **/
     public static final int ATTR_ALIGN        = 0x000B;  // AT_ALIGN
