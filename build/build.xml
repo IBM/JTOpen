@@ -1343,18 +1343,41 @@
     // Target: javadoc
     ///////////////////////////////////////////////////////////////////////////-->
 
+
+  <condition property="isWindows">
+    <os family="windows" />
+  </condition>
+
+  <condition property="isUnix">
+    <os family="unix" />
+  </condition>
+
 	<condition property="ibmjavadocExists" value="true">
 		<available file="${include}/ibmjavadoc.jar" type="file"/>
 	</condition>
 
-
-	<target name="setJavadocExecOverride" if="ibmjavadocExists">
+	<target name="setJavadocExecOverrideWindows" if="isWindows" >
 		<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
 			${jdk16windows}\jre\bin\java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
 		</echo>
 		<property name="javadocExec" value="${ibmjavadocExec}"/>
 		<echo> Using ibmjavadoc ${javadocExec}  </echo>
 	</target>
+
+
+	<target name="setJavadocExecOverrideUnix" if="isUnix">
+		<echo file="${ibmjavadocExec}" append="false">echo Running ibmjavadoc "$@"
+			${jdk16}/jre/bin/java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main "$@"
+		</echo>
+                <chmod file="${ibmjavadocExec}" perm="a+x" />
+		<property name="javadocExec" value="${ibmjavadocExec}"/>
+		<echo> Using ibmjavadoc ${javadocExec}  </echo>
+	</target>
+
+	<target name="setJavadocExecOverride" depends="setJavadocExecOverrideWindows,setJavadocExecOverrideUnix"
+    if="ibmjavadocExists" >
+	</target>
+
 
 	<target name="setJavadocExec" depends="setJavadocExecOverride">
 		<property name="javadocExec" value="${javadocExecDefault}"/>
