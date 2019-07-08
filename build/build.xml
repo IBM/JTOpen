@@ -210,7 +210,7 @@
 
 <project name="JTOpen" basedir="." default="usage">
 
-	
+
 
 	<!--///////////////////////////////////////////////////////////////////////////
     // PROPERTIES
@@ -309,7 +309,7 @@
 	<property name="doclink6" value="http://download.oracle.com/javase/6/docs/api/"/>
 	<property name="doclink8" value="http://download.java.net/jdk8/docs/"/>
 	<property name="doclink9" value="http://download.java.net/jdk9/docs/"/>
-  
+
 	<property name="show-progress" value="false"/>
 
 	<property name="shadow-jtopenlite" value="J:\dev2000\as400\v7r1m0t.jacl\usr\cmvc\java.pgm\yjac.jacl\jars"/>
@@ -386,8 +386,8 @@
     // Target: clean
     ///////////////////////////////////////////////////////////////////////////-->
 	<target name="clean" depends="clean-javadoc,clean-dist,clean-output,clean-javadoc6,clean-dist6,clean-output6,clean-javadoc8,clean-dist8,clean-output8,clean-javadoc9,clean-dist9,clean-output9,clean-android,clean-android6">
-		<echo>Clean complete</echo> 
-    </target>
+		<echo>Clean complete</echo>
+	</target>
 
 	<target name="clean-dist">
 		<delete dir="${dist}"/>
@@ -422,7 +422,9 @@
 	</target>
 
 	<target name="clean-output6">
+		<delete dir="${source-jdbc40}"/>
 		<delete dir="${output6}"/>
+		<delete dir="${source-java6}"/>
 	</target>
 
 	<target name="clean-dist8">
@@ -434,7 +436,9 @@
 	</target>
 
 	<target name="clean-output8">
+		<delete dir="${source-jdbc42}"/>
 		<delete dir="${output8}" />
+		<delete dir="${source-java8}"/>
 	</target>
 
 	<target name="clean-dist9">
@@ -446,6 +450,8 @@
 	</target>
 
 	<target name="clean-output9">
+		<delete dir="${source-jdbc429}"/>
+		<delete dir="${source-java9}"/>
 		<delete dir="${output9}" />
 		<delete dir="${output9native}" />
 		<delete dir="${output9servlet}" />
@@ -460,16 +466,8 @@
 		<fail message="Trying to clean eclipse"  if="inEclipse"/>
 		<delete dir="${source}"/>
 		<delete dir="${source-contrib}"/>
-		<delete dir="${source-jdbc40}"/>
-		<delete dir="${source-jdbc42}"/>
-		<delete dir="${source-jdbc429}"/>
-		<delete dir="${source-java6}"/>
-		<delete dir="${source-java8}"/>
-		<delete dir="${source-java9}"/>
 		<delete dir="${source-micro}"/>
 		<delete dir="${source-jtopenlite}"/>
-		<delete dir="${source-android}"/>
-		<delete dir="${source-android6}"/>
 		<delete dir="${build}/SVN"/>
 		<delete file="${build}/license.html"/>
 		<delete file="${build}/readme.html"/>
@@ -560,8 +558,9 @@
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: compile9
 	    ///////////////////////////////////////////////////////////////////////////-->
-	<target name="compile9" depends="compile9jtopen,compile9jt400native"></target>
-		
+	<target name="compile9" depends="compile9jtopen,compile9jt400native">
+	</target>
+
 	<target name="compile9jtopen" depends="source9">
 		<fail message="Can't find ${include}/servlet.jar." unless="servletJarExists"/>
 		<javac nowarn="on" srcdir="${source-java9}:${source-contrib}"
@@ -736,7 +735,7 @@
 	    	   executable="${jdk14}/bin/javac"
 	>
 		</javac>
-		
+
 		<copy file="${source}/utilities/INMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output}/utilities/INMRI.properties"/>
@@ -788,9 +787,9 @@
 		<copy file="${source}/com/ibm/as400/util/UTMRI.pro"
 	          preservelastmodified="yes"
 	          tofile="${output}/com/ibm/as400/util/UTMRI.properties"/>
-		
-		
-		
+
+
+
 	</target>
 
 
@@ -881,7 +880,7 @@
 		<mkdir dir="${output8}"/>
 		<mkdir dir="${output9}"/>
 		<mkdir dir="${output9native}"/>
-	    <mkdir dir="${output9servlet}"/>
+		<mkdir dir="${output9servlet}"/>
 		<mkdir dir="${output-jtopenlite}"/>
 		<mkdir dir="${output-micro}"/>
 		<mkdir dir="${output-micro-verified}"/>
@@ -948,7 +947,7 @@
 		<checksum file="${dist}/jt400.jar"/>
 	</target>
 
-	<!-- micro-preverify removed since source is not changing -->  
+	<!-- micro-preverify removed since source is not changing -->
 	<target name="jar-jt400Micro" depends="init,compile-micro">
 		<jar jarfile="${dist}/jt400Micro.jar" manifest="${sourceroot}/build/jt400Micro_manifest.txt">
 			<fileset dir="${output-micro-verified}" includesfile="${sourceroot}/build/micro.includes"/>
@@ -1112,7 +1111,7 @@
 		</jar>
 		<checksum file="${dist9}/jt400.jar"/>
 	</target>
-	
+
 	<target name="jar-jt400Native9" depends="init,compile9,pcml9,copyright9">
 		<jar jarfile="${dist9}/jt400Native.jar" manifest="${sourceroot}/build/jt400Native_manifest.txt">
 			<fileset dir="${output9native}">
@@ -1141,7 +1140,7 @@
 		<checksum file="${dist9}/jt400Native.jar"/>
 	</target>
 
-	
+
 	<target name="jar-jt400Native8" depends="init,compile8,pcml8,copyright8">
 		<jar jarfile="${dist8}/jt400Native.jar" manifest="${sourceroot}/build/jt400Native_manifest.txt">
 			<fileset dir="${output8}">
@@ -1344,19 +1343,25 @@
     ///////////////////////////////////////////////////////////////////////////-->
 
 
-  <condition property="isWindows">
-    <os family="windows" />
-  </condition>
+	<condition property="isWindowsAndIbmjavadoc">
+		<and>
+			<os family="windows" />
+			<available file="${include}/ibmjavadoc.jar" type="file" />
+		</and>
+	</condition>
 
-  <condition property="isUnix">
-    <os family="unix" />
-  </condition>
+	<condition property="isUnixAndIbmjavadoc">
+		<and>
+			<os family="unix" />
+			<available file="${include}/ibmjavadoc.jar" type="file"/>
+		</and>
+	</condition>
 
 	<condition property="ibmjavadocExists" value="true">
 		<available file="${include}/ibmjavadoc.jar" type="file"/>
 	</condition>
 
-	<target name="setJavadocExecOverrideWindows" if="isWindows" >
+	<target name="setJavadocExecOverrideWindows" if="isWindowsAndIbmjavadoc" >
 		<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
 			${jdk16windows}\jre\bin\java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
 		</echo>
@@ -1365,11 +1370,11 @@
 	</target>
 
 
-	<target name="setJavadocExecOverrideUnix" if="isUnix">
+	<target name="setJavadocExecOverrideUnix" if="isUnixAndIbmjavadoc">
 		<echo file="${ibmjavadocExec}" append="false">echo Running ibmjavadoc "$@"
 			${jdk16}/jre/bin/java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main "$@"
 		</echo>
-                <chmod file="${ibmjavadocExec}" perm="a+x" />
+		<chmod file="${ibmjavadocExec}" perm="a+x" />
 		<property name="javadocExec" value="${ibmjavadocExec}"/>
 		<echo> Using ibmjavadoc ${javadocExec}  </echo>
 	</target>
@@ -1385,28 +1390,28 @@
 	</target>
 
 
-	
-		<target name="setJavadoc6ExecOverrideWindows" if="isWindows" >
-			<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
+
+	<target name="setJavadoc6ExecOverrideWindows" if="isWindowsAndIbmjavadoc" >
+		<echo file="${ibmjavadocExec}" append="false">REM Running ibmjavadoc %*
 				${jdk16windows}\jre\bin\java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
 			</echo>
-			<property name="javadoc6Exec" value="${ibmjavadocExec}"/>
-			<echo> Using ibmjavadoc ${javadoc6Exec}  </echo>
-		</target>
+		<property name="javadoc6Exec" value="${ibmjavadocExec}"/>
+		<echo> Using ibmjavadoc ${javadoc6Exec}  </echo>
+	</target>
 
 
-		<target name="setJavadoc6ExecOverrideUnix" if="isUnix">
-			<echo file="${ibmjavadocExec}" append="false">echo Running ibmjavadoc "$@"
+	<target name="setJavadoc6ExecOverrideUnix" if="isUnixAndIbmjavadoc">
+		<echo file="${ibmjavadocExec}" append="false">echo Running ibmjavadoc "$@"
 				${jdk16}/jre/bin/java  -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main "$@"
 			</echo>
-	                <chmod file="${ibmjavadocExec}" perm="a+x" />
-			<property name="javadoc6Exec" value="${ibmjavadocExec}"/>
-			<echo> Using ibmjavadoc ${javadoc6Exec}  </echo>
-		</target>
+		<chmod file="${ibmjavadocExec}" perm="a+x" />
+		<property name="javadoc6Exec" value="${ibmjavadocExec}"/>
+		<echo> Using ibmjavadoc ${javadoc6Exec}  </echo>
+	</target>
 
-		<target name="setJavadoc6ExecOverride" depends="setJavadocExecOverrideWindows,setJavadocExecOverrideUnix"
+	<target name="setJavadoc6ExecOverride" depends="setJavadoc6ExecOverrideWindows,setJavadoc6ExecOverrideUnix"
 	    if="ibmjavadocExists" >
-		</target>
+	</target>
 
 
 
@@ -1418,7 +1423,7 @@
 
 
 
-	<target name="setJavadoc8ExecOverrideWindows" if="isWindows" >
+	<target name="setJavadoc8ExecOverrideWindows" if="isWindowsAndIbmjavadoc" >
 		<echo file="${ibmjavadocExec}" append="false">ECHO Running ibmjavadoc8 %*
 			${jdk18windows}\jre\bin\java  -Xmx500m -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main %*
 		</echo>
@@ -1427,28 +1432,28 @@
 	</target>
 
 
-	<target name="setJavadoc8ExecOverrideUnix" if="isUnix">
+	<target name="setJavadoc8ExecOverrideUnix" if="isUnixAndIbmjavadoc">
 		<echo file="${ibmjavadocExec}" append="false">echo Running ibmjavadoc "$@"
 			${jdk18}/jre/bin/java   -Xmx500m -Xbootclasspath/p:${include}/ibmjavadoc.jar com.sun.tools.javadoc.Main "$@"
 		</echo>
-                <chmod file="${ibmjavadocExec}" perm="a+x" />
+		<chmod file="${ibmjavadocExec}" perm="a+x" />
 		<property name="javadoc8Exec" value="${ibmjavadocExec}"/>
 		<echo> Using ibmjavadoc ${javadoc8Exec}  </echo>
 	</target>
 
 	<target name="setJavadoc8ExecOverride" 
-	        depends="setJavadocExecOverrideWindows,setJavadocExecOverrideUnix"
+	        depends="setJavadoc8ExecOverrideWindows,setJavadoc8ExecOverrideUnix"
             if="ibmjavadocExists" >
 	</target>
 
-	
-		<target name="setJavadoc8Exec" depends="setJavadoc8ExecOverride">
-			<property name="javadoc8Exec" value="${javadoc8ExecDefault}"/>
-			<echo> Using javadoc8 ${javadoc8Exec} </echo>
-		</target>
-	
-	
-	
+
+	<target name="setJavadoc8Exec" depends="setJavadoc8ExecOverride">
+		<property name="javadoc8Exec" value="${javadoc8ExecDefault}"/>
+		<echo> Using javadoc8 ${javadoc8Exec} </echo>
+	</target>
+
+
+
 	<target name="javadoc" depends="init,checkJavadocIncludes,setJavadocExec">
 		<javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
@@ -1504,7 +1509,7 @@
 		</javadoc>
 	</target>
 
-	
+
 	<target name="javadoc-jtopenlite" depends="init,setJavadocExec">
 		<echo>  Generating javadoc from source-jtopenlite=${source-jtopenlite} basedir=${basedir} inEclipse=${inEclipse}</echo>
 		<echo>  sourceroot=${sourceroot} </echo>
@@ -1568,7 +1573,7 @@
 		</javadoc>
 	</target>
 
-	
+
 	<target name="javadoc8" depends="init,source8,checkJavadocIncludes,setJavadoc8Exec">
 		<javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
@@ -1616,7 +1621,7 @@
 	    	     executable="${javadoc9Exec}">
 			<arg value="-Xdoclint:none" />
 			<arg value="-Xmaxerrs" />
-			<arg value="2000" /> 
+			<arg value="2000" />
 			<classpath>
 				<!-- Include these if the user happens to have them, just so
 	             javadoc generates without any extra warnings. -->
@@ -1639,7 +1644,7 @@
 		</javadoc>
 	</target>
 
-	
+
 	<!--///////////////////////////////////////////////////////////////////////////
     // Target: micro
     ///////////////////////////////////////////////////////////////////////////-->
@@ -1851,7 +1856,7 @@
 	               verbose="${show-progress}"/>
 	</target>
 
-	
+
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: copyright8
 	    ///////////////////////////////////////////////////////////////////////////-->
@@ -1888,7 +1893,7 @@
 				       destdir="${source-jdbc40}"
 		               srcdir="${source}"
 		               verbose="${show-progress}"/>
-		
+
 	</target>
 
 	<!--///////////////////////////////////////////////////////////////////////////
@@ -1923,99 +1928,100 @@
 	<target name="sourceSvn" depends="source">
 	</target>
 
-	
+
 	<!--///////////////////////////////////////////////////////////////////////////
     // Target: source
     ///////////////////////////////////////////////////////////////////////////-->
 	<target name="source" depends="init">
 		<fail message="Trying to source in eclipse"  if="inEclipse"/>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
-		    <arg value="${build}/build" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
+			<arg value="${build}/build" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="co" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/src" />
-		    <arg value="${build}/src" />
+			<arg value="--force" />
+			<arg value="co" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/src" />
+			<arg value="${build}/src" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/jdbc40" />
-		    <arg value="${build}/jdbc40" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/jdbc40" />
+			<arg value="${build}/jdbc40" />
 		</exec>
 		<exec executable="svn"  failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/contrib" />
-		    <arg value="${build}/contrib" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/contrib" />
+			<arg value="${build}/contrib" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/include" />
-		    <arg value="${build}/include" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/include" />
+			<arg value="${build}/include" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
-		    <arg value="${build}/build" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
+			<arg value="${build}/build" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="co" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/jtopenlite" />
-		    <arg value="${build}/jtopenlite" />
+			<arg value="--force" />
+			<arg value="co" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/jtopenlite" />
+			<arg value="${build}/jtopenlite" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/androidStubs" />
-		    <arg value="${build}/androidStubs" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/androidStubs" />
+			<arg value="${build}/androidStubs" />
 		</exec>
 
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/license.html" />
-		    <arg value="${build}" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/license.html" />
+			<arg value="${build}" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/readme.html" />
-		    <arg value="${build}" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/readme.html" />
+			<arg value="${build}" />
 		</exec>
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-			   <arg value="export" />
-			    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/changes.html" />
-			    <arg value="${build}" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/changes.html" />
+			<arg value="${build}" />
 		</exec>
 
 	</target>
 
-	
-	
+
+
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: source-build ...... download the build directories
 	    ///////////////////////////////////////////////////////////////////////////-->
 	<target name="source-build" depends="init">
 		<exec executable="svn" failonerror="true">
-				    <arg value="--force" />
-				    <arg value="export" />
-				    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
-				    <arg value="${build}/build" />
-				</exec><exec executable="svn" failonerror="true">
-	    <arg value="--force" />
-	    <arg value="export" />
-	    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
-	    <arg value="${build}/build" />
-	</exec>
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
+			<arg value="${build}/build" />
+		</exec>
+		<exec executable="svn" failonerror="true">
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
+			<arg value="${build}/build" />
+		</exec>
 	</target>
 
 	<!--///////////////////////////////////////////////////////////////////////////
@@ -2023,14 +2029,14 @@
 	    ///////////////////////////////////////////////////////////////////////////-->
 	<target name="source-buildSvn" depends="init">
 		<exec executable="svn" failonerror="true">
-		    <arg value="--force" />
-		    <arg value="export" />
-		    <arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
-		    <arg value="${build}/build" />
+			<arg value="--force" />
+			<arg value="export" />
+			<arg value="svn://svn.code.sf.net/p/jt400/svn/trunk/build" />
+			<arg value="${build}/build" />
 		</exec>
 	</target>
 
-	
+
 
 
 
@@ -2132,7 +2138,7 @@
 	</target>
 
 
-	
+
 	<!--///////////////////////////////////////////////////////////////////////////
 	// Target: source-android
 	// Create a version of JTOpen that is suitable for use on Android.
@@ -2143,7 +2149,7 @@
 	<target name="source-android6" depends="source6" >
 		<!-- copy source files from source -->
 		<copy encoding="ISO-8859-1" todir="${source-android6}" >
-  			    <fileset dir="${source-java6}" >
+			<fileset dir="${source-java6}" >
 				<include name="com/**/*.java" />
 
 				<!-- micro, vaccess, servlet, html and other GUI items are not available -->
@@ -2229,7 +2235,7 @@
 		</replaceregexp>
 	</target>
 
-	
+
 
 	<!--///////////////////////////////////////////////////////////////////////////
 	    // Target: source6
@@ -2717,7 +2723,7 @@ Available Ant targets for the JTOpen build script include:
 			</fileset>
 		</ftp>
 
-	
+
 
 
 
