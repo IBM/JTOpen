@@ -395,7 +395,7 @@ public abstract class ConvTable
      * @param length  maximum number of bytes to add to the buffer
      * @param properties  BidiConversionProperties
      * @return  number of bytes that were truncated 
-     * @throws CharConversionException
+     * @throws CharConversionException  If a character conversion error occurs.
      */
     public int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
