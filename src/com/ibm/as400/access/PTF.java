@@ -454,12 +454,12 @@ public class PTF
    * <LI>{@link #ACTION_REQUIRED_CANNOT_VERIFY ACTION_REQUIRED_CANNOT_VERIFY}
    * </UL>
    * @return The action required.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getActionRequired()
   throws AS400Exception,
@@ -477,12 +477,12 @@ public class PTF
   /** 
    * Retrieves the list of APAR numbers that were fixed by this PTF.
    * @return The APAR numbers.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getSymptomStrings
   **/
   public String[] getAPARNumbers()
@@ -503,12 +503,12 @@ public class PTF
    * The cover letter returned is for the default NLV for the system.
    * If there are no cover letters, this method returns null.
    * @return The cover letter.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public PTFCoverLetter getCoverLetter()
   throws AS400Exception,
@@ -529,12 +529,12 @@ public class PTF
    * retrieved from the system is returned. If there are no cover letters, null is returned.
    * @param locale The locale.
    * @return The cover letter.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public PTFCoverLetter getCoverLetter(Locale locale)
   throws AS400Exception,
@@ -566,12 +566,12 @@ public class PTF
    * Each cover letter is for its own national language version (NLV).
    * @return The array of cover letters. If there are no cover letters, an array
    * of size 0 is returned.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public PTFCoverLetter[] getCoverLetters()
   throws AS400Exception,
@@ -600,12 +600,12 @@ public class PTF
    * <LI>{@link #IPL_SOURCE_UNKNOWN IPL_SOURCE_UNKNOWN}
    * </UL>
    * @return The current IPL source.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getCurrentIPLSource()
   throws AS400Exception,
@@ -624,12 +624,12 @@ public class PTF
    * Retrieves the list of PTFs that are dependent upon this PTF.
    * If there are no dependent PTFs, an array of size 0 will be returned.
    * @return The array of dependent PTFs.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getRequisitePTFs
    * @see #getSupersedingPTF
   **/
@@ -649,12 +649,12 @@ public class PTF
   /**
    * Retrieves the list of exit programs for this PTF.
    * @return The array of exit programs.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public PTFExitProgram[] getExitPrograms()
   throws AS400Exception,
@@ -690,12 +690,12 @@ public class PTF
    * <LI>{@link #IPL_ACTION_REMOVE_PERMANENT IPL_ACTION_REMOVE_PERMANENT}
    * </UL>
    * @return The IPL action.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public int getIPLAction()
   throws AS400Exception,
@@ -719,12 +719,12 @@ public class PTF
    * <LI>{@link #PTF_TYPE_UNKNOWN PTF_TYPE_UNKNOWN}
    * </UL>
    * @return The type of PTF. This indicates if an IPL is required to apply the PTF.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getIPLRequired()
   throws AS400Exception,
@@ -744,12 +744,12 @@ public class PTF
    * of the group is not available or if the PTF is not a Licensed Internal Code
    * fix, this method returns "".
    * @return The Licensed Interanl Code Group name.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getLICGroup()
   throws AS400Exception,
@@ -779,12 +779,12 @@ public class PTF
    * <LI>{@link #STATUS_SUPERSEDED STATUS_SUPERSEDED}
    * </UL>
    * @return The loaded status.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getLoadedStatusMessage
   **/
   public String getLoadedStatus()
@@ -806,12 +806,12 @@ public class PTF
    * @param loadedStatus The loaded status. See {@link #getLoadedStatus getLoadedStatus()}
    * for the list of valid values.
    * @return The status message, or "" if the loaded status was not valid.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getLoadedStatusMessage(String loadedStatus)
   throws AS400Exception,
@@ -889,12 +889,12 @@ public class PTF
    * The level can be "AA" through "99", or blank if the product has
    * no level.
    * @return The release level.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getMinimumLevel
   **/
   public String getMaximumLevel()
@@ -917,12 +917,12 @@ public class PTF
    * The level can be "AA" through "99", or blank if the product has
    * no level.
    * @return The release level.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getMaximumLevel
   **/
   public String getMinimumLevel()
@@ -960,12 +960,12 @@ public class PTF
    * value will be blank if the feature cannot be determined (as in
    * the case of a dependent or requisite PTF).
    * @return The product feature.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getProductFeature()
   throws AS400Exception,
@@ -986,12 +986,12 @@ public class PTF
    * will be overwritten with the value returned from the system
    * after the values have been refreshed.
    * @return The product ID.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getProductID()
   throws AS400Exception,
@@ -1011,12 +1011,12 @@ public class PTF
    * will be blank if the option cannot be determined (as in the case
    * of a dependent or requisite PTF).
    * @return The product option.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/ 
   public String getProductOption()
   throws AS400Exception,
@@ -1042,12 +1042,12 @@ public class PTF
    * <LI>{@link #RELATIONSHIP_SAME RELATIONSHIP_SAME} - If this PTF is identical to the specified PTF.
    * <LI>{@link #RELATIONSHIP_NONE RELATIONSHIP_NONE} - If there is no known relationship.
    * </UL>
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getRelationship(PTF ptf)
   throws AS400Exception,
@@ -1111,12 +1111,12 @@ public class PTF
    * will be overwritten with the value returned from the system
    * after the values have been refreshed.
    * @return The release level. Example: "V5R1M0"
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getReleaseLevel()
   throws AS400Exception,
@@ -1138,12 +1138,12 @@ public class PTF
    * respective {@link #isCoRequisite isCoRequisite()} and {@link #isPreRequisite isPreRequisite()}
    * methods.
    * @return The list of PTFs.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public PTF[] getRequisitePTFs()
   throws AS400Exception,
@@ -1161,12 +1161,12 @@ public class PTF
   /**
    * Returns the full pathname of the save file for this PTF, if one exists.
    * @return The save file, or null if this PTF has no save file on the system.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getSaveFile()
   throws AS400Exception,
@@ -1189,12 +1189,12 @@ public class PTF
    * Returns the date and time the PTF status last changed.
    * If the status date and time are not available, null is returned.
    * @return The status date.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public Date getStatusDate()
   throws AS400Exception,
@@ -1213,12 +1213,12 @@ public class PTF
    * Returns the PTF ID of the PTF that supersedes this PTF. This will be ""
    * if there is no superseding PTF, or if the superseding PTF is not known.
    * @return The PTF ID.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getDependentPTFs
    * @see #getRequisitePTFs
   **/
@@ -1238,12 +1238,12 @@ public class PTF
   /**
    * Returns the list of symptom strings for the problems fixed by this PTF.
    * @return The symptom strings.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getAPARNumbers
   **/
   public String[] getSymptomStrings()
@@ -1263,12 +1263,12 @@ public class PTF
    * Returns the earliest release of the operating system on which you can load and apply
    * this PTF.
    * @return The target release. Example: "V4R5M0"
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public String getTargetRelease()
   throws AS400Exception,
@@ -1288,12 +1288,12 @@ public class PTF
    * If the creation date and time cannot be determined, null is returned.
    * <p>NOTE:  This method is not supported when running to OS/400 V5R2 or earlier releases.
    * @return The date and time that the PTF was created, or null if not determined or system is pre-V5R3.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public Date getCreationDate()
   throws AS400Exception,
@@ -1337,12 +1337,12 @@ public class PTF
    <li>2 A server IPL must be performed using the P server IPL source in order to activate the changes for the PTF.
    <li>-1 The value of the "IPL required" property cannot be determined, or system is pre-V5R3.
    </ul>
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public int getServerIPLRequired()
   throws AS400Exception,
@@ -1397,12 +1397,12 @@ public class PTF
    * @return true if a required action needs to occur for this PTF
    * to be active; false if no required actions are pending for this
    * PTF.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getActionRequired
    * @see #getCoverLetters
   **/ 
@@ -1429,12 +1429,12 @@ public class PTF
    * systems that contain the software described in the other fields;
    * false if the requisite PTF is required by this PTF on all systems
    * that can use this PTF.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean isConditional()
   throws AS400Exception,
@@ -1462,12 +1462,12 @@ public class PTF
    * is accomplished by checking the list of known dependent and requisite PTFs for this PTF.
    *                                                                                          
    * @return true if this PTF is a co-requisite, false otherwise.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getDependentPTFs
    * @see #getRequisitePTFs
    * @see #isDependent
@@ -1502,12 +1502,12 @@ public class PTF
    *                                                                                          
    * @return true if this PTF is dependent on another PTF (that is, another PTF is
    * a pre-requisite of this PTF), false otherwise.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getDependentPTFs
    * @see #getRequisitePTFs
    * @see #isCoRequisite
@@ -1530,12 +1530,12 @@ public class PTF
    * Indicates if this PTF has been ordered.
    * @return true if the PTF has been ordered; false if it has not been ordered
    * or has already been received.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public boolean isOnOrder()
   throws AS400Exception,
@@ -1561,12 +1561,12 @@ public class PTF
    * PTF is a known pre-requisite of at least one other PTF on the system.
    *                                                                                          
    * @return true if this PTF is a pre-requisite of another PTF, false otherwise.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getDependentPTFs
    * @see #getRequisitePTFs
    * @see #isCoRequisite
@@ -1591,12 +1591,12 @@ public class PTF
    * the product is supported. The save file status should also be checked.
    * @return true if the PTF save file is released and can be distributed; false if
    * the save file cannot be distributed.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getSaveFile
   **/
   public boolean isReleased()
@@ -1616,12 +1616,12 @@ public class PTF
    * Indicates if this PTF is required on the system because it is a pre-requisite
    * for another PTF.
    * @return true if this PTF is required on the system, false if it is not required.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/ 
   public boolean isRequired()
   throws AS400Exception,
@@ -1638,12 +1638,12 @@ public class PTF
 
   /**
    * Refreshes all the values for this PTF by retrieving them from the system.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public void refresh()
        throws AS400Exception,
