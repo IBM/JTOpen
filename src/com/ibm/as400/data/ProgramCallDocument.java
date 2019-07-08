@@ -65,17 +65,17 @@ import org.xml.sax.SAXException;                                    //@E1A
  * PCML document definitions. Note that XPCML documents cannot
  * be serialized.
  * <pre>
- * <kbd>java com.ibm.as400.data.ProgramCallDocument
+ * java com.ibm.as400.data.ProgramCallDocument
  *     -serialize
- *     <i>PCML document name</i></kbd>
+ *     <i>PCML document name</i>
  * </pre>
  * Options:
  * <dl>
- * <dt><kbd>-serialize</kbd>
+ * <dt>-serialize
  * <dd>Parses the PCML document and creates a serialized version of the document.
  * The name of the serialized file will match the document name, and the file extension will be
  * <strong><code>.pcml.ser</code></strong> (lowercase).
- * <dt><kbd><i>PCML document name</i></kbd>
+ * <dt><i>PCML document name</i>
  * <dd>The fully-qualified resource name of the PCML document
  * which defines the program interface.
  * </dl>
@@ -956,9 +956,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
      The filename of the serialized file will be of the form
      <pre>
-     <kbd><i>docName</i>.pcml.ser</kbd>
+     <i>docName</i>.pcml.ser
      </pre>
-     where <kbd><i>docName</i>.pcml.ser</kbd> (lowercase) is the name of the document used to
+     where <i>docName</i>.pcml.ser (lowercase) is the name of the document used to
 	 construct this object.
 
      @exception PcmlException If an error occurs.

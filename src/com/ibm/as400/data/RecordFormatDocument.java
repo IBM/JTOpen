@@ -43,17 +43,17 @@ import java.util.MissingResourceException;
  * The command line interface may be used to serialize
  * RFML document definitions.
  * <pre>
- * <kbd>java com.ibm.as400.data.RecordFormatDocument
+ * java com.ibm.as400.data.RecordFormatDocument
  *     -serialize
- *     <i>RFML document name</i></kbd>
+ *     <i>RFML document name</i>
  * </pre>
  * Options:
  * <dl>
- * <dt><kbd>-serialize</kbd>
+ * <dt>-serialize
  * <dd>Parses the RFML document and creates a serialized version of the document.
  * The name of the serialized file will match the document name, and the file extension will be
  * <strong><code>.rfml.ser</code></strong> (lowercase).
- * <dt><kbd><i>rfml document name</i></kbd>
+ * <dt><i>rfml document name</i>
  * <dd>The fully-qualified resource name of the RFML document
  * which defines the record format(s).
  * </dl>

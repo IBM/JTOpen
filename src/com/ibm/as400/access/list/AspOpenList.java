@@ -343,9 +343,7 @@ public class AspOpenList extends OpenList {
     <li> 3 - When filter data type is {@link #DEVICEDESCRIPTION_NAME}
     <li> 4 - When filter data type is {@link #DATABASE_NAME}
   </ul>
-  @param filterDataType
-  @see {@link #setASPNumber(int)} when setFilterKey({@link #ASP_NUMBER})
-  @see {@link #setASPName(String)} when setFilterKey({@link #RESOURCE_NAME}) or setFilterKey({@link #DEVICEDESCRIPTION_NAME}) or setFilterKey({@link #DATABASE_NAME})
+  @param filterDataType filter data type
   **/
  public void setFilterKey(String filterDataType) {
 	 if (filterDataType == null) {
