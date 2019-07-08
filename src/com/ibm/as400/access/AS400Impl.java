@@ -75,7 +75,7 @@ interface AS400Impl
     /**
      * Sets bidi string type of the connection. 
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
-     * @param bidiStringType 
+     * @param bidiStringType  The bidi string type to use for the connection.
      */
     public void setBidiStringType(int bidiStringType);
     

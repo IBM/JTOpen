@@ -416,7 +416,7 @@ implements Connection //@A5A
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
    */
   public int getConcurrentAccessResolution ()  throws SQLException
   {
@@ -1334,7 +1334,7 @@ ResultSet.CONCUR_READ_ONLY.
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
    */
   public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
   {  
@@ -1348,7 +1348,7 @@ ResultSet.CONCUR_READ_ONLY.
     eWLM correlators require i5/OS V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
     
     @param bytes The eWLM correlator value
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
     **/
     public void setDB2eWLMCorrelator(byte[] bytes)
     throws SQLException //@eWLM
@@ -1526,7 +1526,7 @@ ResultSet.CONCUR_READ_ONLY.
   *  isolation levels.  The following table provides a terminology 
   *  mapping:
   *
-  *  <p><table border summary="">
+  *  <table border summary="">
   *  <tr><th>DB2 for IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
   *  <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
   *  <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
@@ -1674,7 +1674,6 @@ ResultSet.CONCUR_READ_ONLY.
      * properties may have been set before the error occurred.
      * <p>
      * The following client info properties are supported in Toobox for Java.  
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing 
      *                          the connection</li>
@@ -1692,10 +1691,6 @@ ResultSet.CONCUR_READ_ONLY.
      * @param properties
      *            the list of client info properties to set
      *            <p>
-     * @throws SQLException
-     *             if the database server returns an error while setting the
-     *             clientInfo values on the database server
-     *             <p>
      * see java.sql.Connection#setClientInfo(String, String)
      *      setClientInfo(String, String)
      */
@@ -1736,7 +1731,6 @@ endif */
      * method to determine the client info properties supported by the driver.
      * <p>
      * The following client info properties are supported in Toobox for Java.  
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing 
      *                          the connection</li>
@@ -1775,7 +1769,6 @@ endif */
      * default value.
      * <p>
      * The following client info properties are supported in Toobox for Java.  
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing 
      *                          the connection</li>
@@ -1939,7 +1932,6 @@ endif */
      * connection.
      * <p>
      * The following client info properties are supported in Toobox for Java.  
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing 
      *                          the connection</li>
@@ -1957,10 +1949,6 @@ endif */
      * @param value     The value to set the client info property to.  If the 
      *                  value is null, the current value of the specified
      *                  property is cleared.
-     * <p>
-     * @throws  SQLException if the database server returns an error while 
-     *          setting the client info value on the database server.
-     * <p>
      */
     public void setClientInfo(String name, String value)
     /* ifdef JDBC40 
@@ -1992,7 +1980,7 @@ endif */
      * and is ignored if you specified to turn on database host server tracingfs
      * using the 'server trace' connection property.
      * @param trace true to start database host server tracing, false to end it.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
      */
     public void setDBHostServerTrace(boolean trace) throws SQLException { //@pdc
         /* ifdef JDBC40 	

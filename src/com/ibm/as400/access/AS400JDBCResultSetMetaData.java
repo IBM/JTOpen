@@ -81,7 +81,7 @@ implements ResultSetMetaData
     @param  row                         The row.
     @param  extendedColumnDescriptors   The extended column descriptors.
     @param  convTable                   The converter table to use to convert column descriptors.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     AS400JDBCResultSetMetaData(String catalog,
                                 int concurrency,

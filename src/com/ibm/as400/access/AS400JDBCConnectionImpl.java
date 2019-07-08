@@ -676,8 +676,6 @@ public void handleAbort() {
     of the statements to see if any of their holidabilities is different, we will mark this flag if
     the user changes any of the statement holdabilities.
 
-    @exception SQLException     If the connection is not open
-                                or an error occurs.
     **/
     public void setCheckStatementHoldability(boolean check)
     {
@@ -1270,7 +1268,7 @@ throws SQLException
     Returns the connection properties.
 
     @return    The connection properties.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     public JDProperties getProperties ()
     throws SQLException // @EGA
@@ -3315,7 +3313,7 @@ throws SQLException
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
      */
     public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
     {
@@ -3362,7 +3360,7 @@ throws SQLException
     eWLM correlators require IBM i V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
 
     @param bytes The eWLM correlator value
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     public void setDB2eWLMCorrelator(byte[] bytes)
     throws SQLException //@eWLM
@@ -4028,7 +4026,6 @@ throws SQLException
     /**
     Sets the server attributes.
 
-    @param      libraryList     The library list.
 
     @exception  SQLException    If an error occurs.
     **/
@@ -4812,7 +4809,7 @@ throws SQLException
     isolation levels.  The following table provides a terminology
     mapping:
 
-    <p><table border summary="">
+    <table border summary="">
     <tr><th>IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
     <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
     <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
@@ -5068,7 +5065,6 @@ throws SQLException
      * connection.
      * <p>
      * The following client info properties are supported in Toobox for Java.
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
@@ -5089,8 +5085,6 @@ throws SQLException
      * <p>
 //JDBC40DOC      * @throws  SQLClientInfoException if the database returns an error while
 //JDBC40DOC      *          setting the client info value on the database server.
-     * <p>
-     * @throws SQLException 
      */
     public void setClientInfo(String name, String value)
 /* ifdef JDBC40
@@ -5229,7 +5223,6 @@ endif */
      * <p>
      *
      * The following client info properties are supported in Toobox for Java.
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
@@ -5247,11 +5240,10 @@ endif */
      * @param properties
      *            the list of client info properties to set
      *            <p>
-//JDBC40DOC      * @throws SQLClientInfoException
+//JDBC40DOC      * @throws SQLClientInfoException If there is a problem with the Client Info. 
 //JDBC40DOC      *             if the database returns an error while setting the
 //JDBC40DOC      *             clientInfo values on the database
      *             <p>
-     * @throws SQLException 
      */
     public void setClientInfo(Properties properties)
     /* ifdef JDBC40
@@ -5356,7 +5348,6 @@ endif */
      * <p>
      *
      * The following client info properties are supported in Toobox for Java.
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
@@ -5409,7 +5400,6 @@ endif */
      * <p>
      *
      * The following client info properties are supported in Toobox for Java.
-     * <p>
      * <ul>
      * <li>ApplicationName  -   The name of the application currently utilizing
      *                          the connection</li>
@@ -6047,7 +6037,7 @@ endif */
    * 4) If string data is part of a query and check truncation and data truncated,
    * post warning
    * 
-   * @param index
+   * @param parameterIndex
    *          The index (1-based).
    * @param data
    *          The data that was written or null for SQL NULL.

@@ -288,7 +288,7 @@ specified and lets the transaction be completed.
 
 @param xid          The global transaction identifier.  This must correspond
                     to the global transaction identifier previously passed
-                    to <a href="#start(javax.transaction.xa.Xid, int)">start()</a>.
+                    to start().
 @param flags        The flags.  Possible values are:
                     <ul>
                     <li>TMSUCCESS - The portion of work has completed
@@ -298,7 +298,7 @@ specified and lets the transaction be completed.
                     <li>TMSUSPEND - The transaction branch is temporarily
                         suspended in incomplete state.  The transaction
                         context is in suspend state and must be resumed
-                        via <a href="#start(javax.transaction.xa.Xid, int)">start()</a> with TMRESUME.
+                        via start() with TMRESUME.
                         (This is not currently supported for V5R2 and earlier versions.)
                     </ul>
 
@@ -943,7 +943,7 @@ specified.
   Specifies the number of seconds that the system will wait on any lock request during this transaction.
   
   @param lockWait The time in seconds to wait.
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
   **/
   public void setLockWait(int lockWait)
   throws SQLException

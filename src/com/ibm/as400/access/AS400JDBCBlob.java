@@ -390,7 +390,7 @@ Returns the position at which a pattern is found in the BLOB.
      * method is called. If <code>free</code> is called multiple times, the
      * subsequent calls to <code>free</code> are treated as a no-op.
      * 
-     * @throws SQLException
+     * @throws SQLException  If a database error occurs.
      *             if an error occurs releasing the Blob's resources
      */
     public synchronized void free() throws SQLException
@@ -412,7 +412,7 @@ Returns the position at which a pattern is found in the BLOB.
      *            the length in bytes of the partial value to be retrieved
      * @return <code>InputStream</code> through which the partial
      *         <code>Blob</code> value can be read.
-     * @throws SQLException
+     * @throws SQLException  If a database error occurs.
      *             if pos is less than 1 or if pos is greater than the number of
      *             bytes in the <code>Blob</code> or if pos + length is
      *             greater than the number of bytes in the <code>Blob</code>

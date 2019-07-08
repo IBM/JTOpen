@@ -3684,7 +3684,7 @@ implements Statement
 
     @return     true if the statement is closed;
                 false otherwise.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     public boolean isClosed () throws SQLException //@PDC jdbc40
     {
@@ -4331,7 +4331,6 @@ implements Statement
      *                      that the statement not be pooled if false
      * <p>
      * @throws SQLException if the <code>Statement</code> has been closed
-     * <p>
      */
     public void setPoolable(boolean poolable) throws SQLException
     {

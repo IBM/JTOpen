@@ -876,7 +876,7 @@ implements ResultSet
     
     @return     true if this result set is closed;
                 false otherwise.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     public boolean isClosed () throws SQLException
     {

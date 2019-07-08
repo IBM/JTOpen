@@ -2162,9 +2162,9 @@ abstract public class AS400File implements Serializable
      * the current job, since there will not be an associated DDM host server job.
      * @param command The CL command to run.
      * @return The list of AS400Message objects output by the CL command (if any).
-     * @throws AS400SecurityException 
-     * @throws InterruptedException 
-     * @throws IOException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  IOException  If an error occurs while communicating with the system.
      * @see com.ibm.as400.access.CommandCall
     **/ 
     public AS400Message[] runCommand(String command) throws AS400SecurityException, InterruptedException, IOException

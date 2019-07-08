@@ -110,7 +110,7 @@ endif */
      *
      * @param  data     The SQLXML data.
      * @param maxLength Max length.
-     * @throws SQLException
+     * @throws SQLException  If a database error occurs.
      */
     AS400JDBCSQLXML(String data, int maxLength) throws SQLException
     {
@@ -137,7 +137,7 @@ endif */
      *
      * @param  data     The SQLXML data.
      * @param maxLength Max length.
-     * @throws SQLException
+     * @throws SQLException  If a database error occurs.
      */
     AS400JDBCSQLXML(int maxLength) throws SQLException
     {
@@ -155,7 +155,7 @@ endif */
      * in the String.  No further communication with the IBM i system is necessary.
      *
      * @param  data     The SQLXML data.
-     * @throws SQLException
+     * @throws SQLException  If a database error occurs.
      */
     AS400JDBCSQLXML(String data) throws SQLException
     {
@@ -1160,7 +1160,7 @@ endif */
      * multiple times, the subsequent calls to <code>free</code> are treated
      * as a no-op.
      *
-     * @throws SQLException
+     * @throws SQLException  If a database error occurs.
      *             if an error occurs releasing the Clob's resources
      */
     public synchronized void free() throws SQLException

@@ -683,7 +683,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * @param readNoUpdate 
    * @param isKeyed 
    * @param ssp 
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
   **/
   public void setAll(AS400Impl system, String pathName, RecordFormat rf, boolean readNoUpdate, boolean isKeyed, boolean ssp) //@B5C
   throws IOException //@B5A - 06/08/1999
@@ -775,10 +775,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * formats from the server.
    * @param rf 
    * @return recordFormat
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
   **/
   public RecordFormat setRecordFormat(int rf)
   throws AS400Exception,
@@ -806,10 +806,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * formats from the server.
    * @param rf 
    * @return recordFormat
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
   **/
   public RecordFormat setRecordFormat(String rf)
   throws AS400Exception,
@@ -897,7 +897,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param access The type of access desired.  Valid values are "KEY" or "SEQ".
    *@param userBuffering if true use user buffering
    *@return The user file control block to be sent on an open() invocation.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
   **/
   /*@D2D protected*/public byte[] createUFCB(int openType, int bf, String access,
                                              boolean userBuffering)

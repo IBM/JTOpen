@@ -1309,7 +1309,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    * Should variable field compression be used for these parameters.
    * We will compress if at least 1/3 of the row is VARIABLE data. 
    * 
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    */
   /*@K3A*/
   private boolean useVariableFieldInsertCompression() throws SQLException {
@@ -3771,7 +3771,8 @@ endif */
  // JDBC40DOC     * driver converts this to a SQL <code>ROWID</code> value when it sends it
   // JDBC40DOC * to the database
   // JDBC40DOC *
-  // JDBC40DOC * @param parameterIndex
+  // JDBC40DOC * @param parameterIndex  The parameter index (1-based).
+
   // JDBC40DOC * @param x the parameter value
   // JDBC40DOC * @throws SQLException if a database access error occurs
   // JDBC40DOC *
@@ -3798,10 +3799,10 @@ endif */
    * relative to the driver's limits on <code>NVARCHAR</code> values) when it
    * sends it to the database.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param value
    *          the parameter value
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if the driver does not support national character sets; if the
    *           driver can detect that a data conversion error could occur ; or
    *           if a database access error occurs
@@ -3829,12 +3830,12 @@ endif */
    * does the necessary conversion from Java character format to the national
    * character set in the database.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param value
    *          the parameter value
    * @param length
    *          the number of characters in the parameter data.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if the driver does not support national character sets; if the
    *           driver can detect that a data conversion error could occur ; or
    *           if a database access error occurs
@@ -3857,7 +3858,7 @@ endif */
   // JDBC40DOC /**
   // JDBC40DOC     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
   // JDBC40DOC * SQL <code>NCLOB</code> value when it sends it to the database.
-  // JDBC40DOC * @param parameterIndex
+  // JDBC40DOC * @param parameterIndex The parameter index (1-based).
   // JDBC40DOC * @param value the parameter value
   // JDBC40DOC * @throws SQLException if the driver does not support national
   // JDBC40DOC * character sets; if the driver can detect that a data conversion
@@ -3887,12 +3888,12 @@ endif */
    * <code>SQLException</code> will be generated when the
    * <code>PreparedStatement</code> is executed.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param reader
    *          An object that contains the data to set the parameter value to.
    * @param length
    *          the number of characters in the parameter data.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if parameterIndex does not correspond to a parameter marker in
    *           the SQL statement, or if the length specified is less than zero.
    * 
@@ -3919,12 +3920,12 @@ endif */
    * otherwise a <code>SQLException</code> will be generated when the
    * <code>PreparedStatement</code> is executed.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param inputStream
    *          An object that contains the data to set the parameter value to.
    * @param length
    *          the number of bytes in the parameter data.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if parameterIndex does not correspond to a parameter marker in
    *           the SQL statement, if the length specified is less than zero or
    *           if the number of bytes in the inputstream does not match the
@@ -3952,12 +3953,12 @@ endif */
    * <code>SQLException</code> will be generated when the
    * <code>PreparedStatement</code> is executed.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param reader
    *          An object that contains the data to set the parameter value to.
    * @param length
    *          the number of characters in the parameter data.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if parameterIndex does not correspond to a parameter marker in
    *           the SQL statement; if the length specified is less than zero; if
    *           the driver does not support national character sets; if the
@@ -3983,7 +3984,7 @@ endif */
   // @PDA jdbc40
   // JDBC40DOC /**
   // JDBC40DOC      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object.
-  // JDBC40DOC * @param parameterIndex
+  // JDBC40DOC * @param parameterIndex The parameter index (1-based).
   // JDBC40DOC      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
   // JDBC40DOC * @throws SQLException if a database access error occurs
   // JDBC40DOC */
@@ -4047,7 +4048,7 @@ endif */
    * <B>Note:</B> This stream object can either be a standard Java stream object
    * or your own subclass that implements the standard interface.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param x
    *          the Java input stream that contains the ASCII parameter value
    * @param length
@@ -4073,7 +4074,7 @@ endif */
    * <B>Note:</B> This stream object can either be a standard Java stream object
    * or your own subclass that implements the standard interface.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param x
    *          the java input stream which contains the binary parameter value
    * @param length
@@ -4101,7 +4102,7 @@ endif */
    * <B>Note:</B> This stream object can either be a standard Java stream object
    * or your own subclass that implements the standard interface.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param reader
    *          the <code>java.io.Reader</code> object that contains the Unicode
    *          data
@@ -4357,7 +4358,7 @@ endif */
    * Return the name of the parameter for a stored procedure call. 
    * @param parm the parameter number to get the name for
    * @return the parameter name. 
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    */
   public String getDB2ParameterName(int parm) throws SQLException {
     synchronized (internalLock_) {
@@ -4469,7 +4470,7 @@ endif */
    * <B>Note:</B> This stream object can either be a standard Java stream object
    * or your own subclass that implements the standard interface.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param x
    *          the Java input stream that contains the ASCII parameter value
    * @exception SQLException
@@ -4500,7 +4501,7 @@ endif */
    * <B>Note:</B> This stream object can either be a standard Java stream object
    * or your own subclass that implements the standard interface.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param x
    *          the java input stream which contains the binary parameter value
    * @exception SQLException
@@ -4529,10 +4530,10 @@ endif */
    * extra work to determine whether the parameter data should be sent to the
    * server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param inputStream
    *          An object that contains the data to set the parameter value to.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if parameterIndex does not correspond to a parameter marker in
    *           the SQL statement; if a database access error occurs; this method
    *           is called on a closed <code>PreparedStatement</code> or if
@@ -4631,7 +4632,7 @@ endif */
    * might be more efficient to use a version of <code>setCharacterStream</code>
    * which takes a length parameter.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param reader
    *          the <code>java.io.Reader</code> object that contains the Unicode
    *          data
@@ -4667,10 +4668,10 @@ endif */
    * might be more efficient to use a version of <code>setClob</code> which
    * takes a length parameter.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param reader
    *          An object that contains the data to set the parameter value to.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if parameterIndex does not correspond to a parameter marker in
    *           the SQL statement; if a database access error occurs; this method
    *           is called on a closed <code>PreparedStatement</code>or if
@@ -4704,10 +4705,10 @@ endif */
    * might be more efficient to use a version of
    * <code>setNCharacterStream</code> which takes a length parameter.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param value
    *          the parameter value
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if parameterIndex does not correspond to a parameter marker in
    *           the SQL statement; if the driver does not support national
    *           character sets; if the driver can detect that a data conversion
@@ -4740,10 +4741,10 @@ endif */
    * might be more efficient to use a version of <code>setNClob</code> which
    * takes a length parameter.
    * 
-   * @param parameterIndex
+   * @param parameterIndex The parameter index (1-based).
    * @param reader
    *          An object that contains the data to set the parameter value to.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *           if parameterIndex does not correspond to a parameter marker in
    *           the SQL statement; if the driver does not support national
    *           character sets; if the driver can detect that a data conversion

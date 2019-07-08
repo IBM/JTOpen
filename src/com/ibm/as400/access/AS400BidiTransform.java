@@ -399,7 +399,7 @@ public class AS400BidiTransform
 
     /**
      * Returns Bidi string type defined for CCSID
-     * @param ccsid
+     * @param ccsid input CCSID
      * @return Bidi string type
      */
     public static int getStringType(int ccsid)

@@ -601,7 +601,7 @@ Returns the handle to this CLOB locator in the database.
    * multiple times, the subsequent calls to <code>free</code> are treated
    * as a no-op.
    * 
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *             if an error occurs releasing the Clob's resources
    */
   public void free() throws SQLException //@sync
@@ -633,7 +633,7 @@ Returns the handle to this CLOB locator in the database.
    *            the length in characters of the partial value to be retrieved.
    * @return <code>Reader</code> through which the partial <code>Clob</code>
    *         value can be read.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *             if pos is less than 1 or if pos is greater than the number of
    *             characters in the <code>Clob</code> or if pos + length is
    *             greater than the number of characters in the
@@ -675,7 +675,7 @@ Returns the handle to this CLOB locator in the database.
   
   /** Get the locator handle corresponding to this ClobLocator
    * @return locator handle
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
    * 
    */
   public int getLocator() throws SQLException { 

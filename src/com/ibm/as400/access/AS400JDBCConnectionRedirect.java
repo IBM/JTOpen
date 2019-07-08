@@ -393,7 +393,7 @@ extends AS400JDBCConnection {
    * otherwise throw the original exception. 
    * @param originalException -- the exception that trigger the switch. 
    *                             Will be null for affinityFailback.  
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
    */
    boolean findNewConnection(SQLException originalException) throws SQLException {
      SQLException savedException = null; 
@@ -541,7 +541,7 @@ extends AS400JDBCConnection {
    * @param e
    * @return true if the connection is in a state where the method can be
    *         retried.
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    */
   boolean handleException(SQLException e) throws SQLException {
 
@@ -594,7 +594,7 @@ extends AS400JDBCConnection {
    * @param e
    * @return true if the connection is in a state where the method can be
    *         retried. 
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    */
   
   boolean handleSQLClientInfoException(

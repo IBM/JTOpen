@@ -216,7 +216,7 @@ implements RowSet, Serializable             // @A3C
     *  @return             true if the requested cursor position is
     *                      valid; false otherwise.
     *
-    *  @exception SQLException  If the result set is not open,
+    *  @throws SQLException  If the result set is not open,
     *                           the result set is not scrollable,
     *                           the row number is 0,
     *                           or an error occurs.
@@ -256,7 +256,7 @@ implements RowSet, Serializable             // @A3C
     *  If an InputStream from the current row is open, it is implicitly closed.
     *  In addition, all warnings and pending updates are cleared.
     *
-    *  @exception SQLException If the result set is not open, the result set is not scrollable, or an error occurs.
+    *  @throws SQLException If the result set is not open, the result set is not scrollable, or an error occurs.
     **/
     public void afterLast () throws SQLException
     {
@@ -271,7 +271,7 @@ implements RowSet, Serializable             // @A3C
     *  If an InputStream from the current row is open, it is implicitly closed.
     *  In addition, all warnings and pending updates are cleared.
     *
-    *  @exception SQLException If the result set is not open, the result set is not scrollable, or an error occurs.
+    *  @throws SQLException If the result set is not open, the result set is not scrollable, or an error occurs.
     **/
     public void beforeFirst () throws SQLException
     {
@@ -287,7 +287,7 @@ implements RowSet, Serializable             // @A3C
     *  call to updateRow().  If no updates have been made or updateRow()
     *  has already been called, then this method has no effect.
     *
-    *  @exception  SQLException    If the result set is not open
+    *  @throws  SQLException    If the result set is not open
     *                              or the result set is not updatable.
     **/
     public void cancelRowUpdates () throws SQLException
@@ -298,7 +298,7 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Clears the columns for the current row and releases all associated resources.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void clearParameters() throws SQLException
     {
@@ -311,7 +311,7 @@ implements RowSet, Serializable             // @A3C
     *  After this call, getWarnings() returns null until a new warning
     *  is reported for the result set.
     *
-    *  @exception SQLException If an error occurs.
+    *  @throws SQLException If an error occurs.
     **/
     public void clearWarnings () throws SQLException
     {
@@ -323,7 +323,7 @@ implements RowSet, Serializable             // @A3C
     *  Releases the rowset resources immediately instead of waiting for them to be automatically released.
     *  This closes the connection to the database.
     *
-    *  @exception SQLException If an error occurs.
+    *  @throws SQLException If an error occurs.
     **/
     public void close () throws SQLException
     {                  
@@ -365,7 +365,7 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Connects to the database.
-    *  @exception SQLException If database errors creating the connection.
+    *  @throws SQLException If database errors creating the connection.
     **/
     private void connect() throws SQLException
     {
@@ -425,7 +425,7 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Creates a statement.
-    *  @exception SQLException If a database error occurs creating the statement.
+    *  @throws SQLException If a database error occurs creating the statement.
     **/
     private void createStatement() throws SQLException
     {
@@ -468,7 +468,7 @@ implements RowSet, Serializable             // @A3C
     *  After deleting a row, the cursor position is no longer valid,
     *  so it must be explicitly repositioned.
     *
-    *  @exception SQLException If the result set is not open,
+    *  @throws SQLException If the result set is not open,
     *                          the result set is not updatable,
     *                          the cursor is not positioned on a row,
     *                          the cursor is positioned on the insert row,
@@ -495,7 +495,7 @@ implements RowSet, Serializable             // @A3C
     *  <li>read only <li>maximum field size <li>maximum rows <li>escape processing <li>query timeout
     *  </ul>
     *
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void execute() throws SQLException
     {
@@ -521,7 +521,7 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Closes the Statement and Connection.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     protected void finalize() throws SQLException
     {
@@ -541,7 +541,7 @@ implements RowSet, Serializable             // @A3C
     *  @param      columnName      The column name.
     *  @return                     The column index (1-based).
     *
-    *  @exception  SQLException    If the result set is not open
+    *  @throws  SQLException    If the result set is not open
     *                              or the column name is not found.
     **/
     public int findColumn (String columnName) throws SQLException
@@ -556,7 +556,7 @@ implements RowSet, Serializable             // @A3C
     *  In addition, all warnings and pending updates are cleared.
     *
     *  @return true if the requested cursor position is valid; false otherwise.
-    *  @exception SQLException If the result set is not open, the result set is not scrollable, or an error occurs.
+    *  @throws SQLException If the result set is not open, the result set is not scrollable, or an error occurs.
     **/
     public boolean first () throws SQLException
     {
@@ -575,7 +575,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    *  @throws  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray (int columnIndex) throws SQLException
     {
@@ -590,7 +590,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    *  @throws  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray (String columnName) throws SQLException
     {
@@ -609,7 +609,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex     The column index (1-based).
     *  @return                 The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
     *                              or the requested conversion is not valid.
@@ -631,7 +631,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -651,7 +651,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex     The column index (1-based).
     *  @return                 The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
     *                              or the requested conversion is not valid.
@@ -671,7 +671,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
     *                              or the requested conversion is not valid.
@@ -692,7 +692,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  scale           The number of digits after the decimal.
     *  @return                 The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
     *                              the scale is not valid, or the
@@ -717,7 +717,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  scale       The number of digits after the decimal.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
     *                              the scale is not valid, or the
@@ -743,7 +743,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex     The column index (1-based).
     *  @return                 The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -765,7 +765,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -785,7 +785,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -804,7 +804,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -825,7 +825,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or false if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -845,7 +845,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or false if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -865,7 +865,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex     The column index (1-based).
     *  @return                 The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -886,7 +886,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -910,7 +910,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex     The column index (1-based).
     *  @return                 The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -936,7 +936,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -959,7 +959,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -982,7 +982,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not valid, or the
     *                              requested conversion is not valid.
@@ -1002,7 +1002,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1021,7 +1021,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1051,7 +1051,7 @@ implements RowSet, Serializable             // @A3C
     *     <li>ResultSet.CONCUR_READ_ONLY
     *     <li>ResultSet.CONCUR_UPDATABLE
     *  </ul>
-    *  @exception SQLException If the result set is not open.
+    *  @throws SQLException If the result set is not open.
     **/
     public int getConcurrency () throws SQLException
     {
@@ -1080,7 +1080,7 @@ implements RowSet, Serializable             // @A3C
     *  positioned UPDATE or DELETE statement that references a cursor name.
     *
     *  @return     The cursor name.
-    *  @exception  SQLException    If the result is not open.
+    *  @throws  SQLException    If the result is not open.
     **/
     public String getCursorName() throws SQLException
     {
@@ -1105,7 +1105,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1126,7 +1126,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1147,7 +1147,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  calendar      The calendar.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
     *                              the calendar is null, or the
@@ -1169,7 +1169,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  calendar    The calendar.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
     *                              the calendar is null, or the
@@ -1191,7 +1191,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1212,7 +1212,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1257,7 +1257,7 @@ implements RowSet, Serializable             // @A3C
     *    <li>ResultSet.FETCH_UNKNOWN
     *  </ul>
     *
-    *  @exception  SQLException    If the result is not open.
+    *  @throws  SQLException    If the result is not open.
     **/
     public int getFetchDirection() throws SQLException
     {
@@ -1280,7 +1280,7 @@ implements RowSet, Serializable             // @A3C
     *  The fetch size is only used if the "block size" property is set to "0".
     *
     *  @return The fetch size.
-    *  @exception  SQLException    If the result is not open.
+    *  @throws  SQLException    If the result is not open.
     **/
     public int getFetchSize() throws SQLException
     {
@@ -1302,7 +1302,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1323,7 +1323,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1343,7 +1343,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1364,7 +1364,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1385,7 +1385,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1406,7 +1406,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1424,7 +1424,7 @@ implements RowSet, Serializable             // @A3C
     *  <LI>BINARY <LI>VARBINARY <LI>LONGVARBINARY <LI>CHAR <LI>VARCHAR <LI>LONGVARCHAR
     *  </ul>
     *  @return The maximum size.  The default zero of zero indicates no maximum.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public int getMaxFieldSize() throws SQLException
     {
@@ -1436,7 +1436,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Returns the maximum number of rows for the rowset.
     *  @return The maximum.  The default value of zero indicates no maximum.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public int getMaxRows() throws SQLException
     {
@@ -1450,7 +1450,7 @@ implements RowSet, Serializable             // @A3C
     *  result set's columns.
     *
     *  @return     The metadata object.
-    *  @exception  SQLException    If an error occurs.
+    *  @throws  SQLException    If an error occurs.
     **/
     public ResultSetMetaData getMetaData () throws SQLException
     {
@@ -1469,7 +1469,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1491,7 +1491,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1510,7 +1510,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  typeMap       The type map.  This is not used.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
     *                              the type map is null, or the
@@ -1530,7 +1530,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  typeMap       The type map.  This is not used.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
     *                              the type map is null, or the
@@ -1554,7 +1554,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Returns the maximum wait time in seconds for a statement to execute.
     *  @return The timeout value in seconds.  The default value of zero indicates no maximum.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public int getQueryTimeout() throws SQLException
     {
@@ -1569,7 +1569,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    *  @throws  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public Ref getRef (int columnIndex) throws SQLException
     {
@@ -1585,7 +1585,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    *  @throws  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public Ref getRef (String columnName) throws SQLException
     {
@@ -1600,7 +1600,7 @@ implements RowSet, Serializable             // @A3C
     *          row or if the cursor is positioned on the insert row,
     *          0 is returned.
     *
-    *  @exception SQLException If the result set is not open.
+    *  @throws SQLException If the result set is not open.
     **/
     public int getRow () throws SQLException
     {
@@ -1617,7 +1617,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1638,7 +1638,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or 0 if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1657,7 +1657,7 @@ implements RowSet, Serializable             // @A3C
     *        result set was returned by a DatabaseMetaData
     *        catalog method.
     *
-    *  @exception SQLException If an error occurs.
+    *  @throws SQLException If an error occurs.
     **/
     public Statement getStatement() throws SQLException
     {
@@ -1673,7 +1673,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1694,7 +1694,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1715,7 +1715,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1736,7 +1736,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1757,7 +1757,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  calendar      The calendar.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
     *                              the calendar is null, or the
@@ -1779,7 +1779,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  calendar    The calendar.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
     *                              the calendar is null, or the
@@ -1801,7 +1801,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1822,7 +1822,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -1844,7 +1844,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  calendar      The calendar.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
     *                              the calendar is null, or the
@@ -1867,7 +1867,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  calendar    The calendar.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
     *                              the calendar is null, or the
@@ -1915,7 +1915,7 @@ implements RowSet, Serializable             // @A3C
     *  </ul>
     *
     *
-    *  @exception SQLException If the result set is not open.
+    *  @throws SQLException If the result set is not open.
     **/
     public int getType() throws SQLException
     {
@@ -1927,7 +1927,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Returns the type map.
     *  @return The type map.  The default value is null.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public Map getTypeMap() throws SQLException
     {
@@ -1947,7 +1947,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
     *                              requested conversion is not valid.
@@ -1972,7 +1972,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName  The column name.
     *  @return             The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
     *                              requested conversion is not valid.
@@ -2005,7 +2005,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnIndex     The column index (1-based).
     @return                 The parameter value or null if the value is SQL NULL.
         
-    @exception  SQLException    If the statement is not open,
+    @throws  SQLException    If the statement is not open,
                                 the index is not valid, the parameter name is
                                 not registered as an output parameter,
                                 the statement was not executed or
@@ -2029,7 +2029,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnName      The column name.
     @return                 The parameter value or null if the value is SQL NULL.
         
-    @exception  SQLException    If the statement is not open,
+    @throws  SQLException    If the statement is not open,
                                 the index is not valid, the parameter name is
                                 not registered as an output parameter,
                                 the statement was not executed or
@@ -2059,7 +2059,7 @@ implements RowSet, Serializable             // @A3C
     *  @return     The first warning or null if no warnings
     *             have been reported.
     *
-    *  @exception  SQLException    If an error occurs.
+    *  @throws  SQLException    If an error occurs.
     **/
     public SQLWarning getWarnings() throws SQLException
     {
@@ -2082,7 +2082,7 @@ implements RowSet, Serializable             // @A3C
     *  Inserts the contents of the insert row into the result set
     *  and the database.
     *
-    *  @exception SQLException If the result set is not open,
+    *  @throws SQLException If the result set is not open,
     *                          the result set is not updatable,
     *                          the cursor is not positioned on the insert row,
     *                          a column that is not nullable was not specified,
@@ -2101,7 +2101,7 @@ implements RowSet, Serializable             // @A3C
     *          false if the cursor is not positioned after the last
     *          row or if the result set contains no rows.
     *
-    *  @exception SQLException If the result set is not open.
+    *  @throws SQLException If the result set is not open.
     **/
     public boolean isAfterLast () throws SQLException
     {
@@ -2117,7 +2117,7 @@ implements RowSet, Serializable             // @A3C
     *          false if the cursor is not positioned before the first
     *          row or if the result set contains no rows.
     *
-    *  @exception SQLException If the result set is not open.
+    *  @throws SQLException If the result set is not open.
     **/
     public boolean isBeforeFirst () throws SQLException
     {
@@ -2132,7 +2132,7 @@ implements RowSet, Serializable             // @A3C
     *          false if the cursor is not positioned on the first
     *          row or the row number can not be determined.
     *
-    *  @exception SQLException If the result set is not open.
+    *  @throws SQLException If the result set is not open.
     **/
     public boolean isFirst () throws SQLException
     {
@@ -2147,7 +2147,7 @@ implements RowSet, Serializable             // @A3C
     *          false if the cursor is not positioned on the last
     *          row or the row number can not be determined.
     *
-    *  @exception SQLException If the result set is not open.
+    *  @throws SQLException If the result set is not open.
     **/
     public boolean isLast () throws SQLException
     {
@@ -2191,7 +2191,7 @@ implements RowSet, Serializable             // @A3C
     *  @return             true if the requested cursor position is
     *                      valid; false otherwise.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not scrollable,
     *                              or an error occurs.
     **/
@@ -2214,7 +2214,7 @@ implements RowSet, Serializable             // @A3C
     *  implicitly closed.  In addition, all warnings and pending updates
     *  are cleared.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not scrollable,
     *                              or an error occurs.
     **/
@@ -2232,7 +2232,7 @@ implements RowSet, Serializable             // @A3C
     *  implicitly closed.  In addition, all warnings and pending updates
     *  are cleared.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not scrollable,
     *                              the result set is not updatable,
     *                              or an error occurs.
@@ -2254,7 +2254,7 @@ implements RowSet, Serializable             // @A3C
     *  @return     true if the requested cursor position is valid; false
     *              if there are no more rows.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              or an error occurs.
     **/
     public boolean next () throws SQLException
@@ -2275,7 +2275,7 @@ implements RowSet, Serializable             // @A3C
     *  @return             true if the requested cursor position is
     *                      valid; false otherwise.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not scrollable,
     *                              or an error occurs.
     **/
@@ -2311,7 +2311,7 @@ implements RowSet, Serializable             // @A3C
     *  from the current row is open, it is implicitly closed.  In
     *  addition, all warnings and pending updates are cleared.
     *
-    *  @exception SQLException If the result set is not open,
+    *  @throws SQLException If the result set is not open,
     *                          the result set is not scrollable,
     *                          the cursor is not positioned on a row,
     *                          the cursor is positioned on the
@@ -2344,7 +2344,7 @@ implements RowSet, Serializable             // @A3C
     *  @return             true if the requested cursor position is
     *                      valid, false otherwise.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not scrollable,
     *                              the cursor is not positioned on a valid row,
     *                              or an error occurs.
@@ -2386,7 +2386,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  @return true if current row has been deleted; false otherwise.
     *
-    *  @exception SQLException If an error occurs.
+    *  @throws SQLException If an error occurs.
     **/
     public boolean rowDeleted () throws SQLException
     {
@@ -2401,7 +2401,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  @return Always false.
     *
-    *  @exception SQLException If an error occurs.
+    *  @throws SQLException If an error occurs.
     **/
     public boolean rowInserted () throws SQLException
     {
@@ -2416,7 +2416,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  @return Always false.
     *
-    *  @exception SQLException If an error occurs.
+    *  @throws SQLException If an error occurs.
     **/
     public boolean rowUpdated () throws SQLException
     {
@@ -2429,7 +2429,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Array object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setArray(int parameterIndex, Array value) throws SQLException
     {
@@ -2447,7 +2447,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param  inputStream   The input stream or null to update the value to SQL NULL.
     *  @param length The number of bytes in the stream.
-    *  @exception  SQLException    If the result set is not open, the result set is not updatable,
+    *  @throws  SQLException    If the result set is not open, the result set is not updatable,
     *       the cursor is not positioned on a row, the column index is not valid, or the requested
     *       conversion is not valid, the length is not valid, or an error happens while reading the
     *       input stream.
@@ -2463,7 +2463,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The BigDecimal object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setBigDecimal(int parameterIndex, BigDecimal value) throws SQLException
     {
@@ -2480,7 +2480,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param  inputStream   The input stream or null to update the value to SQL NULL.
     *  @param length The number of bytes in the stream.
-    *  @exception  SQLException    If the result set is not open, the result set is not updatable,
+    *  @throws  SQLException    If the result set is not open, the result set is not updatable,
     *       the cursor is not positioned on a row, the column index is not valid, or the requested
     *       conversion is not valid, the length is not valid, or an error happens while reading the
     *       input stream.
@@ -2496,7 +2496,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Blob object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setBlob(int parameterIndex, Blob value) throws SQLException
     {
@@ -2509,7 +2509,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The boolean value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setBoolean(int parameterIndex, boolean value) throws SQLException
     {
@@ -2522,7 +2522,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The byte value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setByte(int parameterIndex, byte value) throws SQLException
     {
@@ -2535,7 +2535,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The byte array.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setBytes(int parameterIndex, byte[] value) throws SQLException
     {
@@ -2552,7 +2552,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param  reader   The reader or null to update the value to SQL NULL.
     *  @param length The number of characters in the stream.
-    *  @exception  SQLException    If the result set is not open, the result set is not updatable,
+    *  @throws  SQLException    If the result set is not open, the result set is not updatable,
     *                        the cursor is not positioned on a row, the column index is not valid,
     *                        or the requested conversion is not valid, the length is not valid, or
     *                        an error happens while reading the input stream.
@@ -2568,7 +2568,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Clob object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setClob(int parameterIndex, Clob value) throws SQLException
     {
@@ -2582,7 +2582,7 @@ implements RowSet, Serializable             // @A3C
     *  Resetting the command creates a new PreparedStatement and clears all
     *  existing input parameters.
     *  @param command The command.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setCommand(String command) throws SQLException
     {
@@ -2672,7 +2672,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Date object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setDate(int parameterIndex, Date value) throws SQLException
     {
@@ -2686,7 +2686,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Date object.
     *  @param calendar The Calendar object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setDate(int parameterIndex, Date value, Calendar calendar) throws SQLException
     {
@@ -2699,7 +2699,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The double value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setDouble(int parameterIndex, double value) throws SQLException
     {
@@ -2729,7 +2729,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Sets whether the escape scanning is enabled for escape substitution processing.
     *  @param enable true if enabled; false otherwise.  The default value is true.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setEscapeProcessing(boolean enable) throws SQLException
     {
@@ -2756,7 +2756,7 @@ implements RowSet, Serializable             // @A3C
     *  </ul>
     *  The default is the statement's fetch direction.
     *
-    *  @exception          SQLException    If the result set is not open, the result set is scrollable
+    *  @throws          SQLException    If the result set is not open, the result set is scrollable
     *                                      and the input value is not ResultSet.FETCH_FORWARD,
     *                                      or the input value is not valid.
     **/
@@ -2789,7 +2789,7 @@ implements RowSet, Serializable             // @A3C
     *                      maximum rows limit.  The default is the
     *                      statement's fetch size.
     *
-    *  @exception          SQLException    If the result set is not open
+    *  @throws          SQLException    If the result set is not open
     *                                      or the input value is not valid.
     **/
     public void setFetchSize (int fetchSize) throws SQLException
@@ -2810,7 +2810,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The float value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setFloat(int parameterIndex, float value) throws SQLException
     {
@@ -2823,7 +2823,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The integer value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setInt(int parameterIndex, int value) throws SQLException
     {
@@ -2836,7 +2836,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The long value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setLong(int parameterIndex, long value) throws SQLException
     {
@@ -2851,7 +2851,7 @@ implements RowSet, Serializable             // @A3C
     *  <LI>BINARY <LI>VARBINARY <LI>LONGVARBINARY <LI>CHAR <LI>VARCHAR <LI>LONGVARCHAR
     *  </ul>
     *  @param maxFieldSize The maximum column size.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setMaxFieldSize(int maxFieldSize) throws SQLException
     {
@@ -2868,7 +2868,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Sets the maximum row limit for the rowset.  The default value is zero indicating no maximum value.
     *  @param maxRows The maximum number of rows.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setMaxRows(int maxRows) throws SQLException
     {
@@ -2887,7 +2887,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param sqlType The SQL type.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setNull(int parameterIndex, int sqlType) throws SQLException
     {
@@ -2901,7 +2901,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param sqlType The SQL type.
     *  @param typeName The fully qualified name of an SQL user-named type.  This parameter is not used if the type is REF.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException
     {
@@ -2914,7 +2914,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Object value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setObject(int parameterIndex, Object value) throws SQLException
     {
@@ -2928,7 +2928,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Object value.
     *  @param targetSqlType The SQL type.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setObject(int parameterIndex, Object value, int targetSqlType) throws SQLException
     {
@@ -2943,7 +2943,7 @@ implements RowSet, Serializable             // @A3C
     *  @param value The Object value.
     *  @param targetSqlType The SQL type.
     *  @param scale The number of digits after the decimal point.  This parameter is used only for SQL types Decimal or Numeric.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setObject(int parameterIndex, Object value, int targetSqlType, int scale) throws SQLException
     {
@@ -2970,7 +2970,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Sets the maximum wait time in seconds for a statement to execute.
     *  @param timeout The timeout value in seconds.  The default value is zero indicating no maximum value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setQueryTimeout(int timeout) throws SQLException
     {
@@ -2987,7 +2987,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Sets whether the rowset is read-only.  The default value is false indicating updates are allowed.
     *  @param readOnly true if read-only; false otherwise.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setReadOnly(boolean readOnly) throws SQLException
     {
@@ -3008,7 +3008,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Ref object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setRef(int parameterIndex, Ref value) throws SQLException
     {
@@ -3021,7 +3021,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The short value.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setShort(int parameterIndex, short value) throws SQLException
     {
@@ -3034,7 +3034,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The String object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setString(int parameterIndex, String value) throws SQLException
     {
@@ -3047,7 +3047,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Time object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setTime(int parameterIndex, Time value) throws SQLException
     {
@@ -3061,7 +3061,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Time object.
     *  @param calendar The Calendar object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setTime(int parameterIndex, Time value, Calendar calendar) throws SQLException
     {
@@ -3074,7 +3074,7 @@ implements RowSet, Serializable             // @A3C
     *  This parameter is used by the internal statement to populate the rowset via the execute method.
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Timestamp object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setTimestamp(int parameterIndex, Timestamp value) throws SQLException
     {
@@ -3088,7 +3088,7 @@ implements RowSet, Serializable             // @A3C
     *  @param parameterIndex The parameter index (1-based).
     *  @param value The Timestamp object.
     *  @param calendar The Calendar object.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setTimestamp(int parameterIndex, Timestamp value, Calendar calendar) throws SQLException
     {
@@ -3104,7 +3104,7 @@ implements RowSet, Serializable             // @A3C
     *  <li>Connection.TRANSACTION_READ_UNCOMMITTED <li>Connection.TRANSACTION_READ_COMMITTED
     *  <li>Connection.TRANSACTION_REPEATABLE_READ <li>Connection.TRANSACTION_SERIALIZABLE
     *  </ul>
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setTransactionIsolation(int level) throws SQLException
     {
@@ -3127,7 +3127,7 @@ implements RowSet, Serializable             // @A3C
     *  <LI>ResultSet.TYPE_FORWARD_ONLY <LI>ResultSet.TYPE_SCROLL_INSENSITIVE <LI>ResultSet.TYPE_SCROLL_SENSITIVE
     *  </ul>
     *  @param type The type.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setType(int type) throws SQLException
     {
@@ -3159,7 +3159,7 @@ implements RowSet, Serializable             // @A3C
     *  behave as if they are the underlying type. Structured types are not supported by DB2 for IBM i. Consequently, this driver does not support the type map.
     *
     *  @param map The type map.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     public void setTypeMap(Map map) throws SQLException
     {
@@ -3251,7 +3251,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @throws  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     @since Modification 5
     **/
     public void updateArray (int columnIndex, Array columnValue)
@@ -3273,7 +3273,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnName    The column name.
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
+    @throws  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
@@ -3300,7 +3300,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update the value to SQL NULL.
     *  @param  length        The length.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, the
@@ -3331,7 +3331,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update the value to SQL NULL.
     *  @param  length        The length.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, the
@@ -3362,7 +3362,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value or null to update the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3386,7 +3386,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value or null to update the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3412,7 +3412,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update the value to SQL NULL.
     *  @param  length        The length.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3443,7 +3443,7 @@ implements RowSet, Serializable             // @A3C
     *                          the value to SQL NULL.
     *  @param  length        The length.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3475,7 +3475,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -3505,7 +3505,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnName    The column name.
     @param  columnValue   The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -3532,7 +3532,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3557,7 +3557,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3582,7 +3582,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3607,7 +3607,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3634,7 +3634,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3660,7 +3660,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3688,7 +3688,7 @@ implements RowSet, Serializable             // @A3C
     *                          the value to SQL NULL.
     *  @param  length        The length.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3722,7 +3722,7 @@ implements RowSet, Serializable             // @A3C
     *                          the value to SQL NULL.
     *  @param  length        The length.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3754,7 +3754,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnIndex    The column index (1-based).
     @param  columnValue    The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -3784,7 +3784,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnName    The column name.
     @param  columnValue   The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -3812,7 +3812,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3837,7 +3837,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value or null to update the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3862,7 +3862,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3887,7 +3887,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3912,7 +3912,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3937,7 +3937,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -3963,7 +3963,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -3988,7 +3988,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -4016,7 +4016,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -4044,7 +4044,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -4068,7 +4068,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  @param  columnIndex   The column index (1-based).
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -4091,7 +4091,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  @param  columnName  The column name.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -4122,7 +4122,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
@@ -4154,7 +4154,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
@@ -4187,7 +4187,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  scale         The number of digits after the decimal
     *                        if SQL type is DECIMAL or NUMERIC.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
@@ -4221,7 +4221,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  scale         The number of digits after the decimal
     *                        if SQL type is DECIMAL or NUMERIC.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found,
@@ -4240,7 +4240,7 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Updates the database with the new contents of the current row.
     *
-    *  @exception SQLException If the result set is not open,
+    *  @throws SQLException If the result set is not open,
     *                          the result set is not updatable,
     *                          the cursor is not positioned on a row,
     *                          the cursor is positioned on the insert row,
@@ -4264,7 +4264,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @throws  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     @since Modification 5
     **/
     public void updateRef (int columnIndex, Ref columnValue)
@@ -4288,7 +4288,7 @@ implements RowSet, Serializable             // @A3C
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
+    @throws  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     **/
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException
@@ -4313,7 +4313,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnIndex   The column index (1-based).
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -4338,7 +4338,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnName    The column name.
     *  @param  columnValue   The column value.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -4364,7 +4364,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid,
@@ -4390,7 +4390,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -4416,7 +4416,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -4442,7 +4442,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -4469,7 +4469,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column index is not valid, or the
@@ -4495,7 +4495,7 @@ implements RowSet, Serializable             // @A3C
     *  @param  columnValue   The column value or null to update
     *                          the value to SQL NULL.
     *
-    *  @exception  SQLException    If the result set is not open,
+    *  @throws  SQLException    If the result set is not open,
     *                              the result set is not updatable,
     *                              the cursor is not positioned on a row,
     *                              the column name is not found, or the
@@ -4529,7 +4529,7 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Validates the statement has been created.
-    *  @exception SQLException If a database error occurs.
+    *  @throws SQLException If a database error occurs.
     **/
     private void validateStatement() throws SQLException
     {
@@ -4541,7 +4541,7 @@ implements RowSet, Serializable             // @A3C
     *  Indicates if the last column read has the value of SQL NULL.
     *
     *  @return     true if the value is SQL NULL; false otherwise.
-    *  @exception  SQLException If the result set is not open.
+    *  @throws  SQLException If the result set is not open.
     **/
     public boolean wasNull () throws SQLException
     {
@@ -4781,7 +4781,7 @@ implements RowSet, Serializable             // @A3C
      * value; if the value is SQL <code>NULL</code>, the value returned is
      * <code>null</code> in the Java programming language.
      * @param columnIndex the first column is 1, the second is 2, ...
-     * @exception SQLException if a database access error occurs 
+     * @throws SQLException if a database access error occurs 
      * or this method is called on a closed result set
      */
     public Reader getNCharacterStream(int columnIndex) throws SQLException
@@ -4803,7 +4803,7 @@ implements RowSet, Serializable             // @A3C
      * @return a <code>java.io.Reader</code> object that contains the column
      * value; if the value is SQL <code>NULL</code>, the value returned is
      * <code>null</code> in the Java programming language
-     * @exception SQLException if a database access error occurs 
+     * @throws SQLException if a database access error occurs 
      * or this method is called on a closed result set
      */
     public Reader getNCharacterStream(String columnLabel) throws SQLException
@@ -4821,12 +4821,10 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * @param columnIndex the first column is 1, the second is 2, ...
  // JDBC40DOC     * @return a <code>NClob</code> object representing the SQL 
  // JDBC40DOC     *         <code>NCLOB</code> value in the specified column
- // JDBC40DOC     * @exception SQLException if the driver does not support national
+ // JDBC40DOC     * @throws SQLException if the driver does not support national
  // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
  // JDBC40DOC     *  error could occur; this method is called on a closed result set 
  // JDBC40DOC     * or if a database access error occurs
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40
     public NClob getNClob(int columnIndex) throws SQLException
@@ -4845,12 +4843,10 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
  // JDBC40DOC     * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
  // JDBC40DOC     * value in the specified column
- // JDBC40DOC     * @exception SQLException if the driver does not support national
+ // JDBC40DOC     * @throws SQLException if the driver does not support national
  // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
  // JDBC40DOC     *  error could occur; this method is called on a closed result set 
  // JDBC40DOC     * or if a database access error occurs
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public NClob getNClob(String columnLabel) throws SQLException
@@ -4872,7 +4868,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception SQLException if a database access error occurs 
+     * @throws SQLException if a database access error occurs 
      * or this method is called on a closed result set
      */
     public String getNString(int columnIndex) throws SQLException
@@ -4893,7 +4889,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception SQLException if a database access error occurs 
+     * @throws SQLException if a database access error occurs 
      * or this method is called on a closed result set
      */
     public String getNString(String columnLabel) throws SQLException
@@ -4913,8 +4909,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     *     value returned is <code>null</code>
  // JDBC40DOC     * @throws SQLException if a database access error occurs 
  // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public RowId getRowId(int columnIndex) throws SQLException
@@ -4935,8 +4929,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     *     value returned is <code>null</code>
  // JDBC40DOC     * @throws SQLException if a database access error occurs 
  // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public RowId getRowId(String columnLabel) throws SQLException
@@ -4955,8 +4947,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
  // JDBC40DOC     * @throws SQLException if a database access error occurs 
  // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public SQLXML getSQLXML(int columnIndex) throws SQLException
@@ -4976,8 +4966,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
  // JDBC40DOC     * @throws SQLException if a database access error occurs 
  // JDBC40DOC     * or this method is called on a closed result set    
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public SQLXML getSQLXML(String columnLabel) throws SQLException
@@ -5012,7 +5000,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5036,7 +5024,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param x the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5060,7 +5048,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value     
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5084,7 +5072,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param x the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5119,7 +5107,7 @@ implements RowSet, Serializable             // @A3C
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5154,7 +5142,7 @@ implements RowSet, Serializable             // @A3C
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5178,7 +5166,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5203,7 +5191,7 @@ implements RowSet, Serializable             // @A3C
      * @param reader the <code>java.io.Reader</code> object containing
      *        the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5237,7 +5225,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5271,7 +5259,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -5301,7 +5289,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs, 
+     * @throws SQLException if a database access error occurs, 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      */
     public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
@@ -5331,7 +5319,7 @@ implements RowSet, Serializable             // @A3C
      * @param reader the <code>java.io.Reader</code> object containing
      *        the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      */
     public void updateNCharacterStream(String columnLabel, Reader reader, long length) throws SQLException
@@ -5357,8 +5345,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     *  error could occur; this method is called on a closed result set,  
  // JDBC40DOC     * if a database access error occurs or
  // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
@@ -5385,8 +5371,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     *  error could occur; this method is called on a closed result set;
  // JDBC40DOC     *  if a database access error occurs or
  // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public void updateNClob(String columnLabel, NClob nClob) throws SQLException
@@ -5534,11 +5518,9 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * 
  // JDBC40DOC     * @param columnIndex the first column is 1, the second 2, ...
  // JDBC40DOC     * @param x the column value
- // JDBC40DOC     * @exception SQLException if a database access error occurs,
+ // JDBC40DOC     * @throws SQLException if a database access error occurs,
  // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
  // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public void updateRowId(int columnIndex, RowId x) throws SQLException
@@ -5561,11 +5543,9 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * 
  // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
  // JDBC40DOC     * @param x the column value
- // JDBC40DOC     * @exception SQLException if a database access error occurs,
+ // JDBC40DOC     * @throws SQLException if a database access error occurs,
  // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
  // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public void updateRowId(String columnLabel, RowId x) throws SQLException
@@ -5599,8 +5579,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
  // JDBC40DOC     *  of the exception may provide a more detailed exception, for example, if the 
  // JDBC40DOC     *  stream does not contain valid XML.
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method 
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
@@ -5634,8 +5612,6 @@ implements RowSet, Serializable             // @A3C
  // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
  // JDBC40DOC     *  of the exception may provide a more detailed exception, for example, if the 
  // JDBC40DOC     *  stream does not contain valid XML.
- // JDBC40DOC     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
- // JDBC40DOC     * this method
  // JDBC40DOC     */
     /* ifdef JDBC40 
     public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException
@@ -5673,7 +5649,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the Java input stream that contains the ASCII parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      */
     public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException
@@ -5699,7 +5675,7 @@ implements RowSet, Serializable             // @A3C
      * @param parameterName the name of the parameter
      * @param x the Java input stream that contains the ASCII parameter value
      * @param length the number of bytes in the stream
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException
@@ -5726,7 +5702,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the Java input stream that contains the ASCII parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
     */
     public void setAsciiStream(String parameterName, InputStream x) throws SQLException
@@ -5744,7 +5720,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getBigDecimal
      */
@@ -5772,7 +5748,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the java input stream which contains the binary parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      */
     public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException
@@ -5797,7 +5773,7 @@ implements RowSet, Serializable             // @A3C
      * @param parameterName the name of the parameter
      * @param x the java input stream which contains the binary parameter value
      * @param length the number of bytes in the stream
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException
@@ -5823,7 +5799,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the java input stream which contains the binary parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setBinaryStream(String parameterName, InputStream x) throws SQLException
@@ -5898,7 +5874,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x a <code>Blob</code> object that maps an SQL <code>BLOB</code> value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setBlob(String parameterName, Blob x) throws SQLException
@@ -5971,7 +5947,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getBoolean
      */
@@ -5989,7 +5965,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getByte
      */
@@ -6009,7 +5985,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getBytes
      */
@@ -6040,7 +6016,7 @@ implements RowSet, Serializable             // @A3C
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param reader the <code>java.io.Reader</code> object that contains the
      *        Unicode data
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      */
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException
@@ -6067,7 +6043,7 @@ implements RowSet, Serializable             // @A3C
      * @param reader the <code>java.io.Reader</code> object that
      *        contains the UNICODE data used as the designated parameter
      * @param length the number of characters in the stream
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException
@@ -6096,7 +6072,7 @@ implements RowSet, Serializable             // @A3C
      * @param parameterName the name of the parameter
      * @param reader the <code>java.io.Reader</code> object that contains the
      *        Unicode data
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setCharacterStream(String parameterName, Reader reader) throws SQLException
@@ -6163,7 +6139,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x a <code>Clob</code> object that maps an SQL <code>CLOB</code> value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setClob(String parameterName, Clob x) throws SQLException
@@ -6237,7 +6213,7 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @param cal the <code>Calendar</code> object the driver will use
      *            to construct the date
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getDate
      */
@@ -6257,7 +6233,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getDate
      */
@@ -6275,7 +6251,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getDouble
      */
@@ -6293,7 +6269,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getFloat
      */
@@ -6311,7 +6287,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getInt
      */
@@ -6329,7 +6305,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getLong
      */
@@ -6528,7 +6504,7 @@ implements RowSet, Serializable             // @A3C
      * @param typeName the fully-qualified name of an SQL user-defined type;
      *        ignored if the parameter is not a user-defined type or
      *        SQL <code>REF</code> value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setNull(String parameterName, int sqlType, String typeName) throws SQLException
@@ -6545,7 +6521,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param sqlType the SQL type code defined in <code>java.sql.Types</code>
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
     public void setNull(String parameterName, int sqlType) throws SQLException
@@ -6583,7 +6559,7 @@ implements RowSet, Serializable             // @A3C
      * @param scale for java.sql.Types.DECIMAL or java.sql.Types.NUMERIC types,
      *          this is the number of digits after the decimal point.  For all other
      *          types, this value will be ignored.
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see Types
      * @see #getObject
@@ -6604,7 +6580,7 @@ implements RowSet, Serializable             // @A3C
      * @param x the object containing the input parameter value
      * @param targetSqlType the SQL type (as defined in java.sql.Types) to be
      *                      sent to the database
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getObject
      */
@@ -6643,7 +6619,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the object containing the input parameter value
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * this method is called on a closed <code>CallableStatement</code> or if the given
      *            <code>Object</code> parameter is ambiguous
      * @see #getObject
@@ -6662,7 +6638,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getShort
      */
@@ -6683,7 +6659,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getString
      */
@@ -6708,7 +6684,7 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @param cal the <code>Calendar</code> object the driver will use
      *            to construct the time
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getTime
      */
@@ -6726,7 +6702,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getTime
      */
@@ -6751,7 +6727,7 @@ implements RowSet, Serializable             // @A3C
      * @param x the parameter value
      * @param cal the <code>Calendar</code> object the driver will use
      *            to construct the timestamp
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getTimestamp
      */
@@ -6770,7 +6746,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #getTimestamp
      */
@@ -6788,7 +6764,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the <code>java.net.URL</code> object to be set
-     * @exception SQLException if a database access error occurs or
+     * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      */
     public void setURL(int parameterIndex, URL x) throws SQLException
@@ -6814,7 +6790,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -6844,7 +6820,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param x the new column value
-     * @exception SQLException if the columnLabel is not valid; 
+     * @throws SQLException if the columnLabel is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -6874,7 +6850,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value     
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -6904,7 +6880,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param x the new column value
-     * @exception SQLException if the columnLabel is not valid; 
+     * @throws SQLException if the columnLabel is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -6934,7 +6910,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param inputStream An object that contains the data to set the parameter
      * value to.
-     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * @throws SQLException if the columnIndex is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -6963,7 +6939,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param inputStream An object that contains the data to set the parameter
      * value to.
-     * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
+     * @throws SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -6992,7 +6968,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -7023,7 +6999,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param reader the <code>java.io.Reader</code> object containing
      *        the new column value
-     * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
+     * @throws SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -7055,7 +7031,7 @@ implements RowSet, Serializable             // @A3C
      *     
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param reader An object that contains the data to set the parameter value to.
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -7088,7 +7064,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param reader An object that contains the data to set the parameter value to.
-     * @exception SQLException if the columnLabel is not valid; if a database access error occurs;
+     * @throws SQLException if the columnLabel is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -7122,7 +7098,7 @@ implements RowSet, Serializable             // @A3C
      *
      * @param columnIndex the first column is 1, the second is 2, ...
      * @param x the new column value
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      */
@@ -7157,7 +7133,7 @@ implements RowSet, Serializable             // @A3C
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
      * @param reader the <code>java.io.Reader</code> object containing
      *        the new column value
-     * @exception SQLException if the columnLabel is not valid; 
+     * @throws SQLException if the columnLabel is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      */

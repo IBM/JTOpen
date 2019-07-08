@@ -159,7 +159,7 @@ implements ResultSet
     /**
     Closes this ResultSet
     
-    @exception SQLException If an error occurs.
+    @throws SQLException If an error occurs.
     **/
     public void close () throws java.sql.SQLException
     {
@@ -188,7 +188,7 @@ implements ResultSet
             false if the cursor is not positioned before the first
             row or if the result set contains no rows.
     
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public boolean isBeforeFirst () throws java.sql.SQLException
     {
@@ -206,7 +206,7 @@ implements ResultSet
             false if the cursor is not positioned after the last
             row or if the result set contains no rows.
     
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public boolean isAfterLast () throws java.sql.SQLException
     {
@@ -224,7 +224,7 @@ implements ResultSet
             false if the cursor is not positioned on the first
             row or the row number can not be determined.
     
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public boolean isFirst () throws java.sql.SQLException
     {
@@ -242,7 +242,7 @@ implements ResultSet
             false if the cursor is not positioned on the last
             row or the row number can not be determined.
     
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public boolean isLast () throws java.sql.SQLException
     {
@@ -256,7 +256,7 @@ implements ResultSet
     /**
     Sets cursor position before the first row.
        
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public void beforeFirst () throws java.sql.SQLException
     {
@@ -270,7 +270,7 @@ implements ResultSet
     /**
     Positions the cursor after the last row.
       
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not scrollable,
                                 or an error occurs.
     **/
@@ -289,7 +289,7 @@ implements ResultSet
     @return             true if the requested cursor position is
                         valid; false otherwise.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not scrollable,
                                 or an error occurs.
     **/
@@ -315,7 +315,7 @@ implements ResultSet
     @return             true if the requested cursor position is
                         valid; false otherwise.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not scrollable,
                                 or an error occurs.
     **/
@@ -341,7 +341,7 @@ implements ResultSet
     @return             true if the requested cursor position is
                         valid; false otherwise.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not scrollable,
                                 or an error occurs.
     **/
@@ -368,7 +368,7 @@ implements ResultSet
     @return     true if the requested cursor position is valid; false
                 if there are no more rows.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 or an error occurs.
     **/
     public boolean next () throws java.sql.SQLException
@@ -401,7 +401,7 @@ implements ResultSet
     @return             true if the requested cursor position is
                         valid; false otherwise.
     
-    @exception SQLException  If the result set is not open,
+    @throws SQLException  If the result set is not open,
                              the result set is not scrollable,
                              the row number is 0,
                              or an error occurs.
@@ -449,7 +449,7 @@ implements ResultSet
     @return             true if the requested cursor position is
                         valid, false otherwise.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not scrollable,
                                 the cursor is not positioned on a valid row,
                                 or an error occurs.
@@ -488,7 +488,7 @@ implements ResultSet
                                     </ul>
     
     
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public int getConcurrency () throws java.sql.SQLException
     {
@@ -508,7 +508,7 @@ implements ResultSet
                                     </ul>
     
     
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public int getType () throws java.sql.SQLException
     {
@@ -528,7 +528,7 @@ implements ResultSet
                                   <li>FETCH_UNKNOWN
                                 </ul>
     
-    @exception  SQLException    If the result is not open.
+    @throws  SQLException    If the result is not open.
     **/
     public int getFetchDirection () throws java.sql.SQLException
     {
@@ -551,7 +551,7 @@ implements ResultSet
                                 The default is the statement's fetch
                                 direction.
     
-    @exception          SQLException    If the result set is not open,
+    @throws          SQLException    If the result set is not open,
                                         the result set is scrollable
                                         and the input value is not
                                         ResultSet.FETCH_FORWARD,
@@ -577,7 +577,7 @@ implements ResultSet
     
     @return The fetch size.
     
-    @exception  SQLException    If the result is not open.
+    @throws  SQLException    If the result is not open.
     **/
     public int getFetchSize () throws java.sql.SQLException
     {
@@ -598,7 +598,7 @@ implements ResultSet
                         maximum rows limit.  The default is the
                         statement's fetch size.
     
-    @exception          SQLException    If the result set is not open
+    @throws          SQLException    If the result set is not open
                                         or the input value is not valid.
     **/
     public void setFetchSize (int rows) throws java.sql.SQLException
@@ -616,7 +616,7 @@ implements ResultSet
   
     @return     The cursor name.
     
-    @exception  SQLException    If the result is not open.
+    @throws  SQLException    If the result is not open.
     **/
     public String getCursorName () throws java.sql.SQLException
     {
@@ -633,7 +633,7 @@ implements ResultSet
     
     @return     The metadata object.
     
-    @exception  SQLException    If an error occurs.
+    @throws  SQLException    If an error occurs.
     **/
     public java.sql.ResultSetMetaData getMetaData () throws java.sql.SQLException
     {
@@ -651,7 +651,7 @@ implements ResultSet
             result set was returned by a DatabaseMetaData
             catalog method.
     
-    @exception SQLException If an error occurs.
+    @throws SQLException If an error occurs.
     **/
     public java.sql.Statement getStatement () throws java.sql.SQLException
     {
@@ -668,7 +668,7 @@ implements ResultSet
     @return     The first warning or null if no warnings
                 have been reported.
     
-    @exception  SQLException    If an error occurs.
+    @throws  SQLException    If an error occurs.
     **/
     public java.sql.SQLWarning getWarnings () throws java.sql.SQLException
     {
@@ -683,7 +683,7 @@ implements ResultSet
     After this call, getWarnings() returns null until a new warning
     is reported for the result set.
     
-    @exception SQLException If an error occurs.
+    @throws SQLException If an error occurs.
     **/
     public void clearWarnings () throws java.sql.SQLException
     {
@@ -697,7 +697,7 @@ implements ResultSet
     @param      columnName      The column name.
     @return                     The column index (1-based).
     
-    @exception  SQLException    If the result set is not open
+    @throws  SQLException    If the result set is not open
                                 or the column name is not found.
     **/
     public int findColumn (String columnName) throws java.sql.SQLException
@@ -728,7 +728,7 @@ implements ResultSet
     @return The current row number (1-based), or 0 if the current row
             is not valid.
     
-    @exception SQLException If the result set is not open.
+    @throws SQLException If the result set is not open.
     **/
     public int getRow () throws java.sql.SQLException
     {
@@ -748,7 +748,7 @@ implements ResultSet
     @return     true if the value is SQL NULL;
                 false otherwise.
     
-    @exception  SQLException    If the result set is not open.
+    @throws  SQLException    If the result set is not open.
     **/
     public boolean wasNull () throws java.sql.SQLException
     {
@@ -767,7 +767,7 @@ implements ResultSet
     @param  column        The column name.
     @return               The column value or false if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -803,7 +803,7 @@ implements ResultSet
     @param   columnName  The column name.
     @return               The column value or false if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -820,7 +820,7 @@ implements ResultSet
     @param  column          The column name.
     @return                 The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -858,7 +858,7 @@ implements ResultSet
     @param   columnName  The column name.
     @return                 The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -875,7 +875,7 @@ implements ResultSet
     @param  column   The column index (1-based).
     @return               The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -913,7 +913,7 @@ implements ResultSet
     @param  columnName   The column name.
     @return               The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -930,7 +930,7 @@ implements ResultSet
     @param  column          The column name.
     @return                 The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column name is not found, or the
                                 requested conversion is not valid.
@@ -967,7 +967,7 @@ implements ResultSet
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column name is not found, or the
                                 requested conversion is not valid.
@@ -984,7 +984,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1021,7 +1021,7 @@ implements ResultSet
     @param  columnName        The column name.
     @return                   The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1038,7 +1038,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1074,7 +1074,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1091,7 +1091,7 @@ implements ResultSet
     @param  column      The column index (1-based).
     @return             The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column name is not found, or the
                                 requested conversion is not valid.
@@ -1127,7 +1127,7 @@ implements ResultSet
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column name is not found, or the
                                 requested conversion is not valid.
@@ -1144,7 +1144,7 @@ implements ResultSet
     @param  column          The column index (1-based).
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 or the requested conversion is not valid.
@@ -1181,7 +1181,7 @@ implements ResultSet
     @param  columnName          The column name.
     @return                     The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 or the requested conversion is not valid.
@@ -1199,7 +1199,7 @@ implements ResultSet
     @param  scale           The number of digits after the decimal.
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the scale is not valid, or the
@@ -1221,7 +1221,7 @@ implements ResultSet
     @param  scale           The number of digits after the decimal.
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the scale is not valid, or the
@@ -1243,7 +1243,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1261,7 +1261,7 @@ implements ResultSet
     @param  columnName        The column name.
     @return                   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1279,7 +1279,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1297,7 +1297,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1315,7 +1315,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1333,7 +1333,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1352,7 +1352,7 @@ implements ResultSet
     @param  calendar      The calendar.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the calendar is null, or the
@@ -1375,7 +1375,7 @@ implements ResultSet
     @param  calendar      The calendar.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the calendar is null, or the
@@ -1419,7 +1419,7 @@ implements ResultSet
     @param  calendar      The calendar.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1439,7 +1439,7 @@ implements ResultSet
     @param  calendar      The calendar.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1483,7 +1483,7 @@ implements ResultSet
     @param  calendar      The calendar.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the calendar is null, or the
@@ -1504,7 +1504,7 @@ implements ResultSet
     @param  calendar      The calendar.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the calendar is null, or the
@@ -1551,7 +1551,7 @@ implements ResultSet
     @param  column          The column index (1-based).
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1592,7 +1592,7 @@ implements ResultSet
     @param  columnName      The column name.
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1609,7 +1609,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1645,7 +1645,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1663,7 +1663,7 @@ implements ResultSet
     @param  column          The column index (1-based).
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1700,7 +1700,7 @@ implements ResultSet
     @param  columnName      The column name.
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1718,7 +1718,7 @@ implements ResultSet
     @param  column          The column index (1-based).
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 or the requested conversion is not valid.
@@ -1757,7 +1757,7 @@ implements ResultSet
     @param  columnName      The column name.
     @return                 The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 or the requested conversion is not valid.
@@ -1776,7 +1776,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1816,7 +1816,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1836,7 +1836,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1875,7 +1875,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1892,7 +1892,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1928,7 +1928,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1945,7 +1945,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1982,7 +1982,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -1999,7 +1999,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    
+    @throws  SQLException  This function is not supported. 
     **/
     public java.sql.Array getArray (int column) throws java.sql.SQLException
     {
@@ -2013,7 +2013,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException     
+    @throws  SQLException   Always thrown because DB2 for IBMi does not support arrays in result sets.   
     **/
     public java.sql.Array getArray (String columnName) throws java.sql.SQLException
     {
@@ -2028,7 +2028,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    @throws  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public java.sql.Ref getRef (int column) throws java.sql.SQLException
     {
@@ -2043,7 +2043,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
+    @throws  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public java.sql.Ref getRef (String columnName) throws java.sql.SQLException
     {
@@ -2058,7 +2058,7 @@ implements ResultSet
     @param  column          The column index (1-based).
     @return                 The parameter value or null if the value is SQL NULL.
         
-    @exception  SQLException    If the statement is not open,
+    @throws  SQLException    If the statement is not open,
                                 the index is not valid, the parameter name is
                                 not registered as an output parameter,
                                 the statement was not executed or
@@ -2111,7 +2111,7 @@ implements ResultSet
     @param  columnName      The column name.
     @return                 The parameter value or null if the value is SQL NULL.
         
-    @exception  SQLException    If the statement is not open,
+    @throws  SQLException    If the statement is not open,
                                 the index is not valid, the parameter name is
                                 not registered as an output parameter,
                                 the statement was not executed or
@@ -2131,7 +2131,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -2170,7 +2170,7 @@ implements ResultSet
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
                                 requested conversion is not valid.
@@ -2188,7 +2188,7 @@ implements ResultSet
     @param  map           The type map.  This is not used.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the type map is null, or the
@@ -2207,7 +2207,7 @@ implements ResultSet
     @param  map           The type map.  This is not used.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
                                 the type map is null, or the
@@ -2226,7 +2226,7 @@ implements ResultSet
     
     @param  column              The column index (1-based).
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2243,7 +2243,7 @@ implements ResultSet
     
     @param  columnName          The column name.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2262,7 +2262,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2282,7 +2282,7 @@ implements ResultSet
     @param  columnName    The column index (1-based).
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2300,7 +2300,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2318,7 +2318,7 @@ implements ResultSet
     @param  columnName    The column name.
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2336,7 +2336,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2354,7 +2354,7 @@ implements ResultSet
     @param  columnName    The column name.
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2373,7 +2373,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2392,7 +2392,7 @@ implements ResultSet
     @param  columnName    The column name.
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2410,7 +2410,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2428,7 +2428,7 @@ implements ResultSet
     @param  columnName    The column name.
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2447,7 +2447,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2466,7 +2466,7 @@ implements ResultSet
     @param  columnName    The column name.
     @param  x             The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2485,7 +2485,7 @@ implements ResultSet
     @param  column        The column index (1-based).
     @param  x   The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2504,7 +2504,7 @@ implements ResultSet
     @param  columnName        The column name.
     @param  x                 The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2524,7 +2524,7 @@ implements ResultSet
     @param  x   The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2544,7 +2544,7 @@ implements ResultSet
     @param  x   The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2564,7 +2564,7 @@ implements ResultSet
     @param  x   The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2584,7 +2584,7 @@ implements ResultSet
     @param  x   The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2604,7 +2604,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2624,7 +2624,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2644,7 +2644,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2664,7 +2664,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2683,7 +2683,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2702,7 +2702,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2722,7 +2722,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
@@ -2742,7 +2742,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid,
@@ -2760,7 +2760,7 @@ implements ResultSet
      * @param column column index
      * @param x the new column value     
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -2776,7 +2776,7 @@ implements ResultSet
      * @param columnName column index
      * @param x the new column value     
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -2789,10 +2789,10 @@ implements ResultSet
     /** 
      * Updates the designated column with an ascii stream value, which will have
      * the specified number of bytes.
-     * @param column 
+     * @param column column to set
      * @param x the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -2806,10 +2806,10 @@ implements ResultSet
     /** 
      * Updates the designated column with an ascii stream value, which will have
      * the specified number of bytes.
-     * @param columnName 
+     * @param columnName column name
      * @param x the new column value
      * @param length the length of the stream
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -2830,7 +2830,7 @@ implements ResultSet
                                       the value to SQL NULL.
     @param  length        The length.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2855,7 +2855,7 @@ implements ResultSet
                                       the value to SQL NULL.
     @param  length        The length.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2876,7 +2876,7 @@ implements ResultSet
     @param  column    The column index (1-based).
     @param  x         The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2895,7 +2895,7 @@ implements ResultSet
     @param  columnName    The column index (1-based).
     @param  x         The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2914,7 +2914,7 @@ implements ResultSet
     @param  column         The column index (1-based).
     @param  x              The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2933,7 +2933,7 @@ implements ResultSet
     @param  columnName     The column name.
     @param  x              The column value.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, or the
@@ -2951,7 +2951,7 @@ implements ResultSet
     @param  column     The column index (1-based).
     @param  x          The column value or null if the value is SQL NULL.
     
-    @exception  SQLException  
+    @throws  SQLException  If a database error occurs. 
     **/
     public void updateArray (int column, java.sql.Array x) throws java.sql.SQLException
     {
@@ -2965,7 +2965,7 @@ implements ResultSet
     @param  columnName The column index (1-based).
     @param  x          The column value or null if the value is SQL NULL.
     
-    @exception  SQLException  
+    @throws  SQLException  If a database error occurs. 
     **/
     public void updateArray (String columnName, java.sql.Array x) throws java.sql.SQLException
     {
@@ -2980,7 +2980,7 @@ implements ResultSet
     @param  x               The column value or null to update
                                       the value to SQL NULL.
         
-    @exception  SQLException    
+    @throws  SQLException  If a database error occurs. 
     **/
     public void updateRef (int column, java.sql.Ref x) throws java.sql.SQLException
     {
@@ -2995,7 +2995,7 @@ implements ResultSet
     @param  x               The column value or null to update
                                       the value to SQL NULL.
         
-    @exception  SQLException    
+    @throws  SQLException  If a database error occurs. 
     **/
     public void updateRef (String columnName, java.sql.Ref x) throws java.sql.SQLException
     {
@@ -3013,7 +3013,7 @@ implements ResultSet
     @param  x         The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, 
@@ -3035,7 +3035,7 @@ implements ResultSet
     @param  x             The column value or null to update
                                       the value to SQL NULL.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, 
@@ -3058,7 +3058,7 @@ implements ResultSet
                                       the value to SQL NULL.
     @param  scale         The scale.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, 
@@ -3081,7 +3081,7 @@ implements ResultSet
                                       the value to SQL NULL.
     @param  scale         The scale.
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not updatable,
                                 the cursor is not positioned on a row,
                                 the column index is not valid, 
@@ -3099,7 +3099,7 @@ implements ResultSet
     
     @return Always false.
     
-    @exception SQLException If an error occurs.
+    @throws SQLException If an error occurs.
     **/
     public boolean rowUpdated () throws java.sql.SQLException
     {
@@ -3114,7 +3114,7 @@ implements ResultSet
     
     @return Always false.  
     
-    @exception SQLException If an error occurs.
+    @throws SQLException If an error occurs.
     **/
     public boolean rowInserted () throws java.sql.SQLException
     {
@@ -3130,7 +3130,7 @@ implements ResultSet
     
     @return true if current row has been deleted; false otherwise.
     
-    @exception SQLException If an error occurs.
+    @throws SQLException If an error occurs.
     **/
     public boolean rowDeleted () throws java.sql.SQLException
     {
@@ -3143,7 +3143,7 @@ implements ResultSet
     Inserts the contents of the insert row into the result set
     and the database.
     
-    @exception SQLException If the result set is not open,
+    @throws SQLException If the result set is not open,
                             the result set is not updatable,
                             the cursor is not positioned on the insert row,
                             a column that is not nullable was not specified,
@@ -3160,7 +3160,7 @@ implements ResultSet
     Cancels all pending updates that have been made since the last 
     call to updateRow(). 
     
-    @exception  SQLException    If the result set is not open
+    @throws  SQLException    If the result set is not open
                                 or the result set is not updatable.
     **/   
     public void updateRow () throws java.sql.SQLException
@@ -3174,7 +3174,7 @@ implements ResultSet
     After deleting a row, the cursor position is no longer valid,
     so it must be explicitly repositioned.
     
-    @exception SQLException If the result set is not open,
+    @throws SQLException If the result set is not open,
                             the result set is not updatable,
                             the cursor is not positioned on a row,
                             the cursor is positioned on the insert row,
@@ -3189,7 +3189,7 @@ implements ResultSet
     /**
     Refreshes the current row from the database.
     
-    @exception SQLException If the result set is not open,
+    @throws SQLException If the result set is not open,
                             the result set is not scrollable,
                             the cursor is not positioned on a row,
                             the cursor is positioned on the
@@ -3205,7 +3205,7 @@ implements ResultSet
     Cancels all pending updates that have been made since the last 
     call to updateRow(). 
     
-    @exception  SQLException    If the result set is not open
+    @throws  SQLException    If the result set is not open
                                 or the result set is not updatable.
     **/   
     public void cancelRowUpdates () throws java.sql.SQLException
@@ -3217,7 +3217,7 @@ implements ResultSet
     /**
     Positions the cursor to the insert row.
    
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not scrollable,
                                 the result set is not updatable,
                                 or an error occurs.
@@ -3231,7 +3231,7 @@ implements ResultSet
     /**
     Positions the cursor to the current row.   
     
-    @exception  SQLException    If the result set is not open,
+    @throws  SQLException    If the result set is not open,
                                 the result set is not scrollable,
                                 or an error occurs.
     **/
@@ -3294,7 +3294,7 @@ implements ResultSet
     
     @return     true if this result set is closed;
                 false otherwise.
-     * @throws java.sql.SQLException 
+     * @throws java.sql.SQLException If a database error occurs.
     **/
     public boolean isClosed () throws java.sql.SQLException
     {
@@ -3320,8 +3320,8 @@ implements ResultSet
      * @return a <code>java.io.Reader</code> object that contains the column
      * value; if the value is SQL <code>NULL</code>, the value returned is
      * <code>null</code> in the Java programming language.
-     * @param column
-     * @exception SQLException if a database access error occurs
+     * @param column The column index (1-based).
+     * @throws SQLException if a database access error occurs
      */
     public java.io.Reader getNCharacterStream (int column) throws java.sql.SQLException
     {
@@ -3356,8 +3356,8 @@ implements ResultSet
      * @return a <code>java.io.Reader</code> object that contains the column
      * value; if the value is SQL <code>NULL</code>, the value returned is
      * <code>null</code> in the Java programming language.
-     * @param columnName
-     * @exception SQLException if a database access error occurs
+     * @param columnName The column name.
+     * @throws SQLException if a database access error occurs
      */
     public java.io.Reader getNCharacterStream (String columnName) throws java.sql.SQLException
     {
@@ -3371,10 +3371,10 @@ implements ResultSet
   //JDBC40DOC   * of this <code>ResultSet</code> object as a <code>NClob</code> object
   //JDBC40DOC   * in the Java programming language.
   //JDBC40DOC   *
-  //JDBC40DOC   * @param column 
+  //JDBC40DOC   * @param column  The column index (1-based).
   //JDBC40DOC   * @return a <code>NClob</code> object representing the SQL 
   //JDBC40DOC   *         <code>NCLOB</code> value in the specified column
-  //JDBC40DOC   * @exception SQLException if the driver does not support national
+  //JDBC40DOC   * @throws SQLException if the driver does not support national
   //JDBC40DOC   *         character sets;  if the driver can detect that a data conversion
   //JDBC40DOC   *  error could occur; or if a database access error occurss
   //JDBC40DOC   */
@@ -3411,10 +3411,10 @@ endif */
   //JDBC40DOC   * of this <code>ResultSet</code> object as a <code>NClob</code> object
   //JDBC40DOC   * in the Java programming language.
   //JDBC40DOC   *
-  //JDBC40DOC   * @param columnName 
+  //JDBC40DOC   * @param columnName The column name.
   //JDBC40DOC   * @return a <code>NClob</code> object representing the SQL 
   //JDBC40DOC   *         <code>NCLOB</code> value in the specified column
-  //JDBC40DOC   * @exception SQLException if the driver does not support national
+  //JDBC40DOC   * @throws SQLException if the driver does not support national
   //JDBC40DOC   *         character sets;  if the driver can detect that a data conversion
   //JDBC40DOC   *  error could occur; or if a database access error occurss
   //JDBC40DOC   */
@@ -3435,10 +3435,10 @@ endif */
      * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> columns.
      *
-     * @param column 
+     * @param column  The column index (1-based).
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception SQLException if a database access error occurs 
+     * @throws SQLException if a database access error occurs 
     */
     public String getNString (int column) throws java.sql.SQLException
     {
@@ -3474,10 +3474,10 @@ endif */
      * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> columns.
      *
-     * @param columnName 
+     * @param columnName The column name.
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
-     * @exception SQLException if a database access error occurs 
+     * @throws SQLException if a database access error occurs 
     */
     public String getNString (String columnName) throws java.sql.SQLException
     {
@@ -3545,7 +3545,7 @@ endif */
   //JDBC40DOC      * Retrieves the value of the designated column in  the current row of
   //JDBC40DOC      *  this <code>ResultSet</code> as a
   //JDBC40DOC      * <code>java.sql.SQLXML</code> object in the Java programming language.
-  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @param column The column index (1-based).
   //JDBC40DOC      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
   //JDBC40DOC      * @throws SQLException if a database access error occurs
   //JDBC40DOC      */
@@ -3581,7 +3581,7 @@ endif */
   //JDBC40DOC      * Retrieves the value of the designated column in  the current row of
   //JDBC40DOC      *  this <code>ResultSet</code> as a
   //JDBC40DOC      * <code>java.sql.SQLXML</code> object in the Java programming language.
-  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @param columnName The column name.
   //JDBC40DOC      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
   //JDBC40DOC      * @throws SQLException if a database access error occurs
   //JDBC40DOC      */
@@ -3596,9 +3596,9 @@ endif */
      * Updates the designated column with an ascii stream value, which will have
      * the specified number of bytes.
     
-     * @param column 
+     * @param column The column index (1-based).
      * @param x the new column value
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -3611,9 +3611,9 @@ endif */
     /** 
      * Updates the designated column with an ascii stream value, which will have
      * the specified number of bytes.
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value
-     * @exception SQLException if a database access error occurs,
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -3626,10 +3626,10 @@ endif */
     /** 
      * Updates the designated column with an ascii stream value, which will have
      * the specified number of bytes.
-     * @param column
+     * @param column The column index (1-based).
      * @param x the new column value
-     * @param length
-     * @exception SQLException if a database access error occurs,
+     * @param length Length of the value.
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -3642,10 +3642,10 @@ endif */
     /** 
      * Updates the designated column with an ascii stream value, which will have
      * the specified number of bytes.
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value
-     * @param length
-     * @exception SQLException if a database access error occurs,
+     * @param length Length of the value.
+     * @throws SQLException if a database access error occurs,
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -3658,9 +3658,9 @@ endif */
     /** 
      * Updates the designated column with a binary stream value.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x the new column value     
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3674,9 +3674,9 @@ endif */
     /** 
      * Updates the designated column with a binary stream value.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value     
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3690,10 +3690,10 @@ endif */
     /** 
      * Updates the designated column with a binary stream value.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x the new column value     
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3707,10 +3707,10 @@ endif */
     /** 
      * Updates the designated column with a binary stream value.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value     
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3725,9 +3725,9 @@ endif */
      * Updates the designated column using the given input stream. The data will be read from the stream
      * as needed until end-of-stream is reached.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x     An object that contains the data to set the parameter value to.
-     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * @throws SQLException if the columnIndex is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      
@@ -3742,9 +3742,9 @@ endif */
      * Updates the designated column using the given input stream. The data will be read from the stream
      * as needed until end-of-stream is reached.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x     An object that contains the data to set the parameter value to.
-     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * @throws SQLException if the columnIndex is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
    
@@ -3759,10 +3759,10 @@ endif */
      * Updates the designated column using the given input stream. The data will be read from the stream
      * as needed until end-of-stream is reached.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x     An object that contains the data to set the parameter value to.
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      
@@ -3777,10 +3777,10 @@ endif */
      * Updates the designated column using the given input stream. The data will be read from the stream
      * as needed until end-of-stream is reached.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x     An object that contains the data to set the parameter value to.
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
      */
@@ -3793,9 +3793,9 @@ endif */
     /**
      * Updates the designated column with a character stream value.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x the new column value
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3809,9 +3809,9 @@ endif */
     /**
      * Updates the designated column with a character stream value.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3825,10 +3825,10 @@ endif */
     /**
      * Updates the designated column with a character stream value.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x the new column value
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3842,10 +3842,10 @@ endif */
     /**
      * Updates the designated column with a character stream value.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3860,9 +3860,9 @@ endif */
      * Updates the designated column using the given <code>Reader</code>
      * object.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x An object that contains the data to set the parameter value to.
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3877,9 +3877,9 @@ endif */
      * Updates the designated column using the given <code>Reader</code>
      * object.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x An object that contains the data to set the parameter value to.
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3894,10 +3894,10 @@ endif */
      * Updates the designated column using the given <code>Reader</code>
      * object.
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x An object that contains the data to set the parameter value to.
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3912,10 +3912,10 @@ endif */
      * Updates the designated column using the given <code>Reader</code>
      * object.
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x An object that contains the data to set the parameter value to.
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
      * or this method is called on a closed result set
@@ -3929,9 +3929,9 @@ endif */
     /**
      * Updates the designated column with a character stream value.  
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x the new column value
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      
@@ -3945,9 +3945,9 @@ endif */
     /**
      * Updates the designated column with a character stream value.  
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value
-     * @exception SQLException if the columnIndex is not valid; 
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      
@@ -3961,10 +3961,10 @@ endif */
     /**
      * Updates the designated column with a character stream value.  
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x the new column value
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
       
@@ -3979,10 +3979,10 @@ endif */
     /**
      * Updates the designated column with a character stream value.  
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x the new column value
-     * @param length
-     * @exception SQLException if the columnIndex is not valid; 
+     * @param length Length of the value.
+     * @throws SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      
@@ -3996,7 +3996,7 @@ endif */
   //JDBC40DOC     /**
   //JDBC40DOC      * Updates the designated column using the given <code>Reader</code>
   //JDBC40DOC      *
-  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @param column The column index (1-based).
   //JDBC40DOC      * @param x      An object that contains the data to set the parameter value to.
   //JDBC40DOC      * @throws SQLException if the columnIndex is not valid; 
   //JDBC40DOC      * if the driver does not support national
@@ -4004,7 +4004,7 @@ endif */
   //JDBC40DOC      *  error could occur; this method is called on a closed result set,  
   //JDBC40DOC      * if a database access error occurs or
   //JDBC40DOC      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-  //JDBC40DOC      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+  //JDBC40DOC      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
   //JDBC40DOC      * this method
   //JDBC40DOC      */
     /* ifdef JDBC40 
@@ -4018,7 +4018,7 @@ endif */
   //JDBC40DOC     /**
   //JDBC40DOC      * Updates the designated column using the given <code>Reader</code>
   //JDBC40DOC      *
-  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @param columnName The column name.
   //JDBC40DOC      * @param x      An object that contains the data to set the parameter value to.
   //JDBC40DOC      * @throws SQLException if the columnIndex is not valid; 
   //JDBC40DOC      * if the driver does not support national
@@ -4026,7 +4026,7 @@ endif */
   //JDBC40DOC      *  error could occur; this method is called on a closed result set,  
   //JDBC40DOC      * if a database access error occurs or
   //JDBC40DOC      * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
-  //JDBC40DOC      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+  //JDBC40DOC      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support
   //JDBC40DOC      * this method
   //JDBC40DOC      */
     /* ifdef JDBC40 
@@ -4039,7 +4039,7 @@ endif */
     /**
      * Updates the designated column using the given <code>Reader</code>
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x      An object that contains the data to set the parameter value to.
      * @throws SQLException if the columnIndex is not valid; 
      * if the driver does not support national
@@ -4058,7 +4058,7 @@ endif */
     /**
      * Updates the designated column using the given <code>Reader</code>
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x      An object that contains the data to set the parameter value to.
      * @throws SQLException if the columnIndex is not valid; 
      * if the driver does not support national
@@ -4077,9 +4077,9 @@ endif */
     /**
      * Updates the designated column using the given <code>Reader</code>
      *
-     * @param column
+     * @param column The column index (1-based).
      * @param x      An object that contains the data to set the parameter value to.
-     * @param length
+     * @param length Length of the value.
      * @throws SQLException if the columnIndex is not valid; 
      * if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -4097,9 +4097,9 @@ endif */
     /**
      * Updates the designated column using the given <code>Reader</code>
      *
-     * @param columnName
+     * @param columnName The column name.
      * @param x      An object that contains the data to set the parameter value to.
-     * @param length
+     * @param length Length of the value.
      * @throws SQLException if the columnIndex is not valid; 
      * if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -4119,7 +4119,7 @@ endif */
      * It is intended for use when updating <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> columns.
      *
-     * @param column 
+     * @param column The column index (1-based).
      * @param x    The value for the column to be updated
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -4136,7 +4136,7 @@ endif */
      * It is intended for use when updating <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> columns.
      *
-     * @param columnName 
+     * @param columnName The column name.
      * @param x    The value for the column to be updated
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -4151,7 +4151,7 @@ endif */
   //JDBC40DOC     /**
   //JDBC40DOC      * Updates the designated column with a <code>RowId</code> value. 
   //JDBC40DOC      * 
-  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @param column The column index (1-based).
   //JDBC40DOC      * @param x the column value
   //JDBC40DOC      * @throws SQLException if a database access occurs 
   //JDBC40DOC      */
@@ -4166,7 +4166,7 @@ endif */
   //JDBC40DOC     /**
   //JDBC40DOC      * Updates the designated column with a <code>RowId</code> value. 
   //JDBC40DOC      * 
-  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @param columnName The column name.
   //JDBC40DOC      * @param x the column value
   //JDBC40DOC      * @throws SQLException if a database access occurs 
   //JDBC40DOC      */
@@ -4180,7 +4180,7 @@ endif */
   //JDBC40DOC     /**
   //JDBC40DOC      * Updates the designated column with a <code>java.sql.SQLXML</code> value.
   //JDBC40DOC      *
-  //JDBC40DOC      * @param column
+  //JDBC40DOC      * @param column The column index (1-based).
   //JDBC40DOC      * @param x    The value for the column to be updated
   //JDBC40DOC      * @throws SQLException if a database access error occurs
   //JDBC40DOC      */
@@ -4195,7 +4195,7 @@ endif */
   //JDBC40DOC     /**
   //JDBC40DOC      * Updates the designated column with a <code>java.sql.SQLXML</code> value.
   //JDBC40DOC      *
-  //JDBC40DOC      * @param columnName
+  //JDBC40DOC      * @param columnName The column name.
   //JDBC40DOC      * @param x    The value for the column to be updated
   //JDBC40DOC      * @throws SQLException if a database access error occurs
   //JDBC40DOC      */

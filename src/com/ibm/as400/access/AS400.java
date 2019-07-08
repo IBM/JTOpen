@@ -644,11 +644,11 @@ public class AS400 implements Serializable
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws IOException 
-     * @throws InterruptedException 
-     * @throws PropertyVetoException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       this.currentLib_ = "*CURUSR";
@@ -670,11 +670,11 @@ public class AS400 implements Serializable
      * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws IOException 
-     * @throws InterruptedException 
-     * @throws PropertyVetoException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup, String currentLib) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -702,11 +702,11 @@ public class AS400 implements Serializable
      * @param IASPGroup asp group name
      * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
      * @param librariesForThread Libraries for current thread with single value. If null or "" is set, default value *CURUSR is used.
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws IOException 
-     * @throws InterruptedException 
-     * @throws PropertyVetoException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -743,11 +743,11 @@ public class AS400 implements Serializable
      * @param IASPGroup asp group name
      * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
      * @param librariesForThread Libraries for current thread. If null is set, default value *CURUSR is used. Up to 250 libraries can be set.
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws IOException 
-     * @throws InterruptedException 
-     * @throws PropertyVetoException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
       if(currentLib==null || currentLib.length()==0)
@@ -2561,7 +2561,7 @@ public class AS400 implements Serializable
     /**
      Initialize conversion table for the given CCSID.  The default EBCDIC to unicode converters are not shipped with some browsers.  This method can be used to check and download converters if they are not available locally.
      @param  ccsid  the CCSID for the conversion table to initialize.
-     * @throws UnsupportedEncodingException 
+     * @throws UnsupportedEncodingException If the Character Encoding is not supported. 
      **/
     public void initializeConverter(int ccsid) throws UnsupportedEncodingException
     {
@@ -2803,8 +2803,8 @@ public class AS400 implements Serializable
     /**
      * Is the AS400 object configured to use a pass phrase
      * @return true if pass phrase can be used
-     * @throws AS400SecurityException
-     * @throws IOException
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  IOException  If an error occurs while communicating with the system.
      */
     public boolean isUsePassphrase() throws AS400SecurityException, IOException
     {

@@ -182,7 +182,7 @@ public class AS400Date extends AS400AbstractTime
   /**
    Constructs an AS400Date object.
    Format {@link #FORMAT_ISO FORMAT_ISO} and separator '-' are used.
-   * @param timeZone 
+   * @param timeZone timezone to use for this date
    **/
   public AS400Date(TimeZone timeZone)
   {
@@ -207,7 +207,7 @@ public AS400Date(int format)
   /**
    Constructs an AS400Date object.
    The specified format's default separator is used.
-   * @param timeZone 
+   * @param timeZone Time zone to use for this object.
    @param format The date format.
    For a list of valid values, refer to {@link #AS400Date(int,Character) AS400Date(int,Character)}.
    **/
@@ -666,7 +666,7 @@ public AS400Date(int format, Character separator)
    This method is provided for use by the PCML infrastructure;
    in particular, when parsing 'init=' values for 'date' data elements.
    @param source A date value expressed as a string in format <tt>yyyy-MM-dd</tt>.
-   * @param timeZone 
+   * @param timeZone Time zone used by the date.
    @return A {@link java.sql.Date java.sql.Date} object representing the specified date.
    The reference time zone must be passed as a parameter. 
    **/
