@@ -374,7 +374,7 @@ extends DBBaseRequestDS
   * length in the request should be updated using request.updateLength(offset, newLength); 
  * @param value 
  * @return offset after adding marker
- * @throws DBDataStreamException 
+ * @throws DBDataStreamException  If there is an error in the datastrea.
     */
  // @K3A    
  public int setParameterMarkerDataReserve(DBData value) throws DBDataStreamException{

@@ -1042,8 +1042,8 @@ implements Serializable
   /**
    * Parses a single ZLSL0300 structure.
    * This is the "session information" returned by the QZLSOLST API.
-   * @throws IOException   
-   * @throws AS400SecurityException 
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
    **/
   private ISeriesNetServerSession parseZLSL0300(byte[] data, int offset, CharConverter conv, ISeriesNetServerSession sess) throws AS400SecurityException, IOException  // @IPv6 added throws declaration, removed static qualifier
   {

@@ -269,7 +269,7 @@ implements Connection
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
    */
   public int getConcurrentAccessResolution ()  throws SQLException
   {
@@ -602,7 +602,7 @@ implements Connection
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
    *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
    */
   public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
   {  
@@ -920,7 +920,7 @@ endif */
    * @param properties
    *            the list of client info properties to set
    *            <p>
-   * @throws SQLException
+   * @throws SQLException  If a database error occurs.
    *             if the database server returns an error while setting the
    *             clientInfo values on the database server
    *             <p>
@@ -1164,7 +1164,7 @@ endif */
   </pre></blockquote>
   
   @return The server job identifier, or null if not known.
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
   **/
   public String getServerJobIdentifier() throws SQLException          // @pd2
   {                                                                   // @pd2

@@ -327,7 +327,7 @@ Constructs an IFSFileDescriptor object.
 
   /**
    Force the system buffers to synchronize with the underlying device.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
   **/                                                                      // $A1
   public void sync() throws IOException
   {

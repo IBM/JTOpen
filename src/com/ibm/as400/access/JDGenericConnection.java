@@ -711,8 +711,8 @@ implements Connection
    * @param properties
    *            the list of client info properties to set
    *            <p>
-//JDBC40DOC    * @throws ClientInfoException
-   * @throws SQLException
+//JDBC40DOC    * @throws ClientInfoException If a client info property cannot be set.
+   * @throws SQLException  If a database error occurs.
    *             if the database server returns an error while setting the
    *             clientInfo values on the database server
    *             <p>

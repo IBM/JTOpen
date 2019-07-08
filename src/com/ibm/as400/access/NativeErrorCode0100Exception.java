@@ -37,9 +37,9 @@ public class NativeErrorCode0100Exception extends Exception
     /**
      * Throws the corresponding toolbox exception for the current exception. 
      * @param converter 
-     * @throws ObjectDoesNotExistException 
-     * @throws AS400SecurityException 
-     * @throws AS400Exception 
+     * @throws ObjectDoesNotExistException  If the object does not exist.
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws AS400Exception If an error occurs.
      */
   public void throwMappedException(Converter converter) throws ObjectDoesNotExistException, AS400SecurityException, AS400Exception {
     String messageID = converter.byteArrayToString(data, 8, 7);

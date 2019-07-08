@@ -123,7 +123,7 @@ implements DBData
      * @param headerTotalSize 
      * @param indicatorTotalSize 
      * @param dataTotalSize 
-     * @throws DBDataStreamException 
+     * @throws DBDataStreamException  If there is an error in the datastream.
     **/
     public DBVariableData (
             int columnCount,

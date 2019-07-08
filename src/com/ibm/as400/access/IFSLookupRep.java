@@ -47,7 +47,7 @@ Get object handle.
   /**
    Get ASP number
    @return the ASP number
-   * @throws UnsupportedEncodingException 
+   * @throws UnsupportedEncodingException If the Character Encoding is not supported. 
    */
   int getASP() throws UnsupportedEncodingException {
     return new IFSObjAttrs1(getObjAttrBytes(OA1)).getASP();

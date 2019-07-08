@@ -991,8 +991,8 @@ implements IFSFileImpl
   //@RDA @SAD
   /**
   Returns the ASP that holds the file.
-   * @throws IOException 
-   * @throws AS400SecurityException 
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
   **/
  /*public int getASP()
    throws IOException, AS400SecurityException

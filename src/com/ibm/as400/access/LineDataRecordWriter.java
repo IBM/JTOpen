@@ -307,7 +307,7 @@ public class LineDataRecordWriter extends Object
       * @exception IOException If an error occurs while communicating
       *   with the AS/400.
       * @exception UnsupportedEncodingException If <I>ccsid</I> is not valid.
-     * @throws ExtendedIllegalStateException 
+     * @throws ExtendedIllegalStateException  If a state is illegal. 
       **/
 
     public void writeRecord(Record record)

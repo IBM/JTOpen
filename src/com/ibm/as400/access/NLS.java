@@ -166,12 +166,12 @@ public final class NLS
    * @param system The system.
    * @param countryID The country or region identifier.
    * @return The descriptive text.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getLanguageDescription
   **/
   public static String getCountryDescription(AS400 system, String countryID)
@@ -242,12 +242,12 @@ public final class NLS
    * @param system The system.
    * @param languageID The language identifier.
    * @return The descriptive text.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
    * @see #getCountryDescription
   **/
   public static String getLanguageDescription(AS400 system, String languageID)

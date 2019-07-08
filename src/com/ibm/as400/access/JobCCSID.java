@@ -63,9 +63,9 @@ public class JobCCSID
     /**
      Retrieves the CCSID for this object.
      @return  The Job CCSID of the corresponding job.
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws IOException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  IOException  If an error occurs while communicating with the system.
      **/
     public int retrieveCcsid() throws AS400SecurityException, ErrorCompletingRequestException, IOException
     {

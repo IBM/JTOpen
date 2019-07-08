@@ -274,8 +274,8 @@ public class JobDescription implements Serializable
   /**
    Restores the state of this object from an object input stream.
    @param ois The stream of state information.
-   @throws IOException
-   @throws ClassNotFoundException
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws ClassNotFoundException  If a class is not found.
    **/
   private void readObject(java.io.ObjectInputStream ois)
     throws IOException, ClassNotFoundException

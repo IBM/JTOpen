@@ -58,8 +58,8 @@ Constructs as IFSKey object.
   /**
    Restores the state of this object from an object input stream.
    @param ois The stream of state information.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ClassNotFoundException
+   @throws java.io.IOException If an error occurs while communicating with the server.
+   @throws ClassNotFoundException If the class for the read object cannot be found. 
    **/
   private void readObject(java.io.ObjectInputStream ois)
     throws java.io.IOException, ClassNotFoundException

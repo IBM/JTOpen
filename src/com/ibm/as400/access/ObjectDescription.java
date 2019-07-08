@@ -1096,11 +1096,11 @@ public class ObjectDescription
   /**
    * Checks to see if this object currently exists on the system.
    * @return true if the object exists; false if the object or library do not exist.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the system API that retrieves object information is missing.
   **/
   public boolean exists() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1302,11 +1302,11 @@ public class ObjectDescription
    * (and cache) all of the known attributes of this object from the system.
    * @param attribute One of the attribute constants.
    * @return The value for the attribute, or null if one was not found.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the system API that retrieves object information is missing.
   **/
   public Object getValue(int attribute) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1436,11 +1436,11 @@ public class ObjectDescription
    * (and cache) all of the known attributes of this object from the system.
    * @param attribute One of the attribute constants.
    * @return The value for the attribute, or null if one was not found.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the system API that retrieves object information is missing.
   **/
   public String getValueAsString(int attribute) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1479,11 +1479,11 @@ public class ObjectDescription
   <p>This method retrieves the list of locks from the system via a call to the List Object Locks (QWCLOBJL) API.  
   Note: The QWCLOBJL API is not thread safe.
   @return An array of ObjectLockListEntry representing any Object Locks. If no locks are found, an empty array is returned.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
   @exception ObjectDoesNotExistException If the system API that retrieves object information is missing.
  **/
  public ObjectLockListEntry[] getObjectLockList()
@@ -1777,11 +1777,11 @@ public class ObjectDescription
 
   /**
    * Retrieves all possible attributes of this object from the system.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the system API that retrieves object information is missing.
   **/
   public void refresh() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException

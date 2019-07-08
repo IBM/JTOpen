@@ -5861,7 +5861,7 @@ public class Job implements Serializable
 
     /**
      Releases this job.
-     * @throws AS400Exception 
+     * @throws AS400Exception If an error occurs.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
@@ -7464,11 +7464,11 @@ public class Job implements Serializable
     /**
      * Get the asp group information of the job
      * @return asp group information
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws InterruptedException 
-     * @throws IOException 
-     * @throws ObjectDoesNotExistException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  InterruptedException  If this thread is interrupted.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws ObjectDoesNotExistException  If the object does not exist.
      */
     public String getJobAsp() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException{
       retrieve(ASP_GROUP);             // Format JOBI0400.
