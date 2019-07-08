@@ -89,7 +89,7 @@ public class UserIndex
      Constructs a UserIndex object.
      @param  system  The system object representing the system on which the user index exists.
      @param  path  The fully qualified integrated file system path name of the user index.  
-     * @throws Exception 
+     * @throws Exception  If an exception occurs. 
                   
      **/
     public UserIndex(AS400 system, String path) throws Exception
@@ -172,7 +172,7 @@ public class UserIndex
      @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  ObjectAlreadyExistsException  If the object already exists on the system.
-     * @throws Exception 
+     * @throws Exception  If an exception occurs. 
      **/
 	public void create(String extendedAttribute, 
 			byte entryLengthAttribute,
@@ -240,7 +240,7 @@ public class UserIndex
 	 * @param insertionRuleOption
 	 *            The rule used for inserting the entries. Valid values are : 	 
 	 *            RULE_INSERT, RULE_INSERT_REPLACE, RULE_INSERT_NO_REPLACE                                      
-	 * @throws Exception 
+	 * @throws Exception  If an exception occurs. 
 	 */
 	public void insertEntry(String key, String value, int insertionRuleOption) throws Exception {
 		byte[] keyBytes = key.getBytes("IBM-037");
@@ -316,7 +316,7 @@ public class UserIndex
      * @param rule 
      * @param occCount 
      * @return entries from user index
-     * @throws Exception 
+     * @throws Exception  If an exception occurs. 
      */
        
     public String[][] findEntries(String key, int rule, int occCount) throws Exception { 
@@ -387,7 +387,7 @@ public class UserIndex
      *  @param optionBytes Byte array containing the options for the query.  Also returns
      *                     information about the retrieved entries. 
      *  @param keyBytes    Byte array containing the key used to find the entries.
-     * @throws Exception 
+     * @throws Exception  If an exception occurs. 
      */
     public void findEntries(byte[] outputBytes, byte[] optionBytes, byte[] keyBytes) throws Exception {
 		if (handle_ == 0) {

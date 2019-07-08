@@ -63,7 +63,7 @@ implements Wrapper
   //JDBC40DOC      *            a Class defining an interface.
   //JDBC40DOC      * @return true if this implements the interface or directly or indirectly
   //JDBC40DOC      *         wraps an object that does.
-  //JDBC40DOC      * @throws java.sql.SQLException
+  //JDBC40DOC      * @throws java.sql.SQLException If a database error occurs.
   //JDBC40DOC      *             if an error occurs while determining whether this is a
   //JDBC40DOC      *             wrapper for an object with the given interface.
   //JDBC40DOC      */
@@ -99,7 +99,7 @@ implements Wrapper
   //JDBC40DOC      *            A Class defining an interface that the result must implement.
   //JDBC40DOC      * @return an object that implements the interface. May be a proxy for the
   //JDBC40DOC      *         actual implementing object.
-  //JDBC40DOC      * @throws java.sql.SQLException
+  //JDBC40DOC      * @throws java.sql.SQLException If a database error occurs.
   //JDBC40DOC      *             If no object found that implements the interface
   //JDBC40DOC      */
     /* ifdef JDBC40 

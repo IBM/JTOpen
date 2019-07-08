@@ -154,7 +154,7 @@ final class SQLBlobLocator extends SQLLocatorBase
   @param  rawBytes         the raw bytes for the system.
   @param  offset           the offset into the byte array.
   @param  ccsidConverter   the converter.
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
   **/ 
   public void validateRawTruncatedData(byte[] rawBytes, int offset, ConvTable ccsidConverter) {
     // Most data type do not need to validate truncated data.  Just return. 

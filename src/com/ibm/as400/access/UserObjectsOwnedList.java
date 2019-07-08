@@ -141,12 +141,12 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
    <p>This method retrieves the list of objects from the system based on the selection critera set via the constructor or
    modified by any of the set methods.
    @return The array of objects retrieved from the system.
-   * @throws AS400Exception 
-   * @throws AS400SecurityException 
-   * @throws ErrorCompletingRequestException 
-   * @throws InterruptedException 
-   * @throws IOException 
-   * @throws ObjectDoesNotExistException 
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
   **/
   public UserObjectsOwnedListEntry[] getObjectList()
   throws AS400Exception,

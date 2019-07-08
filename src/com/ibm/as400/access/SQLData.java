@@ -129,7 +129,7 @@ extends Cloneable
     @param  rawBytes         the raw bytes for the system.
     @param  offset           the offset into the byte array.
     @param  ccsidConverter   the converter.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     public abstract void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException;
@@ -141,7 +141,7 @@ extends Cloneable
     @param  rawBytes         the raw bytes for the system.
     @param  offset           the offset into the byte array.
     @param  ccsidConverter   the converter.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     public abstract void validateRawTruncatedData(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException;
@@ -521,7 +521,7 @@ extends Cloneable
     Converts the data to a Java String object.  This
     conversion must be provided by the implementation.
     @return             the result of the conversion.
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
     **/
     public abstract String getString()
     throws SQLException;

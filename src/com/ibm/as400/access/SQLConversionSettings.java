@@ -82,7 +82,7 @@ class SQLConversionSettings
     /**
      * Get the current conversion settings for a connection. 
      * @return SQLConversionSettings object
-     * @throws SQLException 
+     * @throws SQLException  If a database error occurs.
      */
     /*@H4A*/
   static SQLConversionSettings getConversionSettings(

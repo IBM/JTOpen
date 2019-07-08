@@ -10,7 +10,7 @@ public interface SQLVariableCompressible {
   @param  offset           the offset into the byte array.
   @param  ccsidConverter   the converter.
   @return number of bytes written
-   * @throws SQLException 
+   * @throws SQLException  If a database error occurs.
   **/
   public int convertToCompressedBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
   throws SQLException;
