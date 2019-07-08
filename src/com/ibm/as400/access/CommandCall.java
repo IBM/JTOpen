@@ -369,10 +369,10 @@ public class CommandCall implements Serializable
     /**
      Do not use this method. <b>It is obsolete and will be removed in a future release.</b>
      * @return RJob
-     * @throws AS400SecurityException 
-     * @throws ErrorCompletingRequestException 
-     * @throws IOException 
-     * @throws InterruptedException 
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws  InterruptedException  If this thread is interrupted.
      @deprecated  Use getServerJob() instead.
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -469,9 +469,9 @@ public class CommandCall implements Serializable
      <li> The command has not been marked as thread safe.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
-     * @throws ErrorCompletingRequestException 
+     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the system.
-     * @throws InterruptedException 
+     * @throws  InterruptedException  If this thread is interrupted.
      **/
     public Thread getSystemThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {

@@ -85,7 +85,7 @@ the total length can be calculated before calling overlay().
  * @param columnCount 
  * @param indicatorSize 
  * @param rowSize 
- * @throws DBDataStreamException 
+ * @throws DBDataStreamException  If there is an error in the datastrea.
 **/
 	public DBExtendedData (int rowCount,
 	                        int columnCount,

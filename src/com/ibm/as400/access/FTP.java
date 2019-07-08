@@ -2004,7 +2004,7 @@ public class FTP implements java.io.Serializable
     * The message returned from the system is saved.  Use getLastMessage()
     * to retrieve it.
     * <br>Throws SecurityException if userid or password is invalid.
-   * @param transferType 
+   * @param transferType ASCII or BINARY
     *   @exception IOException If an error occurs while communicating with the system.
    **/
 

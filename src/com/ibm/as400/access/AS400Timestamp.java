@@ -154,7 +154,7 @@ public class AS400Timestamp extends AS400AbstractTime
   }
   
   /**
-   Constructs an AS400Timestamp object when datalength < 26.
+   Constructs an AS400Timestamp object when datalength &lt; 26.
    * @param timeZone
    * @param dataLength
    */

@@ -823,7 +823,7 @@ public class HistoryLog
      * <li>{@link #OMIT}</li>
      * <li>{@link #SELECT} (default)</li>
      * </ul>
-     * @throws ExtendedIllegalArgumentException
+     * @throws ExtendedIllegalArgumentException If an argument is illegal. 
      */
     public void setMessageIDsListIndicator(int indicator) throws ExtendedIllegalArgumentException
     {
@@ -860,7 +860,7 @@ public class HistoryLog
      * <li>{@link #OMIT}</li>
      * <li>{@link #SELECT} (default)</li>
      * </ul>
-     * @throws ExtendedIllegalArgumentException
+     * @throws ExtendedIllegalArgumentException If an argument is illegal. 
      */
     public void setMessageTypeListIndicator(int indicator) throws ExtendedIllegalArgumentException
     {
@@ -905,7 +905,7 @@ public class HistoryLog
      * <li>{@link #TYPE_REPLY}</li>
      * <li>{@link #TYPE_REQUEST}</li>
      * </ul>
-     * @throws ExtendedIllegalArgumentException
+     * @throws ExtendedIllegalArgumentException If an argument is illegal. 
      */
     public void setMessageTypes(String[] types)throws ExtendedIllegalArgumentException{
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message types");
@@ -968,7 +968,7 @@ public class HistoryLog
      * 0 through 99.  Specify 0 to list all messages for the jobs, times, message types,
      * and message IDs specified.  
      * @param severity The minumum severity of the messages to be listed. The default is zero.
-     * @throws ExtendedIllegalArgumentException
+     * @throws ExtendedIllegalArgumentException If an argument is illegal. 
      */
     public void setMessageSeverity(int severity) throws ExtendedIllegalArgumentException
     {

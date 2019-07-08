@@ -490,7 +490,7 @@ public class IFSFile
    This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
    If the user profile has *ALLOBJ special authority (and system is V5R1 or higher), this method always returns true.
    @return true if the object exists and is executable by the application; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -531,7 +531,7 @@ public class IFSFile
    object represented by this object.
    Note that IBM i <i>directories</i> are never readable; only <i>files</i> can be readable.
    @return true if the object exists and is readable by the application; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -571,7 +571,7 @@ public class IFSFile
    object represented by this object.
    Note that IBM i <i>directories</i> are never writable; only <i>files</i> can be writable.
    @return true if the object exists and is writeable by the application; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -697,9 +697,9 @@ public class IFSFile
    * <br>If the system is V5R2 or earlier: If the current object is a file (rather than a directory), the destination path must also specify a file (rather than a directory), otherwise the copy may fail.
    * @return true if the copy succeeded (or at least one file of a source
    * directory's contents was copied); false otherwise.
-   * @throws IOException 
-   * @throws AS400SecurityException 
-   * @throws ObjectAlreadyExistsException 
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws ObjectAlreadyExistsException  If the object already exists.
   **/
   public boolean copyTo(String path) throws IOException, AS400SecurityException, ObjectAlreadyExistsException
   {
@@ -744,7 +744,7 @@ public class IFSFile
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was created, or 0L if
    the object does not exist or is not accessible.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -869,7 +869,7 @@ public class IFSFile
 
    @return true if the file system object is successfully deleted; false otherwise.
    Returns false if the file system object did not exist prior to the delete() or is not accessible.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -913,7 +913,7 @@ public class IFSFile
    this object represents an empty directory, or the filter or pattern does
    not match any files, then an empty Enumeration is returned. The IFSFile object
    passed to the filter object has cached file attribute information. 
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
    
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
@@ -954,7 +954,7 @@ public class IFSFile
    directory.  If this object does not represent a directory,
    this object represents an empty directory, or the pattern does
    not match any files, then an empty Enumeration is returned. 
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
@@ -995,7 +995,7 @@ public class IFSFile
    this object represents an empty directory, or the filter does
    not match any files, then an empty Enumeration is returned. The IFSFile object
    passed to the filter object has cached file attribute information. 
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
@@ -1029,7 +1029,7 @@ public class IFSFile
    directory.  If this object does not represent a directory,
    this object represents an empty directory, or the filter or pattern does
    not match any files, then an empty Enumeration is returned.  
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
@@ -1104,7 +1104,7 @@ public class IFSFile
   /**
    Determines if the integrated file system object represented by this object exists.
    @return true if the object exists; false if the object does not exist or is not accessible.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -1268,7 +1268,7 @@ public class IFSFile
   /**
    Returns the amount of unused storage space that is available to the user.
    @return The number of bytes of storage available to the user, or special value {@link Long#MAX_VALUE Long.MAX_VALUE} if the system reports "no maximum".
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -1299,7 +1299,7 @@ public class IFSFile
    Returns the amount of unused storage space that is available to the user.
    @param system The system of interest.
    @return The number of bytes of storage available to the user, or special value {@link Long#MAX_VALUE Long.MAX_VALUE} if the system reports "no maximum".
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -1665,7 +1665,7 @@ public class IFSFile
   /**
    Returns the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
    @return Either {@link #PATTERN_POSIX PATTERN_POSIX}, {@link #PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link #PATTERN_OS2 PATTERN_OS2}
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
    @see #setPatternMatching(int)
    **/
   public int getPatternMatching()
@@ -1687,7 +1687,7 @@ public class IFSFile
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the object does not exist on the system.
- * @throws UnsupportedEncodingException 
+ * @throws UnsupportedEncodingException If the Character Encoding is not supported. 
    * @exception UnknownHostException If the system cannot be located.
    *
   **/
@@ -1735,7 +1735,7 @@ public class IFSFile
    <tt>.MBR</tt> objects, and any Root, QOpenSys or UDFS object.
    <br>Returns a zero-length string if the object has no subtype.
    @return The subtype of the object.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception AS400SecurityException If a security or authority error occurs.
@@ -1801,8 +1801,8 @@ public class IFSFile
      <li>33 to 255: independent ASPs
      <li>-1: authentication scheme is not supported
      </ul>
-    @throws IOException
-    @throws AS400SecurityException
+    @throws  IOException  If an error occurs while communicating with the system.
+    @throws  AS400SecurityException  If a security or authority error occurs.
    **/
   public int getASP()//@SAC
     throws IOException,
@@ -1821,8 +1821,8 @@ public class IFSFile
   /**Return the type of file system. Note only password authentication scheme is supported, otherwise returns "".
     @return Return the type of file system.
     Possible values are:EPFS,QDLS,QSYS,NFS,LRFS,QOPT,QRFS,EPFSP,QNETC,QDTL,IEPFS,ASPQSYS
-    @throws IOException
-    @throws AS400SecurityException
+    @throws  IOException  If an error occurs while communicating with the system.
+    @throws  AS400SecurityException  If a security or authority error occurs.
    **/
   public String getFileSystemType() throws IOException, AS400SecurityException {
     if (impl_ == null)
@@ -1916,7 +1916,7 @@ public class IFSFile
    for invalid symbolic links.
 
    @return true if the integrated file system object exists and is a directory; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -1971,7 +1971,7 @@ public class IFSFile
    for invalid symbolic links.
 
    @return true if the specified file exists and is a "normal" file; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #isSymbolicLink()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2002,7 +2002,7 @@ public class IFSFile
 
    @return true if the hidden attribute of this integrated file system object
    is set; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2038,8 +2038,8 @@ public class IFSFile
 
    @return true if the specified file exists and is a symbolic link; false otherwise.
    <br>If the system is V5R2 or earlier, this method always returns false.
-   * @throws IOException 
-   * @throws AS400SecurityException 
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2069,7 +2069,7 @@ public class IFSFile
 
    @return true if the read only attribute of this integrated file system object
    is set; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2101,7 +2101,7 @@ public class IFSFile
   /**
    Returns the sorting behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.
    @return <tt>true</tt> if lists of files are returned in sorted order; <tt>false</tt> otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
    **/
   public boolean isSorted()
     throws IOException
@@ -2118,7 +2118,7 @@ public class IFSFile
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last accessed, or 0L if
    the object does not exist or is not accessible.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2183,7 +2183,7 @@ public class IFSFile
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last modified, or 0L if it does not exist
     or is not accessible.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2237,7 +2237,7 @@ public class IFSFile
    this method will return the length of the symbolic link object as returned by the File Server.  
    In order to retrieve the length of the <b>target</b> object, you must use     
    {@link #clearCachedAttributes() clearCachedAttributes()} followed by {@link #length() length()}.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2269,7 +2269,7 @@ public class IFSFile
    does not represent a directory, null is returned.  If this object represents
    an empty directory, an empty string array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #listFiles()
    @see #setPatternMatching(int)
@@ -2299,7 +2299,7 @@ public class IFSFile
    these IFSFile objects after the list operation increases the chances that
    their file attribute information will not be valid.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #listFiles(IFSFileFilter)
    @see #setPatternMatching(int)
@@ -2421,7 +2421,7 @@ public class IFSFile
    Maintaining references to these IFSFile objects after the list operation
    increases the chances that their file attribute information will not be valid.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #listFiles(IFSFileFilter,String)
    @see #setPatternMatching(int)
@@ -2464,7 +2464,7 @@ public class IFSFile
    this object represents an empty directory, or the pattern does not
    match any files, an empty string array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #listFiles(String)
    @see #setPatternMatching(int)
@@ -2492,7 +2492,7 @@ public class IFSFile
    object does not represent a directory, or this object represents 
    an empty directory, an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2521,7 +2521,7 @@ public class IFSFile
    object does not represent a directory, or this
    object represents an empty directory, an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2556,7 +2556,7 @@ public class IFSFile
    references to these IFSFile objects after the list operation increases the
    chances that their file attribute information will not be valid.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2601,7 +2601,7 @@ public class IFSFile
    represents an empty directory, or the pattern does not match any files,
    an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #setPatternMatching(int)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2765,7 +2765,7 @@ public class IFSFile
   specified by this object.
 
    @return true if the directory was created; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2806,7 +2806,7 @@ public class IFSFile
    specified by this object. In addition, create all parent directories as necessary.
 
    @return true if the directory (or directories) were created; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2930,7 +2930,7 @@ public class IFSFile
    @param file The new file name.
 
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -3004,7 +3004,7 @@ public class IFSFile
    Sets the file's data CCSID.
    @param ccsid The file data CCSID.  Note that the data in the file is not changed; only the CCSID "tag" on the file is changed.
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or if the file doesn't exist or is a directory.
@@ -3099,7 +3099,7 @@ public class IFSFile
   /**
    Marks the integrated file system object represented by this object as hidden.
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -3122,7 +3122,7 @@ public class IFSFile
                     False to turn off the hidden attribute.
 
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -3168,7 +3168,7 @@ public class IFSFile
    time unchanged, or -1 to set the last modification time to the current system time.
 
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -3198,8 +3198,8 @@ public class IFSFile
    * Beans friendly version of setLastModified.
    * 
    * @param time
-   * @throws IOException
-   * @throws PropertyVetoException
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
    */
   /*@R2A*/ 
   public void setLastModifiedV(long time) throws IOException, PropertyVetoException {
@@ -3260,7 +3260,7 @@ public class IFSFile
    Sets the length of the integrated file system object represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
    @param length The new length, in bytes.
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -3376,7 +3376,7 @@ public class IFSFile
   /**
    Sets the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
    @param patternMatching Either {@link #PATTERN_POSIX PATTERN_POSIX}, {@link #PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link #PATTERN_OS2 PATTERN_OS2}
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @see #getPatternMatching()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -3420,7 +3420,7 @@ public class IFSFile
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the object does not exist on the system.
- * @throws ServerStartupException 
+ * @throws ServerStartupException  If the server cannot be started.
    * @exception PropertyVetoException If the change is vetoed.
    * @exception UnknownHostException If the system cannot be located.
 
@@ -3483,7 +3483,7 @@ public class IFSFile
    Marks the integrated file system object represented by this object so
    that only read operations are allowed.
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -3507,7 +3507,7 @@ public class IFSFile
                     attributes such that the file can be changed.
 
    @return true if successful; false otherwise.
-   * @throws IOException 
+   * @throws  IOException  If an error occurs while communicating with the system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.

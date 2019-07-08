@@ -252,6 +252,15 @@ public class ClassDecoupler
         throw new AS400SecurityException(
             AS400SecurityException.PASSWORD_NEW_DISALLOWED);
 
+      case DDMTerm.LOCALSECURITY_SERVICE_RETRYABLE_ERROR: 
+        throw new AS400SecurityException(
+            AS400SecurityException.SECURITY_GENERAL);
+        
+      case DDMTerm.LOCALSECURITY_SERVICE_NON_RETRYABLE_ERROR: 
+        throw new AS400SecurityException(
+            AS400SecurityException.SECURITY_GENERAL);
+        
+
       default:
         throw new ServerStartupException(
             ServerStartupException.CONNECTION_NOT_ESTABLISHED);
