@@ -41,8 +41,44 @@ public class AboutToolbox
 {
   public static void main(String args[]) 
   {
-    String versionInfo = getVersionDescription();
+    
+    String versionInfo ; 
+    if (args.length == 1 && args[0].equals("RELEASENAME")) {
+      versionInfo = getReleaseName(); 
+    } else {
+      versionInfo = getVersionDescription();
+    }
     System.out.println(versionInfo);
+  }
+
+  /**
+   * Returns the release name for Toolbox. 
+   * @return release name for Toolbox 
+   */
+  
+  public static String getReleaseName() 
+  {
+    StringBuffer sbuf = new StringBuffer(200);
+
+    try 
+    {
+      Class copyright = Class.forName("com.ibm.as400.access.Copyright");
+      Field version = copyright.getDeclaredField("JTOpenName");
+
+      sbuf.append(version.get(null));
+    }
+    catch(NoSuchFieldException e)
+    {  
+      // Running with an older version of Toolbox.
+      sbuf.append("JTOpen X.X ");
+    }
+    catch(Exception e)
+    {
+      //e.printStackTrace();
+      sbuf.append("\nUnexpected error occurred: " + e);
+    }
+
+    return sbuf.toString();
   }
 
   /**
