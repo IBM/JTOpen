@@ -1446,6 +1446,15 @@
             if="ibmjavadocExists" >
 	</target>
 
+	<target	name="setJtopenRelease" depends="jar-jt400">
+		<exec executable="java" outputproperty="jtopenRelease">
+		  <arg value="-cp"/>
+		  <arg value="${dist}/jt400.jar"/>
+		  <arg value="com.ibm.as400.util.AboutToolbox"/>
+		  <arg value="RELEASENAME"/>
+		</exec>
+		<echo> jtopenRelease set to ${jtopenRelease} </echo>
+	</target> 	
 
 	<target name="setJavadoc8Exec" depends="setJavadoc8ExecOverride">
 		<property name="javadoc8Exec" value="${javadoc8ExecDefault}"/>
@@ -1454,7 +1463,7 @@
 
 
 
-	<target name="javadoc" depends="init,checkJavadocIncludes,setJavadocExec">
+	<target name="javadoc" depends="init,checkJavadocIncludes,setJavadocExec,setJtopenRelease">
 		<javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
              sourcepath="${source}:${source-contrib}:${source-jtopenlite}:${include}"
@@ -1463,7 +1472,7 @@
              link="${doclink}"
              failonerror="true"
              additionalparam="-breakiterator"
-			 header="JTOpen 9.6"
+			 header="${jtopenRelease}" 
     	     executable="${javadocExec}">
 			<classpath>
 				<!-- Removed maxmemory="256m" from above -->
@@ -1540,14 +1549,14 @@
     </echo>
 	</target>
 
-	<target name="javadoc6" depends="init,source6,checkJavadocIncludes,setJavadoc6Exec">
+	<target name="javadoc6" depends="init,source6,checkJavadocIncludes,setJavadoc6Exec,setJtopenRelease">
 		<javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
                  sourcepath="${source-java6}:${source-jtopenlite}:${source-contrib}:${include}"
 	             destdir="${javadoc6}"
 	             use="false"
 	             link="${doclink}"
-			     header="JTOpen 9.6"
+			     header="${jtopenRelease}"
 	             failonerror="true"
 	             additionalparam="-breakiterator"
 	    	     executable="${javadoc6Exec}">
@@ -1574,14 +1583,14 @@
 	</target>
 
 
-	<target name="javadoc8" depends="init,source8,checkJavadocIncludes,setJavadoc8Exec">
+	<target name="javadoc8" depends="init,source8,checkJavadocIncludes,setJavadoc8Exec,setJtopenRelease">
 		<javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
                  sourcepath="${source-java8}:${source-jtopenlite}:${source-contrib}:${include}"
 	             destdir="${javadoc8}"
 	             use="false"
 	             link="${doclink}"
-  		         header="JTOpen 9.6"
+  		         header="${jtopenRelease}"
 	             failonerror="true"
 	             additionalparam="-breakiterator"
 	    	     executable="${javadoc8Exec}">
