@@ -100,7 +100,7 @@ implements Statement
     private AS400JDBCResultSet      generatedKeys_;    // @G4A
     int                     id_;    // private protected
     AS400JDBCStatementLock              internalLock_;    // private protected    // @E6A@C7C
-    private     boolean                 lastPrepareContainsLocator_;    // @B2A
+    /* private     boolean                 lastPrepareContainsLocator_;    // @B2A @Z5D*/ 
     private     int                     maxFieldSize_;
     private     int                     maxRows_;
     private     long                    longMaxRows_;
@@ -1835,6 +1835,9 @@ implements Statement
         if(cancelled_)
             JDError.throwSQLException (JDError.EXC_OPERATION_CANCELLED);
 
+        /*
+         
+         // Deleted @Z4
         // If any of the fields is a locator, then we need to turn off             @B2A
         // record blocking.                                                        @B2A
         lastPrepareContainsLocator_ = false;    // @B2A
@@ -1854,6 +1857,9 @@ implements Statement
                     lastPrepareContainsLocator_ = true;    // @B2A
             }    // @B2A
         }    // @B2A
+        */ 
+        
+        
       } finally {
          /*@D4A*/
         if (connection_.isQueryTimeoutMechanismCancel()) {
@@ -2938,7 +2944,7 @@ implements Statement
         // Only block if the cursor is not updatable
         // and no locators are in the result set.                                  @B2A
         if((cursor_.getConcurrency() != ResultSet.CONCUR_UPDATABLE)    // @B2C @EAC
-           && (lastPrepareContainsLocator_ == false)
+           /* && (lastPrepareContainsLocator_ == false)   @Z5D */
            && (requestDSCursorType  != DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE) &&
            (requestDSCursorType != DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE))  //@KKB we do not want to block if a sensitive cursor is being used
         {    // @B2A
@@ -2998,7 +3004,7 @@ implements Statement
           if(JDTrace.isTraceOn()) {
             JDTrace.logInformation (this, 
                   "getBlockingFactor(): Not blocking -- concurrency="+cursor_.getConcurrency()+
-                  " lastPrepareContainsLocator_="+lastPrepareContainsLocator_+
+                  /* " lastPrepareContainsLocator_="+lastPrepareContainsLocator_+  @Z5D */ 
                   " requestCursorType="+requestDSCursorType);
           }
         }

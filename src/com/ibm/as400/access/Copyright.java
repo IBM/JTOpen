@@ -255,6 +255,7 @@ package com.ibm.as400.access;
 //@Z3    20190508  Listener fixes
 //@Z4    20190508  JDBC:  Connect using port to system with password level 2
 //@Z4    20190709  build:  Javadoc get version from Copyright.java
+//@Z5    20190718  JDBC:  Allow blocking of locators
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -265,7 +266,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 9.8"; 
     //                                                                                         built=20190709 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20190709 @Z4";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20190709 @Z5";  
 
 
     // Constants for reference by AS400JDBCDriver.

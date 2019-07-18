@@ -266,6 +266,23 @@ public class Main implements Runnable {
       // Just ignore error reading property
     }
 
+    
+    // Look for printStackTrace setting
+    try {
+      String printStackTrace = System
+          .getProperty("com.ibm.as400.access.jdbcClient.printStackTrace");
+      if (printStackTrace != null) {
+        printStackTrace = printStackTrace.toUpperCase();
+        if (printStackTrace.equals("TRUE")) {
+          printStackTrace_ = true;
+        }
+      }
+    } catch (java.security.AccessControlException ace) {
+      // Just ignore error reading property
+    }
+    
+    
+    
     //
     // Load drivers
     //
@@ -327,7 +344,7 @@ public class Main implements Runnable {
        connection_ = DriverManager.getConnection(url_, userid_, password_);
        addVariable("CON", connection_);
     } catch (SQLException ex ) {
-      System.out.println("Warning:  Unable to connect to "+url_+" using "+userid_);
+      System.out.println("Warning:  Exception '"+ex.toString()+"' connecting to "+url_+" using "+userid_);
       if (printStackTrace_) {
         ex.printStackTrace(System.out); 
       }
