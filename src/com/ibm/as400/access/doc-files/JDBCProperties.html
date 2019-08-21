@@ -1022,7 +1022,7 @@ it throws an SQLException with SQL error code -4499.</p>
     If not, a long running database operation will cause the timeout to occur. 
     <br>NOTE3: The socket timeout should only be used if the &quot;thread used&quot; property is set to false. 
     By default, the JDBC driver will create a thread that is always blocked on a socket read waiting for a 
-    server response, and a connection idle longer than the receive timeout will drop the connection.
+    server response, and a connection idle longer than the socket timeout will drop the connection.
      
     </TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
@@ -1336,7 +1336,7 @@ it throws an SQLException with SQL error code -4499.</p>
     <li>If the parameter is set to 'ABCD', it will be silently truncated to 'ABC' and a
     row will be returned by the query.</li>
     </ul>   
-    This property avoid this problem by allowing the application to set the string to 
+    This property avoids this problem by allowing the application to set the string to 
     something that doesn't exist in the application - i.e. @@@@@@@.  A blank value means 
     that the property will be ignored</TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
