@@ -257,6 +257,7 @@ package com.ibm.as400.access;
 //@Z4    20190709  build:  Javadoc get version from Copyright.java
 //@Z5    20190718  JDBC:  Allow blocking of locators
 //@Z6    20190828  validateSignon timeout
+//@Z7    20190828  Fix stripping leading spaces from message text
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

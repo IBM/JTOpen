@@ -1054,7 +1054,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
               int messageLength = BinaryConverter.byteArrayToInt(data, offset);
               offset +=4;
               // CHAR(*) - Message
-              message.setText(converter.byteArrayToString(data, offset, messageLength).trim());
+              message.setText(converter.byteArrayToString(data, offset, messageLength));  //@Z7C remove .trim()); 
               offset += messageLength;
               
               // BIN(32) - Length of message help returned
