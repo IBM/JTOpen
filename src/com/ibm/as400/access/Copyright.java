@@ -256,6 +256,7 @@ package com.ibm.as400.access;
 //@Z4    20190508  JDBC:  Connect using port to system with password level 2
 //@Z4    20190709  build:  Javadoc get version from Copyright.java
 //@Z5    20190718  JDBC:  Allow blocking of locators
+//@Z6    20190828  validateSignon timeout
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

@@ -420,6 +420,7 @@ public class AS400 implements Serializable
     In JDBC, we do some pre-validation of id/password.  So JDBC may flag the id/password as invalid and then need
     to let AS400 know that it just needs to display the logon dialog. */
     private boolean forcePrompt_ = false;  //@prompt
+    private int validateSignonTimeOut_ = 0; //@Z6A validate signon timeout
 
     /**
      Constructs an AS400 object.
@@ -4557,6 +4558,10 @@ public class AS400 implements Serializable
         // locale_ in not needed.
         // nlv_ in not needed.
         validationSystem.socketProperties_ = socketProperties_;
+        //@Z6A Start set socket timeout for validatesignon AS400 object
+        if (validateSignonTimeOut_ > 0)
+        	validationSystem.socketProperties_.setSoTimeout(validateSignonTimeOut_);
+        //@Z6A End
         // ccsid_ is not needed.
         // connectionListeners_ is not needed.
         // dispatcher_ is not needed.
@@ -4636,4 +4641,15 @@ public class AS400 implements Serializable
     	}
     }
     //@W9 End
+    
+    //@Z6A Start
+    public int getvalidateSignonTimeOut() {
+    	return validateSignonTimeOut_;
+    }
+    
+    public void setvalidateSignonTimeOut(int validateSignonTimeOut) {
+    	validateSignonTimeOut_ = validateSignonTimeOut;
+    }
+    //@Z6A End
+    
 }
