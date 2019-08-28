@@ -103,7 +103,7 @@ public class PTF
 //  private PTFPrecondition[] preconditions_;
 
   private String messageData_; // This is loaded from CPX3501 and contains the translated text.
-  private int techRefreshPTF_;  //TODO @ZZA
+  private int techRefreshPTF_;  //@Z8A
 
   
   /**
@@ -1808,7 +1808,7 @@ public class PTF
         //currentServerIPLSource_ = conv.byteArrayToString(output, 115, 1).trim();
         serverIPLRequired_ = (int)(output[116] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.
         creationDateAndTime_ = conv.byteArrayToString(output, 117, 13).trim();
-        techRefreshPTF_ = (int)(output[130] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.  //@Z5A
+        techRefreshPTF_ = (int)(output[130] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.  //@Z8A
       }
     }
     loaded_ = true;
@@ -2041,7 +2041,7 @@ public class PTF
     return buf.toString();
   }
   
-  // @Z5A Start
+  // @Z8A Start
   /**
    * Whether the PTF is a technology refresh PTF. A technology refresh PTF is used to deliver a significant amount of new function between major releases.
    * @return Whether the PTF is a technology refresh PTF, true or false
@@ -2071,5 +2071,5 @@ public class PTF
 	        	return true;
 	        }
 		  }
-  // @Z5A End
+  // @Z8A End
 }

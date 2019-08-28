@@ -258,6 +258,7 @@ package com.ibm.as400.access;
 //@Z5    20190718  JDBC:  Allow blocking of locators
 //@Z6    20190828  validateSignon timeout
 //@Z7    20190828  Fix stripping leading spaces from message text
+//@Z8    20190828  Show Technology refresh PTF for PTF
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
