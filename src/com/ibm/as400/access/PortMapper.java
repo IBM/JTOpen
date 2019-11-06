@@ -248,7 +248,7 @@ class PortMapper
           loginTimeout = socketProperties.getLoginTimeout();
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", login timeout " + loginTimeout + " ms.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to socket: system '"+systemName+"', port " +port+ ", login timeout " + loginTimeout + " ms.");
 
         InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, port) :
           new InetSocketAddress(InetAddress.getByName(null), port);

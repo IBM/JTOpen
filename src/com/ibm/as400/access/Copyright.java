@@ -260,6 +260,7 @@ package com.ibm.as400.access;
 //@Z7    20190828  Fix stripping leading spaces from message text
 //@Z8    20190828  Show Technology refresh PTF for PTF
 //@AA1   20190902  JTOpen 10.1
+//@AA2   20191106  JDBC:  Fix Connection.abort
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -270,7 +271,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.1"; 
     //                                                                                         built=20190709 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20190709 @Z8";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20190709 @AA2";  
 
 
     // Constants for reference by AS400JDBCDriver.

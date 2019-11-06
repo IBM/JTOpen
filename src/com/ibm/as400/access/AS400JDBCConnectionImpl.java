@@ -182,6 +182,8 @@ extends AS400JDBCConnection
     boolean                     checkStatementHoldability_ = false;     // @F3A  //@XAC
     private boolean                     closing_;            // @D4A
     private boolean                     aborted_ = false;  // @D7A
+    // The aborting thread should be able to close resources when the aborted_ flag is set 
+    private Thread                      abortingThread_ = null; 
             ConvTable                   converter_; //@P0C
     private int                         dataCompression_            = -1;               // @ECA
     private boolean                     disableCompression_ = false;   //@L9A
@@ -496,8 +498,16 @@ extends AS400JDBCConnection
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
-        if (aborted_ || (server_ == null))
+        if ((server_ == null))
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
+        if (aborted_) {
+          if (Thread.currentThread() != abortingThread_) { 
+            if (JDTrace.isTraceOn())
+              JDTrace.logInformation (this, "Returning closed since aborted_");  
+
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
+          }
+        }
     }
 
 
@@ -592,6 +602,11 @@ extends AS400JDBCConnection
      */
 public void handleAbort() {
 
+  if (JDTrace.isTraceOn())
+    JDTrace.logInformation (this, "handleAbort() called");  
+
+  abortingThread_ = Thread.currentThread();
+  
   // Cancel any existing statement.
   try {
      cancel(0);
@@ -1588,7 +1603,7 @@ throws SQLException
     public boolean isClosed ()
     throws SQLException
     {
-        if (aborted_) return true;  /*@D7A*/
+        if (aborted_ && (Thread.currentThread() != abortingThread_)) return true;  /*@D7A*/
 
         if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact IBM i system
 
@@ -5648,6 +5663,9 @@ endif */
   //JDBC40DOC     */
 /* ifdef JDBC40
   public void abort(Executor executor) throws SQLException {
+
+    if (JDTrace.isTraceOn())
+       JDTrace.logInformation (this, "abort() called");  
 
     // Check for null executor
     if (executor == null) {
