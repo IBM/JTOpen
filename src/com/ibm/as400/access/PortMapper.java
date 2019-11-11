@@ -203,7 +203,7 @@ class PortMapper
         }
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket for service "+service+" to system..."+systemName+" port:"+srvPort);
         Socket socket = getSocketConnection(systemName, srvPort, socketProperties);  //@timeout2
-        PortMapper.setSocketProperties(socket, socketProperties);
+        
 
         // We use the port returned in the previous reply to establish a new socket connection to the requested service...
         if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
@@ -340,6 +340,9 @@ class PortMapper
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to port mapper: system '"+systemName+"', port " +port+ ", no login timeout (JVM 1.3 or lower).");
         pmSocket = new Socket(systemName, port); //for pre jdk1.4
       }
+      
+      // Make sure the properties are set before returning it 
+      PortMapper.setSocketProperties(pmSocket, socketProperties);
       return pmSocket;
     }
 
