@@ -262,6 +262,10 @@ package com.ibm.as400.access;
 //@AA1   20190902  JTOpen 10.1
 //@AA2   20191106  JDBC:  Fix Connection.abort
 //@AA3   20191111  PortMapper:  Use socket properties for port mapper connection
+//@AA4   20191127  Fix setting *NONE for *PUBLIC when checking user profile object authority
+//@AA5   20191127  Support to retrieve job queue
+//@AA6   20191127  Add exist() function for JobDescription
+//@AA7   20191127  Support to retrieve routing data entry from subsystem
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
