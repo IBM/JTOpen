@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+//import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -89,6 +89,7 @@ public class JobDescription implements Serializable
   private String[] iaspNames_;       // added in V5R2
   private String ddmConversation_;   // added in V5R3
   private String jobLogOutput_;      // added in V5R4
+  private transient ObjectDescription objectDescription_;  //@AA6A
 
 
   /**
@@ -891,5 +892,43 @@ public class JobDescription implements Serializable
     system_ = system;
     vrm_ = 0;
   }
+  
+  //@AA6A start
+  /**
+  Determines if the Job Description currently exists on the system.
+  <br>More precisely, this method reports if the <em>job description</em> exists on the system.
+  @return true if the job description exists; false if the job description does not exist.
+  @exception  AS400Exception  If the program call returns error messages.
+  @exception  AS400SecurityException  If a security or authority error occurs.
+  @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+  @exception  InterruptedException  If this thread is interrupted.
+  @exception  IOException  If an error occurs while communicating with the system.
+  @exception ObjectDoesNotExistException If the system API (that queries job description information) is missing.
+ **/
+ public boolean exists()
+   throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+ {
+   if (objectDescription_ == null) { objectDescription_ = getObjDesc(); }
+   return objectDescription_.exists();
+ }
+ 
+ /**
+ Returns an ObjectDescription instance representing the job description.
+ @return An ObjectDescription for the job description.
+ **/
+ public ObjectDescription getObjectDescription()
+ {
+   if (objectDescription_ == null) { objectDescription_ = getObjDesc(); }
+   return objectDescription_;
+ }
+  
+  /**
+  Gets an ObjectDescription object representing the subsystem.
+  **/
+  private ObjectDescription getObjDesc()
+  {
+    return new ObjectDescription(system_, library_, name_, "JOBD");
+  }
+  //@AA6A end
 
 }
