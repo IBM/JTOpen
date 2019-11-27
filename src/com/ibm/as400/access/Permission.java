@@ -857,12 +857,14 @@ public class Permission
           if (index != -1)
           {
             return (UserPermission)userPermissions_.elementAt(index);
-            //@Y7A Start
+            //@Y7A Start  
           } else {
         	  index = getUserIndex("*PUBLIC", userPermissions_);
-              if (index != -1)
+        	  UserPermission up = (UserPermission)userPermissions_.elementAt(index);  //@AA4A
+              if (up instanceof QSYSPermission && index != -1 ) //@AA4C
               {
-                return (UserPermission)userPermissions_.elementAt(index);
+            	if (!((QSYSPermission) up).getObjectAuthority().equalsIgnoreCase("*EXCLUDE")) //@AA4A
+            	    return (UserPermission)userPermissions_.elementAt(index);
               }
           }
           //@Y7A End
