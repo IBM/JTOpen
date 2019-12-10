@@ -24,16 +24,29 @@ import javax.sql.PooledConnection;
 
 
 /**
- This implementation of <tt>javax.sql.ConnectionPoolDataSource</tt> can be used in conjunction with {@link AS400JDBCManagedDataSource AS400JDBCManagedDataSource} to produce PooledConnection objects ({@link AS400JDBCPooledConnection AS400JDBCPooledConnection}) that are managed by the Toolbox's built-in connection pooling manager.
+ This implementation of <tt>javax.sql.ConnectionPoolDataSource</tt> can be used in conjunction with {@link AS400JDBCManagedDataSource AS400JDBCManagedDataSource} 
+ to produce PooledConnection objects ({@link AS400JDBCPooledConnection AS400JDBCPooledConnection}) 
+ that are managed by the Toolbox's built-in connection pooling manager.
  <p>
  A ConnectionPoolDataSource is a factory for PooledConnection objects.
- An object that implements the ConnectionPoolDataSource interface will typically be registered with a naming service that is based on the Java Naming and Directory Interface (JNDI).
+ An object that implements the ConnectionPoolDataSource interface will typically be registered with a 
+ naming service that is based on the Java Naming and Directory Interface (JNDI).
  <p>
- The operations on a ConnectionPoolDataSource class are completely internal to a driver implementation; the ConnectionPoolDataSource interface is not part of the API typically used by Java application programmers.  Driver vendors use it in their implementation of connection pooling.  Application programmers specify a DataSource class in their code to get a connection.  However, since users/database administrators must register the corresponding ConnectionPoolDataSource with JNDI, the class needs to be public.  Users must be able to call the different getters/setters to set up their connection pooling environment when they register the ConnectionPoolDataSource.  Drivers then provide DataSource classes that implement javax.sql.DataSource, and the user will use this data source in their code.
+ The operations on a ConnectionPoolDataSource class are completely internal to a driver implementation; 
+ the ConnectionPoolDataSource interface is not part of the API typically used by Java application programmers.  
+ Driver vendors use it in their implementation of connection pooling.  
+ Application programmers specify a DataSource class in their code to get a connection. 
+  However, since users/database administrators must register the corresponding ConnectionPoolDataSource with JNDI, 
+  the class needs to be public.  
+  Users must be able to call the different getters/setters to set up their connection pooling environment when they register the ConnectionPoolDataSource.  Drivers then provide DataSource classes that implement javax.sql.DataSource, and the user will use this data source in their code.
  <p>
- Design note: This class extends AS400JDBCManagedDataSource, solely in order to exploit shared implementation.  This class should <em>not</em> be used as a "kind of" AS400JDBCManagedDataSource.
+ Design note: This class extends AS400JDBCManagedDataSource, solely in order to exploit shared implementation.  
+ This class should <em>not</em> be used as a "kind of" AS400JDBCManagedDataSource.
  <p>
- <em>Caution:</em> To avoid the pitfalls of "double-managed" pools, do not use this class in conjunction with a separate connection pool manager, such as that available in WebSphere.  When a separate pool manager is provided, use {@link AS400JDBCConnectionPoolDataSource AS400JDBCConnectionPoolDataSource} instead.
+ <em>Caution:</em> To avoid the pitfalls of "double-managed" pools, do not use this class in conjunction with a 
+ separate connection pool manager, such as that available in WebSphere.  
+ When a separate pool manager is provided, 
+ use {@link AS400JDBCConnectionPoolDataSource AS400JDBCConnectionPoolDataSource} instead.
 
  @see AS400JDBCDataSource
  @see AS400JDBCConnectionPoolDataSource

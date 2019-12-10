@@ -607,7 +607,17 @@ public void handleAbort() {
 
   abortingThread_ = Thread.currentThread();
   
-  // Cancel any existing statement.
+  // Mark all statements as cancelled 
+  Vector statements = (Vector)statements_.clone();                               
+  Enumeration list = statements.elements();                                        
+  while (list.hasMoreElements())                                                    
+  {
+    AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();       
+    statement.cancelled_ = true;   
+  }
+  
+  
+  // Send a cancel to the server.
   try {
      cancel(0);
   } catch (SQLException e ) {

@@ -86,7 +86,7 @@ implements Statement
     Vector                  batch_;    // private protected
     private     String                  blockCriteria_;
     private     int                     blockSize_;
-    private     boolean                 cancelled_;
+    boolean                 cancelled_;
     private     boolean                 closed_;
     private     boolean                 closeOnCompletion_;  //@D7A
     AS400JDBCConnection     connection_;    // private protected
