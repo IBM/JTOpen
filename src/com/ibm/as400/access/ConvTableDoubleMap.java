@@ -27,7 +27,7 @@ public class ConvTableDoubleMap extends ConvTable
 
     // These tables are private since there is not always a 1 to 1 lookup of the values. @KDC 
     private char[] toUnicode_ = null;
-    private char[] fromUnicode_ = null;
+    protected char[] fromUnicode_ = null;
     
     char[][] toUnicodeSurrogate_ = null; 
     // To convert from unicode, @KDA 

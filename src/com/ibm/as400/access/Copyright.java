@@ -266,6 +266,7 @@ package com.ibm.as400.access;
 //@AA5   20191127  Support to retrieve job queue
 //@AA6   20191127  Add exist() function for JobDescription
 //@AA7   20191127  Support to retrieve routing data entry from subsystem
+//@AA8   20191210  Conversion: Refresh CCSID 13488 table
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
