@@ -170,9 +170,17 @@ extends SQLDataBase
             value = xml.getString();
         }     
 endif */ 
-        if(value == null)                                                           // @C2C
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        if(value == null)    {                                                       // @C2C
+          if (JDTrace.isTraceOn()) {
+              if (object == null) { 
+                  JDTrace.logInformation(this, "Unable to assign null object");
+                } else { 
+                    JDTrace.logInformation(this, "Unable to assign object("+object+") of class("+object.getClass().toString()+")");
+                }
+          }
 
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
         value_ = value;                                                             // @C2A
 
         // Set to the exact length.

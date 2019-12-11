@@ -1035,7 +1035,13 @@ implements JDRow
              sqlData_[i].set(object, calendar, scale);
            }else { 
              object = oldOne.getSavedValue();
-             sqlData_[i].set(object, calendar, scale); 
+             if (object != null) { 
+               sqlData_[i].set(object, calendar, scale);
+             } else {
+               if (JDTrace.isTraceOn()) {
+                 JDTrace.logInformation(this, "restoredSavedParameters did not find saved parameter for i="+i);
+               }
+             }
            }
         
         } catch (SQLException e) { 

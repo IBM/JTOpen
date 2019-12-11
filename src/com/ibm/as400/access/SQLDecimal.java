@@ -144,6 +144,14 @@ extends SQLDataBase
             bigDecimal = (((Boolean)object).booleanValue() == true) ? BigDecimal.valueOf(1) : BigDecimal.valueOf(0);
 
         } else {
+          if (JDTrace.isTraceOn()) {
+              if (object == null) { 
+                  JDTrace.logInformation(this, "Unable to assign null object");
+                } else { 
+                    JDTrace.logInformation(this, "Unable to assign object("+object+") of class("+object.getClass().toString()+")");
+                }
+          }
+
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             return;
         }

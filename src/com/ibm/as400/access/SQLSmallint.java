@@ -196,9 +196,17 @@ extends SQLDataBase
         else if(object instanceof Boolean)
             value_ = (((Boolean) object).booleanValue() == true) ? (short) 1 : (short) 0;
 
-        else
+        else {
+          if (JDTrace.isTraceOn()) {
+              if (object == null) { 
+                  JDTrace.logInformation(this, "Unable to assign null object");
+                } else { 
+                    JDTrace.logInformation(this, "Unable to assign object("+object+") of class("+object.getClass().toString()+")");
+                }
+          }
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
+        }
+        
         if(scale_ > 0)
         {                                                                        // @C0A
             bigDecimalValue_ = (new BigDecimal(Short.toString(value_))).movePointLeft(scale_);   // @A0A

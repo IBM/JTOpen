@@ -210,6 +210,14 @@ final class SQLRowID extends SQLDataBase
             }
             else
             {
+              if (JDTrace.isTraceOn()) {
+                  if (object == null) { 
+                      JDTrace.logInformation(this, "Unable to assign null object");
+                    } else { 
+                        JDTrace.logInformation(this, "Unable to assign object("+object+") of class("+object.getClass().toString()+")");
+                    }
+              }
+
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
@@ -230,9 +238,13 @@ final class SQLRowID extends SQLDataBase
             }
         }
 
-        else
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
+    else {
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "Unable to assign object(" + object
+            + ") of class(" + object.getClass().toString() + ")");
+      }
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+    }
         // Truncate if necessary.
         int valueLength = value_.length;
         if(valueLength > 40)

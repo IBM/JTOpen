@@ -152,9 +152,17 @@ extends SQLDataBase implements SQLVariableCompressible /*@N3C*/
             }
         }
 
-        else
+        else {
+          if (JDTrace.isTraceOn()) {
+              if (object == null) { 
+                  JDTrace.logInformation(this, "Unable to assign null object");
+                } else { 
+                    JDTrace.logInformation(this, "Unable to assign object("+object+") of class("+object.getClass().toString()+")");
+                }
+          }
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-
+        }
+        
         // Truncate if necessary.
         int valueLength = value_.length;
         if(valueLength > maxLength_)

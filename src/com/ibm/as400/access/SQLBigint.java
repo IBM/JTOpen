@@ -161,8 +161,17 @@ extends SQLDataBase
         else if(object instanceof Boolean)
             value_ = (((Boolean)object).booleanValue() == true) ? 1 : 0;
 
-        else
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        else {
+          if (JDTrace.isTraceOn()) {
+              if (object == null) { 
+                  JDTrace.logInformation(this, "Unable to assign null object");
+                } else { 
+                    JDTrace.logInformation(this, "Unable to assign object("+object+") of class("+object.getClass().toString()+")");
+                }
+          }
+          JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+
+        }
     }
 
     //---------------------------------------------------------//

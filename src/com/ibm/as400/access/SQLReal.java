@@ -134,11 +134,19 @@ extends SQLDataBase
         }
       }
     } else if (object instanceof Boolean) {
-        doubleValue = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
+      doubleValue = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
 
-        } else { 
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        }
+    } else {
+      if (JDTrace.isTraceOn()) {
+          if (object == null) { 
+              JDTrace.logInformation(this, "Unable to assign null object");
+            } else { 
+                JDTrace.logInformation(this, "Unable to assign object("+object+") of class("+object.getClass().toString()+")");
+            }
+      }
+
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+    }
         
         if (doubleValue > Float.MAX_VALUE) {
           if (!validInfinity) { 

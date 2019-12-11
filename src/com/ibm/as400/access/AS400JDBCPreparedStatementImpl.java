@@ -4921,6 +4921,11 @@ public long executeLargeUpdate(String sql,
       if (connectionReset_) {
         // Any exception from the prepare will just get thrown
         preserveParameters_ = true; 
+        // Make sure the existing parameters are saved before we prepared again 
+        if (parameterRow_ != null) { 
+          parameterRow_.saveValues(); 
+       }  
+
         resultRow_ = commonPrepare(sqlStatement_);
 
         connectionReset_ = false; 
