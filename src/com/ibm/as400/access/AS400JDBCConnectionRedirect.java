@@ -103,7 +103,10 @@ extends AS400JDBCConnection {
   
   private void setupRetryInformation() {
     
-    
+    if (JDTrace.isTraceOn()) { 
+      JDTrace.logInformation(this, " setupRetryInformation"); 
+    }
+
        affinityFailbackInterval_ = getAffinityFailbackInterval(); 
        enableSeamlessFailover_ = getEnableSeamlessFailover(); 
        maxRetriesForClientReroute_ = getMaxRetriesForClientReroute(); 
@@ -140,6 +143,10 @@ extends AS400JDBCConnection {
   // Setup the re-connect information based the alternateServerNames and alternatePortNumbers
   
   private void setupAlternateServers(Vector alternateServerNames,   Vector alternatePortNumbers) {
+    boolean traceOn =JDTrace.isTraceOn();  
+    if (traceOn)
+      JDTrace.logInformation(this, "setupAlternateServers");
+
     int alternateServerCount = alternateServerNames.size(); 
     int alternatePortCount = alternatePortNumbers.size(); 
     reconnectUrls_ = new JDDataSourceURL[1+alternateServerCount]; 
@@ -149,6 +156,12 @@ extends AS400JDBCConnection {
     reconnectUrls_[0] = originalDataSourceUrl_; 
     reconnectProperties_[0] = originalProperties_; 
     reconnectAS400s_[0] = new AS400(originalAs400); 
+
+    
+    if (traceOn) { 
+      JDTrace.logInformation(this, " reconnectUrls_[0]="+ reconnectUrls_[0]);
+      JDTrace.logInformation(this, " reconnectProperties[0]="+ reconnectProperties_[0]);
+    }
     
     boolean secure = originalProperties_.getBoolean(JDProperties.SECURE); /*@X1A*/
     for (int i = 0; i < alternateServerCount; i++) { 
@@ -164,9 +177,16 @@ extends AS400JDBCConnection {
            port = "8471"; 
         }
       }
-      reconnectUrls_[i+1] = fixupDataSourceUrl(server, port);  
-      reconnectProperties_[i+1] = fixupProperties(server, port); 
-      reconnectAS400s_[i+1] = fixupAS400(server, port); 
+      int setIndex = i+1; 
+      reconnectUrls_[setIndex] = fixupDataSourceUrl(server, port);  
+      reconnectProperties_[setIndex] = fixupProperties(server, port); 
+      reconnectAS400s_[setIndex] = fixupAS400(server, port);
+      
+      if (traceOn) { 
+        JDTrace.logInformation(this, " reconnectUrls_["+setIndex+"]="+ reconnectUrls_[setIndex]);
+        JDTrace.logInformation(this, " reconnectProperties["+setIndex+"]="+ reconnectProperties_[setIndex]);
+      }
+
     }
     
   }
@@ -271,6 +291,10 @@ extends AS400JDBCConnection {
   }
   
   private void replaySettings(AS400JDBCConnectionImpl newConnection) throws SQLException {
+    if (JDTrace.isTraceOn()) { 
+      JDTrace.logInformation(this, " replaySettings"); 
+    }
+
      if (setCommands_ != null) {
        Statement stmt = newConnection.createStatement(); 
        Enumeration elements = setCommands_.elements(); 
@@ -323,6 +347,10 @@ extends AS400JDBCConnection {
     // Now replay the settings on the new connection.
     // If this has a failure then the exception is thrown and we are unable to use the connection. 
     
+    if (JDTrace.isTraceOn()) { 
+      JDTrace.logInformation(this, " setupNewConnection"); 
+    }
+
     replaySettings(newConnection); 
     if (enableSeamlessFailover_) {
       lastConnectionCanSeamlessFailover_ = currentConnection_.canSeamlessFailover();    
@@ -398,7 +426,10 @@ extends AS400JDBCConnection {
    boolean findNewConnection(SQLException originalException) throws SQLException {
      SQLException savedException = null; 
      int searchStart = 0; 
-     
+     if (JDTrace.isTraceOn()) { 
+       JDTrace.logInformation(this, " findNewConnection for "+originalException); 
+     }
+
      // If the original exception is an SQL7061 do not attempt to reconnect to
      // the existing system, but connect to the next system in the list.
      // Note: To get here, it has already been checked that reconnect is 
@@ -444,10 +475,18 @@ extends AS400JDBCConnection {
         connection = new AS400JDBCConnectionImpl();
         AS400 as400 = new AS400(reconnectAS400s_[i]);
         try {
+          if (JDTrace.isTraceOn()) { 
+            JDTrace.logInformation(this, "findNewConnection attempting "+ reconnectUrls_[i]+","+ reconnectProperties_[i]);
+          }
 
           connection.setProperties(reconnectUrls_[i], reconnectProperties_[i],
               as400, originalInfo_);
-          return  setupNewConnection(connection, reconnectUrls_[i], originalException, (i == 0)); 
+          boolean result = setupNewConnection(connection, reconnectUrls_[i], originalException, (i == 0));
+          if (JDTrace.isTraceOn()) { 
+            JDTrace.logInformation(this, "findNewConnection connectionComplete"); 
+          }
+          
+          return result; 
           
         } catch (SQLException e) {
           if (throwException_) {
@@ -503,13 +542,22 @@ extends AS400JDBCConnection {
 
         if (retryDelayMilliseconds > 0) {
           try {
+            if (JDTrace.isTraceOn()) {
+              JDTrace.logInformation(this, "findNewConnection sleeping for "+retryDelayMilliseconds+" ms");
+            }
             Thread.sleep(retryDelayMilliseconds);
           } catch (InterruptedException e) {
             // If we are interrupted, just give up and throw original exception
             if (originalException != null) { 
+              if (JDTrace.isTraceOn()) {
+                JDTrace.logInformation(this, "findNewConnection interrupted and throwing originalException "+originalException); 
+              }
               throw (originalException);
             } else {
               if (savedException != null) { 
+                if (JDTrace.isTraceOn()) {
+                  JDTrace.logInformation(this, "findNewConnection interrupted and throwing savedException "+savedException); 
+                }
                 throw savedException; 
               } else {
                 JDError.throwSQLException(this, JDError.EXC_CONNECTION_NONE, "INTERNAL_ERROR"); 
@@ -520,10 +568,17 @@ extends AS400JDBCConnection {
       }
     } /* while retrying */ 
     
-    if (originalException != null) { 
+    if (originalException != null) {
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "findNewConnection throwing originalException "+originalException); 
+      }
+
       throw (originalException);
     } else {
       if (savedException != null) { 
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logInformation(this, "findNewConnection throwing savedException "+savedException); 
+        }
         throw savedException; 
       } else {
         JDError.throwSQLException(this, JDError.EXC_CONNECTION_NONE, "INTERNAL_ERROR"); 
@@ -544,6 +599,9 @@ extends AS400JDBCConnection {
    * @throws SQLException  If a database error occurs.
    */
   boolean handleException(SQLException e) throws SQLException {
+    if (JDTrace.isTraceOn()) { 
+      JDTrace.logInformation(this, " handleException("+e+")"); 
+    }
 
     if (doNotHandleErrors_ || inFinalizer_ ) {
       throw e; 
@@ -744,6 +802,8 @@ endif */
       if (affinityOnAlternate_) {
         if (System.currentTimeMillis() > affinityFailbackTime_) {
            try { 
+              if (JDTrace.isTraceOn())
+                JDTrace.logInformation(this, "Attempting to reconnect because affinityFailbackTime_="+affinityFailbackTime_);
               reconnect(null); 
            } catch (SQLException e) { 
               // We do not want to fail the commit since we know it already worked

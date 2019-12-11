@@ -2170,7 +2170,22 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     //
     public String toString ()
     {
-        return "";
+      StringBuffer sb = new StringBuffer(); 
+      
+      for (int i = 0; i < values_.length; i++) { 
+        String value = values_[i]; 
+        if (value != null) { 
+          if (!value.equals(defaults_[i])) {
+            sb.append(dpi_[i].name);
+            sb.append("="); 
+            sb.append(value); 
+            sb.append(";"); 
+          }
+          
+        }
+      }
+      
+      return sb.toString(); 
     }
 
 
