@@ -267,6 +267,7 @@ package com.ibm.as400.access;
 //@AA6   20191127  Add exist() function for JobDescription
 //@AA7   20191127  Support to retrieve routing data entry from subsystem
 //@AA8   20191210  Conversion: Refresh CCSID 13488 table
+//@AA9   20191211  Fix Potential data integrity when setCCSID for file
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -277,7 +278,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.1"; 
     //                                                                                         built=20190709 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20190709 @AA8";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20190709 @AA9";  
 
 
     // Constants for reference by AS400JDBCDriver.

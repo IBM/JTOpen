@@ -30,6 +30,7 @@ package com.ibm.as400.access;
 import java.io.InterruptedIOException;
 import java.text.SimpleDateFormat;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -2329,7 +2330,12 @@ implements IFSFileImpl
     }
 
     boolean success = false;
-    IFSObjAttrs2 objAttrs = reply.getObjAttrs2(); // get the OA2* structure
+    //IFSObjAttrs2 objAttrs = reply.getObjAttrs2(); // get the OA2* structure  //@AA9D
+    //@AA9 Start
+    byte[] objAttrs2Null = new byte[reply.getObjAttrs2().getLength()];
+    Arrays.fill(objAttrs2Null, (byte)0xFF);
+    IFSObjAttrs2 objAttrs = new IFSObjAttrs2(objAttrs2Null);  
+    //@AA9 End
 
     // Sanity-check the length: If it's an OA2a or OA2b, the length will be 144 bytes.  If it's an OA2c, the length will be 160 bytes.
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Length of returned OA2* structure (should be 144 or 160): " + objAttrs.length());
