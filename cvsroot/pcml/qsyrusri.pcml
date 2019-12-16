@@ -1,0 +1,51 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: qsyrusri.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+ <!-- PCML source for calling "Retreive user Information" (QSYRUSRI) API -->
+     
+   <!-- Format USRI0150 - Other formats are available -->
+   <struct name="usri0100">
+     <data name="bytesReturned"              type="int"    length="4"  usage="output"/>
+     <data name="bytesAvailable"             type="int"    length="4"  usage="output"/>
+     <data name="userProfile"                type="char"   length="10" usage="output"/>
+     <data name="previousSignonDate"         type="char"   length="7"  usage="output"/>
+     <data name="previousSignonTime"         type="char"   length="6"  usage="output"/>
+     <data                                   type="byte"   length="1"  usage="output"/>
+     <data name="badSignonAttempts"          type="int"    length="4"  usage="output"/>
+     <data name="status"                     type="char"   length="10" usage="output"/>
+     <data name="passwordChangeDate"         type="byte"   length="8"  usage="output"/>
+     <data name="noPassword"                 type="char"   length="1"  usage="output"/>
+     <data                                   type="byte"   length="1"  usage="output"/>
+     <data name="passwordExpirationInterval" type="int"    length="4"  usage="output"/>
+     <data name="datePasswordExpires"        type="byte"   length="8"  usage="output"/>
+     <data name="daysUntilPasswordExpires"   type="int"    length="4"  usage="output"/>
+     <data name="setPasswordToExpire"        type="char"   length="1"  usage="output"/>
+     <data name="displaySignonInfo"          type="char"   length="10" usage="output"/>
+   </struct>
+
+   <!-- Program QSYRUSRI and its parameter list for retrieving USRI0100 format -->
+   <program name="qsyrusri" path="/QSYS.lib/QSYRUSRI.pgm">
+     <data name="receiver"                   type="struct"             usage="output" 
+           struct="usri0100"/>
+     <data name="receiverLength"             type="int"    length="4"  usage="input" />
+     <data name="format"                     type="char"   length="8"  usage="input"  
+           init="USRI0100"/>
+     <data name="profileName"                type="char"   length="10" usage="input" 
+           init="*CURRENT"/>
+     <data name="errorCode"                  type="int"    length="4"  usage="input"  
+           init="0"/>    
+   </program>
+
+ </pcml>

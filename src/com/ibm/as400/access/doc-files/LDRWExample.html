@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>IBM Toolbox for Java Example: Using LineDataRecordWriter</TITLE>
+
+</head>
+<BODY>
+
+<H3>Example: Using LineDataRecordWriter to create a line data spooled file</H3>
+<p><b>Note:</b> Read the <a href="codedisclaimer.htm">Code example disclaimer</a>
+for important legal information.
+</p>
+
+<PRE>/////////////////////////////////////////////////////////////////////
+//
+// LineDataRecordWriter example.  This program uses the line data
+// record writer access class to create a line data spooled file
+// on the system.
+//
+// This source is an example of using the IBM Toolbox for Java
+// &quot;LineDataRecordWriter&quot; class.
+//
+////////////////////////////////////////////////////////////////////////
+
+import com.ibm.as400.access.*;
+import java.io.*;
+import java.math.BigDecimal;
+   
+public class TestA {
+
+    //Private 
+    private static int ccsid_           = -1;       // local ccsid variable
+    private static AS400 system_        = null;     // the system
+    private static SequentialFile file_ = null;     // the file
+
+    /**
+     **  Create the record field descriptions and record format.
+     **/
+    public static RecordFormat initializeRecordFormat()
+    {
+        // Create the record format. 
+        RecordFormat qcustcdt = new RecordFormat();
+        
+        // Create record field descriptions for the record format.
+        ZonedDecimalFieldDescription customerNumber =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6,0),
+                                                           &quot;CUSNUM&quot;);
+        CharacterFieldDescription lastName =
+                          new CharacterFieldDescription(new AS400Text(8, ccsid_, system_), &quot;LSTNAM&quot;);
+
+        CharacterFieldDescription initials =
+                          new CharacterFieldDescription(new AS400Text(3, ccsid_, system_), &quot;INIT&quot;);
+
+        CharacterFieldDescription street =
+                          new CharacterFieldDescription(new AS400Text(13, ccsid_, system_), &quot;STREET&quot;);
+
+        CharacterFieldDescription city =
+                          new CharacterFieldDescription(new AS400Text(6, ccsid_, system_), &quot;CITY&quot;);
+
+        CharacterFieldDescription state =
+                          new CharacterFieldDescription(new AS400Text(2, ccsid_, system_), &quot;STATE&quot;);
+
+        ZonedDecimalFieldDescription zipCode =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(5,0),
+                                                           &quot;ZIPCOD&quot;);
+        ZonedDecimalFieldDescription creditLimit =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(4,0),
+                                                           &quot;CDTLMT&quot;);
+        ZonedDecimalFieldDescription chargeCode =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(1,0),
+                                                           &quot;CHGCOD&quot;);
+        ZonedDecimalFieldDescription balanceDue =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6,2),
+                                                           &quot;BALDUE&quot;);
+        ZonedDecimalFieldDescription creditDue =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6,2),
+                                                           &quot;CDTDUE&quot;);
+      
+        // assign constants from FieldDescription class
+        int justLeft = FieldDescription.ALIGN_LEFT;
+        int justRight = FieldDescription.ALIGN_RIGHT;
+       
+        // set the length and alignment attributes for writing the fields
+        // The length indicates how many characters the field is, and
+        // justification indicates where in the layout field the data
+        // should be placed.
+        customerNumber.setLayoutAttributes(10,justLeft);
+        lastName.setLayoutAttributes(10,justLeft);
+        initials.setLayoutAttributes(4,justLeft);
+        street.setLayoutAttributes(15,justLeft);
+        city.setLayoutAttributes(10,justLeft);
+        state.setLayoutAttributes(3,justLeft);
+        zipCode.setLayoutAttributes(5,justLeft);
+        creditLimit.setLayoutAttributes(10,justRight);
+        chargeCode.setLayoutAttributes(3,justRight);
+        balanceDue.setLayoutAttributes(10,justRight);
+        creditDue.setLayoutAttributes(10,justRight);
+
+        // set the record format ID
+        String d = &quot;CUSTRECID&quot;;
+        qcustcdt.setRecordFormatID(d);
+        
+        // if this were a variable field length record,
+        // we would set the type and delimiter accordingly.  We
+        // also would not have needed to specify layoutLength and
+        // layoutAlignment values.
+        // qcustcdt.setRecordFormatType(RecordFormat.VARIABLE_LAYOUT_LENGTH);
+        // qcustcdt.setDelimiter(';');
+ 
+        // set the record type to fixed field length 
+        qcustcdt.setRecordFormatType(RecordFormat.FIXED_LAYOUT_LENGTH);
+        
+        // add the field descriptions to the record format.
+        qcustcdt.addFieldDescription(customerNumber);
+        qcustcdt.addFieldDescription(lastName);
+        qcustcdt.addFieldDescription(initials);
+        qcustcdt.addFieldDescription(street);
+        qcustcdt.addFieldDescription(city);
+        qcustcdt.addFieldDescription(state);
+        qcustcdt.addFieldDescription(zipCode);
+        qcustcdt.addFieldDescription(creditLimit);
+        qcustcdt.addFieldDescription(chargeCode);
+        qcustcdt.addFieldDescription(balanceDue);
+        qcustcdt.addFieldDescription(creditDue);
+        
+        return qcustcdt;
+    }
+
+
+    /**
+     ** Creates the actual record with data
+     **/
+    public static void createRecord(Record record)
+    {
+        record.setField(&quot;CUSNUM&quot;, new BigDecimal(323));
+        record.setField(&quot;LSTNAM&quot;, &quot;Johnson&quot;);
+        record.setField(&quot;INIT&quot;, &quot;B E&quot;);
+        record.setField(&quot;STREET&quot;, &quot;5234 Elm St&quot;);
+        record.setField(&quot;CITY&quot;, &quot;Rchstr&quot;);
+        record.setField(&quot;STATE&quot;, &quot;MN&quot;);
+        record.setField(&quot;ZIPCOD&quot;, new BigDecimal(55901));
+        record.setField(&quot;CDTLMT&quot;, new BigDecimal(5000.00));
+        record.setField(&quot;CHGCOD&quot;, new BigDecimal(3));
+        record.setField(&quot;BALDUE&quot;, new BigDecimal(25.00));
+        record.setField(&quot;CDTDUE&quot;, new BigDecimal(0.00));
+    }
+   
+   
+    public static void main(String[]args) {
+  
+        // create an instance of the system
+        system_ = new AS400(&quot;SYSTEMA&quot;, &quot;JOE&quot;, &quot;PGMR&quot;);      
+  
+        // create a ccsid
+        ccsid_ = system_.getCcsid();
+             
+        // create output queue and specify spooled file data to be *LINE
+        OutputQueue outQ = new OutputQueue(system_, &quot;/QSYS.LIB/QUSRSYS.LIB/LDRW.OUTQ&quot;);
+        PrintParameterList parms = new PrintParameterList();
+        parms.setParameter(PrintObject.ATTR_PRTDEVTYPE, &quot;*LINE&quot;);
+        parms.setParameter(PrintObject.ATTR_PAGDFN,&quot;/QSYS.LIB.QUSRSYS.LIB/LDRW.PAGDFN&quot;);
+        parms.setParameter(PrintObject.ATTR_CONVERT_LINEDATA,&quot;*YES&quot;);
+        
+      
+        // initialize the record format for writing data 
+        RecordFormat recfmt = initializeRecordFormat();
+        
+        // create a record and assign data to be printed...
+        Record record = new Record(recfmt);
+        createRecord(record);
+       
+        SpooledFileOutputStream os = null;
+        
+        try { 
+            // create the output spooled file to hold the record data
+            os = new SpooledFileOutputStream(system_, parms, null, outQ);   
+        }
+        
+        if (os != null) { // Output stream was created successfully!
+            LineDataRecordWriter ldw;
+            try {
+                // create the line data record writer
+                ldw = new LineDataRecordWriter(os, ccsid_, system_);
+                
+                // write the record of data
+                ldw.writeRecord(record);
+            }
+            catch (IOException e) {
+                System.out.println(&quot;Error occurred writing record data&quot;);
+            }
+                
+            // close the output stream (spooled file)
+            try {
+                os.close();
+            }
+            catch (Exception e) {
+                System.out.println(&quot;Error occurred closing output stream.&quot;);
+            }
+        }
+    }
+}</PRE>
+</BODY>
+</HTML>

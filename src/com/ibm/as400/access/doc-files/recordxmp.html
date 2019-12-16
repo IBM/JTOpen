@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 3.2 final//en">
+<HTML>
+<HEAD>
+<TITLE>IBM Toolbox for Java Example: Using the Record classes</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</head>
+<BODY>
+<H2>Using the FieldDescription, RecordFormat, and Record classes</H2>
+<P>The following examples show how you can use the FieldDescription, RecordFormat
+and Record classes with data queues.</P>
+<H3>Example: Using the FieldDescription classes</H3>
+<P>You can use the FieldDescription classes can to describe the different types of data that make up
+an entry on a data queue. These examples assume the following format for entries on the data queue:</P>
+<PRE>
+  Message number    Sender    Time sent      Message text     Reply required
+        |             |           |               |                |
+     bin(4)        char(50)    char(8)         char(1024)        char(1)
+
+
+  // Create field descriptions for the entry data
+  BinaryFieldDescription msgNumber = new BinaryFieldDescription(new AS400Bin4(), &quot;msgnum&quot;);
+  CharacterFieldDescription sender = new CharacterFieldDescription(new AS400Text(50), &quot;sender&quot;);
+  CharacterFieldDescription timeSent = new CharacterFieldDescription(new AS400Text(8), &quot;timesent&quot;);
+  CharacterFieldDescription msgText = new CharacterFieldDescription(new AS400Text(1024), &quot;msgtext&quot;);
+  CharacterFieldDescription replyRequired = new CharacterFieldDescription(new AS400Text(1), &quot;replyreq&quot;);
+</PRE>
+
+<H3>Using the RecordFormat class</H3>
+<P>You can use the RecordFormat class to describe the data that makes up the data queue entry.</P>
+<p><strong>Example: Defining RecordFormat and using it dynamically</strong></p>
+The following example uses the RecordFormat class to describe the format of the data queue entry and then dynamically uses it to retrieve a record:</p>
+<PRE>
+  RecordFormat entryFormat = new RecordFormat();
+  // Describe the fields in an entry on the data queue
+  entryFormat.addFieldDescription(msgNumber);
+  entryFormat.addFieldDescription(sender);
+  entryFormat.addFieldDescription(timeSent);
+  entryFormat.addFieldDescription(msgText);
+  entryFormat.addFieldDescription(replyRequired);
+
+  // Get a record based on the format of the entries on the data queue
+  Record rec = entryFormat.getNewRecord();</PRE>
+  
+<strong>Example: Defining RecordFormat statically</strong>
+<P>The following example defines the record format statically, which allows many programs to use the format without coding the record format multiple times.</P>
+<PRE>
+  public class MessageEntryFormat extends RecordFormat
+  {
+    // The field descriptions are contained in the class
+    static BinaryFieldDescription msgNumber = new BinaryFieldDescription(new AS400Bin4(), &quot;msgnum&quot;);
+    static CharacterFieldDescription sender = new CharacterFieldDescription(new AS400Text(50), &quot;sender&quot;);
+    static CharacterFieldDescription timeSent = new CharacterFieldDescription(new AS400Text(8), &quot;timesent&quot;);
+    static CharacterFieldDescription msgText = new CharacterFieldDescription(new AS400Text(1024), &quot;msgtext&quot;);
+    static CharacterFieldDescription replyRequired = new CharacterFieldDescription(new AS400Text(1), &quot;replyreq&quot;);
+
+    public MessageEntryFormat()
+    {
+      // We will name this format for posterity
+      super(&quot;MessageEntryFormat&quot;);
+      // Add the field descriptions
+      addFieldDescription(msgNumber);
+      addFieldDescription(sender);
+      addFieldDescription(timeSent);
+      addFieldDescription(msgText);
+      addFieldDescription(replyRequired);
+    }
+  }
+</PRE>
+
+<strong>Example: Using RecordFormat statically</strong>
+<P>The following example shows how a Java program can use a statically defined RecordFormat:</P>
+<PRE>
+  MessageEntryFormat entryFormat = new MessageEntryFormat();
+  // Get a record based on the format of the entries on the data queue
+  Record rec = entryFormat.getNewRecord();
+</PRE>
+<H3>Using the Record class</H3>
+<P>You can use the Record class to access individual fields of data queue entries.</P>
+<strong>Example: Using a generic Record object</strong>
+<PRE>
+  // Instantiate our data queue object
+  DataQueue dq = new DataQueue(new AS400(), &quot;/qsys.lib/mylib.lib/myq.dtaq&quot;);
+
+  // Read an entry
+  DataQueueEntry dqEntry = null;
+  try
+  {
+    dqEntry = dq.read();
+  }
+  catch(Exception e)
+  {
+    // Handle any exceptions
+  }
+
+  // Get a record object from our record format, initializing it with the data from the entry we
+  // just read.
+  Record rec = entryFormat.getNewRecord(dqEntry.getData());
+
+  // Output the complete entry as a String.  The contents of the record are converted to Java Objects
+  // based on the record format of the entry.
+  System.out.println(rec.toString());
+  // Get the contents of the individual fields of the entry.  Each field's contents are converted to
+  // a Java Object.
+  Integer num = (Integer)rec.getField(0);    // Retrieve contents by index
+  String s = (String)rec.getField(&quot;sender&quot;);// Retrieve contents by field name
+  String text = (String)rec.getField(3);    // Retrieve the message text
+  // Output the data
+  System.out.println(num + &quot; &quot; + s + &quot; &quot; + text);
+</PRE>
+
+<strong><A NAME="UsingaspecificRecordobject">Example: Using a specific Record object</A></strong>
+<P>You can also statically define and use a Record specific to the format of this data queue, which allows you to provide get() and set() methods for the fields that are more meaningfully named than getField() and setField(). Also, by using the statically defined specific Record, you can return basic Java types instead of objects, and you can identify the return type for your user.</P>
+<P>Note that this example must explicitly cast the correct Java object.</P>
+<PRE>
+  public class MessageEntryRecord extends Record
+  {
+    static private RecordFormat format = new MessageEntryFormat();
+
+    public MessageEntryRecord()
+    {
+      super(format);
+    }
+
+    public int getMessageNumber()
+    {
+      // Return the message number as an int.  Note: We know our record format and therefore
+      // know the names of our fields.  It is safest to get the field by name in case a field
+      // has been inserted into the format unbeknownst to us.
+      return ((Integer)getField(&quot;msgnum&quot;)).intValue();
+    }
+
+    public String getMessageText()
+    {
+      // Return the text of the message
+      return (String)getField(&quot;msgtext&quot;);
+    }
+
+    public String getSender()
+    {
+      // Return the sender of the message
+      return (String)getField(&quot;sender&quot;);
+    }
+
+    public String getTimeSent()
+    {
+      // Return the sender of the message
+      return (String)getField(&quot;timesent&quot;);
+    }
+
+    // We could add setters here
+  }</PRE>
+
+<strong>Example: Returning a new MessageEntryRecord</strong>
+<P>We need to override the getNewRecord() method in the MessageEntryFormat class 
+  (in the <A HREF="#UsingaspecificRecordobject">example above</A>) in order to 
+  return a new MessageEntryRecord. To override the method, add the following to 
+  the MessageEntryFormat class:</P>
+<PRE>
+    public Record getNewRecord(byte[] data)
+    {
+      Record r = new MessageEntryRecord();
+      r.setContents(data);
+      return r;
+    }
+</PRE>
+<P>After adding the new getNewRecord() method, you can use the MessageEntryRecord 
+  to interpret the data queue entry:</P>
+<PRE>
+  // Get a record object from our record format, initializing it with the data from the entry we
+  // just read. Note the use of the new overridden method getNewRecord().
+  MessageEntryRecord rec = (MessageEntryRecord)entryFormat.getNewRecord(dqEntry.getData());
+
+  // Output the complete entry as a String.  The contents of the record are converted to Java Objects
+  // based on the record format of the entry.
+  System.out.println(rec.toString());
+  // Get the contents of the individual fields of the entry.  Each field's contents are converted to
+  // a Java Object.
+  int num = rec.getMessageNumber();    // Retrieve the message number as an int
+  String s = rec.getSender();         // Retrieve the sender
+  String text = rec.getMessageText(); // Retrieve the message text
+  // Output the data
+  System.out.println(num + &quot; &quot; + s + &quot; &quot; + text);
+</PRE>
+</BODY>
+</HTML>
