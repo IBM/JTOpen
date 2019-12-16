@@ -48,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#102">Fixes and enhancements in JTOpen 10.2</A><br>
 <A HREF="#101">Fixes and enhancements in JTOpen 10.1</A><br>
 <A HREF="#98">Fixes and enhancements in JTOpen 9.8</A><br>
 <A HREF="#97">Fixes and enhancements in JTOpen 9.7</A><br>
@@ -106,6 +107,22 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="102">Fixes and enhancements in JTOpen 10.2</A> <i>(released 2019-12-31)</i></H3>
+<Pre>
+Add exist() function for JobDescription
+Conversion: Refresh CCSID 13488 table
+Fix Potential data integrity issue when setCCSID for a file
+Fix setting *NONE for *PUBLIC when checking user profile object authority
+JDBC: Additional tracing for AS400JDBCConnectionRedirect
+JDBC: Fix lost parameters for PreparedStatement after Connection redirect 
+JDBC: Fix Connection.abort
+JDBC: Fix cancel processing
+PortMapper: Use socket properties for port mapper connection
+Support to retrieve Job Queue information
+Support to retrieve routing data entry from subsystem
+</Pre>
 
 <HR>
 <H3><A NAME="101">Fixes and enhancements in JTOpen 10.1</A> <i>(released 2019-09-30)</i></H3>
