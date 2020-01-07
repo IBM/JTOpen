@@ -270,6 +270,7 @@ package com.ibm.as400.access;
 //@AA9   20191211  Fix Potential data integrity when setCCSID for file
 //@AAA   20191211  JDBC:  Additional tracing for AS400JDBCConnectionRedirect
 //@AAB   20191211  JDBC:  Fix lost parameters for PreparedStatement after Connection redirect 
+//@AB1   20200107  JDBC:  Close JDBC connection when exit program prevents access. 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -279,8 +280,8 @@ public interface Copyright
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.2"; 
-    //                                                                                         built=20190709 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20190709 @AAB";  
+    //                                                                                         built=20191217 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20191217 @AB1";  
 
 
     // Constants for reference by AS400JDBCDriver.

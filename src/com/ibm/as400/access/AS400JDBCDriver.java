@@ -1422,8 +1422,20 @@ endif */
 		// Set the properties on the Connection object.
 		if (connection != null)
 		{
+		    // If we get an exception, make sure the connection is closed.
+		    // The common case is when an exit program prevents access to the system.
+			// @AB1A
+		    try { 
 				((AS400JDBCConnection)connection).setSystem(as400);
 				((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400, info);
+		    } catch (SQLException sqlex) {
+		      try { 
+		      connection.close();
+		      } catch (Exception e) { 
+		        // Just ignore 
+		      }
+		      throw sqlex; 
+		    }
 		}
 		return connection;
 	}
