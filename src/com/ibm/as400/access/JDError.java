@@ -185,7 +185,7 @@ Returns the message text for the last operation on the IBM i system.
       boolean textAppended = false;                                                                   // @E6A
       int absReturnCode = Math.abs(returnCode);                                                       // @E4A
 
-        if ((absReturnCode == 438) || (absReturnCode == 443) && // @E2A @E4C
+        if (((absReturnCode == 438) || (absReturnCode == 443)) && // @E2A @E4C
                                                                 // @E5C @E6C
             (connection.getVRM() < JDUtilities.vrm540)) // @25955a
         {
@@ -195,8 +195,9 @@ Returns the message text for the last operation on the IBM i system.
             {
               if (absReturnCode == 438) // @E2A @E4C @E5C
               {
-                errorDescription.append(sqlca.getErrmc(connection
-                    .getConverter())); // @E2A @P0C
+                String errorString = sqlca.getErrmc(connection
+                    .getConverter()); 
+                errorDescription.append(errorString); // @E2A @P0C
                 textAppended = true; // @E8A
               } else if (absReturnCode == 443) // @E5A
               {
