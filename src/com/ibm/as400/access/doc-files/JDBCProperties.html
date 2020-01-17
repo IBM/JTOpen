@@ -1138,9 +1138,14 @@ it throws an SQLException with SQL error code -4499.</p>
         and exceptions. When this property is &quot;default&quot;, then the behavior
         specified by the "data truncation" property is used.</p>
       <p>When this property is "warning", writing truncated data to the database 
-        or using such data in a query always generates a warning.</p>
+        or using such data in a query always generates a warning. 
+        The data is truncated by removing bytes from the end of the string</p>
       <p>When this property is "none", writing truncated data to the database 
-        or using such data in a query generates no exception or warning.</p>
+        or using such data in a query generates no exception or warning.
+        The data is truncated by removing bytes from the end of the string.  
+        The data may also be modified so that the truncated data is still valid
+        for the character encoding. This means that a SI (shift-in) character
+        may be added for mixed CCSID encodings or partial UTF-8 characters may be removed.</p>
       <p> The default value is &quot;default&quot;.</p>
       <p>This property does not affect <strong>numeric data</strong>. Writing 
         truncated numeric data to the database always throws an error and using 
@@ -1149,9 +1154,11 @@ it throws an SQLException with SQL error code -4499.</p>
       </p>
     </TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat6t4">&quot;true&quot;<BR>
-      &quot;false&quot;</TD>
-    <TD HEADERS="cat6t5">"true"</TD>
+    <TD HEADERS="cat6t4">&quot;default&quot;<BR>
+      &quot;warning&quot;<BR>
+      &quot;none&quot;<BR>
+      </TD>
+    <TD HEADERS="cat6t5">"default"</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6"><A NAME="driver">&quot;driver&quot;</A></TD>
