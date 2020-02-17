@@ -272,6 +272,7 @@ package com.ibm.as400.access;
 //@AAB   20191211  JDBC:  Fix lost parameters for PreparedStatement after Connection redirect 
 //@AB1   20200107  JDBC:  Close JDBC connection when exit program prevents access. 
 //@AB2   20200116  JDBC:  Do not truncate SIGNAL MESSAGE_TEXT
+//@AB3   20200217  JDBC:  If possible, use job CCSID for default library attribute
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

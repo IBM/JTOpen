@@ -4081,7 +4081,25 @@ throws SQLException
                 //@P0D ConverterImplRemote.getConverter (as400_.getCcsid(), as400_);
                 // We can safely use ccsid 37 as long as the fields in the request are tagged with
                 // CCSID 37. /*@V1A*/
-                int thisRequestCcsid = 37; 
+                
+                int thisRequestCcsid = 37;
+                
+                // The server does not properly handle the case where the job CCSID does
+                // not match the specified CCSID.  Try to use the CCSID from the as400 object,
+                // if available. Here is an example of the error evident in the SetAttributes
+                // response.  (Trace displays CCSID 37 and data passed in CCSID 37. 
+                // 
+                // Error Return Code:             1301 - At least one library not added to the library list.
+                // Server CCSID:               277
+                // Default SQL Library:        XLØKODTA              -- E7 D3 80 D2 D6 C4 E3 C1  
+                // Default SQL Collection:     (ll=8) XL@KODTA       -- E7 D3 7C D2 D6 C4 E3 C1
+                // In CCSID 277 7C is Ø
+                //
+                // @AB3A 
+                
+                if (as400_ != null) { 
+                  thisRequestCcsid = as400_.getCcsid(); 
+                }
                 ConvTable tempConverter = ConvTable.getTable(thisRequestCcsid, null); //@P0A
 
 
@@ -6146,6 +6164,7 @@ endif */
           if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
             if (statementWarningObject != null ) { 
               statementWarningObject.postWarning( dt); 
+              checkRawBytes = true; 
             } else if (resultSetWarningObject != null ) {
               resultSetWarningObject.postWarning( dt); 
             }
