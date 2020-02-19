@@ -216,7 +216,14 @@ public class ProgramCall implements Serializable
         if (Trace.traceOn_)
           Trace.log(Trace.INFORMATION, this, "Cancelling program " + this.getProgram()); //@L8
         try {
-          Job job = new Job (new AS400(this.system_), job_.getName(), job_.getUser(), job_.getNumber());
+          //Job job = new Job (new AS400(this.system_), job_.getName(), job_.getUser(), job_.getNumber()); @AB4D
+          //@AB4A
+        	Job job = null;
+        	if (this.system_ instanceof SecureAS400) { 
+                 job = new Job (new SecureAS400(this.system_), job_.getName(), job_.getUser(), job_.getNumber());
+            } else { 
+                 job = new Job (new AS400(this.system_), job_.getName(), job_.getUser(), job_.getNumber());
+            }
           job.end(0);
         } catch (Exception e) {
           // Do nothing
