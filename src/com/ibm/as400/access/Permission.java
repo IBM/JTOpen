@@ -1069,7 +1069,7 @@ public class Permission
 
         String userName = userProfileName.trim().toUpperCase();
         UserPermission userPermission = getUserPermission(userName);
-        if (userPermission != null)
+        if (userPermission != null && !userPermission.getUserID().equalsIgnoreCase("*PUBLIC"))  //@AB5C
         {
             removeUserPermission(userPermission);
         }else

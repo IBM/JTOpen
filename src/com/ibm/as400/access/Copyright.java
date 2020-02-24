@@ -274,6 +274,7 @@ package com.ibm.as400.access;
 //@AB2   20200116  JDBC:  Do not truncate SIGNAL MESSAGE_TEXT
 //@AB3   20200217  JDBC:  If possible, use job CCSID for default library attribute
 //@AB4   20200219  ProgramCall timeout for SecureAS400
+//@AB5   20200224  Not remove authorized user *PUBLIC
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
