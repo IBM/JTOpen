@@ -275,6 +275,7 @@ package com.ibm.as400.access;
 //@AB3   20200217  JDBC:  If possible, use job CCSID for default library attribute
 //@AB4   20200219  ProgramCall timeout for SecureAS400
 //@AB5   20200224  Not remove authorized user *PUBLIC
+//@AC1   20200810  JDBC:  Correct affinityFailbackInterval property
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -285,7 +286,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.3"; 
     //                                                                                         built=20200107 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20200116 @AB4";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20200116 @AC1";  
 
 
     // Constants for reference by AS400JDBCDriver.

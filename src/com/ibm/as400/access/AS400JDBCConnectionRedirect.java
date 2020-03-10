@@ -107,8 +107,10 @@ extends AS400JDBCConnection {
       JDTrace.logInformation(this, " setupRetryInformation"); 
     }
 
-       affinityFailbackInterval_ = getAffinityFailbackInterval(); 
        enableSeamlessFailover_ = getEnableSeamlessFailover(); 
+       if (enableSeamlessFailover_ ) {
+          affinityFailbackInterval_ = getAffinityFailbackInterval(); 
+       }
        maxRetriesForClientReroute_ = getMaxRetriesForClientReroute(); 
        retryIntervalForClientReroute_ = getRetryIntervalForClientReroute(); 
        // If retryIntervalForClientReroute is set, the default for 
@@ -219,7 +221,7 @@ extends AS400JDBCConnection {
   }
 
   int getAffinityFailbackInterval() {
-    return  originalProperties_.getInt(JDProperties.ENABLE_SEAMLESS_FAILOVER); 
+    return  originalProperties_.getInt(JDProperties.AFFINITY_FAILBACK_INTERVAL); 
   }
   
   boolean getEnableSeamlessFailover() {

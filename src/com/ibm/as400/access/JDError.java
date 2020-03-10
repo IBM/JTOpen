@@ -612,7 +612,11 @@ trace for debugging purposes.
     if (JDTrace.isTraceOn ())                                           // @J3a
     {                                                                   // @J3a
       String m2 = "Throwing exception. Original exception: ";          // @J3a
-      JDTrace.logException(thrower, m2, e);                             // @J3a
+      if (e != null) { 
+        JDTrace.logException(thrower, m2, e);                             // @J3a
+      } else {
+        JDTrace.logInformation("Original exception was was null");
+      }
                                                                        // @J3a
       m2 = "Throwing exception.  Actual exception: "                   // @J3a
            + buffer.toString()                      // @J3a
