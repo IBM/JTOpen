@@ -5808,12 +5808,12 @@ endif */
 
      if (threadUsedProperty == null) {
          if (timeout > 0 ) {
-           JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED);
+           JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED,"thread used != false");
          }
      } else {
         if (threadUsedProperty.equalsIgnoreCase("true")) {
           if (timeout > 0 ) {
-            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED);
+            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED,"thread used != false");
           }
         }
      }
@@ -5907,12 +5907,12 @@ endif */
 
      // Make sure value is not negative
      if (milliseconds < 0) {
-        JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);
+        JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID,"milliseconds<0");
      }
 
     // Check for null executor
     if (executor == null) {
-         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);
+         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID,"executor=null");
     }
 
     // Check for authority
@@ -5921,6 +5921,22 @@ endif */
          SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout");
          security.checkPermission(sqlPermission);
     }
+
+     // Make sure that the THREAD_USED property is false. The default is true
+     String threadUsedProperty = properties_.getString(JDProperties.THREAD_USED);
+
+     if (threadUsedProperty == null) {
+         if (milliseconds > 0 ) {
+           JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED,"thread used != false");
+         }
+     } else {
+        if (threadUsedProperty.equalsIgnoreCase("true")) {
+          if (milliseconds > 0 ) {
+            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED,"thread used != false");
+          }
+        }
+     }
+
 
     checkOpen ();
 

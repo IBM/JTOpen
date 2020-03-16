@@ -2013,6 +2013,8 @@ endif */
 //JDBC40DOC     * SQLException, and the Connection or objects created from the Connection will be marked as closed.
 //JDBC40DOC     * Any subsequent use of the objects, with the exception of the close, isClosed or Connection.isValid methods,
 //JDBC40DOC     * will result in a SQLException.
+//JDBC40DOC     *<p>In the JTOpen JDBC driver, this is implemented by setting the SoTimeout of the underlying socket.
+//JDBC40DOC     *<p>Currently, setting the network timeout is only supported when the "thread used" property is false.
 //JDBC40DOC     *<p>Note: This method is intended to address a rare but serious condition where network partitions can
 //JDBC40DOC     * cause threads issuing JDBC calls to hang uninterruptedly in socket reads, until the OS TCP-TIMEOUT
 //JDBC40DOC     * (typically 10 minutes). This method is related to the abort() method which provides an administrator
