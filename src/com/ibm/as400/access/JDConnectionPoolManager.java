@@ -340,7 +340,13 @@ implements ConnectionEventListener
 
     condemnedListLengthThreshold_ = Math.max(3, minPoolSize_/50);  // # of 'condemned' connections that triggers an immediate cleanup
 
-    minDefaultStackSize_ = (reuseConnections_ ? 4 : 1);
+    // Use minPoolSize_ to set the size of each stack in the pool.   
+    // The previous value of 4 was overkill for some applications. 
+    // @AC3
+    int minHalf = minPoolSize_ / 2 + minPoolSize_ % 2;
+    if (minHalf <= 0) minHalf = 1; 
+    int reuseMinDefaultStackSize = minHalf;
+    minDefaultStackSize_ = (reuseConnections_ ? reuseMinDefaultStackSize : 1);
 
     // Fill the pool with the number of connections specified for initial pool size.
     // We distribute the new connections evenly between the two 'sides'.
@@ -719,13 +725,29 @@ implements ConnectionEventListener
    **/
   final void closePool()
   {
-    if (poolClosed_) return;
+    
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "closePool()");
+    }
+
+    if (poolClosed_)  { 
+      
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "closePool() returning since pool is closed. ");
+      }
+
+      return;
+    
+    }
     logInformation("Closing connection pool");
     poolClosed_ = true;
 
     // Note: Never pause or exit early while executing this method.
+    logInformation(ResourceBundleLoader.getText("AS400CP_SHUTDOWN")); 
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, ResourceBundleLoader.getText("AS400CP_SHUTDOWN")); 
+    }
 
-    if (JDTrace.isTraceOn()) logInformation(ResourceBundleLoader.getText("AS400CP_SHUTDOWN"));
 
     try
     {
@@ -746,21 +768,49 @@ implements ConnectionEventListener
     catch (Throwable e) {} // ignore
 
      // Give each daemon up to 10 seconds to shut down.
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "closePool() join maintainer daemon");
+    }
+
     try {
       maintainerDaemon_.join(10*1000);
     }
-    catch (Throwable e) {} // ignore
+    catch (Exception e) {
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logException(this, "closePool() join maintainerDaemon exception",e);
+      }
+
+    } // ignore
+
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "closePool() join scavengerDaemon");
+    }
 
     try {
       scavengerDaemon_.join(10*1000);
     }
-    catch (Throwable e) {} // ignore
+    catch (Exception e) {
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logException(this, "closePool() join scavengerDaemon exception",e);
+      }
 
+    } // ignore
+
+    
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "closePool() join reaperDaemon");
+    }
     if (poolReaper_ != null) {
       try {
         reaperDaemon_.join(10*1000);
       }
-      catch (Throwable e) {} // ignore
+      catch (Exception e) {
+        
+        
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logException(this, "closePool() join reaperDaemon exception",e);
+        }
+      } // ignore
     }
 
     // Unblock everybody who's blocked on a lock, so they'll notice that we're closing the pool and quit whatever they're doing.
@@ -805,6 +855,15 @@ implements ConnectionEventListener
                 logInformation("Internal connection counter: " + getConnectionCount(SYNC_ALL));
               }
             }
+            
+            if (JDTrace.isTraceOn()) {
+              JDTrace.logInformation(this, "closePool() Number available: " + availableConnectionsIdledSequence_[FOREGROUND].size()+availableConnectionsIdledSequence_[BACKGROUND].size());
+              JDTrace.logInformation(this, "closePool() Number active: " + activeConnections_.size());
+              JDTrace.logInformation(this, "closePool() Number active in error: " + activeConnectionsInError_.size());
+              JDTrace.logInformation(this, "closePool() Number condemned: " + condemnedConnections_.size());
+                JDTrace.logInformation(this, "closePool() Internal connection counter: " + getConnectionCount(SYNC_ALL));
+              
+            }
 
             Iterator connIter;
 
@@ -834,7 +893,11 @@ implements ConnectionEventListener
                 availableConnections_[side].clear();
               }
             }
-            catch (Throwable e) {} // ignore
+            catch (Exception e) {
+              if (JDTrace.isTraceOn()) {
+                JDTrace.logException(this, "closePool() close availableConnection exception",e);
+              }          
+            } // ignore
 
             // Clear the 'idled key sequence' lists.
             availableConnectionsIdledSequence_[FOREGROUND].clear();
@@ -869,7 +932,11 @@ implements ConnectionEventListener
               }
               condemnedConnections_.clear();
             }
-            catch (Throwable e) {} // ignore
+            catch (Exception e) {
+              if (JDTrace.isTraceOn()) {
+                JDTrace.logException(this, "closePool() close condemnedConnection exception",e);
+              }  
+            } // ignore
           }
         }
       }
@@ -877,6 +944,12 @@ implements ConnectionEventListener
 
     logInformation(ResourceBundleLoader.getText("AS400CP_SHUTDOWNCOMP"));
     poolClosedCompletely_ = true;
+    
+    
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "closePool() done");
+    }
+
   }
 
 
@@ -904,8 +977,17 @@ implements ConnectionEventListener
     boolean removed;
     synchronized (activeConnections_)
     {
-      if (poolClosed_) return;
+      if (poolClosed_) { 
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logInformation(this, "did not "+conn.getClass().toString()+"("+conn.hashCode()+") from activeConnections because pool closed");
+        }
+        return;
+      }
       removed = activeConnections_.remove(conn);
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "removed  "+conn.getClass().toString()+"("+conn.hashCode()+") from activeConnections");
+      }
+
       if (conn.fatalConnectionErrorOccurred_) {
         activeConnectionsInError_.remove(conn);  // also remove from 'error' list
       }
@@ -1388,6 +1470,11 @@ implements ConnectionEventListener
       // Add the connection to the 'active' list.
       synchronized (activeConnections_)
       {  // Don't pause while connection is in limbo.
+        
+        
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logInformation(this, "adding "+conn1.getClass().toString()+"("+conn1.hashCode()+") to activeConnections");
+        }
         activeConnections_.add(conn1);
         conn1.timeWhenPoolStatusLastModified_ = System.currentTimeMillis();
       }
