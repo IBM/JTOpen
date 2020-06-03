@@ -24,13 +24,13 @@ class SignonConverter
     }
 
     // Convert EBCDIC CCSID 37 to Unicode String.
-    static String byteArrayToString(byte[] source)
+    static String byteArrayToString(byte[] source) throws AS400SecurityException //@AC4C
     {
         return new String(byteArrayToCharArray(source)).trim();
     }
 
     // Convert EBCDIC CCSID 37 to Unicode character array.
-    static char[] byteArrayToCharArray(byte[] source)
+    static char[] byteArrayToCharArray(byte[] source) throws AS400SecurityException //@AC4C
     {
         char[] returnChars = new char[10];
         for (int i = 0; i < 10; ++i)
@@ -81,7 +81,8 @@ class SignonConverter
                 case 0xF7: returnChars[i] = 0x0037; break;  // 7
                 case 0xF8: returnChars[i] = 0x0038; break;  // 8
                 case 0xF9: returnChars[i] = 0x0039; break;  // 9
-                default: throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.SIGNON_CHAR_NOT_VALID);
+                //default: throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.SIGNON_CHAR_NOT_VALID);  //@AC4D
+                default: throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);  //@AC4A
             }
         }
         return returnChars;

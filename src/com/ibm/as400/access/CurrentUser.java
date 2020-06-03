@@ -50,10 +50,18 @@ class CurrentUser
         }
         if (currentUser != null)
         {
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID in EBCDIC: ", currentUser);
-            String userID = SignonConverter.byteArrayToString(currentUser);
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID: '" + userID + "'");
-            return userID;
+        	try { //@AC4A
+        		if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID in EBCDIC: ", currentUser);
+                String userID = SignonConverter.byteArrayToString(currentUser);
+                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID: '" + userID + "'");
+                return userID;
+                //@AC4A Start
+        	} catch (AS400SecurityException e) {
+        		if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID convert failed, user id characters are not valid");
+        		return null;
+        	}
+        	//@AC4A End
+            
         }
         return null;
     }

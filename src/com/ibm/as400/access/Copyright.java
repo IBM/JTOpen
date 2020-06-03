@@ -278,6 +278,7 @@ package com.ibm.as400.access;
 //@AC1   20200310  JDBC:  Correct affinityFailbackInterval property
 //@AC2   20200316  JDBC:  setNetworkTimeout not supported when "thread used=true"
 //@AC3   20200429  JDBC:  Change JDConnectionPoolManager to use minPoolSize when reuseConnection is set
+//@AC4   20200603  SignonConverter throw AS400SecurityException.
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
