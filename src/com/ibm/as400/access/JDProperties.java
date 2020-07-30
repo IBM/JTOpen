@@ -2178,6 +2178,9 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
           if (!value.equals(defaults_[i])) {
             sb.append(dpi_[i].name);
             sb.append("="); 
+            if ("password".equals(dpi_[i].name)) {
+              value = "*********"; 
+            }
             sb.append(value); 
             sb.append(";"); 
           }
