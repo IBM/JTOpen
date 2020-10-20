@@ -55,7 +55,6 @@ extends AS400JDBCConnection {
   private AS400 originalAs400;
   private JDDataSourceURL originalDataSourceUrl_;
   private JDProperties originalProperties_;
-  private Properties info_;
   private Properties originalInfo_; 
   
   private JDDataSourceURL [] reconnectUrls_;

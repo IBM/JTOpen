@@ -220,7 +220,16 @@ public class AS400JDBCPooledConnection implements PooledConnection
   **/
   void fireConnectionCloseEvent(ConnectionEvent event)
   {
+    
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "fireConnectionCloseEvent("+event+")");
+    }
     returned();                                     // Reset the pooledConnection.
+ 
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "fireConnectionCloseEvent() calling eventManager_.fireCloseEvent");
+    }
+
     eventManager_.fireCloseEvent(event);            // Notify the pool.
   }
 
@@ -391,7 +400,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
   {
     if (JDTrace.isTraceOn())                                                    //@G2C
     {
-      JDTrace.logInformation(this, "This AS400JDBCPooledConnection is being returned."); //@G2C
+      JDTrace.logInformation(this, "returned() This AS400JDBCPooledConnection is being returned."); //@G2C
     }
 
     // Reset the timers.

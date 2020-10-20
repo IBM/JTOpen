@@ -34,7 +34,6 @@ import java.util.Random;                          // @J3a
 
 import javax.sql.DataSource;                      // JDBC2.0 std-ext
 import javax.naming.NamingException;              // JNDI
-import javax.naming.RefAddr;
 import javax.naming.Reference;                    // JNDI
 import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI

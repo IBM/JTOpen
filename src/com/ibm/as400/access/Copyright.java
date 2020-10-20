@@ -279,6 +279,7 @@ package com.ibm.as400.access;
 //@AC2   20200316  JDBC:  setNetworkTimeout not supported when "thread used=true"
 //@AC3   20200429  JDBC:  Change JDConnectionPoolManager to use minPoolSize when reuseConnection is set
 //@AC4   20200603  SignonConverter throw AS400SecurityException.
+//@AC5   20201019  Findbugs fixes.
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -289,13 +290,13 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.4"; 
     //                                                                                         built=20200316 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20200316 @AC4";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20200316 @AC5";  
 
 
     // Constants for reference by AS400JDBCDriver.
-    static final int    MAJOR_VERSION = 12; // ex: "11" indicates V7R3, "10" indicates V7R2, while "9" indicates V7R1
+    static final int    MAJOR_VERSION = 12; // ex: "12" indicates V7R4, "10" indicates V7R2, while "9" indicates V7R1
     static final int    MINOR_VERSION = 4; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
-                                           //Note: JTOpen 9.1 is synching with ptf 11.1
+                                           //Note: JTOpen 10.1 is synching with ptf 12.1
     static final String DRIVER_LEVEL  = "07040004"; //(ex: 07030008 -> V7R3M0 PTF#8) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }

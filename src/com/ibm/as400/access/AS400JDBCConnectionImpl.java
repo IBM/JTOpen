@@ -158,7 +158,7 @@ extends AS400JDBCConnection
     //        "where current of" statements.  This flag affects only package caching.
     // The 2nd and 4th digits are used to turn on variable field compression
     // @L3C
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R2M01   "; // @EDA F8c H2c pdc 610
+    static final String         CLIENT_FUNCTIONAL_LEVEL_= "V7R2M01   "; // @EDA F8c H2c pdc 610
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
@@ -4061,6 +4061,9 @@ throws SQLException
         DBReplyRequestedDS reply = null;
         try
         {
+          if (as400_ == null) { 
+            throw new NullPointerException("as400_ not set");
+          }
             vrm_ = as400_.getVRM();                                     // @D0A @ECM
 
             //@P0C
@@ -4166,8 +4169,12 @@ throws SQLException
                 if (JDTrace.isTraceOn ())
                     JDTrace.logInformation (this, "Setting server NLV = " + nlv);
 
-                // Client functional level.
-                request.setClientFunctionalLevel(CLIENT_FUNCTIONAL_LEVEL_);       // @EDC
+                // Client functional level.  
+                String clientFunctionalLevel = properties_.getString(JDProperties.CLIENT_FUNCTIONAL_LEVEL); 
+                if (clientFunctionalLevel == null) { 
+                  clientFunctionalLevel = CLIENT_FUNCTIONAL_LEVEL_;
+                }
+                request.setClientFunctionalLevel(clientFunctionalLevel);       // @EDC
 
                 if (JDTrace.isTraceOn ())                                                                   // @EDC
                     JDTrace.logInformation (this, "Client functional level = " + CLIENT_FUNCTIONAL_LEVEL_); // @EDC

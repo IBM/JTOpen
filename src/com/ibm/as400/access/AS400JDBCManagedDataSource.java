@@ -423,6 +423,11 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   final AS400JDBCConnection createPhysicalConnection() throws SQLException
   {
+
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "createPhysicalConnection()");
+    }
+
     // If we have an AS400JDBCManagedConnectionPoolDataSource, delegate the connection creation.
     if (cpds_ != null && cpds_ != this) {
       return cpds_.createPhysicalConnection();
@@ -458,6 +463,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   final AS400JDBCConnection createPhysicalConnection(String user, String password) throws SQLException
   {
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "createPhysicalConnection("+user+","+password+")");
+    }
+
     // Validate the parameters.
     if (user == null)
       throw new NullPointerException("user");
@@ -510,6 +519,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   private AS400JDBCConnection createPhysicalConnection(AS400 as400) throws SQLException
   {
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "createPhysicalConnection(as400)");
+    }
     AS400JDBCConnection connection = new AS400JDBCConnectionImpl();
 
     connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null);  // Note: This also does an AS400.connectService() to the database host server.
@@ -544,7 +556,23 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   public void closePool()
   {
-    if (poolManager_ != null) poolManager_.closePool();
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "closePool()");
+    }
+
+    if (poolManager_ != null) {
+      
+      poolManager_.closePool();
+    } else {
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logInformation(this, "closePool() poolManager_ is null");
+        }
+    }
+    
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "closePool() exit");
+    }
+    
   }
 
 
@@ -691,16 +719,24 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   // method required by javax.sql.DataSource
   /**
    Returns a database connection.
-   <br>Note: If a dataSourceName has been specified (via {@link #setDataSourceName setDataSourceName()}, this method will return a pooled connection.  Otherwise it will return a non-pooled connection.
-   <p>If pooling, the very first call to one of the getConnection() methods for this class will create and initialize the connection pool, and may have slow response.  Therefore it is advisable for the application to make an initial "dummy" call to getConnection().
+   <br>Note: If a dataSourceName has been specified (via {@link #setDataSourceName setDataSourceName()}, this method will return a pooled connection.  
+   Otherwise it will return a non-pooled connection.
+   <p>If pooling, the very first call to one of the getConnection() methods for this class will create and initialize the connection pool, 
+   and may have slow response.  Therefore it is advisable for the application to make an initial "dummy" call to getConnection().
    <br>If the connection pool is at or near capacity, a non-pooled connection may be returned.
-   <p>It is the responsibility of the caller to ultimately call <tt>Connection.close()</tt> to release the connection, even if the connection has become unusable.
+   <p>It is the responsibility of the caller to ultimately call <tt>Connection.close()</tt> to release the connection, 
+   even if the connection has become unusable.
    @return The connection.
    @throws SQLException If a database error occurs.
    @see #setDataSourceName
    **/
   public Connection getConnection() throws SQLException
   {
+    
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "getConnection()");
+    }
+
     // Note: This method will return either an AS400JDBCConnection or an AS400JDBCConnectionHandle.
     Connection connection;
 
@@ -750,6 +786,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       }
     }
 
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "getConnection() returning "+connection.getClass().toString()+"("+connection.hashCode()+")"+":"+connection);
+    }
+
     return connection;
   }
 
@@ -769,6 +809,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   public Connection getConnection(String user, String password) throws SQLException
   {
     // Note: This method will return either an AS400JDBCConnection or an AS400JDBCConnectionHandle.
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "getConnection("+user+","+password+")");
+    }
 
     // Validate the parameters.
     if (user == null)
@@ -777,7 +820,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       throw new NullPointerException("password");
 
     Connection connection = null;
-    if (dataSourceNameSpecified_  )  // A datasource name has been specified, so use pooling.
+    if (dataSourceNameSpecified_  || (this instanceof AS400JDBCManagedConnectionPoolDataSource) )  // A datasource name has been specified, so use pooling.
     {
       // Note: xpwConfuse() generates different output each time it's called against the same password, so we can't use it bo build the pool key.
       JDConnectionPoolKey key = new JDConnectionPoolKey(user, password.hashCode());
@@ -823,6 +866,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       }
     }
 
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "getConnection() returning "+connection.getClass().toString()+"("+connection.hashCode()+")"+":"+connection);
+    }
+
     return connection;
   }
 
@@ -836,10 +883,20 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   private final AS400JDBCConnectionHandle getConnectionFromPool(JDConnectionPoolKey key, String password) throws SQLException
   {
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "getConnectionFromPool(key,password) ");
+    }
+
     // Note: This method generally returns an AS400JDBCPooledConnection.  If the connection pool is full or nonexistent, it may return an (unpooled) AS400JDBCConnection.
 
     AS400JDBCConnectionHandle connection = null;
 
+    if ((serialUserName_ == null) ||  (pwHashcode_ == 0)) { 
+      serialUserName_ = key.getUser(); 
+      pwHashcode_ = password.hashCode() ; 
+      
+    }
+    
     if (!poolManagerInitialized_) {
       initializeConnectionPool();  // this sets inUse_ to true
     }
@@ -852,13 +909,25 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       // Note: If the 'enforceMaxPoolSize' property were set to true, then JDConnectionPoolManager.getConnection() would have thrown an exception if the pool is full and no connection is available.  Since no exception was thrown, we can assume that the property is not set.
     }
 
-    return connection;
+
+    
+    if (JDTrace.isTraceOn()) {
+      if (connection == null ) { 
+        JDTrace.logInformation(this, "getConnectionFromPool() returning null");
+      
+      } else { 
+         JDTrace.logInformation(this, "getConnectionFromPool() returning "+connection.getClass().toString()+"("+connection.hashCode()+") :"+connection);
+      }
+    }
+return connection;
   }
 
 
   // For exclusive use within this class and by JDConnectionPoolManager.
   final JDConnectionPoolKey getConnectionPoolKey()
   {
+    
+   
     // See if we need to update our connection pool key.
     if (connectionKeyNeedsUpdate_)
     {
@@ -1849,6 +1918,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    **/
   void initializeConnectionPool() throws SQLException
   {
+    
+    if (JDTrace.isTraceOn()) 
+      JDTrace.logInformation (this, "initializeConnectionPool");  
+    
     logWarning("initializeConnectionPool");
     if (!dataSourceNameSpecified_ && !(this instanceof AS400JDBCManagedConnectionPoolDataSource))
     {
@@ -1877,7 +1950,6 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
                 + dataSourceName_);
           }
         }
-
         getConnectionPoolKey(); // initialize the default connection pool key
         poolManager_ = new JDConnectionPoolManager(this, cpds_);
         // Implementation note: The JNDI lookup() tends to lose the LogWriter
@@ -2439,7 +2511,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   final void logWarning(String text)
   {
     String msg = "WARNING: " + text;
-    JDTrace.logInformation (this, msg);
+    if (JDTrace.isTraceOn()) { 
+       JDTrace.logInformation (this, msg);
+    }
     if (log_ != null) log_.log(msg);
     else if (DEBUG) System.out.println(msg);
   }

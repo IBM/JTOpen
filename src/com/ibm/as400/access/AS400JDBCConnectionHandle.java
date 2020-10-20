@@ -108,6 +108,11 @@ implements Connection //@A5A
    **/
    void invalidate()
    {
+     
+     if (JDTrace.isTraceOn()) {
+       JDTrace.logInformation(this, "invalidate()");
+     }
+
       connection_ = null;
       pooledConnection_ = null;
    }
@@ -178,19 +183,38 @@ implements Connection //@A5A
   **/
   public synchronized void close() throws SQLException
   {
-    if (connection_ == null) return;
+    
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "close()");
+    }
+
+    if (connection_ == null) {
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "close() returning because connection_ is null");
+      }
+      return;
+    }
 
     try {
       // Rollback and close the open statements.
       // Note: Leave the physical connection open, so it can get re-used.
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "close() calling connection_.pseudoClosed "+connection_.getServerJobIdentifier());
+      }
       connection_.pseudoClose();
     }
     catch (SQLException e) {
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "close() calling fireEventIfErrorFatal");
+      }
       fireEventIfErrorFatal(e);
       throw e;
     }
     finally {
       // notify the pooled connection.
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "close() calling pooledConnection_.fireConnectionCloseEvent ");
+      }
       pooledConnection_.fireConnectionCloseEvent(new ConnectionEvent(pooledConnection_));
 
       connection_ = null;
@@ -329,6 +353,7 @@ implements Connection //@A5A
         //@A5D connection_.finalize();
         try
         {                                 //@A5A                                   //@A5A
+          
             close();                        //@A5A
         }                                   //@A5A
         catch (SQLException e)              //@A5A

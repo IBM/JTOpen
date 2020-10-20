@@ -55,6 +55,10 @@ class AS400JDBCConnectionEventSupport
    public void fireCloseEvent(ConnectionEvent event)
    {
       Vector targets = (Vector) connectionListeners_.clone();
+      if (JDTrace.isTraceOn()) {
+        JDTrace.logInformation(this, "fireCloseEvent() for targets.size()="+targets.size());
+      }
+
       for (int i=0; i< targets.size(); i++) 
       {
          ConnectionEventListener target = (ConnectionEventListener) targets.elementAt(i);
