@@ -366,128 +366,6 @@ class SQLDataFactory
     }
 
 
-    /**
-    Return a SQLData object corresponding to a
-    a SQL type code defined in java.sql.Types.
-    In the case where a SQL type code specifies a
-    type that is not supported in DB2 for IBM i, then
-    it will map to the next closest type.
-
-    @param  sqlType     SQL type code defined in java.sql.Types.
-    @param  maxLength   Max length of data.
-    @param  precision   Precision of data.
-    @param  scale       Scale of data.
-    @param  settings    The conversion settings.
-    @param  vrm         The OS/400 or IBM i Version, Release, and Modification.
-    @return             A SQLData object.
-
-    @exception  SQLException    If no valid type can be
-                                mapped.
-    **/
-
-    //Note:  this method is not used anywhere.  I am tempted to remove it, but it has a nice history of mapping of sqlTypes to SQLData objects
-    static SQLData newData(int sqlType,
-                           int maxLength,
-                           int precision,
-                           int scale,
-                           SQLConversionSettings settings,
-                           int vrm,
-                           JDProperties properties) // @M0A - added the JDProperties parm
-    throws SQLException
-    {
-        switch(sqlType)
-        {                                      // @D0C
-
-            case Types.BIGINT:                                      // @D0A
-                if(vrm >= JDUtilities.vrm450)   // @D0A
-                    return new SQLBigint(vrm, settings);    //trunc3                         // @D0A
-                else
-                    return new SQLInteger(vrm, settings);    //trunc3
-
-            case Types.BINARY:
-            {                                                            // @M0C - changed the code to return a
-                if(vrm >= JDUtilities.vrm530)                            // @M0C - SQLBinary for v5r3 and newer
-                    return new SQLBinary(maxLength, settings);           // @M0C - only because the old SQLBinary
-                else                                                     // @M0C - function has been moved to
-                    return new SQLCharForBitData(maxLength, settings);   // @M0C - SQLCharForBitData
-            }                                                            // @M0C
-
-            case Types.BLOB:
-                return new SQLBlob(maxLength - 4, settings);       // @D1C
-
-            case Types.CHAR:
-                return new SQLChar(maxLength, settings);
-
-            case Types.CLOB:
-                return new SQLClob(maxLength - 4, settings);    // @D1C @E1C
-                //return new SQLClob(maxLength - 4, false, settings);    // @D1C @E1C
-
-            case Types.DATE:
-                return new SQLDate(settings, -1);	// @550C
-
-            case Types.DECIMAL:
-                if(settings != null)                                           // @E0A
-                    if(! settings.useBigDecimal())                             // @E0A
-                        return new SQLDecimal2(precision, scale, settings, vrm, properties);  // @M0C - pass the JDProperties so we can get the scale
-                return new SQLDecimal(precision, scale, settings, vrm, properties);           // @M0C  // @E0A
-
-            case Types.DOUBLE:
-                return new SQLDouble(settings);
-
-            case Types.FLOAT:
-                return new SQLFloat(settings);
-
-            case Types.INTEGER:
-                return new SQLInteger(vrm, settings);    //trunc3
-
-            case Types.NUMERIC:
-                if(settings != null)                                           // @E0A
-                    if(! settings.useBigDecimal())                             // @E0A
-                        return new SQLNumeric2(precision, scale, settings, vrm, properties);  // @M0C - pass the JDProperties so we can get the scale
-                return new SQLNumeric(precision, scale, settings, vrm, properties);           // @M0C  // @E0A
-
-            case Types.REAL:
-                return new SQLReal(settings);
-
-            case Types.SMALLINT:
-            case Types.TINYINT:                                     // @D0A
-            case Types.BIT:                                         // @D0A
-                return new SQLSmallint(vrm, settings);    //trunc3
-
-            case Types.TIME:
-                return new SQLTime(settings, -1);	// @550C
-
-            case Types.TIMESTAMP: {
-                return new SQLTimestamp(maxLength, settings);
-            }
-            case Types.VARBINARY:
-            {
-                if(vrm >= JDUtilities.vrm530)
-                    return new SQLVarbinary(maxLength, settings);
-                else
-                    return new SQLVarcharForBitData(maxLength, settings);
-            }
-
-            case Types.LONGVARBINARY:                               // @D0A
-            {                                                                    // @M0C - changed the code to return a
-                if(vrm >= JDUtilities.vrm530)                                    // @M0C - SQLVarbinary for v5r3 and newer
-                    return new SQLVarbinary(maxLength, settings);                // @M0C - only because the old SQLVarbinary
-                else                                                             // @M0C - function has been moved to
-                    return new SQLLongVarcharForBitData(maxLength, settings);    // @M0C - SQLVarcharForBitData
-            }                                                                    // @M0C
-
-            case Types.VARCHAR:
-                return new SQLVarchar(maxLength, settings);
-
-            case Types.LONGVARCHAR:                                 // @D0A
-                return new SQLLongVarchar(maxLength, settings);     // @E1C
-
-            default:
-                JDError.throwSQLException(JDError.EXC_DATA_TYPE_INVALID);
-                return null;
-
-        }
-    }
 
     /**
     Return a SQLData object corresponding to the
@@ -538,57 +416,57 @@ class SQLDataFactory
         switch(nativeType)
         {
 
-            case 384:                           // Date.
+            case SQLNativeType.DATE_384:                           // Date.
             { //@datarray
                 if(compositeContentType == 0) //@datarray
                     dateFormat = 5;  //@datarray always iso for input and output for arrays of dates due to zda constraint
                 return new SQLDate(settings, dateFormat);	// @550
             } //@datarray
-            case 388:                           // Time.
+            case SQLNativeType.TIME_388:                           // Time.
                 return new SQLTime(settings, timeFormat);
 
-            case 392:                           // Timestamp. 0x188
+            case SQLNativeType.TIMESTAMP_392:                           // Timestamp. 0x188
                 return new SQLTimestamp(length, settings);
 
-            case 396:                           // Datalink.
+            case SQLNativeType.DATALINK_396:                           // Datalink.
                 return new SQLDatalink(length - 2, settings);
 
-            case 404:                           // Blob.
+            case SQLNativeType.BLOB_404:                           // Blob.
                 return new SQLBlob(length - 4, settings);          // @D1C
 
-            case 408:                           // Clob.
+            case SQLNativeType.CLOB_408:                           // Clob.
                 if((ccsid == 65535) && (translateBinary == false))   //@E4C
                     return new SQLBlob(length - 4, settings);      // @D1C
                 else
                     return new SQLClob(length - 4, settings); // @D1C @E1C
                 //return new SQLClob(length - 4, false, settings); // @D1C @E1C
 
-            case 412:                           // Dbclob.
+            case SQLNativeType.DBCLOB_412:                           // Dbclob.
             {
               SQLDBClob dbclob = new SQLDBClob(length - 4, settings);
               dbclob.setCcsid(ccsid);  /*@P3A*/ 
               return dbclob; 
                 //return new SQLClob(length - 4, true, settings);    // @D1C
             }
-            case 448:                           // Varchar.
+            case SQLNativeType.VARCHAR_448:                           // Varchar.
                 if((ccsid == 65535) && (translateBinary == false))   //@E4C
                     return new SQLVarcharForBitData(length - 2, settings);  // @M0C - changed from SQLVarbinary
                 else
                     return new SQLVarchar(length - 2, settings);
 
-            case 456:                           // Varchar long.
+            case SQLNativeType.LONGVARCHAR_456:                           // Varchar long.
                 if((ccsid == 65535) && (translateBinary == false))    //@E4C
                     return new SQLLongVarcharForBitData(length - 2, settings);  // @M0C - changed from SQLVarbinary
                 else
                     return new SQLLongVarchar(length - 2, settings);
 
-            case 452:                           // Char.
+            case SQLNativeType.CHAR_452:                           // Char.
                 if((ccsid == 65535) && (translateBinary == false))    //@E4C
                     return new SQLCharForBitData(length, settings);  // @M0C - changed from SQLBinary
                 else
                     return new SQLChar(length, settings);
 
-            case 464:                           // Graphic (pure DBCS).
+            case SQLNativeType.VARGRAPHIC_464:                           // Graphic (pure DBCS).
                 if(ccsid == 65535)     //@bingra
                     return new SQLVargraphic((length-2)/2, settings, ccsid);  //@bingra
                 
@@ -599,10 +477,10 @@ endif */
                 
                 return new SQLVargraphic(length - 2, settings, ccsid); // @C1C @C4C @cca1
 
-            case 472:                           // Graphic long (pure DBCS).
+            case SQLNativeType.LONGVARGRAPHIC_472:                           // Graphic long (pure DBCS).
                 return new SQLLongVargraphic(length - 2, settings, ccsid); // @C1C @C4C
 
-            case 468:                           // Graphic fix (pure DBCS).
+            case SQLNativeType.GRAPHIC_468:                           // Graphic fix (pure DBCS).
                 if(ccsid == 65535)     //@bingra
                     return new SQLGraphic(length/2, settings, ccsid);  //@bingra
 /* ifdef JDBC40 
@@ -611,53 +489,53 @@ endif */
 endif */ 
                 return new SQLGraphic(length, settings, ccsid); // @C1C @C4C @cca1
 
-            case 480:                           // Float.
+            case SQLNativeType.FLOAT_480:                           // Float.
                 if(length == 4)
                     return new SQLReal(settings);
                 else
                     return new SQLDouble(settings);
 
-            case 484:                           // Packed decimal.
+            case SQLNativeType.PACKED_DECIMAL_484:                           // Packed decimal.
                 if(settings != null)                                           // @E0A
                     if(! settings.useBigDecimal())                             // @E0A
                         return new SQLDecimal2(precision, scale, settings, connection.getVRM(), connection.getProperties()); // @M0C - pass the JDProperties object so we can get the precision
                 return new SQLDecimal(precision, scale, settings, connection.getVRM(), connection.getProperties());          // @M0C  // @E0A
 
-            case 488:                           // Zoned decimal.
+            case SQLNativeType.ZONED_DECIMAL_488:                           // Zoned decimal.
                 if(settings != null)                                           // @E0A
                     if(! settings.useBigDecimal())                             // @E0A
                         return new SQLNumeric2(precision, scale, settings, connection.getVRM(), connection.getProperties()); // @M0C - pass the JDProperties object so we can get the precision
                 return new SQLNumeric(precision, scale, settings, connection.getVRM(), connection.getProperties());          // @M0C  // @E0A
 
-            case 492:                           // Bigint.   // @D0A
+            case SQLNativeType.BIGINT_492:                           // Bigint.   // @D0A
                 return new SQLBigint(connection.getVRM(), settings);                      // @D0A //trunc3
 
-            case 496:                           // Integer.
+            case SQLNativeType.INTEGER_496:                           // Integer.
                 return new SQLInteger(scale, connection.getVRM(), settings);               // @A0C //trunc3
 
-            case 500:                           // Smallint.
+            case SQLNativeType.SMALLINT_500:                           // Smallint.
                 return new SQLSmallint(scale, connection.getVRM(), settings);              // @A0C //trunc3
 
-            case 904:                          // Rowid.     // @M0A - Added support for the ROWID data type
+            case SQLNativeType.ROWID_904:                          // Rowid.     // @M0A - Added support for the ROWID data type
                 return new SQLRowID(settings);               // @M0A
 
-            case 908:                          // Varbinary. // @M0A - added support for VARBINARY type
+            case SQLNativeType.VARBINARY_908:                          // Varbinary. // @M0A - added support for VARBINARY type
                 return new SQLVarbinary(length-2, settings); // @M0A
 
-            case 912:                          // Binary.    // @M0A - added support for BINARY type
+            case SQLNativeType.BINARY_912:                          // Binary.    // @M0A - added support for BINARY type
                 return new SQLBinary(length, settings);      // @M0A
 
-            case 960:                           // Blob locator.
+            case SQLNativeType.BLOB_LOCATOR_960:                           // Blob locator.
                 return new SQLBlobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex);  //@F2C //@J0M added converter
 
-            case 964:                           // Clob locator.
+            case SQLNativeType.CLOB_LOCATOR_964:                           // Clob locator.
                 if((ccsid == 65535) && (translateBinary == false))               //@E4C
                     return new SQLBlobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); //@F2C //@J0M added converter
                 else
                     return new SQLClobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
                 //return new SQLClobLocator(connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
 
-            case 968:                           // Dbclob locator.
+            case SQLNativeType.DBCLOB_LOCATOR_968:                           // Dbclob locator.
             {
               if (ccsid == 1200) { 
                 SQLNClobLocator nclob =  new SQLNClobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
@@ -672,7 +550,7 @@ endif */
             }
              
 
-            case 996:                           // Decimal float.  //@DFA
+            case SQLNativeType.DECFLOAT_996:                           // Decimal float.  //@DFA
                 if(precision == 16) //@DFA
                     return new SQLDecFloat16(settings, connection.getVRM(), connection.getProperties() );     //@DFA
                 else
@@ -693,13 +571,16 @@ endif */
                                                         timeFormat,
                                                         0, 0) , connection.getVRM());   //@array   create SQLData array wrapper of actual datatype
 
-            case 2452: //@xml3 xml returned in bloblocator
-            case 988:  // the xml type will be seen when a parameter is retrieved from a cached package.  We'll change
+            case SQLNativeType.XML_LOCATOR_2452: //@xml3 xml returned in bloblocator
+            case SQLNativeType.XML_988:  // the xml type will be seen when a parameter is retrieved from a cached package.  We'll change
             	       // this to an SQLXML Locator 01/27/2010
                 if(ccsid == 65535)
                     xmlCharType = 2; //sb=0 or db=1 binary=2
                 return new SQLXMLLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex, xmlCharType); //@xml3
 
+            case SQLNativeType.BOOLEAN_2436:  // boolean
+                return new SQLBoolean(connection.getVRM(),settings);
+                
             default:
                 JDError.throwSQLException(JDError.EXC_INTERNAL, new IllegalArgumentException(Integer.toString(nativeType))); // @E3C
                 return null;
@@ -928,6 +809,9 @@ endif */
                                         settings,
                                         vrm,
                                         properties) , vrm);   //@array   create SQLData array wrapper of actual datatype //length is element length
+        else if (nativeType.equals("BOOLEAN")) { 
+            return new SQLBoolean(vrm, settings); 
+        }
 
         else
         {

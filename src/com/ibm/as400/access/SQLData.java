@@ -91,7 +91,7 @@ extends Cloneable
     public static final int DECFLOAT = 38;      //@DFA 
     public static final int ARRAY = 39;         //@array
     public static final int XML_LOCATOR = 40;   //@xml3
-
+    public static final int BOOLEAN = 41; 
     public static final int ALL_READER_BYTES = -2;
     
     /**

@@ -56,6 +56,7 @@ implements IFSFileDescriptorImpl
   private Object      parent_;  // The object that instantiated this IFSDescriptor.
           String      path_ = "";
           byte[]      pathnameBytes_;
+  transient Object    serverLock_ = new Object(); 
           AS400Server server_;  // Note: AS400Server is not serializable.
   private int         shareOption_;
           AS400ImplRemote system_;
@@ -70,7 +71,7 @@ implements IFSFileDescriptorImpl
   private int         systemVRM_;                    // @B3A @B4C
   transient int errorRC_;  // error return code from most recent request
           int         patternMatching_ = IFSFile.PATTERN_DEFAULT;  // pattern-matching semantics
-
+  
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.
   private static final boolean DEBUG = false;  // @B3A
@@ -378,7 +379,7 @@ implements IFSFileDescriptorImpl
   void exchangeServerAttributes() // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
     throws IOException, AS400SecurityException
   {
-      synchronized (server_)
+      synchronized (serverLock_)
       {
           DataStream ds = server_.getExchangeAttrReply();
           IFSExchangeAttrRep rep = null;
