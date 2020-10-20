@@ -60,6 +60,7 @@ com/ibm/as400/access/SQLBigint.java
 com/ibm/as400/access/SQLBinary.java
 com/ibm/as400/access/SQLBlob.java
 com/ibm/as400/access/SQLBlobLocator.java
+com/ibm/as400/access/SQLBoolean.java
 com/ibm/as400/access/SQLChar.java
 com/ibm/as400/access/SQLCharForBitData.java
 com/ibm/as400/access/SQLClob.java

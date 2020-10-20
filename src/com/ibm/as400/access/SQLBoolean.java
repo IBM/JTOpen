@@ -335,15 +335,23 @@ final class SQLBoolean extends SQLDataBase {
   public String getNString() throws SQLException {
     return getString();
   }
-  /*
-   * ifdef JDBC40 //@pda jdbc40 public RowId getRowId() throws SQLException {
-   * JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); return
-   * null; }
-   * 
-   * //@pda jdbc40 public SQLXML getSQLXML() throws SQLException {
-   * JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); return
-   * null; } endif
-   */
+
+  /* ifdef JDBC40 
+  public RowId getRowId() throws SQLException
+  {
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      return null;
+  }
+endif */     
+
+  /* ifdef JDBC40 
+  public SQLXML getSQLXML() throws SQLException
+  {
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      return null;
+  }
+endif */     
+  // @array
 
   // @array
 
