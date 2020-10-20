@@ -32,7 +32,6 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
@@ -3338,8 +3337,6 @@ public class AS400ImplRemote implements AS400Impl {
       }
     } else {
       try {
-        byte[] userIDbytes = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD ? SignonConverter
-            .stringToByteArray(userId) : null;
 
         if (Trace.traceOn_)
           Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
@@ -3365,11 +3362,6 @@ public class AS400ImplRemote implements AS400Impl {
         }
         signonInfo_ = null;
       } catch (IOException e) {
-        Trace.log(Trace.ERROR, "Signon failed:", e);
-        signonServer_.forceDisconnect();
-        signonServer_ = null;
-        throw e;
-      } catch (AS400SecurityException e) {
         Trace.log(Trace.ERROR, "Signon failed:", e);
         signonServer_.forceDisconnect();
         signonServer_ = null;

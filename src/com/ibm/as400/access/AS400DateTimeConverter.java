@@ -30,7 +30,7 @@ public class AS400DateTimeConverter
     /**
        The system.
     **/
-    static protected  AS400 as400_;
+    protected  AS400 as400_;
 
     /**
     * Constructs a AS400DateTimeConverter object.
@@ -157,17 +157,18 @@ public class AS400DateTimeConverter
 
     /**
      * Returns the Date object in the YYMD format.
+     * @param as400 The system used to do the conversion. 
      * @param in The date and time value to be converted.
      * @param format The format of the date and time value being provided.
      * @return The Date object in the YYMD format.
      *
     **/
-    public static Date getDate(byte[] in, String format)
+    public static Date getDate(AS400 as400, byte[] in, String format)
 
     {
         Trace.log(Trace.INFORMATION,"getDate");
         String outFormat = "*YYMD";
-        byte[] out = convert(as400_, in, format, outFormat);
+        byte[] out = convert(as400, in, format, outFormat);
 
         RecordFormat recordFormat=new RecordFormat();
 
@@ -205,12 +206,13 @@ public class AS400DateTimeConverter
 
     /**
      * Returns the converted date and time in a byte array.
+     * @param as400 The system used to do the conversion. 
      * @param date The Date object to be converted. It must be in the format YYMD.
      * @param format The output date and time format.
      * @return The converted date and time in a byte array.
      *
     **/
-    public static byte[] getByteArray(Date date,String format)
+    public static byte[] getByteArray(AS400 as400, Date date,String format)
     {
         Trace.log(Trace.INFORMATION,"getByteArray");
         Calendar dateTime=AS400Calendar.getGregorianInstance();
@@ -249,7 +251,7 @@ public class AS400DateTimeConverter
             Trace.log(Trace.ERROR,"Error constructing program parameters");
         }
         String inFormat = "*YYMD";
-        return convert(as400_, in,inFormat, format);
+        return convert(as400, in,inFormat, format);
 
     }
 }

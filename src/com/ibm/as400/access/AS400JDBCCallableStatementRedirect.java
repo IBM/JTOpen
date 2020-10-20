@@ -67,7 +67,9 @@ public class AS400JDBCCallableStatementRedirect extends
   public double getDouble(int parameterIndex) throws SQLException {
     return cstmt_.getDouble(parameterIndex);
   }
-
+  /*
+  @deprecated Use getBigDecimal(int) or getBigDecimal(String) instead.
+  */ 
   public BigDecimal getBigDecimal(int parameterIndex, int scale)
       throws SQLException {
     return cstmt_.getBigDecimal(parameterIndex, scale);

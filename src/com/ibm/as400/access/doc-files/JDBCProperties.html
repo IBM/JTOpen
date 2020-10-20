@@ -955,12 +955,13 @@ the original connection failed.</p>
 <p>When this setting is in effect, if a server goes down, the driver 
 tries to fail back or fail over to an alternate server. If failover or 
 failback is successful, the driver throws an SQLException with SQL error 
-code -4498, with the next operation on the connection.  
+code -4498 with the next operation on the connection.  
 This indicates that the operation and connection failed, but the connection was 
 successfully reestablished.  An SQLException with SQL error code -4498 
 informs the application that it should retry the transaction during which 
 the connection failure occurred. If the driver cannot reestablish a connection, 
-it throws an SQLException with SQL error code -4499.</p>
+it throws an SQLException indicating the first error seen when attempting to 
+establish the connection.</p>
    
     </TD>
     <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
@@ -1449,8 +1450,9 @@ it throws an SQLException with SQL error code -4499.</p>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;translate binary&quot;</TD>
     <TD HEADERS="cat6t2">Specifies whether binary data is translated. If this property 
-      is set to &quot;true&quot;, then BINARY and VARBINARY fields are treated 
-      as CHAR and VARCHAR fields.</TD>
+      is set to &quot;true&quot;, then CHAR FOR BIT DATA, VARCHAR FOR BIT DATA, 
+      CHAR CCSID(65535), and VARCHAR CCSID(65535)fields are treated 
+      as CHAR and VARCHAR fields using the current CCSID of the server job.</TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat6t4">&quot;true&quot;<BR>
       &quot;false&quot;</TD>

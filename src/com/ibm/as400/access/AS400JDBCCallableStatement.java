@@ -71,7 +71,6 @@ public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatementImpl
 implements CallableStatement
 {
-    static final String copyright2 = "Copyright (C) 1997-2014 International Business Machines Corporation and others.";
 
     static final int    NO_VALIDATION_  = -9999;
 
