@@ -54,6 +54,10 @@ class PoolConnectionEventListener implements ConnectionEventListener
   **/
   public void connectionClosed(ConnectionEvent event)
   {
+    if (JDTrace.isTraceOn()) {
+      JDTrace.logInformation(this, "connectionClosed()");
+    }
+
     AS400JDBCPooledConnection connection = (AS400JDBCPooledConnection)event.getSource();
 
     synchronized (pool_.activePool_)
@@ -66,7 +70,8 @@ class PoolConnectionEventListener implements ConnectionEventListener
         (pool_.getMaxUseCount() != -1 && connection.getUseCount() == pool_.getMaxUseCount()) ||        // Max Use Count.
         (pool_.getMaxConnections() != -1 && pool_.activePool_.size() > pool_.getMaxConnections()))           // MaxConnections reduced.
     {
-      JDTrace.logInformation (this, "Connection has expired.  Removed from the pool.");  // @B5C
+      if (JDTrace.isTraceOn())  
+        JDTrace.logInformation (this, "connectionClosed() Connection has expired.  Removed from the pool.");  // @B5C
       pool_.closePooledConnection(connection);
 
       // Notify listeners that the connection expired
@@ -79,7 +84,7 @@ class PoolConnectionEventListener implements ConnectionEventListener
     else
     {
       if (JDTrace.isTraceOn())  // @B5C
-        JDTrace.logInformation (this, "Returning active connection to the pool.");  // @B5C
+        JDTrace.logInformation (this, "connectionClosed() Returning active connection to the pool.");  // @B5C
 
       // Add a check to see if the connection is still good
       AS400JDBCConnection jdbcConnection = connection.getInternalConnection();  //@B4A
@@ -87,6 +92,10 @@ class PoolConnectionEventListener implements ConnectionEventListener
       {                                                                         //@B4A 
         if (!jdbcConnection.isClosed())                                       //@B4A
         {
+          if (JDTrace.isTraceOn()) {
+            JDTrace.logInformation(this, "connectionClosed() adding to avaialblePool_");
+          }
+
           synchronized (pool_.availablePool_)
           {
             pool_.availablePool_.addElement(connection);                // connection still good, reuse.
@@ -102,13 +111,17 @@ class PoolConnectionEventListener implements ConnectionEventListener
         else
         {            //@B4A
           if (JDTrace.isTraceOn())         //@B4A @B5C
-            JDTrace.logInformation (this, "Removing closed connection from pool.");   //@B4A @B5C
+            JDTrace.logInformation (this, "connectionClosed() Removing closed connection from pool.");   //@B4A @B5C
         }
       }
       catch (SQLException sqe)
       {
         // Should not be thrown.  isClosed() reports that it throws SQLExceptions,
         // but it doesn't really.
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logException(this, "connectionClosed() exception caught",sqe);
+        }
+      
       }
     }         
 

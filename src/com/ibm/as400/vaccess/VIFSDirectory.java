@@ -119,6 +119,7 @@ Constant for including both files and directories.
     transient         VNode[]           children_; // Private.
     transient private boolean           childrenLoaded_;
     transient         boolean           deleted_;         // Private. @A1A
+    transient         Object            detailsChildrenLock_ = new Object(); 
     transient         VObject[]         detailsChildren_; // Private.
     transient private Date              modified_;
     transient private VPropertiesPane   propertiesPane_;
@@ -416,7 +417,7 @@ Returns the child for the details at the specified index.
         if (childrenLoaded_ == false)
             loadChildren ();
 
-        synchronized (detailsChildren_) {  // @C3A
+        synchronized (detailsChildrenLock_) {  // @C3A
           if (index < 0 || index >= detailsChildren_.length)
             return null;
 
@@ -468,7 +469,7 @@ Returns the index of the specified child for the details.
         if (childrenLoaded_ == false)
             loadChildren ();
 
-        synchronized (detailsChildren_) {  // @C3A
+        synchronized (detailsChildrenLock_) {  // @C3A
           for (int i = 0; i < detailsChildren_.length; ++i)
             if (detailsChildren_[i] == detailsChild)
               return i;
@@ -928,7 +929,7 @@ Loads the children from the system.
 
                 // Make sure all necessary properties have been set.
                 Vector directories = null;
-                synchronized (detailsChildren_) {  // @C3A
+                synchronized (detailsChildrenLock_) {  // @C3A
                   if (directory_.getPath ().length () > 0) {
 
                     //@C5C Change to use listFiles() rather than list().
@@ -1288,7 +1289,7 @@ Listens for events and adjusts the children accordingly.
                 // @C3D synchronized (VIFSDirectory.this) {
 
                     // Add to the details children.
-                    synchronized (detailsChildren_) {  // @C3A
+                    synchronized (detailsChildrenLock_) {  // @C3A
                       VObject[] oldDetailsChildren = detailsChildren_;
                       int count = detailsChildren_.length;
                       detailsChildren_ = new VObject[count + 1];
@@ -1348,7 +1349,7 @@ Listens for events and adjusts the children accordingly.
                 int count;
                 int index = getDetailsIndex (object);
                 if (index >= 0) {
-                  synchronized (detailsChildren_) {  // @C3A
+                  synchronized (detailsChildrenLock_) {  // @C3A
                     VObject[] oldDetailsChildren = detailsChildren_;
                     count = detailsChildren_.length;
                     detailsChildren_ = new VObject[count - 1];
