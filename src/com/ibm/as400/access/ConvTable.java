@@ -447,6 +447,7 @@ public abstract class ConvTable
       case 1208:
       case 1364:
       case 1371:
+      case 1379:
       case 1388:
       case 1390:
       case 1399:
