@@ -280,6 +280,7 @@ package com.ibm.as400.access;
 //@AC3   20200429  JDBC:  Change JDConnectionPoolManager to use minPoolSize when reuseConnection is set
 //@AC4   20200603  SignonConverter throw AS400SecurityException.
 //@AC5   20201019  Findbugs fixes.
+//@AC6   20201023  Conversion: CCSID 1379 support
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -289,8 +290,8 @@ public interface Copyright
     public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.4"; 
-    //                                                                                         built=20200316 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20200316 @AC5";  
+    //                                                                                         built=20201023 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20201023 @AC6";  
 
 
     // Constants for reference by AS400JDBCDriver.

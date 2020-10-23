@@ -30,6 +30,7 @@ public class ConvTableDoubleMap extends ConvTable
     protected char[] fromUnicode_ = null;
     
     char[][] toUnicodeSurrogate_ = null; 
+    char[][] toUnicodeTriple_ = null; 
     // To convert from unicode, @KDA 
     // The first index is based off of D800
     // The second index is based off of DC00
@@ -39,6 +40,14 @@ public class ConvTableDoubleMap extends ConvTable
     public static final int FROM_UNICODE_SURROGATE_DIMENSION_LENGTH = 0x400; 
     char[][] fromUnicodeSurrogate_ = null;
 
+    
+    
+    char[][][] fromUnicodeTriple_ = null;
+    int firstTripleMin_;
+    int secondTripleMin_; 
+    int thirdTripleMin_; 
+    
+    
     // combining characters used for unicode to ebcdic conversion 
     char[] combiningCharacters_;
     char[][] combiningCombinations_; 
@@ -47,7 +56,7 @@ public class ConvTableDoubleMap extends ConvTable
     
     // Constructor.
   ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode,
-      char[][] toUnicodeSurrogateMapping) {
+      char[][] toUnicodeSurrogateMapping, char[][] toUnicodeTripleMapping) {
     this(ccsid, toUnicode, fromUnicode);
     toUnicodeSurrogate_ = new char[65535][];
     fromUnicodeSurrogate_ = new char[FROM_UNICODE_SURROGATE_DIMENSION_LENGTH][];
@@ -104,7 +113,59 @@ public class ConvTableDoubleMap extends ConvTable
     for (i = 0; i < combiningCombinationSize; i++) {
       combiningCombinations_[i] = (char[]) combiningCombinationArrayList.get(i); 
     }
-    
+
+    if (toUnicodeTripleMapping != null) {
+      // Determine the dimensions for each of the array mappings
+      firstTripleMin_ = 0xFFFF;
+      secondTripleMin_ = 0xFFFF;
+      thirdTripleMin_ = 0xFFFF;
+      
+      int firstTripleMax = 0; 
+      int secondTripleMax = 0; 
+      int thirdTripleMax = 0; 
+      
+      for (int j = 0; j < toUnicodeTripleMapping.length; j++) {
+        char[] row = toUnicodeTripleMapping[j]; 
+        int firstTriple = 0xffff & row[1]; 
+        int secondTriple = 0xffff & row[2]; 
+        int thirdTriple = 0xffff & row[3]; 
+        if (firstTriple < firstTripleMin_) firstTripleMin_ = firstTriple;
+        if (firstTriple > firstTripleMax ) firstTripleMax = firstTriple;
+        if (secondTriple < secondTripleMin_) secondTripleMin_ = secondTriple;
+        if (secondTriple > secondTripleMax ) secondTripleMax = secondTriple;
+        if (thirdTriple < thirdTripleMin_) thirdTripleMin_ = thirdTriple;
+        if (thirdTriple > thirdTripleMax ) thirdTripleMax = thirdTriple;
+      }
+      
+      fromUnicodeTriple_ = new char[firstTripleMax-firstTripleMin_+1][][];
+      toUnicodeTriple_ = new char[65535][];
+     
+      // Populate the to and from tables 
+      for (int j = 0; j < toUnicodeTripleMapping.length; j++) {
+        char[] row = toUnicodeTripleMapping[j]; 
+        int ebcdic      = 0xffff & row[0];
+        int firstIndex  = (0xffff & row[1]) - firstTripleMin_; 
+        int secondIndex = (0xffff & row[2]) - secondTripleMin_; 
+        int thirdIndex  = (0xffff & row[3]) - thirdTripleMin_; 
+        
+        toUnicodeTriple_[ebcdic] = new char[3];
+        toUnicodeTriple_[ebcdic][0] = row[1]; 
+        toUnicodeTriple_[ebcdic][1] = row[2]; 
+        toUnicodeTriple_[ebcdic][2] = row[3]; 
+        
+        char[][] secondLevel = fromUnicodeTriple_[firstIndex]; 
+        if (secondLevel == null) {
+          secondLevel = new char[secondTripleMax-secondTripleMin_+1][];
+          fromUnicodeTriple_[firstIndex] = secondLevel; 
+        }
+        char[] thirdLevel = secondLevel[secondIndex];
+        if (thirdLevel == null) {
+          thirdLevel = new char[thirdTripleMax-thirdTripleMin_+1];
+          secondLevel[secondIndex] = thirdLevel; 
+        }
+        thirdLevel[thirdIndex] = (char) ebcdic; 
+      }
+    }
   }
 
     // Constructor.
@@ -261,6 +322,31 @@ public class ConvTableDoubleMap extends ConvTable
           to++;
           length++; 
         }
+      } else if (dest[to] == 0xD801) {   /* check for triplet */ 
+        if (toUnicodeTriple_ != null) {
+          char[] triple = toUnicodeTriple_[fromIndex]; 
+          if (triple != null) {
+            dest[to] = triple[0];
+            to++;
+            length++;
+            dest[to] = triple[1];
+            to++;
+            length++;
+            dest[to] = triple[2];
+            to++;
+            length++;
+          } else { 
+            // triple not defined, replace with sub
+            dest[to] = dbSubUnic_; 
+            to++; 
+            length++;
+         }
+        } else {
+          // Not handling triplets, replace with sub
+          dest[to] = dbSubUnic_; 
+          to++;
+          length++; 
+        }
       } else {
         // Single character.  Increment counter; 
         to++;
@@ -323,7 +409,29 @@ public class ConvTableDoubleMap extends ConvTable
                 }
               }
            }
-        }     
+        }  
+      if (!found && fromUnicodeTriple_ != null) {
+        if (i + 2 < src.length) {
+          int index1 = (0xFFFF & src[i]) - firstTripleMin_;
+          if (index1 >= 0 && index1 < fromUnicodeTriple_.length) {
+            char[][] secondLevel = fromUnicodeTriple_[index1];
+            if (secondLevel != null) {
+              int index2 = (0xFFFF & src[i + 1]) - secondTripleMin_;
+              if (index2 >= 0 && index2 < secondLevel.length) {  
+                char[] thirdLevel = secondLevel[index2];
+                int index3 = (0xFFFF & src[i+2]) - thirdTripleMin_; 
+                if (index3 >= 0 && index3 < thirdLevel.length) {
+                  returnChar = thirdLevel[index3]; 
+                  if (returnChar != 0)  {
+                    found = true; 
+                    incrementValue += 2; 
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
         if (!found) { 
           returnChar = fromUnicode_[src[i]];
         }

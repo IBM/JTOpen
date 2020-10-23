@@ -182,9 +182,9 @@ public abstract class ConvTableMixedMap extends ConvTable
                 // Use double-byte table first.
                 // dbLookup = dbTable_.fromUnicode_[curChar];
               dbLookup = dbTable_.fromUnicode(src,srcPos,increment);
-              if (increment[0] == 2) {
+              if (increment[0] >= 2) {
                 // move an extra byte in the source @KDA 
-                srcPos++; 
+                srcPos = srcPos + increment[0] -1; 
               }
                 if (dbLookup == dbSubChar_ && curChar != dbSubUnic_)
                 {

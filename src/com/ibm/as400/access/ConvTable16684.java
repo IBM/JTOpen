@@ -2361,18 +2361,18 @@ class ConvTable16684 extends ConvTableDoubleMap
 
   ConvTable16684()
   {
-    super(16684, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings);
+    super(16684, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings,null);
   }
 
 
   ConvTable16684(int ccsid)
   {
-    super(ccsid, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings);
+    super(ccsid, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings,null);
   }
   
   ConvTable16684(int ccsid, char[] toUnicodeArray, char[] fromUnicodeArray)
   {
-    super(ccsid, toUnicodeArray, fromUnicodeArray,toUnicodeSurrogateMappings);
+    super(ccsid, toUnicodeArray, fromUnicodeArray,toUnicodeSurrogateMappings,null);
   }
   
   

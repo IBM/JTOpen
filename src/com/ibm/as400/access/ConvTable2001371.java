@@ -8445,12 +8445,12 @@ class ConvTable2001371 extends ConvTableDoubleMap
 
   ConvTable2001371()
   {
-    super(2001371, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings);
+    super(2001371, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings,null);
   }
 
 
   ConvTable2001371(int ccsid)
   {
-    super(ccsid, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings);
+    super(ccsid, toUnicodeArray_, fromUnicodeArray_,toUnicodeSurrogateMappings,null);
   }
 }
