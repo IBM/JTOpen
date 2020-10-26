@@ -1035,15 +1035,15 @@ public class GenerateConverterTable {
                 sb3.append("EBCDIC RoundTrip Failure 2 " + ebcdicPrefix + "'"
                     + Integer.toHexString(i) + "'" + " -> UX'");
                 for (int j = 0; j < unicodeChars.length; j++) {
-                  sb2.append(Integer.toHexString(unicodeChars[j])+"."); 
+                  sb3.append(Integer.toHexString(unicodeChars[j])+"."); 
                 }
-                sb2.append( "'" + " -> "
+                sb3.append( "'" + " -> "
                     + ebcdicPrefix + "'" + Integer.toHexString(ebcdicChar) + "'"
                     + " -> UX'" ); 
                 for (int j = 0; j < unicodeChars2.length; j++) {
-                  sb2.append(Integer.toHexString(unicodeChars2[j])+"."); 
+                  sb3.append(Integer.toHexString(unicodeChars2[j])+"."); 
                 }
-                sb2.append( "'\n");
+                sb3.append( "'\n");
                 passed = false;
 
               }
@@ -1091,9 +1091,9 @@ public class GenerateConverterTable {
                 + "'" + " -> " + ebcdicPrefix + "'"
                 + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
             for (int j = 0; j < unicodeChars.length; j++) {
-              sb2.append(Integer.toHexString(unicodeChars[j])+"."); 
+              sb1.append(Integer.toHexString(unicodeChars[j])+"."); 
             }
-            sb2.append( "'\n");
+            sb1.append( "'\n");
             passed = false;
           } else {
             int ebcdicChar2 = 0;
@@ -1818,8 +1818,11 @@ private static char[] jdbcToUnicode(Connection connection, int ccsid) throws SQL
    // or the associated CCSID if no double byte
    
    boolean mixed = false;
-   // NOTE: This doesn't work... 
-   String sql = "select cast(CAST(CAST(? AS CLOB(1M) FOR BIT DATA ) AS DBCLOB(1M) CCSID "+ccsid+") as DBCLOB(1M) CCSID 1200) from sysibm.sysdummy1";
+   // Start at 0x00 and handle 8192 double byte characters at at time
+   // int BLOCKSIZE = 8192;
+   int BLOCKSIZE = 32;
+
+   String sql = "select cast(INTERPRET(CAST(? AS CHAR("+(BLOCKSIZE * 4)+") FOR BIT DATA) AS GRAPHIC("+(BLOCKSIZE*2)+") CCSID 4933) as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
    if (ccsid > 2000000) {
      ccsid = ccsid - 2000000; 
      mixed = true; 
@@ -1827,9 +1830,6 @@ private static char[] jdbcToUnicode(Connection connection, int ccsid) throws SQL
    }
    PreparedStatement ps = connection.prepareStatement(sql);
    
-   // Start at 0x00 and handle 8192 double byte characters at at time
-   // int BLOCKSIZE = 8192;
-   int BLOCKSIZE = 32;
    int OUTERLOOP = 65536 / BLOCKSIZE; 
    byte[] piece8192; 
    if (mixed) {
