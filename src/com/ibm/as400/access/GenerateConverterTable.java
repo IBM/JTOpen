@@ -1835,7 +1835,7 @@ private static char[] jdbcToUnicode(Connection connection, int ccsid) throws SQL
    // int BLOCKSIZE = 8192;
    int BLOCKSIZE = 32;
 
-   String sql = "select cast(INTERPRET(CAST(? AS CHAR("+(BLOCKSIZE * 4)+") FOR BIT DATA) AS GRAPHIC("+(BLOCKSIZE*2)+") CCSID 493) as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
+   String sql = "select cast(INTERPRET(CAST(? AS CHAR("+(BLOCKSIZE * 4)+") FOR BIT DATA) AS GRAPHIC("+(BLOCKSIZE*2)+") CCSID "+ccsid+") as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
    if (ccsid > 2000000) {
      ccsid = ccsid - 2000000; 
      mixed = true; 
