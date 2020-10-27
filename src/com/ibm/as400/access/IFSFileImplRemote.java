@@ -57,6 +57,10 @@ implements IFSFileImpl
   //private static final int ACCESS_MODE_WRITE   = 0x02;  // W_OK: test for write permission
   private static final int ACCESS_MODE_EXECUTE = 0x01;  // X_OK: test for execute permission
   //private static final int ACCESS_MODE_EXISTS  = 0x00;  // F_OK: test for existence of file
+  
+//TODO @ZZA
+  private String ownerName_ = null;
+  private int fileCcsid_ = -1;
 
   // Static initialization code.
   static
@@ -745,6 +749,12 @@ implements IFSFileImpl
     return reply;
   }
 
+//@AC7A Start
+  public int getCCSID(boolean retrieveAll) throws IOException, AS400SecurityException
+	{
+	    return fd_.getCCSID(retrieveAll);
+	}
+//@AC7A End
 
   // @B4a
   /**
@@ -941,10 +951,57 @@ implements IFSFileImpl
     return amountOfSpace;
   }
 
+//@AC7A Start
+  public String getFileSystemType(boolean isDirectory) throws IOException, AS400SecurityException {
+	    return fd_.getFileSystemType(isDirectory);
+  }
+//@AC7A End
+  
   //@SAA @V4C
   public String getFileSystemType() throws IOException, AS400SecurityException {
     return fd_.getFileSystemType();
   }
+  
+//@AC7A Start
+  public String getOwnerName(boolean retrieveAll)
+		    throws IOException, AS400SecurityException
+		  {
+		    // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
+		    String ownerName = null;
+
+		    fd_.connect();
+		    // The 'owner name' field is in the OA1 structure; the flag is in the first Flags() field.
+		    try
+		    {
+		    	IFSListAttrsRep reply = null;
+		    	if (retrieveAll) 
+		    		return fd_.getOwnerName();
+		    	else
+		    		reply = fd_.listObjAttrs1(IFSObjAttrs1.OWNER_NAME_FLAG, 0);
+		    	
+		      if (reply != null) {
+		        ownerName = reply.getOwnerName(fd_.system_.getCcsid());
+		      }
+		      else {
+		        if (Trace.traceOn_) Trace.log(Trace.WARNING, "getOwnerName: " +
+		                    "IFSReturnCodeRep return code", fd_.errorRC_);
+		        if (fd_.errorRC_ == IFSReturnCodeRep.FILE_NOT_FOUND ||
+		            fd_.errorRC_ == IFSReturnCodeRep.PATH_NOT_FOUND)
+		        {
+		          throw new ExtendedIOException(fd_.path_, ExtendedIOException.PATH_NOT_FOUND);
+		        }
+		      }
+		    }
+		    catch (ExtendedIOException e) {
+		      if (e.getReturnCode() == ExtendedIOException.DIR_ENTRY_EXISTS) {
+		        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unable to determine owner of directory.", e);
+		      }
+		      else throw e;
+		    }
+
+		    return (ownerName == null ? "" : ownerName);
+		  }
+    //@AC7A End
   
   /**
    Returns the name of the user profile that is the owner of the file.
@@ -988,6 +1045,12 @@ implements IFSFileImpl
   public String getOwnerNameByUserHandle() throws IOException, AS400SecurityException {
     return fd_.getOwnerNameByUserHandle();
   }
+  
+  //@AC7A Start
+  public String getOwnerNameByUserHandle(boolean forceRetrieve) throws IOException, AS400SecurityException {
+	    return fd_.getOwnerNameByUserHandle(forceRetrieve);
+	  }
+  //@AC7A End
 
   //@RDA @SAD
   /**
@@ -1028,7 +1091,12 @@ implements IFSFileImpl
    return ASP;
  }*/
   
- 
+  //@AC7A Start
+  public int getASP(boolean isDirectory) throws IOException, AS400SecurityException {
+	   return fd_.getASP(isDirectory);
+	 }
+//@AC7A End
+  
  //@SAA
  public int getASP() throws IOException, AS400SecurityException {
    return fd_.getASP();
@@ -2059,7 +2127,8 @@ implements IFSFileImpl
              boolean isFile = determineIsFile(reply);
              IFSCachedAttributes attributes = new IFSCachedAttributes(reply.getAccessDate(),
                  reply.getCreationDate(), reply.getFixedAttributes(), reply.getModificationDate(),
-                 reply.getObjectType(), reply.getSize(dsl), name, directoryPath, isDirectory, isFile, reply.getRestartID(), reply.isSymbolicLink(dsl)); //@B3A @C3C
+                 reply.getObjectType(), reply.getSize(dsl), name, directoryPath, isDirectory, isFile, 
+                 reply.getRestartID(), reply.isSymbolicLink(dsl), reply.getFileSystemType(dsl)); //@B3A @C3C
              fileAttributes[j++] = attributes;
            }
         }

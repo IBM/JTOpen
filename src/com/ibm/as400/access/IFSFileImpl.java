@@ -43,6 +43,7 @@ interface IFSFileImpl
   int getCCSIDByUserHandle() throws IOException, AS400SecurityException;            //@A2a //@SCc //@V4A
   String getOwnerName() throws IOException, AS400SecurityException;
   String getOwnerNameByUserHandle() throws IOException, AS400SecurityException; //@SCc //@V4A
+  String getOwnerNameByUserHandle(boolean forceRetrieve) throws IOException, AS400SecurityException; //@AC7 
   int getASP() throws IOException, AS400SecurityException;//@RDA @SAD
   String getFileSystemType()throws IOException, AS400SecurityException;//@SAA //@V4A
   long getOwnerUID()  throws IOException, AS400SecurityException;       //@B7a @C0c
@@ -90,6 +91,12 @@ interface IFSFileImpl
   void setPath(String path);
   void setSorted(boolean sort);
   void setSystem(AS400Impl system);
+  //@AC7 Start
+  String getFileSystemType(boolean retrieveAll)throws IOException, AS400SecurityException;
+  int getASP(boolean retrieveAll) throws IOException, AS400SecurityException;
+  int getCCSID(boolean retrieveAll) throws IOException, AS400SecurityException;
+  String getOwnerName(boolean retrieveAll) throws IOException, AS400SecurityException;
+  //@AC7 End
 
 }
 

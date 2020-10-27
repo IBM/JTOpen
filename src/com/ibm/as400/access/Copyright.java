@@ -281,6 +281,8 @@ package com.ibm.as400.access;
 //@AC4   20200603  SignonConverter throw AS400SecurityException.
 //@AC5   20201019  Findbugs fixes.
 //@AC6   20201023  Conversion: CCSID 1379 support
+//@AC7   20201027  IFS Performance improvement
+//@AC8   20201027  Varchar converter
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -291,7 +293,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.4"; 
     //                                                                                         built=20201023 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20201023 @AC6";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20201023 @AC8";  
 
 
     // Constants for reference by AS400JDBCDriver.

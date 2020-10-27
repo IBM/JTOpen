@@ -70,6 +70,10 @@ class IFSListAttrsRep extends IFSDataStream
   // Additional fields if datastreamLevel >= 8:
   private static final int LARGE_FILE_SIZE_OFFSET = 81;
   private static final int SYMBOLIC_LINK_OFFSET = 91;
+  
+  //@AC7 
+  private static final int FILE_SYSTEM_TYPE_OFFSET = 89;
+  private static final int UNINITIALIZED = -1;
 
 
 /**
@@ -438,6 +442,23 @@ Generates a hash code for this data stream.
   {
     return 0x8005;
   }
+  
+  //@AC7 Start
+  /**
+  Get the File System Type.
+  @return the File System Type
+  **/
+    int getFileSystemType(int datastreamLevel)
+    {
+    	int fileSystemType = UNINITIALIZED;
+    	if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
+    	      Trace.log(Trace.WARNING, "Could not determine the file system type, This field is only returned for data stream levels 8 and later.");
+    	} else {
+    		fileSystemType = get16bit(FILE_SYSTEM_TYPE_OFFSET);;
+    	}
+    	return fileSystemType;
+    }
+   //@AC7 End
 
 }
 

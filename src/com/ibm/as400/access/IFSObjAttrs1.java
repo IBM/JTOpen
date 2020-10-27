@@ -36,8 +36,8 @@ final class IFSObjAttrs1 implements Serializable
   // To retrieve the ASP, this flag must be set in the 'list attributes' request.
   static final int ASP_FLAG = 0x00100000;//@RDA
 
-
   private byte[] data_;
+  static final int OWNERANAME_ASP_FLAS = 0x00100800; //@AC7 
 
 
   IFSObjAttrs1(byte[] data)

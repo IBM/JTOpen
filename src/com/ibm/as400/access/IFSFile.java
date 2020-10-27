@@ -1240,7 +1240,8 @@ public class IFSFile
         result = impl_.getCCSIDByUserHandle();//@V4C
       }else
       {
-        result = impl_.getCCSID();
+        //result = impl_.getCCSID();
+        result = impl_.getCCSID(true); //@AC7 
       }
     }
     catch (AS400SecurityException e)
@@ -1480,10 +1481,12 @@ public class IFSFile
     
     //@SCa
     if(this.isDirectory() && getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){//@T2C
-      return impl_.getOwnerNameByUserHandle();//@V4C
+      //return impl_.getOwnerNameByUserHandle();//@V4C
+      return impl_.getOwnerNameByUserHandle(false);  //@AC7 
     }
     else
-      return impl_.getOwnerName();
+      //return impl_.getOwnerName();
+      return impl_.getOwnerName(true);  //@AC7 
   }
 
 
@@ -1790,6 +1793,34 @@ public class IFSFile
   {
     return system_;
   }
+  
+  /**Return the auxiliary storage pool (ASP)  that holds the object. Note only password authentication scheme is supported, otherwise returns -1.
+  @param retrieve more attributes at same time when set true.
+  @return Return the auxiliary storage pool (ASP)  that holds the object.
+  Possible values are:
+   <ul>
+   <li>1: the system ASP (QASP01, also known as the system disk pool)
+   <li>2 to 32: user ASPs (QASP02 to QASP32)
+   <li>33 to 255: independent ASPs
+   <li>-1: authentication scheme is not supported
+   </ul>
+  @throws  IOException  If an error occurs while communicating with the system.
+  @throws  AS400SecurityException  If a security or authority error occurs.
+ **/
+//@AC7 Start
+public int getASP(boolean retrieveAll) throws IOException, AS400SecurityException
+{
+  if (impl_ == null)
+      chooseImpl();
+  if(getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){
+	  if (retrieveAll) 
+		  return impl_.getASP(this.isDirectory());  
+	  else      
+          return impl_.getASP();
+  }
+  return -1;
+}
+//@AC7 End
 
   //@RDA
   /**Return the auxiliary storage pool (ASP)  that holds the object. Note only password authentication scheme is supported, otherwise returns -1.
@@ -1817,6 +1848,34 @@ public class IFSFile
     return -1;//@T2A
   }
   
+//@AC7 Start
+  /**Return the type of file system. Note only password authentication scheme is supported, otherwise returns "".
+   * @param retrieveAll true or false, retrieve all attributes at same time.
+  @return Return the type of file system.
+  Possible values are:EPFS,QDLS,QSYS,NFS,LRFS,QOPT,QRFS,EPFSP,QNETC,QDTL,IEPFS,ASPQSYS
+  @throws  IOException  If an error occurs while communicating with the system.
+  @throws  AS400SecurityException  If a security or authority error occurs.
+ **/
+  public String getFileSystemType(boolean retrieveAll) throws IOException, AS400SecurityException {
+	  if (cachedAttributes_ != null) {
+		  int fileSystemType = cachedAttributes_.getFileSystemType();
+		  if (fileSystemType == 2)
+			  return "QDLS";
+		  else if (fileSystemType == 3)
+			  return "QSYS";
+		}
+	    if (impl_ == null)
+	        chooseImpl();
+	    if(getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_PASSWORD){
+	    	if (retrieveAll)
+	    	    return impl_.getFileSystemType(this.isDirectory());
+	    	else
+	    	    return impl_.getFileSystemType();
+	    }
+	    return "";
+  }
+//@AC7 End
+  
   //@SAA
   /**Return the type of file system. Note only password authentication scheme is supported, otherwise returns "".
     @return Return the type of file system.
@@ -1825,6 +1884,16 @@ public class IFSFile
     @throws  AS400SecurityException  If a security or authority error occurs.
    **/
   public String getFileSystemType() throws IOException, AS400SecurityException {
+	//@AC7 Start
+		if (cachedAttributes_ != null) {
+			int fileSystemType = cachedAttributes_.getFileSystemType();
+		    if (fileSystemType == 2)
+			    return "QDLS";
+		    else if (fileSystemType == 3)
+			    return "QSYS";
+		}
+		//@AC7 End
+	  
     if (impl_ == null)
       chooseImpl();
 
@@ -1887,27 +1956,35 @@ public class IFSFile
 
     return (path_.length() > 0 && path_.charAt(0) == '/');
   }
+  
+  private boolean isDirectoryInited_ = false;  //@AC7 
 
-//internal isDirectory that returns a return code status indicator
-  int isDirectory0()
-    throws IOException, AS400SecurityException
-  {
-    //@A7A Added check for cached attributes.
-    if (cachedAttributes_ != null)
-    {
-       if (isDirectory_)
-          return IFSReturnCodeRep.SUCCESS;
-       else
-          return IFSReturnCodeRep.FILE_NOT_FOUND;
-    }
-    else
-    {
-       if (impl_ == null)
-         chooseImpl();
-
-       return impl_.isDirectory();
-    }
-  }
+  //internal isDirectory that returns a return code status indicator
+  int isDirectory0() throws IOException, AS400SecurityException {
+	  //@A7A Added check for cached attributes.
+	  if (cachedAttributes_ != null) {
+		  if (isDirectory_) {
+			  return IFSReturnCodeRep.SUCCESS;
+		  } else 
+			  return IFSReturnCodeRep.FILE_NOT_FOUND;
+		  } else {  
+			//@AC7 Start
+			  if (isDirectoryInited_) {
+				  if (isDirectory_) {
+					  return IFSReturnCodeRep.SUCCESS;
+				  } else 
+					  return IFSReturnCodeRep.FILE_NOT_FOUND; 
+			  } else { 
+				  if (impl_ == null) 
+				      chooseImpl(); 
+				  int rc = impl_.isDirectory();
+		    	  isDirectory_ = rc == 0? true : false;
+		    	  isDirectoryInited_ = true;
+		    	  return rc;
+		      }		       
+		  }
+	}
+         //@AC7 End
 
   /**
    Determines if the integrated file system object represented by this object is a

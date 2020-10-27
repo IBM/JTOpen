@@ -33,6 +33,7 @@ class IFSListAttrsReq extends IFSDataStreamReq
   static final int OA_NONE = 0;
   static final int OA1     = 1;
   static final int OA2     = 2;
+  static final int OA12     = 12; //@AC7 
 
   private static final int FILE_HANDLE_OFFSET = 22;
   private static final int CCSID_OFFSET = 26;
@@ -195,8 +196,8 @@ Construct a 'list file attributes' request.
    @param flags2 Bitmap for the Flags(2) field.  Ignored if attrsType != OA1.
    **/
   IFSListAttrsReq(int handle, int attrsType, int flags1, int flags2)
-  {
-    super(HEADER_LENGTH + TEMPLATE_LENGTH + (attrsType == OA1 ? 14 : 0));
+  {  
+    super(HEADER_LENGTH + TEMPLATE_LENGTH + (attrsType == OA1 ? 14 : 0) + (attrsType == OA12 ? 14 : 0)); //@AC7 Start
     setLength(data_.length);
     setTemplateLen(TEMPLATE_LENGTH);
     setReqRepID(0x000A);
@@ -222,6 +223,18 @@ Construct a 'list file attributes' request.
       case OA2:  // return an OA2* structure
         set16bit((short)0x44, FILE_ATTR_LIST_LEVEL_OFFSET); // get OA2, and use open instance of file handle
         break;
+      //@AC7 Start
+      case OA12:
+    	  set16bit((short)0x46, FILE_ATTR_LIST_LEVEL_OFFSET); // get OA1, and use open instance of file handle
+          // Set the 'Flags' LL.
+          set32bit(LLCP_LENGTH + 4 + 4,  OA1_FLAGS_LL_OFFSET);  // LL/CP length, plus two 4-byte fields
+          // Set the 'Flags' CP.
+          set16bit(0x0010, OA1_FLAGS_CP_OFFSET);
+          // Set the 'Flags' values.
+          set32bit(flags1, OA1_FLAGS_OFFSET1);  // Flags(1)
+          set32bit(flags2, OA1_FLAGS_OFFSET2);  // Flags(2)
+          break;
+        //@AC7 End
       default:  // do not use a file handle, and do not return an OA* structure
         set16bit((short)0x01, FILE_ATTR_LIST_LEVEL_OFFSET); // just set the required 'reserved' bit
     }

@@ -38,6 +38,8 @@ class IFSLookupReq extends IFSDataStreamReq
   static final int OA1     = 1;
   static final int OA2     = 2;
   static final int ASP_FLAG = 0x00100000;
+  static final int OA12    = 12;  //@AC7 
+  static final int OA3     = 3;   //@AC7 
 
   /**
   Construct a list attributes request.
@@ -104,7 +106,7 @@ class IFSLookupReq extends IFSDataStreamReq
  
   IFSLookupReq(byte[] name,int fileNameCCSID, int UserHandle, int attrsType, int flags1, int flags2)
   {
-    super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + name.length+ (attrsType == OA1 ? 14 : 0)); // @A1A
+	  super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + name.length+ (attrsType == OA1 ? 14 : 0) + (attrsType == OA12 ? 14 : 0)); //@AC7 
                        // Note: EA list fixed header is 8 bytes; repeating header is 10 bytes for each name-only EA structure.
     setLength(data_.length);
     setTemplateLen(TEMPLATE_LENGTH);
@@ -145,6 +147,17 @@ class IFSLookupReq extends IFSDataStreamReq
       case OA2:
         set16bit((short)0x0004,FILE_ATTR_LIST_LEVEL_OFFSET);
         break;
+      //@AC7 Start
+      case OA12:
+    	set16bit((short)0x0006,FILE_ATTR_LIST_LEVEL_OFFSET);
+    	set32bit(LLCP_LENGTH + 4 + 4,  offset);  // LL/CP length, plus two 4-byte fields
+        // Set the 'Flags' CP.
+        set16bit(0x0010, offset+4);
+        // Set the 'Flags' values.
+        set32bit(flags1, offset+6);  // Flags(1)
+        set32bit(flags2, offset+10);  // Flags(2)
+        break;
+      //@AC7 Start
      }
 
   }

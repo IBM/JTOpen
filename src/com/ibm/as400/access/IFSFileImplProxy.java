@@ -140,6 +140,12 @@ implements IFSFileImpl
       throw rethrow2 (e);
     }
   }
+  
+  //@AC7A Start
+  public int getCCSID(boolean retrieveAll) throws IOException, AS400SecurityException {
+	  return getCCSID();
+  }
+   //@AC7A End
 
   // @A3a
   //@SCd //@T2C
@@ -193,6 +199,11 @@ implements IFSFileImpl
     }
   }
 
+  //@AC7A Start
+  public String getOwnerName(boolean retrieveAll) throws IOException, AS400SecurityException {
+	  return getOwnerName();
+  }
+  //@AC7A End
 
   //@SCd @T2C
   public String getOwnerName()
@@ -205,6 +216,13 @@ implements IFSFileImpl
       throw ProxyClientConnection.rethrow2 (e);
     }
   }
+  
+  //@AC7A Start
+  public String getOwnerNameByUserHandle(boolean forceRetrieve) throws IOException, AS400SecurityException {
+	  return getOwnerNameByUserHandle();
+  }
+  //@AC7A End
+  
   //@SCa
   public String getOwnerNameByUserHandle()
       throws IOException, AS400SecurityException
@@ -230,6 +248,12 @@ implements IFSFileImpl
     }*/
   
   //@SAA
+  
+//@AC7A Start
+  public int getASP(boolean isDirectory) throws IOException, AS400SecurityException{
+	  return getASP();
+  }
+//@AC7A End
  
   public int getASP()
       throws IOException, AS400SecurityException
@@ -241,6 +265,12 @@ implements IFSFileImpl
         throw ProxyClientConnection.rethrow2 (e);
       }
     }
+  
+//@AC7A Start
+  public String getFileSystemType(boolean isDirectory) throws IOException, AS400SecurityException {
+	  return getFileSystemType(); 
+  }
+//@AC7A End
   
   //@SAA
   public String getFileSystemType()

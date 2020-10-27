@@ -37,13 +37,22 @@ class IFSCachedAttributes implements Serializable
   String parent_;  // path of directory
   long size_;                   // @A1c
   byte[] restartID_;            // @C3a
+  
+  //@AC7 Start
+  int fileDataCCSID_;
+  String ownerName_;
+  int fileAsp_;
+  int fileSystemType_;
+  static final int UNINITIALIZED = -1;
+  //@AC7 End
 
 /**
 Construct listCachedAttributes object from a list of attributes.
 **/
   IFSCachedAttributes(long accessDate, long creationDate, int fixedAttributes, 
                       long modificationDate, int objectType, long size, 
-                      String name, String parent, boolean isDirectory, boolean isFile, byte[] restartID, boolean isSymbolicLink) // @A1c @C3c
+                      String name, String parent, boolean isDirectory, boolean isFile, 
+                      byte[] restartID, boolean isSymbolicLink, int fileSystemType) // @A1c @C3c
   {
     accessDate_ = accessDate;
     creationDate_ = creationDate;
@@ -57,6 +66,13 @@ Construct listCachedAttributes object from a list of attributes.
     size_ = size;
     restartID_ = restartID;  // @C3a
     isSymbolicLink_ = isSymbolicLink;
+    
+    //@AC7 Start
+    fileSystemType_ = fileSystemType;
+    ownerName_ = null;
+    fileAsp_ = UNINITIALIZED;
+    fileDataCCSID_ = UNINITIALIZED;
+    //@AC7 End
   }
 
 /**
@@ -155,5 +171,38 @@ Return isSymbolicLink_
   {
       return isSymbolicLink_;
   }
+  
+  //@AC7 Start
+  /**
+   * Return File system type 
+   */
+  int getFileSystemType() {
+	  return fileSystemType_;
+  }
+  
+  /**
+   * 
+   * @return Owner name
+   */
+  String getOwnerName() {
+	  return ownerName_;
+  }
+  
+  /**
+   * 
+   * @return File ASP
+   */
+  int getFileAsp() {
+	  return fileAsp_;
+  }
+  
+  /**
+   * 
+   * @return File data CCSID
+   */
+  int getFileDataCcsid() {
+	  return fileDataCCSID_;
+  }
+//@AC7 End
 
 }

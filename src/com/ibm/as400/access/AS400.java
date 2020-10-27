@@ -4611,8 +4611,13 @@ public class AS400 implements Serializable
     /**
      * Determines whether Bidi processing should occur in AS400Text.toBytes() method
      */
-    public boolean bidiAS400Text = false;
+    public boolean bidiAS400Text = false; //@AC8
     //@Bidi-HCG3 end
+    
+    /**
+     * Determines whether Bidi processing should occur in AS400Varchar.toBytes() method
+     */
+    public boolean bidiAS400Varchar = false;
 
     // Set the signon information for the connection
     // Typicially used when the signon server has been skipped and the information
