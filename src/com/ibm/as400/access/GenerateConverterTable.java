@@ -1754,7 +1754,20 @@ private static char[] jdbcToUnicode(Connection connection, int ccsid) throws SQL
      ccsid = ccsid - 2000000; 
      mixedCcsid = true; 
    }
-   PreparedStatement ps = connection.prepareStatement("select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS CLOB(1M) CCSID "+ccsid+") as BLOB(1M)) from sysibm.sysdummy1");
+   PreparedStatement ps;
+   try { 
+     ps = connection.prepareStatement("select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS DBCLOB(1M) CCSID "+ccsid+") as BLOB(1M)) from sysibm.sysdummy1");
+   
+   } catch (SQLException sqlex) { 
+     String message = sqlex.toString(); 
+     // If DBCLOB is not valid, try clob
+     if (message.indexOf("SQL0189") >= 0) {
+       ps = connection.prepareStatement("select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS CLOB(1M) CCSID "+ccsid+") as BLOB(1M)) from sysibm.sysdummy1");
+       
+     } else {
+       throw sqlex; 
+     }
+   }
    
    char[] allChar65536 = new char[65536]; 
    for (int i = 0; i < 0xD800; i++) {
@@ -1822,7 +1835,7 @@ private static char[] jdbcToUnicode(Connection connection, int ccsid) throws SQL
    // int BLOCKSIZE = 8192;
    int BLOCKSIZE = 32;
 
-   String sql = "select cast(INTERPRET(CAST(? AS CHAR("+(BLOCKSIZE * 4)+") FOR BIT DATA) AS GRAPHIC("+(BLOCKSIZE*2)+") CCSID 4933) as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
+   String sql = "select cast(INTERPRET(CAST(? AS CHAR("+(BLOCKSIZE * 4)+") FOR BIT DATA) AS GRAPHIC("+(BLOCKSIZE*2)+") CCSID 493) as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
    if (ccsid > 2000000) {
      ccsid = ccsid - 2000000; 
      mixed = true; 
