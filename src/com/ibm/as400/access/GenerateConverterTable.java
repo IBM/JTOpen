@@ -398,6 +398,14 @@ public class GenerateConverterTable {
         }
         tableToUnicode = newTable;
 
+      } else if (tableToUnicode.length == 0) {
+        // Create a tableToUnicode from tableToUnicodeSpaces
+        int len = tableToUnicodeSpaces.length / 2; 
+        tableToUnicode= new char[len]; 
+        for (int i = 0; i < len; i++) {
+          tableToUnicode[i] = tableToUnicodeSpaces[i*2]; 
+        }
+        
       }
       System.out.println("  Size: " + tableToEbcdic.length);
 
