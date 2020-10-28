@@ -18,17 +18,18 @@ import java.io.UnsupportedEncodingException;
 
 public class ConvTable1377 extends ConvTableMixedMap
 {
-    private static final String copyright = "Copyright (C) 2017-2017 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 2017-2020 International Business Machines Corporation and others.";
 
     public ConvTable1377() throws UnsupportedEncodingException
     {
-        this(1377);
+        super(1377, 1001377, 2001377);
     }
 
     ConvTable1377(int ccsid) throws UnsupportedEncodingException
     {
        /* Though officially defined as 28709, 1376 */ 
        /* the system behaves as 37, 1376 */ 
-        super(ccsid, 37, 1376);
+        super(ccsid, 1001377, 2001377);
     }
 }
+
