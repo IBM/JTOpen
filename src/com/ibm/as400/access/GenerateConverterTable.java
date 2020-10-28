@@ -243,9 +243,9 @@ public class GenerateConverterTable {
         }
 
       }
-      System.out.println("  Size: " + tableToUnicode.length);
-      if (tableToUnicode.length > 65536 || tableToUnicodeSpaces.length > 65536) {
-        System.out.println("Size is > 65536.  Fixing table");
+      System.out.println("  Size: " + tableToUnicode.length +" or "+ tableToUnicodeSpaces.length);
+      if (tableToUnicode.length > 65536 || tableToUnicodeSpaces.length > 131072) {
+        System.out.println("Size is > 65536 or 131072.  Fixing table");
         int next = 0;
         int from = 0;
         char[] newTable = new char[65536];
