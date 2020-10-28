@@ -19,50 +19,63 @@ import java.io.UnsupportedEncodingException;
 
 public class AS400Varchar implements AS400DataType {
 	static final long serialVersionUID = 4L;
-
     private int length_;
     private int ccsid_ = 65535;
     transient private String encoding_ = null;
     private AS400 system_;
     transient ConverterImpl tableImpl_;
     private static final String defaultValue_ = "";
-    private byte[] padding_ = null;
+    private int varlensize_ = 2;
 
     /**
      Constructs an AS400Varchar object.
      It uses the most likely CCSID based on the default locale.
+     @param  varlensize the size of Varchar length, it must be 2 byte or 4 byte.
      @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
      **/
-    public AS400Varchar(int length)
+    public AS400Varchar(int varlensize, int length)
     {
         if (length < 0)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
             throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+        if (varlensize < 0)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
+            throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        varlensize_ = varlensize;
         length_ = length;
     }
-
+    
     /**
-     Constructs an AS400Varchar object.
-     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
-     @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
-     **/
-    public AS400Varchar(int length, int ccsid)
-    {
-        if (length < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
-            throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        if (ccsid < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
-            throw new ExtendedIllegalArgumentException("ccsid (" + ccsid + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        length_ = length;
-        ccsid_ = ccsid;
-    }
+    Constructs an AS400Varchar object.
+    @param  varlensize  the size of the Varchar length, it must be 2 bytes or 4 bytes
+    @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
+    @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+    **/
+   public AS400Varchar(int varlensize, int length, int ccsid)
+   {
+       if (length < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
+           throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       if (ccsid < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
+           throw new ExtendedIllegalArgumentException("ccsid (" + ccsid + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       if (varlensize < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
+           throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       varlensize_ = varlensize;
+       length_ = length;
+       ccsid_ = ccsid;
+   }
 
     /**
      Constructs AS400Varchar object.
@@ -84,6 +97,34 @@ public class AS400Varchar implements AS400DataType {
         length_ = length;
         encoding_ = encoding;
     }
+    
+    /**
+    Constructs AS400Varchar object.
+    @param  varlensize  the size of the Varchar length, it must be 2 bytes or 4 bytes
+    @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
+    @param  encoding  The name of a character encoding.  It must be a valid and available encoding.
+    **/
+   public AS400Varchar(int varlensize, int length, String encoding)
+   {
+       if (length < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
+           throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       if (encoding == null)
+       {
+           Trace.log(Trace.ERROR, "Parameter 'encoding' is null.");
+           throw new NullPointerException("encoding");
+       }
+       if (varlensize < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
+           throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       varlensize_ = varlensize;
+       length_ = length;
+       encoding_ = encoding;
+   }
 
     /**
      Constructs an AS400Varchar object.  The CCSID used for conversion will be the CCSID of the <i>system</i> object.
@@ -123,6 +164,41 @@ public class AS400Varchar implements AS400DataType {
         ccsid_ = ccsid;
         system_ = system;
     }
+    
+    /**
+    Constructs an AS400Varchar object.
+    @param  varlensize  the size of the Varchar length, it must be 2 bytes or 4 bytes
+    @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
+    @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+    @param  system  The system from which the conversion table may be downloaded.
+    */
+   public AS400Varchar(int varlensize, int length, int ccsid, AS400 system)
+   {
+       if (length < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
+           throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       if (ccsid < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
+           throw new ExtendedIllegalArgumentException("ccsid (" + ccsid + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       if (system == null)
+       {
+           Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+           throw new NullPointerException("system");
+       }
+       if (varlensize < 0)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
+           throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       varlensize_ = varlensize;
+       length_ = length;
+       ccsid_ = ccsid;
+       system_ = system;
+   }
 
     // Package scope constructor for use on the proxy server.  Note that this constructor is only used in AS400FileRecordDescriptionImplRemote.  It is expected that the client code (AS400FileRecordDescription) will call fillInConverter() on each AS400Varchar object returned.
     AS400Varchar(int length, int ccsid, AS400Impl system)
@@ -142,6 +218,36 @@ public class AS400Varchar implements AS400DataType {
             Trace.log(Trace.ERROR, "Parameter 'system' is null.");
             throw new NullPointerException("system");
         }
+        length_ = length;
+        ccsid_ = ccsid;
+        // Notice that we have not filled in the Converter object.  We can't do that because we don't know if this object will in the end be used on the public side (Converter) or on the IBM i side (ConverterImpl).
+        // We also can't do that yet since the Converter ctor will connect to the system.
+    }
+    
+    // Package scope constructor for use on the proxy server.  Note that this constructor is only used in AS400FileRecordDescriptionImplRemote.  It is expected that the client code (AS400FileRecordDescription) will call fillInConverter() on each AS400Varchar object returned.
+    AS400Varchar(int varlensize, int length, int ccsid, AS400Impl system)
+    {
+        if (length < 0)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
+            throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (ccsid < 0)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
+            throw new ExtendedIllegalArgumentException("ccsid (" + ccsid + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (system == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+            throw new NullPointerException("system");
+        }
+        if (varlensize < 0)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
+            throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        varlensize_ = varlensize;
         length_ = length;
         ccsid_ = ccsid;
         // Notice that we have not filled in the Converter object.  We can't do that because we don't know if this object will in the end be used on the public side (Converter) or on the IBM i side (ConverterImpl).
@@ -171,7 +277,22 @@ public class AS400Varchar implements AS400DataType {
      **/
     public int getByteLength()
     {
-        return length_ + 2; //2 bytes of length field;
+        return length_ + varlensize_; //length of IBM i text bytes + 2 or 4 bytes of length field;
+    }
+    
+    /**
+    Returns the size of the data length, 2 or 4 bytes.
+    @return  The size of the data length.
+    **/
+    public int getVarLengthSize() {
+    	return varlensize_;
+    }
+    
+    /**
+    Set the size of the data length, 2 or 4 bytes.
+    **/
+    public void setVarLengthSize(int varlensize) {
+    	varlensize_ = varlensize;
     }
 
     /**
@@ -310,7 +431,7 @@ public class AS400Varchar implements AS400DataType {
      **/
     public byte[] toBytes(Object javaValue)
     {
-        byte[] serverValue = new byte[length_ + 2];
+        byte[] serverValue = new byte[length_ + varlensize_];
         toBytes(javaValue, serverValue, 2);
         return serverValue;
     }
@@ -334,18 +455,7 @@ public class AS400Varchar implements AS400DataType {
      @return  The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset)
-    {
-//        if (AS400BidiTransform.isBidiCcsid(getCcsid()))
-//        {
-//            return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(AS400BidiTransform.getStringType(ccsid_)));
-//        	
-//        }
-//        else
-//        {
-//            return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(BidiStringType.DEFAULT));
-//        }
-    	
-    	//@Bidi-HCG3 start    	
+    {    	
     	if(system_ != null){
     		if(!system_.bidiAS400Varchar)  {
     			//this will disable Bidi conversion
@@ -354,8 +464,7 @@ public class AS400Varchar implements AS400DataType {
     					}
     	} 
     	
-    	return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(getSystemBidiType()));
-    	//@Bidi-HCG3 end    	
+    	return toBytes(javaValue, serverValue, offset, new BidiConversionProperties(getSystemBidiType()));   	
     }
 
     /**
@@ -395,108 +504,30 @@ public class AS400Varchar implements AS400DataType {
         // We need to pad the String before the conversion in the case of a Bidi CCSID, because the Bidi transform needs to affect the entire String so it knows where the padding spaces need to go.
         String toConvert = (String)javaValue;
 
-        // We can't pad the String after the transform if we're bidi.
-        if (AS400BidiTransform.isBidiCcsid(ccsid_)) // We can use ccsid_ since we already called setTable().
-        {
-            int realLength = toConvert.length();
-            // Cases where we are Bidi, but we are DBCS.
-            if (ccsid_ == 13488 || ccsid_ == 61952)
-            {
-                realLength = realLength * 2;
-            }
-            
-            //Set String length in byte array.
-            BinaryConverter.intToByteArray(realLength, serverValue, 0);
-                        
-            int numPadBytes = length_ - realLength;
-            // Cases where we are Bidi, but we are DBCS.
-            if (ccsid_ == 13488 || ccsid_ == 61952)
-            {
-                numPadBytes = numPadBytes / 2;
-            }
-            if (numPadBytes > 0)
-            {
-                char[] cbuf = toConvert.toCharArray();
-                // Since all of our Bidi maps are SBCS, we can add one char for each extra byte we need.
-                char[] paddedBuf = new char[cbuf.length + numPadBytes];
-                System.arraycopy(cbuf, 0, paddedBuf, 0, cbuf.length);
-                for (int i = cbuf.length; i < paddedBuf.length; ++i)
-                {
-                    paddedBuf[i] = (char)0x0020; // SBCS space
-                }
-                toConvert = new String(paddedBuf);
-                if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Pre-padded Bidi String with " + numPadBytes + " spaces from '" + javaValue + "' to '" + toConvert + "'");
-            }                       
-        }
-        int varOffset = offset + 2;
-        
         byte[] eValue = tableImpl_.stringToByteArray(toConvert, properties);
+        int eValueLength = eValue != null? eValue.length:0;
 
         // Check that converted data fits within data type.
-        if (eValue.length > length_)
+        if (eValueLength > length_)
         {
             Trace.log(Trace.ERROR, "Length of parameter 'javaValue' is not valid: '" + javaValue + "'");
             throw new ExtendedIllegalArgumentException("javaValue (" + toConvert + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
+        
+        //Set String length in byte array.
+        int varOffset = offset + varlensize_;
+        if (varlensize_ == 2) {
+        	BinaryConverter.unsignedShortToByteArray(eValueLength, serverValue, 0);	
+        } else {
+        	BinaryConverter.unsignedIntToByteArray(eValueLength, serverValue, 0);	        	
+        }
+
         // Let this line throw ArrayIndexException.
         System.arraycopy(eValue, 0, serverValue, varOffset, eValue.length);
 
-        // Pad with spaces.
-        // Note that this may sort of kludge the byte array in cases where the allocated size isn't an even number for double-byte CCSID's.  e.g. new AS400Varchar(11, 13488) and wrote "ABCDE" which would take up 5*2=10 bytes, so we would pad the 11th byte with a double-byte space (0x00 0x20), so only the 0x00 would get written.  Not much we can do about it though.
-
-        // Build padding string.
-        int index = varOffset + eValue.length;
-        if (index < serverValue.length && index < varOffset+length_)
-        {
-            if (padding_ == null)
-            {
-                // Convert padding string using appropriate CCSID.
-                padding_ = tableImpl_.stringToByteArray("\u0020"); // The single-byte space.
-                // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
-                switch (padding_.length)
-                {
-                    case 0:  // Char wasn't in table.
-                        padding_ = tableImpl_.stringToByteArray("\u3000");
-                        break;
-                    case 1: // Char may be a single-byte substitution character.
-                        if (padding_[0] == 0x3F || padding_[0] == 0x7F || padding_[0] == 0x1A)
-                        {
-                            padding_ = tableImpl_.stringToByteArray("\u3000");
-                        }
-                        break;
-                    case 2: // Char may be a double-byte substitution character.
-                        int s = (0xFFFF & BinaryConverter.byteArrayToShort(padding_, 0));
-                        if (s == 0xFEFE || s == 0xFFFD || s == 0x003F || s == 0x007F || s == 0x001A)
-                        {
-                            padding_ = tableImpl_.stringToByteArray("\u3000");
-                        }
-                        break;
-                    default:
-                        if (Trace.traceOn_)
-                        {
-                            Trace.log(Trace.WARNING, "AS400Varchar.toBytes(): Padding character not found for 0x0020 or 0x3000 under CCSID " + tableImpl_.getCcsid(), padding_, 0, padding_.length);
-                            Trace.log(Trace.WARNING, "Using 0x40 as default padding character.");
-                        }
-                        padding_ = new byte[] { 0x40};
-                }
-            }
-            // Copy padding bytes into destination as many times as necessary.  Could've used a StringBuffer and a System.arraycopy, but this is faster...
-            int max = (varOffset+length_) < serverValue.length ? (varOffset+length_) : serverValue.length;
-            for (int i = 0; i < max - index; ++i)
-            {
-                serverValue[i+index] = padding_[i % padding_.length];
-            }
-        }
-
-        // Copy padding bytes into destination as many times as necessary.  Could've used a StringBuffer and a System.arraycopy, but this is faster...
-        int max = (varOffset+length_) < serverValue.length ? (varOffset+length_) : serverValue.length;
-        for (int i = 0; i < max - index; ++i)
-        {
-            serverValue[i + index] = padding_[i % padding_.length];
-        }
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "AS400Varchar.toBytes(): Converted javaValue (" + toConvert + ") to:", serverValue, varOffset, length_);
 
-        return length_ + 2; //2 bytes of length field
+        return length_ + varlensize_; //bytes length + 2/4 bytes of length field
     }
 
     /**
@@ -512,10 +543,8 @@ public class AS400Varchar implements AS400DataType {
             Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
             throw new NullPointerException("serverValue");
         }
-        setTable(); // Make sure the table is set.
-        
-        //@Bidi-HCG3 return tableImpl_.byteArrayToString(serverValue, 0, length_);        
-        return tableImpl_.byteArrayToString(serverValue, 2, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
+        setTable(); // Make sure the table is set.       
+        return tableImpl_.byteArrayToString(serverValue, varlensize_, length_, new BidiConversionProperties(getSystemBidiType()));
     }
 
     /**
@@ -532,10 +561,8 @@ public class AS400Varchar implements AS400DataType {
             Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
             throw new NullPointerException("serverValue");
         }
-        setTable(); // Make sure the table is set.
-        
-        //@Bidi-HCG3 return tableImpl_.byteArrayToString(serverValue, offset, length_);        
-        return tableImpl_.byteArrayToString(serverValue, offset, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
+        setTable(); // Make sure the table is set.        
+        return tableImpl_.byteArrayToString(serverValue, offset + varlensize_, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
     }
 
     /**
@@ -548,7 +575,7 @@ public class AS400Varchar implements AS400DataType {
      **/
     public Object toObject(byte[] serverValue, int offset, int type)
     {
-        return toObject(serverValue, offset, new BidiConversionProperties(type));
+        return toObject(serverValue, offset + varlensize_, new BidiConversionProperties(type));
     }
 
     /**
@@ -567,17 +594,14 @@ public class AS400Varchar implements AS400DataType {
             throw new NullPointerException("serverValue");
         }
         setTable(); // Make sure the table is set
-        return tableImpl_.byteArrayToString(serverValue, offset, length_, properties);
+        return tableImpl_.byteArrayToString(serverValue, offset + varlensize_, length_, properties);
     }
         
-    private int getSystemBidiType(){	//@Bidi-HCG3
-    	//return 4;
-    	
+    private int getSystemBidiType() {
     	if(system_ == null)
     		return BidiStringType.DEFAULT;
     	else
-    		return system_.getBidiStringType();
-    		
+    		return system_.getBidiStringType();	
     }
 
 }
