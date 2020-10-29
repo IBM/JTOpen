@@ -131,7 +131,7 @@ public abstract class ConvTableMixedMap extends ConvTable
 
             // There is no concept of mode context when converting a String to a byte array.
             // The table we look at first is only based on the current character in the String.
-            if ((curChar & 0xFF00) == 0x0000 || curChar == euro_)
+            if (((curChar & 0xFF00) == 0x0000) || ( curChar == euro_ ) || ( curChar == 0x203e && (ccsid_ == 935 || ccsid_ == 1388)))
             {
                 // Use single-byte table first.
                 sbLookup = sbTable_.fromUnicode_[curChar];

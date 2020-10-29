@@ -337,9 +337,13 @@ public class ConvTableDoubleMap extends ConvTable
             length++;
           } else { 
             // triple not defined, replace with sub
-            dest[to] = dbSubUnic_; 
-            to++; 
-            length++;
+            if (ccsid_ == 61952) {
+               // Keep the destination as D801
+            } else { 
+               dest[to] = dbSubUnic_; 
+               to++; 
+               length++;
+            }
          }
         } else {
           // Not handling triplets, replace with sub

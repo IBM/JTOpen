@@ -949,9 +949,9 @@ public class GenerateConverterTable {
     
     for (int i = 0; i < tableToUnicode.length; i++) {
       char1Buffer[0] = tableToUnicode[i];
-      if (char1Buffer[0] == 0xd800) {
+      if ((char1Buffer[0] == 0xd800) && (surrogateTable != null)) {
         unicodeChars = surrogateTable[i]; 
-      } else if (char1Buffer[0] == 0xd801) {
+      } else if ((char1Buffer[0] == 0xd801) && (tripletTable != null)) {
         unicodeChars = tripletTable[i]; 
       } else {
         unicodeChars = char1Buffer; 
@@ -1102,6 +1102,24 @@ public class GenerateConverterTable {
               sb1.append(Integer.toHexString(unicodeChars[j])+"."); 
             }
             sb1.append( "'\n");
+            
+           
+            if (tableToUnicode[ebcdicChar] == 0xfffd) {
+              
+                tableToUnicode[ebcdicChar] = (char) i; 
+                char1Buffer[0] = tableToUnicode[ebcdicChar];
+                unicodeChars = char1Buffer; 
+                
+                sb1.append("Fixed up ................ UX'" + Integer.toHexString(i)
+                + "'" + " -> " + ebcdicPrefix + "'"
+                + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+                for (int j = 0; j < unicodeChars.length; j++) {
+                  sb1.append(Integer.toHexString(unicodeChars[j])+"."); 
+                }
+                sb1.append( "'\n");
+
+                
+            }
             passed = false;
           } else {
             int ebcdicChar2 = 0;
