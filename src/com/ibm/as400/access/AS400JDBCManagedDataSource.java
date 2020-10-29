@@ -892,8 +892,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     AS400JDBCConnectionHandle connection = null;
 
     if ((serialUserName_ == null) ||  (pwHashcode_ == 0)) { 
-      serialUserName_ = key.getUser(); 
-      pwHashcode_ = password.hashCode() ; 
+      if (key != null) serialUserName_ = key.getUser(); 
+      if (password != null) pwHashcode_ = password.hashCode() ; 
       
     }
     
@@ -4429,6 +4429,10 @@ return connection;
     final String property = "user";
 
     if (isInUse()) {
+      if (user != null && user.equals(serialUserName_)) {
+        // not really changing so just return
+        return; 
+      }
       logError("Data source is already in use");
       throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
