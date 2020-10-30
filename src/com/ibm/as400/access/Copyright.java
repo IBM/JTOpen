@@ -284,6 +284,7 @@ package com.ibm.as400.access;
 //@AC7   20201027  IFS Performance improvement
 //@AC8   20201027  Varchar converter
 //@AC9   20201029  Conversion: Various CCSID fixes
+//@ACA   20201030  Support Create UserHandle2
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

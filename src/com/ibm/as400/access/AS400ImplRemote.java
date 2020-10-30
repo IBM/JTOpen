@@ -148,6 +148,8 @@ public class AS400ImplRemote implements AS400Impl {
   // Sign-on server client seed, held from sign-on connection until sign-on
   // disconnect.
   byte[] clientSeed_;
+  
+  private int UserHandle2_ = UNINITIALIZED; //TODO @ZZA
 
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
   static {
@@ -512,9 +514,16 @@ public class AS400ImplRemote implements AS400Impl {
 
   // @SAA Create user handle for the connection
   public int createUserHandle() throws AS400SecurityException, IOException {
-    if (userHandle_ != UNINITIALIZED) {
+    if (userHandle_ != UNINITIALIZED && credVault_.getType() != AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {//@ACAA
       return userHandle_;
     }
+    
+    //@ACAA Start
+    if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
+    	return createUserHandle2();
+    }
+    //@ACAA End
+    
     ClientAccessDataStream ds = null;
     int UserHandle = UNINITIALIZED;
 
@@ -4406,4 +4415,61 @@ public class AS400ImplRemote implements AS400Impl {
     return bidiStringType;
   }
   // @Bidi-HCG3 end
+  
+  //@ACAA Start
+  public int createUserHandle2() throws AS400SecurityException, IOException {
+	    if (UserHandle2_ != UNINITIALIZED) {
+	      return UserHandle2_;
+	    }
+	    ClientAccessDataStream ds = null;
+	    
+	    AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
+	    if (connectedServer != null) {
+	      try {
+	          byte[] authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) 
+	        		  : TokenManager2.getGSSToken(systemName_, gssCredential_);	    
+	    	IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes);
+	        ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+	      } catch (InterruptedException e) {
+	        Trace.log(Trace.ERROR, "Interrupted");
+	        InterruptedIOException throwException = new InterruptedIOException(
+	            e.getMessage());
+	        try {
+	          throwException.initCause(e);
+	        } catch (Throwable t) {
+	        }
+	        throw throwException;
+	      } catch (Throwable e) {
+	          Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+	          // @M4C
+	          throw new AS400SecurityException(
+	              AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+	      }
+	      int rc = 0;
+	      // Verify the reply.
+	      if (ds instanceof IFSCreateUserHandleRep) {
+	        rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
+	        if (rc != IFSReturnCodeRep.SUCCESS) {
+	          Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
+	        }
+	        UserHandle2_ = ((IFSCreateUserHandleRep) ds).getHandle();
+
+	      } else if (ds instanceof IFSReturnCodeRep) {
+	        rc = ((IFSReturnCodeRep) ds).getReturnCode();
+	        if (rc != IFSReturnCodeRep.SUCCESS) {
+	          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+	        }
+	        throw new ExtendedIOException(rc);
+	      } else {
+	        // Unknown data stream.
+	        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+	        throw new InternalErrorException(
+	            InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds
+	                .getReqRepID()), null);
+	      }
+	    }
+	    setUserHandle(UserHandle2_);
+	    return UserHandle2_;
+	  }
+    //@ACAA End
 }
