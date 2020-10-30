@@ -135,8 +135,12 @@ public interface AS400DataType extends Cloneable, Serializable
    * @see #getInstanceType
    **/
   public static final int TYPE_TIMESTAMP = 19;
-
-
+  
+  /**
+   * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Varchar AS400Varchar} object.
+   * @see #getInstanceType
+   **/
+  public static final int TYPE_VARCHAR = 20;
 
   /**
    * Creates a new AS400DataType object that is identical to the current instance.

@@ -76,27 +76,6 @@ public class AS400Varchar implements AS400DataType {
        length_ = length;
        ccsid_ = ccsid;
    }
-
-    /**
-     Constructs AS400Varchar object.
-     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
-     @param  encoding  The name of a character encoding.  It must be a valid and available encoding.
-     **/
-    public AS400Varchar(int length, String encoding)
-    {
-        if (length < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
-            throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        if (encoding == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'encoding' is null.");
-            throw new NullPointerException("encoding");
-        }
-        length_ = length;
-        encoding_ = encoding;
-    }
     
     /**
     Constructs AS400Varchar object.
@@ -125,45 +104,18 @@ public class AS400Varchar implements AS400DataType {
        length_ = length;
        encoding_ = encoding;
    }
-
-    /**
-     Constructs an AS400Varchar object.  The CCSID used for conversion will be the CCSID of the <i>system</i> object.
-     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
-     @param  system  The system with which to determine the CCSID.
-     */
-    public AS400Varchar(int length, AS400 system)
-    {
-        // Passing a 65535 will cause setTable() to do a system.getCcsid() at conversion time.
-        this(length, 65535, system);
-    }
-
-    /**
-     Constructs an AS400Varchar object.
-     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
-     @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
-     @param  system  The system from which the conversion table may be downloaded.
-     */
-    public AS400Varchar(int length, int ccsid, AS400 system)
-    {
-        if (length < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
-            throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        if (ccsid < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
-            throw new ExtendedIllegalArgumentException("ccsid (" + ccsid + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
-            throw new NullPointerException("system");
-        }
-        length_ = length;
-        ccsid_ = ccsid;
-        system_ = system;
-    }
+   
+   /**
+   Constructs an AS400Varchar object.
+   @param  varlensize  the size of the Varchar length, it must be 2 bytes or 4 bytes
+   @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
+   @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+   @param  system  The system from which the conversion table may be downloaded.
+   */
+  public AS400Varchar(int varlensize, int length, AS400 system)
+  {
+      this(varlensize, length, 65535, system);
+  }
     
     /**
     Constructs an AS400Varchar object.
@@ -337,7 +289,7 @@ public class AS400Varchar implements AS400DataType {
      **/
     public int getInstanceType()
     {
-        return AS400DataType.TYPE_TEXT;
+        return AS400DataType.TYPE_VARCHAR;
     }
 
     /**
@@ -517,9 +469,9 @@ public class AS400Varchar implements AS400DataType {
         //Set String length in byte array.
         int varOffset = offset + varlensize_;
         if (varlensize_ == 2) {
-        	BinaryConverter.unsignedShortToByteArray(eValueLength, serverValue, 0);	
+        	BinaryConverter.shortToByteArray((short)eValueLength, serverValue, 0);	
         } else {
-        	BinaryConverter.unsignedIntToByteArray(eValueLength, serverValue, 0);	        	
+        	BinaryConverter.intToByteArray(eValueLength, serverValue, 0);
         }
 
         // Let this line throw ArrayIndexException.
@@ -543,6 +495,11 @@ public class AS400Varchar implements AS400DataType {
             Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
             throw new NullPointerException("serverValue");
         }
+        
+        if (serverValue.length > length_) {
+        	Trace.log(Trace.ERROR, "Length of parameter serverValue is not valid: '" + serverValue.length + "'");
+            throw new ExtendedIllegalArgumentException("serverValue ", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
         setTable(); // Make sure the table is set.       
         return tableImpl_.byteArrayToString(serverValue, varlensize_, length_, new BidiConversionProperties(getSystemBidiType()));
     }
@@ -560,6 +517,10 @@ public class AS400Varchar implements AS400DataType {
         {
             Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
             throw new NullPointerException("serverValue");
+        }
+        if (serverValue.length > length_) {
+        	Trace.log(Trace.ERROR, "Length of parameter serverValue is not valid: '" + serverValue.length + "'");
+            throw new ExtendedIllegalArgumentException("serverValue ", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         setTable(); // Make sure the table is set.        
         return tableImpl_.byteArrayToString(serverValue, offset + varlensize_, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
@@ -592,6 +553,10 @@ public class AS400Varchar implements AS400DataType {
         {
             Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
             throw new NullPointerException("serverValue");
+        }
+        if (serverValue.length > length_) {
+        	Trace.log(Trace.ERROR, "Length of parameter serverValue is not valid: '" + serverValue.length + "'");
+            throw new ExtendedIllegalArgumentException("serverValue ", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         setTable(); // Make sure the table is set
         return tableImpl_.byteArrayToString(serverValue, offset + varlensize_, length_, properties);
