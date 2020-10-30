@@ -239,13 +239,6 @@ public class AS400Varchar implements AS400DataType {
     public int getVarLengthSize() {
     	return varlensize_;
     }
-    
-    /**
-    Set the size of the data length, 2 or 4 bytes.
-    **/
-    public void setVarLengthSize(int varlensize) {
-    	varlensize_ = varlensize;
-    }
 
     /**
      Returns the CCSID of the data type.
