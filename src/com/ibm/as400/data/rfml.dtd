@@ -1,0 +1,104 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: rfml.dtd
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////
+
+Record Format Markup Language (RFML) Document Type Definition.
+
+RFML is an XML language.  Typical usage:
+   <?xml version="1.0"?>
+   <!DOCTYPE rfml SYSTEM "rfml.dtd">
+   <rfml version="4.0">
+   ...
+   </rfml>
+-->
+
+<!-- Convenience entities -->
+<!ENTITY % string             "CDATA">    <!-- a string of length 0 or greater -->
+<!ENTITY % nonNegativeInteger "CDATA">    <!-- a non-negative integer -->
+<!ENTITY % binary2            "CDATA">    <!-- an integer in range 0-65535 -->
+<!ENTITY % boolean            "(true|false)">
+<!ENTITY % datatype  "(char | int | packed | zoned | float | byte | struct | date | time | timestamp)">
+<!ENTITY % biditype  "(ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT | NONE)">
+
+
+<!-- The document root element -->
+<!ELEMENT rfml (struct | recordformat)+>
+<!ATTLIST rfml
+          version       (4.0 | 5.0 | 6.0) #REQUIRED
+          ccsid         %binary2;   #IMPLIED
+>
+<!-- Note: The ccsid is the default value that will be used for any contained <data type="char"> elements that do not specify a ccsid. -->
+
+
+<!-- Note: RFML does not support nested struct declarations.  All struct elements are direct children of the root node. -->
+<!ELEMENT struct (data)+>
+<!ATTLIST struct
+          name          ID          #REQUIRED
+>
+
+
+<!-- <!ELEMENT recordformat (data | struct)*> -->
+<!ELEMENT recordformat (data)*>
+<!ATTLIST recordformat
+          name          ID                    #REQUIRED
+          description   %string;              #IMPLIED
+>
+<!-- Note: On the server, the Record "text description" field is limited to 50 bytes. -->
+
+<!ELEMENT data EMPTY>
+<!ATTLIST data
+          name          %string;              #REQUIRED
+
+          count         %nonNegativeInteger;  #IMPLIED
+
+          type          %datatype;            #REQUIRED
+          length        %nonNegativeInteger;  #IMPLIED
+          precision     %nonNegativeInteger;  #IMPLIED
+          ccsid         %binary2;             #IMPLIED
+          init          CDATA                 #IMPLIED
+          struct        IDREF                 #IMPLIED
+
+          bidistringtype %biditype;           #IMPLIED
+          keyfield      %boolean;             #IMPLIED
+
+          dateformat (CDMY | CMDY | CYMD | DMY | EUR | ISO | JIS | JUL | LONGJUL | MDY | USA | YMD) #IMPLIED
+          timeformat (EUR | HMS | ISO | JIS | USA) #IMPLIED
+
+          dateseparator (ampersand | blank | comma | hyphen | period | slash) #IMPLIED
+          timeseparator (ampersand | blank | colon | comma | period) #IMPLIED
+>
+<!-- Note: The 'name' attribute must be unique within a given recordformat. -->
+<!-- Note: On the server, the length of Record field names is limited to 10 bytes. -->
+<!-- Note: The 'length' attribute is required, except when type="struct". -->
+<!-- Note: If type="struct", then the 'struct' attribute is required. -->
+<!-- Note: The 'ccsid' and 'bidistringtype' attributes are valid only with type="char". -->
+<!-- Note: The 'precision' attribute is valid only for types "int", "packed", and "zoned". -->
+<!-- Note: The default value for 'keyfield' is false. (Added in version 5.0) -->
+
+<!-- Note: The required format for the 'init' attribute is: -->
+<!--       ... for 'date' fields:      yyyy-mm-dd -->
+<!--       ... for 'time' fields:      hh:mm:ss -->
+<!--       ... for 'timestamp' fields: yyyy-mm-ddThh:mm:ss.sssssssss -->
+<!--                  ... for example: 2010-01-01T23:59:59.999999999 -->
+
+
+<!-- The standard predefined character entities -->
+<!ENTITY quot  "&#34;">     <!-- quotation mark -->
+<!ENTITY amp   "&#38;#38;"> <!-- ampersand -->
+<!ENTITY apos  "&#39;">     <!-- apostrophe -->
+<!ENTITY lt    "&#38;#60;"> <!-- less than -->
+<!ENTITY gt    "&#62;">     <!-- greater than -->
+<!ENTITY nbsp  "&#160;">    <!-- non-breaking space -->
+<!ENTITY shy   "&#173;">    <!-- soft hyphen (discretionary hyphen) -->
+<!ENTITY mdash "&#38;#x2014;">  <!-- em dash (long hyphen) -->
+<!ENTITY ldquo "&#38;#x201C;">  <!-- left double quotation mark -->
+<!ENTITY rdquo "&#38;#x201D;">  <!-- right double quotation mark -->

@@ -1,0 +1,353 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RJob.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+
+
+<struct name="qualifiedJobName">
+        <data name="jobName"                                    type="char" length="10" init="*"/>
+        <data name="userName"                                   type="char" length="10" init=""/>
+        <data name="jobNumber"                                  type="char" length="6" init=""/>
+</struct>
+
+
+
+<program name="qusrjobi_jobi0100" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0100"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="86"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0100"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0100">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data                                                   type="char" length="2"/>  
+        <data name="runPriority"                                type="int" length="4"/>
+        <data name="timeSlice"                                  type="int" length="4"/>
+        <data name="defaultWait"                                type="int" length="4"/>
+        <data name="purge"                                      type="char" length="10"/>  
+</struct>        
+
+
+
+<program name="qusrjobi_jobi0150" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0150"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="132"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0150"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0150">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data                                                   type="char" length="2"/>  
+        <data name="runPriority"                                type="int" length="4"/>
+        <data name="timeSlice"                                  type="int" length="4"/>
+        <data name="defaultWait"                                type="int" length="4"/>
+        <data name="purge"                                      type="char" length="10"/>  
+        <data name="timeSliceEndPool"                           type="char" length="10"/>  
+        <data name="processingUnitTimeUsed"                     type="int" length="4"/>
+        <data name="systemPoolIdentifier"                       type="int" length="4"/>
+        <data name="maximumProcessingUnitTime"                  type="int" length="4"/>
+        <data name="temporaryStorageUsedInKilobytes"            type="int" length="4"/>
+        <data name="maximumTemporaryStorageInKilobytes"         type="int" length="4"/>
+        <data name="threadCount"                                type="int" length="4"/>
+        <data name="maximumThreads"                             type="int" length="4"/>
+        <data name="temporaryStorageUsedInMegabytes"            type="int" length="4"/>
+        <data name="maximumTemporaryStorageInMegabytes"         type="int" length="4"/>
+</struct>        
+
+
+
+<program name="qusrjobi_jobi0200" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0200"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="144"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0200"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0200">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data name="subsystemDescriptionName"                   type="char" length="10"/>  
+        <data name="runPriority"                                type="int" length="4"/>
+        <data name="systemPoolIdentifier"                       type="int" length="4"/>
+        <data name="processingUnitTimeUsed"                     type="int" length="4"/>
+        <data name="numberOfAuxiliaryIORequests"                type="int" length="4"/>
+        <data name="numberOfInteractiveTransactions"            type="int" length="4"/>
+        <data name="responseTimeTotal"                          type="int" length="4"/>
+        <data name="functionType"                               type="char" length="1"/>  
+        <data name="functionName"                               type="char" length="10"/>  
+        <data name="activeJobStatus"                            type="char" length="4"/>  
+        <data                                                   type="char" length="1"/>  
+        <data name="numberOfDatabaseLockWaits"                  type="int" length="4"/>
+        <data name="numberOfNondatabaseLockWaits"               type="int" length="4"/>
+        <data name="numberOfInternalMachineLockWaits"           type="int" length="4"/>
+        <data name="timeSpentOnDatabaseLockWaits"               type="int" length="4"/>
+        <data name="timeSpentOnNondatabaseLockWaits"            type="int" length="4"/>
+        <data name="timeSpentOnInternalMachineLockWaits"        type="int" length="4"/>
+        <data name="currentSystemPoolIdentifier"                type="int" length="4"/>
+        <data name="threadCount"                                type="int" length="4"/>
+</struct>        
+
+
+
+<program name="qusrjobi_jobi0300" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0300"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="187"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0300"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0300">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data name="jobQueue"                                   type="char" length="20"/>
+        <data name="jobQueuePriority"                           type="char" length="2"/>  
+        <data name="outputQueue"                                type="char" length="20"/>
+        <data name="outputQueuePriority"                        type="char" length="2"/>  
+        <data name="printerDeviceName"                          type="char" length="10"/>  
+        <data name="submittersJob"                              type="struct" struct="qualifiedJobName"/>
+        <data name="submittersMessageQueue"                     type="char" length="20"/>
+        <data name="statusOfJobOnThejobQueue"                   type="char" length="10"/>  
+        <data name="dateAndTimeJobWasPutOnThisJobQueue"         type="byte" length="8"/>  
+        <data name="jobDate"                                    type="char" length="7"/>  
+</struct>        
+
+
+
+<program name="qusrjobi_jobi0400" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0400"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="497"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0400"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0400">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data name="dateAndTimeJobEnteredSystem"                type="char" length="13"/>
+        <data name="dateAndTimeJobBecameActive"                 type="char" length="13"/>
+        <data name="jobAccountingCode"                          type="char" length="15"/>  
+        <data name="jobDescription"                             type="char" length="20"/>
+        <struct name="unitOfWorkID">  
+                <data name="locationName"                       type="char" length="8"/>
+                <data name="networkID"                          type="char" length="8"/>
+                <data name="instance"                           type="byte" length="6"/>
+                <data name="sequenceNumber"                     type="char" length="2"/>                
+        </struct>
+        <data name="modeName"                                   type="char" length="8"/>  
+        <data name="inquiryMessageReply"                        type="char" length="10"/>  
+        <data name="loggingOfCLPrograms"                        type="char" length="10"/>  
+        <data name="breakMessageHandling"                       type="char" length="10"/>  
+        <data name="statusMessageHandling"                      type="char" length="10"/>  
+        <data name="deviceRecoveryAction"                       type="char" length="13"/>  
+        <data name="ddmConversationHandling"                    type="char" length="10"/>  
+        <data name="dateSeparator"                              type="char" length="1"/>  
+        <data name="dateFormat"                                 type="char" length="4"/>  
+        <data name="printText"                                  type="char" length="30"/>  
+        <data name="submittersJob"                              type="struct" struct="qualifiedJobName"/>
+        <data name="submittersMessageQueue"                     type="char" length="20"/>
+        <data name="timeSeparator"                              type="char" length="1"/>  
+        <data name="codedCharacterSetID"                        type="int" length="4"/>
+        <data name="dateAndTimeJobIsScheduledToRun"             type="byte" length="8"/>  
+        <data name="printKeyFormat"                             type="char" length="10"/>  
+        <data name="sortSequence"                               type="char" length="20"/>  
+        <data name="languageID"                                 type="char" length="3"/>  
+        <data name="countryID"                                  type="char" length="2"/>  
+        <data name="completionStatus"                           type="char" length="1"/>  
+        <data name="signedOnJob"                                type="char" length="1"/>  
+        <data name="jobSwitches"                                type="char" length="8"/>  
+        <data name="jobMessageQueueFullAction"                  type="char" length="10"/>  
+        <data                                                   type="char" length="1"/>  
+        <data name="jobMessageQueueMaximumSize"                 type="int" length="4"/>
+        <data name="defaultCodedCharacterSetIdentifier"         type="int" length="4"/>
+        <data name="routingData"                                type="char" length="80"/>  
+        <data name="decimalFormat"                              type="char" length="1"/>  
+        <data name="characterIdentifierControl"                 type="char" length="10"/>  
+        <data name="serverType"                                 type="char" length="30"/>  
+</struct>        
+
+
+
+<program name="qusrjobi_jobi0500" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0500"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="83"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0500"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0500">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data                                                   type="char" length="2"/>  
+        <data name="endSeverity"                                type="int" length="4"/>
+        <data name="loggingSeverity"                            type="int" length="4"/>
+        <data name="loggingLevel"                               type="char" length="1"/>
+        <data name="loggingText"                                type="char" length="10"/>  
+</struct>        
+
+
+
+<program name="qusrjobi_jobi0600" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0600"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="307"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0600"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0600">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data name="jobSwitches"                                type="char" length="8"/>
+        <data name="endStatus"                                  type="char" length="1"/>  
+        <data name="subsystemDescription"                       type="char" length="20"/>
+        <data name="currentUserProfile"                         type="char" length="10"/>  
+        <data name="dbcsCapable"                                type="char" length="1"/>  
+        <data name="exitKey"                                    type="char" length="1"/>  
+        <data name="cancelKey"                                  type="char" length="1"/>  
+        <data name="productReturnCode"                          type="int" length="4"/>
+        <data name="userReturnCode"                             type="int" length="4"/>
+        <data name="programReturnCode"                          type="int" length="4"/>
+        <data name="specialEnvironment"                         type="char" length="10"/>  
+        <data name="deviceName"                                 type="char" length="10"/>  
+        <data name="groupProfileName"                           type="char" length="10"/>  
+        <data name="groupProfileNamesSupplemental"              type="char" length="10" count="15"/>  
+        <data name="jobUserIdentity"                            type="char" length="10"/>  
+        <data name="jobUserIdentitySetting"                     type="char" length="1"/>  
+</struct>        
+
+
+
+<program name="qusrjobi_jobi0700" path="/QSYS.LIB/QUSRJOBI.PGM">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="jobi0700"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="553"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBI0700"/>
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobi0700">
+        <data name="numberOfBytesReturned"                      type="int" length="4"/>
+        <data name="numberOfBytesAvailable"                     type="int" length="4"/>
+        <data name="qualifiedJobName"                           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"                      type="byte" length="16"/>  
+        <data name="jobStatus"                                  type="char" length="10"/>  
+        <data name="jobType"                                    type="char" length="1"/>  
+        <data name="jobSubtype"                                 type="char" length="1"/>  
+        <data                                                   type="char" length="2"/>
+        <data name="numberOfLibrariesInSystemLibraryList"       type="int" length="4"/>
+        <data name="numberOfProductLibraries"                   type="int" length="4"/>
+        <data name="currentLibraryExistence"                    type="int" length="4"/>
+        <data name="numberOfLibrariesInUserLibraryList"         type="int" length="4"/>
+        <data name="systemLibraryList"                          type="char" length="11" 
+                                                                count="numberOfLibrariesInSystemLibraryList"
+                                                                outputsize="165" />  
+        <data name="productLibraries"                           type="char" length="11" 
+                                                                count="numberOfProductLibraries"
+                                                                outputsize="22"/>  
+        <data name="currentLibrary"                             type="char" length="11" 
+                                                                count="currentLibraryExistence"
+                                                                outputsize="11"/>  
+        <data name="userLibraryList"                            type="char" length="11" 
+                                                                count="numberOfLibrariesInUserLibraryList"
+                                                                outputsize="275"/>  
+</struct>        
+
+
+
+<program name="qwtchgjb" path="/QSYS.LIB/QWTCHGJB.PGM">        
+        <data name="qualifiedJobName"                   usage="input"           type="struct" struct="qualifiedJobName"/>
+        <data name="internalJobIdentifier"              usage="input"           type="byte" length="16" init=" "/> 
+        <data name="formatName"                         usage="input"           type="char" length="8" init="JOBC0100"/>
+        <struct name="jobChangeInformation"             usage="input">                
+                <data name="numberOfKeys"                                       type="int" length="4"/>
+                <data name="contents"                                           type="struct" struct="jobc0100"
+                                                                                count="numberOfKeys"/>
+        </struct>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+<struct name="jobc0100">
+        <data name="lengthOfAttributeInformation"               type="int" length="4"/>
+        <data name="key"                                        type="int" length="4"/>
+        <data name="type"                                       type="char" length="1"/>  
+        <data                                                   type="char" length="3" init=" "/>  
+        <data name="length"                                     type="int" length="4"/>
+        <data name="data"                                       type="byte" length="length"/>
+</struct>        
+
+
+
+</pcml>        
+
