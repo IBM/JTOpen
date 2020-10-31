@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<Form version="1.0" type="com.netbeans.developer.modules.loaders.form.forminfo.JPanelFormInfo">
+  <SyntheticProperties>
+    <SyntheticProperty name="encoding" type="java.lang.String" value="ISO-8859-1"/>
+  </SyntheticProperties>
+
+  <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+  <SubComponents>
+    <Container class="javax.swing.JPanel" name="sessionPanel">
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="North"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout">
+        <Property name="columns" type="int" value="1"/>
+      </Layout>
+      <SubComponents>
+        <Container class="javax.swing.JPanel" name="urlPanel">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout">
+            <Property name="columns" type="int" value="1"/>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JTextField" name="urlTextField">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Enter a valid SQLConnection URL of the form jdbc:&lt;driver&gt;://&lt;system_name&gt;"/>
+                <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="jdbc:"/>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JButton" name="connectButton">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Connects to the JDBC URL you entered above."/>
+                <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Connect Now"/>
+              </Properties>
+
+              <Events>
+                <EventHandler event="actionPerformed" handler="connectButtonActionPerformed"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+              </Constraints>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="driverTypePanel">
+          <Properties>
+            <Property name="border" type="javax.swing.border.Border" editor="com.netbeans.developer.explorer.propertysheet.editors.BorderEditor">
+              <Border info="com.netbeans.developerx.loaders.form.formeditor.border.TitledBorderInfo">
+                <TitledBorder title="Set driver type in URL"/>
+              </Border>
+            </Property>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout">
+            <Property name="rows" type="int" value="1"/>
+            <Property name="columns" type="int" value="5"/>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JRadioButton" name="as400RadioButton">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Edits the URL above to reflect your driver choice. Feel free to customize the URL afterwards."/>
+                <Property name="border" type="javax.swing.border.Border" editor="com.netbeans.developer.explorer.propertysheet.editors.BorderEditor">
+                  <Border info="com.netbeans.developerx.loaders.form.formeditor.border.TitledBorderInfo">
+                    <TitledBorder/>
+                  </Border>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="JTOpen"/>
+              </Properties>
+
+              <Events>
+                <EventHandler event="actionPerformed" handler="as400RadioButtonActionPerformed"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JRadioButton" name="sunJDBCRadioButton4">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Edits the URL above to reflect your driver choice. Feel free to customize the URL afterwards."/>
+                <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Sun JDBC"/>
+              </Properties>
+
+              <Events>
+                <EventHandler event="actionPerformed" handler="sunJDBCRadioButton4ActionPerformed"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JRadioButton" name="postgresqlRadioButton">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Edits the URL above to reflect your driver choice. Feel free to customize the URL afterwards."/>
+                <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="PostgreSQL"/>
+              </Properties>
+
+              <Events>
+                <EventHandler event="actionPerformed" handler="postgresqlRadioButtonActionPerformed"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JRadioButton" name="customRadioButton">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Please enter driver name in the entry field next to the button."/>
+                <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Custom"/>
+              </Properties>
+
+              <Events>
+                <EventHandler event="actionPerformed" handler="customRadioButtonActionPerformed"/>
+              </Events>
+              <Constraints>
+                <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+              </Constraints>
+            </Component>
+            <Component class="javax.swing.JTextField" name="driverClassNameTextField">
+              <Constraints>
+                <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+              </Constraints>
+            </Component>
+          </SubComponents>
+        </Container>
+      </SubComponents>
+    </Container>
+    <Container class="com.ibm.as400.vaccess.SQLQueryBuilderPane" name="sQLQueryBuilderPane1">
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+    </Container>
+    <Container class="javax.swing.JPanel" name="queryButtonPanel">
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="South"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout">
+        <Property name="rows" type="int" value="1"/>
+        <Property name="columns" type="int" value="2"/>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JButton" name="queryToTableButton">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Shows the results of the query in table form on the SQL Result Table tab."/>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Do Query with Results to Table"/>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="queryToTableButtonActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JButton" name="queryToFormButton">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Shows the results of the query in table form on the SQL Result Form  tab."/>
+            <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Do Query with Results to Form"/>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" handler="queryToFormButtonActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignGridLayout$GridConstraintsDescription"/>
+          </Constraints>
+        </Component>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
