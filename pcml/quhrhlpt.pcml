@@ -1,0 +1,68 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: quhrhlpt.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+<!-- PCML source for calling "Retrieve Help Text" (QUHRHLPT) API -->
+
+  <!-- List information structure (common for "Open List" type APIs) -->
+  <struct name="idsToReturn">
+    <data name="hlpIdName"    type="char" length="32"  init=" " />
+    <data name="objName"      type="char" length="10"  init=" " />
+    <data name="objLibName"   type="char" length="10"  init=" " />
+    <data name="objType"      type="char" length="10"  init="*PNLGRP" />
+    <data                     type="char" length="18"  init=" " />
+  </struct>
+
+  <struct name="listData">
+    <data name="hlpIdName"    type="char"  length="32"  init=" " />
+    <data name="objName"      type="char"  length="10"  init=" " />
+    <data name="libName"      type="char"  length="10"  init=" " />
+    <data name="type"         type="char"  length="10"  init=" " />
+    <data name="idFound"      type="char"  length="1"   init="N" />
+	<data name="anchor"       type="char"  length="96"  init=" " />
+    <data                     type="byte"  length="33"  init=" " />
+  </struct>
+		
+  <!-- Help Identifier Formatting Results -->
+  <struct name="fmtResults">
+	<data name="bytesRtn"     type="int"  length="4"   init="0" />
+	<data name="bytesAvail"   type="int"  length="4"   init="0" />
+	<data name="fmtName"      type="char" length="8"   init=" " />
+	<data name="offsetList"   type="int"  length="4"   init="0" />
+	<data name="nbrEntries"   type="int"  length="4"   init="0" />
+	<data name="sizeEntries"  type="int"  length="4"   init="0" />
+    <data name="listData"     type="struct" struct="listData" count="nbrEntries" offset="offsetList" />
+  </struct>
+
+  <!-- Help text results -->
+  <struct name="helpText">
+	<data name="bytesReturned"  type="int"  length="4"	init="0" />
+	<data name="bytesAvailable" type="int"  length="4"	init="0" />
+	<data name="help"			type="byte" length="bytesReturned" init=" "/> 
+    <data                       type="byte" length="8"  init=" " />
+  </struct>
+    
+  <program name="quhrhlpt" path="/QSYS.LIB/QUHRHLPT.PGM" >
+    <data   name="receiver"       type="struct"             usage="output" struct="fmtResults" outputsize="receiverLength" />
+    <data   name="receiverLength" type="int"    length="4"  usage="input"  init="80384" />
+    <data   name="formatName"	  type="char"   length="8"  usage="input"  init="RHLP0100" />
+    <data   name="idsToReturn"    type="struct"             usage="input"  struct="idsToReturn" count="nbrHlpIds" />
+    <data   name="nbrHlpIds"      type="int"    length="4"  usage="input"  init="0" />
+    <data   name="document"		  type="struct"		        usage="output" struct="helpText" outputsize="documentSize"  />
+	<data   name="documentSize"   type="int"    length="4"  usage="input"  init="113152" />
+    <data   name="errorCode"      type="int"    length="4"  usage="input"  init="0" />
+  </program>    
+</pcml>
+
+

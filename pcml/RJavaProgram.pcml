@@ -1,0 +1,77 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RJavaProgram.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="3.0">
+
+
+
+<!-- This is externalized as /QSYS.LIB/QJVARJPI.SRVPGM (entry point QJVAPJPI), but we use 
+     /QSYS.LIB/QJVAMAT.PGM instead, since we are unable to call a service program with more 
+     than 7 parameters. -->
+     
+<program name="qjvamat" path="/QSYS.LIB/QJVAMAT.PGM" threadsafe="true">
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="rjpi0100"
+                                                                                outputsize="4096"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="4096"/>
+        <data name="formatOfReceiverVariable"           usage="input"           type="char" length="8" init="RJPI0100"/>                                                                                
+        <data name="classListReceiverVariable"          usage="output"          type="char" length="0" outputsize="0"/>
+        <data name="lengthOfClassListReceiverVariable"  usage="input"           type="int" length="4" init="0"/>
+        <data name="formatOfClassListReceiverVariable"  usage="input"           type="char" length="8" init=" "/>
+        <data name="pathName"                           usage="input"           type="char" length="lengthOfPathName" init=" "/>
+        <data name="lengthOfPathName"                   usage="input"           type="int" length="4" init="0"/>
+        <data name="classpath"                          usage="input"           type="char" length="1" init=" "/>
+        <data name="lengthOfClasspath"                  usage="input"           type="int" length="4" init="0"/>
+        <data name="classpathUsedReceiverVariable"      usage="output"          type="char" outputsize="64"/>
+        <data name="lengthOfClasspathUsed"              usage="input"           type="int" length="4" init="64"/>
+        <data name="statusOfClassesToReturnInClassList" usage="input"           type="int" length="4" init="1"/>
+        <data name="jdkVersion"                         usage="input"           type="char" length="10" init="*PGM"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="rjpi0100">
+        <data name="bytesReturned"                              type="int"     length="4"/>
+        <data name="bytesAvailable"                             type="int"     length="4"/>
+        <data name="fileOwnerName"                              type="char"    length="10"/>
+        <data name="fileChangeModifyDateAndTime"                type="char"    length="13"/>
+        <data name="javaProgramCreationDateAndTime"             type="char"    length="13"/>
+        <data name="numberOfJavaProgramsAttached"               type="int"     length="4"/>
+        <data name="numberOfClassesWithCurrentJavaPrograms"     type="int"     length="4"/>
+        <data name="numberOfClassesWithoutCurrentJavaPrograms"  type="int"     length="4"/>
+        <data name="numberOfClassesWithErrors"                  type="int"     length="4"/>
+        <data name="totalNumberOfClasses"                       type="int"     length="4"/>
+        <data name="optimizationLevel"                          type="int"     length="4"/>
+        <data name="performanceCollectionEnabledFlag"           type="char"    length="2"/>
+        <data name="useAdoptedAuthority"                        type="char"    length="1"/>
+        <data name="adoptedAuthorityProfile"                    type="char"    length="1"/>
+        <data name="sizeOfJavaProgramsAttached"                 type="int"     length="4"/>
+        <data name="javaProgramVersion"                         type="byte"    length="2"/>
+        <data                                                   type="char"    length="2"/>
+        <data name="offsetToLICOptions"                         type="int"     length="4"/>
+        <data name="lengthOfLICOptionsReturned"                 type="int"     length="4"/>
+        <data name="lengthOfLICOptionsAvailable"                type="int"     length="4"/>
+        <data name="LICOptions"                                 type="char"    offset="offsetToLICOptions"
+                                                                               length="lengthOfLICOptionsReturned"/>
+</struct>        
+
+
+
+<struct name="errorCode">
+        <data name="bytesProvided"                              type="int"     length="4" init="8"/>
+        <data                                                   type="byte"    length="4" init="0"/>
+</struct>        
+
+
+</pcml>        
+
