@@ -38,6 +38,8 @@ implements JDFieldMap
         String typeName = row.getSQLData(typeIndex_).getString().trim();    //@A1A
         if(typeName.equals("DISTINCT"))                                     //@A1A  We do not have a SQLData class for Distincts
             return "DISTINCT";                                  //@A1A
+        if(typeName.equals("XML"))                                    
+          return "XML";                                  
         return((SQLData)super.getValue(row)).getLocalName();
     }
 
