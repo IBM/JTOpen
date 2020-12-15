@@ -285,17 +285,18 @@ package com.ibm.as400.access;
 //@AC8   20201027  Varchar converter
 //@AC9   20201029  Conversion: Various CCSID fixes
 //@ACA   20201030  Support Create UserHandle2
+//@AD1   20201215  JDBC:  Miscellaneous fixes
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
 public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
-    public static String copyright = "Copyright (C) 1997-2017 International Business Machines Corporation and others.";
+    public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.5"; 
-    //                                                                                         built=20201029 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20201029 @ACA";  
+    //                                                                                         built=20201215 is automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20201215 @AD1";  
 
 
     // Constants for reference by AS400JDBCDriver.

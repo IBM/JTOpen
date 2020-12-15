@@ -313,11 +313,14 @@ final class SQLBoolean extends SQLDataBase {
     }
   }
 
+  // getString returns 1 or 0 for boolean values.  This matches the behavior of the jcc
+  // JDBC driver.  It also consistent with the ResultSet getBoolean() method which returns true for '1'
+  // and false of '0'
   public String getString() throws SQLException {
     if (value_) {
-      return "true";
+      return "1";
     } else {
-      return "false";
+      return "0";
     }
   }
 

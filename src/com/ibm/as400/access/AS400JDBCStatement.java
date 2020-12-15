@@ -420,6 +420,7 @@ implements Statement
     public void close ()
     throws SQLException
     {
+       synchronized(connection_) {       /* lock the connection to prevent deadlock with connection.rollback */ 
         synchronized(internalLock_)
         {    // @E6A
             // If this is already closed, then just do nothing.
@@ -575,6 +576,7 @@ implements Statement
             if(e != null)    // @EDA
                 throw e;    // @EDA
         }
+       }
     }
 
     //@KBL

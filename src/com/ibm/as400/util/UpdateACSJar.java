@@ -13,11 +13,15 @@
 
 package com.ibm.as400.util; 
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,14 +40,14 @@ public class UpdateACSJar    {
     public static void main(String args[]) {
       try {
         System.out.println("Usage: java -cp jt400.jar com.ibm.as400.util.UpdateACSJar <acsbundle.jar>"); 
-        System.out.println(" This program updates acsbundle.jar with the current jt400.jar file.");
-        System.out.println(" If acsbundle.jar is not specified, the default locations of acsbundle.jar are used. ");
-        System.out.println(" This is provided so that ACS Run SQL Scripts can utilize the latest features of JTOpen.");
-        System.out.println(" ");
-        System.out.println(" Note:  Official support for ACS is not available if this tool is used since ");
-        System.out.println("   official testing has not been done on the resultant combination.");
-        System.out.println("   If you find ACS does not work after the update, delete acsbundle.jar and replace it "); 
-        System.out.println("   with the backup file that was created by this program. ");
+        System.out.println("       This program updates acsbundle.jar with the current jt400.jar file.");
+        System.out.println("       If acsbundle.jar is not specified, the default locations of acsbundle.jar are used. ");
+        System.out.println("       This is provided so that ACS Run SQL Scripts can utilize the latest features of JTOpen.");
+        System.out.println("       ");
+        System.out.println(" Note: Official support for ACS is not available if this tool is used since ");
+        System.out.println("       official testing has not been done on the resultant combination.");
+        System.out.println("       If you find ACS does not work after the update, delete acsbundle.jar and replace it "); 
+        System.out.println("       with the backup file that was created by this program. ");
         System.out.println(""); 
         System.out.println(" Please report problems with jt400.jar on the JTOpen bug forum: https://sourceforge.net/p/jt400/bugs/ ");
         System.out.println(""); 
@@ -79,9 +83,8 @@ public class UpdateACSJar    {
     
     
   private static File locateCurrentJt400JarFile() throws Exception {
-
-    if (AS400JDBCDriver.JDBC_MAJOR_VERSION_ == 4
-        && AS400JDBCDriver.JDBC_MINOR_VERSION_ == 0) {
+    if ((AS400JDBCDriver.JDBC_MAJOR_VERSION_ == 4
+        && AS400JDBCDriver.JDBC_MINOR_VERSION_ == 2)) {
       String loadPath = "unknown";
       ClassLoader loader = UpdateACSJar.class.getClassLoader();
       if (loader != null) {
@@ -103,7 +106,7 @@ public class UpdateACSJar    {
               throw new Exception("Resource " + loadPath + " is not jar file ");
             }
           } else {
-            throw new Exception("Rosource " + loadPath + " is not a file");
+              throw new Exception("Rosource " + loadPath + " is not a file");
           }
         } else {
           throw new Exception("Unable to find resourceUrl for " + resourceName);
@@ -117,7 +120,7 @@ public class UpdateACSJar    {
       throw new Exception("Current jar file is JDBC version "
           + AS400JDBCDriver.JDBC_MAJOR_VERSION_ + "."
           + AS400JDBCDriver.JDBC_MINOR_VERSION_
-          + ".  Should be JDBC 4.0 (java6)");
+          + ".  Should be JDBC 4.2 (java8)");
     }
   }
 
@@ -187,6 +190,34 @@ public class UpdateACSJar    {
 
         byte[] buffer = new byte[4096];
         Manifest manifest = jis.getManifest();
+        
+        // The manifest has the SHA-256-Digest for jt400.jar remove it
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); 
+        manifest.write(outputStream);
+        byte[] manifestBytes = outputStream.toByteArray();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(manifestBytes),"UTF-8"));
+        String line = reader.readLine(); 
+        boolean skipNextLine = false; 
+        
+        StringBuffer sb = new StringBuffer(); 
+        while (line != null) { 
+          if (!skipNextLine) {
+            if (line.indexOf("jt400.jar")>=0) {
+              skipNextLine = true;
+            } else {
+              sb.append(line);
+              sb.append("\n"); 
+            }
+          } else {
+            skipNextLine = false; 
+          }
+          line = reader.readLine(); 
+        }
+        String manifestString = sb.toString();
+        
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(manifestString.getBytes("UTF-8")); 
+        manifest = new Manifest(inputStream); 
+        
         JarOutputStream jos = new JarOutputStream(new FileOutputStream(
             acsBundle), manifest);
 
@@ -196,7 +227,11 @@ public class UpdateACSJar    {
           if (name.equals("lib/jt400.jar")) {
             // System.out.println("Found jt400.jar");
             // Skipping to add it later
-
+  
+          } else if (name.indexOf("IBMACS.RSA") >= 0) {
+            //Skip
+          } else if (name.indexOf("IBMACS.SF")>= 0) {
+            // skip
           } else {
             jos.putNextEntry(new JarEntry(name));
             int len;
