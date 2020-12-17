@@ -454,6 +454,8 @@ public abstract class ConvTable
       case 1399:
       case 5026:
       case 5035:
+      case 5473:   /* old 1377 */ 
+      case 13676:  /* old 1388 */
           return true; 
       }
       return false;

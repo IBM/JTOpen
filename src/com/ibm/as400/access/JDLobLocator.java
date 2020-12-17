@@ -81,7 +81,7 @@ class JDLobLocator
    * Returns the locator handle.
    * @return The locator handle, or -1 if not set.
   **/
-  int getHandle()
+  synchronized int getHandle()
   {
     return handle_;
   }
@@ -378,8 +378,8 @@ Writes part of the contents of the lob.
            //   request.setColumnIndex(columnIndex_); //@pdd
          // }                                    //@pdd
           freeReply = connection_.sendAndReceive(request, id_);
-          int errorClass = freeReply.getErrorClass();
-          int returnCode = freeReply.getReturnCode();
+          // int errorClass = freeReply.getErrorClass();
+          // int returnCode = freeReply.getReturnCode();
           
           //7,-401 signals already free
           //if (errorClass != 0 && !(errorClass == 7 && returnCode == -401))

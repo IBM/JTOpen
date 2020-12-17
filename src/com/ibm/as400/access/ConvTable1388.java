@@ -27,6 +27,6 @@ public class ConvTable1388 extends ConvTableMixedMap
 
     ConvTable1388(int ccsid) throws UnsupportedEncodingException
     {
-        super(ccsid, 836, 837);
+        super(ccsid, 1001388, 2001388);
     }
 }

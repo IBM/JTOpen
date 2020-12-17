@@ -1663,12 +1663,15 @@ public class GenerateConverterTable {
    byte[] outBytes = new byte[65536]; 
    
    // Just copy the control characters
-   for (int i = 0; i < 0x40; i++)  {
+   for (int i = 0; i < 0x20; i++)  {
        outBytes[i] = inBytes[i]; 
    }
-   int toIndex = 0x40; 
+   int toIndex = 0x20; 
    boolean singleByte = true; 
-   for (int i = 0x40; i < inBytes.length; i++) { 
+   for (int i = 0x20; i < inBytes.length; i++) { 
+     if (toIndex >= outBytes.length) { 
+       throw new Exception("ERROR:  toIndexInvalid");
+     }
      byte b = inBytes[i]; 
      if (singleByte) {
        if (b == 0x0E) {

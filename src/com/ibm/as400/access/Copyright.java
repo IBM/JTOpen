@@ -286,6 +286,7 @@ package com.ibm.as400.access;
 //@AC9   20201029  Conversion: Various CCSID fixes
 //@ACA   20201030  Support Create UserHandle2
 //@AD1   20201215  JDBC:  Miscellaneous fixes
+//@AD2   20201217  Conversion:  CCSID 1388 updates
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -296,7 +297,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.5"; 
     //                                                                                         built=20201215 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20201215 @AD1";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20201215 @AD2";  
 
 
     // Constants for reference by AS400JDBCDriver.
