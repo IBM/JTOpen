@@ -229,9 +229,9 @@ final class SQLBoolean extends SQLDataBase {
     if (value_) {
       bigDecimalValue = new BigDecimal(1);
     } else {
-      bigDecimalValue = new BigDecimal(1);
+      bigDecimalValue = new BigDecimal(0);
     }
-    if (scale != 0) {
+    if (scale > 0) {
       bigDecimalValue = bigDecimalValue.setScale(scale);
     }
     return bigDecimalValue;
