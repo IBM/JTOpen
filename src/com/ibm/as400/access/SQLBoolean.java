@@ -90,11 +90,42 @@ final class SQLBoolean extends SQLDataBase {
 
     if (object instanceof String) {
       String string = (String) object;
-      string = string.toUpperCase();
-      if ("true".equals(string)) {
+      string = string.toUpperCase().trim();
+      if ("TRUE".equals(string) ||
+          "T".equals(string) ||
+          "Y".equals(string) ||
+          "YES".equals(string) ||
+          "ON".equals(string)) {
         value_ = true;
-      } else {
+      } else if ("FALSE".equals(string) ||
+          "F".equals(string) ||
+          "N".equals(string) ||
+          "NO".equals(string) ||
+          "OFF".equals(string)
+          ){
+        
         value_ = false;
+      } else {
+        try { 
+        long longValue = Long.parseLong(string); 
+        if (longValue == 0) {
+          if (string.charAt(0) == '0') {
+            value_ = false; 
+          } else { 
+            if (JDTrace.isTraceOn()) {
+                JDTrace.logInformation(this, "Unable to assign string ("+string+")");
+            }
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+          }
+        } else {
+          value_ = true; 
+        }
+        } catch (NumberFormatException nfe) { 
+          if (JDTrace.isTraceOn()) {
+            JDTrace.logInformation(this, "Unable to assign string ("+string+")");
+        }
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+        }
       }
     }
 
@@ -141,7 +172,7 @@ final class SQLBoolean extends SQLDataBase {
   }
 
   public int getDisplaySize() {
-    return 5;
+    return 1;
   }
 
   // @F1A JDBC 3.0
