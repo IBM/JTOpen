@@ -21,6 +21,8 @@ import java.util.Arrays;
  
  This class currently will only function when running on the IBM i using native Methods. 
  
+ The native methods on the IBM i have not yet been completed, so this class is currently not functional. 
+ 
   <p>As a performance optimization, when running directly on IBM i, it is possible to use native
     methods to access the user space from the current job.  To enable this support, use the 
     {@link #setMustUseNativeMethods setMustUseNativeMethods()} method. 
@@ -70,7 +72,7 @@ public class UserIndex
     private static byte[] IDXA0100 = {(byte)0xc9, (byte)0xc4, (byte)0xe7, (byte)0xc1, (byte)0xf0, (byte)0xf1, (byte)0xf0, (byte)0xf0}; 
     // Use native methods when running natively; 
     private boolean mustUseNativeMethods_ = false; 
-
+    
     
     AS400 system_; 
     String path_;
@@ -84,7 +86,7 @@ public class UserIndex
 	private byte[] objectNameBytes_;  /* name of the object in ebcdic */
 	private byte[] findOptionBytes_; 
 	UserIndexNativeImpl impl_; 
-	
+	boolean supported_ = false; 
     /**
      Constructs a UserIndex object.
      @param  system  The system object representing the system on which the user index exists.
@@ -94,6 +96,9 @@ public class UserIndex
      **/
     public UserIndex(AS400 system, String path) throws Exception
     {
+      if (!supported_ ) { 
+        throw new Exception("This class is unsupported because the native methods do not exist on the IBM i.  Please open an RFE if this support is required."); 
+      }
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing UserIndex object.");
         system_ = system; 
         path_ = path; 
