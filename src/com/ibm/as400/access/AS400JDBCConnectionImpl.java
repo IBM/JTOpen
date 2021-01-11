@@ -4169,11 +4169,7 @@ throws SQLException
                 if (JDTrace.isTraceOn ())
                     JDTrace.logInformation (this, "Setting server NLV = " + nlv);
 
-                // Client functional level.  
-                String clientFunctionalLevel = properties_.getString(JDProperties.CLIENT_FUNCTIONAL_LEVEL); 
-                if (clientFunctionalLevel == null) { 
-                  clientFunctionalLevel = CLIENT_FUNCTIONAL_LEVEL_;
-                }
+                String clientFunctionalLevel = CLIENT_FUNCTIONAL_LEVEL_;
                 request.setClientFunctionalLevel(clientFunctionalLevel);       // @EDC
 
                 if (JDTrace.isTraceOn ())                                                                   // @EDC

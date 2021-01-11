@@ -177,11 +177,10 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              RETRY_INTERVAL_FOR_CLIENT_REROUTE = 97; 
     static final int              ENABLE_SEAMLESS_FAILOVER   = 98; 
     static final int              AFFINITY_FAILBACK_INTERVAL = 99; 
-    static final int              CLIENT_FUNCTIONAL_LEVEL = 100; 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 101;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 100;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -216,8 +215,6 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String EXTENDED_METADATA_      = "extended metadata";      // @F5A
     private static final String FULL_OPEN_              = "full open";              // @W1a
     private static final String HOLD_LOCATORS_          = "hold input locators";          // @KBL
-    private static final String KEY_RING_NAME_          = "key ring name";          // @F1A
-    private static final String KEY_RING_PASSWORD_      = "key ring password";      // @F1A
     private static final String LAZY_CLOSE_             = "lazy close";             // @E2A
     private static final String LIBRARIES_              = "libraries";
     private static final String LOB_THRESHOLD_          = "lob threshold";
@@ -291,7 +288,6 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String MAXIMUM_BLOCKED_INPUT_ROWS_ = "maximum blocked input rows";  // @A6A
     static final String DESCRIBE_OPTION_ = "describe option";   //@F6A
     static final String DECIMAL_DATA_ERRORS_ = "decimal data errors";
-    static final String CLIENT_FUNCTIONAL_LEVEL_ = "clientFunctionalLevel"; 
 
     // Common String objects.  Using these will theoretically
     // cut down on the number of String allocations.
@@ -1626,14 +1622,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
        dpi_[i].choices[3]  = DECIMAL_DATA_ERRORS_REPORT_NULL;
        defaults_[i]        = EMPTY_;
 
-       //@F6A - Added decimal data errors
-       i = CLIENT_FUNCTIONAL_LEVEL;
-       dpi_[i] = new DriverPropertyInfo(CLIENT_FUNCTIONAL_LEVEL_, "");
-       dpi_[i].description = "CLIENT_FUNCTIONAL_LEVEL_DESC";
-       dpi_[i].required    = false;
-       dpi_[i].choices     = new String[0];
-       defaults_[i]        = AS400JDBCConnectionImpl.CLIENT_FUNCTIONAL_LEVEL_;
-
+ 
 
 
     }
