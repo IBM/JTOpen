@@ -5525,7 +5525,7 @@ endif */
 
     
     /**
-    *  Sets the enable client afflinities list  
+    *  Sets the enable client affinities list  
     *  @param setting  The setting to use for the connection.
     **/
     public void setAffinityFailbackInterval(int setting)
@@ -5562,7 +5562,9 @@ endif */
 
         if (alternateServerName == null)
             throw new NullPointerException(property);
-        validateProperty(property, alternateServerName, JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
+        
+        // Not a multiple choice property.  Do not validate. 
+        // validateProperty(property, alternateServerName, JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
 
         String old = getClientRerouteAlternateServerName();
         properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME, alternateServerName);
@@ -5590,7 +5592,9 @@ endif */
 
         if (alternatePortNumber == null)
             throw new NullPointerException(property);
-        validateProperty(property, alternatePortNumber, JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
+
+        // Not a multiple choice property.  Do not validate. 
+        // validateProperty(property, alternatePortNumber, JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
 
         String old = getClientRerouteAlternatePortNumber();
         properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER, alternatePortNumber);

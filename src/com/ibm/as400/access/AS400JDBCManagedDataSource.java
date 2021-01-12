@@ -1783,8 +1783,7 @@ return connection;
 
       if (alternateServerName == null)
           throw new NullPointerException(property);
-      validateProperty(property, alternateServerName, JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME);
-
+      
       properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_SERVER_NAME, alternateServerName);
 
 
@@ -1809,8 +1808,7 @@ return connection;
 
       if (alternatePortNumber == null)
           throw new NullPointerException(property);
-      validateProperty(property, alternatePortNumber, JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER);
-
+      
       properties_.setString(JDProperties.CLIENT_REROUTE_ALTERNATE_PORT_NUMBER, alternatePortNumber);
 
 

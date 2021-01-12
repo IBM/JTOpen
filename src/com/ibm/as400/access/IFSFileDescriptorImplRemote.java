@@ -509,22 +509,13 @@ implements IFSFileDescriptorImpl
           }
           else
           {
-              // Should never happen.
-              if (rep != null) {
-                Trace.log(Trace.ERROR, "Unknown reply data stream", rep.data_);
-                system_.disconnectServer(server_);
-                server_ = null;
-                throw new
-                  InternalErrorException(Integer.toHexString(rep.getReqRepID()),
-                                         InternalErrorException.DATA_STREAM_UNKNOWN);
-              }
-              else {
+            /* Dead code removed */ 
                 Trace.log(Trace.ERROR, "Null reply data stream");
                 system_.disconnectServer(server_);
                 server_ = null;
                 throw new
                   InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
-              }
+            
           }
       }
   }
