@@ -50,7 +50,7 @@ class NLSGetTableReply extends ClientAccessDataStream
 
 	// Note: chain not currently used.
 	int ll=get32bit(HEADER_LENGTH+8) - 6;
-	if ((ll %2 ) == 1) {
+	if (( (0xFFFFFFFFl & ll) %2 ) == 1) {
 	  // Make sure length is even 
 	  ll++; 
 	}
