@@ -288,6 +288,7 @@ package com.ibm.as400.access;
 //@AD1   20201215  JDBC:  Miscellaneous fixes
 //@AD2   20201217  Conversion:  CCSID 1388 updates
 //@AD3   20210112  JDBC Datasource:  Do not validate setClientRerouteAlternatePortNumber and setClientRerouteAlternateServerName 
+//@AD4   20210120  JDBC Datasource:  Correct EnableClientAccessList
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -297,8 +298,8 @@ public interface Copyright
     public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.5"; 
-    //                                                                                         built=20201215 is automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210112 @AD3";  
+    //                                                                                         built=20210120 automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210120 @AD4";  
 
 
     // Constants for reference by AS400JDBCDriver.

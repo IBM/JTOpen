@@ -522,7 +522,13 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (JDTrace.isTraceOn()) {
       JDTrace.logInformation(this, "createPhysicalConnection(as400)");
     }
-    AS400JDBCConnection connection = new AS400JDBCConnectionImpl();
+    
+    AS400JDBCConnection connection;
+    if (properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
+      connection = new AS400JDBCConnectionRedirect(); 
+    } else {
+      connection = new AS400JDBCConnectionImpl();
+    }
 
     connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null);  // Note: This also does an AS400.connectService() to the database host server.
 
