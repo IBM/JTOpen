@@ -204,6 +204,17 @@ class ProxyClientConnection extends PxClientConnectionAdapter
         return callMethod(proxyId, methodName, noArgumentClasses_, noArguments_, false).getReturnValueInt();
     }
 
+    
+    // Calls a method on the proxy server.
+    // @param  proxyId  The proxy id.
+    // @param  methodName  The method name.
+    // @return  The return value as an int.
+    // @exception  InvocationTargetException  If the method throws an exception.
+    public long callMethodReturnsLong(long proxyId, String methodName) throws InvocationTargetException
+    {
+        return callMethod(proxyId, methodName, noArgumentClasses_, noArguments_, false).getReturnValueLong();
+    }
+
     // Calls a method on the proxy server.
     // @param  proxyId  The proxy id.
     // @param  methodName  The method name.

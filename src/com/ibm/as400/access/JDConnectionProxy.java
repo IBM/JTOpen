@@ -636,7 +636,7 @@ implements Connection
     Object[] argValues;
     String secondaryUrl = dataSourceUrl.getSecondaryURL ();
     if (secondaryUrl.length() == 0) {
-      remoteClassName = "AS400JDBCConnection";
+      remoteClassName = "AS400JDBCConnectionImpl";
       argClasses = new Class[] { JDDataSourceURL.class,
                                  JDProperties.class,
                                  AS400Impl.class };

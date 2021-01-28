@@ -58,6 +58,16 @@ extends PxReqSV
         // only looks for public methods.  If that does not work, try 
         // Class.getDeclaredMethod(), which only looks for declared 
         // methods (not inherited methods).  Do this up the superclass tree.
+      
+        if (Trace.isTraceProxyOn()) {
+           Trace.log (Trace.INFORMATION, "PxMethodReqSV calling object="+object);
+           Trace.log (Trace.INFORMATION, "                      objectClass="+object.getClass().toString());
+           Trace.log (Trace.INFORMATION, "                      methodName="+methodName);
+           for (int i = 0; i < argumentClasses.length; i++) {
+             Trace.log (Trace.INFORMATION, "                      argClass["+i+"]="+argumentClasses[i].toString());
+             
+           }
+        }
         Method method = null;
         Class clazz = object.getClass();
         NoSuchMethodException e = null;
@@ -79,7 +89,22 @@ extends PxReqSV
             throw e;
 
         // Call the method.
-        return method.invoke (object, arguments);
+        Object o = null; 
+        try { 
+            o = method.invoke (object, arguments);
+        } catch (IllegalAccessException ex) {
+          if (Trace.isTraceInformationOn()) {
+            for (int i = 0; i < arguments.length; i++) {
+              String argString = ""+arguments[i];
+              Trace.log (Trace.INFORMATION, "                      arguments["+i+"]="+ argString);
+            }
+          }
+          throw ex; 
+        } catch (InvocationTargetException ex) { 
+          throw ex; 
+        }
+        
+        return o; 
     }
 
 

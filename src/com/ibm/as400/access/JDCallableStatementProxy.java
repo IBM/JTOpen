@@ -32,7 +32,8 @@ import java.sql.Ref;
 import java.sql.RowId;
 endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40
+import java.sql.SQLType; 
 import java.sql.SQLXML;
 endif */ 
 import java.sql.Time;
@@ -713,6 +714,7 @@ implements CallableStatement
     }
 
 
+    
 
     public void registerOutParameter (int parameterIndex,
                                       int sqlType,
@@ -729,7 +731,8 @@ implements CallableStatement
       registerLocally (parameterIndex, sqlType);  //@A1C
     }
 
-
+   
+    
     public void registerOutParameter (int parameterIndex, int sqlType)
       throws SQLException
     {
@@ -783,6 +786,98 @@ implements CallableStatement
         registerOutParameter(findParameterIndex(parameterName), sqlType, typeName);
     }
 
+    public void registerOutParameter(int parameterIndex,
+ /* ifdef JDBC42        
+         SQLType  
+ endif*/ 
+ /* ifndef JDBC42 */
+         Object
+ /* endif */
+                                       sqlType)
+                                throws SQLException{
+       int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
+       registerOutParameter(parameterIndex, intType); 
+     }
+
+     
+     public void registerOutParameter(int parameterIndex,
+         /* ifdef JDBC42        
+         SQLType  
+ endif*/ 
+ /* ifndef JDBC42 */
+         Object
+ /* endif */
+                                       sqlType,
+                                       int scale)
+                                throws SQLException {
+       int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
+       registerOutParameter(parameterIndex, intType, scale); 
+     }
+     public void registerOutParameter(int parameterIndex,
+ /* ifdef JDBC42        
+         SQLType  
+ endif*/ 
+ /* ifndef JDBC42 */
+         Object
+ /* endif */
+                                       sqlType,
+                                       String typeName)
+                                throws SQLException {
+       int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
+       registerOutParameter(parameterIndex, intType, typeName); 
+       
+     }
+
+    public void registerOutParameter(String parameterName,
+        /* ifdef JDBC42        
+        SQLType  
+ endif*/ 
+ /* ifndef JDBC42 */
+        Object
+ /* endif */
+                                       sqlType)
+                                throws SQLException {
+      int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
+      registerOutParameter(parameterName, intType); 
+      
+    }
+
+   public void registerOutParameter(String parameterName,
+       /* ifdef JDBC42        
+       SQLType  
+ endif*/ 
+ /* ifndef JDBC42 */
+       Object
+ /* endif */
+                                       sqlType,
+                                       int scale)
+                                throws SQLException {
+     int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
+     registerOutParameter(parameterName, intType, scale); 
+     
+   }
+
+   public void registerOutParameter(String parameterName,
+       /* ifdef JDBC42        
+       SQLType  
+ endif*/ 
+ /* ifndef JDBC42 */
+       Object
+ /* endif */
+                                       sqlType,
+                                       String typeName)
+                                throws SQLException
+         {
+     int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
+     registerOutParameter(parameterName, intType, typeName); 
+     
+          }
+
+
+    
+    
+    
+    
 
 
 // JDBC 3.0
@@ -1215,7 +1310,7 @@ implements CallableStatement
             return (JDReaderProxy) connection_.callFactoryMethod (
                     pxId_, "getCharacterStream",
                     new Class[] { String.class },
-                    new Object[] { new Integer (parameterName) },
+                    new Object[] { parameterName },
                     newReader);
         }
         catch (InvocationTargetException e) {
@@ -1247,7 +1342,7 @@ implements CallableStatement
             return (JDReaderProxy) connection_.callFactoryMethod (
                     pxId_, "getNCharacterStream",
                     new Class[] { String.class },
-                    new Object[] { new Integer (parameterName) },
+                    new Object[] { parameterName },
                     newReader);
         }
         catch (InvocationTargetException e) {
@@ -1280,7 +1375,7 @@ implements CallableStatement
             return (JDNClobProxy) connection_.callFactoryMethod (pxId_,
                     "getNClob",
                     new Class[] { String.class },
-                    new Object[] { new Integer(parameterName) },
+                    new Object[] { parameterName },
                     newClob);
         }
         catch (InvocationTargetException e) {
@@ -1327,7 +1422,7 @@ implements CallableStatement
             return (JDRowIdProxy) connection_.callFactoryMethod (pxId_,
                     "getRowId",
                     new Class[] { String.class },
-                    new Object[] { new Integer(parameterName) },
+                    new Object[] { parameterName },
                     newRowId);
         }
         catch (InvocationTargetException e) {
@@ -1361,7 +1456,7 @@ implements CallableStatement
             return (JDSQLXMLProxy) connection_.callFactoryMethod (pxId_,
                     "getSQLXML",
                     new Class[] { String.class },
-                    new Object[] { new Integer(parameterName) },
+                    new Object[] { parameterName },
                     newXML);
         }
         catch (InvocationTargetException e) {
@@ -1822,4 +1917,77 @@ implements CallableStatement
 
 endif */
     
+    public void setObject(String parameterName,
+        Object x,
+ /* ifdef JDBC42        
+        SQLType  
+ endif*/ 
+  /* ifndef JDBC42 */
+  Object
+  /* endif */
+        targetSqlType,
+        int scaleOrLength)                    throws SQLException
+{
+ 
+int intType = AS400JDBCCallableStatement.mapSQLTypeCS(targetSqlType);
+setObject(parameterName, x, intType, scaleOrLength); 
+ }
+
+
+
+public void setObject(String parameterName,
+        Object x,
+/* ifdef JDBC42        
+        SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+  Object
+/* endif */
+        targetSqlType)
+ throws SQLException
+ {
+
+int intType = AS400JDBCCallableStatement.mapSQLTypeCS(targetSqlType);
+setObject(parameterName, x, intType); 
+ 
+ }
+
+public void setObject(int parameter,
+    Object x,
+/* ifdef JDBC42        
+    SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+Object
+/* endif */
+    targetSqlType,
+    int scaleOrLength)                    throws SQLException
+{
+
+int intType = AS400JDBCCallableStatement.mapSQLTypeCS(targetSqlType);
+setObject(parameter, x, intType, scaleOrLength); 
+}
+
+
+
+public void setObject(int parameter,
+    Object x,
+/* ifdef JDBC42        
+    SQLType  
+endif*/ 
+/* ifndef JDBC42 */
+Object
+/* endif */
+    targetSqlType)
+throws SQLException
+{
+
+int intType = AS400JDBCCallableStatement.mapSQLTypeCS(targetSqlType);
+setObject(parameter, x, intType); 
+
+}
+
+
+
+
 }

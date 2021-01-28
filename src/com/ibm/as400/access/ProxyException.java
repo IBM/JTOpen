@@ -102,6 +102,17 @@ Constructs a ProxyException object.
         returnCode_ = returnCode;
     }
 
+    /**
+    Constructs a ProxyException object.
+
+    @param  returnCode     The return code associated with this exception.
+    **/
+        ProxyException (int returnCode, Throwable e)
+        {
+            super (ResourceBundleLoader.getText (getMRIKey (returnCode)));
+            returnCode_ = returnCode;
+            initCause(e); 
+        }
 
 
 /**

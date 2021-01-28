@@ -111,6 +111,12 @@ implements PreparedStatement
       return callMethodRtnInt ("executeUpdate");
     }
 
+    public long executeLargeUpdate ()
+        throws SQLException
+      {
+        cachedResultSet_ = null;
+        return callMethodRtnLong ("executeLargeUpdate");
+      }
 
 
 // JDBC 2.0
@@ -157,7 +163,8 @@ implements PreparedStatement
           !(parameterValue instanceof Serializable) ){
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (this, NOT_SERIALIZABLE);
-        throw new SQLException ();
+        throw new SQLException ("NOT_SERIALIZABLE: "+parameterValue.getClass().getName());
+
       }
 
       callMethod ("setArray",
@@ -249,7 +256,8 @@ implements PreparedStatement
           !(parameterValue instanceof Serializable) ){
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (this, NOT_SERIALIZABLE);
-        throw new SQLException ();
+        throw new SQLException ("NOT_SERIALIZABLE: "+parameterValue.getClass().getName());
+
       }
 
       callMethod ("setBlob",
@@ -331,7 +339,8 @@ implements PreparedStatement
           !(parameterValue instanceof Serializable) ){
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (this, NOT_SERIALIZABLE);
-        throw new SQLException ();
+        throw new SQLException ("NOT_SERIALIZABLE: "+parameterValue.getClass().getName());
+
       }
 
       callMethod ("setClob",
@@ -441,7 +450,7 @@ implements PreparedStatement
           !(parameterValue instanceof Serializable) ){
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (this, NOT_SERIALIZABLE);
-        throw new SQLException ();
+        throw new SQLException ("NOT_SERIALIZABLE: "+parameterValue.getClass().getName());
       }
 
       callMethod ("setObject",
@@ -461,7 +470,7 @@ implements PreparedStatement
           !(parameterValue instanceof Serializable) ){
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (this, NOT_SERIALIZABLE);
-        throw new SQLException ();
+        throw new SQLException ("NOT_SERIALIZABLE: "+parameterValue.getClass().getName());
       }
 
       callMethod ("setObject",
@@ -484,7 +493,7 @@ implements PreparedStatement
           !(parameterValue instanceof Serializable) ){
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (this, NOT_SERIALIZABLE);
-        throw new SQLException ();
+        throw new SQLException ("NOT_SERIALIZABLE: "+parameterValue.getClass().getName());
       }
 
       callMethod ("setObject",
@@ -506,8 +515,8 @@ implements PreparedStatement
           !(parameterValue instanceof Serializable) ){
         if (JDTrace.isTraceOn())
           JDTrace.logInformation (this, NOT_SERIALIZABLE);
-        throw new SQLException ();
-      }
+        throw new SQLException ("NOT_SERIALIZABLE: "+parameterValue.getClass().getName());
+     }
 
       callMethod ("setRef",
                   new Class[] { Integer.TYPE, Ref.class },
@@ -689,7 +698,8 @@ implements PreparedStatement
                 !(value instanceof Serializable) ){
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, NOT_SERIALIZABLE);
-            throw new SQLException ();
+                    throw new SQLException ("NOT_SERIALIZABLE: "+value.getClass().getName());
+
         }
         
         callMethod ("setNClob",
@@ -703,6 +713,9 @@ implements PreparedStatement
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException
     {
         try {
+            if (length > Integer.MAX_VALUE) {
+              JDError.throwSQLException(this, JDError.EXC_BUFFER_LENGTH_INVALID);
+            }
             SerializableReader serialRreader;
             if (reader == null)
                 serialRreader = null;
@@ -784,7 +797,8 @@ implements PreparedStatement
                 !(xmlObject instanceof Serializable) ){
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, NOT_SERIALIZABLE);
-            throw new SQLException ();
+                   throw new SQLException ("NOT_SERIALIZABLE: "+xmlObject.getClass().getName());
+
         }
         
         callMethod ("setSQLXML",

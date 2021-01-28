@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 
 
@@ -110,6 +111,10 @@ Loads this datastream by reading from an input stream.
         ObjectInputStream objectInput = new ObjectInputStream (input);
         try {
             value_ = objectInput.readObject ();
+            
+            if (value_ instanceof IOException) { 
+              throw (IOException) value_; 
+            }
         }
         catch (ClassNotFoundException e) {
             if (Trace.isTraceErrorOn())
@@ -150,7 +155,12 @@ Writes the contents of the datastream to an output stream.
     {
         super.writeTo (output);
 	    ObjectOutputStream objectOutput = new ObjectOutputStream (output);
-	    objectOutput.writeObject (value_);
+	    if (value_ instanceof Serializable) {
+	      objectOutput.writeObject (value_);
+	    } else {
+	      Exception e = new java.io.NotSerializableException(value_.getClass().getName()); 
+	      objectOutput.writeObject(e);
+	    }
 
        // We need to flush because ObjectOutputStream seems
        // to be buffering.

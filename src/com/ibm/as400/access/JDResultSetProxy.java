@@ -1474,7 +1474,7 @@ implements ResultSet
         throws SQLException
     {
       callMethod ("updateClob",
-                  new Class[] { String.class, Clob.class },
+                  new Class[] { Integer.TYPE, Clob.class },
                   new Object[] { new Integer (columnIndex),
                                  columnValue });
     }
@@ -2030,9 +2030,8 @@ implements ResultSet
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
     {
         callMethod ("updateNClob",
-                new Class[] { String.class, NClob.class },
-                new Object[] { new Integer (columnIndex),
-                nClob });
+                new Class[] { Integer.TYPE, NClob.class },
+                new Object[] { new Integer (columnIndex), nClob });
     }
     
     //@PDA jdbc40
@@ -2063,7 +2062,7 @@ implements ResultSet
     public void updateRowId(int columnIndex, RowId x) throws SQLException
     {
         callMethod ("updateRowId",
-                new Class[] { String.class, RowId.class },
+                new Class[] { Integer.TYPE, RowId.class },
                 new Object[] { new Integer (columnIndex),
                 x });
     }
@@ -2079,7 +2078,7 @@ implements ResultSet
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
     {
         callMethod ("updateSQLXML",
-                new Class[] { String.class, SQLXML.class },
+                new Class[] { Integer.TYPE, SQLXML.class },
                 new Object[] { new Integer (columnIndex),
                 xmlObject });
     }
@@ -2521,7 +2520,16 @@ implements ResultSet
          updateDB2Default(columnIndex);   
     }
 
+    public void updateDB2Default(String columnName) throws SQLException
+    {
+        updateDB2Default (findColumn (columnName));  
+    }
     
+    public void updateDBDefault(String columnName) throws SQLException
+    {
+        updateDB2Default (findColumn (columnName));  
+    }
+ 
     
     
 /* ifdef JDBC40 

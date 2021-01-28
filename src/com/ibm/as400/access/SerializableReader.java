@@ -53,7 +53,7 @@ implements java.io.Serializable
     {
       if (JDTrace.isTraceOn())
         JDTrace.logInformation (this, "Length parameter does not match actual length of buffer.");
-      throw new SQLException ();
+      throw new SQLException ("Length parameter ("+length+") does not match actual length of buffer ("+numChars+").");
     }
     reader_ = new CharArrayReader (charArray_);
   }

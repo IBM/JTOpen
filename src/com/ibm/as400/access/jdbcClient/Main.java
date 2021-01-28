@@ -921,6 +921,7 @@ public class Main implements Runnable {
             case Types.LONGVARBINARY:
             case -8: /* ROWID */
             case Types.ARRAY:
+            case Types.BOOLEAN:
               cstmt_.registerOutParameter(parm, type);
               break;
             default:
@@ -1008,6 +1009,17 @@ public class Main implements Runnable {
               printArray(out1, cstmt_.getArray(parm));
               out1.println();
 
+              break;
+            case Types.BOOLEAN: 
+              out1.print("Parameter " + parm + " returned ");
+              boolean bool = cstmt_.getBoolean(parm); 
+              if (cstmt_.wasNull()) { 
+                out1.println("null"); 
+              } else if (bool) { 
+                out1.println("true"); 
+              } else {
+                out1.println("false"); 
+              }
               break;
             default:
               out1.print("Parameter " + parm + " returned ");
@@ -3565,6 +3577,16 @@ public class Main implements Runnable {
             output.append("ARRAY[size=" + bytes.length + ",CRC32="
                 + checksum.getValue() + "]");
           }
+        }
+        break;
+      case Types.BOOLEAN:
+        boolean bool = rs.getBoolean(i);
+        if (rs.wasNull()) {
+          output.append("null");
+        } else if (bool) {
+          output.append("true");
+        } else {
+          output.append("false");
         }
         break;
       default: {

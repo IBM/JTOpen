@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
+import java.io.NotSerializableException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
@@ -87,18 +88,18 @@ Closes the connection to the proxy server.
                input_.close ();
            }
            catch (IOException e) {
-               if (Trace.isTraceErrorOn ())
+               if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                    Trace.log (Trace.ERROR, e.getMessage (), e);
-               throw new ProxyException (ProxyException.CONNECTION_DROPPED);
+               throw new ProxyException (ProxyException.CONNECTION_DROPPED,e);
            }
 
            try {
              output_.close ();
            }
            catch (IOException e) {
-               if (Trace.isTraceErrorOn ())
+               if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                    Trace.log (Trace.ERROR, e.getMessage (), e);
-               throw new ProxyException (ProxyException.CONNECTION_DROPPED);
+               throw new ProxyException (ProxyException.CONNECTION_DROPPED,e);
            }
 
            // $$ Question for Jim, his new class skipped the above
@@ -108,9 +109,9 @@ Closes the connection to the proxy server.
                socket_.close ();
            }
            catch (IOException e) {
-               if (Trace.isTraceErrorOn ())
+               if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                    Trace.log (Trace.ERROR, e.getMessage (), e);
-               throw new ProxyException (ProxyException.CONNECTION_DROPPED);
+               throw new ProxyException (ProxyException.CONNECTION_DROPPED,e);
            }
         }
 
@@ -215,36 +216,36 @@ Closes the connection to the proxy server.
                 Trace.log (Trace.PROXY, "Connection established.");
         }
         catch (ClassNotFoundException e) { 
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (ClassNotFound", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
         }
         catch (NoSuchMethodException e) { 
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (NoSuchMethodException", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
         }
         catch (IllegalAccessException e) {
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn () || Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (IllegalAccessException", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
         }
         catch (IOException e) {
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (openio", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
         } catch (IllegalArgumentException e) {
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (IllegalArgumentException", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
 		} catch (InstantiationException e) {
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (InstantiationException", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
 		} catch (InvocationTargetException e) {
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server (InvocationTargetException", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
 		}
     }
 
@@ -264,9 +265,9 @@ Closes the connection to the proxy server.
        }
        catch (IOException e)
        {
-          if (Trace.isTraceErrorOn ())
+          if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
               Trace.log (Trace.ERROR, "Error when opening connection to proxy server", e);
-          throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+          throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
        }
     }
 
@@ -310,9 +311,9 @@ Closes the connection to the proxy server.
        }
        catch (Exception e)
        {
-          if (Trace.isTraceErrorOn ())
+          if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server", e);
-             throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+             throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
        }
     }
 
@@ -335,9 +336,10 @@ Closes the connection to the proxy server.
              return returnValue;
           }
           catch (IOException e) {
-             if (Trace.isTraceErrorOn ())
+             if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                  Trace.log (Trace.ERROR, "Error when receiving reply from proxy server", e);
-             throw new ProxyException (ProxyException.CONNECTION_DROPPED);
+             ProxyException px = new ProxyException (ProxyException.CONNECTION_DROPPED,e);
+             throw px; 
           }
       }
       catch (InvocationTargetException ite)
@@ -346,9 +348,10 @@ Closes the connection to the proxy server.
       }
       catch (Exception e)
       {
-         if (Trace.isTraceErrorOn ())
+         if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when opening connection to proxy server", e);
-            throw new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED);
+            ProxyException px = new ProxyException (ProxyException.CONNECTION_NOT_ESTABLISHED,e);
+            throw px; 
       }
    }
 
@@ -368,9 +371,14 @@ Closes the connection to the proxy server.
             returnValue = reply.process ();
         }
         catch (IOException e) {
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                 Trace.log (Trace.ERROR, "Error when receiving reply from proxy server", e);
-            throw new ProxyException (ProxyException.CONNECTION_DROPPED);
+            if (e instanceof NotSerializableException) {
+              throw new ProxyException (ProxyException.VERSION_MISMATCH,e);
+            } else {
+              throw new ProxyException (ProxyException.CONNECTION_DROPPED,e);
+            }
+            
         }
 
         return returnValue;
@@ -396,9 +404,9 @@ Sends a request to the proxy server.  No reply is expected.
               output_.flush ();
            }
            catch (IOException e) {
-               if (Trace.isTraceErrorOn ())
+               if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
                    Trace.log (Trace.ERROR, e.getMessage (), e);
-               throw new ProxyException (ProxyException.CONNECTION_DROPPED);
+               throw new ProxyException (ProxyException.CONNECTION_DROPPED,e);
            }
         }
         else
