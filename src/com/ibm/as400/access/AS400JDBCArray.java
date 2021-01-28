@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
@@ -27,7 +28,7 @@ import java.sql.*;
  * using stored procedure input/output parameters.
  */
 
-public class AS400JDBCArray implements Array {
+public class AS400JDBCArray implements Array, Serializable {
 
   private Object[] data_; // !!!Note this array may hold generic data such as
                           // Integers,
@@ -45,7 +46,7 @@ public class AS400JDBCArray implements Array {
   int typeCode_; // type from from java.sql.Types
   // protected int type_;
   private int vrm_;
-  private AS400JDBCConnection con_;
+  transient private AS400JDBCConnection con_;
 
   // This is just a reference to the SQLData type that this array contains. It
   // is not
@@ -54,7 +55,7 @@ public class AS400JDBCArray implements Array {
   // conversion
   // before setting in actual PreparedStatement going to hostserver
   // (ie Array.getResultSet() -> ars.getString(1))
-  private SQLData contentTemplate_;
+  transient private SQLData contentTemplate_;
 
   // if data_[0] contains an SQLData, then contentTemplate_ will point to it!
   private boolean isSQLData_ = false; // true if data[0]_ == SQLData
@@ -230,7 +231,7 @@ public class AS400JDBCArray implements Array {
   synchronized public ResultSet getResultSet() throws SQLException {
 
     AS400JDBCArrayResultSet rs = new AS400JDBCArrayResultSet(data_,
-        contentTemplate_, isSQLData_, getBaseType(), vrm_, con_);
+        contentTemplate_, isSQLData_, getBaseType(), vrm_);
     if (JDTrace.isTraceOn())
       JDTrace.logInformation(this, "getResultSet");
     return rs;
@@ -279,7 +280,7 @@ public class AS400JDBCArray implements Array {
     }
 
     AS400JDBCArrayResultSet rs = new AS400JDBCArrayResultSet(retArry,
-        contentTemplate_, isSQLData_, getBaseType(), vrm_, con_);
+        contentTemplate_, isSQLData_, getBaseType(), vrm_);
     if (JDTrace.isTraceOn())
       JDTrace.logInformation(this, "getResultSet");
     return rs;

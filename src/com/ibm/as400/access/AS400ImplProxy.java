@@ -76,7 +76,9 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            connection_.callMethod(pxId_, "connect", new Class[] { Integer.TYPE, Boolean.TYPE }, new Object[] { new Integer(service), new Boolean(skipSignonServer) });
+            connection_.callMethod(pxId_, "connect", 
+                new Class[] { Integer.TYPE, Integer.TYPE, Boolean.TYPE }, 
+                new Object[] { new Integer(service), new Integer(overridePort), new Boolean(skipSignonServer) });
         }
         catch (InvocationTargetException e)
         {
@@ -101,7 +103,10 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return (Socket)connection_.callMethod(pxId_, "connectToPort", new Class[] { Integer.TYPE }, new Object[] { new Integer(port) }).getReturnValue();
+            return (Socket)connection_.callMethod(pxId_, 
+                "connectToPort", 
+                new Class[] { Integer.TYPE, Boolean.TYPE }, 
+                new Object[] { new Integer(port), new Boolean(forceNonLocalhost) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {

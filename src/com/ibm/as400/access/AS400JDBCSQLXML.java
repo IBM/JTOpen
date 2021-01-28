@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -71,8 +72,11 @@ This class should not be used if JDK 1.6 is not in use.
 **/
 public class AS400JDBCSQLXML
 /* ifdef JDBC40
-implements SQLXML
+implements SQLXML, Serializable
 endif */
+/* ifndef JDBC40 */
+implements Serializable
+/* endif */ 
 
 {
 

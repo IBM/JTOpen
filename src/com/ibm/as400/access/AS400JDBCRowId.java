@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.io.Serializable;
+
 /* ifdef JDBC40 
 import java.sql.RowId;
 endif */ 
@@ -20,8 +22,11 @@ endif */
 //@PDA jdbc40 new class
 public class AS400JDBCRowId 
 /* ifdef JDBC40 
-implements RowId
+implements RowId,Serializable
 endif */ 
+/* ifndef JDBC40 */
+implements Serializable
+/* endif */ 
 {
    
     private byte[] data_;

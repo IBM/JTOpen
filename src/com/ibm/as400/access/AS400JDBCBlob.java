@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.sql.Blob;
 import java.sql.SQLException;
 
@@ -39,7 +40,7 @@ import java.sql.SQLException;
  * objects.  The data is valid only within the current
  * transaction.
 **/
-public class AS400JDBCBlob implements Blob
+public class AS400JDBCBlob implements Blob, Serializable
 {
   static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 

@@ -1426,8 +1426,13 @@ endif */
 		    // The common case is when an exit program prevents access to the system.
 			// @AB1A
 		    try { 
-				((AS400JDBCConnection)connection).setSystem(as400);
-				((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400, info);
+		      if (connection instanceof JDConnectionProxy) { 
+            ((JDConnectionProxy)connection).setSystem(as400);
+            ((JDConnectionProxy)connection).setProperties(dataSourceUrl, jdProperties, as400);
+		      } else { 
+		        ((AS400JDBCConnection)connection).setSystem(as400);
+		        ((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400, info);
+		      }
 		    } catch (SQLException sqlex) {
 		      try { 
 		      connection.close();

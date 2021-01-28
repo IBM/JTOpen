@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.io.Serializable;
+
 /* ifdef JDBC40 
 import java.sql.NClob;
 endif */ 
@@ -26,8 +28,11 @@ endif */
 
 public class AS400JDBCNClob extends AS400JDBCClob 
 /* ifdef JDBC40 
-   implements NClob
+   implements NClob, Serializable
    endif */
+/* ifndef JDBC40 */
+   implements Serializable
+/* endif */ 
 {
   
 

@@ -264,7 +264,7 @@ public abstract class ConvTableMixedMap extends ConvTable
       // If there are double bytes then we need to fix up. 
       if (doubleByteStart >= 0)  {
         // Easy case, there is just a half left, replace it with shiftIn
-        if (((endOffset - doubleByteStart) % 2) == 1) {
+        if (((0xFFFFFFFFl &(endOffset - doubleByteStart)) % 2) == 1) {
           //  Check to see if we would put a ShiftIn by a shiftOut_
           if (buf[endOffset-2 ] == shiftOut_) {
             length = length - 2;

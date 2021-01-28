@@ -4585,7 +4585,7 @@ endif */
      * converts an SQLType to its corresponding java.sql.Types value
      */
     
-    int mapSQLType(
+    static int mapSQLTypeCS(
         /* ifdef JDBC42        
         SQLType  
   endif*/ 
@@ -4649,7 +4649,7 @@ endif */
                            int scaleOrLength)                    throws SQLException
            {
                     
-      int intType = mapSQLType(targetSqlType);
+      int intType = mapSQLTypeCS(targetSqlType);
       setObject(parameterName, x, intType, scaleOrLength); 
                     }
 
@@ -4677,7 +4677,7 @@ endif*/
                     throws SQLException
                     {
      
-     int intType = mapSQLType(targetSqlType);
+     int intType = mapSQLTypeCS(targetSqlType);
      setObject(parameterName, x, intType); 
                     
                     }
@@ -4711,7 +4711,7 @@ endif*/
 /* endif */
                                       sqlType)
                                throws SQLException{
-      int intType = mapSQLType(sqlType);
+      int intType = mapSQLTypeCS(sqlType);
       registerOutParameter(parameterIndex, intType); 
     }
 
@@ -4743,7 +4743,7 @@ endif*/
                                       sqlType,
                                       int scale)
                                throws SQLException {
-      int intType = mapSQLType(sqlType);
+      int intType = mapSQLTypeCS(sqlType);
       registerOutParameter(parameterIndex, intType, scale); 
     }
 
@@ -4782,7 +4782,7 @@ endif*/
                                       sqlType,
                                       String typeName)
                                throws SQLException {
-      int intType = mapSQLType(sqlType);
+      int intType = mapSQLTypeCS(sqlType);
       registerOutParameter(parameterIndex, intType, typeName); 
       
     }
@@ -4814,7 +4814,7 @@ endif*/
 /* endif */
                                       sqlType)
                                throws SQLException {
-     int intType = mapSQLType(sqlType);
+     int intType = mapSQLTypeCS(sqlType);
      registerOutParameter(parameterName, intType); 
      
    }
@@ -4846,7 +4846,7 @@ endif*/
                                       sqlType,
                                       int scale)
                                throws SQLException {
-    int intType = mapSQLType(sqlType);
+    int intType = mapSQLTypeCS(sqlType);
     registerOutParameter(parameterName, intType, scale); 
     
   }
@@ -4891,7 +4891,7 @@ endif*/
                                       String typeName)
                                throws SQLException
         {
-    int intType = mapSQLType(sqlType);
+    int intType = mapSQLTypeCS(sqlType);
     registerOutParameter(parameterName, intType, typeName); 
     
          }
