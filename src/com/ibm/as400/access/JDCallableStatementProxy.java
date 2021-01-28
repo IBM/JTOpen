@@ -33,8 +33,7 @@ import java.sql.RowId;
 endif */ 
 import java.sql.SQLException;
 /* ifdef JDBC40
-import java.sql.SQLType; 
-import java.sql.SQLXML;
+import java.sql.*; 
 endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
